@@ -1,0 +1,24 @@
+# Build
+dist
+.solid
+.output
+.netlify
+.tanstack
+netlify
+
+# Environment
+.env
+.env*.local
+
+# dependencies
+/node_modules
+
+# Claude Code
+.claude
+logs/
+adws/
+trees/
+
+# System Files
+.DS_Store
+Thumbs.db

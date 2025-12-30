@@ -1,0 +1,56 @@
+{
+  "name": "zaidan",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Zaidan is a ShadCn registry for SolidJs",
+  "homepage": "https://github.com/carere/zaidan",
+  "bugs": "https://github.com/carere/zaidan/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carere/zaidan.git"
+  },
+  "license": "MIT",
+  "author": "Kevin Abatan <abatan.k@gmail.com> (https://github.com/carere)",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev",
+    "preview": "vite preview",
+    "registry:build": "shadcn build"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/router-plugin": "^1.145.2",
+    "@tanstack/solid-router": "^1.144.0",
+    "@tanstack/solid-router-devtools": "^1.144.0",
+    "@tanstack/solid-router-ssr-query": "^1.144.0",
+    "@tanstack/solid-start": "^1.145.2",
+    "lucide-solid": "^0.544.0",
+    "nitro": "latest",
+    "solid-js": "^1.9.10",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/roboto-mono": "^5.2.8",
+    "@tanstack/devtools-vite": "^0.3.12",
+    "@types/bun": "^1.3.5",
+    "knip": "^5.78.0",
+    "lefthook": "^2.0.13",
+    "shadcn": "^3.6.2",
+    "sort-package-json": "^3.6.0",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vite-plugin-solid": "^2.11.10",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
