@@ -13,6 +13,6 @@ export default defineConfig({
     paths({ projects: ["./tsconfig.json"] }),
     tailwindcss(),
     tanstackStart(),
-    solid({ ssr: true }),
+    solid({ ssr: true, hot: true }),
   ],
 });

@@ -24,15 +24,19 @@
     ]
   },
   "dependencies": {
+    "@kobalte/core": "^0.13.11",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/router-plugin": "^1.145.2",
     "@tanstack/solid-router": "^1.144.0",
     "@tanstack/solid-router-devtools": "^1.144.0",
     "@tanstack/solid-router-ssr-query": "^1.144.0",
     "@tanstack/solid-start": "^1.145.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide-solid": "^0.544.0",
     "nitro": "latest",
     "solid-js": "^1.9.10",
+    "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
