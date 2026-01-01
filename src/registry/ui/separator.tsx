@@ -13,7 +13,7 @@ const Separator = <T extends ValidComponent = "hr">(props: SeparatorProps<T>) =>
     <SeparatorPrimitive
       data-slot="separator"
       class={cn(
-        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch",
+        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:h-full",
         local.class,
       )}
       {...others}

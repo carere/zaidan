@@ -1,22 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { ArrowLeftIcon } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
+import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { Preview } from "@/components/preview";
 import { SiteConfig } from "@/components/site-config";
 import { StyleSwitcher } from "@/components/style-switcher";
 import { cn } from "@/lib/utils";
-import { Button } from "@/registry/ui/button";
 import { Separator } from "@/registry/ui/separator";
 import { SidebarProvider } from "@/registry/ui/sidebar";
+import type { Style } from "@/types";
 
 export const Route = createFileRoute("/")({ component: App });
 
 function App() {
   const [isFullLayout, switchLayout] = createSignal(false);
-  const [style, setStyle] = createSignal<"vega" | "nova" | "lyra" | "maia" | "mira">("vega");
+  const [style, setStyle] = createSignal<Style>("vega");
 
   return (
     <div
@@ -25,27 +25,23 @@ function App() {
         container: isFullLayout(),
       })}
     >
-      <header class="sticky top-0 z-50 w-full">
-        <div class="container-wrapper 3xl:fixed:px-0 px-6">
-          <div class="3xl:fixed:container flex h-(--header-height) items-center **:data-[slot=separator]:h-4!">
-            <div class="flex items-center xl:w-1/3">
-              <Button as={Link} href="/" variant="ghost" size="icon" class="rounded-lg shadow-none">
-                <ArrowLeftIcon />
-              </Button>
-              <Separator orientation="vertical" class="mx-2 hidden sm:mx-4 lg:flex" />
-              <div class="text-muted-foreground hidden text-sm font-medium lg:flex">Zaidan</div>
-            </div>
-            <div class="fixed inset-x-0 bottom-0 ml-auto flex flex-1 items-center gap-2 px-4.5 pb-4 sm:static sm:justify-end sm:p-0 lg:ml-0 xl:justify-center">
-              <ItemPicker />
-            </div>
-            <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
-              <SiteConfig onClick={() => switchLayout(!isFullLayout())} />
-              <Separator orientation="vertical" class="3xl:flex hidden" />
-              <ModeSwitcher />
-              <Separator orientation="vertical" class="mr-0 -ml-2 sm:ml-0" />
-              <StyleSwitcher onStyleChange={setStyle} />
-            </div>
-          </div>
+      <header class="sticky top-0 z-50 w-full flex items-center md:gap-2 px-6 h-(--header-height) **:data-[slot=separator]:h-4!">
+        <div class="flex items-center xl:w-1/3 lg:mr-2">
+          <Link to="/">
+            <Logo class="size-4" />
+          </Link>
+          <Separator orientation="vertical" class="mx-4" />
+          <div class="text-muted-foreground hidden text-sm font-medium lg:flex">Zaidan</div>
+        </div>
+        <div class="fixed inset-x-0 bottom-0 ml-auto flex-1 gap-2 px-4.5 pb-4 sm:static sm:p-0 lg:ml-0">
+          <ItemPicker />
+        </div>
+        <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
+          <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
+          <Separator orientation="vertical" class="hidden xl:flex" />
+          <ModeSwitcher />
+          <Separator orientation="vertical" class="mr-0 -ml-2 sm:ml-0 hidden xl:flex" />
+          <StyleSwitcher onStyleChange={setStyle} />
         </div>
       </header>
       <main class="flex flex-1 flex-col pb-16 sm:pb-0">

@@ -10,6 +10,11 @@ import styleCss from "../styles.css?url";
 export const Route = createRootRouteWithContext()({
   head: () => ({
     links: [{ rel: "stylesheet", href: styleCss }],
+    meta: [
+      { charset: "utf-8" },
+      { content: "width=device-width, initial-scale=1.0", name: "viewport" },
+      { title: "Zaidan", name: "title" },
+    ],
   }),
   shellComponent: RootComponent,
 });
