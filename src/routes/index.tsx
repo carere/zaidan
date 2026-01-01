@@ -21,7 +21,7 @@ function App() {
   return (
     <div
       data-slot="layout"
-      class={cn("style-vega bg-background relative z-10 flex min-h-svh flex-col", {
+      class={cn("bg-background relative z-10 flex min-h-svh flex-col", {
         container: isFullLayout(),
       })}
     >
@@ -40,8 +40,7 @@ function App() {
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
           <ModeSwitcher />
-          <Separator orientation="vertical" class="mr-0 -ml-2 sm:ml-0 hidden xl:flex" />
-          <StyleSwitcher onStyleChange={setStyle} />
+          <StyleSwitcher style={style()} onStyleChange={setStyle} />
         </div>
       </header>
       <main class="flex flex-1 flex-col pb-16 sm:pb-0">
