@@ -30,8 +30,8 @@ export function ItemExplorer() {
         {groupedItems.map((group) => (
           <Collapsible defaultOpen class="group/collapsible">
             <SidebarGroup class="px-1 py-0">
-              <CollapsibleTrigger class="flex w-full items-center gap-1 py-1.5 text-[0.8rem] font-medium [&[data-state=open]>svg]:rotate-90">
-                <ChevronRightIcon class="text-muted-foreground size-3.5 transition-transform" />
+              <CollapsibleTrigger class="flex w-full items-center gap-1 py-1.5 text-[0.8rem] font-medium">
+                <ChevronRightIcon class="text-muted-foreground size-3.5 transition-transform group-data-expanded/collapsible:rotate-90" />
                 <span>{group.title}</span>
               </CollapsibleTrigger>
               <CollapsibleContent>

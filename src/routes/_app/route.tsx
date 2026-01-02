@@ -1,18 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/solid-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
-import { Preview } from "@/components/preview";
 import { SiteConfig } from "@/components/site-config";
 import { StyleSwitcher } from "@/components/style-switcher";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/ui/separator";
-import { SidebarProvider } from "@/registry/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
 import type { Style } from "@/types";
 
-export const Route = createFileRoute("/")({ component: App });
+export const Route = createFileRoute("/_app")({ component: App });
 
 function App() {
   const [isFullLayout, switchLayout] = createSignal(false);
@@ -50,15 +49,17 @@ function App() {
             class="3xl:fixed:container flex w-full flex-1 flex-col gap-2 p-6 pt-1 pb-4 [--sidebar-width:--spacing(40)] sm:gap-2 sm:pt-2 md:flex-row md:pb-6 2xl:gap-6"
           >
             <ItemExplorer />
-            <Preview
-              class={cn({
+            <SidebarInset
+              class={cn("relative -mx-1 flex flex-1 flex-col justify-center sm:mx-0", {
                 "style-vega": style() === "vega",
                 "style-nova": style() === "nova",
                 "style-lyra": style() === "lyra",
                 "style-maia": style() === "maia",
                 "style-mira": style() === "mira",
               })}
-            />
+            >
+              <Outlet />
+            </SidebarInset>
           </div>
         </SidebarProvider>
       </main>

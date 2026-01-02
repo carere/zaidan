@@ -24,12 +24,10 @@ const badgeVariants = cva(
   },
 );
 
-type BadgeProps<T extends ValidComponent = "span"> = ComponentProps<T> &
-  VariantProps<typeof badgeVariants> & {
-    class?: string | undefined;
-  };
+type BadgeProps<T extends ValidComponent = "span"> = PolymorphicProps<T, ComponentProps<T>> &
+  VariantProps<typeof badgeVariants>;
 
-const Badge = <T extends ValidComponent = "span">(rawProps: PolymorphicProps<T, BadgeProps<T>>) => {
+const Badge = <T extends ValidComponent = "span">(rawProps: BadgeProps<T>) => {
   const [local, others] = splitProps(rawProps as BadgeProps, ["class", "variant"]);
 
   return (

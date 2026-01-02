@@ -1,10 +1,10 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from "@kobalte/core";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
-import { createServerOnlyFn } from "@tanstack/solid-start";
+import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
-import { HydrationScript, isServer } from "solid-js/web";
+import { HydrationScript } from "solid-js/web";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -19,13 +19,15 @@ export const Route = createRootRouteWithContext()({
   shellComponent: RootComponent,
 });
 
-const getServerCookies = createServerOnlyFn(() => {
-  const colorMode = getCookie("kb-color-mode");
-  return colorMode ? `kb-color-mode=${colorMode}` : "";
-});
+const getServerCookies = createIsomorphicFn()
+  .server(() => {
+    const colorMode = getCookie("kb-color-mode");
+    return colorMode ? `kb-color-mode=${colorMode}` : "";
+  })
+  .client(() => document.cookie);
 
 function RootComponent() {
-  const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
+  const storageManager = cookieStorageManagerSSR(getServerCookies());
   return (
     <html lang="en">
       <head>
