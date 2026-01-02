@@ -63,6 +63,8 @@
     "Csvg",
     "fontsource",
     "github",
+    "isodate",
+    "jsxs",
     "knope",
     "Knope",
     "kobalte",
@@ -79,6 +81,7 @@
     "tablist",
     "tanstack",
     "vaul",
+    "velite",
     "zaidan"
   ]
 }

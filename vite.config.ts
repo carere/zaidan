@@ -12,7 +12,11 @@ export default defineConfig({
     nitro(),
     paths({ projects: ["./tsconfig.json"] }),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+      },
+    }),
     solid({ ssr: true, hot: true }),
   ],
 });

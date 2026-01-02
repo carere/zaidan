@@ -6,6 +6,9 @@ dist
 .tanstack
 netlify
 
+# Content
+.velite
+
 # Environment
 .env
 .env*.local
