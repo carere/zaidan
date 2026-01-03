@@ -1,10 +1,9 @@
 # Build
-dist
 .solid
 .output
 .netlify
 .tanstack
-netlify
+public/static
 
 # Content
 .velite

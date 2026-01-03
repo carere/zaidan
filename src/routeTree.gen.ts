@@ -9,93 +9,68 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AppRouteRouteImport } from './routes/_app/route'
-import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as AppGettingStartedRouteImport } from './routes/_app/getting-started'
+import { Route as Char123DocChar125RouteImport } from './routes/{-$doc}'
+import { Route as UiComponentRouteImport } from './routes/ui.$component'
 
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/_app',
+const Char123DocChar125Route = Char123DocChar125RouteImport.update({
+  id: '/{-$doc}',
+  path: '/{-$doc}',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppGettingStartedRoute = AppGettingStartedRouteImport.update({
-  id: '/getting-started',
-  path: '/getting-started',
-  getParentRoute: () => AppRouteRoute,
+const UiComponentRoute = UiComponentRouteImport.update({
+  id: '/ui/$component',
+  path: '/ui/$component',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/getting-started': typeof AppGettingStartedRoute
-  '/': typeof AppIndexRoute
+  '/{-$doc}': typeof Char123DocChar125Route
+  '/ui/$component': typeof UiComponentRoute
 }
 export interface FileRoutesByTo {
-  '/getting-started': typeof AppGettingStartedRoute
-  '/': typeof AppIndexRoute
+  '/{-$doc}': typeof Char123DocChar125Route
+  '/ui/$component': typeof UiComponentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_app': typeof AppRouteRouteWithChildren
-  '/_app/getting-started': typeof AppGettingStartedRoute
-  '/_app/': typeof AppIndexRoute
+  '/{-$doc}': typeof Char123DocChar125Route
+  '/ui/$component': typeof UiComponentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/getting-started' | '/'
+  fullPaths: '/{-$doc}' | '/ui/$component'
   fileRoutesByTo: FileRoutesByTo
-  to: '/getting-started' | '/'
-  id: '__root__' | '/_app' | '/_app/getting-started' | '/_app/'
+  to: '/{-$doc}' | '/ui/$component'
+  id: '__root__' | '/{-$doc}' | '/ui/$component'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AppRouteRoute: typeof AppRouteRouteWithChildren
+  Char123DocChar125Route: typeof Char123DocChar125Route
+  UiComponentRoute: typeof UiComponentRoute
 }
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
-    '/_app': {
-      id: '/_app'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AppRouteRouteImport
+    '/{-$doc}': {
+      id: '/{-$doc}'
+      path: '/{-$doc}'
+      fullPath: '/{-$doc}'
+      preLoaderRoute: typeof Char123DocChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/': {
-      id: '/_app/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/getting-started': {
-      id: '/_app/getting-started'
-      path: '/getting-started'
-      fullPath: '/getting-started'
-      preLoaderRoute: typeof AppGettingStartedRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/ui/$component': {
+      id: '/ui/$component'
+      path: '/ui/$component'
+      fullPath: '/ui/$component'
+      preLoaderRoute: typeof UiComponentRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AppRouteRouteChildren {
-  AppGettingStartedRoute: typeof AppGettingStartedRoute
-  AppIndexRoute: typeof AppIndexRoute
-}
-
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppGettingStartedRoute: AppGettingStartedRoute,
-  AppIndexRoute: AppIndexRoute,
-}
-
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
-  AppRouteRoute: AppRouteRouteWithChildren,
+  Char123DocChar125Route: Char123DocChar125Route,
+  UiComponentRoute: UiComponentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

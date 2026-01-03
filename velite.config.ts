@@ -4,16 +4,23 @@ export default defineConfig({
   mdx: {
     jsxImportSource: "solid-js/h",
   },
+  root: "src/pages",
   collections: {
     docs: {
-      name: "Docs", // collection type name
-      pattern: "*.mdx", // content files glob pattern
+      name: "docs",
+      pattern: "docs/*.mdx",
       schema: s.object({
-        title: s.string().max(99), // Zod primitive type
-        slug: s.slug("docs"), // validate format, unique in posts collection
-        // slug: s.path(), // auto generate slug from file path
-        metadata: s.metadata(), // extract markdown reading-time, word-count, etc
-        // content: s.markdown(), // transform markdown to html
+        slug: s.slug("docs"),
+        path: s.path(),
+        code: s.mdx(),
+      }),
+    },
+    ui: {
+      name: "ui",
+      pattern: "ui/*.mdx",
+      schema: s.object({
+        slug: s.slug("ui"),
+        path: s.path(),
         code: s.mdx(),
       }),
     },

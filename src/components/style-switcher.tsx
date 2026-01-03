@@ -1,3 +1,4 @@
+import type { Style } from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -5,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/registry/ui/select";
-import type { Style } from "@/types";
 
 type StyleSwitcherProps = {
   style: Style;

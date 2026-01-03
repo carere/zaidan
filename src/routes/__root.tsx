@@ -1,10 +1,11 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from "@kobalte/core";
-import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
+import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+import { Shell } from "@/components/shell";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -38,7 +39,7 @@ function RootComponent() {
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
           <Suspense>
-            <Outlet />
+            <Shell />
             <TanStackRouterDevtools />
           </Suspense>
         </ColorModeProvider>

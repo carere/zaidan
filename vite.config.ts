@@ -1,4 +1,3 @@
-import netlify from "@netlify/vite-plugin-tanstack-start";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
@@ -17,7 +16,6 @@ export default defineConfig({
         enabled: true,
       },
     }),
-    netlify(),
     solid({ ssr: true, hot: true }),
     velite({
       config: "velite.config.ts",

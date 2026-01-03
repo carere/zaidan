@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
+import { Link, Outlet } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
@@ -6,14 +6,12 @@ import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { SiteConfig } from "@/components/site-config";
 import { StyleSwitcher } from "@/components/style-switcher";
+import type { Style } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/ui/separator";
 import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
-import type { Style } from "@/types";
 
-export const Route = createFileRoute("/_app")({ component: App });
-
-function App() {
+export function Shell() {
   const [isFullLayout, switchLayout] = createSignal(false);
   const [style, setStyle] = createSignal<Style>("vega");
 
@@ -26,7 +24,7 @@ function App() {
     >
       <header class="sticky top-0 z-50 w-full flex items-center md:gap-2 px-6 h-(--header-height) **:data-[slot=separator]:h-4!">
         <div class="flex items-center xl:w-1/3 lg:mr-2">
-          <Link to="/">
+          <Link to="/{-$doc}" params={{ doc: "home" }}>
             <Logo class="size-4" />
           </Link>
           <Separator orientation="vertical" class="mx-4" />
@@ -50,7 +48,7 @@ function App() {
           >
             <ItemExplorer />
             <SidebarInset
-              class={cn("relative -mx-1 flex flex-1 flex-col justify-center sm:mx-0", {
+              class={cn("flex-1", {
                 "style-vega": style() === "vega",
                 "style-nova": style() === "nova",
                 "style-lyra": style() === "lyra",

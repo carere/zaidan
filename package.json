@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@kobalte/core": "^0.13.11",
-    "@netlify/vite-plugin-tanstack-start": "^1.2.6",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/router-plugin": "^1.145.2",
     "@tanstack/solid-router": "^1.144.0",
@@ -46,6 +45,7 @@
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/roboto-mono": "^5.2.8",
     "@tanstack/devtools-vite": "^0.3.12",
+    "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "^1.3.5",
     "@velite/plugin-vite": "^0.0.2",
     "knip": "^5.78.0",
