@@ -28,6 +28,7 @@
         "@fontsource-variable/roboto-mono": "^5.2.8",
         "@tanstack/devtools-vite": "^0.3.12",
         "@types/bun": "^1.3.5",
+        "@velite/plugin-vite": "^0.0.2",
         "knip": "^5.78.0",
         "lefthook": "^2.0.13",
         "shadcn": "^3.6.2",
@@ -757,6 +758,8 @@
     "@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.51.0", "", { "dependencies": { "@typescript-eslint/types": "8.51.0", "eslint-visitor-keys": "^4.2.1" } }, "sha512-mM/JRQOzhVN1ykejrvwnBRV3+7yTKK8tVANVN3o1O0t0v7o+jqdVu9crPy5Y9dov15TJk/FTIgoUGHrTOVL3Zg=="],
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.3.0", "", {}, "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g=="],
+
+    "@velite/plugin-vite": ["@velite/plugin-vite@0.0.2", "", { "peerDependencies": { "velite": "^0.2.0", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-ycCjdcaLti1OFDWX4Oe6NuAWK6S24Py4A6Y6PXPkkWn/OrXBwU16T5DpNUCZ7OVbzO9xz73CFlafwNvIX0OrPA=="],
 
     "@vercel/nft": ["@vercel/nft@0.29.4", "", { "dependencies": { "@mapbox/node-pre-gyp": "^2.0.0", "@rollup/pluginutils": "^5.1.3", "acorn": "^8.6.0", "acorn-import-attributes": "^1.9.5", "async-sema": "^3.1.1", "bindings": "^1.4.0", "estree-walker": "2.0.2", "glob": "^10.4.5", "graceful-fs": "^4.2.9", "node-gyp-build": "^4.2.2", "picomatch": "^4.0.2", "resolve-from": "^5.0.0" }, "bin": { "nft": "out/cli.js" } }, "sha512-6lLqMNX3TuycBPABycx7A9F1bHQR7kiQln6abjFbPrf5C/05qHM9M5E4PeTE59c7z8g6vHnx1Ioihb2AQl7BTA=="],
 

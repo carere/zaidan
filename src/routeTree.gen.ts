@@ -8,103 +8,104 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as AppGettingStartedRouteImport } from "./routes/_app/getting-started";
-import { Route as AppIndexRouteImport } from "./routes/_app/index";
-import { Route as AppRouteRouteImport } from "./routes/_app/route";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteRouteImport } from './routes/_app/route'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppGettingStartedRouteImport } from './routes/_app/getting-started'
 
 const AppRouteRoute = AppRouteRouteImport.update({
-  id: "/_app",
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => AppRouteRoute,
-} as any);
+} as any)
 const AppGettingStartedRoute = AppGettingStartedRouteImport.update({
-  id: "/getting-started",
-  path: "/getting-started",
+  id: '/getting-started',
+  path: '/getting-started',
   getParentRoute: () => AppRouteRoute,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/getting-started": typeof AppGettingStartedRoute;
-  "/": typeof AppIndexRoute;
+  '/getting-started': typeof AppGettingStartedRoute
+  '/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
-  "/getting-started": typeof AppGettingStartedRoute;
-  "/": typeof AppIndexRoute;
+  '/getting-started': typeof AppGettingStartedRoute
+  '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/_app": typeof AppRouteRouteWithChildren;
-  "/_app/getting-started": typeof AppGettingStartedRoute;
-  "/_app/": typeof AppIndexRoute;
+  __root__: typeof rootRouteImport
+  '/_app': typeof AppRouteRouteWithChildren
+  '/_app/getting-started': typeof AppGettingStartedRoute
+  '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/getting-started" | "/";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/getting-started" | "/";
-  id: "__root__" | "/_app" | "/_app/getting-started" | "/_app/";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/getting-started' | '/'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/getting-started' | '/'
+  id: '__root__' | '/_app' | '/_app/getting-started' | '/_app/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AppRouteRoute: typeof AppRouteRouteWithChildren;
+  AppRouteRoute: typeof AppRouteRouteWithChildren
 }
 
-declare module "@tanstack/solid-router" {
+declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
-    "/_app": {
-      id: "/_app";
-      path: "";
-      fullPath: "";
-      preLoaderRoute: typeof AppRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_app/": {
-      id: "/_app/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof AppIndexRouteImport;
-      parentRoute: typeof AppRouteRoute;
-    };
-    "/_app/getting-started": {
-      id: "/_app/getting-started";
-      path: "/getting-started";
-      fullPath: "/getting-started";
-      preLoaderRoute: typeof AppGettingStartedRouteImport;
-      parentRoute: typeof AppRouteRoute;
-    };
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/getting-started': {
+      id: '/_app/getting-started'
+      path: '/getting-started'
+      fullPath: '/getting-started'
+      preLoaderRoute: typeof AppGettingStartedRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
-  AppGettingStartedRoute: typeof AppGettingStartedRoute;
-  AppIndexRoute: typeof AppIndexRoute;
+  AppGettingStartedRoute: typeof AppGettingStartedRoute
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppGettingStartedRoute: AppGettingStartedRoute,
   AppIndexRoute: AppIndexRoute,
-};
+}
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren);
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from "@tanstack/solid-start";
-import type { getRouter } from "./router.tsx";
-
-declare module "@tanstack/solid-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/solid-start'
+declare module '@tanstack/solid-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }

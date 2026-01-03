@@ -4,7 +4,7 @@ import { MDXContent } from "@/components/mdx-content";
 
 export const Route = createFileRoute("/_app/")({
   loader: () => {
-    const doc = docs.find((d) => d.slug === "hello-world");
+    const doc = docs.find((d) => d.slug === "home");
     if (!doc) {
       throw notFound();
     }
