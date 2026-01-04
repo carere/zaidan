@@ -18,10 +18,12 @@ type TabsProps<T extends ValidComponent = "div"> = PolymorphicProps<T, TabsRootP
 
 const Tabs = <T extends ValidComponent = "div">(props: TabsProps<T>) => {
   const mergedProps = mergeProps({ orientation: "horizontal" }, props);
-  const [local, others] = splitProps(mergedProps, ["class"]);
+  const [local, others] = splitProps(mergedProps, ["class", "orientation"]);
   return (
     <Root
       data-slot="tabs"
+      data-orientation={local.orientation}
+      orientation={local.orientation}
       class={cn("cn-tabs group/tabs flex data-[orientation=horizontal]:flex-col", local.class)}
       {...others}
     />
@@ -56,6 +58,7 @@ const TabsList = <T extends ValidComponent = "div">(props: TabsListProps<T>) => 
     <List
       class={cn(tabsListVariants({ variant: local.variant }), local.class)}
       data-slot="tabs-list"
+      data-variant={local.variant}
       {...others}
     />
   );
@@ -74,9 +77,9 @@ const TabsTrigger = <T extends ValidComponent = "button">(props: TabTriggerProps
       data-slot="tabs-trigger"
       className={cn(
         "cn-tabs-trigger focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground/60 hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        "data-active:bg-background dark:data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 data-active:text-foreground",
-        "after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-selected:bg-transparent dark:group-data-[variant=line]/tabs-list:data-selected:border-transparent dark:group-data-[variant=line]/tabs-list:data-selected:bg-transparent",
+        "data-selected:bg-background dark:data-selected:text-foreground dark:data-selected:border-input dark:data-selected:bg-input/30 data-selected:text-foreground",
+        "after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-selected:after:opacity-100",
         local.class,
       )}
       {...others}
