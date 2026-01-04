@@ -14,6 +14,7 @@ export default defineConfig({
     tanstackStart({
       prerender: {
         enabled: true,
+        crawlLinks: true,
       },
     }),
     solid({ ssr: true, hot: true }),

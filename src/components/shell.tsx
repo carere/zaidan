@@ -25,7 +25,7 @@ export function Shell() {
       <header class="sticky top-0 z-50 w-full flex items-center md:gap-2 px-6 h-(--header-height) **:data-[slot=separator]:h-4!">
         <div class="flex items-center xl:w-1/3 lg:mr-2">
           <Link to="/{-$doc}" params={{ doc: "home" }}>
-            <Logo class="size-4" />
+            <Logo class="size-6" />
           </Link>
           <Separator orientation="vertical" class="mx-4" />
           <div class="text-muted-foreground hidden text-sm font-medium lg:flex">Zaidan</div>

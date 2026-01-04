@@ -12,18 +12,18 @@ export const Route = createFileRoute("/{-$doc}")({
         },
       });
     }
-    return doc;
+    return doc.code;
   },
   component: RouteComponent,
   notFoundComponent: (props) => <div>Doc not found: {(props.data as { doc: string }).doc}</div>,
 });
 
 function RouteComponent() {
-  const doc = Route.useLoaderData();
+  const code = Route.useLoaderData();
 
   return (
     <ClientOnly fallback={<div>Loading...</div>}>
-      <MDXContent code={doc().code} />
+      <MDXContent code={code()} />
     </ClientOnly>
   );
 }
