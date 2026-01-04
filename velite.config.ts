@@ -11,6 +11,7 @@ export default defineConfig({
       pattern: "docs/*.mdx",
       schema: s.object({
         slug: s.slug("docs"),
+        title: s.string(),
         path: s.path(),
         code: s.mdx(),
       }),
@@ -20,6 +21,7 @@ export default defineConfig({
       pattern: "ui/*.mdx",
       schema: s.object({
         slug: s.slug("ui"),
+        title: s.string(),
         path: s.path(),
         code: s.mdx(),
       }),

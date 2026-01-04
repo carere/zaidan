@@ -498,14 +498,17 @@ const sidebarMenuButtonVariants = cva(
   },
 );
 
-type SidebarMenuButtonProps<T extends ValidComponent = "button"> = ComponentProps<T> &
+type SidebarMenuButtonProps<T extends ValidComponent = "button"> = PolymorphicProps<
+  T,
+  Pick<ComponentProps<T>, "class" | "children">
+> &
   VariantProps<typeof sidebarMenuButtonVariants> & {
     isActive?: boolean;
     tooltip?: string;
   };
 
 const SidebarMenuButton = <T extends ValidComponent = "button">(
-  rawProps: PolymorphicProps<T, SidebarMenuButtonProps<T>>,
+  rawProps: SidebarMenuButtonProps<T>,
 ) => {
   const props = mergeProps({ isActive: false, variant: "default", size: "default" }, rawProps);
   const [local, others] = splitProps(props as SidebarMenuButtonProps, [
@@ -518,7 +521,7 @@ const SidebarMenuButton = <T extends ValidComponent = "button">(
   const { isMobile, state } = useSidebar();
 
   const MenuButton = (props: SidebarMenuButtonProps) => {
-    const [_local, _others] = splitProps(props, ["class"]);
+    const [_local, _others] = splitProps(props as SidebarMenuButtonProps, ["class"]);
     return (
       <Polymorphic<SidebarMenuButtonProps>
         as="button"
