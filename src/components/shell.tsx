@@ -6,14 +6,12 @@ import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { SiteConfig } from "@/components/site-config";
 import { StyleSwitcher } from "@/components/style-switcher";
-import type { Style } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/ui/separator";
 import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
 
 export function Shell() {
   const [isFullLayout, switchLayout] = createSignal(false);
-  const [style, setStyle] = createSignal<Style>("vega");
 
   return (
     <div
@@ -37,7 +35,7 @@ export function Shell() {
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
           <ModeSwitcher />
-          <StyleSwitcher style={style()} onStyleChange={setStyle} />
+          <StyleSwitcher />
         </div>
       </header>
       <main class="flex flex-1 flex-col pb-16 sm:pb-0">
@@ -47,15 +45,7 @@ export function Shell() {
             class="3xl:fixed:container flex w-full flex-1 flex-col gap-2 p-6 pt-1 pb-4 [--sidebar-width:--spacing(40)] sm:gap-2 sm:pt-2 md:flex-row md:pb-6 2xl:gap-6"
           >
             <ItemExplorer />
-            <SidebarInset
-              class={cn("flex-1", {
-                "style-vega": style() === "vega",
-                "style-nova": style() === "nova",
-                "style-lyra": style() === "lyra",
-                "style-maia": style() === "maia",
-                "style-mira": style() === "mira",
-              })}
-            >
+            <SidebarInset class="flex-1">
               <Outlet />
             </SidebarInset>
           </div>

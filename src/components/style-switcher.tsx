@@ -1,3 +1,4 @@
+import { useStyle } from "@/lib/style-context";
 import type { Style } from "@/lib/types";
 import {
   Select,
@@ -7,20 +8,17 @@ import {
   SelectValue,
 } from "@/registry/ui/select";
 
-type StyleSwitcherProps = {
-  style: Style;
-  onStyleChange: (style: Style) => void;
-};
+export function StyleSwitcher() {
+  const { style, setStyle } = useStyle();
 
-export function StyleSwitcher(props: StyleSwitcherProps) {
   return (
     <Select
       itemComponent={(props) => <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>}
-      onChange={(e) => props.onStyleChange(e as Style)}
+      onChange={(e) => setStyle(e as Style)}
       options={["vega", "nova", "lyra", "maia", "mira"]}
       placeholder="Select a style"
-      defaultValue={props.style}
-      value={props.style}
+      defaultValue={style()}
+      value={style()}
     >
       <SelectTrigger aria-label="Style" class="w-[180px]">
         <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>

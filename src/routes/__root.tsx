@@ -6,6 +6,7 @@ import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { Shell } from "@/components/shell";
+import { StyleProvider } from "@/lib/style-context";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -41,10 +42,12 @@ function RootComponent() {
       <body class="style-vega group/body overscroll-none antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] xl:[--footer-height:calc(var(--spacing)*24)]">
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
-          <Suspense>
-            <Shell />
-            <TanStackRouterDevtools />
-          </Suspense>
+          <StyleProvider>
+            <Suspense>
+              <Shell />
+              <TanStackRouterDevtools />
+            </Suspense>
+          </StyleProvider>
         </ColorModeProvider>
         <Scripts />
       </body>

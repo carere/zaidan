@@ -1,5 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
+import { useStyle } from "@/lib/style-context";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/ui/$component")({
   loader: ({ params }) => {
@@ -20,5 +22,21 @@ export const Route = createFileRoute("/ui/$component")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/ui/$component"!</div>;
+  const { style } = useStyle();
+  const doc = Route.useLoaderData();
+
+  return (
+    <div
+      class={cn({
+        "style-vega": style() === "vega",
+        "style-nova": style() === "nova",
+        "style-lyra": style() === "lyra",
+        "style-maia": style() === "maia",
+        "style-mira": style() === "mira",
+      })}
+    >
+      {/* TODO: Implement actual component rendering using doc data */}
+      <div>Component: {doc().slug}</div>
+    </div>
+  );
 }
