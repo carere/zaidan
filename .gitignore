@@ -21,6 +21,7 @@ logs/
 adws/
 trees/
 specs/
+reviews/
 
 # System Files
 .DS_Store
