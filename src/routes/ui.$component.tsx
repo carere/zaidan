@@ -5,6 +5,7 @@ import { MDXContent } from "@/components/mdx-content";
 import { useStyle } from "@/lib/style-context";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/ui/tabs";
+import "@/styles/mdx.css";
 
 export const Route = createFileRoute("/ui/$component")({
   loader: ({ params }) => {
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/ui/$component")({
 function RouteComponent() {
   const { style } = useStyle();
   const doc = Route.useLoaderData();
-  const ExampleComponent = lazy(() => import(`../registry/examples/${doc().example}.tsx`));
+  const ExampleComponent = lazy(() => import(`../registry/examples/${doc().slug}-example.tsx`));
 
   return (
     <Tabs
@@ -52,7 +53,7 @@ function RouteComponent() {
         <ExampleComponent />
       </TabsContent>
 
-      <TabsContent value="docs">
+      <TabsContent value="docs" class="flex flex-col mx-auto max-w-5xl">
         <ClientOnly fallback={<div>Loading documentation...</div>}>
           <MDXContent code={doc().code} />
         </ClientOnly>
