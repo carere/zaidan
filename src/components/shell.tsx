@@ -16,11 +16,11 @@ export function Shell() {
   return (
     <div
       data-slot="layout"
-      class={cn("bg-background relative z-10 flex min-h-svh flex-col", {
+      class={cn("bg-background relative z-10 flex h-svh flex-col", {
         container: isFullLayout(),
       })}
     >
-      <header class="sticky top-0 z-50 w-full flex items-center md:gap-2 px-6 h-(--header-height) **:data-[slot=separator]:h-4!">
+      <header class="sticky top-0 z-50 w-full flex items-center md:gap-2 px-6 py-3 **:data-[slot=separator]:h-4!">
         <div class="flex items-center xl:w-1/3 lg:mr-2">
           <Link to="/{-$doc}" params={{ doc: "home" }}>
             <Logo class="size-6" />
@@ -38,19 +38,12 @@ export function Shell() {
           <StyleSwitcher />
         </div>
       </header>
-      <main class="flex flex-1 flex-col pb-16 sm:pb-0">
-        <SidebarProvider class="flex h-auto min-h-min flex-1 flex-col items-start overflow-hidden px-0">
-          <div
-            data-slot="designer"
-            class="3xl:fixed:container flex w-full flex-1 flex-col gap-2 p-6 pt-1 pb-4 [--sidebar-width:--spacing(40)] sm:gap-2 sm:pt-2 md:flex-row md:pb-6 2xl:gap-6"
-          >
-            <ItemExplorer />
-            <SidebarInset class="flex flex-1 border rounded-lg">
-              <Outlet />
-            </SidebarInset>
-          </div>
-        </SidebarProvider>
-      </main>
+      <SidebarProvider class="flex max-h-full flex-1 sm:flex-row items-start px-6">
+        <ItemExplorer />
+        <SidebarInset>
+          <Outlet />
+        </SidebarInset>
+      </SidebarProvider>
     </div>
   );
 }
