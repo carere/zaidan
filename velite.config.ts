@@ -1,8 +1,13 @@
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 import { defineConfig, s } from "velite";
 
 export default defineConfig({
   mdx: {
     jsxImportSource: "solid-js/h",
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [rehypeSlug, [rehypePrettyCode, { theme: "github-dark" }]],
   },
   root: "src/pages",
   collections: {
@@ -21,7 +26,6 @@ export default defineConfig({
       schema: s.object({
         slug: s.slug("ui"),
         title: s.string(),
-        example: s.string(),
         code: s.mdx(),
       }),
     },

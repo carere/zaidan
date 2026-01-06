@@ -1,6 +1,7 @@
 import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
 import { docs } from "@velite";
 import { MDXContent } from "@/components/mdx-content";
+import "@/styles/mdx.css";
 
 export const Route = createFileRoute("/{-$doc}")({
   loader: ({ params }) => {
@@ -22,7 +23,7 @@ function RouteComponent() {
   const code = Route.useLoaderData();
 
   return (
-    <div class="overflow-y-auto">
+    <div class="overflow-y-auto flex flex-col items-center">
       <ClientOnly fallback={<div>Loading...</div>}>
         <MDXContent code={code()} />
       </ClientOnly>
