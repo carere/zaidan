@@ -27,7 +27,6 @@ const Alert = <T extends ValidComponent = "div">(rawProps: AlertProps<T>) => {
     <div
       class={cn(alertVariants({ variant: local.variant }), local.class)}
       data-slot="alert"
-      data-variant={local.variant}
       role="alert"
       {...others}
     />

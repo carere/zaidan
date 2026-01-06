@@ -1,5 +1,6 @@
 import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
+import { lazy } from "solid-js";
 import { MDXContent } from "@/components/mdx-content";
 import { useStyle } from "@/lib/style-context";
 import { cn } from "@/lib/utils";
@@ -26,10 +27,16 @@ export const Route = createFileRoute("/ui/$component")({
 function RouteComponent() {
   const { style } = useStyle();
   const doc = Route.useLoaderData();
+  const ExampleComponent = lazy(
+    () => import(/* @vite-ignore */ `../registry/examples/${doc().example}.tsx`),
+  );
 
   return (
-    <Tabs defaultValue="preview" class="flex-1">
-      <TabsList variant="line">
+    <Tabs
+      defaultValue="preview"
+      class="relative sm:h-[calc(100svh-var(--header-height)-2rem)] h-[calc(100svh-2*var(--header-height)-1rem)] overflow-y-auto no-scrollbar border rounded-lg"
+    >
+      <TabsList variant="line" class="sticky top-2 left-2 z-50">
         <TabsTrigger value="preview">Preview</TabsTrigger>
         <TabsTrigger value="docs">Docs</TabsTrigger>
       </TabsList>
@@ -44,7 +51,7 @@ function RouteComponent() {
           "style-mira": style() === "mira",
         })}
       >
-        {/* Replace with the example component (eg. <ButtonExample />, <AlertDialogExample />, etc.). Use <Dynamic /> to render the component. */}
+        <ExampleComponent />
       </TabsContent>
 
       <TabsContent value="docs">
