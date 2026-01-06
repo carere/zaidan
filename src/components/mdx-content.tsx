@@ -118,18 +118,10 @@ const sharedComponents = {
   Steps: (props: ComponentProps<"div">) => (
     <div class="[&>h3]:step steps mb-12 ml-4 border-l pl-8 [counter-reset:step]" {...props} />
   ),
-  Tabs: (props: ComponentProps<typeof Tabs>) => {
-    const [local, others] = splitProps(props, ["class"]);
-    return <Tabs class={cn("relative mt-6 w-full", local.class)} {...others} />;
-  },
+  Tabs,
   TabsList: (props: ComponentProps<typeof TabsList>) => {
     const [local, others] = splitProps(props, ["class"]);
-    return (
-      <TabsList
-        class={cn("w-full justify-start rounded-none border-b bg-transparent p-0", local.class)}
-        {...others}
-      />
-    );
+    return <TabsList variant="line" class={local.class} {...others} />;
   },
   TabsTrigger: (props: ComponentProps<typeof TabsTrigger>) => {
     const [local, others] = splitProps(props, ["class"]);

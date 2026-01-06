@@ -53,7 +53,7 @@ function RouteComponent() {
         <ExampleComponent />
       </TabsContent>
 
-      <TabsContent value="docs" class="flex flex-col items-center">
+      <TabsContent value="docs" class="flex flex-col mx-auto max-w-5xl">
         <ClientOnly fallback={<div>Loading documentation...</div>}>
           <MDXContent code={doc().code} />
         </ClientOnly>
