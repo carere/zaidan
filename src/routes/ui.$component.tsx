@@ -27,9 +27,7 @@ export const Route = createFileRoute("/ui/$component")({
 function RouteComponent() {
   const { style } = useStyle();
   const doc = Route.useLoaderData();
-  const ExampleComponent = lazy(
-    () => import(/* @vite-ignore */ `../registry/examples/${doc().example}.tsx`),
-  );
+  const ExampleComponent = lazy(() => import(`../registry/examples/${doc().example}.tsx`));
 
   return (
     <Tabs

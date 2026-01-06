@@ -3,6 +3,7 @@
 .output
 .netlify
 .tanstack
+dist/
 public/static
 
 # Content
