@@ -34,16 +34,16 @@ function RouteComponent() {
   return (
     <div
       class={cn(
-        "relative sm:h-[calc(100svh-var(--header-height)-2rem)] h-[calc(100svh-2*var(--header-height)-1rem)] overflow-y-auto",
+        "no-scrollbar relative h-[calc(100svh-2*var(--header-height)-1rem)] overflow-y-auto sm:h-[calc(100svh-var(--header-height)-2rem)]",
         {
-          "border rounded-lg no-scrollbar": view() === "preview",
+          "rounded-lg border": view() === "preview",
         },
       )}
     >
       <Show
         when={view() === "preview"}
         fallback={
-          <div class="flex flex-col mx-auto max-w-5xl p-6">
+          <div class="mx-auto flex max-w-5xl flex-col p-6">
             <ClientOnly fallback={<div>Loading documentation...</div>}>
               <MDXContent code={doc().code} />
             </ClientOnly>

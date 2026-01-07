@@ -5,7 +5,7 @@ import { splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-const alertVariants = cva("cn-alert w-full relative group/alert", {
+const alertVariants = cva("cn-alert group/alert relative w-full", {
   variants: {
     variant: {
       default: "cn-alert-variant-default",
@@ -41,7 +41,7 @@ const AlertTitle = <T extends ValidComponent = "div">(rawProps: AlertTitleProps<
   return (
     <div
       class={cn(
-        "cn-alert-title [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3",
+        "cn-alert-title [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
         local.class,
       )}
       data-slot="alert-title"
@@ -61,7 +61,7 @@ const AlertDescription = <T extends ValidComponent = "div">(rawProps: AlertDescr
   return (
     <div
       class={cn(
-        "cn-alert-description [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3",
+        "cn-alert-description [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
         local.class,
       )}
       data-slot="alert-description"

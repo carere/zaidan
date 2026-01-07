@@ -159,8 +159,8 @@
   --color-error: var(--error);
   --color-error-foreground: var(--error-foreground);
 
-  --font-sans: 'Inter Variable', sans-serif;
-  --font-mono: 'Roboto Mono Variable', monospace;
+  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "Roboto Mono Variable", monospace;
 }
 
 @layer base {
@@ -186,12 +186,12 @@
    * Scrollbar
    */
 
-   ::-webkit-scrollbar {
+  ::-webkit-scrollbar {
     @apply w-4;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full border-4 border-transparent bg-accent bg-clip-content;
+    @apply rounded-full border-transparent border-4 bg-accent bg-clip-content;
   }
 
   ::-webkit-scrollbar-corner {
@@ -210,7 +210,7 @@
 
 @layer utilities {
   .container-wrapper {
-    @apply mx-auto w-full max-w-[1400px] min-[1800px]:max-w-screen-2xl;
+    @apply mx-auto max-w-[1400px] w-full min-[1800px]:max-w-screen-2xl;
   }
 
   .container {

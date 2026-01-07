@@ -40,7 +40,7 @@ function RootComponent() {
         <HeadContent />
         <HydrationScript />
       </head>
-      <body class="style-vega overscroll-none overflow-hidden antialiased [--header-height:calc(var(--spacing)*14)]">
+      <body class="style-vega overflow-hidden overscroll-none antialiased [--header-height:calc(var(--spacing)*14)]">
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
           <StyleProvider>

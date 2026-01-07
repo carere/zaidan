@@ -7,6 +7,7 @@
     "source.organizeImports.biome": "always",
     "source.removeUnusedImports": "always"
   },
+  "css.validate": false,
   "[yaml,yml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
@@ -30,9 +31,6 @@
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
-  },
-  "files.associations": {
-    "*.css": "tailwindcss"
   },
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true

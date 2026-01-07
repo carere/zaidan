@@ -17,17 +17,17 @@ export function Shell() {
   return (
     <div
       data-slot="layout"
-      class={cn("bg-background relative z-10 flex h-svh flex-col", {
+      class={cn("relative z-10 flex h-svh flex-col bg-background", {
         container: isFullLayout(),
       })}
     >
-      <header class="sticky top-0 z-50 w-full flex items-center md:gap-2 px-6 py-3 **:data-[slot=separator]:h-4!">
-        <div class="flex items-center xl:w-1/3 lg:mr-2">
+      <header class="sticky top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2">
+        <div class="flex items-center lg:mr-2 xl:w-1/3">
           <Link to="/{-$doc}" params={{ doc: "home" }}>
             <Logo class="size-6" />
           </Link>
           <Separator orientation="vertical" class="mx-4" />
-          <div class="text-muted-foreground hidden text-sm font-medium lg:flex">Zaidan</div>
+          <div class="hidden font-medium text-muted-foreground text-sm lg:flex">Zaidan</div>
         </div>
         <div class="fixed inset-x-0 bottom-0 ml-auto flex-1 gap-2 px-4.5 pb-4 sm:static sm:p-0 lg:ml-0">
           <ItemPicker />
@@ -41,7 +41,7 @@ export function Shell() {
           <StyleSwitcher />
         </div>
       </header>
-      <SidebarProvider class="flex max-h-full flex-1 sm:flex-row items-start px-6">
+      <SidebarProvider class="flex max-h-full flex-1 items-start px-6 sm:flex-row">
         <ItemExplorer />
         <SidebarInset>
           <Outlet />

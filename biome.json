@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,23 +7,37 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**/*.{ts,tsx,json,jsonc}", "!**/bun.lock", "!**/routeTree.gen.ts"]
+    "includes": ["**/*.{ts,tsx,json,jsonc,css}", "!**/bun.lock", "!**/routeTree.gen.ts"]
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "attributes": ["classList", "class"],
+            "functions": ["clsx", "cva", "cn"]
+          }
+        }
+      }
     }
   },
-  "html": {
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "linter": {
+      "enabled": true
+    },
     "assist": {
       "enabled": true
     },
     "formatter": {
-      "enabled": true
-    },
-    "linter": {
-      "enabled": true
+      "enabled": true,
+      "indentStyle": "space"
     }
   },
   "formatter": {

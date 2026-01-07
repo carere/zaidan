@@ -11,13 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/ui/tabs";
 
 const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
-    return <h1 data-toc="" class="font-heading mt-2 scroll-m-20 text-4xl font-bold" {...props} />;
+    return <h1 data-toc="" class="mt-2 scroll-m-20 font-bold font-heading text-4xl" {...props} />;
   },
   h2: (props: ComponentProps<"h2">) => {
     return (
       <h2
         data-toc=""
-        class="font-heading mt-12 scroll-m-20 border-b pb-2 text-2xl font-semibold tracking-tight first:mt-0"
+        class="mt-12 scroll-m-20 border-b pb-2 font-heading font-semibold text-2xl tracking-tight first:mt-0"
         {...props}
       />
     );
@@ -26,7 +26,7 @@ const sharedComponents = {
     return (
       <h3
         data-toc=""
-        class="font-heading mt-8 scroll-m-20 text-xl font-semibold tracking-tight"
+        class="mt-8 scroll-m-20 font-heading font-semibold text-xl tracking-tight"
         {...props}
       />
     );
@@ -35,7 +35,7 @@ const sharedComponents = {
     return (
       <h4
         data-toc=""
-        class="font-heading mt-8 scroll-m-20 text-xl font-semibold tracking-tight"
+        class="mt-8 scroll-m-20 font-heading font-semibold text-xl tracking-tight"
         {...props}
       />
     );
@@ -44,7 +44,7 @@ const sharedComponents = {
     return (
       <h5
         data-toc=""
-        class="font-heading mt-8 scroll-m-20 text-xl font-semibold tracking-tight"
+        class="mt-8 scroll-m-20 font-heading font-semibold text-xl tracking-tight"
         {...props}
       />
     );
@@ -53,7 +53,7 @@ const sharedComponents = {
     return (
       <h6
         data-toc=""
-        class="font-heading mt-8 scroll-m-20 text-xl font-semibold tracking-tight"
+        class="mt-8 scroll-m-20 font-heading font-semibold text-xl tracking-tight"
         {...props}
       />
     );
@@ -68,7 +68,7 @@ const sharedComponents = {
     );
   },
   p: (props: ComponentProps<"p">) => {
-    return <p class="wrap-break-word leading-7 not-first:mt-6" {...props} />;
+    return <p class="wrap-break-word not-first:mt-6 leading-7" {...props} />;
   },
   ul: (props: ComponentProps<"ul">) => {
     return <ul class="my-6 ml-6 list-disc" {...props} />;
@@ -100,20 +100,20 @@ const sharedComponents = {
         <pre
           ref={preRef}
           class={cn(
-            "code group mb-4 mt-6 max-h-[650px] overflow-x-auto rounded-lg border bg-zinc-950 py-4 dark:bg-zinc-900",
+            "code group mt-6 mb-4 max-h-[650px] overflow-x-auto rounded-lg border bg-zinc-950 py-4 dark:bg-zinc-900",
           )}
         >
           {props.children}
         </pre>
         <CopyButton
-          class="absolute right-4 top-4 hover:bg-[#24283a]"
+          class="absolute top-4 right-4 hover:bg-[#24283a]"
           content={preRef?.querySelector("code")?.innerText ?? ""}
         />
       </div>
     );
   },
   Step: (props: ComponentProps<"h3">) => (
-    <h3 class="font-heading mt-8 scroll-m-20 text-xl font-semibold tracking-tight" {...props} />
+    <h3 class="mt-8 scroll-m-20 font-heading font-semibold text-xl tracking-tight" {...props} />
   ),
   Steps: (props: ComponentProps<"div">) => (
     <div class="[&>h3]:step steps mb-12 ml-4 border-l pl-8 [counter-reset:step]" {...props} />
@@ -128,7 +128,7 @@ const sharedComponents = {
     return (
       <TabsTrigger
         class={cn(
-          "relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-selected:border-b-primary data-selected:text-foreground data-selected:shadow-none",
+          "relative h-9 rounded-none border-b-2 border-b-transparent bg-transparent px-4 pt-2 pb-3 font-semibold text-muted-foreground shadow-none transition-none data-selected:border-b-primary data-selected:text-foreground data-selected:shadow-none",
           local.class,
         )}
         {...others}
@@ -140,7 +140,7 @@ const sharedComponents = {
     return (
       <TabsContent
         class={cn(
-          "relative [&_h3.font-heading]:text-base [&_h3.font-heading]:font-semibold",
+          "relative [&_h3.font-heading]:font-semibold [&_h3.font-heading]:text-base",
           local.class,
         )}
         {...others}

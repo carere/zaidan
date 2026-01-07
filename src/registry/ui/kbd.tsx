@@ -12,7 +12,7 @@ const Kbd = <T extends ValidComponent = "kbd">(rawProps: KbdProps<T>) => {
   return (
     <kbd
       class={cn(
-        "cn-kbd pointer-events-none inline-flex items-center justify-center select-none",
+        "cn-kbd pointer-events-none inline-flex select-none items-center justify-center",
         local.class,
       )}
       data-slot="kbd"
