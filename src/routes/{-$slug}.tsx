@@ -1,6 +1,7 @@
 import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
 import { docs } from "@velite";
 import { MDXContent } from "@/components/mdx-content";
+import { TableOfContents } from "@/components/toc";
 
 export const Route = createFileRoute("/{-$slug}")({
   loader: ({ params }) => {
@@ -12,20 +13,23 @@ export const Route = createFileRoute("/{-$slug}")({
         },
       });
     }
-    return doc.code;
+    return doc;
   },
   component: RouteComponent,
   notFoundComponent: (props) => <div>Doc not found: {(props.data as { slug: string }).slug}</div>,
 });
 
 function RouteComponent() {
-  const code = Route.useLoaderData();
+  const doc = Route.useLoaderData();
 
   return (
-    <div class="mx-auto flex max-w-5xl flex-col overflow-y-auto p-6">
-      <ClientOnly fallback={<div>Loading documentation...</div>}>
-        <MDXContent code={code()} />
-      </ClientOnly>
+    <div class="mx-auto flex max-w-7xl gap-8 overflow-y-auto p-6">
+      <div class="min-w-0 flex-1">
+        <ClientOnly fallback={<div>Loading documentation...</div>}>
+          <MDXContent code={doc().code} />
+        </ClientOnly>
+      </div>
+      <TableOfContents toc={doc().toc} />
     </div>
   );
 }
