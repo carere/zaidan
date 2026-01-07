@@ -17,12 +17,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/ui/tabs";
 
 const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
-    return <h1 class="mt-2 font-bold font-heading text-3xl tracking-tight" {...props} />;
+    return (
+      <h1
+        class="mt-2 font-bold font-heading text-3xl tracking-tight [&>a]:no-underline"
+        {...props}
+      />
+    );
   },
   h2: (props: ComponentProps<"h2">) => {
     return (
       <h2
-        class="mt-8 font-heading font-medium text-2xl tracking-tight [&>a]:no-underline *:[code]:text-2xl"
+        class="mt-12 font-heading font-medium text-2xl tracking-tight [&>a]:no-underline *:[code]:text-2xl"
         {...props}
       />
     );
@@ -30,7 +35,7 @@ const sharedComponents = {
   h3: (props: ComponentProps<"h3">) => {
     return (
       <h3
-        class="mt-8 font-heading font-semibold text-xl tracking-tight [&>a]:no-underline *:[code]:text-xl"
+        class="mt-8 font-heading text-lg tracking-tight [&>a]:no-underline *:[code]:text-xl"
         {...props}
       />
     );
@@ -53,7 +58,7 @@ const sharedComponents = {
   },
 
   p: (props: ComponentProps<"p">) => {
-    return <p class="not-first:mt-6 leading-relaxed" {...props} />;
+    return <p class="not-first:mt-6 text-muted-foreground leading-relaxed" {...props} />;
   },
 
   strong: (props: ComponentProps<"strong">) => {

@@ -14,14 +14,10 @@ import { rehypeFixExpressiveCodeJsx } from "@/lib/rehype-plugins/fix-expressive-
 import { remarkCodeTabs } from "@/lib/remark-plugins/code-tabs";
 import { remarkDirectiveContainers } from "@/lib/remark-plugins/directives";
 import { remarkGithubAlertsToDirectives } from "@/lib/remark-plugins/gh-directives";
-import { remarkInlineFrontmatter } from "@/lib/remark-plugins/inline-frontmatter";
-import { remarkIssueAutolink } from "@/lib/remark-plugins/issue-autolink";
 import { remarkAddClass } from "@/lib/remark-plugins/kbd";
-import { remarkMdxFrontmatter } from "@/lib/remark-plugins/mdx-frontmatter";
 import { remarkPackageManagerTabs } from "@/lib/remark-plugins/package-manager-tabs";
 import { remarkSteps } from "@/lib/remark-plugins/steps";
 import { remarkTabGroup } from "@/lib/remark-plugins/tab-group";
-import { remarkTOC } from "@/lib/remark-plugins/toc";
 
 const rehypePlugins: CompileOptions["rehypePlugins"] = [
   [
@@ -45,18 +41,14 @@ const rehypePlugins: CompileOptions["rehypePlugins"] = [
 const remarkPlugins: CompileOptions["remarkPlugins"] = [
   remarkSteps,
   remarkFrontmatter,
-  remarkMdxFrontmatter,
-  remarkInlineFrontmatter,
   remarkGfm,
   remarkGithubAlertsToDirectives,
   [remarkCodeTabs, { withJsToggle: false }],
   remarkPackageManagerTabs,
   remarkTabGroup,
   remarkDirective,
-  remarkTOC,
   remarkDirectiveContainers,
   remarkAddClass,
-  remarkIssueAutolink,
   remarkCodeImport,
 ];
 
@@ -74,7 +66,9 @@ export default defineConfig({
       schema: s.object({
         slug: s.slug("docs"),
         title: s.string(),
+        description: s.string(),
         code: s.mdx(),
+        toc: s.toc(),
       }),
     },
     ui: {
@@ -83,7 +77,9 @@ export default defineConfig({
       schema: s.object({
         slug: s.slug("ui"),
         title: s.string(),
+        description: s.string(),
         code: s.mdx(),
+        toc: s.toc(),
       }),
     },
   },
