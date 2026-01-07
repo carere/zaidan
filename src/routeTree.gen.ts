@@ -9,68 +9,68 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as Char123DocChar125RouteImport } from './routes/{-$doc}'
-import { Route as UiComponentRouteImport } from './routes/ui.$component'
+import { Route as Char123SlugChar125RouteImport } from './routes/{-$slug}'
+import { Route as UiSlugRouteImport } from './routes/ui.$slug'
 
-const Char123DocChar125Route = Char123DocChar125RouteImport.update({
-  id: '/{-$doc}',
-  path: '/{-$doc}',
+const Char123SlugChar125Route = Char123SlugChar125RouteImport.update({
+  id: '/{-$slug}',
+  path: '/{-$slug}',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UiComponentRoute = UiComponentRouteImport.update({
-  id: '/ui/$component',
-  path: '/ui/$component',
+const UiSlugRoute = UiSlugRouteImport.update({
+  id: '/ui/$slug',
+  path: '/ui/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/{-$doc}': typeof Char123DocChar125Route
-  '/ui/$component': typeof UiComponentRoute
+  '/{-$slug}': typeof Char123SlugChar125Route
+  '/ui/$slug': typeof UiSlugRoute
 }
 export interface FileRoutesByTo {
-  '/{-$doc}': typeof Char123DocChar125Route
-  '/ui/$component': typeof UiComponentRoute
+  '/{-$slug}': typeof Char123SlugChar125Route
+  '/ui/$slug': typeof UiSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/{-$doc}': typeof Char123DocChar125Route
-  '/ui/$component': typeof UiComponentRoute
+  '/{-$slug}': typeof Char123SlugChar125Route
+  '/ui/$slug': typeof UiSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/{-$doc}' | '/ui/$component'
+  fullPaths: '/{-$slug}' | '/ui/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/{-$doc}' | '/ui/$component'
-  id: '__root__' | '/{-$doc}' | '/ui/$component'
+  to: '/{-$slug}' | '/ui/$slug'
+  id: '__root__' | '/{-$slug}' | '/ui/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  Char123DocChar125Route: typeof Char123DocChar125Route
-  UiComponentRoute: typeof UiComponentRoute
+  Char123SlugChar125Route: typeof Char123SlugChar125Route
+  UiSlugRoute: typeof UiSlugRoute
 }
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
-    '/{-$doc}': {
-      id: '/{-$doc}'
-      path: '/{-$doc}'
-      fullPath: '/{-$doc}'
-      preLoaderRoute: typeof Char123DocChar125RouteImport
+    '/{-$slug}': {
+      id: '/{-$slug}'
+      path: '/{-$slug}'
+      fullPath: '/{-$slug}'
+      preLoaderRoute: typeof Char123SlugChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ui/$component': {
-      id: '/ui/$component'
-      path: '/ui/$component'
-      fullPath: '/ui/$component'
-      preLoaderRoute: typeof UiComponentRouteImport
+    '/ui/$slug': {
+      id: '/ui/$slug'
+      path: '/ui/$slug'
+      fullPath: '/ui/$slug'
+      preLoaderRoute: typeof UiSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  Char123DocChar125Route: Char123DocChar125Route,
-  UiComponentRoute: UiComponentRoute,
+  Char123SlugChar125Route: Char123SlugChar125Route,
+  UiSlugRoute: UiSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

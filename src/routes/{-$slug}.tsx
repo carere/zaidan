@@ -3,20 +3,20 @@ import { docs } from "@velite";
 import { MDXContent } from "@/components/mdx-content";
 import "@/styles/mdx.css";
 
-export const Route = createFileRoute("/{-$doc}")({
+export const Route = createFileRoute("/{-$slug}")({
   loader: ({ params }) => {
-    const doc = docs.find((d) => (params.doc ? d.slug === params.doc : d.slug === "home"));
+    const doc = docs.find((d) => (params.slug ? d.slug === params.slug : d.slug === "home"));
     if (!doc) {
       throw notFound({
         data: {
-          doc: params.doc,
+          slug: params.slug,
         },
       });
     }
     return doc.code;
   },
   component: RouteComponent,
-  notFoundComponent: (props) => <div>Doc not found: {(props.data as { doc: string }).doc}</div>,
+  notFoundComponent: (props) => <div>Doc not found: {(props.data as { slug: string }).slug}</div>,
 });
 
 function RouteComponent() {

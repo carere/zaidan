@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 import { useView } from "@/lib/view-context";
 import "@/styles/mdx.css";
 
-export const Route = createFileRoute("/ui/$component")({
+export const Route = createFileRoute("/ui/$slug")({
   loader: ({ params }) => {
-    const doc = ui.find((u) => u.slug === params.component);
+    const doc = ui.find((u) => u.slug === params.slug);
     if (!doc) {
       throw notFound({
         data: {
-          component: params.component,
+          slug: params.slug,
         },
       });
     }
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/ui/$component")({
   },
   component: RouteComponent,
   notFoundComponent: (props) => {
-    return <div>Component not found: {(props.data as { component: string }).component}</div>;
+    return <div>Component not found: {(props.data as { slug: string }).slug}</div>;
   },
 });
 
