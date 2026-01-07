@@ -5,7 +5,6 @@ import { MDXContent } from "@/components/mdx-content";
 import { useStyle } from "@/lib/style-context";
 import { cn } from "@/lib/utils";
 import { useView } from "@/lib/view-context";
-import "@/styles/mdx.css";
 
 export const Route = createFileRoute("/ui/$slug")({
   loader: ({ params }) => {

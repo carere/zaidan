@@ -59,6 +59,7 @@
     "Cpath",
     "Crect",
     "Csvg",
+    "esast",
     "fontsource",
     "github",
     "isodate",
@@ -70,6 +71,7 @@
     "linecap",
     "linejoin",
     "lucide",
+    "mdxjs",
     "nowrap",
     "nums",
     "oklch",
@@ -81,6 +83,7 @@
     "subcontent",
     "tablist",
     "tanstack",
+    "twoslash",
     "vaul",
     "velite",
     "zaidan"
