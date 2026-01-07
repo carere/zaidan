@@ -1,7 +1,6 @@
 import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
 import { docs } from "@velite";
 import { MDXContent } from "@/components/mdx-content";
-import "@/styles/mdx.css";
 
 export const Route = createFileRoute("/{-$slug}")({
   loader: ({ params }) => {

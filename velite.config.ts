@@ -6,17 +6,30 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeExpressiveCode, { type ExpressiveCodeTheme } from "rehype-expressive-code";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
+import remarkDirective from "remark-directive";
+import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import { convertCompilerOptionsFromJson } from "typescript";
 import { defineConfig, s } from "velite";
 import { rehypeFixExpressiveCodeJsx } from "@/lib/rehype-plugins/fix-expressive-code";
+import { remarkCodeTabs } from "@/lib/remark-plugins/code-tabs";
+import { remarkDirectiveContainers } from "@/lib/remark-plugins/directives";
+import { remarkGithubAlertsToDirectives } from "@/lib/remark-plugins/gh-directives";
+import { remarkInlineFrontmatter } from "@/lib/remark-plugins/inline-frontmatter";
+import { remarkIssueAutolink } from "@/lib/remark-plugins/issue-autolink";
+import { remarkAddClass } from "@/lib/remark-plugins/kbd";
+import { remarkMdxFrontmatter } from "@/lib/remark-plugins/mdx-frontmatter";
+import { remarkPackageManagerTabs } from "@/lib/remark-plugins/package-manager-tabs";
+import { remarkSteps } from "@/lib/remark-plugins/steps";
+import { remarkTabGroup } from "@/lib/remark-plugins/tab-group";
+import { remarkTOC } from "@/lib/remark-plugins/toc";
 
 const rehypePlugins: CompileOptions["rehypePlugins"] = [
   [
     rehypeExpressiveCode,
     {
-      themes: ["github-dark", "github-light"],
-      themeCssSelector: (theme: ExpressiveCodeTheme) => `[data-theme*="${theme.type}"]`,
+      themes: ["github-dark-default", "github-light-default"],
+      themeCssSelector: (theme: ExpressiveCodeTheme) => `[data-kb-theme*="${theme.type}"]`,
       plugins: [
         pluginCollapsibleSections(),
         pluginLineNumbers(),
@@ -51,7 +64,22 @@ const rehypePlugins: CompileOptions["rehypePlugins"] = [
   [rehypeAutolinkHeadings, { behavior: "wrap", properties: { "data-auto-heading": "" } }],
 ];
 
-const remarkPlugins: CompileOptions["remarkPlugins"] = [remarkGfm];
+const remarkPlugins: CompileOptions["remarkPlugins"] = [
+  remarkSteps,
+  remarkFrontmatter,
+  remarkMdxFrontmatter,
+  remarkInlineFrontmatter,
+  remarkGfm,
+  remarkGithubAlertsToDirectives,
+  [remarkCodeTabs, { withJsToggle: false }],
+  remarkPackageManagerTabs,
+  remarkTabGroup,
+  remarkDirective,
+  remarkTOC,
+  remarkDirectiveContainers,
+  remarkAddClass,
+  remarkIssueAutolink,
+];
 
 export default defineConfig({
   mdx: {
