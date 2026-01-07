@@ -2,6 +2,7 @@ import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { lazy, Show } from "solid-js";
 import { MDXContent } from "@/components/mdx-content";
+import { TableOfContents } from "@/components/toc";
 import { useStyle } from "@/lib/style-context";
 import { cn } from "@/lib/utils";
 import { useView } from "@/lib/view-context";
@@ -42,10 +43,13 @@ function RouteComponent() {
       <Show
         when={view() === "preview"}
         fallback={
-          <div class="mx-auto flex max-w-5xl flex-col p-6">
-            <ClientOnly fallback={<div>Loading documentation...</div>}>
-              <MDXContent code={doc().code} />
-            </ClientOnly>
+          <div class="mx-auto flex max-w-7xl gap-24 p-6">
+            <div class="min-w-0 flex-1">
+              <ClientOnly fallback={<div>Loading documentation...</div>}>
+                <MDXContent code={doc().code} />
+              </ClientOnly>
+            </div>
+            <TableOfContents toc={doc().toc} />
           </div>
         }
       >
