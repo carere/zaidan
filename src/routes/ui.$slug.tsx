@@ -34,7 +34,7 @@ function RouteComponent() {
   return (
     <div
       class={cn(
-        "no-scrollbar relative h-[calc(100svh-2*var(--header-height)-1rem)] scroll-pt-[calc(var(--header-height)+0.25rem)] overflow-y-auto scroll-smooth sm:h-[calc(100svh-var(--header-height)-2rem)]",
+        "no-scrollbar h-[calc(100svh-2*var(--header-height)-1rem)] scroll-pt-[calc(var(--header-height)+0.25rem)] overflow-y-auto scroll-smooth sm:h-[calc(100svh-var(--header-height)-2rem)]",
         {
           "rounded-lg border": view() === "preview",
         },
@@ -43,7 +43,7 @@ function RouteComponent() {
       <Show
         when={view() === "preview"}
         fallback={
-          <div class="mx-auto flex max-w-7xl gap-24 p-6">
+          <div class="mx-auto flex max-w-5xl gap-24 p-6">
             <div class="min-w-0 flex-1">
               <ClientOnly fallback={<div>Loading documentation...</div>}>
                 <MDXContent code={doc().code} />

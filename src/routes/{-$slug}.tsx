@@ -23,7 +23,7 @@ function RouteComponent() {
   const doc = Route.useLoaderData();
 
   return (
-    <div class="mx-auto flex max-w-7xl gap-8 overflow-y-auto p-6">
+    <div class="mx-auto flex max-w-5xl gap-8 overflow-y-auto p-6">
       <div class="min-w-0 flex-1">
         <ClientOnly fallback={<div>Loading documentation...</div>}>
           <MDXContent code={doc().code} />

@@ -21,7 +21,7 @@ export function Shell() {
         container: isFullLayout(),
       })}
     >
-      <header class="fixed top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2">
+      <header class="sticky top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2">
         <div class="flex items-center lg:mr-2 xl:w-1/3">
           <Link to="/{-$slug}" params={{ slug: "home" }}>
             <Logo class="size-6" />

@@ -191,7 +191,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full border-transparent border-4 bg-accent bg-clip-content;
+    @apply rounded-lg border-transparent border-4 bg-accent bg-clip-content;
   }
 
   ::-webkit-scrollbar-corner {
