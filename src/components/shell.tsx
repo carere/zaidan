@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { SiteConfig } from "@/components/site-config";
 import { StyleSwitcher } from "@/components/style-switcher";
+import { ViewSwitcher } from "@/components/view-switcher";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/ui/separator";
 import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
@@ -32,6 +33,8 @@ export function Shell() {
           <ItemPicker />
         </div>
         <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
+          <ViewSwitcher />
+          <Separator orientation="vertical" />
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
           <ModeSwitcher />

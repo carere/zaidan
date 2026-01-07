@@ -7,6 +7,7 @@ import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { Shell } from "@/components/shell";
 import { StyleProvider } from "@/lib/style-context";
+import { ViewProvider } from "@/lib/view-context";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -43,10 +44,12 @@ function RootComponent() {
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
           <StyleProvider>
-            <Suspense>
-              <Shell />
-              <TanStackRouterDevtools />
-            </Suspense>
+            <ViewProvider>
+              <Suspense>
+                <Shell />
+                <TanStackRouterDevtools />
+              </Suspense>
+            </ViewProvider>
           </StyleProvider>
         </ColorModeProvider>
         <Scripts />
