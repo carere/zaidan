@@ -17,14 +17,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/ui/tabs";
 
 const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
-    return (
-      <h1 class="mt-2 scroll-m-28 font-bold font-heading text-3xl tracking-tight" {...props} />
-    );
+    return <h1 class="mt-2 font-bold font-heading text-3xl tracking-tight" {...props} />;
   },
   h2: (props: ComponentProps<"h2">) => {
     return (
       <h2
-        class="mt-12 scroll-m-28 font-heading font-medium text-2xl tracking-tight first:mt-0 lg:mt-20 [&+p]:mt-4! [&>a]:no-underline *:[code]:text-2xl"
+        class="mt-8 font-heading font-medium text-2xl tracking-tight [&>a]:no-underline *:[code]:text-2xl"
         {...props}
       />
     );
@@ -32,24 +30,22 @@ const sharedComponents = {
   h3: (props: ComponentProps<"h3">) => {
     return (
       <h3
-        class="mt-8 scroll-m-28 font-heading font-semibold text-xl tracking-tight [&>a]:no-underline *:[code]:text-xl"
+        class="mt-8 font-heading font-semibold text-xl tracking-tight [&>a]:no-underline *:[code]:text-xl"
         {...props}
       />
     );
   },
 
   h4: (props: ComponentProps<"h4">) => {
-    return (
-      <h4 class="mt-8 scroll-m-28 font-heading font-medium text-lg tracking-tight" {...props} />
-    );
+    return <h4 class="mt-8 font-heading font-medium text-lg tracking-tight" {...props} />;
   },
 
   h5: (props: ComponentProps<"h5">) => {
-    return <h5 class="mt-8 scroll-m-28 font-medium text-lg tracking-tight" {...props} />;
+    return <h5 class="mt-8 font-medium text-lg tracking-tight" {...props} />;
   },
 
   h6: (props: ComponentProps<"h6">) => {
-    return <h6 class="mt-8 scroll-m-28 font-medium text-base tracking-tight" {...props} />;
+    return <h6 class="mt-8 font-medium text-base tracking-tight" {...props} />;
   },
 
   a: (props: ComponentProps<"a">) => {
@@ -132,7 +128,7 @@ const sharedComponents = {
   },
 
   Step: (props: ComponentProps<"h3">) => (
-    <h3 class="mt-8 scroll-m-32 font-heading font-medium text-xl tracking-tight" {...props} />
+    <h3 class="mt-8 font-heading font-medium text-xl tracking-tight" {...props} />
   ),
 
   Steps: (props: ComponentProps<"div">) => (

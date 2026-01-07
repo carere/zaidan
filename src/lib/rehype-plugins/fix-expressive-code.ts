@@ -18,19 +18,9 @@ export function rehypeFixExpressiveCodeJsx() {
         );
         if (!dangerouslySetInnerHtmlAttribute || index === undefined) return;
 
-        let innerHTML: string =
+        const innerHTML: string =
           dangerouslySetInnerHtmlAttribute.value.data.estree.body[0].expression.properties[0].value
             .value;
-
-        innerHTML = innerHTML.replace(
-          "initTwoslashPopups(document);",
-          ` 
-					if(typeof window.$$$$SolidBase === "undefined") window.$$$$SolidBase = {};
-
-					window.$$$$SolidBase.initTwoslashPopups = () => {
-						if (!!document.querySelector(".twoslash-popup-container")) initTwoslashPopups(document);
-					} `,
-        );
 
         parent.children[index] = {
           type: "element",

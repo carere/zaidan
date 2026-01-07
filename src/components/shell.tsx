@@ -21,9 +21,9 @@ export function Shell() {
         container: isFullLayout(),
       })}
     >
-      <header class="sticky top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2">
+      <header class="fixed top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2">
         <div class="flex items-center lg:mr-2 xl:w-1/3">
-          <Link to="/{-$doc}" params={{ doc: "home" }}>
+          <Link to="/{-$slug}" params={{ slug: "home" }}>
             <Logo class="size-6" />
           </Link>
           <Separator orientation="vertical" class="mx-4" />
@@ -41,7 +41,7 @@ export function Shell() {
           <StyleSwitcher />
         </div>
       </header>
-      <SidebarProvider class="flex max-h-full flex-1 items-start px-6 sm:flex-row">
+      <SidebarProvider class="flex max-h-full flex-1 items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">
         <ItemExplorer />
         <SidebarInset>
           <Outlet />

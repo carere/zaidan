@@ -1,15 +1,14 @@
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { type CompileOptions, nodeTypes } from "@mdx-js/mdx";
-import ecTwoSlash from "expressive-code-twoslash";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeExpressiveCode, { type ExpressiveCodeTheme } from "rehype-expressive-code";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
+import remarkCodeImport from "remark-code-import";
 import remarkDirective from "remark-directive";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
-import { convertCompilerOptionsFromJson } from "typescript";
 import { defineConfig, s } from "velite";
 import { rehypeFixExpressiveCodeJsx } from "@/lib/rehype-plugins/fix-expressive-code";
 import { remarkCodeTabs } from "@/lib/remark-plugins/code-tabs";
@@ -30,28 +29,7 @@ const rehypePlugins: CompileOptions["rehypePlugins"] = [
     {
       themes: ["github-dark-default", "github-light-default"],
       themeCssSelector: (theme: ExpressiveCodeTheme) => `[data-kb-theme*="${theme.type}"]`,
-      plugins: [
-        pluginCollapsibleSections(),
-        pluginLineNumbers(),
-        ecTwoSlash({
-          twoslashOptions: {
-            compilerOptions: {
-              ...convertCompilerOptionsFromJson(
-                {
-                  allowSyntheticDefaultImports: true,
-                  esModuleInterop: true,
-                  target: "ESNext",
-                  module: "ESNext",
-                  lib: ["dom", "esnext"],
-                  jsxImportSource: "solid-js",
-                  jsx: "preserve",
-                },
-                ".",
-              ).options,
-            },
-          },
-        }),
-      ],
+      plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
       defaultProps: {
         showLineNumbers: false,
         collapseStyle: "collapsible-auto",
@@ -79,6 +57,7 @@ const remarkPlugins: CompileOptions["remarkPlugins"] = [
   remarkDirectiveContainers,
   remarkAddClass,
   remarkIssueAutolink,
+  remarkCodeImport,
 ];
 
 export default defineConfig({

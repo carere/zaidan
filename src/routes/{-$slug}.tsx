@@ -22,8 +22,8 @@ function RouteComponent() {
   const code = Route.useLoaderData();
 
   return (
-    <div class="flex flex-col items-center overflow-y-auto">
-      <ClientOnly fallback={<div>Loading...</div>}>
+    <div class="mx-auto flex max-w-5xl flex-col overflow-y-auto p-6">
+      <ClientOnly fallback={<div>Loading documentation...</div>}>
         <MDXContent code={code()} />
       </ClientOnly>
     </div>

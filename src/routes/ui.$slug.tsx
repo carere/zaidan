@@ -33,7 +33,7 @@ function RouteComponent() {
   return (
     <div
       class={cn(
-        "no-scrollbar relative h-[calc(100svh-2*var(--header-height)-1rem)] overflow-y-auto sm:h-[calc(100svh-var(--header-height)-2rem)]",
+        "no-scrollbar relative h-[calc(100svh-2*var(--header-height)-1rem)] scroll-pt-[calc(var(--header-height)+0.25rem)] overflow-y-auto scroll-smooth sm:h-[calc(100svh-var(--header-height)-2rem)]",
         {
           "rounded-lg border": view() === "preview",
         },
