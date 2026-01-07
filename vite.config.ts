@@ -1,3 +1,4 @@
+import netlify from "@netlify/vite-plugin-tanstack-start";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
@@ -11,15 +12,9 @@ export default defineConfig({
     devtools(),
     paths({ projects: ["./tsconfig.json"] }),
     tailwind(),
-    tanstackStart({
-      prerender: {
-        enabled: true,
-        crawlLinks: true,
-      },
-    }),
+    tanstackStart(),
     solid({ ssr: true, hot: true }),
-    velite({
-      config: "velite.config.ts",
-    }),
+    velite({ config: "velite.config.ts" }),
+    netlify(),
   ],
 });

@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@kobalte/core": "^0.13.11",
+    "@netlify/vite-plugin-tanstack-start": "^1.2.6",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/router-plugin": "^1.145.7",
     "@tanstack/solid-router": "^1.145.7",

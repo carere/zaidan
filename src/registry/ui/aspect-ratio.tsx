@@ -4,12 +4,15 @@ import { splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type AspectRatioProps<T extends ValidComponent = "div"> = PolymorphicProps<T, ComponentProps<T>> & {
+type AspectRatioProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  Pick<ComponentProps<T>, "class" | "children">
+> & {
   ratio: number;
 };
 
-const AspectRatio = <T extends ValidComponent = "div">(rawProps: AspectRatioProps<T>) => {
-  const [local, others] = splitProps(rawProps as AspectRatioProps, ["class", "ratio"]);
+const AspectRatio = <T extends ValidComponent = "div">(props: AspectRatioProps<T>) => {
+  const [local, others] = splitProps(props as AspectRatioProps, ["class", "ratio"]);
 
   return (
     <div

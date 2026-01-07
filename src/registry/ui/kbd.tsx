@@ -4,10 +4,13 @@ import { splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type KbdProps<T extends ValidComponent = "kbd"> = PolymorphicProps<T, ComponentProps<T>>;
+type KbdProps<T extends ValidComponent = "kbd"> = PolymorphicProps<
+  T,
+  Pick<ComponentProps<T>, "class">
+>;
 
-const Kbd = <T extends ValidComponent = "kbd">(rawProps: KbdProps<T>) => {
-  const [local, others] = splitProps(rawProps as KbdProps, ["class"]);
+const Kbd = <T extends ValidComponent = "kbd">(props: KbdProps<T>) => {
+  const [local, others] = splitProps(props as KbdProps, ["class"]);
 
   return (
     <kbd
@@ -21,13 +24,16 @@ const Kbd = <T extends ValidComponent = "kbd">(rawProps: KbdProps<T>) => {
   );
 };
 
-type KbdGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<T, ComponentProps<T>>;
+type KbdGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  Pick<ComponentProps<T>, "class">
+>;
 
-const KbdGroup = <T extends ValidComponent = "div">(rawProps: KbdGroupProps<T>) => {
-  const [local, others] = splitProps(rawProps as KbdGroupProps, ["class"]);
+const KbdGroup = <T extends ValidComponent = "div">(props: KbdGroupProps<T>) => {
+  const [local, others] = splitProps(props as KbdGroupProps, ["class"]);
 
   return (
-    <kbd
+    <div
       class={cn("cn-kbd-group inline-flex items-center", local.class)}
       data-slot="kbd-group"
       {...others}
