@@ -1,63 +1,42 @@
 ---
-title: "Alert"
-slug: "alert"
-description: "Displays a callout for user attention."
+title: Alert
+slug: alert
+description: Displays a callout for user attention.
 ---
-
-<MDXHeader
-  title="Alert"
-  description="Displays a callout for user attention."
-  slug="alert"
-  docs="https://kobalte.dev/docs/core/components/alert"
-/>
 
 ## Installation
 
-<Tabs defaultValue="cli">
+::::tab-group[installation]
+:::tab[CLI]
 
-<TabsList>
-  <TabsTrigger value="cli">CLI</TabsTrigger>
-  <TabsTrigger value="manual">Manual</TabsTrigger>
-</TabsList>
-
-<TabsContent value="cli">
-
-```bash
-npx solidui-cli@latest add alert
+```package-exec
+shadcn@latest add alert
 ```
 
-</TabsContent>
+:::
+:::tab[Manual]
 
-<TabsContent value="manual">
-<Steps>
+Copy and paste the following code into your project.
 
-<Step>Install the following dependencies: </Step>
+```file="@/registry/ui/alert.tsx" showLineNumbers
 
-```bash
-npm install @kobalte/core
 ```
 
-<Step>Copy and paste the following code into your project: </Step>
-
-<ComponentSource name="alert" />
-
-</Steps>
-</TabsContent>
-
-</Tabs>
+:::
+::::
 
 ## Usage
 
 ```tsx
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 ```
 
-```tsx
+```tsx showLineNumbers
 <Alert>
-  <IconTerminal />
+  <AlertCircle class="size-4" />
   <AlertTitle>Heads up!</AlertTitle>
   <AlertDescription>
-    You can add components and dependencies to your app using the cli.
+    You can add components to your app using the cli.
   </AlertDescription>
 </Alert>
 ```
