@@ -43,7 +43,7 @@ function RouteComponent() {
         when={view() === "preview"}
         fallback={
           <div class="mx-auto flex max-w-5xl gap-20 p-6">
-            <div class="min-w-0 flex-1">
+            <div class="min-w-0 flex-1" id="ui-doc">
               <Suspense>
                 <MDXContent components={sharedComponents} />
               </Suspense>
