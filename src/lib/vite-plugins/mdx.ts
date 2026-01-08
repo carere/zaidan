@@ -92,8 +92,7 @@ export default function mdx(mdxOptions: CompileOptions) {
     async transform(_code, id) {
       const [path, _] = id.split("?");
       if (/\.mdx?$/.test(path)) {
-        const input = new VFile({ value: _code, path });
-        const code_jsx = await compile(input, {
+        const code_jsx = await compile(new VFile({ value: _code, path }), {
           ...mdxOptions,
           remarkPlugins,
           rehypePlugins,

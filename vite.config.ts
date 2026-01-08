@@ -5,7 +5,7 @@ import velite from "@velite/plugin-vite";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import paths from "vite-tsconfig-paths";
-import mdx from "./src/lib/vite-plugins";
+import mdx from "./src/lib/vite-plugins/mdx";
 
 export default defineConfig({
   plugins: [

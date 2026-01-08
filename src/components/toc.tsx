@@ -38,7 +38,8 @@ function TocItems(props: { items: TocEntry; depth?: number }) {
               {
                 "pl-0": depth() === 0,
                 "pl-4": depth() === 1,
-                "pl-8": depth() >= 2,
+                "pl-8": depth() === 2,
+                "pl-12": depth() >= 3,
               },
             )}
           >
