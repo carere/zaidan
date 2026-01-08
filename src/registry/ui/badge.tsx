@@ -1,8 +1,7 @@
+import { type BadgeRootProps, Root } from "@kobalte/core/badge";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps, ValidComponent } from "solid-js";
-import { splitProps } from "solid-js";
-
+import { splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
@@ -24,14 +23,13 @@ const badgeVariants = cva(
   },
 );
 
-type BadgeProps<T extends ValidComponent = "span"> = PolymorphicProps<T, ComponentProps<T>> &
+type BadgeProps<T extends ValidComponent = "span"> = PolymorphicProps<T, BadgeRootProps<T>> &
   VariantProps<typeof badgeVariants>;
 
-const Badge = <T extends ValidComponent = "span">(rawProps: BadgeProps<T>) => {
-  const [local, others] = splitProps(rawProps as BadgeProps, ["class", "variant"]);
-
+const Badge = <T extends ValidComponent = "span">(props: BadgeProps<T>) => {
+  const [local, others] = splitProps(props as BadgeProps, ["class", "variant"]);
   return (
-    <span
+    <Root
       class={cn(badgeVariants({ variant: local.variant }), local.class)}
       data-slot="badge"
       data-variant={local.variant}

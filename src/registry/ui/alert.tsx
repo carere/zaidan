@@ -1,8 +1,8 @@
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
+import type { PolymorphicProps } from "@kobalte/core";
+import { type AlertRootProps, Root } from "@kobalte/core/alert";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
-
 import { cn } from "@/lib/utils";
 
 const alertVariants = cva("cn-alert group/alert relative w-full", {
@@ -17,14 +17,14 @@ const alertVariants = cva("cn-alert group/alert relative w-full", {
   },
 });
 
-type AlertProps<T extends ValidComponent = "div"> = PolymorphicProps<T, ComponentProps<T>> &
+type AlertProps<T extends ValidComponent = "div"> = PolymorphicProps<T, AlertRootProps<T>> &
   VariantProps<typeof alertVariants>;
 
-const Alert = <T extends ValidComponent = "div">(rawProps: AlertProps<T>) => {
-  const [local, others] = splitProps(rawProps as AlertProps, ["class", "variant"]);
+const Alert = <T extends ValidComponent = "div">(props: AlertProps<T>) => {
+  const [local, others] = splitProps(props as AlertProps, ["class", "variant"]);
 
   return (
-    <div
+    <Root
       class={cn(alertVariants({ variant: local.variant }), local.class)}
       data-slot="alert"
       role="alert"
@@ -33,10 +33,10 @@ const Alert = <T extends ValidComponent = "div">(rawProps: AlertProps<T>) => {
   );
 };
 
-type AlertTitleProps<T extends ValidComponent = "div"> = PolymorphicProps<T, ComponentProps<T>>;
+type AlertTitleProps = ComponentProps<"div">;
 
-const AlertTitle = <T extends ValidComponent = "div">(rawProps: AlertTitleProps<T>) => {
-  const [local, others] = splitProps(rawProps as AlertTitleProps, ["class"]);
+const AlertTitle = (props: AlertTitleProps) => {
+  const [local, others] = splitProps(props, ["class"]);
 
   return (
     <div
@@ -50,13 +50,10 @@ const AlertTitle = <T extends ValidComponent = "div">(rawProps: AlertTitleProps<
   );
 };
 
-type AlertDescriptionProps<T extends ValidComponent = "div"> = PolymorphicProps<
-  T,
-  ComponentProps<T>
->;
+type AlertDescriptionProps = ComponentProps<"div">;
 
-const AlertDescription = <T extends ValidComponent = "div">(rawProps: AlertDescriptionProps<T>) => {
-  const [local, others] = splitProps(rawProps as AlertDescriptionProps, ["class"]);
+const AlertDescription = (props: AlertDescriptionProps) => {
+  const [local, others] = splitProps(props, ["class"]);
 
   return (
     <div
@@ -70,10 +67,10 @@ const AlertDescription = <T extends ValidComponent = "div">(rawProps: AlertDescr
   );
 };
 
-type AlertActionProps<T extends ValidComponent = "div"> = PolymorphicProps<T, ComponentProps<T>>;
+type AlertActionProps = ComponentProps<"div">;
 
-const AlertAction = <T extends ValidComponent = "div">(rawProps: AlertActionProps<T>) => {
-  const [local, others] = splitProps(rawProps as AlertActionProps, ["class"]);
+const AlertAction = (props: AlertActionProps) => {
+  const [local, others] = splitProps(props, ["class"]);
 
   return <div class={cn("cn-alert-action", local.class)} data-slot="alert-action" {...others} />;
 };

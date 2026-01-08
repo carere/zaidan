@@ -29,12 +29,6 @@
     "parser": {
       "tailwindDirectives": true
     },
-    "linter": {
-      "enabled": true
-    },
-    "assist": {
-      "enabled": true
-    },
     "formatter": {
       "enabled": true,
       "indentStyle": "space"
