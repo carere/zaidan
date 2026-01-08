@@ -17,11 +17,16 @@ export function Shell() {
   return (
     <div
       data-slot="layout"
-      class={cn("relative z-10 flex h-svh flex-col bg-background", {
+      class={cn("relative z-10 flex h-svh flex-col bg-background contain-layout", {
         container: isFullLayout(),
       })}
     >
-      <header class="sticky top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2">
+      <header
+        class={cn(
+          "fixed top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2",
+          { "max-w-screen-2xl pr-[72px]": isFullLayout() },
+        )}
+      >
         <div class="flex items-center lg:mr-2 xl:w-1/3">
           <Link to="/{-$slug}" params={{ slug: "home" }}>
             <Logo class="size-6" />

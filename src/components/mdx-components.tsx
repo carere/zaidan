@@ -1,21 +1,17 @@
 import { cookieStorage, makePersisted, messageSync } from "@solid-primitives/storage";
 import { Terminal } from "lucide-solid";
 import {
-  type Component,
   type ComponentProps,
   children,
-  createMemo,
   createSignal,
   For,
   type ParentProps,
   Show,
   splitProps,
 } from "solid-js";
-import * as _jsx_runtime from "solid-js/h/jsx-runtime";
-import { Dynamic } from "solid-js/web";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/ui/tabs";
 
-const sharedComponents = {
+export const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
     return (
       <h1
@@ -265,20 +261,4 @@ const sharedComponents = {
       </div>
     );
   },
-};
-
-interface MDXProps {
-  code: string;
-  components?: Record<string, Component>;
-}
-
-export const MDXContent = (props: MDXProps) => {
-  const Component = createMemo(() => {
-    const fn = new Function(props.code);
-    return fn({ ..._jsx_runtime }).default;
-  });
-
-  return (
-    <Dynamic component={Component()} components={{ ...sharedComponents, ...props.components }} />
-  );
 };
