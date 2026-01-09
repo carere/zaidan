@@ -74,6 +74,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "registryDependencies": ["toggle"],
+      "files": [
+        {
+          "path": "src/registry/ui/toggle-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
