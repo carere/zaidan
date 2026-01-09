@@ -28,18 +28,6 @@
       ]
     },
     {
-      "name": "progress",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/progress.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
       "name": "slider",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
@@ -59,6 +47,30 @@
       "files": [
         {
           "path": "src/registry/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "spinner",
+      "type": "registry:ui",
+      "dependencies": ["lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/spinner.tsx",
           "type": "registry:ui"
         }
       ]
