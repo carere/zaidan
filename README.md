@@ -79,13 +79,13 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Sheet | x | x | x |
 | Sidebar | x | x | x |
 | Skeleton | x | x | x |
-| Slider |  |  |  |
+| Slider | x | x | x |
 | Sonner |  |  |  |
 | Spinner |  |  |  |
 | Switch |  |  |  |
 | Table |  |  |  |
 | Tabs | x | x | x |
-| Textarea |  |  |  |
+| Textarea | x | x | x |
 | Toggle | x | x | x |
 | Toggle Group |  |  |  |
 | Tooltip | x | x | x |

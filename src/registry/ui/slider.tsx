@@ -13,28 +13,22 @@ type SliderProps<T extends ValidComponent = "div"> = PolymorphicProps<T, SliderR
   Pick<ComponentProps<T>, "class">;
 
 const Slider = <T extends ValidComponent = "div">(rawProps: SliderProps<T>) => {
-  const props = mergeProps(
-    {
-      minValue: 0,
-      maxValue: 100,
-    },
-    rawProps,
-  );
+  const props = mergeProps({ minValue: 0, maxValue: 100 }, rawProps);
   const [local, others] = splitProps(props as SliderProps, ["class", "defaultValue", "value"]);
 
   const values = () => {
-    if (Array.isArray(others.value)) return others.value;
+    if (Array.isArray(local.value)) return local.value;
     if (Array.isArray(local.defaultValue)) return local.defaultValue;
-    return [props.minValue ?? 0, props.maxValue ?? 100];
+    return [others.minValue, others.maxValue];
   };
 
   return (
     <SliderPrimitive
       data-slot="slider"
       defaultValue={local.defaultValue}
-      value={others.value}
+      value={local.value}
       class={cn(
-        "cn-slider relative flex w-full touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-[disabled]:opacity-50",
+        "cn-slider relative flex w-full touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-disabled:opacity-50",
         local.class,
       )}
       {...others}
@@ -111,4 +105,4 @@ const SliderThumb = <T extends ValidComponent = "span">(props: SliderThumbCompon
   );
 };
 
-export { Slider, SliderTrack, SliderFill, SliderThumb };
+export { Slider };
