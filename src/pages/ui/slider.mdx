@@ -1,0 +1,110 @@
+---
+title: Slider
+slug: slider
+description: An input where the user selects a value from within a given range.
+---
+
+# Slider
+
+An input where the user selects a value from within a given range.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add slider
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/slider.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx showLineNumbers
+<Slider defaultValue={[33]} maxValue={100} step={1} />
+```
+
+## Props
+
+The Slider component uses Kobalte's Slider primitive under the hood. Here are the main props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number[]` | - | The controlled value of the slider |
+| `defaultValue` | `number[]` | - | The default value of the slider |
+| `onChange` | `(value: number[]) => void` | - | Handler called when value changes |
+| `onChangeEnd` | `(value: number[]) => void` | - | Handler called after dragging ends |
+| `minValue` | `number` | `0` | The minimum value |
+| `maxValue` | `number` | `100` | The maximum value |
+| `step` | `number` | `1` | The stepping interval |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | The orientation of the slider |
+| `disabled` | `boolean` | `false` | Whether the slider is disabled |
+
+## Examples
+
+### Default
+
+```tsx showLineNumbers
+<Slider defaultValue={[50]} maxValue={100} step={1} class="w-[60%]" />
+```
+
+### Range
+
+A slider with two thumbs for selecting a range.
+
+```tsx showLineNumbers
+<Slider defaultValue={[25, 75]} maxValue={100} step={1} class="w-[60%]" />
+```
+
+### Vertical
+
+```tsx showLineNumbers
+<Slider
+  defaultValue={[50]}
+  maxValue={100}
+  step={1}
+  orientation="vertical"
+/>
+```
+
+### With Step
+
+A slider with a step of 10.
+
+```tsx showLineNumbers
+<Slider defaultValue={[50]} maxValue={100} step={10} class="w-[60%]" />
+```
+
+### Controlled
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+import { Slider } from "~/components/ui/slider";
+
+function ControlledSlider() {
+  const [value, setValue] = createSignal([33]);
+
+  return (
+    <>
+      <Slider
+        value={value()}
+        onChange={setValue}
+        maxValue={100}
+        step={1}
+        class="w-[60%]"
+      />
+      <p>Value: {value()[0]}</p>
+    </>
+  );
+}
+```
