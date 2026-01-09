@@ -1,0 +1,65 @@
+---
+title: Switch
+slug: switch
+description: A control that allows the user to toggle between checked and not checked.
+---
+
+# Switch
+
+A control that allows the user to toggle between checked and not checked.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add switch
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/switch.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Switch } from "~/components/ui/switch";
+```
+
+```tsx showLineNumbers
+<Switch />
+```
+
+### With Label
+
+```tsx showLineNumbers
+<div class="flex items-center gap-2">
+  <Switch id="airplane-mode" />
+  <label for="airplane-mode">Airplane Mode</label>
+</div>
+```
+
+### Controlled
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+
+function ControlledSwitch() {
+  const [checked, setChecked] = createSignal(false);
+
+  return (
+    <Switch checked={checked()} onChange={setChecked} />
+  );
+}
+```
+
+### Disabled
+
+```tsx showLineNumbers
+<Switch disabled />
+<Switch disabled checked />
+```
