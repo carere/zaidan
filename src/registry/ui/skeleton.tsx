@@ -1,17 +1,18 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import * as SkeletonPrimitive from "@kobalte/core/skeleton";
-import type { ValidComponent } from "solid-js";
+import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type SkeletonRootProps<T extends ValidComponent = "div"> =
-  SkeletonPrimitive.SkeletonRootProps<T> & { class?: string | undefined };
+type SkeletonProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  SkeletonPrimitive.SkeletonRootProps<T>
+> &
+  Pick<ComponentProps<T>, "class">;
 
-const Skeleton = <T extends ValidComponent = "div">(
-  props: PolymorphicProps<T, SkeletonRootProps<T>>,
-) => {
-  const [local, others] = splitProps(props as SkeletonRootProps, ["class"]);
+const Skeleton = <T extends ValidComponent = "div">(props: SkeletonProps<T>) => {
+  const [local, others] = splitProps(props as SkeletonProps, ["class"]);
   return (
     <SkeletonPrimitive.Root
       class={cn("cn-skeleton animate-pulse", local.class)}

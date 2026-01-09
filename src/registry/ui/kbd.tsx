@@ -1,16 +1,12 @@
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ComponentProps, ValidComponent } from "solid-js";
+import type { ComponentProps } from "solid-js";
 import { splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type KbdProps<T extends ValidComponent = "kbd"> = PolymorphicProps<
-  T,
-  Pick<ComponentProps<T>, "class">
->;
+type KbdProps = ComponentProps<"kbd">;
 
-const Kbd = <T extends ValidComponent = "kbd">(props: KbdProps<T>) => {
-  const [local, others] = splitProps(props as KbdProps, ["class"]);
+const Kbd = (props: KbdProps) => {
+  const [local, others] = splitProps(props, ["class"]);
 
   return (
     <kbd
@@ -24,13 +20,10 @@ const Kbd = <T extends ValidComponent = "kbd">(props: KbdProps<T>) => {
   );
 };
 
-type KbdGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
-  T,
-  Pick<ComponentProps<T>, "class">
->;
+type KbdGroupProps = ComponentProps<"div">;
 
-const KbdGroup = <T extends ValidComponent = "div">(props: KbdGroupProps<T>) => {
-  const [local, others] = splitProps(props as KbdGroupProps, ["class"]);
+const KbdGroup = (props: KbdGroupProps) => {
+  const [local, others] = splitProps(props, ["class"]);
 
   return (
     <div
