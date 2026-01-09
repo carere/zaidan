@@ -14,21 +14,21 @@ type SwitchProps<T extends ValidComponent = "div"> = PolymorphicProps<
 
 const Switch = <T extends ValidComponent = "div">(props: SwitchProps<T>) => {
   const mergedProps = mergeProps({ size: "default" as const }, props);
-  const [local, others] = splitProps(mergedProps as SwitchProps, ["class", "size"]);
+  const [local, others] = splitProps(mergedProps as SwitchProps, ["class", "size", "id"]);
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
       data-size={local.size}
       class={cn(
-        "cn-switch peer group/switch relative inline-flex items-center outline-none transition-all data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+        "cn-switch peer group/switch relative inline-flex items-center outline-none transition-all data-disabled:cursor-not-allowed data-disabled:opacity-50",
         local.class,
       )}
       {...others}
     >
-      <SwitchPrimitive.Input data-slot="switch-input" class="peer sr-only" />
+      <SwitchPrimitive.Input data-slot="switch-input" class="peer sr-only" id={local.id} />
       <SwitchPrimitive.Control
         data-slot="switch-control"
-        class="cn-switch-control relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors data-[disabled]:cursor-not-allowed"
+        class="cn-switch-control relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors data-disabled:cursor-not-allowed"
       >
         <SwitchPrimitive.Thumb
           data-slot="switch-thumb"

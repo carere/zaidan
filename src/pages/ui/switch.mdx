@@ -33,33 +33,3 @@ import { Switch } from "~/components/ui/switch";
 ```tsx showLineNumbers
 <Switch />
 ```
-
-### With Label
-
-```tsx showLineNumbers
-<div class="flex items-center gap-2">
-  <Switch id="airplane-mode" />
-  <label for="airplane-mode">Airplane Mode</label>
-</div>
-```
-
-### Controlled
-
-```tsx showLineNumbers
-import { createSignal } from "solid-js";
-
-function ControlledSwitch() {
-  const [checked, setChecked] = createSignal(false);
-
-  return (
-    <Switch checked={checked()} onChange={setChecked} />
-  );
-}
-```
-
-### Disabled
-
-```tsx showLineNumbers
-<Switch disabled />
-<Switch disabled checked />
-```
