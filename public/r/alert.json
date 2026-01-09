@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "alert",
   "dependencies": [
-    "class-variance-authority"
+    "@kobalte/core"
   ],
   "registryDependencies": [],
   "files": [
