@@ -14,6 +14,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
