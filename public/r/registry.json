@@ -6,7 +6,7 @@
     {
       "name": "alert",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
+      "dependencies": ["@kobalte/core"],
       "registryDependencies": [],
       "files": [
         {
@@ -27,6 +27,19 @@
         }
       ]
     },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "slider",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],

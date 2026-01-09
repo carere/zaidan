@@ -1,0 +1,77 @@
+---
+title: Progress
+slug: progress
+description: Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
+---
+
+# Progress
+
+Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add progress
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/progress.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Progress } from "~/components/ui/progress";
+```
+
+```tsx showLineNumbers
+<Progress value={33} />
+```
+
+## With Label
+
+```tsx
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "~/components/ui/progress";
+```
+
+```tsx showLineNumbers
+<Progress value={75}>
+  <div class="flex w-full justify-between">
+    <ProgressLabel>Loading...</ProgressLabel>
+    <ProgressValue />
+  </div>
+</Progress>
+```
+
+## Indeterminate
+
+Use the `indeterminate` prop to show an indeterminate progress state.
+
+```tsx showLineNumbers
+<Progress indeterminate>
+  <ProgressLabel>Processing...</ProgressLabel>
+</Progress>
+```
+
+## Custom Value Range
+
+Use `minValue` and `maxValue` to set custom value ranges.
+
+```tsx showLineNumbers
+<Progress value={5} minValue={0} maxValue={10}>
+  <div class="flex w-full justify-between">
+    <ProgressLabel>5 of 10 tasks completed</ProgressLabel>
+    <ProgressValue />
+  </div>
+</Progress>
+```
