@@ -31,6 +31,65 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 - Usage examples
 - Theming customization
 
+## Current Components
+
+| Name | Component | Examples | Docs |
+|------|-----------|----------|------|
+| Accordion | x | x | x |
+| Alert | x | x | x |
+| Alert Dialog | x | x | x |
+| Aspect Ratio | x | x | x |
+| Avatar | x | x | x |
+| Badge | x | x | x |
+| Breadcrumb | x | x | x |
+| Button | x | x | x |
+| Button Group | x | x | x |
+| Calendar |  |  |  |
+| Card | x | x | x |
+| Carousel | x | x | x |
+| Chart |  |  |  |
+| Checkbox |  |  |  |
+| Collapsible | x | x | x |
+| Combobox |  |  |  |
+| Command |  |  |  |
+| Context Menu |  |  |  |
+| Dialog |  |  |  |
+| Drawer |  |  |  |
+| Dropdown Menu |  |  |  |
+| Empty |  |  |  |
+| Field |  |  |  |
+| Hover Card |  |  |  |
+| Input | x | x | x |
+| Input Group |  |  |  |
+| Input OTP |  |  |  |
+| Item |  |  |  |
+| Kbd | x | x | x |
+| Label |  |  |  |
+| Menubar |  |  |  |
+| Native Select | x | x | x |
+| Navigation Menu |  |  |  |
+| Pagination |  |  |  |
+| Popover |  |  |  |
+| Progress |  |  |  |
+| Radio Group |  |  |  |
+| Resizable |  |  |  |
+| Scroll Area |  |  |  |
+| Select |  |  |  |
+| Separator | x | x | x |
+| Sheet | x | x | x |
+| Sidebar | x | x | x |
+| Skeleton | x | x | x |
+| Slider |  |  |  |
+| Sonner |  |  |  |
+| Spinner |  |  |  |
+| Switch |  |  |  |
+| Table |  |  |  |
+| Tabs | x | x | x |
+| Textarea |  |  |  |
+| Toggle | x | x | x |
+| Toggle Group |  |  |  |
+| Tooltip | x | x | x |
+
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or submit a pull request on [GitHub](https://github.com/carere/zaidan).
