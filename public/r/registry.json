@@ -98,6 +98,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "item",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": ["separator"],
+      "files": [
+        {
+          "path": "src/registry/ui/item.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
