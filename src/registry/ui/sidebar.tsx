@@ -61,16 +61,15 @@ function useSidebar() {
   return context;
 }
 
-type SidebarProviderProps = Omit<ComponentProps<"div">, "style"> & {
+type SidebarProviderProps = ComponentProps<"div"> & {
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  style?: JSX.CSSProperties;
 };
 
-const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
-  const props = mergeProps({ defaultOpen: true }, rawProps);
-  const [local, others] = splitProps(props, [
+const SidebarProvider = (props: SidebarProviderProps) => {
+  const mergedProps = mergeProps({ defaultOpen: true }, props);
+  const [local, others] = splitProps(mergedProps, [
     "defaultOpen",
     "open",
     "onOpenChange",
@@ -136,7 +135,7 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
         style={{
           "--sidebar-width": SIDEBAR_WIDTH,
           "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-          ...local.style,
+          ...(local.style as JSX.CSSProperties),
         }}
         class={cn(
           "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
@@ -156,16 +155,16 @@ type SidebarProps = ComponentProps<"div"> & {
   collapsible?: "offcanvas" | "icon" | "none";
 };
 
-const Sidebar: Component<SidebarProps> = (rawProps) => {
-  const props = mergeProps<SidebarProps[]>(
+const Sidebar: Component<SidebarProps> = (props) => {
+  const mergedProps = mergeProps<SidebarProps[]>(
     {
       side: "left",
       variant: "sidebar",
       collapsible: "offcanvas",
     },
-    rawProps,
+    props,
   );
-  const [local, others] = splitProps(props, [
+  const [local, others] = splitProps(mergedProps, [
     "side",
     "variant",
     "collapsible",
@@ -259,12 +258,10 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
   );
 };
 
-type SidebarTriggerProps<T extends ValidComponent = "button"> = ButtonProps<T> & {
-  onClick?: (event: MouseEvent) => void;
-};
+type SidebarTriggerProps = ButtonProps;
 
-const SidebarTrigger = <T extends ValidComponent = "button">(props: SidebarTriggerProps<T>) => {
-  const [local, others] = splitProps(props as SidebarTriggerProps, ["class", "onClick"]);
+const SidebarTrigger = (props: SidebarTriggerProps) => {
+  const [local, others] = splitProps(props, ["class", "onClick"]);
   const { toggleSidebar } = useSidebar();
 
   return (
@@ -275,6 +272,7 @@ const SidebarTrigger = <T extends ValidComponent = "button">(props: SidebarTrigg
       size="icon-sm"
       class={cn("cn-sidebar-trigger", local.class)}
       onClick={(event: MouseEvent) => {
+        //@ts-expect-error - TODO: Typescript wizardry needed here
         local.onClick?.(event);
         toggleSidebar();
       }}
@@ -286,7 +284,7 @@ const SidebarTrigger = <T extends ValidComponent = "button">(props: SidebarTrigg
   );
 };
 
-const SidebarRail: Component<ComponentProps<"button">> = (props) => {
+const SidebarRail = (props: ComponentProps<"button">) => {
   const [local, others] = splitProps(props, ["class"]);
   const { toggleSidebar } = useSidebar();
 
@@ -312,7 +310,7 @@ const SidebarRail: Component<ComponentProps<"button">> = (props) => {
   );
 };
 
-const SidebarInset: Component<ComponentProps<"main">> = (props) => {
+const SidebarInset = (props: ComponentProps<"main">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <main
@@ -335,7 +333,7 @@ const SidebarInput = (props: ComponentProps<typeof Input>) => {
   );
 };
 
-const SidebarHeader: Component<ComponentProps<"div">> = (props) => {
+const SidebarHeader = (props: ComponentProps<"div">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
@@ -347,7 +345,7 @@ const SidebarHeader: Component<ComponentProps<"div">> = (props) => {
   );
 };
 
-const SidebarFooter: Component<ComponentProps<"div">> = (props) => {
+const SidebarFooter = (props: ComponentProps<"div">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
@@ -359,7 +357,10 @@ const SidebarFooter: Component<ComponentProps<"div">> = (props) => {
   );
 };
 
-type SidebarSeparatorProps<T extends ValidComponent = "hr"> = ComponentProps<typeof Separator<T>>;
+type SidebarSeparatorProps<T extends ValidComponent = "hr"> = PolymorphicProps<
+  T,
+  ComponentProps<typeof Separator<T>>
+>;
 
 const SidebarSeparator = <T extends ValidComponent = "hr">(props: SidebarSeparatorProps<T>) => {
   const [local, others] = splitProps(props as SidebarSeparatorProps, ["class"]);
@@ -373,7 +374,7 @@ const SidebarSeparator = <T extends ValidComponent = "hr">(props: SidebarSeparat
   );
 };
 
-const SidebarContent: Component<ComponentProps<"div">> = (props) => {
+const SidebarContent = (props: ComponentProps<"div">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
@@ -388,7 +389,7 @@ const SidebarContent: Component<ComponentProps<"div">> = (props) => {
   );
 };
 
-const SidebarGroup: Component<ComponentProps<"div">> = (props) => {
+const SidebarGroup = (props: ComponentProps<"div">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
@@ -400,11 +401,12 @@ const SidebarGroup: Component<ComponentProps<"div">> = (props) => {
   );
 };
 
-type SidebarGroupLabelProps<T extends ValidComponent = "div"> = ComponentProps<T>;
+type SidebarGroupLabelProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  ComponentProps<T>
+>;
 
-const SidebarGroupLabel = <T extends ValidComponent = "div">(
-  props: PolymorphicProps<T, SidebarGroupLabelProps<T>>,
-) => {
+const SidebarGroupLabel = <T extends ValidComponent = "div">(props: SidebarGroupLabelProps<T>) => {
   const [local, others] = splitProps(props as SidebarGroupLabelProps, ["class"]);
 
   return (
@@ -421,10 +423,13 @@ const SidebarGroupLabel = <T extends ValidComponent = "div">(
   );
 };
 
-type SidebarGroupActionProps<T extends ValidComponent = "button"> = ComponentProps<T>;
+type SidebarGroupActionProps<T extends ValidComponent = "button"> = PolymorphicProps<
+  T,
+  ComponentProps<T>
+>;
 
 const SidebarGroupAction = <T extends ValidComponent = "button">(
-  props: PolymorphicProps<T, SidebarGroupActionProps<T>>,
+  props: SidebarGroupActionProps<T>,
 ) => {
   const [local, others] = splitProps(props as SidebarGroupActionProps, ["class"]);
   return (
@@ -441,7 +446,7 @@ const SidebarGroupAction = <T extends ValidComponent = "button">(
   );
 };
 
-const SidebarGroupContent: Component<ComponentProps<"div">> = (props) => {
+const SidebarGroupContent = (props: ComponentProps<"div">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
@@ -453,7 +458,7 @@ const SidebarGroupContent: Component<ComponentProps<"div">> = (props) => {
   );
 };
 
-const SidebarMenu: Component<ComponentProps<"ul">> = (props) => {
+const SidebarMenu = (props: ComponentProps<"ul">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <ul
@@ -465,7 +470,7 @@ const SidebarMenu: Component<ComponentProps<"ul">> = (props) => {
   );
 };
 
-const SidebarMenuItem: Component<ComponentProps<"li">> = (props) => {
+const SidebarMenuItem = (props: ComponentProps<"li">) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <li

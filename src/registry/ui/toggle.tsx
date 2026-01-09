@@ -30,7 +30,7 @@ type ToggleProps<T extends ValidComponent = "button"> = PolymorphicProps<
   ToggleButtonRootProps<T>
 > &
   VariantProps<typeof toggleVariants> &
-  Pick<ComponentProps<T>, "class" | "children">;
+  Pick<ComponentProps<T>, "class">;
 
 const Toggle = <T extends ValidComponent = "button">(props: ToggleProps<T>) => {
   const mergedProps = mergeProps({ variant: "default", size: "default" }, props);

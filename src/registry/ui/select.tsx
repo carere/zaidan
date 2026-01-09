@@ -15,9 +15,8 @@ import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-type SelectProps<T extends ValidComponent = "div"> = PolymorphicProps<T, SelectRootProps<T>> & {
-  class?: string | undefined;
-};
+type SelectProps<T extends ValidComponent = "div"> = PolymorphicProps<T, SelectRootProps<T>> &
+  Pick<ComponentProps<T>, "class">;
 
 const Select = <T extends ValidComponent = "div">(props: SelectProps<T>) => {
   const mergedProps = mergeProps(

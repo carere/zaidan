@@ -16,7 +16,12 @@ const Tooltip = (props: TooltipPrimitive.TooltipRootProps) => {
   return <TooltipPrimitive.Root data-slot="tooltip" {...mergedProps} />;
 };
 
-const TooltipTrigger = (props: TooltipPrimitive.TooltipTriggerProps) => (
+type TooltipTriggerProps<T extends ValidComponent = "button"> = PolymorphicProps<
+  T,
+  TooltipPrimitive.TooltipTriggerProps<T>
+>;
+
+const TooltipTrigger = <T extends ValidComponent = "button">(props: TooltipTriggerProps<T>) => (
   <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
 );
 
