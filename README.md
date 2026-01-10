@@ -62,9 +62,9 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Input | x | x | x |
 | Input Group |  |  |  |
 | Input OTP |  |  |  |
-| Item |  |  |  |
+| Item | x | x | x |
 | Kbd | x | x | x |
-| Label |  |  |  |
+| Label | x | x | x |
 | Menubar |  |  |  |
 | Native Select | x | x | x |
 | Navigation Menu |  |  |  |
@@ -81,13 +81,13 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Skeleton | x | x | x |
 | Slider | x | x | x |
 | Sonner |  |  |  |
-| Spinner |  |  |  |
+| Spinner | x | x | x |
 | Switch | x | x | x |
 | Table |  |  |  |
 | Tabs | x | x | x |
 | Textarea | x | x | x |
 | Toggle | x | x | x |
-| Toggle Group |  |  |  |
+| Toggle Group | x | x | x |
 | Tooltip | x | x | x |
 
 ## Contributing
