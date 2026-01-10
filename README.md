@@ -53,9 +53,9 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Combobox |  |  |  |
 | Command |  |  |  |
 | Context Menu |  |  |  |
-| Dialog |  |  |  |
+| Dialog | x |  | x |
 | Drawer |  |  |  |
-| Dropdown Menu | x |  | x |
+| Dropdown Menu | x | x | x |
 | Empty | x | x | x |
 | Field | x |  | x |
 | Hover Card |  |  |  |
