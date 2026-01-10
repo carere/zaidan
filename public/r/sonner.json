@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "sonner",
+  "dependencies": ["@kobalte/core", "solid-sonner", "lucide-solid"],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/sonner.tsx",
+      "content": "import { useColorMode } from \"@kobalte/core\";\nimport { CircleCheck, Info, Loader2, OctagonX, TriangleAlert } from \"lucide-solid\";\nimport type { ComponentProps } from \"solid-js\";\nimport { splitProps } from \"solid-js\";\nimport { Toaster as Sonner } from \"solid-sonner\";\n\ntype ToasterProps = ComponentProps<typeof Sonner>;\n\nconst Toaster = (props: ToasterProps) => {\n  const { colorMode } = useColorMode();\n  const [local, others] = splitProps(props, [\"theme\"]);\n\n  return (\n    <Sonner\n      theme={(local.theme ?? colorMode()) as ToasterProps[\"theme\"]}\n      class=\"toaster group\"\n      data-slot=\"sonner-toaster\"\n      icons={{\n        success: <CircleCheck class=\"size-4\" />,\n        info: <Info class=\"size-4\" />,\n        warning: <TriangleAlert class=\"size-4\" />,\n        error: <OctagonX class=\"size-4\" />,\n        loading: <Loader2 class=\"size-4 animate-spin\" />,\n      }}\n      style={{\n        \"--normal-bg\": \"var(--color-popover)\",\n        \"--normal-text\": \"var(--color-popover-foreground)\",\n        \"--normal-border\": \"var(--color-border)\",\n        \"--border-radius\": \"var(--radius)\",\n      }}\n      {...others}\n    />\n  );\n};\n\nexport { Toaster };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
