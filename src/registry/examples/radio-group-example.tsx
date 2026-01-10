@@ -25,7 +25,7 @@ export default function RadioGroupExample() {
 function RadioGroupBasic() {
   return (
     <Example title="Basic">
-      <RadioGroup defaultValue="comfortable">
+      <RadioGroup defaultValue="compact">
         <Field orientation="horizontal">
           <RadioGroupItem value="default" id="r1" />
           <FieldLabel for="r1" class="font-normal">
