@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "spinner",
+  "dependencies": [
+    "lucide-solid"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/spinner.tsx",
+      "content": "import { Loader2 } from \"lucide-solid\";\nimport type { ComponentProps } from \"solid-js\";\nimport { splitProps } from \"solid-js\";\n\nimport { cn } from \"@/lib/utils\";\n\ntype SpinnerProps = ComponentProps<\"svg\"> & {\n  class?: string | undefined;\n};\n\nconst Spinner = (props: SpinnerProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <Loader2\n      role=\"status\"\n      aria-label=\"Loading\"\n      class={cn(\"cn-spinner size-4 animate-spin\", local.class)}\n      data-slot=\"spinner\"\n      {...others}\n    />\n  );\n};\n\nexport { Spinner };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
