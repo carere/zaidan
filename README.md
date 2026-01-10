@@ -52,16 +52,16 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Collapsible | x | x | x |
 | Combobox |  |  |  |
 | Command |  |  |  |
-| Context Menu |  |  |  |
-| Dialog |  |  |  |
-| Drawer |  |  |  |
-| Dropdown Menu |  |  |  |
-| Empty |  |  |  |
-| Field |  |  |  |
-| Hover Card |  |  |  |
+| Context Menu | x |  |  |
+| Dialog | x |  |  |
+| Drawer | x |  |  |
+| Dropdown Menu | x |  |  |
+| Empty | x |  |  |
+| Field | x |  |  |
+| Hover Card | x |  |  |
 | Input | x | x | x |
-| Input Group |  |  |  |
-| Input OTP |  |  |  |
+| Input Group | x |  |  |
+| Input OTP | x |  |  |
 | Item | x | x | x |
 | Kbd | x | x | x |
 | Label | x | x | x |
@@ -69,11 +69,11 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Native Select | x | x | x |
 | Navigation Menu |  |  |  |
 | Pagination |  |  |  |
-| Popover |  |  |  |
+| Popover | x |  |  |
 | Progress | x | x | x |
-| Radio Group |  |  |  |
-| Resizable |  |  |  |
-| Scroll Area |  |  |  |
+| Radio Group | x |  |  |
+| Resizable | x |  |  |
+| Scroll Area | x |  |  |
 | Select |  |  |  |
 | Separator | x | x | x |
 | Sheet | x | x | x |
