@@ -110,6 +110,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "input-group",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": ["button", "input", "textarea"],
+      "files": [
+        {
+          "path": "src/registry/ui/input-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

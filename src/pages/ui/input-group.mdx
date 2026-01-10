@@ -1,0 +1,150 @@
+---
+title: Input Group
+slug: input-group
+description: Display additional information or actions to an input or textarea.
+---
+
+# Input Group
+
+Display additional information or actions to an input or textarea.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add input-group
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/input-group.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "~/components/ui/input-group";
+```
+
+```tsx showLineNumbers
+<InputGroup>
+  <InputGroupInput placeholder="Search..." />
+  <InputGroupAddon>
+    <SearchIcon />
+  </InputGroupAddon>
+  <InputGroupAddon align="inline-end">
+    <InputGroupButton>Search</InputGroupButton>
+  </InputGroupAddon>
+</InputGroup>
+```
+
+## API Reference
+
+### InputGroup
+
+The main component that wraps inputs and addons.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` |         |
+
+```tsx
+<InputGroup>
+  <InputGroupInput />
+  <InputGroupAddon />
+</InputGroup>
+```
+
+### InputGroupAddon
+
+Displays icons, text, buttons, or other content alongside inputs.
+
+For proper focus navigation, the `InputGroupAddon` component should be placed after the input. Set the `align` prop to position the addon.
+
+| Prop    | Type                                                             | Default          |
+| ------- | ---------------------------------------------------------------- | ---------------- |
+| `align` | `"inline-start" \| "inline-end" \| "block-start" \| "block-end"` | `"inline-start"` |
+| `class` | `string`                                                         |                  |
+
+```tsx
+<InputGroupAddon align="inline-end">
+  <SearchIcon />
+</InputGroupAddon>
+```
+
+**For `<InputGroupInput />`, use the `inline-start` or `inline-end` alignment. For `<InputGroupTextarea />`, use the `block-start` or `block-end` alignment.**
+
+The `InputGroupAddon` component can have multiple `InputGroupButton` components and icons.
+
+```tsx
+<InputGroupAddon>
+  <InputGroupButton>Button</InputGroupButton>
+  <InputGroupButton>Button</InputGroupButton>
+</InputGroupAddon>
+```
+
+### InputGroupButton
+
+Displays buttons within input groups.
+
+| Prop      | Type                                                                          | Default   |
+| --------- | ----------------------------------------------------------------------------- | --------- |
+| `size`    | `"xs" \| "icon-xs" \| "sm" \| "icon-sm"`                                      | `"xs"`    |
+| `variant` | `"default" \| "destructive" \| "outline" \| "secondary" \| "ghost" \| "link"` | `"ghost"` |
+| `class`   | `string`                                                                      |           |
+
+```tsx
+<InputGroupButton>Button</InputGroupButton>
+<InputGroupButton size="icon-xs" aria-label="Copy">
+  <CopyIcon />
+</InputGroupButton>
+```
+
+### InputGroupInput
+
+Replacement for `<Input />` when building input groups. This component has the input group styles pre-applied and uses the unified `data-slot="input-group-control"` for focus state handling.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` |         |
+
+All other props are passed through to the underlying `<Input />` component.
+
+```tsx
+<InputGroup>
+  <InputGroupInput placeholder="Enter text..." />
+  <InputGroupAddon>
+    <SearchIcon />
+  </InputGroupAddon>
+</InputGroup>
+```
+
+### InputGroupTextarea
+
+Replacement for `<Textarea />` when building input groups. This component has the textarea group styles pre-applied and uses the unified `data-slot="input-group-control"` for focus state handling.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` |         |
+
+All other props are passed through to the underlying `<Textarea />` component.
+
+```tsx
+<InputGroup>
+  <InputGroupTextarea placeholder="Enter message..." />
+  <InputGroupAddon align="block-end">
+    <InputGroupButton>Send</InputGroupButton>
+  </InputGroupAddon>
+</InputGroup>
+```
