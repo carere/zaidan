@@ -134,6 +134,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

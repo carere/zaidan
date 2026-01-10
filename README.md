@@ -61,7 +61,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Hover Card |  |  |  |
 | Input | x |  |  |
 | Input Group | x |  | x |
-| Input OTP |  |  |  |
+| Input OTP | x | x | x |
 | Item | x | x | x |
 | Kbd | x |  |  |
 | Label | x |  | x |
@@ -71,7 +71,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Pagination |  |  |  |
 | Popover |  |  |  |
 | Progress | x | x | x |
-| Radio Group |  |  |  |
+| Radio Group | x | x | x |
 | Resizable |  |  |  |
 | Scroll Area |  |  |  |
 | Select | x |  |  |

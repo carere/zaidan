@@ -1,0 +1,44 @@
+---
+title: Radio Group
+slug: radio-group
+description: A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.
+---
+
+# Radio Group
+
+A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add radio-group
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/radio-group.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+```
+
+```tsx showLineNumbers
+<RadioGroup defaultValue="option1">
+  <div class="flex items-center gap-3">
+    <RadioGroupItem value="option1" />
+    <label for="option1">Option 1</label>
+  </div>
+  <div class="flex items-center gap-3">
+    <RadioGroupItem value="option2" />
+    <label for="option2">Option 2</label>
+  </div>
+</RadioGroup>
+```
