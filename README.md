@@ -60,7 +60,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Field | x |  | x |
 | Hover Card |  |  |  |
 | Input | x |  |  |
-| Input Group |  |  |  |
+| Input Group | x |  | x |
 | Input OTP |  |  |  |
 | Item | x | x | x |
 | Kbd | x |  |  |
