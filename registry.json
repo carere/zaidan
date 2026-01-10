@@ -158,6 +158,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

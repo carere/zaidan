@@ -1,0 +1,52 @@
+---
+title: Dropdown Menu
+slug: dropdown-menu
+description: Displays a menu to the user — such as a set of actions or functions — triggered by a button.
+---
+
+# Dropdown Menu
+
+Displays a menu to the user — such as a set of actions or functions — triggered by a button.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add dropdown-menu
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/dropdown-menu.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+```
+
+```tsx showLineNumbers
+<DropdownMenu>
+  <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem>Profile</DropdownMenuItem>
+    <DropdownMenuItem>Billing</DropdownMenuItem>
+    <DropdownMenuItem>Team</DropdownMenuItem>
+    <DropdownMenuItem>Subscription</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
