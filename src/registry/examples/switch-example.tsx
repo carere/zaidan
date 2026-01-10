@@ -1,45 +1,46 @@
 import { Example, ExampleWrapper } from "@/components/example";
 import { Switch } from "@/registry/ui/switch";
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "../ui/field";
 
 export default function SwitchExample() {
   return (
     <ExampleWrapper>
-      {/* <SwitchBasic />
-      <SwitchWithDescription /> */}
+      <SwitchBasic />
+      <SwitchWithDescription />
       <SwitchDisabled />
       <SwitchSizes />
     </ExampleWrapper>
   );
 }
 
-// function SwitchBasic() {
-//   return (
-//     <Example title="Basic">
-//       <Field orientation="horizontal">
-//         <Switch id="switch-basic" />
-//         <FieldLabel htmlFor="switch-basic">Airplane Mode</FieldLabel>
-//       </Field>
-//     </Example>
-//   );
-// }
+function SwitchBasic() {
+  return (
+    <Example title="Basic">
+      <Field orientation="horizontal">
+        <Switch id="switch-basic" />
+        <FieldLabel for="switch-basic">Airplane Mode</FieldLabel>
+      </Field>
+    </Example>
+  );
+}
 
-// function SwitchWithDescription() {
-//   return (
-//     <Example title="With Description">
-//       <FieldLabel htmlFor="switch-focus-mode">
-//         <Field orientation="horizontal">
-//           <FieldContent>
-//             <FieldTitle>Share across devices</FieldTitle>
-//             <FieldDescription>
-//               Focus is shared across devices, and turns off when you leave the app.
-//             </FieldDescription>
-//           </FieldContent>
-//           <Switch id="switch-focus-mode" />
-//         </Field>
-//       </FieldLabel>
-//     </Example>
-//   );
-// }
+function SwitchWithDescription() {
+  return (
+    <Example title="With Description">
+      <FieldLabel for="switch-focus-mode">
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldTitle>Share across devices</FieldTitle>
+            <FieldDescription>
+              Focus is shared across devices, and turns off when you leave the app.
+            </FieldDescription>
+          </FieldContent>
+          <Switch id="switch-focus-mode" />
+        </Field>
+      </FieldLabel>
+    </Example>
+  );
+}
 
 function SwitchDisabled() {
   return (

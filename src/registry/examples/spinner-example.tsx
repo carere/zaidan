@@ -9,8 +9,8 @@ export default function SpinnerExample() {
       <SpinnerBasic />
       <SpinnerInButtons />
       <SpinnerInBadges />
-      {/* <SpinnerInInputGroup />
-      <SpinnerInEmpty /> */}
+      {/* <SpinnerInInputGroup /> */}
+      {/* <SpinnerInEmpty /> */}
     </ExampleWrapper>
   );
 }

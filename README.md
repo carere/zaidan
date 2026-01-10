@@ -35,60 +35,60 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 
 | Name | Component | Examples | Docs |
 |------|-----------|----------|------|
-| Accordion | x | x | x |
+| Accordion | x |  |  |
 | Alert | x | x | x |
-| Alert Dialog | x | x | x |
-| Aspect Ratio | x | x | x |
-| Avatar | x | x | x |
-| Badge | x | x | x |
-| Breadcrumb | x | x | x |
-| Button | x | x | x |
-| Button Group | x | x | x |
+| Alert Dialog | x |  |  |
+| Aspect Ratio | x |  |  |
+| Avatar | x |  |  |
+| Badge | x |  |  |
+| Breadcrumb | x |  |  |
+| Button | x |  |  |
+| Button Group | x |  |  |
 | Calendar |  |  |  |
-| Card | x | x | x |
-| Carousel | x | x | x |
+| Card | x |  |  |
+| Carousel | x |  |  |
 | Chart |  |  |  |
 | Checkbox |  |  |  |
-| Collapsible | x | x | x |
+| Collapsible | x |  |  |
 | Combobox |  |  |  |
 | Command |  |  |  |
-| Context Menu | x |  |  |
-| Dialog | x |  |  |
-| Drawer | x |  |  |
-| Dropdown Menu | x |  |  |
-| Empty | x |  |  |
-| Field | x |  |  |
-| Hover Card | x |  |  |
-| Input | x | x | x |
-| Input Group | x |  |  |
-| Input OTP | x |  |  |
+| Context Menu |  |  |  |
+| Dialog |  |  |  |
+| Drawer |  |  |  |
+| Dropdown Menu |  |  |  |
+| Empty |  |  |  |
+| Field | x |  | x |
+| Hover Card |  |  |  |
+| Input | x |  |  |
+| Input Group |  |  |  |
+| Input OTP |  |  |  |
 | Item | x | x | x |
-| Kbd | x | x | x |
-| Label | x | x | x |
+| Kbd | x |  |  |
+| Label | x |  | x |
 | Menubar |  |  |  |
-| Native Select | x | x | x |
+| Native Select | x |  |  |
 | Navigation Menu |  |  |  |
 | Pagination |  |  |  |
-| Popover | x |  |  |
+| Popover |  |  |  |
 | Progress | x | x | x |
-| Radio Group | x |  |  |
-| Resizable | x |  |  |
-| Scroll Area | x |  |  |
-| Select |  |  |  |
-| Separator | x | x | x |
-| Sheet | x | x | x |
-| Sidebar | x | x | x |
-| Skeleton | x | x | x |
+| Radio Group |  |  |  |
+| Resizable |  |  |  |
+| Scroll Area |  |  |  |
+| Select | x |  |  |
+| Separator | x |  |  |
+| Sheet | x |  |  |
+| Sidebar | x |  |  |
+| Skeleton | x |  |  |
 | Slider | x | x | x |
 | Sonner |  |  |  |
-| Spinner | x | x | x |
-| Switch | x | x | x |
+| Spinner | x |  | x |
+| Switch | x |  | x |
 | Table |  |  |  |
-| Tabs | x | x | x |
+| Tabs | x |  |  |
 | Textarea | x | x | x |
-| Toggle | x | x | x |
+| Toggle | x |  |  |
 | Toggle Group | x | x | x |
-| Tooltip | x | x | x |
+| Tooltip | x |  |  |
 
 ## Contributing
 
