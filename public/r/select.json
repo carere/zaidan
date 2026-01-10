@@ -2,8 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "select",
   "dependencies": [
-    "@kobalte/core",
-    "lucide-solid"
+    "@kobalte/core"
   ],
   "registryDependencies": [],
   "files": [
