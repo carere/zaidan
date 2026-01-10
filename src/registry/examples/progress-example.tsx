@@ -1,6 +1,8 @@
-import { createSignal } from "solid-js";
+import { File } from "lucide-solid";
+import { createMemo, createSignal, For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Progress, ProgressLabel, ProgressValue } from "@/registry/ui/progress";
+import { Item, ItemActions, ItemContent, ItemGroup, ItemMedia, ItemTitle } from "../ui/item";
 import { Slider } from "../ui/slider";
 
 export default function ProgressExample() {
@@ -9,7 +11,7 @@ export default function ProgressExample() {
       <ProgressValues />
       <ProgressWithLabel />
       <ProgressControlled />
-      {/* <FileUploadList /> */}
+      <FileUploadList />
     </ExampleWrapper>
   );
 }
@@ -58,59 +60,59 @@ function ProgressControlled() {
   );
 }
 
-// function FileUploadList() {
-//   const files = createMemo(
-//     () => [
-//       {
-//         id: "1",
-//         name: "document.pdf",
-//         progress: 45,
-//         timeRemaining: "2m 30s",
-//       },
-//       {
-//         id: "2",
-//         name: "presentation.pptx",
-//         progress: 78,
-//         timeRemaining: "45s",
-//       },
-//       {
-//         id: "3",
-//         name: "spreadsheet.xlsx",
-//         progress: 12,
-//         timeRemaining: "5m 12s",
-//       },
-//       {
-//         id: "4",
-//         name: "image.jpg",
-//         progress: 100,
-//         timeRemaining: "Complete",
-//       },
-//     ],
-//     [],
-//   );
+function FileUploadList() {
+  const files = createMemo(
+    () => [
+      {
+        id: "1",
+        name: "document.pdf",
+        progress: 45,
+        timeRemaining: "2m 30s",
+      },
+      {
+        id: "2",
+        name: "presentation.pptx",
+        progress: 78,
+        timeRemaining: "45s",
+      },
+      {
+        id: "3",
+        name: "spreadsheet.xlsx",
+        progress: 12,
+        timeRemaining: "5m 12s",
+      },
+      {
+        id: "4",
+        name: "image.jpg",
+        progress: 100,
+        timeRemaining: "Complete",
+      },
+    ],
+    [],
+  );
 
-//   return (
-//     <Example title="File Upload List">
-//       <ItemGroup>
-//         <For each={files()}>
-//           {(file) => (
-//             <Item size="xs" class="px-0">
-//               <ItemMedia variant="icon">
-//                 <File />
-//               </ItemMedia>
-//               <ItemContent class="inline-block truncate">
-//                 <ItemTitle class="inline">{file.name}</ItemTitle>
-//               </ItemContent>
-//               <ItemContent>
-//                 <Progress value={file.progress} class="w-32" />
-//               </ItemContent>
-//               <ItemActions class="w-16 justify-end">
-//                 <span class="text-muted-foreground text-sm">{file.timeRemaining}</span>
-//               </ItemActions>
-//             </Item>
-//           )}
-//         </For>
-//       </ItemGroup>
-//     </Example>
-//   );
-// }
+  return (
+    <Example title="File Upload List">
+      <ItemGroup>
+        <For each={files()}>
+          {(file) => (
+            <Item size="xs" class="px-0">
+              <ItemMedia variant="icon">
+                <File />
+              </ItemMedia>
+              <ItemContent class="inline-block truncate">
+                <ItemTitle class="inline">{file.name}</ItemTitle>
+              </ItemContent>
+              <ItemContent>
+                <Progress value={file.progress} class="w-32" />
+              </ItemContent>
+              <ItemActions class="w-16 justify-end">
+                <span class="text-muted-foreground text-sm">{file.timeRemaining}</span>
+              </ItemActions>
+            </Item>
+          )}
+        </For>
+      </ItemGroup>
+    </Example>
+  );
+}

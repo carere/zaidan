@@ -100,13 +100,13 @@
       ]
     },
     {
-      "name": "item",
+      "name": "field",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["separator"],
+      "registryDependencies": ["label", "separator"],
       "files": [
         {
-          "path": "src/registry/ui/item.tsx",
+          "path": "src/registry/ui/field.tsx",
           "type": "registry:ui"
         }
       ]

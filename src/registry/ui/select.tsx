@@ -15,17 +15,20 @@ import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-type SelectProps<T extends ValidComponent = "div"> = PolymorphicProps<T, SelectRootProps<T>> &
-  Pick<ComponentProps<T>, "class">;
+type SelectProps<O, T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  SelectRootProps<O, never, T>
+> &
+  Pick<ComponentProps<T>, "class" | "children">;
 
-const Select = <T extends ValidComponent = "div">(props: SelectProps<T>) => {
+const Select = <O, T extends ValidComponent = "div">(props: SelectProps<O, T>) => {
   const mergedProps = mergeProps(
     {
       sameWidth: true,
       gutter: 8,
       placement: "bottom",
       overlap: true,
-    } as SelectProps<T>,
+    } as const,
     props,
   );
   return <Root {...mergedProps} />;

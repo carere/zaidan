@@ -2,13 +2,13 @@ import { ChevronDown } from "lucide-solid";
 import { type ComponentProps, mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-type NativeSelectProps = Omit<ComponentProps<"select">, "size"> & {
+type NativeSelectProps = ComponentProps<"select"> & {
   size?: "sm" | "default";
 };
 
 function NativeSelect(props: NativeSelectProps) {
   const mergedProps = mergeProps({ size: "default" }, props);
-  const [local, others] = splitProps(mergedProps, ["class", "children", "size"]);
+  const [local, others] = splitProps(mergedProps, ["class", "size"]);
   return (
     <div
       class={cn(
@@ -24,7 +24,10 @@ function NativeSelect(props: NativeSelectProps) {
         class="cn-native-select outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
         {...others}
       />
-      <ChevronDown />
+      <ChevronDown
+        class="cn-native-select-icon pointer-events-none absolute select-none"
+        data-slot="native-select-icon"
+      />
     </div>
   );
 }
