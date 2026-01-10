@@ -34,6 +34,7 @@
     "@tanstack/solid-start": "^1.145.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "corvu": "^0.7.2",
     "embla-carousel": "^8.6.0",
     "embla-carousel-solid": "^8.6.0",
     "lucide-solid": "^0.544.0",

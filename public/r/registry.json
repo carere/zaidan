@@ -182,6 +182,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "dependencies": ["corvu"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/drawer.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
