@@ -7,10 +7,10 @@ export default function SpinnerExample() {
   return (
     <ExampleWrapper>
       <SpinnerBasic />
-      <SpinnerSizes />
-      <SpinnerColors />
       <SpinnerInButtons />
       <SpinnerInBadges />
+      {/* <SpinnerInInputGroup />
+      <SpinnerInEmpty /> */}
     </ExampleWrapper>
   );
 }
@@ -20,33 +20,7 @@ function SpinnerBasic() {
     <Example title="Basic">
       <div class="flex items-center gap-6">
         <Spinner />
-      </div>
-    </Example>
-  );
-}
-
-function SpinnerSizes() {
-  return (
-    <Example title="Sizes">
-      <div class="flex items-center gap-6">
-        <Spinner class="size-3" />
-        <Spinner class="size-4" />
         <Spinner class="size-6" />
-        <Spinner class="size-8" />
-      </div>
-    </Example>
-  );
-}
-
-function SpinnerColors() {
-  return (
-    <Example title="Colors">
-      <div class="flex items-center gap-6">
-        <Spinner class="text-red-500" />
-        <Spinner class="text-green-500" />
-        <Spinner class="text-blue-500" />
-        <Spinner class="text-yellow-500" />
-        <Spinner class="text-purple-500" />
       </div>
     </Example>
   );
@@ -76,7 +50,7 @@ function SpinnerInButtons() {
 
 function SpinnerInBadges() {
   return (
-    <Example title="In Badges">
+    <Example title="In Badges" class="items-center justify-center">
       <div class="flex flex-wrap items-center justify-center gap-4">
         <Badge>
           <Spinner data-icon="inline-start" />
@@ -98,3 +72,48 @@ function SpinnerInBadges() {
     </Example>
   );
 }
+
+// function SpinnerInInputGroup() {
+//   return (
+//     <Example title="In Input Group">
+//       <Field>
+//         <FieldLabel htmlFor="input-group-spinner">Input Group</FieldLabel>
+//         <InputGroup>
+//           <InputGroupInput id="input-group-spinner" />
+//           <InputGroupAddon>
+//             <Spinner />
+//           </InputGroupAddon>
+//         </InputGroup>
+//       </Field>
+//     </Example>
+//   );
+// }
+
+// function SpinnerInEmpty() {
+//   return (
+//     <Example title="In Empty State" containerClass="lg:col-span-full">
+//       <Empty class="min-h-[300px]">
+//         <EmptyHeader>
+//           <EmptyMedia variant="icon">
+//             <Spinner />
+//           </EmptyMedia>
+//           <EmptyTitle>No projects yet</EmptyTitle>
+//           <EmptyDescription>
+//             You haven&apos;t created any projects yet. Get started by creating your first project.
+//           </EmptyDescription>
+//         </EmptyHeader>
+//         <EmptyContent>
+//           <div class="flex gap-2">
+//             <Button as="a" href="#">
+//               Create project
+//             </Button>
+//             <Button variant="outline">Import project</Button>
+//           </div>
+//           <Button variant="link" as="a" href="#" class="text-muted-foreground">
+//             Learn more <ArrowRight />
+//           </Button>
+//         </EmptyContent>
+//       </Empty>
+//     </Example>
+//   );
+// }
