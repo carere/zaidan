@@ -1,16 +1,14 @@
+import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
-} from "@/registry/ui/field";
+import { Badge } from "@/registry/ui/badge";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
+import {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+} from "@/registry/ui/native-select";
+import { Slider } from "@/registry/ui/slider";
 import { Switch } from "@/registry/ui/switch";
 import { Textarea } from "@/registry/ui/textarea";
 
@@ -19,10 +17,13 @@ export default function FieldExample() {
     <ExampleWrapper>
       <InputFields />
       <TextareaFields />
+      {/* <SelectFields /> */}
+      {/* <CheckboxFields /> */}
+      {/* <RadioFields /> */}
       <SwitchFields />
-      <FieldSetExample />
-      <FieldSeparatorExample />
-      <FieldErrorExample />
+      <SliderFields />
+      <NativeSelectFields />
+      {/* <InputOTPFields /> */}
     </ExampleWrapper>
   );
 }
@@ -42,7 +43,7 @@ function InputFields() {
         </Field>
         <Field>
           <FieldLabel for="input-desc-first">Email Address</FieldLabel>
-          <FieldDescription>We'll never share your email with anyone.</FieldDescription>
+          <FieldDescription>We&apos;ll never share your email with anyone.</FieldDescription>
           <Input id="input-desc-first" type="email" placeholder="email@example.com" />
         </Field>
         <Field>
@@ -56,6 +57,15 @@ function InputFields() {
           <FieldLabel for="input-disabled">Disabled Input</FieldLabel>
           <Input id="input-disabled" placeholder="Cannot edit" disabled />
           <FieldDescription>This field is currently disabled.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="input-badge">
+            Input with Badge{" "}
+            <Badge variant="secondary" class="ml-auto">
+              Recommended
+            </Badge>
+          </FieldLabel>
+          <Input id="input-badge" placeholder="Enter value" />
         </Field>
         <Field data-invalid>
           <FieldLabel for="input-invalid">Invalid Input</FieldLabel>
@@ -94,6 +104,13 @@ function TextareaFields() {
           <FieldDescription>Tell us about yourself in a few sentences.</FieldDescription>
           <Textarea id="textarea-bio" placeholder="I am a..." class="min-h-[120px]" />
         </Field>
+        <Field>
+          <FieldLabel for="textarea-desc-after">Message</FieldLabel>
+          <Textarea id="textarea-desc-after" placeholder="Enter your message" />
+          <FieldDescription>
+            Enter your message so it is long enough to test the layout.
+          </FieldDescription>
+        </Field>
         <Field data-invalid>
           <FieldLabel for="textarea-invalid">Invalid Textarea</FieldLabel>
           <Textarea id="textarea-invalid" placeholder="This field has an error" aria-invalid />
@@ -108,6 +125,400 @@ function TextareaFields() {
     </Example>
   );
 }
+
+// function SelectFields() {
+//   const basicItems = [
+//     { label: "Choose an option", value: null },
+//     { label: "Option 1", value: "option1" },
+//     { label: "Option 2", value: "option2" },
+//     { label: "Option 3", value: "option3" },
+//   ];
+//   const countryItems = [
+//     { label: "Select your country", value: null },
+//     { label: "United States", value: "us" },
+//     { label: "United Kingdom", value: "uk" },
+//     { label: "Canada", value: "ca" },
+//   ];
+//   const timezoneItems = [
+//     { label: "Select timezone", value: null },
+//     { label: "UTC", value: "utc" },
+//     { label: "Eastern Time", value: "est" },
+//     { label: "Pacific Time", value: "pst" },
+//   ];
+//   const invalidItems = [
+//     { label: "This field has an error", value: null },
+//     { label: "Option 1", value: "option1" },
+//     { label: "Option 2", value: "option2" },
+//     { label: "Option 3", value: "option3" },
+//   ];
+//   const disabledItems = [
+//     { label: "Cannot select", value: null },
+//     { label: "Option 1", value: "option1" },
+//     { label: "Option 2", value: "option2" },
+//     { label: "Option 3", value: "option3" },
+//   ];
+
+//   return (
+//     <Example title="Select Fields">
+//       <FieldGroup>
+//         <Field>
+//           <FieldLabel for="select-basic">Basic Select</FieldLabel>
+//           <Select
+//             options={basicItems}
+//             optionValue="value"
+//             optionTextValue="label"
+//             itemComponent={(props) => (
+//               <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+//             )}
+//           >
+//             <SelectTrigger id="select-basic">
+//               <SelectValue />
+//             </SelectTrigger>
+//             <SelectContent />
+//           </Select>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="select-country">Country</FieldLabel>
+//           <Select items={countryItems}>
+//             <SelectTrigger id="select-country">
+//               <SelectValue />
+//             </SelectTrigger>
+//             <SelectContent>
+//               <SelectGroup>
+//                 {countryItems.map((item) => (
+//                   <SelectItem key={item.value} value={item.value}>
+//                     {item.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectGroup>
+//             </SelectContent>
+//           </Select>
+//           <FieldDescription>Select the country where you currently reside.</FieldDescription>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="select-timezone">Timezone</FieldLabel>
+//           <FieldDescription>Choose your local timezone for accurate scheduling.</FieldDescription>
+//           <Select items={timezoneItems}>
+//             <SelectTrigger id="select-timezone">
+//               <SelectValue />
+//             </SelectTrigger>
+//             <SelectContent>
+//               <SelectGroup>
+//                 {timezoneItems.map((item) => (
+//                   <SelectItem key={item.value} value={item.value}>
+//                     {item.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectGroup>
+//             </SelectContent>
+//           </Select>
+//         </Field>
+//         <Field data-invalid>
+//           <FieldLabel for="select-invalid">Invalid Select</FieldLabel>
+//           <Select items={invalidItems}>
+//             <SelectTrigger id="select-invalid" aria-invalid>
+//               <SelectValue />
+//             </SelectTrigger>
+//             <SelectContent>
+//               <SelectGroup>
+//                 {invalidItems.map((item) => (
+//                   <SelectItem key={item.value} value={item.value}>
+//                     {item.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectGroup>
+//             </SelectContent>
+//           </Select>
+//           <FieldDescription>This field contains validation errors.</FieldDescription>
+//         </Field>
+//         <Field data-disabled>
+//           <FieldLabel for="select-disabled-field">Disabled Field</FieldLabel>
+//           <Select items={disabledItems} disabled>
+//             <SelectTrigger id="select-disabled-field">
+//               <SelectValue />
+//             </SelectTrigger>
+//             <SelectContent>
+//               <SelectGroup>
+//                 {disabledItems.map((item) => (
+//                   <SelectItem key={item.value} value={item.value}>
+//                     {item.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectGroup>
+//             </SelectContent>
+//           </Select>
+//           <FieldDescription>This field is currently disabled.</FieldDescription>
+//         </Field>
+//       </FieldGroup>
+//     </Example>
+//   );
+// }
+
+function NativeSelectFields() {
+  return (
+    <Example title="Native Select Fields">
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="native-select-basic">Basic Native Select</FieldLabel>
+          <NativeSelect id="native-select-basic">
+            <NativeSelectOption value="">Choose an option</NativeSelectOption>
+            <NativeSelectOption value="option1">Option 1</NativeSelectOption>
+            <NativeSelectOption value="option2">Option 2</NativeSelectOption>
+            <NativeSelectOption value="option3">Option 3</NativeSelectOption>
+          </NativeSelect>
+        </Field>
+        <Field>
+          <FieldLabel for="native-select-country">Country</FieldLabel>
+          <NativeSelect id="native-select-country">
+            <NativeSelectOption value="">Select your country</NativeSelectOption>
+            <NativeSelectOption value="us">United States</NativeSelectOption>
+            <NativeSelectOption value="uk">United Kingdom</NativeSelectOption>
+            <NativeSelectOption value="ca">Canada</NativeSelectOption>
+          </NativeSelect>
+          <FieldDescription>Select the country where you currently reside.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="native-select-timezone">Timezone</FieldLabel>
+          <FieldDescription>Choose your local timezone for accurate scheduling.</FieldDescription>
+          <NativeSelect id="native-select-timezone">
+            <NativeSelectOption value="">Select timezone</NativeSelectOption>
+            <NativeSelectOption value="utc">UTC</NativeSelectOption>
+            <NativeSelectOption value="est">Eastern Time</NativeSelectOption>
+            <NativeSelectOption value="pst">Pacific Time</NativeSelectOption>
+          </NativeSelect>
+        </Field>
+        <Field>
+          <FieldLabel for="native-select-grouped">Grouped Options</FieldLabel>
+          <NativeSelect id="native-select-grouped">
+            <NativeSelectOption value="">Select a region</NativeSelectOption>
+            <NativeSelectOptGroup label="North America">
+              <NativeSelectOption value="us">United States</NativeSelectOption>
+              <NativeSelectOption value="ca">Canada</NativeSelectOption>
+              <NativeSelectOption value="mx">Mexico</NativeSelectOption>
+            </NativeSelectOptGroup>
+            <NativeSelectOptGroup label="Europe">
+              <NativeSelectOption value="uk">United Kingdom</NativeSelectOption>
+              <NativeSelectOption value="fr">France</NativeSelectOption>
+              <NativeSelectOption value="de">Germany</NativeSelectOption>
+            </NativeSelectOptGroup>
+          </NativeSelect>
+          <FieldDescription>Native select with grouped options using optgroup.</FieldDescription>
+        </Field>
+        <Field data-invalid>
+          <FieldLabel for="native-select-invalid">Invalid Native Select</FieldLabel>
+          <NativeSelect id="native-select-invalid" aria-invalid>
+            <NativeSelectOption value="">This field has an error</NativeSelectOption>
+            <NativeSelectOption value="option1">Option 1</NativeSelectOption>
+            <NativeSelectOption value="option2">Option 2</NativeSelectOption>
+            <NativeSelectOption value="option3">Option 3</NativeSelectOption>
+          </NativeSelect>
+          <FieldDescription>This field contains validation errors.</FieldDescription>
+        </Field>
+        <Field data-disabled>
+          <FieldLabel for="native-select-disabled-field">Disabled Field</FieldLabel>
+          <NativeSelect id="native-select-disabled-field" disabled>
+            <NativeSelectOption value="">Cannot select</NativeSelectOption>
+            <NativeSelectOption value="option1">Option 1</NativeSelectOption>
+            <NativeSelectOption value="option2">Option 2</NativeSelectOption>
+            <NativeSelectOption value="option3">Option 3</NativeSelectOption>
+          </NativeSelect>
+          <FieldDescription>This field is currently disabled.</FieldDescription>
+        </Field>
+      </FieldGroup>
+    </Example>
+  );
+}
+
+// function CheckboxFields() {
+//   return (
+//     <Example title="Checkbox Fields">
+//       <FieldGroup>
+//         <Field orientation="horizontal">
+//           <Checkbox id="checkbox-basic" defaultChecked />
+//           <FieldLabel for="checkbox-basic" class="font-normal">
+//             I agree to the terms and conditions
+//           </FieldLabel>
+//         </Field>
+//         <Field orientation="horizontal">
+//           <FieldLabel for="checkbox-right">Accept terms and conditions</FieldLabel>
+//           <Checkbox id="checkbox-right" />
+//         </Field>
+//         <Field orientation="horizontal">
+//           <Checkbox id="checkbox-with-desc" />
+//           <FieldContent>
+//             <FieldLabel for="checkbox-with-desc">Subscribe to newsletter</FieldLabel>
+//             <FieldDescription>
+//               Receive weekly updates about new features and promotions.
+//             </FieldDescription>
+//           </FieldContent>
+//         </Field>
+//         <FieldLabel for="checkbox-with-title">
+//           <Field orientation="horizontal">
+//             <Checkbox id="checkbox-with-title" />
+//             <FieldContent>
+//               <FieldTitle>Enable Touch ID</FieldTitle>
+//               <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
+//             </FieldContent>
+//           </Field>
+//         </FieldLabel>
+//         <FieldSet>
+//           <FieldLegend variant="label">Preferences</FieldLegend>
+//           <FieldDescription>Select all that apply to customize your experience.</FieldDescription>
+//           <FieldGroup class="gap-3">
+//             <Field orientation="horizontal">
+//               <Checkbox id="pref-dark" />
+//               <FieldLabel for="pref-dark" class="font-normal">
+//                 Dark mode
+//               </FieldLabel>
+//             </Field>
+//             <Field orientation="horizontal">
+//               <Checkbox id="pref-compact" />
+//               <FieldLabel for="pref-compact" class="font-normal">
+//                 Compact view
+//               </FieldLabel>
+//             </Field>
+//             <Field orientation="horizontal">
+//               <Checkbox id="pref-notifications" />
+//               <FieldLabel for="pref-notifications" class="font-normal">
+//                 Enable notifications
+//               </FieldLabel>
+//             </Field>
+//           </FieldGroup>
+//         </FieldSet>
+//         <Field data-invalid orientation="horizontal">
+//           <Checkbox id="checkbox-invalid" aria-invalid />
+//           <FieldLabel for="checkbox-invalid" class="font-normal">
+//             Invalid checkbox
+//           </FieldLabel>
+//         </Field>
+//         <Field data-disabled orientation="horizontal">
+//           <Checkbox id="checkbox-disabled-field" disabled />
+//           <FieldLabel for="checkbox-disabled-field" class="font-normal">
+//             Disabled checkbox
+//           </FieldLabel>
+//         </Field>
+//       </FieldGroup>
+//     </Example>
+//   );
+// }
+
+// function RadioFields() {
+//   return (
+//     <Example title="Radio Fields">
+//       <FieldGroup>
+//         <FieldSet>
+//           <FieldLegend variant="label">Subscription Plan</FieldLegend>
+//           <RadioGroup defaultValue="free">
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="free" id="radio-free" />
+//               <FieldLabel for="radio-free" class="font-normal">
+//                 Free Plan
+//               </FieldLabel>
+//             </Field>
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="pro" id="radio-pro" />
+//               <FieldLabel for="radio-pro" class="font-normal">
+//                 Pro Plan
+//               </FieldLabel>
+//             </Field>
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="enterprise" id="radio-enterprise" />
+//               <FieldLabel for="radio-enterprise" class="font-normal">
+//                 Enterprise
+//               </FieldLabel>
+//             </Field>
+//           </RadioGroup>
+//         </FieldSet>
+//         <FieldSet>
+//           <FieldLegend variant="label">Battery Level</FieldLegend>
+//           <FieldDescription>Choose your preferred battery level.</FieldDescription>
+//           <RadioGroup>
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="high" id="battery-high" />
+//               <FieldLabel for="battery-high">High</FieldLabel>
+//             </Field>
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="medium" id="battery-medium" />
+//               <FieldLabel for="battery-medium">Medium</FieldLabel>
+//             </Field>
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="low" id="battery-low" />
+//               <FieldLabel for="battery-low">Low</FieldLabel>
+//             </Field>
+//           </RadioGroup>
+//         </FieldSet>
+//         <RadioGroup class="gap-6">
+//           <Field orientation="horizontal">
+//             <RadioGroupItem value="option1" id="radio-content-1" />
+//             <FieldContent>
+//               <FieldLabel for="radio-content-1">Enable Touch ID</FieldLabel>
+//               <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
+//             </FieldContent>
+//           </Field>
+//           <Field orientation="horizontal">
+//             <RadioGroupItem value="option2" id="radio-content-2" />
+//             <FieldContent>
+//               <FieldLabel for="radio-content-2">
+//                 Enable Touch ID and Face ID to make it even faster to unlock your device. This is a
+//                 long label to test the layout.
+//               </FieldLabel>
+//               <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
+//             </FieldContent>
+//           </Field>
+//         </RadioGroup>
+//         <RadioGroup class="gap-3">
+//           <FieldLabel for="radio-title-1">
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="title1" id="radio-title-1" />
+//               <FieldContent>
+//                 <FieldTitle>Enable Touch ID</FieldTitle>
+//                 <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
+//               </FieldContent>
+//             </Field>
+//           </FieldLabel>
+//           <FieldLabel for="radio-title-2">
+//             <Field orientation="horizontal">
+//               <RadioGroupItem value="title2" id="radio-title-2" />
+//               <FieldContent>
+//                 <FieldTitle>
+//                   Enable Touch ID and Face ID to make it even faster to unlock your device. This is
+//                   a long label to test the layout.
+//                 </FieldTitle>
+//                 <FieldDescription>Enable Touch ID to quickly unlock your device.</FieldDescription>
+//               </FieldContent>
+//             </Field>
+//           </FieldLabel>
+//         </RadioGroup>
+//         <FieldSet>
+//           <FieldLegend variant="label">Invalid Radio Group</FieldLegend>
+//           <RadioGroup>
+//             <Field data-invalid orientation="horizontal">
+//               <RadioGroupItem value="invalid1" id="radio-invalid-1" aria-invalid />
+//               <FieldLabel for="radio-invalid-1">Invalid Option 1</FieldLabel>
+//             </Field>
+//             <Field data-invalid orientation="horizontal">
+//               <RadioGroupItem value="invalid2" id="radio-invalid-2" aria-invalid />
+//               <FieldLabel for="radio-invalid-2">Invalid Option 2</FieldLabel>
+//             </Field>
+//           </RadioGroup>
+//         </FieldSet>
+//         <FieldSet>
+//           <FieldLegend variant="label">Disabled Radio Group</FieldLegend>
+//           <RadioGroup disabled>
+//             <Field data-disabled orientation="horizontal">
+//               <RadioGroupItem value="disabled1" id="radio-disabled-1" disabled />
+//               <FieldLabel for="radio-disabled-1">Disabled Option 1</FieldLabel>
+//             </Field>
+//             <Field data-disabled orientation="horizontal">
+//               <RadioGroupItem value="disabled2" id="radio-disabled-2" disabled />
+//               <FieldLabel for="radio-disabled-2">Disabled Option 2</FieldLabel>
+//             </Field>
+//           </RadioGroup>
+//         </FieldSet>
+//       </FieldGroup>
+//     </Example>
+//   );
+// }
 
 function SwitchFields() {
   return (
@@ -172,81 +583,201 @@ function SwitchFields() {
   );
 }
 
-function FieldSetExample() {
-  return (
-    <Example title="FieldSet and Legend">
-      <FieldSet>
-        <FieldLegend variant="label">Notification Preferences</FieldLegend>
-        <FieldDescription>Select how you want to receive notifications.</FieldDescription>
-        <FieldGroup class="gap-3">
-          <Field orientation="horizontal">
-            <Switch id="pref-email-notifications" />
-            <FieldLabel for="pref-email-notifications" class="font-normal">
-              Email notifications
-            </FieldLabel>
-          </Field>
-          <Field orientation="horizontal">
-            <Switch id="pref-sms-notifications" />
-            <FieldLabel for="pref-sms-notifications" class="font-normal">
-              SMS notifications
-            </FieldLabel>
-          </Field>
-          <Field orientation="horizontal">
-            <Switch id="pref-push-notifications" />
-            <FieldLabel for="pref-push-notifications" class="font-normal">
-              Push notifications
-            </FieldLabel>
-          </Field>
-        </FieldGroup>
-      </FieldSet>
-    </Example>
-  );
-}
+function SliderFields() {
+  const [volume, setVolume] = createSignal([50]);
+  const [brightness, setBrightness] = createSignal([75]);
+  const [temperature, setTemperature] = createSignal([0.3, 0.7]);
+  const [priceRange, setPriceRange] = createSignal([25, 75]);
+  const [colorBalance, setColorBalance] = createSignal([10, 20, 70]);
 
-function FieldSeparatorExample() {
   return (
-    <Example title="Field Separator">
+    <Example title="Slider Fields">
       <FieldGroup>
         <Field>
-          <FieldLabel for="sep-email">Email</FieldLabel>
-          <Input id="sep-email" type="email" placeholder="Enter your email" />
-        </Field>
-        <FieldSeparator />
-        <Field>
-          <FieldLabel for="sep-password">Password</FieldLabel>
-          <Input id="sep-password" type="password" placeholder="Enter your password" />
-        </Field>
-        <FieldSeparator>or</FieldSeparator>
-        <Field>
-          <FieldLabel for="sep-social">Social Login</FieldLabel>
-          <FieldDescription>Sign in with your social account instead.</FieldDescription>
-        </Field>
-      </FieldGroup>
-    </Example>
-  );
-}
-
-function FieldErrorExample() {
-  return (
-    <Example title="Field Error">
-      <FieldGroup>
-        <Field>
-          <FieldLabel for="error-username">Username</FieldLabel>
-          <Input id="error-username" placeholder="Enter username" aria-invalid />
-          <FieldError>Username is already taken.</FieldError>
-        </Field>
-        <Field>
-          <FieldLabel for="error-multi">Password</FieldLabel>
-          <Input id="error-multi" type="password" placeholder="Enter password" aria-invalid />
-          <FieldError
-            errors={[
-              { message: "Password must be at least 8 characters." },
-              { message: "Password must contain a number." },
-              { message: "Password must contain a special character." },
-            ]}
+          <FieldLabel for="slider-volume">Volume</FieldLabel>
+          <Slider
+            id="slider-volume"
+            value={volume()}
+            onChange={setVolume}
+            maxValue={100}
+            step={1}
           />
         </Field>
+        <Field>
+          <FieldLabel for="slider-brightness">Screen Brightness</FieldLabel>
+          <Slider
+            id="slider-brightness"
+            value={brightness()}
+            onChange={setBrightness}
+            maxValue={100}
+            step={5}
+          />
+          <FieldDescription>Current brightness: {brightness()[0]}%</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="slider-quality">Video Quality</FieldLabel>
+          <FieldDescription>Higher quality uses more bandwidth.</FieldDescription>
+          <Slider
+            id="slider-quality"
+            defaultValue={[720]}
+            maxValue={1080}
+            minValue={360}
+            step={360}
+          />
+        </Field>
+        <Field>
+          <FieldLabel for="slider-temperature">Temperature Range</FieldLabel>
+          <Slider
+            id="slider-temperature"
+            value={temperature()}
+            onChange={setTemperature}
+            minValue={0}
+            maxValue={1}
+            step={0.1}
+          />
+          <FieldDescription>
+            Range: {temperature()[0].toFixed(1)} - {temperature()[1].toFixed(1)}
+          </FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="slider-price-range">Price Range</FieldLabel>
+          <Slider
+            id="slider-price-range"
+            value={priceRange()}
+            onChange={setPriceRange}
+            maxValue={100}
+            step={5}
+          />
+          <FieldDescription>
+            ${priceRange()[0]} - ${priceRange()[1]}
+          </FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="slider-color-balance">Color Balance</FieldLabel>
+          <Slider
+            id="slider-color-balance"
+            value={colorBalance()}
+            onChange={setColorBalance}
+            maxValue={100}
+            step={10}
+          />
+          <FieldDescription>
+            Red: {colorBalance()[0]}%, Green: {colorBalance()[1]}%, Blue: {colorBalance()[2]}%
+          </FieldDescription>
+        </Field>
+        <Field data-invalid>
+          <FieldLabel for="slider-invalid">Invalid Slider</FieldLabel>
+          <Slider id="slider-invalid" defaultValue={[30]} maxValue={100} aria-invalid />
+          <FieldDescription>This slider has validation errors.</FieldDescription>
+        </Field>
+        <Field data-disabled>
+          <FieldLabel for="slider-disabled-field">Disabled Slider</FieldLabel>
+          <Slider id="slider-disabled-field" defaultValue={[50]} maxValue={100} disabled />
+          <FieldDescription>This slider is currently disabled.</FieldDescription>
+        </Field>
       </FieldGroup>
     </Example>
   );
 }
+
+// function InputOTPFields() {
+//   const [value, setValue] = useState("");
+//   const [pinValue, setPinValue] = useState("");
+
+//   return (
+//     <Example title="OTP Input Fields">
+//       <FieldGroup>
+//         <Field>
+//           <FieldLabel for="otp-basic">Verification Code</FieldLabel>
+//           <InputOTP id="otp-basic" maxLength={6}>
+//             <InputOTPGroup>
+//               <InputOTPSlot index={0} />
+//               <InputOTPSlot index={1} />
+//               <InputOTPSlot index={2} />
+//               <InputOTPSlot index={3} />
+//               <InputOTPSlot index={4} />
+//               <InputOTPSlot index={5} />
+//             </InputOTPGroup>
+//           </InputOTP>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="otp-with-desc">Enter OTP</FieldLabel>
+//           <InputOTP id="otp-with-desc" maxLength={6} value={value} onChange={setValue}>
+//             <InputOTPGroup>
+//               <InputOTPSlot index={0} />
+//               <InputOTPSlot index={1} />
+//               <InputOTPSlot index={2} />
+//               <InputOTPSlot index={3} />
+//               <InputOTPSlot index={4} />
+//               <InputOTPSlot index={5} />
+//             </InputOTPGroup>
+//           </InputOTP>
+//           <FieldDescription>Enter the 6-digit code sent to your email.</FieldDescription>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="otp-separator">Two-Factor Authentication</FieldLabel>
+//           <InputOTP id="otp-separator" maxLength={6}>
+//             <InputOTPGroup>
+//               <InputOTPSlot index={0} />
+//               <InputOTPSlot index={1} />
+//               <InputOTPSlot index={2} />
+//             </InputOTPGroup>
+//             <InputOTPSeparator />
+//             <InputOTPGroup>
+//               <InputOTPSlot index={3} />
+//               <InputOTPSlot index={4} />
+//               <InputOTPSlot index={5} />
+//             </InputOTPGroup>
+//           </InputOTP>
+//           <FieldDescription>Enter the code from your authenticator app.</FieldDescription>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="otp-pin">PIN Code</FieldLabel>
+//           <InputOTP
+//             id="otp-pin"
+//             maxLength={4}
+//             pattern={REGEXP_ONLY_DIGITS}
+//             value={pinValue}
+//             onChange={setPinValue}
+//           >
+//             <InputOTPGroup>
+//               <InputOTPSlot index={0} />
+//               <InputOTPSlot index={1} />
+//               <InputOTPSlot index={2} />
+//               <InputOTPSlot index={3} />
+//             </InputOTPGroup>
+//           </InputOTP>
+//           <FieldDescription>Enter your 4-digit PIN (numbers only).</FieldDescription>
+//         </Field>
+//         <Field data-invalid>
+//           <FieldLabel for="otp-invalid">Invalid OTP</FieldLabel>
+//           <InputOTP id="otp-invalid" maxLength={6}>
+//             <InputOTPGroup>
+//               <InputOTPSlot index={0} aria-invalid />
+//               <InputOTPSlot index={1} aria-invalid />
+//               <InputOTPSlot index={2} aria-invalid />
+//               <InputOTPSlot index={3} aria-invalid />
+//               <InputOTPSlot index={4} aria-invalid />
+//               <InputOTPSlot index={5} aria-invalid />
+//             </InputOTPGroup>
+//           </InputOTP>
+//           <FieldDescription>This OTP field contains validation errors.</FieldDescription>
+//         </Field>
+//         <Field data-disabled>
+//           <FieldLabel for="otp-disabled-field">Disabled OTP</FieldLabel>
+//           <InputOTP id="otp-disabled-field" maxLength={6} disabled>
+//             <InputOTPGroup>
+//               <InputOTPSlot index={0} />
+//               <InputOTPSlot index={1} />
+//               <InputOTPSlot index={2} />
+//               <InputOTPSlot index={3} />
+//               <InputOTPSlot index={4} />
+//               <InputOTPSlot index={5} />
+//             </InputOTPGroup>
+//           </InputOTP>
+//           <FieldDescription>This OTP field is currently disabled.</FieldDescription>
+//         </Field>
+//       </FieldGroup>
+//     </Example>
+//   );
+// }
