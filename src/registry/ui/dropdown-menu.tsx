@@ -45,7 +45,7 @@ type DropdownMenuContentProps<T extends ValidComponent = "div"> = PolymorphicPro
 const DropdownMenuContent = <T extends ValidComponent = "div">(
   rawProps: DropdownMenuContentProps<T>,
 ) => {
-  const props = mergeProps({ gutter: 4 } as DropdownMenuContentProps<T>, rawProps);
+  const props = mergeProps({ gutter: 4 }, rawProps);
   const [local, others] = splitProps(props as DropdownMenuContentProps, ["class"]);
   return (
     <DropdownMenuPrimitive.Portal>
@@ -88,7 +88,7 @@ const DropdownMenuLabel = <T extends ValidComponent = "span">(props: DropdownMen
     <DropdownMenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
       data-inset={local.inset}
-      class={cn("cn-dropdown-menu-label data-[inset]:pl-8", local.class)}
+      class={cn("cn-dropdown-menu-label data-inset:pl-8", local.class)}
       {...others}
     />
   );
@@ -112,7 +112,7 @@ const DropdownMenuItem = <T extends ValidComponent = "div">(rawProps: DropdownMe
       data-inset={local.inset}
       data-variant={local.variant}
       class={cn(
-        "cn-dropdown-menu-item group/dropdown-menu-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-[inset]:pl-8 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "cn-dropdown-menu-item group/dropdown-menu-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-inset:pl-8 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -147,7 +147,7 @@ const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
       data-slot="dropdown-menu-sub-trigger"
       data-inset={local.inset}
       class={cn(
-        "cn-dropdown-menu-sub-trigger flex cursor-default select-none items-center outline-hidden data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "cn-dropdown-menu-sub-trigger flex cursor-default select-none items-center outline-hidden data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
