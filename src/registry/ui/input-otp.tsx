@@ -1,30 +1,45 @@
-import type { RootProps as OtpFieldRootProps } from "@corvu/otp-field";
-import OtpField from "@corvu/otp-field";
+import OtpField, { type RootProps as OtpFieldRootProps } from "@corvu/otp-field";
 import { Minus } from "lucide-solid";
-import { type ComponentProps, Show, splitProps, type ValidComponent } from "solid-js";
+import { type ComponentProps, Show, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type InputOTPProps<T extends ValidComponent = "div"> = OtpFieldRootProps<T> & {
-  class?: string;
-  containerClass?: string;
-};
+type InputOTPProps = OtpFieldRootProps &
+  ComponentProps<"div"> &
+  Pick<ComponentProps<"input">, "disabled" | "required"> & {
+    containerClass?: string;
+  };
 
-const InputOTP = <T extends ValidComponent = "div">(props: InputOTPProps<T>) => {
-  const [local, others] = splitProps(props as InputOTPProps, ["class", "containerClass"]);
+const InputOTP = (props: InputOTPProps) => {
+  const [local, others] = splitProps(props as InputOTPProps, [
+    "class",
+    "containerClass",
+    "children",
+    "id",
+    "disabled",
+    "required",
+    "value",
+    "onValueChange",
+  ]);
 
   return (
     <OtpField
       data-slot="input-otp"
+      spellcheck={false}
       class={cn("cn-input-otp flex items-center has-disabled:opacity-50", local.containerClass)}
       {...others}
     >
       <OtpField.Input
+        id={local.id}
         data-slot="input-otp-input"
         class={cn("cn-input-otp-input disabled:cursor-not-allowed", local.class)}
         spellcheck={false}
+        disabled={local.disabled}
+        required={local.required}
+        value={local.value}
+        onChange={(e) => local.onValueChange?.(e.target.value)}
       />
-      {others.children}
+      {local.children}
     </OtpField>
   );
 };

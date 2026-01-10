@@ -1,6 +1,7 @@
-import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from "@corvu/otp-field";
-import { createSignal } from "solid-js";
+/** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
 
+import { RefreshCcw } from "lucide-solid";
+import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/ui/card";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/registry/ui/field";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/registry/ui/input-otp";
 
 export default function InputOTPExample() {
@@ -31,10 +33,8 @@ export default function InputOTPExample() {
 function InputOTPSimple() {
   return (
     <Example title="Simple">
-      <div class="flex flex-col gap-2">
-        <label for="simple" class="font-medium text-sm">
-          Simple
-        </label>
+      <Field>
+        <FieldLabel for="simple">Simple</FieldLabel>
         <InputOTP id="simple" maxLength={6}>
           <InputOTPGroup>
             <InputOTPSlot index={0} />
@@ -48,7 +48,7 @@ function InputOTPSimple() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </Field>
     </Example>
   );
 }
@@ -56,11 +56,9 @@ function InputOTPSimple() {
 function InputOTPPattern() {
   return (
     <Example title="Digits Only">
-      <div class="flex flex-col gap-2">
-        <label for="digits-only" class="font-medium text-sm">
-          Digits Only
-        </label>
-        <InputOTP id="digits-only" maxLength={6} pattern={REGEXP_ONLY_DIGITS}>
+      <Field>
+        <FieldLabel for="digits-only">Digits Only</FieldLabel>
+        <InputOTP id="digits-only" maxLength={6}>
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
@@ -70,7 +68,7 @@ function InputOTPPattern() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </Field>
     </Example>
   );
 }
@@ -80,11 +78,9 @@ function InputOTPWithSeparator() {
 
   return (
     <Example title="With Separator">
-      <div class="flex flex-col gap-2">
-        <label for="with-separator" class="font-medium text-sm">
-          With Separator
-        </label>
-        <InputOTP id="with-separator" maxLength={6} value={value()} onValueChange={setValue}>
+      <Field>
+        <FieldLabel for="with-separator">With Separator</FieldLabel>
+        <InputOTP id="with-separator" maxLength={6} value={value()} onChange={setValue}>
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
@@ -100,7 +96,7 @@ function InputOTPWithSeparator() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </Field>
     </Example>
   );
 }
@@ -108,12 +104,10 @@ function InputOTPWithSeparator() {
 function InputOTPAlphanumeric() {
   return (
     <Example title="Alphanumeric">
-      <div class="flex flex-col gap-2">
-        <label for="alphanumeric" class="font-medium text-sm">
-          Alphanumeric
-        </label>
-        <p class="text-muted-foreground text-sm">Accepts both letters and numbers.</p>
-        <InputOTP id="alphanumeric" maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
+      <Field>
+        <FieldLabel for="alphanumeric">Alphanumeric</FieldLabel>
+        <FieldDescription>Accepts both letters and numbers.</FieldDescription>
+        <InputOTP id="alphanumeric" maxLength={6}>
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
@@ -126,7 +120,7 @@ function InputOTPAlphanumeric() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </Field>
     </Example>
   );
 }
@@ -134,10 +128,8 @@ function InputOTPAlphanumeric() {
 function InputOTPDisabled() {
   return (
     <Example title="Disabled">
-      <div class="flex flex-col gap-2">
-        <label for="disabled" class="font-medium text-sm">
-          Disabled
-        </label>
+      <Field>
+        <FieldLabel for="disabled">Disabled</FieldLabel>
         <InputOTP id="disabled" maxLength={6} disabled value="123456">
           <InputOTPGroup>
             <InputOTPSlot index={0} />
@@ -151,7 +143,7 @@ function InputOTPDisabled() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </Field>
     </Example>
   );
 }
@@ -159,12 +151,10 @@ function InputOTPDisabled() {
 function InputOTPFourDigits() {
   return (
     <Example title="4 Digits">
-      <div class="flex flex-col gap-2">
-        <label for="four-digits" class="font-medium text-sm">
-          4 Digits
-        </label>
-        <p class="text-muted-foreground text-sm">Common pattern for PIN codes.</p>
-        <InputOTP id="four-digits" maxLength={4} pattern={REGEXP_ONLY_DIGITS}>
+      <Field>
+        <FieldLabel for="four-digits">4 Digits</FieldLabel>
+        <FieldDescription>Common pattern for PIN codes.</FieldDescription>
+        <InputOTP id="four-digits" maxLength={4}>
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
@@ -172,7 +162,7 @@ function InputOTPFourDigits() {
             <InputOTPSlot index={3} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </Field>
     </Example>
   );
 }
@@ -182,12 +172,10 @@ function InputOTPInvalid() {
 
   return (
     <Example title="Invalid State">
-      <div class="flex flex-col gap-2">
-        <label for="invalid" class="font-medium text-sm">
-          Invalid State
-        </label>
-        <p class="text-muted-foreground text-sm">Example showing the invalid error state.</p>
-        <InputOTP id="invalid" maxLength={6} value={value()} onValueChange={setValue}>
+      <Field>
+        <FieldLabel for="invalid">Invalid State</FieldLabel>
+        <FieldDescription>Example showing the invalid error state.</FieldDescription>
+        <InputOTP id="invalid" maxLength={6} value={value()} onChange={setValue}>
           <InputOTPGroup>
             <InputOTPSlot index={0} aria-invalid />
             <InputOTPSlot index={1} aria-invalid />
@@ -203,8 +191,8 @@ function InputOTPInvalid() {
             <InputOTPSlot index={5} aria-invalid />
           </InputOTPGroup>
         </InputOTP>
-        <p class="text-destructive text-sm">Invalid code. Please try again.</p>
-      </div>
+        <FieldError errors={[{ message: "Invalid code. Please try again." }]} />
+      </Field>
     </Example>
   );
 }
@@ -222,37 +210,31 @@ function InputOTPForm() {
         </CardHeader>
         <CardContent>
           <form>
-            <div class="flex flex-col gap-2">
+            <Field>
               <div class="flex items-center justify-between">
-                <label for="otp-verification" class="font-medium text-sm">
-                  Verification code
-                </label>
+                <FieldLabel for="otp-verification">Verification code</FieldLabel>
                 <Button variant="outline" size="xs">
+                  <RefreshCcw />
                   Resend Code
                 </Button>
               </div>
-              <InputOTP maxLength={6} id="otp-verification">
-                <InputOTPGroup class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+              <InputOTP maxLength={6} id="otp-verification" required>
+                <InputOTPGroup class="style-lyra:*:data-[slot=input-otp-slot]:h-12 style-maia:*:data-[slot=input-otp-slot]:h-16 style-mira:*:data-[slot=input-otp-slot]:h-12 style-nova:*:data-[slot=input-otp-slot]:h-12 style-vega:*:data-[slot=input-otp-slot]:h-16 style-lyra:*:data-[slot=input-otp-slot]:w-11 style-maia:*:data-[slot=input-otp-slot]:w-12 style-mira:*:data-[slot=input-otp-slot]:w-11 style-nova:*:data-[slot=input-otp-slot]:w-11 style-vega:*:data-[slot=input-otp-slot]:w-12 *:data-[slot=input-otp-slot]:text-xl">
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
                   <InputOTPSlot index={2} />
                 </InputOTPGroup>
                 <InputOTPSeparator />
-                <InputOTPGroup class="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+                <InputOTPGroup class="style-lyra:*:data-[slot=input-otp-slot]:h-12 style-maia:*:data-[slot=input-otp-slot]:h-16 style-mira:*:data-[slot=input-otp-slot]:h-12 style-nova:*:data-[slot=input-otp-slot]:h-12 style-vega:*:data-[slot=input-otp-slot]:h-16 style-lyra:*:data-[slot=input-otp-slot]:w-11 style-maia:*:data-[slot=input-otp-slot]:w-12 style-mira:*:data-[slot=input-otp-slot]:w-11 style-nova:*:data-[slot=input-otp-slot]:w-11 style-vega:*:data-[slot=input-otp-slot]:w-12 *:data-[slot=input-otp-slot]:text-xl">
                   <InputOTPSlot index={3} />
                   <InputOTPSlot index={4} />
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
-              <p class="text-muted-foreground text-sm">
-                <button
-                  type="button"
-                  class="underline underline-offset-4 transition-colors hover:text-primary"
-                >
-                  I no longer have access to this email address.
-                </button>
-              </p>
-            </div>
+              <FieldDescription>
+                <a href="#">I no longer have access to this email address.</a>
+              </FieldDescription>
+            </Field>
           </form>
         </CardContent>
         <CardFooter class="flex-col gap-2">
@@ -261,12 +243,9 @@ function InputOTPForm() {
           </Button>
           <div class="text-muted-foreground text-sm">
             Having trouble signing in?{" "}
-            <button
-              type="button"
-              class="underline underline-offset-4 transition-colors hover:text-primary"
-            >
+            <a href="#" class="underline underline-offset-4 transition-colors hover:text-primary">
               Contact support
-            </button>
+            </a>
           </div>
         </CardFooter>
       </Card>
