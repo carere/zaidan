@@ -1,0 +1,82 @@
+---
+title: Pagination
+slug: pagination
+description: Pagination with page navigation, next and previous links.
+example: pagination-example.tsx
+---
+
+# Pagination
+
+Pagination with page navigation, next and previous links.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add pagination
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/pagination.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "~/components/ui/pagination";
+```
+
+```tsx showLineNumbers
+<Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious href="#" />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">1</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#" isActive>
+        2
+      </PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">3</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext href="#" />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+```
+
+## SolidJS Router
+
+By default, the `<PaginationLink />` component will render an `<a>` element. You can use the `as` prop to render a different component, such as a SolidJS Router `<A>` component.
+
+```tsx
+import { A } from "@solidjs/router";
+import { PaginationLink } from "~/components/ui/pagination";
+```
+
+```tsx showLineNumbers
+<PaginationLink as={A} href="/page/2">
+  2
+</PaginationLink>
+```
