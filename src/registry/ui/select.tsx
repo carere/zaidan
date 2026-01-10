@@ -10,7 +10,7 @@ import {
   type SelectSectionProps,
   Value,
 } from "@kobalte/core/select";
-import { Check, ChevronDown, ChevronUp } from "lucide-solid";
+import { Check, ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-solid";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
@@ -83,7 +83,10 @@ const SelectTrigger = <T extends ValidComponent = "button">(rawProps: SelectTrig
       {...others}
     >
       {local.children}
-      <SelectPrimitive.Icon as={ChevronDown} />
+      <SelectPrimitive.Icon
+        as={ChevronsUpDown}
+        class="cn-select-trigger-icon pointer-events-none"
+      />
     </SelectPrimitive.Trigger>
   );
 };
@@ -100,7 +103,7 @@ const SelectContent = <T extends ValidComponent = "div">(props: SelectContentPro
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         class={cn(
-          "cn-select-content relative isolate z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
+          "cn-select-content cn-menu-target relative isolate z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
         )}
         data-slot="select-content"
@@ -151,7 +154,7 @@ const SelectItem = <T extends ValidComponent = "li">(
         {local.children}
       </SelectPrimitive.ItemLabel>
       <SelectPrimitive.ItemIndicator class="cn-select-item-indicator">
-        <Check />
+        <Check class="cn-select-item-indicator-icon pointer-events-none" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   );

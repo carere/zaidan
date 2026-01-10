@@ -244,9 +244,21 @@
       ]
     },
     {
-      "name": "checkbox",
+      "name": "select",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
       "registryDependencies": [],
       "files": [
         {
