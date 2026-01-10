@@ -55,8 +55,8 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Context Menu |  |  |  |
 | Dialog |  |  |  |
 | Drawer |  |  |  |
-| Dropdown Menu |  |  |  |
-| Empty |  |  |  |
+| Dropdown Menu | x |  | x |
+| Empty | x | x | x |
 | Field | x |  | x |
 | Hover Card |  |  |  |
 | Input | x |  |  |
