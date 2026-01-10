@@ -1,4 +1,5 @@
-import { FolderOpen } from "lucide-solid";
+/** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
+import { ArrowUpRight, CircleDashed, FolderIcon, Plus } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
 import {
@@ -9,10 +10,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/registry/ui/empty";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
+import { Kbd } from "../ui/kbd";
 
 export default function EmptyExample() {
   return (
-    <ExampleWrapper class="lg:grid-cols-1">
+    <ExampleWrapper>
       <EmptyBasic />
       <EmptyWithMutedBackground />
       <EmptyWithBorder />
@@ -25,8 +28,8 @@ export default function EmptyExample() {
 
 function EmptyBasic() {
   return (
-    <Example title="Basic" containerClass="lg:col-span-full">
-      <Empty class="min-h-[300px]">
+    <Example title="Basic">
+      <Empty>
         <EmptyHeader>
           <EmptyTitle>No projects yet</EmptyTitle>
           <EmptyDescription>
@@ -41,7 +44,7 @@ function EmptyBasic() {
             <Button variant="outline">Import project</Button>
           </div>
           <Button variant="link" as="a" href="#" class="text-muted-foreground">
-            Learn more
+            Learn more <ArrowUpRight />
           </Button>
         </EmptyContent>
       </Empty>
@@ -51,16 +54,19 @@ function EmptyBasic() {
 
 function EmptyWithMutedBackground() {
   return (
-    <Example title="With Muted Background" containerClass="lg:col-span-full">
-      <Empty class="min-h-[300px] bg-muted">
+    <Example title="With Muted Background">
+      <Empty class="bg-muted">
         <EmptyHeader>
           <EmptyTitle>No results found</EmptyTitle>
           <EmptyDescription>
-            Try adjusting your search or filter to find what you&apos;re looking for.
+            No results found for your search. Try adjusting your search terms.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button>Clear filters</Button>
+          <Button>Try again</Button>
+          <Button variant="link" as="a" href="#" class="text-muted-foreground">
+            Learn more <ArrowUpRight />
+          </Button>
         </EmptyContent>
       </Empty>
     </Example>
@@ -69,16 +75,28 @@ function EmptyWithMutedBackground() {
 
 function EmptyWithBorder() {
   return (
-    <Example title="With Border" containerClass="lg:col-span-full">
-      <Empty class="min-h-[300px] border">
+    <Example title="With Border">
+      <Empty class="border">
         <EmptyHeader>
-          <EmptyTitle>No results</EmptyTitle>
+          <EmptyTitle>404 - Not Found</EmptyTitle>
           <EmptyDescription>
-            We couldn&apos;t find any results matching your search.
+            The page you&apos;re looking for doesn&apos;t exist. Try searching for what you need
+            below.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button variant="outline">Try again</Button>
+          <InputGroup class="w-3/4">
+            <InputGroupInput placeholder="Try searching for pages..." />
+            <InputGroupAddon>
+              <CircleDashed />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+              <Kbd>/</Kbd>
+            </InputGroupAddon>
+          </InputGroup>
+          <EmptyDescription>
+            Need help? <a href="#">Contact support</a>
+          </EmptyDescription>
         </EmptyContent>
       </Empty>
     </Example>
@@ -87,19 +105,22 @@ function EmptyWithBorder() {
 
 function EmptyWithIcon() {
   return (
-    <Example title="With Icon" containerClass="lg:col-span-full">
-      <Empty class="min-h-[300px]">
+    <Example title="With Icon">
+      <Empty class="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <FolderOpen class="size-10" />
+            <FolderIcon />
           </EmptyMedia>
-          <EmptyTitle>No files</EmptyTitle>
+          <EmptyTitle>Nothing to see here</EmptyTitle>
           <EmptyDescription>
-            Upload files to get started. You can drag and drop or click to browse.
+            No posts have been created yet. Get started by <a href="#">creating your first post</a>.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button>Upload files</Button>
+          <Button variant="outline">
+            <Plus />
+            New Post
+          </Button>
         </EmptyContent>
       </Empty>
     </Example>
@@ -108,14 +129,29 @@ function EmptyWithIcon() {
 
 function EmptyWithMutedBackgroundAlt() {
   return (
-    <Example title="With Muted Background Alt" containerClass="lg:col-span-full">
-      <Empty class="min-h-[300px] bg-muted/50">
+    <Example title="With Muted Background Alt">
+      <Empty class="bg-muted/50">
         <EmptyHeader>
-          <EmptyTitle>No notifications</EmptyTitle>
+          <EmptyTitle>404 - Not Found</EmptyTitle>
           <EmptyDescription>
-            You&apos;re all caught up! Check back later for new updates.
+            The page you&apos;re looking for doesn&apos;t exist. Try searching for what you need
+            below.
           </EmptyDescription>
         </EmptyHeader>
+        <EmptyContent>
+          <InputGroup class="w-3/4">
+            <InputGroupInput placeholder="Try searching for pages..." />
+            <InputGroupAddon>
+              <CircleDashed />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+              <Kbd>/</Kbd>
+            </InputGroupAddon>
+          </InputGroup>
+          <EmptyDescription>
+            Need help? <a href="#">Contact support</a>
+          </EmptyDescription>
+        </EmptyContent>
       </Empty>
     </Example>
   );
@@ -123,22 +159,27 @@ function EmptyWithMutedBackgroundAlt() {
 
 function EmptyInCard() {
   return (
-    <Example title="In Card" containerClass="lg:col-span-full">
-      <Empty class="min-h-[300px] rounded-lg border bg-card p-6">
+    <Example title="In Card">
+      <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <FolderOpen class="size-10" />
+            <FolderIcon />
           </EmptyMedia>
-          <EmptyTitle>Create your first project</EmptyTitle>
+          <EmptyTitle>No projects yet</EmptyTitle>
           <EmptyDescription>
-            Get started by creating a new project. You can always import existing projects later.
+            You haven&apos;t created any projects yet. Get started by creating your first project.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <div class="flex gap-2">
-            <Button>New project</Button>
-            <Button variant="outline">Import</Button>
+            <Button as="a" href="#">
+              Create project
+            </Button>
+            <Button variant="outline">Import project</Button>
           </div>
+          <Button variant="link" as="a" href="#" class="text-muted-foreground">
+            Learn more <ArrowUpRight />
+          </Button>
         </EmptyContent>
       </Empty>
     </Example>
