@@ -8,7 +8,7 @@ import {
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { cn } from "@/lib/utils";
-import { Separator } from "@/registry/ui/separator";
+import { Separator, type SeparatorProps } from "@/registry/ui/separator";
 
 type ItemGroupProps = ComponentProps<"div">;
 
@@ -25,7 +25,7 @@ const ItemGroup = (props: ItemGroupProps) => {
   );
 };
 
-type ItemSeparatorProps = ComponentProps<typeof Separator>;
+type ItemSeparatorProps = SeparatorProps;
 
 const ItemSeparator = (props: ItemSeparatorProps) => {
   const [local, others] = splitProps(props, ["class"]);

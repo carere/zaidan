@@ -21,4 +21,4 @@ const Separator = <T extends ValidComponent = "hr">(props: SeparatorProps<T>) =>
   );
 };
 
-export { Separator };
+export { Separator, type SeparatorProps };
