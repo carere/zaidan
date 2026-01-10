@@ -51,7 +51,7 @@ function SliderVertical() {
 }
 
 function SliderControlled() {
-  const [value, setValue] = createSignal([0.3, 0.7]);
+  const [value, setValue] = createSignal([0.3]);
 
   return (
     <Example title="Controlled">
@@ -63,7 +63,7 @@ function SliderControlled() {
         <Slider
           id="slider-demo-temperature"
           value={value()}
-          onChange={(value) => setValue(value)}
+          onChange={setValue}
           minValue={0}
           maxValue={1}
           step={0.1}

@@ -6,21 +6,29 @@ import {
   type SliderThumbProps,
   type SliderTrackProps,
 } from "@kobalte/core/slider";
-import { type ComponentProps, For, mergeProps, splitProps, type ValidComponent } from "solid-js";
+import {
+  type ComponentProps,
+  createMemo,
+  For,
+  mergeProps,
+  splitProps,
+  untrack,
+  type ValidComponent,
+} from "solid-js";
 import { cn } from "@/lib/utils";
 
 type SliderProps<T extends ValidComponent = "div"> = PolymorphicProps<T, SliderRootProps<T>> &
   Pick<ComponentProps<T>, "class">;
 
 const Slider = <T extends ValidComponent = "div">(rawProps: SliderProps<T>) => {
-  const props = mergeProps({ minValue: 0, maxValue: 100 }, rawProps);
+  const props = mergeProps({ minValue: 0, maxValue: 100 } as SliderProps<T>, rawProps);
   const [local, others] = splitProps(props as SliderProps, ["class", "defaultValue", "value"]);
 
-  const values = () => {
-    if (Array.isArray(local.value)) return local.value;
+  const values = createMemo(() => {
+    if (Array.isArray(untrack(() => local.value))) return untrack(() => local.value);
     if (Array.isArray(local.defaultValue)) return local.defaultValue;
     return [others.minValue, others.maxValue];
-  };
+  });
 
   return (
     <SliderPrimitive
