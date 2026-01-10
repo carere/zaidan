@@ -1,0 +1,106 @@
+---
+title: Popover
+slug: popover
+description: Displays rich content in a portal, triggered by a button.
+---
+
+# Popover
+
+Displays rich content in a portal, triggered by a button.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add popover
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/popover.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx showLineNumbers
+<Popover>
+  <PopoverTrigger>Open</PopoverTrigger>
+  <PopoverContent>Place content for the popover here.</PopoverContent>
+</Popover>
+```
+
+## With Title and Description
+
+```tsx
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx showLineNumbers
+<Popover>
+  <PopoverTrigger>Open</PopoverTrigger>
+  <PopoverContent>
+    <PopoverHeader>
+      <PopoverTitle>Dimensions</PopoverTitle>
+      <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+    </PopoverHeader>
+    {/* Your content here */}
+  </PopoverContent>
+</Popover>
+```
+
+## Custom Placement
+
+Use the `placement` prop on `PopoverContent` to change the popover position.
+
+```tsx showLineNumbers
+<Popover>
+  <PopoverTrigger>Open</PopoverTrigger>
+  <PopoverContent placement="top">
+    Content appears above the trigger.
+  </PopoverContent>
+</Popover>
+```
+
+Available placements: `top`, `top-start`, `top-end`, `right`, `right-start`, `right-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`.
+
+## Custom Anchor
+
+Use the `PopoverAnchor` component to anchor the content to a different element.
+
+```tsx
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx showLineNumbers
+<Popover>
+  <PopoverAnchor>
+    <span>Anchor element</span>
+  </PopoverAnchor>
+  <PopoverTrigger>Open</PopoverTrigger>
+  <PopoverContent>Content anchored to the anchor element.</PopoverContent>
+</Popover>
+```
