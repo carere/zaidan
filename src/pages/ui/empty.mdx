@@ -1,0 +1,66 @@
+---
+title: Empty
+slug: empty
+description: A composable empty state for when there is no data to display.
+---
+
+# Empty
+
+A composable empty state for when there is no data to display.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add empty
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/empty.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+```
+
+```tsx showLineNumbers
+<Empty>
+  <EmptyHeader>
+    <EmptyMedia variant="icon">
+      <FolderIcon class="size-10" />
+    </EmptyMedia>
+    <EmptyTitle>No projects yet</EmptyTitle>
+    <EmptyDescription>
+      You haven't created any projects yet. Get started by creating your first project.
+    </EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>
+    <Button>Create project</Button>
+  </EmptyContent>
+</Empty>
+```
+
+## Structure
+
+The Empty component is composed of several sub-components:
+
+- `Empty` - The main container
+- `EmptyHeader` - Contains the media, title, and description
+- `EmptyMedia` - Displays an icon, image, or avatar (with "icon" and "default" variants)
+- `EmptyTitle` - The heading text
+- `EmptyDescription` - Supporting descriptive text
+- `EmptyContent` - Action area for buttons, inputs, or links
