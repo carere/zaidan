@@ -1,8 +1,14 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "input-group",
-  "dependencies": ["class-variance-authority"],
-  "registryDependencies": ["button", "input", "textarea"],
+  "dependencies": [
+    "class-variance-authority"
+  ],
+  "registryDependencies": [
+    "button",
+    "input",
+    "textarea"
+  ],
   "files": [
     {
       "path": "src/registry/ui/input-group.tsx",
