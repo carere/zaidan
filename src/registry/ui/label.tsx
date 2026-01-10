@@ -3,9 +3,7 @@ import type { ComponentProps } from "solid-js";
 import { splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-type LabelProps = ComponentProps<"label"> & {
-  class?: string | undefined;
-};
+type LabelProps = ComponentProps<"label">;
 
 const Label = (props: LabelProps) => {
   const [local, others] = splitProps(props, ["class"]);
