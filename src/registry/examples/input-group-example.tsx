@@ -1,5 +1,20 @@
-import { ArrowUp, Code, Copy, EyeOff, Info, Mail, RefreshCw, Search, Star } from "lucide-solid";
-
+import {
+  ArrowUp,
+  Check,
+  Code,
+  Copy,
+  ExternalLink,
+  EyeOff,
+  Info,
+  Mail,
+  Mic,
+  Radio,
+  RefreshCw,
+  Search,
+  Sparkles,
+  Star,
+  Trash,
+} from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
 import {
@@ -10,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/ui/card";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
 import {
   InputGroup,
@@ -20,16 +36,18 @@ import {
   InputGroupTextarea,
 } from "@/registry/ui/input-group";
 import { Kbd, KbdGroup } from "@/registry/ui/kbd";
-import { Label } from "@/registry/ui/label";
 import { Spinner } from "@/registry/ui/spinner";
 import { Textarea } from "@/registry/ui/textarea";
 
 export default function InputGroupExample() {
+  // const [country, setCountry] = createSignal("+1");
+
   return (
     <ExampleWrapper class="min-w-0">
       <InputGroupBasic />
       <InputGroupWithAddons />
       <InputGroupWithButtons />
+      {/* <InputGroupWithTooltip country={country()} setCountry={setCountry} /> */}
       <InputGroupWithKbd />
       <InputGroupInCard />
       <InputGroupTextareaExamples />
@@ -40,25 +58,25 @@ export default function InputGroupExample() {
 function InputGroupBasic() {
   return (
     <Example title="Basic">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="input-default-01">Default (No Input Group)</Label>
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="input-default-01">Default (No Input Group)</FieldLabel>
           <Input placeholder="Placeholder" id="input-default-01" />
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-group-02">Input Group</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-group-02">Input Group</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-group-02" placeholder="Placeholder" />
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2" data-disabled="true">
-          <Label for="input-disabled-03">Disabled</Label>
+        </Field>
+        <Field data-disabled="true">
+          <FieldLabel for="input-disabled-03">Disabled</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-disabled-03" placeholder="This field is disabled" disabled />
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2" data-invalid="true">
-          <Label for="input-invalid-04">Invalid</Label>
+        </Field>
+        <Field data-invalid="true">
+          <FieldLabel for="input-invalid-04">Invalid</FieldLabel>
           <InputGroup>
             <InputGroupInput
               id="input-invalid-04"
@@ -66,8 +84,8 @@ function InputGroupBasic() {
               aria-invalid="true"
             />
           </InputGroup>
-        </div>
-      </div>
+        </Field>
+      </FieldGroup>
     </Example>
   );
 }
@@ -75,77 +93,87 @@ function InputGroupBasic() {
 function InputGroupWithAddons() {
   return (
     <Example title="With Addons">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="input-icon-left-05">Addon (inline-start)</Label>
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="input-icon-left-05">Addon (inline-start)</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-icon-left-05" />
             <InputGroupAddon>
-              <Search class="size-4 text-muted-foreground" />
+              <Search class="text-muted-foreground" />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-icon-right-07">Addon (inline-end)</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-icon-right-07">Addon (inline-end)</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-icon-right-07" />
             <InputGroupAddon align="inline-end">
-              <EyeOff class="size-4" />
+              <EyeOff />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-icon-both-09">Addon (inline-start and inline-end)</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-icon-both-09">Addon (inline-start and inline-end)</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-icon-both-09" />
             <InputGroupAddon>
-              <Mail class="size-4 text-muted-foreground" />
+              <Mic class="text-muted-foreground" />
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
-              <Info class="size-4" />
+              <Radio class="animate-pulse text-red-500" />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-addon-20">Addon (block-start)</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-addon-20">Addon (block-start)</FieldLabel>
           <InputGroup class="h-auto">
             <InputGroupInput id="input-addon-20" />
             <InputGroupAddon align="block-start">
               <InputGroupText>First Name</InputGroupText>
-              <Info class="ml-auto size-4 text-muted-foreground" />
+              <Info class="ml-auto text-muted-foreground" />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-addon-21">Addon (block-end)</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-addon-21">Addon (block-end)</FieldLabel>
           <InputGroup class="h-auto">
             <InputGroupInput id="input-addon-21" />
             <InputGroupAddon align="block-end">
               <InputGroupText>20/240 characters</InputGroupText>
-              <Info class="ml-auto size-4 text-muted-foreground" />
+              <Info class="ml-auto text-muted-foreground" />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-icon-both-10">Multiple Icons</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-icon-both-10">Multiple Icons</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-icon-both-10" />
             <InputGroupAddon align="inline-end">
-              <Star class="size-4" />
-              <InputGroupButton size="icon-xs">
-                <Copy class="size-4" />
+              <Star />
+              <InputGroupButton size="icon-xs" onClick={() => console.log("Copied to clipboard")}>
+                <Copy />
               </InputGroupButton>
             </InputGroupAddon>
             <InputGroupAddon>
-              <Mail class="size-4 text-muted-foreground" />
+              <Radio class="animate-pulse text-red-500" />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="input-label-10">Label</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="input-description-10">Description</FieldLabel>
+          <InputGroup>
+            <InputGroupInput id="input-description-10" />
+            <InputGroupAddon align="inline-end">
+              <Info />
+            </InputGroupAddon>
+          </InputGroup>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="input-label-10">Label</FieldLabel>
           <InputGroup>
             <InputGroupAddon>
-              <Label for="input-label-10">Label</Label>
+              <FieldLabel for="input-label-10">Label</FieldLabel>
             </InputGroupAddon>
             <InputGroupInput id="input-label-10" />
           </InputGroup>
@@ -155,8 +183,8 @@ function InputGroupWithAddons() {
               <InputGroupText>(optional)</InputGroupText>
             </InputGroupAddon>
           </InputGroup>
-        </div>
-      </div>
+        </Field>
+      </FieldGroup>
     </Example>
   );
 }
@@ -164,9 +192,9 @@ function InputGroupWithAddons() {
 function InputGroupWithButtons() {
   return (
     <Example title="With Buttons">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="input-button-13">Button</Label>
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="input-button-13">Button</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-button-13" />
             <InputGroupAddon>
@@ -195,32 +223,138 @@ function InputGroupWithButtons() {
             <InputGroupInput id="input-button-17" />
             <InputGroupAddon align="inline-end">
               <InputGroupButton size="icon-xs">
-                <Copy class="size-4" />
+                <Copy />
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
-        </div>
-      </div>
+          <InputGroup>
+            <InputGroupInput id="input-button-18" />
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton variant="secondary" size="icon-xs">
+                <Trash />
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
+        </Field>
+      </FieldGroup>
     </Example>
   );
 }
 
+// function InputGroupWithTooltip({
+//   country,
+//   setCountry,
+// }: {
+//   country: string;
+//   setCountry: (value: string) => void;
+// }) {
+//   return (
+//     <Example title="With Tooltip, Dropdown, Popover">
+//       <FieldGroup>
+//         <Field>
+//           <FieldLabel for="input-tooltip-20">Tooltip</FieldLabel>
+//           <InputGroup>
+//             <InputGroupInput id="input-tooltip-20" />
+//             <InputGroupAddon align="inline-end">
+//               <Tooltip>
+//                 <TooltipTrigger as={InputGroupButton} class="rounded-full" size="icon-xs">
+//                   <Info />
+//                 </TooltipTrigger>
+//                 <TooltipContent>This is content in a tooltip.</TooltipContent>
+//               </Tooltip>
+//             </InputGroupAddon>
+//           </InputGroup>
+//           <FieldDescription>This is a description of the input group.</FieldDescription>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="input-dropdown-21">Dropdown</FieldLabel>
+//           <InputGroup>
+//             <InputGroupInput id="input-dropdown-21" />
+//             <InputGroupAddon>
+//               <DropdownMenu>
+//                 <DropdownMenuTrigger
+//                   render={<InputGroupButton class="text-muted-foreground tabular-nums" />}
+//                 >
+//                   {country} <ChevronDown />
+//                 </DropdownMenuTrigger>
+//                 <DropdownMenuContent
+//                   align="start"
+//                   class="min-w-16"
+//                   sideOffset={10}
+//                   alignOffset={-8}
+//                 >
+//                   <DropdownMenuItem onClick={() => setCountry("+1")}>+1</DropdownMenuItem>
+//                   <DropdownMenuItem onClick={() => setCountry("+44")}>+44</DropdownMenuItem>
+//                   <DropdownMenuItem onClick={() => setCountry("+46")}>+46</DropdownMenuItem>
+//                 </DropdownMenuContent>
+//               </DropdownMenu>
+//             </InputGroupAddon>
+//           </InputGroup>
+//           <FieldDescription>This is a description of the input group.</FieldDescription>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="input-secure-19">Popover</FieldLabel>
+//           <InputGroup>
+//             <Popover>
+//               <PopoverTrigger render={<InputGroupAddon />} nativeButton={false}>
+//                 <InputGroupButton variant="secondary" size="icon-xs">
+//                   <Info />
+//                 </InputGroupButton>
+//               </PopoverTrigger>
+//               <PopoverContent align="start">
+//                 <PopoverHeader>
+//                   <PopoverTitle>Your connection is not secure.</PopoverTitle>
+//                   <PopoverDescription>
+//                     You should not enter any sensitive information on this site.
+//                   </PopoverDescription>
+//                 </PopoverHeader>
+//               </PopoverContent>
+//             </Popover>
+//             <InputGroupAddon class="pl-1 text-muted-foreground">https://</InputGroupAddon>
+//             <InputGroupInput id="input-secure-19" />
+//             <InputGroupAddon align="inline-end">
+//               <InputGroupButton size="icon-xs" onClick={() => toast("Added to favorites")}>
+//                 <Star />
+//               </InputGroupButton>
+//             </InputGroupAddon>
+//           </InputGroup>
+//           <FieldDescription>This is a description of the input group.</FieldDescription>
+//         </Field>
+//         <Field>
+//           <FieldLabel for="url">Button Group</FieldLabel>
+//           <ButtonGroup>
+//             <ButtonGroupText>https://</ButtonGroupText>
+//             <InputGroup>
+//               <InputGroupInput id="url" />
+//               <InputGroupAddon align="inline-end">
+//                 <Info />
+//               </InputGroupAddon>
+//             </InputGroup>
+//             <ButtonGroupText>.com</ButtonGroupText>
+//           </ButtonGroup>
+//           <FieldDescription>This is a description of the input group.</FieldDescription>
+//         </Field>
+//       </FieldGroup>
+//     </Example>
+//   );
+// }
+
 function InputGroupWithKbd() {
   return (
     <Example title="With Kbd">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="input-kbd-22">Input Group with Kbd</Label>
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="input-kbd-22">Input Group with Kbd</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-kbd-22" />
             <InputGroupAddon>
-              <Kbd>&#8984;K</Kbd>
+              <Kbd>⌘K</Kbd>
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
             <InputGroupInput id="input-kbd-23" />
             <InputGroupAddon align="inline-end">
-              <Kbd>&#8984;K</Kbd>
+              <Kbd>⌘K</Kbd>
             </InputGroupAddon>
           </InputGroup>
           <InputGroup>
@@ -233,7 +367,7 @@ function InputGroupWithKbd() {
           <InputGroup>
             <InputGroupInput id="input-search-type-25" placeholder="Type to search..." />
             <InputGroupAddon align="inline-start">
-              <Star class="size-4" />
+              <Sparkles />
             </InputGroupAddon>
             <InputGroupAddon align="inline-end">
               <KbdGroup>
@@ -242,11 +376,23 @@ function InputGroupWithKbd() {
               </KbdGroup>
             </InputGroupAddon>
           </InputGroup>
-        </div>
+        </Field>
+        <Field>
+          <FieldLabel for="input-username-26">Username</FieldLabel>
+          <InputGroup>
+            <InputGroupInput id="input-username-26" value="shadcn" />
+            <InputGroupAddon align="inline-end">
+              <div class="flex size-4 items-center justify-center rounded-full bg-green-500 dark:bg-green-800">
+                <Check class="size-3 text-white" />
+              </div>
+            </InputGroupAddon>
+          </InputGroup>
+          <FieldDescription class="text-green-700">This username is available.</FieldDescription>
+        </Field>
         <InputGroup>
           <InputGroupInput id="input-search-docs-27" placeholder="Search documentation..." />
           <InputGroupAddon>
-            <Search class="size-4" />
+            <Search />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">12 results</InputGroupAddon>
         </InputGroup>
@@ -257,41 +403,43 @@ function InputGroupWithKbd() {
             disabled
           />
           <InputGroupAddon>
-            <Search class="size-4" />
+            <Search />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">Disabled</InputGroupAddon>
         </InputGroup>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex flex-col gap-2">
-            <Label for="input-group-11">First Name</Label>
+        <FieldGroup class="grid grid-cols-2 gap-4">
+          <Field>
+            <FieldLabel for="input-group-11">First Name</FieldLabel>
             <InputGroup>
               <InputGroupInput id="input-group-11" placeholder="First Name" />
               <InputGroupAddon align="inline-end">
-                <Info class="size-4" />
+                <Info />
               </InputGroupAddon>
             </InputGroup>
-          </div>
-          <div class="flex flex-col gap-2">
-            <Label for="input-group-12">Last Name</Label>
+          </Field>
+          <Field>
+            <FieldLabel for="input-group-12">Last Name</FieldLabel>
             <InputGroup>
               <InputGroupInput id="input-group-12" placeholder="Last Name" />
               <InputGroupAddon align="inline-end">
-                <Info class="size-4" />
+                <Info />
               </InputGroupAddon>
             </InputGroup>
-          </div>
-        </div>
-        <div class="flex flex-col gap-2" data-disabled="true">
-          <Label for="input-group-29">Loading ("data-disabled="true")</Label>
+          </Field>
+        </FieldGroup>
+        <Field data-disabled="true">
+          <FieldLabel for="input-group-29">
+            Loading (&quot;data-disabled=&quot;true&quot;)
+          </FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-group-29" disabled value="shadcn" />
             <InputGroupAddon align="inline-end">
               <Spinner />
             </InputGroupAddon>
           </InputGroup>
-          <p class="text-muted-foreground text-sm">This is a description of the input group.</p>
-        </div>
-      </div>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+      </FieldGroup>
     </Example>
   );
 }
@@ -305,30 +453,30 @@ function InputGroupInCard() {
           <CardDescription>This is a card with an input group.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
-              <Label for="email-input">Email Address</Label>
+          <FieldGroup>
+            <Field>
+              <FieldLabel for="email-input">Email Address</FieldLabel>
               <InputGroup>
                 <InputGroupInput id="email-input" type="email" placeholder="you@example.com" />
                 <InputGroupAddon align="inline-end">
-                  <Mail class="size-4" />
+                  <Mail />
                 </InputGroupAddon>
               </InputGroup>
-            </div>
-            <div class="flex flex-col gap-2">
-              <Label for="website-input">Website URL</Label>
+            </Field>
+            <Field>
+              <FieldLabel for="website-input">Website URL</FieldLabel>
               <InputGroup>
                 <InputGroupAddon>
                   <InputGroupText>https://</InputGroupText>
                 </InputGroupAddon>
                 <InputGroupInput id="website-input" placeholder="example.com" />
                 <InputGroupAddon align="inline-end">
-                  <Info class="size-4" />
+                  <ExternalLink />
                 </InputGroupAddon>
               </InputGroup>
-            </div>
-            <div class="flex flex-col gap-2">
-              <Label for="feedback-textarea">Feedback & Comments</Label>
+            </Field>
+            <Field>
+              <FieldLabel for="feedback-textarea">Feedback & Comments</FieldLabel>
               <InputGroup>
                 <InputGroupTextarea
                   id="feedback-textarea"
@@ -339,8 +487,8 @@ function InputGroupInCard() {
                   <InputGroupText>0/500 characters</InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
-            </div>
-          </div>
+            </Field>
+          </FieldGroup>
         </CardContent>
         <CardFooter class="justify-end gap-2">
           <Button variant="outline">Cancel</Button>
@@ -354,23 +502,23 @@ function InputGroupInCard() {
 function InputGroupTextareaExamples() {
   return (
     <Example title="Textarea">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="textarea-header-footer-12">Default Textarea (No Input Group)</Label>
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="textarea-header-footer-12">Default Textarea (No Input Group)</FieldLabel>
           <Textarea id="textarea-header-footer-12" placeholder="Enter your text here..." />
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="textarea-header-footer-13">Input Group</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="textarea-header-footer-13">Input Group</FieldLabel>
           <InputGroup>
             <InputGroupTextarea
               id="textarea-header-footer-13"
               placeholder="Enter your text here..."
             />
           </InputGroup>
-          <p class="text-muted-foreground text-sm">This is a description of the input group.</p>
-        </div>
-        <div class="flex flex-col gap-2" data-invalid="true">
-          <Label for="textarea-header-footer-14">Invalid</Label>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field data-invalid="true">
+          <FieldLabel for="textarea-header-footer-14">Invalid</FieldLabel>
           <InputGroup>
             <InputGroupTextarea
               id="textarea-header-footer-14"
@@ -378,9 +526,10 @@ function InputGroupTextareaExamples() {
               aria-invalid="true"
             />
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2" data-disabled="true">
-          <Label for="textarea-header-footer-15">Disabled</Label>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field data-disabled="true">
+          <FieldLabel for="textarea-header-footer-15">Disabled</FieldLabel>
           <InputGroup>
             <InputGroupTextarea
               id="textarea-header-footer-15"
@@ -388,19 +537,21 @@ function InputGroupTextareaExamples() {
               disabled
             />
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="prompt-31">Addon (block-start)</Label>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="prompt-31">Addon (block-start)</FieldLabel>
           <InputGroup>
             <InputGroupTextarea id="prompt-31" />
             <InputGroupAddon align="block-start">
               <InputGroupText>Ask, Search or Chat...</InputGroupText>
-              <Info class="ml-auto size-4 text-muted-foreground" />
+              <Info class="ml-auto text-muted-foreground" />
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="textarea-header-footer-30">Addon (block-end)</Label>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="textarea-header-footer-30">Addon (block-end)</FieldLabel>
           <InputGroup>
             <InputGroupTextarea
               id="textarea-header-footer-30"
@@ -409,14 +560,14 @@ function InputGroupTextareaExamples() {
             <InputGroupAddon align="block-end">
               <InputGroupText>0/280 characters</InputGroupText>
               <InputGroupButton variant="default" size="icon-xs" class="ml-auto rounded-full">
-                <ArrowUp class="size-4" />
+                <ArrowUp />
                 <span class="sr-only">Send</span>
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="textarea-comment-31">Addon (Buttons)</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="textarea-comment-31">Addon (Buttons)</FieldLabel>
           <InputGroup>
             <InputGroupTextarea
               id="textarea-comment-31"
@@ -432,9 +583,9 @@ function InputGroupTextareaExamples() {
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="textarea-code-32">Code Editor</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="textarea-code-32">Code Editor</FieldLabel>
           <InputGroup>
             <InputGroupTextarea
               id="textarea-code-32"
@@ -443,14 +594,14 @@ function InputGroupTextareaExamples() {
             />
             <InputGroupAddon align="block-start" class="border-b">
               <InputGroupText class="font-medium font-mono">
-                <Code class="size-4" />
+                <Code />
                 script.js
               </InputGroupText>
               <InputGroupButton size="icon-xs" class="ml-auto">
-                <RefreshCw class="size-4" />
+                <RefreshCw />
               </InputGroupButton>
               <InputGroupButton size="icon-xs" variant="ghost">
-                <Copy class="size-4" />
+                <Copy />
               </InputGroupButton>
             </InputGroupAddon>
             <InputGroupAddon align="block-end" class="border-t">
@@ -458,8 +609,8 @@ function InputGroupTextareaExamples() {
               <InputGroupText class="ml-auto">JavaScript</InputGroupText>
             </InputGroupAddon>
           </InputGroup>
-        </div>
-      </div>
+        </Field>
+      </FieldGroup>
     </Example>
   );
 }
