@@ -1,36 +1,50 @@
-import type { DynamicProps, RootChildrenProps } from "corvu/drawer";
-import Drawer from "corvu/drawer";
-import type { Component, ComponentProps, ValidComponent } from "solid-js";
-import { Show, splitProps } from "solid-js";
+import {
+  Close,
+  type CloseProps,
+  Content,
+  type ContentProps,
+  Description,
+  type DescriptionProps,
+  type DynamicProps,
+  Label,
+  type LabelProps,
+  Overlay,
+  type OverlayProps,
+  Portal,
+  Root,
+  type RootProps,
+  Trigger,
+  type TriggerProps,
+} from "@corvu/drawer";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-const DrawerRoot: Component<Drawer.RootProps> = (props) => {
-  return <Drawer data-slot="drawer" {...props} />;
+type DrawerRootProps<T extends ValidComponent = "div"> = DynamicProps<T, RootProps>;
+
+const DrawerRoot = <T extends ValidComponent = "div">(props: DrawerRootProps<T>) => {
+  return <Root data-slot="drawer" {...(props as RootProps)} />;
 };
 
-type DrawerTriggerProps<T extends ValidComponent = "button"> = DynamicProps<T, Drawer.TriggerProps>;
+type DrawerTriggerProps<T extends ValidComponent = "button"> = DynamicProps<T, TriggerProps>;
 
 const DrawerTrigger = <T extends ValidComponent = "button">(props: DrawerTriggerProps<T>) => {
-  return <Drawer.Trigger data-slot="drawer-trigger" {...props} />;
+  return <Trigger data-slot="drawer-trigger" {...(props as TriggerProps)} />;
 };
 
-type DrawerCloseProps<T extends ValidComponent = "button"> = DynamicProps<T, Drawer.CloseProps>;
+type DrawerCloseProps<T extends ValidComponent = "button"> = DynamicProps<T, CloseProps>;
 
 const DrawerClose = <T extends ValidComponent = "button">(props: DrawerCloseProps<T>) => {
-  return <Drawer.Close data-slot="drawer-close" {...props} />;
+  return <Close data-slot="drawer-close" {...(props as CloseProps)} />;
 };
 
-const DrawerPortal: Component<Drawer.PortalProps> = (props) => {
-  return <Drawer.Portal data-slot="drawer-portal" {...props} />;
-};
-
-type DrawerOverlayProps<T extends ValidComponent = "div"> = DynamicProps<T, Drawer.OverlayProps> &
+type DrawerOverlayProps<T extends ValidComponent = "div"> = DynamicProps<T, OverlayProps> &
   Pick<ComponentProps<T>, "class">;
 
 const DrawerOverlay = <T extends ValidComponent = "div">(props: DrawerOverlayProps<T>) => {
   const [local, others] = splitProps(props as DrawerOverlayProps, ["class"]);
   return (
-    <Drawer.Overlay
+    <Overlay
       data-slot="drawer-overlay"
       class={cn("cn-drawer-overlay fixed inset-0 z-50", local.class)}
       {...others}
@@ -38,42 +52,23 @@ const DrawerOverlay = <T extends ValidComponent = "div">(props: DrawerOverlayPro
   );
 };
 
-type DrawerContentProps<T extends ValidComponent = "div"> = DynamicProps<T, Drawer.ContentProps> &
-  Pick<ComponentProps<T>, "class" | "children"> & {
-    showHandle?: boolean;
-  };
+type DrawerContentProps<T extends ValidComponent = "div"> = DynamicProps<T, ContentProps> &
+  Pick<ComponentProps<T>, "class" | "children">;
 
 const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentProps<T>) => {
-  const [local, others] = splitProps(props as DrawerContentProps, [
-    "class",
-    "children",
-    "showHandle",
-  ]);
+  const [local, others] = splitProps(props as DrawerContentProps, ["class", "children"]);
   return (
-    <DrawerPortal>
+    <Portal data-slot="drawer-portal">
       <DrawerOverlay />
-      <Drawer.Content
+      <Content
         data-slot="drawer-content"
         class={cn("cn-drawer-content group/drawer-content fixed z-50", local.class)}
         {...others}
       >
-        <Show when={local.showHandle !== false}>
-          {(_) => (
-            <Drawer.Context>
-              {(context: RootChildrenProps) => (
-                <Show when={context.side === "bottom" || context.side === "top"}>
-                  <div
-                    data-slot="drawer-handle"
-                    class="cn-drawer-handle mx-auto shrink-0 bg-muted"
-                  />
-                </Show>
-              )}
-            </Drawer.Context>
-          )}
-        </Show>
+        <div class="cn-drawer-handle mx-auto hidden shrink-0 bg-muted group-data-[side=bottom]/drawer-content:block" />
         {local.children}
-      </Drawer.Content>
-    </DrawerPortal>
+      </Content>
+    </Portal>
   );
 };
 
@@ -103,26 +98,21 @@ const DrawerFooter = (props: DrawerFooterProps) => {
   );
 };
 
-type DrawerLabelProps<T extends ValidComponent = "h2"> = DynamicProps<T, Drawer.LabelProps> &
+type DrawerLabelProps<T extends ValidComponent = "h2"> = DynamicProps<T, LabelProps> &
   Pick<ComponentProps<T>, "class">;
 
 const DrawerLabel = <T extends ValidComponent = "h2">(props: DrawerLabelProps<T>) => {
   const [local, others] = splitProps(props as DrawerLabelProps, ["class"]);
-  return (
-    <Drawer.Label data-slot="drawer-title" class={cn("cn-drawer-title", local.class)} {...others} />
-  );
+  return <Label data-slot="drawer-title" class={cn("cn-drawer-title", local.class)} {...others} />;
 };
 
-type DrawerDescriptionProps<T extends ValidComponent = "p"> = DynamicProps<
-  T,
-  Drawer.DescriptionProps
-> &
+type DrawerDescriptionProps<T extends ValidComponent = "p"> = DynamicProps<T, DescriptionProps> &
   Pick<ComponentProps<T>, "class">;
 
 const DrawerDescription = <T extends ValidComponent = "p">(props: DrawerDescriptionProps<T>) => {
   const [local, others] = splitProps(props as DrawerDescriptionProps, ["class"]);
   return (
-    <Drawer.Description
+    <Description
       data-slot="drawer-description"
       class={cn("cn-drawer-description", local.class)}
       {...others}
@@ -132,7 +122,6 @@ const DrawerDescription = <T extends ValidComponent = "p">(props: DrawerDescript
 
 export {
   DrawerRoot as Drawer,
-  DrawerPortal,
   DrawerOverlay,
   DrawerTrigger,
   DrawerClose,
