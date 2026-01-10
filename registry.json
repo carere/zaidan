@@ -146,6 +146,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "empty",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/empty.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
