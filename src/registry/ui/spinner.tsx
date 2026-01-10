@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-solid";
+import { LoaderCircle } from "lucide-solid";
 import type { ComponentProps } from "solid-js";
 import { splitProps } from "solid-js";
 
@@ -11,7 +11,7 @@ type SpinnerProps = ComponentProps<"svg"> & {
 const Spinner = (props: SpinnerProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <Loader2
+    <LoaderCircle
       role="status"
       aria-label="Loading"
       class={cn("cn-spinner size-4 animate-spin", local.class)}
