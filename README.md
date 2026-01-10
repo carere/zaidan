@@ -54,7 +54,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Command |  |  |  |
 | Context Menu |  |  |  |
 | Dialog | x |  | x |
-| Drawer |  |  |  |
+| Drawer | x | x | x |
 | Dropdown Menu | x | x | x |
 | Empty | x | x | x |
 | Field | x |  | x |
