@@ -8,6 +8,8 @@ import {
   Bell,
   Building2,
   ChevronsUpDown,
+  ClipboardPaste,
+  Copy,
   CreditCard,
   Download,
   Eye,
@@ -31,6 +33,7 @@ import {
   PanelLeft,
   Pencil,
   Save,
+  Scissors,
   Settings,
   Share,
   Shield,
@@ -60,6 +63,14 @@ import {
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 export default function DropdownMenuExample() {
   return (
@@ -75,7 +86,7 @@ export default function DropdownMenuExample() {
       <DropdownMenuWithRadioIcons />
       <DropdownMenuWithDestructive />
       <DropdownMenuWithAvatar />
-      {/* <DropdownMenuInDialog /> */}
+      <DropdownMenuInDialog />
     </ExampleWrapper>
   );
 }
@@ -466,58 +477,60 @@ function DropdownMenuWithAvatar() {
   );
 }
 
-// function DropdownMenuInDialog() {
-//   return (
-//     <Example title="In Dialog">
-//       <Dialog>
-//         <DialogTrigger render={<Button variant="outline" />}>Open Dialog</DialogTrigger>
-//         <DialogContent>
-//           <DialogHeader>
-//             <DialogTitle>Dropdown Menu Example</DialogTitle>
-//             <DialogDescription>Click the button below to see the dropdown menu.</DialogDescription>
-//           </DialogHeader>
-//           <DropdownMenu>
-//             <DropdownMenuTrigger as={Button} variant="outline" class="w-fit">
-//               Open Menu
-//             </DropdownMenuTrigger>
-//             <DropdownMenuContent>
-//               <DropdownMenuItem>
-//                 <Copy />
-//                 Copy
-//               </DropdownMenuItem>
-//               <DropdownMenuItem>
-//                 <Scissors />
-//                 Cut
-//               </DropdownMenuItem>
-//               <DropdownMenuItem>
-//                 <ClipboardPaste />
-//                 Paste
-//               </DropdownMenuItem>
-//               <DropdownMenuSeparator />
-//               <DropdownMenuSub>
-//                 <DropdownMenuSubTrigger>More Options</DropdownMenuSubTrigger>
-//                 <DropdownMenuPortal>
-//                   <DropdownMenuSubContent>
-//                     <DropdownMenuItem>Save Page...</DropdownMenuItem>
-//                     <DropdownMenuItem>Create Shortcut...</DropdownMenuItem>
-//                     <DropdownMenuItem>Name Window...</DropdownMenuItem>
-//                     <DropdownMenuSeparator />
-//                     <DropdownMenuItem>Developer Tools</DropdownMenuItem>
-//                   </DropdownMenuSubContent>
-//                 </DropdownMenuPortal>
-//               </DropdownMenuSub>
-//               <DropdownMenuSeparator />
-//               <DropdownMenuItem variant="destructive">
-//                 <Trash />
-//                 Delete
-//               </DropdownMenuItem>
-//             </DropdownMenuContent>
-//           </DropdownMenu>
-//         </DialogContent>
-//       </Dialog>
-//     </Example>
-//   );
-// }
+function DropdownMenuInDialog() {
+  return (
+    <Example title="In Dialog">
+      <Dialog>
+        <DialogTrigger as={Button} variant="outline">
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Dropdown Menu Example</DialogTitle>
+            <DialogDescription>Click the button below to see the dropdown menu.</DialogDescription>
+          </DialogHeader>
+          <DropdownMenu>
+            <DropdownMenuTrigger as={Button} variant="outline" class="w-fit">
+              Open Menu
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <Copy />
+                Copy
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Scissors />
+                Cut
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <ClipboardPaste />
+                Paste
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>More Options</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem>Save Page...</DropdownMenuItem>
+                    <DropdownMenuItem>Create Shortcut...</DropdownMenuItem>
+                    <DropdownMenuItem>Name Window...</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Developer Tools</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive">
+                <Trash />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </DialogContent>
+      </Dialog>
+    </Example>
+  );
+}
 
 function DropdownMenuComplex() {
   const [notifications, setNotifications] = createSignal({

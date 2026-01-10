@@ -53,7 +53,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Combobox |  |  |  |
 | Command |  |  |  |
 | Context Menu |  |  |  |
-| Dialog |  |  |  |
+| Dialog | x |  | x |
 | Drawer |  |  |  |
 | Dropdown Menu | x |  | x |
 | Empty | x | x | x |
