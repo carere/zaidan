@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "@corvu/otp-field": "^0.1.4",
     "@kobalte/core": "^0.13.11",
     "@netlify/vite-plugin-tanstack-start": "^1.2.6",
     "@solid-primitives/storage": "^4.3.3",

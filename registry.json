@@ -122,6 +122,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "input-otp",
+      "type": "registry:ui",
+      "dependencies": ["@corvu/otp-field", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/input-otp.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
