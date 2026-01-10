@@ -1,80 +1,116 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Progress, ProgressLabel, ProgressValue } from "@/registry/ui/progress";
+import { Slider } from "../ui/slider";
 
 export default function ProgressExample() {
   return (
-    <ExampleWrapper class="lg:grid-cols-1">
-      <ProgressDemo />
+    <ExampleWrapper>
+      <ProgressValues />
       <ProgressWithLabel />
-      <ProgressIndeterminate />
-      <ProgressCustom />
+      <ProgressControlled />
+      {/* <FileUploadList /> */}
     </ExampleWrapper>
   );
 }
 
-function ProgressDemo() {
-  const [progress, setProgress] = createSignal(13);
-
-  onMount(() => {
-    const timer = setTimeout(() => setProgress(66), 500);
-    return () => clearTimeout(timer);
-  });
-
+function ProgressValues() {
   return (
-    <Example title="Default">
-      <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <Progress value={progress()} class="w-[60%]" />
+    <Example title="Progress Bar">
+      <div class="flex w-full flex-col gap-4">
+        <Progress value={0} />
+        <Progress value={25} class="w-full" />
+        <Progress value={50} />
+        <Progress value={75} />
+        <Progress value={100} />
       </div>
     </Example>
   );
 }
 
 function ProgressWithLabel() {
-  const [progress, setProgress] = createSignal(33);
-
-  onMount(() => {
-    const timer = setTimeout(() => setProgress(75), 500);
-    return () => clearTimeout(timer);
-  });
-
   return (
     <Example title="With Label">
-      <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <Progress value={progress()}>
-          <div class="flex w-full justify-between">
-            <ProgressLabel>Loading...</ProgressLabel>
-            <ProgressValue />
-          </div>
-        </Progress>
+      <Progress value={56}>
+        <ProgressLabel>Upload progress</ProgressLabel>
+        <ProgressValue />
+      </Progress>
+    </Example>
+  );
+}
+
+function ProgressControlled() {
+  const [value, setValue] = createSignal(50);
+
+  return (
+    <Example title="Controlled">
+      <div class="flex w-full flex-col gap-4">
+        <Progress value={value()} class="w-full" />
+        <Slider
+          value={[value()]}
+          onChange={(value) => setValue(value[0])}
+          minValue={0}
+          maxValue={100}
+          step={1}
+        />
       </div>
     </Example>
   );
 }
 
-function ProgressIndeterminate() {
-  return (
-    <Example title="Indeterminate">
-      <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <Progress indeterminate>
-          <ProgressLabel>Processing...</ProgressLabel>
-        </Progress>
-      </div>
-    </Example>
-  );
-}
+// function FileUploadList() {
+//   const files = createMemo(
+//     () => [
+//       {
+//         id: "1",
+//         name: "document.pdf",
+//         progress: 45,
+//         timeRemaining: "2m 30s",
+//       },
+//       {
+//         id: "2",
+//         name: "presentation.pptx",
+//         progress: 78,
+//         timeRemaining: "45s",
+//       },
+//       {
+//         id: "3",
+//         name: "spreadsheet.xlsx",
+//         progress: 12,
+//         timeRemaining: "5m 12s",
+//       },
+//       {
+//         id: "4",
+//         name: "image.jpg",
+//         progress: 100,
+//         timeRemaining: "Complete",
+//       },
+//     ],
+//     [],
+//   );
 
-function ProgressCustom() {
-  return (
-    <Example title="Custom Value Range">
-      <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
-        <Progress value={5} minValue={0} maxValue={10}>
-          <div class="flex w-full justify-between">
-            <ProgressLabel>5 of 10 tasks completed</ProgressLabel>
-            <ProgressValue />
-          </div>
-        </Progress>
-      </div>
-    </Example>
-  );
-}
+//   return (
+//     <Example title="File Upload List">
+//       <ItemGroup>
+//         <For each={files()}>
+//           {(file) => (
+//             <Item size="xs" class="px-0">
+//               <ItemMedia variant="icon">
+//                 <File />
+//               </ItemMedia>
+//               <ItemContent class="inline-block truncate">
+//                 <ItemTitle class="inline">{file.name}</ItemTitle>
+//               </ItemContent>
+//               <ItemContent>
+//                 <Progress value={file.progress} class="w-32" />
+//               </ItemContent>
+//               <ItemActions class="w-16 justify-end">
+//                 <span class="text-muted-foreground text-sm">{file.timeRemaining}</span>
+//               </ItemActions>
+//             </Item>
+//           )}
+//         </For>
+//       </ItemGroup>
+//     </Example>
+//   );
+// }

@@ -70,7 +70,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Navigation Menu |  |  |  |
 | Pagination |  |  |  |
 | Popover |  |  |  |
-| Progress |  |  |  |
+| Progress | x | x | x |
 | Radio Group |  |  |  |
 | Resizable |  |  |  |
 | Scroll Area |  |  |  |
