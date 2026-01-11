@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { ChartBar, ChartLine, ChartPie } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
 import { Input } from "@/registry/ui/input";
@@ -10,7 +10,6 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/registry/ui/select";
@@ -19,8 +18,10 @@ export default function SelectExample() {
   return (
     <ExampleWrapper>
       <SelectBasic />
+      <SelectWithIcons />
       <SelectWithGroups />
       <SelectLargeList />
+      <SelectMultiple />
       <SelectSizes />
       <SelectWithButton />
       <SelectItemAligned />
@@ -40,6 +41,7 @@ function SelectBasic() {
     { label: "Grapes", value: "grapes" },
     { label: "Pineapple", value: "pineapple" },
   ];
+
   return (
     <Example title="Basic">
       <Select
@@ -62,25 +64,116 @@ function SelectBasic() {
   );
 }
 
-function SelectWithGroups() {
-  const fruits = [
-    { label: "Apple", value: "apple" },
-    { label: "Banana", value: "banana" },
-    { label: "Blueberry", value: "blueberry" },
+function SelectWithIcons() {
+  const items = [
+    {
+      label: (
+        <>
+          <ChartLine />
+          Chart Type
+        </>
+      ),
+      value: null,
+    },
+    {
+      label: (
+        <>
+          <ChartLine />
+          Line
+        </>
+      ),
+      value: "line",
+    },
+    {
+      label: (
+        <>
+          <ChartBar />
+          Bar
+        </>
+      ),
+      value: "bar",
+    },
+    {
+      label: (
+        <>
+          <ChartPie />
+          Pie
+        </>
+      ),
+      value: "pie",
+    },
   ];
-  const vegetables = [
-    { label: "Carrot", value: "carrot" },
-    { label: "Broccoli", value: "broccoli" },
-    { label: "Spinach", value: "spinach" },
+  return (
+    <Example title="With Icons">
+      <div class="flex flex-col gap-4">
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
+          <SelectTrigger size="sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
+          <SelectTrigger size="default">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+      </div>
+    </Example>
+  );
+}
+
+function SelectWithGroups() {
+  type FoodOption = {
+    label: string;
+    value: string;
+  };
+
+  type Food = {
+    label: string;
+    options: FoodOption[];
+  };
+
+  const foods: Food[] = [
+    {
+      label: "Fruits",
+      options: [
+        { label: "Apple", value: "apple" },
+        { label: "Banana", value: "banana" },
+        { label: "Blueberry", value: "blueberry" },
+      ],
+    },
+    {
+      label: "Vegetables",
+      options: [
+        { label: "Carrot", value: "carrot" },
+        { label: "Broccoli", value: "broccoli" },
+        { label: "Spinach", value: "spinach" },
+      ],
+    },
   ];
 
   return (
     <Example title="With Groups & Labels">
-      <Select<(typeof fruits)[number]>
-        options={[...fruits, ...vegetables]}
+      <Select<FoodOption, Food>
+        options={foods}
         optionValue="value"
         optionTextValue="label"
-        optionGroupChildren="items"
+        optionGroupChildren="options"
         placeholder="Select a food"
         itemComponent={(props) => (
           <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
@@ -88,30 +181,13 @@ function SelectWithGroups() {
         sectionComponent={(props) => (
           <SelectGroup>
             <SelectLabel>{props.section.rawValue.label}</SelectLabel>
-            <For each={props.section.options}>
-              {(item) => <SelectItem item={item}>{item.rawValue.label}</SelectItem>}
-            </For>
           </SelectGroup>
         )}
       >
         <SelectTrigger>
-          <SelectValue<(typeof fruits)[number]>>
-            {(state) => state.selectedOption().label}
-          </SelectValue>
+          <SelectValue<FoodOption>>{(state) => state.selectedOption().label}</SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Fruits</SelectLabel>
-            <For each={fruits}>{(item) => <SelectItem item={item}>{item.label}</SelectItem>}</For>
-          </SelectGroup>
-          <SelectSeparator />
-          <SelectGroup>
-            <SelectLabel>Vegetables</SelectLabel>
-            <For each={vegetables}>
-              {(item) => <SelectItem item={item}>{item.label}</SelectItem>}
-            </For>
-          </SelectGroup>
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
@@ -136,6 +212,48 @@ function SelectLargeList() {
         <SelectTrigger>
           <SelectValue<(typeof items)[number]>>
             {(state) => state.selectedOption().label}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent />
+      </Select>
+    </Example>
+  );
+}
+
+function SelectMultiple() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
+    { label: "Strawberry", value: "strawberry" },
+    { label: "Watermelon", value: "watermelon" },
+  ];
+
+  return (
+    <Example title="Multiple Selection">
+      <Select<{ label: string; value: string }>
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        multiple
+        defaultValue={[]}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
+        <SelectTrigger class="w-72">
+          <SelectValue>
+            {({ selectedOptions }) => {
+              if (selectedOptions().length === 0) {
+                return "Select fruits";
+              }
+              if (selectedOptions().length === 1) {
+                return items.find((item) => item.value === selectedOptions()[0])?.label;
+              }
+              return `${selectedOptions().length} fruits selected`;
+            }}
           </SelectValue>
         </SelectTrigger>
         <SelectContent />
