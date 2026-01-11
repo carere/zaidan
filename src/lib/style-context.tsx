@@ -1,10 +1,4 @@
-import {
-  type Accessor,
-  createContext,
-  createSignal,
-  type ParentComponent,
-  useContext,
-} from "solid-js";
+import { type Accessor, createContext, createSignal, type ParentProps, useContext } from "solid-js";
 import type { Style } from "@/lib/types";
 
 type StyleContextProps = {
@@ -22,8 +16,12 @@ export function useStyle() {
   return context;
 }
 
-export const StyleProvider: ParentComponent = (props) => {
-  const [style, setStyle] = createSignal<Style>("vega");
+type StyleProviderProps = ParentProps<{
+  initialStyle?: Style;
+}>;
+
+export const StyleProvider = (props: StyleProviderProps) => {
+  const [style, setStyle] = createSignal<Style>(props.initialStyle || "vega");
 
   return (
     <StyleContext.Provider value={{ style, setStyle }}>{props.children}</StyleContext.Provider>

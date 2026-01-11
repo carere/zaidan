@@ -1,9 +1,12 @@
+import { Archive, ClipboardPaste, Copy, Pencil, Scissors, Share, Trash } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Button } from "@/registry/ui/button";
 import {
   ContextMenu,
   ContextMenuCheckboxItem,
   ContextMenuContent,
+  ContextMenuGroup,
   ContextMenuItem,
   ContextMenuLabel,
   ContextMenuRadioGroup,
@@ -15,70 +18,29 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/registry/ui/context-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 export default function ContextMenuExample() {
   return (
     <ExampleWrapper>
-      <ContextMenuDemo />
       <ContextMenuBasic />
+      <ContextMenuWithSides />
+      <ContextMenuWithIcons />
+      <ContextMenuWithShortcuts />
+      <ContextMenuWithSubmenu />
+      <ContextMenuWithGroups />
       <ContextMenuWithCheckboxes />
-      <ContextMenuWithRadioGroup />
+      <ContextMenuWithRadio />
+      <ContextMenuWithDestructive />
+      <ContextMenuInDialog />
     </ExampleWrapper>
-  );
-}
-
-function ContextMenuDemo() {
-  const [showBookmarks, setShowBookmarks] = createSignal(true);
-  const [showFullUrls, setShowFullUrls] = createSignal(false);
-  const [selectedPerson, setSelectedPerson] = createSignal("pedro");
-
-  return (
-    <Example title="Demo">
-      <ContextMenu>
-        <ContextMenuTrigger class="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
-          Right click here
-        </ContextMenuTrigger>
-        <ContextMenuContent class="w-52">
-          <ContextMenuItem inset>
-            Back
-            <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem inset disabled>
-            Forward
-            <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem inset>
-            Reload
-            <ContextMenuShortcut>⌘R</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuSub>
-            <ContextMenuSubTrigger inset>More Tools</ContextMenuSubTrigger>
-            <ContextMenuSubContent class="w-44">
-              <ContextMenuItem>Save Page...</ContextMenuItem>
-              <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-              <ContextMenuItem>Name Window...</ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuItem>Developer Tools</ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-          <ContextMenuSeparator />
-          <ContextMenuCheckboxItem checked={showBookmarks()} onChange={setShowBookmarks}>
-            Show Bookmarks
-          </ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem checked={showFullUrls()} onChange={setShowFullUrls}>
-            Show Full URLs
-          </ContextMenuCheckboxItem>
-          <ContextMenuSeparator />
-          <ContextMenuRadioGroup value={selectedPerson()} onChange={setSelectedPerson}>
-            <ContextMenuLabel inset>People</ContextMenuLabel>
-            <ContextMenuRadioItem value="pedro">Pedro Duarte</ContextMenuRadioItem>
-            <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
-          </ContextMenuRadioGroup>
-        </ContextMenuContent>
-      </ContextMenu>
-    </Example>
   );
 }
 
@@ -86,14 +48,194 @@ function ContextMenuBasic() {
   return (
     <Example title="Basic">
       <ContextMenu>
-        <ContextMenuTrigger class="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
-          Right click
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem>Profile</ContextMenuItem>
-          <ContextMenuItem>Billing</ContextMenuItem>
-          <ContextMenuItem>Team</ContextMenuItem>
-          <ContextMenuItem>Subscription</ContextMenuItem>
+          <ContextMenuGroup>
+            <ContextMenuItem>Back</ContextMenuItem>
+            <ContextMenuItem disabled>Forward</ContextMenuItem>
+            <ContextMenuItem>Reload</ContextMenuItem>
+          </ContextMenuGroup>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Example>
+  );
+}
+
+function ContextMenuWithIcons() {
+  return (
+    <Example title="With Icons">
+      <ContextMenu>
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              <Copy />
+              Copy
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <Scissors />
+              Cut
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <ClipboardPaste />
+              Paste
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem variant="destructive">
+              <Trash />
+              Delete
+            </ContextMenuItem>
+          </ContextMenuGroup>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Example>
+  );
+}
+
+function ContextMenuWithShortcuts() {
+  return (
+    <Example title="With Shortcuts">
+      <ContextMenu>
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              Back
+              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              Forward
+              <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Reload
+              <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              Save
+              <ContextMenuShortcut>⌘S</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Save As...
+              <ContextMenuShortcut>⇧⌘S</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Example>
+  );
+}
+
+function ContextMenuWithSubmenu() {
+  return (
+    <Example title="With Submenu">
+      <ContextMenu>
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              Copy
+              <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Cut
+              <ContextMenuShortcut>⌘X</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuGroup>
+                <ContextMenuItem>Save Page...</ContextMenuItem>
+                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                <ContextMenuItem>Name Window...</ContextMenuItem>
+              </ContextMenuGroup>
+              <ContextMenuSeparator />
+              <ContextMenuGroup>
+                <ContextMenuItem>Developer Tools</ContextMenuItem>
+              </ContextMenuGroup>
+              <ContextMenuSeparator />
+              <ContextMenuGroup>
+                <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+              </ContextMenuGroup>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Example>
+  );
+}
+
+function ContextMenuWithGroups() {
+  return (
+    <Example title="With Groups, Labels & Separators">
+      <ContextMenu>
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuLabel>File</ContextMenuLabel>
+            <ContextMenuItem>
+              New File
+              <ContextMenuShortcut>⌘N</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Open File
+              <ContextMenuShortcut>⌘O</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Save
+              <ContextMenuShortcut>⌘S</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuLabel>Edit</ContextMenuLabel>
+            <ContextMenuItem>
+              Undo
+              <ContextMenuShortcut>⌘Z</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Redo
+              <ContextMenuShortcut>⇧⌘Z</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              Cut
+              <ContextMenuShortcut>⌘X</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Copy
+              <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+              Paste
+              <ContextMenuShortcut>⌘V</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem variant="destructive">
+              Delete
+              <ContextMenuShortcut>⌫</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
         </ContextMenuContent>
       </ContextMenu>
     </Example>
@@ -101,51 +243,208 @@ function ContextMenuBasic() {
 }
 
 function ContextMenuWithCheckboxes() {
-  const [statusBar, setStatusBar] = createSignal(true);
-  const [activityBar, setActivityBar] = createSignal(false);
-  const [panel, setPanel] = createSignal(false);
-
   return (
     <Example title="With Checkboxes">
       <ContextMenu>
-        <ContextMenuTrigger class="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
-          Right click
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
         </ContextMenuTrigger>
-        <ContextMenuContent class="w-56">
-          <ContextMenuCheckboxItem checked={statusBar()} onChange={setStatusBar}>
-            Status Bar
-          </ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem checked={activityBar()} onChange={setActivityBar}>
-            Activity Bar
-          </ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem checked={panel()} onChange={setPanel}>
-            Panel
-          </ContextMenuCheckboxItem>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuCheckboxItem defaultChecked>Show Bookmarks Bar</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem>Show Full URLs</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem defaultChecked>Show Developer Tools</ContextMenuCheckboxItem>
+          </ContextMenuGroup>
         </ContextMenuContent>
       </ContextMenu>
     </Example>
   );
 }
 
-function ContextMenuWithRadioGroup() {
-  const [position, setPosition] = createSignal("bottom");
+function ContextMenuWithRadio() {
+  const [user, setUser] = createSignal("pedro");
+  const [theme, setTheme] = createSignal("light");
 
   return (
     <Example title="With Radio Group">
       <ContextMenu>
-        <ContextMenuTrigger class="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
-          Right click
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
         </ContextMenuTrigger>
-        <ContextMenuContent class="w-56">
-          <ContextMenuLabel>Panel Position</ContextMenuLabel>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuLabel>People</ContextMenuLabel>
+            <ContextMenuRadioGroup value={user()} onChange={setUser}>
+              <ContextMenuRadioItem value="pedro">Pedro Duarte</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+          </ContextMenuGroup>
           <ContextMenuSeparator />
-          <ContextMenuRadioGroup value={position()} onChange={setPosition}>
-            <ContextMenuRadioItem value="top">Top</ContextMenuRadioItem>
-            <ContextMenuRadioItem value="bottom">Bottom</ContextMenuRadioItem>
-            <ContextMenuRadioItem value="right">Right</ContextMenuRadioItem>
-          </ContextMenuRadioGroup>
+          <ContextMenuGroup>
+            <ContextMenuLabel>Theme</ContextMenuLabel>
+            <ContextMenuRadioGroup value={theme()} onChange={setTheme}>
+              <ContextMenuRadioItem value="light">Light</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="dark">Dark</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="system">System</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+          </ContextMenuGroup>
         </ContextMenuContent>
       </ContextMenu>
+    </Example>
+  );
+}
+
+function ContextMenuWithDestructive() {
+  return (
+    <Example title="With Destructive Items">
+      <ContextMenu>
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              <Pencil />
+              Edit
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <Share />
+              Share
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem>
+              <Archive />
+              Archive
+            </ContextMenuItem>
+            <ContextMenuItem variant="destructive">
+              <Trash />
+              Delete
+            </ContextMenuItem>
+          </ContextMenuGroup>
+        </ContextMenuContent>
+      </ContextMenu>
+    </Example>
+  );
+}
+
+function ContextMenuWithSides() {
+  return (
+    <Example title="With Sides">
+      <div class="grid grid-cols-2 gap-6">
+        <ContextMenu placement="top">
+          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+            Right click (top)
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuGroup>
+              <ContextMenuItem>Back</ContextMenuItem>
+              <ContextMenuItem>Forward</ContextMenuItem>
+              <ContextMenuItem>Reload</ContextMenuItem>
+            </ContextMenuGroup>
+          </ContextMenuContent>
+        </ContextMenu>
+        <ContextMenu placement="right">
+          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+            Right click (right)
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuGroup>
+              <ContextMenuItem>Back</ContextMenuItem>
+              <ContextMenuItem>Forward</ContextMenuItem>
+              <ContextMenuItem>Reload</ContextMenuItem>
+            </ContextMenuGroup>
+          </ContextMenuContent>
+        </ContextMenu>
+        <ContextMenu placement="bottom">
+          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+            Right click (bottom)
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuGroup>
+              <ContextMenuItem>Back</ContextMenuItem>
+              <ContextMenuItem>Forward</ContextMenuItem>
+              <ContextMenuItem>Reload</ContextMenuItem>
+            </ContextMenuGroup>
+          </ContextMenuContent>
+        </ContextMenu>
+        <ContextMenu placement="left">
+          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+            Right click (left)
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuGroup>
+              <ContextMenuItem>Back</ContextMenuItem>
+              <ContextMenuItem>Forward</ContextMenuItem>
+              <ContextMenuItem>Reload</ContextMenuItem>
+            </ContextMenuGroup>
+          </ContextMenuContent>
+        </ContextMenu>
+      </div>
+    </Example>
+  );
+}
+
+function ContextMenuInDialog() {
+  return (
+    <Example title="In Dialog">
+      <Dialog>
+        <DialogTrigger as={Button} variant="outline">
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Context Menu Example</DialogTitle>
+            <DialogDescription>
+              Right click on the area below to see the context menu.
+            </DialogDescription>
+          </DialogHeader>
+          <ContextMenu>
+            <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+              Right click here
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuGroup>
+                <ContextMenuItem>
+                  <Copy />
+                  Copy
+                </ContextMenuItem>
+                <ContextMenuItem>
+                  <Scissors />
+                  Cut
+                </ContextMenuItem>
+                <ContextMenuItem>
+                  <ClipboardPaste />
+                  Paste
+                </ContextMenuItem>
+              </ContextMenuGroup>
+              <ContextMenuSeparator />
+              <ContextMenuSub>
+                <ContextMenuSubTrigger>More Options</ContextMenuSubTrigger>
+                <ContextMenuSubContent>
+                  <ContextMenuGroup>
+                    <ContextMenuItem>Save Page...</ContextMenuItem>
+                    <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+                    <ContextMenuItem>Name Window...</ContextMenuItem>
+                  </ContextMenuGroup>
+                  <ContextMenuSeparator />
+                  <ContextMenuGroup>
+                    <ContextMenuItem>Developer Tools</ContextMenuItem>
+                  </ContextMenuGroup>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+              <ContextMenuSeparator />
+              <ContextMenuGroup>
+                <ContextMenuItem variant="destructive">
+                  <Trash />
+                  Delete
+                </ContextMenuItem>
+              </ContextMenuGroup>
+            </ContextMenuContent>
+          </ContextMenu>
+        </DialogContent>
+      </Dialog>
     </Example>
   );
 }

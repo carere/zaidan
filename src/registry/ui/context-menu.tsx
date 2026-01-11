@@ -92,7 +92,7 @@ const ContextMenuLabel = <T extends ValidComponent = "div">(props: ContextMenuLa
   const [local, others] = splitProps(props as ContextMenuLabelProps, ["class", "inset"]);
   return (
     <ContextMenuPrimitive.GroupLabel
-      class={cn("cn-context-menu-label data-[inset]:pl-8", local.class)}
+      class={cn("cn-context-menu-label data-inset:pl-8", local.class)}
       data-slot="context-menu-label"
       data-inset={local.inset}
       {...others}
@@ -114,7 +114,7 @@ const ContextMenuItem = <T extends ValidComponent = "div">(props: ContextMenuIte
   return (
     <ContextMenuPrimitive.Item
       class={cn(
-        "cn-context-menu-item group/context-menu-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-[inset]:pl-8 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "cn-context-menu-item group/context-menu-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-inset:pl-8 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       data-slot="context-menu-item"
@@ -151,7 +151,7 @@ const ContextMenuSubTrigger = <T extends ValidComponent = "div">(
   return (
     <ContextMenuPrimitive.SubTrigger
       class={cn(
-        "cn-context-menu-sub-trigger flex cursor-default select-none items-center outline-hidden data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "cn-context-menu-sub-trigger flex cursor-default select-none items-center outline-hidden data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       data-slot="context-menu-sub-trigger"
