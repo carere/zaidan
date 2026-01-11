@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "checkbox",
+  "dependencies": ["@kobalte/core", "lucide-solid"],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/checkbox.tsx",
+      "content": "import * as CheckboxPrimitive from \"@kobalte/core/checkbox\";\nimport type { PolymorphicProps } from \"@kobalte/core/polymorphic\";\nimport { CheckIcon } from \"lucide-solid\";\nimport { type ComponentProps, splitProps, type ValidComponent } from \"solid-js\";\n\nimport { cn } from \"@/lib/utils\";\n\ntype CheckboxProps<T extends ValidComponent = \"div\"> = PolymorphicProps<\n  T,\n  CheckboxPrimitive.CheckboxRootProps<T>\n> &\n  Pick<ComponentProps<T>, \"class\">;\n\nconst Checkbox = <T extends ValidComponent = \"div\">(props: CheckboxProps<T>) => {\n  const [local, others] = splitProps(props as CheckboxProps, [\"class\", \"id\"]);\n  return (\n    <CheckboxPrimitive.Root\n      data-slot=\"checkbox\"\n      class={cn(\n        \"cn-checkbox peer relative shrink-0 outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50\",\n        local.class,\n      )}\n      {...others}\n    >\n      <CheckboxPrimitive.Input data-slot=\"checkbox-input\" class=\"peer sr-only\" id={local.id} />\n      <CheckboxPrimitive.Control\n        data-slot=\"checkbox-control\"\n        class=\"cn-checkbox-control grid place-content-center text-current transition-none\"\n      >\n        <CheckboxPrimitive.Indicator data-slot=\"checkbox-indicator\">\n          <CheckIcon class=\"size-3.5\" />\n        </CheckboxPrimitive.Indicator>\n      </CheckboxPrimitive.Control>\n    </CheckboxPrimitive.Root>\n  );\n};\n\ntype CheckboxLabelProps<T extends ValidComponent = \"label\"> = PolymorphicProps<\n  T,\n  CheckboxPrimitive.CheckboxLabelProps<T>\n> &\n  Pick<ComponentProps<T>, \"class\" | \"children\">;\n\nconst CheckboxLabel = <T extends ValidComponent = \"label\">(props: CheckboxLabelProps<T>) => {\n  const [local, others] = splitProps(props as CheckboxLabelProps, [\"class\", \"children\"]);\n  return (\n    <CheckboxPrimitive.Label\n      data-slot=\"checkbox-label\"\n      class={cn(\n        \"font-medium text-sm leading-none peer-data-disabled:cursor-not-allowed peer-data-disabled:opacity-70\",\n        local.class,\n      )}\n      {...others}\n    >\n      {local.children}\n    </CheckboxPrimitive.Label>\n  );\n};\n\nexport { Checkbox, CheckboxLabel };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
