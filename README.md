@@ -52,7 +52,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Collapsible | x |  |  |
 | Combobox |  |  |  |
 | Command |  |  |  |
-| Context Menu |  |  |  |
+| Context Menu | x | x | x |
 | Dialog | x |  | x |
 | Drawer | x | x | x |
 | Dropdown Menu | x | x | x |
@@ -69,11 +69,10 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Native Select | x |  |  |
 | Navigation Menu |  |  |  |
 | Pagination |  |  |  |
-| Popover |  |  |  |
+| Popover | x | x | x |
 | Progress | x | x | x |
 | Radio Group | x | x | x |
 | Resizable | x | x | x |
-| Scroll Area |  |  |  |
 | Select | x |  |  |
 | Separator | x |  |  |
 | Sheet | x |  |  |
