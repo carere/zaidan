@@ -58,7 +58,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Dropdown Menu | x | x | x |
 | Empty | x | x | x |
 | Field | x |  | x |
-| Hover Card |  |  |  |
+| Hover Card | x | x | x |
 | Input | x |  |  |
 | Input Group | x |  | x |
 | Input OTP | x | x | x |

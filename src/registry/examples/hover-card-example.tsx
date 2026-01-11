@@ -1,14 +1,21 @@
 import { For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
-import { Avatar, AvatarFallback, AvatarImage } from "@/registry/ui/avatar";
 import { Button } from "@/registry/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/ui/dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/registry/ui/hover-card";
 
 export default function HoverCardExample() {
   return (
     <ExampleWrapper>
       <HoverCardSides />
-      <HoverCardWithAvatar />
+      <HoverCardInDialog />
     </ExampleWrapper>
   );
 }
@@ -39,39 +46,39 @@ function HoverCardSides() {
   );
 }
 
-function HoverCardWithAvatar() {
+function HoverCardInDialog() {
   return (
-    <Example title="With Avatar">
-      <div class="flex items-center justify-center">
-        <HoverCard openDelay={200} closeDelay={100}>
-          <HoverCardTrigger
-            as="a"
-            href="https://github.com/solidjs"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="font-medium text-primary underline underline-offset-4"
-          >
-            @solidjs
-          </HoverCardTrigger>
-          <HoverCardContent class="w-80">
-            <div class="flex justify-between space-x-4">
-              <Avatar>
-                <AvatarImage src="https://avatars.githubusercontent.com/u/79226042" />
-                <AvatarFallback>SJ</AvatarFallback>
-              </Avatar>
-              <div class="space-y-1">
-                <h4 class="font-semibold text-sm">@solidjs</h4>
-                <p class="text-sm">
-                  Simple and performant reactivity for building user interfaces.
-                </p>
-                <div class="flex items-center pt-2">
-                  <span class="text-muted-foreground text-xs">Joined December 2020</span>
-                </div>
+    <Example title="In Dialog">
+      <Dialog>
+        <DialogTrigger as={Button} variant="outline">
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hover Card Example</DialogTitle>
+            <DialogDescription>
+              Hover over the button below to see the hover card.
+            </DialogDescription>
+          </DialogHeader>
+          <HoverCard>
+            <HoverCardTrigger
+              delay={100}
+              closeDelay={100}
+              as={Button}
+              variant="outline"
+              class="w-fit"
+            >
+              Hover me
+            </HoverCardTrigger>
+            <HoverCardContent>
+              <div class="flex flex-col style-lyra:gap-1 style-maia:gap-2 style-mira:gap-1 style-nova:gap-1.5 style-vega:gap-2">
+                <h4 class="font-medium">Hover Card</h4>
+                <p>This hover card appears inside a dialog. Hover over the button to see it.</p>
               </div>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
-      </div>
+            </HoverCardContent>
+          </HoverCard>
+        </DialogContent>
+      </Dialog>
     </Example>
   );
 }

@@ -4,9 +4,10 @@ import type { ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-const HoverCard = (props: HoverCardPrimitive.HoverCardRootProps) => (
-  <HoverCardPrimitive.Root data-slot="hover-card" {...props} />
-);
+const HoverCard = (props: HoverCardPrimitive.HoverCardRootProps) => {
+  const mergedProps = mergeProps({ gutter: 4 }, props);
+  return <HoverCardPrimitive.Root data-slot="hover-card" {...mergedProps} />;
+};
 
 type HoverCardTriggerProps<T extends ValidComponent = "a"> = PolymorphicProps<
   T,
@@ -24,11 +25,7 @@ type HoverCardContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
   Pick<ComponentProps<T>, "class" | "children">;
 
 const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardContentProps<T>) => {
-  const mergedProps = mergeProps(
-    { gutter: 4 } as HoverCardContentProps<T>,
-    props as HoverCardContentProps<T>,
-  );
-  const [local, others] = splitProps(mergedProps as HoverCardContentProps, ["class", "children"]);
+  const [local, others] = splitProps(props as HoverCardContentProps, ["class", "children"]);
   return (
     <HoverCardPrimitive.Portal>
       <HoverCardPrimitive.Content
