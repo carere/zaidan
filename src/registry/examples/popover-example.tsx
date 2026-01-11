@@ -9,47 +9,41 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/registry/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "../ui/field";
 
 export default function PopoverExample() {
   return (
-    <ExampleWrapper class="lg:grid-cols-1">
-      <PopoverDemo />
+    <ExampleWrapper>
+      <PopoverBasic />
       <PopoverWithForm />
-      <PopoverPlacements />
+      <PopoverAlignments />
+      <PopoverInDialog />
     </ExampleWrapper>
   );
 }
 
-function PopoverDemo() {
+function PopoverBasic() {
   return (
-    <Example title="Default">
-      <div class="flex items-center justify-center">
-        <Popover>
-          <PopoverTrigger as={Button} variant="outline">
-            Open popover
-          </PopoverTrigger>
-          <PopoverContent class="w-80">
-            <PopoverHeader>
-              <PopoverTitle>Dimensions</PopoverTitle>
-              <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
-            </PopoverHeader>
-            <div class="grid gap-2 pt-4">
-              <div class="grid grid-cols-3 items-center gap-4">
-                <label for="width" class="text-sm">
-                  Width
-                </label>
-                <Input id="width" value="100%" class="col-span-2 h-8" />
-              </div>
-              <div class="grid grid-cols-3 items-center gap-4">
-                <label for="height" class="text-sm">
-                  Height
-                </label>
-                <Input id="height" value="25px" class="col-span-2 h-8" />
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+    <Example title="Basic">
+      <Popover placement="bottom-start">
+        <PopoverTrigger as={Button} variant="outline" class="w-fit">
+          Open Popover
+        </PopoverTrigger>
+        <PopoverContent class="w-64">
+          <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
+            <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+          </PopoverHeader>
+        </PopoverContent>
+      </Popover>
     </Example>
   );
 }
@@ -57,78 +51,89 @@ function PopoverDemo() {
 function PopoverWithForm() {
   return (
     <Example title="With Form">
-      <div class="flex items-center justify-center">
-        <Popover>
-          <PopoverTrigger as={Button} variant="outline">
-            Update settings
+      <Popover>
+        <PopoverTrigger as={Button} variant="outline">
+          Open Popover
+        </PopoverTrigger>
+        <PopoverContent class="w-64">
+          <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
+            <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+          </PopoverHeader>
+          <FieldGroup class="gap-4">
+            <Field orientation="horizontal">
+              <FieldLabel for="width" class="w-1/2">
+                Width
+              </FieldLabel>
+              <Input id="width" value="100%" />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel for="height" class="w-1/2">
+                Height
+              </FieldLabel>
+              <Input id="height" value="25px" />
+            </Field>
+          </FieldGroup>
+        </PopoverContent>
+      </Popover>
+    </Example>
+  );
+}
+
+function PopoverAlignments() {
+  return (
+    <Example title="Alignments">
+      <div class="flex gap-6">
+        <Popover placement="bottom-start">
+          <PopoverTrigger as={Button} variant="outline" size="sm">
+            Start
           </PopoverTrigger>
-          <PopoverContent class="w-80">
-            <PopoverHeader>
-              <PopoverTitle>Settings</PopoverTitle>
-              <PopoverDescription>Configure your preferences below.</PopoverDescription>
-            </PopoverHeader>
-            <div class="grid gap-4 pt-4">
-              <div class="grid gap-2">
-                <label for="name" class="font-medium text-sm">
-                  Name
-                </label>
-                <Input id="name" placeholder="Enter your name" />
-              </div>
-              <div class="grid gap-2">
-                <label for="email" class="font-medium text-sm">
-                  Email
-                </label>
-                <Input id="email" type="email" placeholder="Enter your email" />
-              </div>
-              <Button size="sm">Save changes</Button>
-            </div>
-          </PopoverContent>
+          <PopoverContent class="w-40">Aligned to start</PopoverContent>
+        </Popover>
+        <Popover placement="bottom">
+          <PopoverTrigger as={Button} variant="outline" size="sm">
+            Center
+          </PopoverTrigger>
+          <PopoverContent class="w-40">Aligned to center</PopoverContent>
+        </Popover>
+        <Popover placement="bottom-end">
+          <PopoverTrigger as={Button} variant="outline" size="sm">
+            End
+          </PopoverTrigger>
+          <PopoverContent class="w-40">Aligned to end</PopoverContent>
         </Popover>
       </div>
     </Example>
   );
 }
 
-function PopoverPlacements() {
+function PopoverInDialog() {
   return (
-    <Example title="Placements">
-      <div class="flex flex-wrap items-center justify-center gap-4">
-        <Popover>
-          <PopoverTrigger as={Button} variant="outline">
-            Top
-          </PopoverTrigger>
-          <PopoverContent placement="top">
-            <PopoverHeader>
-              <PopoverTitle>Top Placement</PopoverTitle>
-              <PopoverDescription>This popover appears above the trigger.</PopoverDescription>
-            </PopoverHeader>
-          </PopoverContent>
-        </Popover>
-
-        <Popover>
-          <PopoverTrigger as={Button} variant="outline">
-            Right
-          </PopoverTrigger>
-          <PopoverContent placement="right">
-            <PopoverHeader>
-              <PopoverTitle>Right Placement</PopoverTitle>
-              <PopoverDescription>This popover appears to the right.</PopoverDescription>
-            </PopoverHeader>
-          </PopoverContent>
-        </Popover>
-
-        <Popover>
-          <PopoverTrigger as={Button} variant="outline">
-            Left
-          </PopoverTrigger>
-          <PopoverContent placement="left">
-            <PopoverHeader>
-              <PopoverTitle>Left Placement</PopoverTitle>
-              <PopoverDescription>This popover appears to the left.</PopoverDescription>
-            </PopoverHeader>
-          </PopoverContent>
-        </Popover>
-      </div>
+    <Example title="In Dialog">
+      <Dialog>
+        <DialogTrigger as={Button} variant="outline">
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Popover Example</DialogTitle>
+            <DialogDescription>Click the button below to see the popover.</DialogDescription>
+          </DialogHeader>
+          <Popover placement="bottom-start">
+            <PopoverTrigger as={Button} variant="outline" class="w-fit">
+              Open Popover
+            </PopoverTrigger>
+            <PopoverContent>
+              <PopoverHeader>
+                <PopoverTitle>Popover in Dialog</PopoverTitle>
+                <PopoverDescription>
+                  This popover appears inside a dialog. Click the button to open it.
+                </PopoverDescription>
+              </PopoverHeader>
+            </PopoverContent>
+          </Popover>
+        </DialogContent>
+      </Dialog>
     </Example>
   );
 }

@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 type PopoverProps = PopoverPrimitive.PopoverRootProps;
 
 const Popover = (props: PopoverProps) => {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
+  const mergedProps = mergeProps({ gutter: 4, placement: "bottom" } as const, props);
+  return <PopoverPrimitive.Root data-slot="popover" {...mergedProps} />;
 };
 
 type PopoverTriggerProps<T extends ValidComponent = "button"> = PolymorphicProps<
@@ -34,14 +35,7 @@ type PopoverContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
 > &
   Pick<ComponentProps<T>, "class" | "children">;
 
-const PopoverContent = <T extends ValidComponent = "div">(rawProps: PopoverContentProps<T>) => {
-  const props = mergeProps(
-    {
-      placement: "bottom" as const,
-      gutter: 4,
-    },
-    rawProps,
-  );
+const PopoverContent = <T extends ValidComponent = "div">(props: PopoverContentProps<T>) => {
   const [local, others] = splitProps(props as PopoverContentProps, ["class", "children"]);
 
   return (
