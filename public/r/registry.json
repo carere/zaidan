@@ -218,18 +218,6 @@
           "type": "registry:ui"
         }
       ]
-    },
-    {
-      "name": "scroll-area",
-      "type": "registry:ui",
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/scroll-area.tsx",
-          "type": "registry:ui"
-        }
-      ]
     }
   ]
 }
