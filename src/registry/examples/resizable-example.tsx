@@ -1,38 +1,98 @@
+import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/registry/ui/resizable";
 
 export default function ResizableExample() {
   return (
     <ExampleWrapper>
-      <ResizableDemo />
+      <ResizableHorizontal />
       <ResizableVertical />
-      <ResizableHandleDemo />
+      <ResizableWithHandle />
+      <ResizableNested />
+      <ResizableControlled />
     </ExampleWrapper>
   );
 }
 
-function ResizableDemo() {
+function ResizableHorizontal() {
   return (
-    <Example title="Demo">
-      <ResizablePanelGroup
-        orientation="horizontal"
-        class="max-w-md rounded-lg border md:min-w-[450px]"
-      >
-        <ResizablePanel initialSize={0.5}>
+    <Example title="Horizontal">
+      <ResizablePanelGroup orientation="horizontal" class="min-h-[200px] rounded-lg border">
+        <ResizablePanel initialSize={25}>
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Sidebar</span>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel initialSize={75}>
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Content</span>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </Example>
+  );
+}
+
+function ResizableVertical() {
+  return (
+    <Example title="Vertical">
+      <ResizablePanelGroup orientation="vertical" class="min-h-[200px] rounded-lg border">
+        <ResizablePanel initialSize={25}>
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Header</span>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel initialSize={75}>
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Content</span>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </Example>
+  );
+}
+
+function ResizableWithHandle() {
+  return (
+    <Example title="With Handle">
+      <ResizablePanelGroup orientation="horizontal" class="min-h-[200px] rounded-lg border">
+        <ResizablePanel initialSize={25}>
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Sidebar</span>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel initialSize={75}>
+          <div class="flex h-full items-center justify-center p-6">
+            <span class="font-semibold">Content</span>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </Example>
+  );
+}
+
+function ResizableNested() {
+  return (
+    <Example title="Nested">
+      <ResizablePanelGroup orientation="horizontal" class="rounded-lg border">
+        <ResizablePanel initialSize={50}>
           <div class="flex h-[200px] items-center justify-center p-6">
             <span class="font-semibold">One</span>
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel initialSize={0.5}>
+        <ResizablePanel initialSize={50}>
           <ResizablePanelGroup orientation="vertical">
-            <ResizablePanel initialSize={0.25}>
+            <ResizablePanel initialSize={25}>
               <div class="flex h-full items-center justify-center p-6">
                 <span class="font-semibold">Two</span>
               </div>
             </ResizablePanel>
             <ResizableHandle />
-            <ResizablePanel initialSize={0.75}>
+            <ResizablePanel initialSize={75}>
               <div class="flex h-full items-center justify-center p-6">
                 <span class="font-semibold">Three</span>
               </div>
@@ -44,45 +104,26 @@ function ResizableDemo() {
   );
 }
 
-function ResizableVertical() {
+function ResizableControlled() {
+  const [sizes, setSizes] = createSignal([30, 70]);
+
   return (
-    <Example title="Vertical">
+    <Example title="Controlled">
       <ResizablePanelGroup
-        orientation="vertical"
-        class="min-h-[200px] max-w-md rounded-lg border md:min-w-[450px]"
+        orientation="horizontal"
+        class="min-h-[200px] rounded-lg border"
+        onSizesChange={setSizes}
+        sizes={sizes()}
       >
-        <ResizablePanel initialSize={0.25}>
-          <div class="flex h-full items-center justify-center p-6">
-            <span class="font-semibold">Header</span>
+        <ResizablePanel>
+          <div class="flex h-full flex-col items-center justify-center gap-2 p-6">
+            <span class="font-semibold">{Math.round(sizes()[0] ?? 30)}%</span>
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel initialSize={0.75}>
-          <div class="flex h-full items-center justify-center p-6">
-            <span class="font-semibold">Content</span>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
-    </Example>
-  );
-}
-
-function ResizableHandleDemo() {
-  return (
-    <Example title="With Handle">
-      <ResizablePanelGroup
-        orientation="horizontal"
-        class="min-h-[200px] max-w-md rounded-lg border md:min-w-[450px]"
-      >
-        <ResizablePanel initialSize={0.25}>
-          <div class="flex h-full items-center justify-center p-6">
-            <span class="font-semibold">Sidebar</span>
-          </div>
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel initialSize={0.75}>
-          <div class="flex h-full items-center justify-center p-6">
-            <span class="font-semibold">Content</span>
+        <ResizablePanel>
+          <div class="flex h-full flex-col items-center justify-center gap-2 p-6">
+            <span class="font-semibold">{Math.round(sizes()[1] ?? 70)}%</span>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>

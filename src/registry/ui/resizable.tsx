@@ -1,6 +1,12 @@
+import {
+  Handle,
+  type HandleProps,
+  Panel,
+  type PanelProps,
+  Root,
+  type RootProps,
+} from "@corvu/resizable";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import Resizable from "corvu/resizable";
-import { GripVertical } from "lucide-solid";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { Show, splitProps } from "solid-js";
 
@@ -8,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 type ResizablePanelGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
   T,
-  Resizable.RootProps<T>
+  RootProps<T>
 > &
   Pick<ComponentProps<T>, "class">;
 
@@ -17,7 +23,7 @@ const ResizablePanelGroup = <T extends ValidComponent = "div">(
 ) => {
   const [local, others] = splitProps(props as ResizablePanelGroupProps, ["class"]);
   return (
-    <Resizable
+    <Root
       class={cn(
         "cn-resizable-panel-group flex h-full w-full data-[orientation=vertical]:flex-col",
         local.class,
@@ -28,18 +34,15 @@ const ResizablePanelGroup = <T extends ValidComponent = "div">(
   );
 };
 
-type ResizablePanelProps<T extends ValidComponent = "div"> = PolymorphicProps<
-  T,
-  Resizable.PanelProps<T>
->;
+type ResizablePanelProps<T extends ValidComponent = "div"> = PolymorphicProps<T, PanelProps<T>>;
 
 const ResizablePanel = <T extends ValidComponent = "div">(props: ResizablePanelProps<T>) => {
-  return <Resizable.Panel data-slot="resizable-panel" {...props} />;
+  return <Panel data-slot="resizable-panel" {...props} />;
 };
 
 type ResizableHandleProps<T extends ValidComponent = "button"> = PolymorphicProps<
   T,
-  Resizable.HandleProps<T>
+  HandleProps<T>
 > &
   Pick<ComponentProps<T>, "class"> & {
     withHandle?: boolean;
@@ -48,7 +51,7 @@ type ResizableHandleProps<T extends ValidComponent = "button"> = PolymorphicProp
 const ResizableHandle = <T extends ValidComponent = "button">(props: ResizableHandleProps<T>) => {
   const [local, others] = splitProps(props as ResizableHandleProps, ["class", "withHandle"]);
   return (
-    <Resizable.Handle
+    <Handle
       class={cn(
         "cn-resizable-handle relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full data-[orientation=vertical]:after:left-0 data-[orientation=vertical]:after:h-1 data-[orientation=vertical]:after:w-full data-[orientation=vertical]:after:translate-x-0 data-[orientation=vertical]:after:-translate-y-1/2 [&[data-orientation=vertical]>div]:rotate-90",
         local.class,
@@ -57,11 +60,9 @@ const ResizableHandle = <T extends ValidComponent = "button">(props: ResizableHa
       {...others}
     >
       <Show when={local.withHandle}>
-        <div class="cn-resizable-handle-icon z-10 flex h-4 w-3 items-center justify-center rounded-xs border bg-border">
-          <GripVertical class="size-2.5" />
-        </div>
+        <div class="cn-resizable-handle-icon z-10 flex shrink-0" />
       </Show>
-    </Resizable.Handle>
+    </Handle>
   );
 };
 
