@@ -230,6 +230,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/context-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
