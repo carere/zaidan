@@ -1,8 +1,13 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "dialog",
-  "dependencies": ["@kobalte/core", "lucide-solid"],
-  "registryDependencies": ["button"],
+  "dependencies": [
+    "@kobalte/core",
+    "lucide-solid"
+  ],
+  "registryDependencies": [
+    "button"
+  ],
   "files": [
     {
       "path": "src/registry/ui/dialog.tsx",
