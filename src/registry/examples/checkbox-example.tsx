@@ -1,5 +1,13 @@
 import { Example, ExampleWrapper } from "@/components/example";
-import { Checkbox, CheckboxLabel } from "@/registry/ui/checkbox";
+import { Checkbox } from "@/registry/ui/checkbox";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from "../ui/field";
 
 export default function CheckboxExample() {
   return (
@@ -8,6 +16,8 @@ export default function CheckboxExample() {
       <CheckboxWithDescription />
       <CheckboxInvalid />
       <CheckboxDisabled />
+      <CheckboxWithTitle />
+      {/* <CheckboxInTable /> */}
       <CheckboxGroup />
     </ExampleWrapper>
   );
@@ -16,9 +26,10 @@ export default function CheckboxExample() {
 function CheckboxBasic() {
   return (
     <Example title="Basic">
-      <Checkbox>
-        <CheckboxLabel>Accept terms and conditions</CheckboxLabel>
-      </Checkbox>
+      <Field orientation="horizontal">
+        <Checkbox id="terms" />
+        <FieldLabel for="terms">Accept terms and conditions</FieldLabel>
+      </Field>
     </Example>
   );
 }
@@ -26,14 +37,15 @@ function CheckboxBasic() {
 function CheckboxWithDescription() {
   return (
     <Example title="With Description">
-      <Checkbox defaultChecked>
-        <div class="grid gap-1.5 leading-none">
-          <CheckboxLabel>Accept terms and conditions</CheckboxLabel>
-          <p class="text-muted-foreground text-sm">
+      <Field orientation="horizontal">
+        <Checkbox id="terms-2" defaultChecked />
+        <FieldContent>
+          <FieldLabel for="terms-2">Accept terms and conditions</FieldLabel>
+          <FieldDescription>
             By clicking this checkbox, you agree to the terms and conditions.
-          </p>
-        </div>
-      </Checkbox>
+          </FieldDescription>
+        </FieldContent>
+      </Field>
     </Example>
   );
 }
@@ -41,9 +53,10 @@ function CheckboxWithDescription() {
 function CheckboxInvalid() {
   return (
     <Example title="Invalid">
-      <Checkbox validationState="invalid">
-        <CheckboxLabel>Accept terms and conditions</CheckboxLabel>
-      </Checkbox>
+      <Field orientation="horizontal" data-invalid>
+        <Checkbox id="terms-3" aria-invalid />
+        <FieldLabel for="terms-3">Accept terms and conditions</FieldLabel>
+      </Field>
     </Example>
   );
 }
@@ -51,38 +64,159 @@ function CheckboxInvalid() {
 function CheckboxDisabled() {
   return (
     <Example title="Disabled">
-      <div class="flex flex-col gap-4">
-        <Checkbox disabled>
-          <CheckboxLabel>Disabled (Unchecked)</CheckboxLabel>
-        </Checkbox>
-        <Checkbox defaultChecked disabled>
-          <CheckboxLabel>Disabled (Checked)</CheckboxLabel>
-        </Checkbox>
-      </div>
+      <Field orientation="horizontal">
+        <Checkbox id="toggle" disabled />
+        <FieldLabel for="toggle">Enable notifications</FieldLabel>
+      </Field>
     </Example>
   );
 }
 
+function CheckboxWithTitle() {
+  return (
+    <Example title="With Title">
+      <FieldGroup>
+        <FieldLabel for="toggle-2">
+          <Field orientation="horizontal">
+            <Checkbox id="toggle-2" defaultChecked />
+            <FieldContent>
+              <FieldTitle>Enable notifications</FieldTitle>
+              <FieldDescription>
+                You can enable or disable notifications at any time.
+              </FieldDescription>
+            </FieldContent>
+          </Field>
+        </FieldLabel>
+        <FieldLabel for="toggle-4">
+          <Field orientation="horizontal" data-disabled>
+            <Checkbox id="toggle-4" disabled />
+            <FieldContent>
+              <FieldTitle>Enable notifications</FieldTitle>
+              <FieldDescription>
+                You can enable or disable notifications at any time.
+              </FieldDescription>
+            </FieldContent>
+          </Field>
+        </FieldLabel>
+      </FieldGroup>
+    </Example>
+  );
+}
+
+// const tableData = [
+//   {
+//     id: "1",
+//     name: "Sarah Chen",
+//     email: "sarah.chen@example.com",
+//     role: "Admin",
+//   },
+//   {
+//     id: "2",
+//     name: "Marcus Rodriguez",
+//     email: "marcus.rodriguez@example.com",
+//     role: "User",
+//   },
+//   {
+//     id: "3",
+//     name: "Priya Patel",
+//     email: "priya.patel@example.com",
+//     role: "User",
+//   },
+//   {
+//     id: "4",
+//     name: "David Kim",
+//     email: "david.kim@example.com",
+//     role: "Editor",
+//   },
+// ];
+
+// function CheckboxInTable() {
+//   const [selectedRows, setSelectedRows] = createSignal(new Set(["1"]));
+
+//   const selectAll = selectedRows().size === tableData.length;
+
+//   const handleSelectAll = (checked: boolean) => {
+//     if (checked) {
+//       setSelectedRows(new Set(tableData.map((row) => row.id)));
+//     } else {
+//       setSelectedRows(new Set<string>());
+//     }
+//   };
+
+//   const handleSelectRow = (id: string, checked: boolean) => {
+//     const newSelected = new Set(selectedRows);
+//     if (checked) {
+//       newSelected.add(id);
+//     } else {
+//       newSelected.delete(id);
+//     }
+//     setSelectedRows(newSelected);
+//   };
+
+//   return (
+//     <Example title="In Table">
+//       <Table>
+//         <TableHeader>
+//           <TableRow>
+//             <TableHead className="w-8">
+//               <Checkbox id="select-all" checked={selectAll} onCheckedChange={handleSelectAll} />
+//             </TableHead>
+//             <TableHead>Name</TableHead>
+//             <TableHead>Email</TableHead>
+//             <TableHead>Role</TableHead>
+//           </TableRow>
+//         </TableHeader>
+//         <TableBody>
+//           {tableData.map((row) => (
+//             <TableRow key={row.id} data-state={selectedRows.has(row.id) ? "selected" : undefined}>
+//               <TableCell>
+//                 <Checkbox
+//                   id={`row-${row.id}`}
+//                   checked={selectedRows.has(row.id)}
+//                   onCheckedChange={(checked) => handleSelectRow(row.id, checked === true)}
+//                 />
+//               </TableCell>
+//               <TableCell className="font-medium">{row.name}</TableCell>
+//               <TableCell>{row.email}</TableCell>
+//               <TableCell>{row.role}</TableCell>
+//             </TableRow>
+//           ))}
+//         </TableBody>
+//       </Table>
+//     </Example>
+//   );
+// }
+
 function CheckboxGroup() {
   return (
     <Example title="Group">
-      <div class="flex flex-col gap-2">
-        <span class="font-medium text-sm">Show these items on the desktop:</span>
-        <div class="flex flex-col gap-2">
-          <Checkbox>
-            <CheckboxLabel class="font-normal">Hard disks</CheckboxLabel>
-          </Checkbox>
-          <Checkbox>
-            <CheckboxLabel class="font-normal">External disks</CheckboxLabel>
-          </Checkbox>
-          <Checkbox>
-            <CheckboxLabel class="font-normal">CDs, DVDs, and iPods</CheckboxLabel>
-          </Checkbox>
-          <Checkbox>
-            <CheckboxLabel class="font-normal">Connected servers</CheckboxLabel>
-          </Checkbox>
-        </div>
-      </div>
+      <Field>
+        <FieldLabel>Show these items on the desktop:</FieldLabel>
+        <Field orientation="horizontal">
+          <Checkbox id="finder-pref-9k2-hard-disks-ljj" />
+          <FieldLabel for="finder-pref-9k2-hard-disks-ljj" class="font-normal">
+            Hard disks
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="finder-pref-9k2-external-disks-1yg" />
+          <FieldLabel for="finder-pref-9k2-external-disks-1yg" class="font-normal">
+            External disks
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="finder-pref-9k2-cds-dvds-fzt" />
+          <FieldLabel for="finder-pref-9k2-cds-dvds-fzt" class="font-normal">
+            CDs, DVDs, and iPods
+          </FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="finder-pref-9k2-connected-servers-6l2" />
+          <FieldLabel for="finder-pref-9k2-connected-servers-6l2" class="font-normal">
+            Connected servers
+          </FieldLabel>
+        </Field>
+      </Field>
     </Example>
   );
 }
