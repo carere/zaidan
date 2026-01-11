@@ -1,0 +1,68 @@
+---
+title: Resizable
+slug: resizable
+description: Accessible resizable panel groups and layouts with keyboard support.
+example: resizable-example.tsx
+---
+
+# Resizable
+
+Accessible resizable panel groups and layouts with keyboard support.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add resizable
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/resizable.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "~/components/ui/resizable";
+```
+
+```tsx showLineNumbers
+<ResizablePanelGroup orientation="horizontal">
+  <ResizablePanel>One</ResizablePanel>
+  <ResizableHandle />
+  <ResizablePanel>Two</ResizablePanel>
+</ResizablePanelGroup>
+```
+
+## Vertical
+
+Use the `orientation` prop to set the orientation of the resizable panels.
+
+```tsx showLineNumbers
+<ResizablePanelGroup orientation="vertical">
+  <ResizablePanel>One</ResizablePanel>
+  <ResizableHandle />
+  <ResizablePanel>Two</ResizablePanel>
+</ResizablePanelGroup>
+```
+
+## Handle
+
+You can set the `withHandle` prop to add a handle to the resizable handle.
+
+```tsx showLineNumbers
+<ResizablePanelGroup orientation="horizontal">
+  <ResizablePanel>One</ResizablePanel>
+  <ResizableHandle withHandle />
+  <ResizablePanel>Two</ResizablePanel>
+</ResizablePanelGroup>
+```

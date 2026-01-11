@@ -206,6 +206,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "resizable",
+      "type": "registry:ui",
+      "dependencies": ["corvu", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/resizable.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

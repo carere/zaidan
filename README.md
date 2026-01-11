@@ -72,7 +72,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Popover |  |  |  |
 | Progress | x | x | x |
 | Radio Group | x | x | x |
-| Resizable |  |  |  |
+| Resizable | x | x | x |
 | Scroll Area |  |  |  |
 | Select | x |  |  |
 | Separator | x |  |  |
