@@ -59,11 +59,11 @@ const FieldGroup = (props: FieldGroupProps) => {
 const fieldVariants = cva("cn-field group/field flex w-full", {
   variants: {
     orientation: {
-      vertical: "cn-field-orientation-vertical flex-col [&>*]:w-full [&>.sr-only]:w-auto",
+      vertical: "cn-field-orientation-vertical flex-col *:w-full [&>.sr-only]:w-auto",
       horizontal:
-        "cn-field-orientation-horizontal flex-row items-center has-[>[data-slot=field-content]]:items-start [&>[data-slot=field-label]]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+        "cn-field-orientation-horizontal flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
       responsive:
-        "cn-field-orientation-responsive @md/field-group:flex-row flex-col @md/field-group:items-center @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:[&>*]:w-auto [&>*]:w-full [&>.sr-only]:w-auto @md/field-group:[&>[data-slot=field-label]]:flex-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+        "cn-field-orientation-responsive @md/field-group:flex-row flex-col @md/field-group:items-center *:w-full @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:flex-auto [&>.sr-only]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
     },
   },
   defaultVariants: {
@@ -152,7 +152,7 @@ const FieldDescription = (props: FieldDescriptionProps) => {
     <p
       data-slot="field-description"
       class={cn(
-        "cn-field-description font-normal leading-normal group-has-[[data-orientation=horizontal]]/field:text-balance",
+        "cn-field-description font-normal leading-normal group-has-data-[orientation=horizontal]/field:text-balance",
         "nth-last-2:-mt-1 last:mt-0",
         "[&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         local.class,
