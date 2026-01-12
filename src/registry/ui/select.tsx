@@ -8,20 +8,23 @@ import {
   type SelectValueProps as SelectPrimitiveValueProps,
   type SelectRootProps,
   type SelectSectionProps,
+  useSelectContext,
   Value,
 } from "@kobalte/core/select";
-import { Check, ChevronDown, ChevronUp } from "lucide-solid";
+import { Check, ChevronsUpDown } from "lucide-solid";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-type SelectProps<O, T extends ValidComponent = "div"> = PolymorphicProps<
+type SelectProps<O, OptGroup = never, T extends ValidComponent = "div"> = PolymorphicProps<
   T,
-  SelectRootProps<O, never, T>
+  SelectRootProps<O, OptGroup, T>
 > &
   Pick<ComponentProps<T>, "class" | "children">;
 
-const Select = <O, T extends ValidComponent = "div">(props: SelectProps<O, T>) => {
+const Select = <O, OptGroup = never, T extends ValidComponent = "div">(
+  props: SelectProps<O, OptGroup, T>,
+) => {
   const mergedProps = mergeProps(
     {
       sameWidth: true,
@@ -56,8 +59,17 @@ type SelectValueProps<Option, T extends ValidComponent = "span"> = PolymorphicPr
 const SelectValue = <Option, T extends ValidComponent = "span">(
   props: SelectValueProps<Option, T>,
 ) => {
+  const context = useSelectContext();
   const [local, others] = splitProps(props as SelectValueProps<Option>, ["class"]);
-  return <Value class={cn("cn-select-value", local.class)} data-slot="select-value" {...others} />;
+  return (
+    <Value
+      class={cn("cn-select-value", local.class, {
+        "text-muted-foreground": context.selectedOptions().length === 0,
+      })}
+      data-slot="select-value"
+      {...others}
+    />
+  );
 };
 
 type SelectTriggerProps<T extends ValidComponent = "button"> = PolymorphicProps<
@@ -83,7 +95,10 @@ const SelectTrigger = <T extends ValidComponent = "button">(rawProps: SelectTrig
       {...others}
     >
       {local.children}
-      <SelectPrimitive.Icon as={ChevronDown} />
+      <SelectPrimitive.Icon
+        as={ChevronsUpDown}
+        class="cn-select-trigger-icon pointer-events-none"
+      />
     </SelectPrimitive.Trigger>
   );
 };
@@ -100,7 +115,7 @@ const SelectContent = <T extends ValidComponent = "div">(props: SelectContentPro
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         class={cn(
-          "cn-select-content relative isolate z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
+          "cn-select-content cn-menu-target relative isolate z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
         )}
         data-slot="select-content"
@@ -150,8 +165,8 @@ const SelectItem = <T extends ValidComponent = "li">(
       <SelectPrimitive.ItemLabel class="cn-select-item-text shrink-0 whitespace-nowrap">
         {local.children}
       </SelectPrimitive.ItemLabel>
-      <SelectPrimitive.ItemIndicator class="cn-select-item-indicator">
-        <Check />
+      <SelectPrimitive.ItemIndicator as="span" class="cn-select-item-indicator">
+        <Check class="cn-select-item-indicator-icon pointer-events-none" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   );
@@ -174,48 +189,12 @@ const SelectSeparator = <T extends ValidComponent = "hr">(
   );
 };
 
-type SelectScrollUpButtonProps = ComponentProps<"div"> & {
-  class?: string | undefined;
-};
-
-const SelectScrollUpButton = (rawProps: SelectScrollUpButtonProps) => {
-  const [local, others] = splitProps(rawProps, ["class"]);
-  return (
-    <div
-      class={cn("cn-select-scroll-up-button top-0 w-full", local.class)}
-      data-slot="select-scroll-up-button"
-      {...others}
-    >
-      <ChevronUp />
-    </div>
-  );
-};
-
-type SelectScrollDownButtonProps = ComponentProps<"div"> & {
-  class?: string | undefined;
-};
-
-const SelectScrollDownButton = (rawProps: SelectScrollDownButtonProps) => {
-  const [local, others] = splitProps(rawProps, ["class"]);
-  return (
-    <div
-      class={cn("cn-select-scroll-down-button bottom-0 w-full", local.class)}
-      data-slot="select-scroll-down-button"
-      {...others}
-    >
-      <ChevronDown />
-    </div>
-  );
-};
-
 export {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
   SelectSeparator,
   SelectTrigger,
   SelectValue,
