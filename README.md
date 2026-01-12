@@ -48,7 +48,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Card | x |  |  |
 | Carousel | x |  |  |
 | Chart |  |  |  |
-| Checkbox |  |  |  |
+| Checkbox | x | x | x |
 | Collapsible | x |  |  |
 | Combobox |  |  |  |
 | Command |  |  |  |
@@ -66,14 +66,14 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Kbd | x |  |  |
 | Label | x |  | x |
 | Menubar |  |  |  |
-| Native Select | x |  |  |
+| Native Select | x | x | x |
 | Navigation Menu |  |  |  |
-| Pagination |  |  |  |
+| Pagination | x | x | x |
 | Popover | x | x | x |
 | Progress | x | x | x |
 | Radio Group | x | x | x |
 | Resizable | x | x | x |
-| Select | x |  |  |
+| Select | x | x | x |
 | Separator | x |  |  |
 | Sheet | x |  |  |
 | Sidebar | x |  |  |

@@ -278,6 +278,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "navigation-menu",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/navigation-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
