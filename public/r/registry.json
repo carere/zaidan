@@ -266,6 +266,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "pagination",
+      "type": "registry:ui",
+      "dependencies": ["lucide-solid"],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "src/registry/ui/pagination.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
