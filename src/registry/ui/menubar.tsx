@@ -1,13 +1,19 @@
 import * as MenubarPrimitive from "@kobalte/core/menubar";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { Check, ChevronRight, Circle } from "lucide-solid";
+import { Check, ChevronRight } from "lucide-solid";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-const Menubar: Component<MenubarPrimitive.MenubarRootProps> = (props) => {
-  const [local, others] = splitProps(props, ["class"]);
+type MenubarProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarRootProps<T>
+> &
+  Pick<ComponentProps<T>, "class" | "children">;
+
+const Menubar = <T extends ValidComponent = "div">(props: MenubarProps<T>) => {
+  const [local, others] = splitProps(props as MenubarProps, ["class"]);
   return (
     <MenubarPrimitive.Root
       data-slot="menubar"
@@ -17,8 +23,9 @@ const Menubar: Component<MenubarPrimitive.MenubarRootProps> = (props) => {
   );
 };
 
-const MenubarMenu: Component<MenubarPrimitive.MenubarMenuProps> = (props) => {
-  return <MenubarPrimitive.Menu data-slot="menubar-menu" {...props} />;
+const MenubarMenu = (props: MenubarPrimitive.MenubarMenuProps) => {
+  const mergedProps = mergeProps({ gutter: 8 }, props);
+  return <MenubarPrimitive.Menu data-slot="menubar-menu" {...mergedProps} />;
 };
 
 type MenubarTriggerProps<T extends ValidComponent = "button"> = PolymorphicProps<
@@ -51,8 +58,7 @@ type MenubarContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
   Pick<ComponentProps<T>, "class">;
 
 const MenubarContent = <T extends ValidComponent = "div">(props: MenubarContentProps<T>) => {
-  const mergedProps = mergeProps({ gutter: 8, shift: -4 } as MenubarContentProps<T>, props);
-  const [local, others] = splitProps(mergedProps as MenubarContentProps, ["class"]);
+  const [local, others] = splitProps(props as MenubarContentProps, ["class"]);
   return (
     <MenubarPortal>
       <MenubarPrimitive.Content
@@ -179,7 +185,7 @@ const MenubarRadioItem = <T extends ValidComponent = "div">(props: MenubarRadioI
     >
       <span class="cn-menubar-radio-item-indicator pointer-events-none absolute flex items-center justify-center">
         <MenubarPrimitive.ItemIndicator>
-          <Circle class="fill-current" />
+          <Check />
         </MenubarPrimitive.ItemIndicator>
       </span>
       {local.children}

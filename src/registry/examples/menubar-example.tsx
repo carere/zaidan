@@ -1,6 +1,9 @@
 import {
   Bold,
   Check,
+  CircleDashed,
+  ClipboardPaste,
+  Copy,
   File,
   Folder,
   Image,
@@ -8,6 +11,7 @@ import {
   Link,
   LogOut,
   Save,
+  Scissors,
   Search,
   Settings,
   Table,
@@ -33,6 +37,15 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/registry/ui/menubar";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 export default function MenubarExample() {
   return (
@@ -46,6 +59,7 @@ export default function MenubarExample() {
       <MenubarFormat />
       <MenubarInsert />
       <MenubarDestructive />
+      <MenubarInDialog />
     </ExampleWrapper>
   );
 }
@@ -233,12 +247,16 @@ function MenubarWithIcons() {
           <MenubarContent>
             <MenubarGroup>
               <MenubarItem>
-                <Settings />
+                <CircleDashed />
                 Settings
+              </MenubarItem>
+              <MenubarItem>
+                <CircleDashed />
+                Help
               </MenubarItem>
               <MenubarSeparator />
               <MenubarItem variant="destructive">
-                <Trash />
+                <CircleDashed />
                 Delete
               </MenubarItem>
             </MenubarGroup>
@@ -425,6 +443,70 @@ function MenubarDestructive() {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
+    </Example>
+  );
+}
+
+function MenubarInDialog() {
+  return (
+    <Example title="In Dialog">
+      <Dialog>
+        <DialogTrigger as={Button} variant="outline">
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Menubar Example</DialogTitle>
+            <DialogDescription>Use the menubar below to see the menu options.</DialogDescription>
+          </DialogHeader>
+          <Menubar>
+            <MenubarMenu>
+              <MenubarTrigger>File</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>
+                  <Copy />
+                  Copy
+                </MenubarItem>
+                <MenubarItem>
+                  <Scissors />
+                  Cut
+                </MenubarItem>
+                <MenubarItem>
+                  <ClipboardPaste />
+                  Paste
+                </MenubarItem>
+                <MenubarSeparator />
+                <MenubarSub>
+                  <MenubarSubTrigger>More Options</MenubarSubTrigger>
+                  <MenubarSubContent>
+                    <MenubarItem>Save Page...</MenubarItem>
+                    <MenubarItem>Create Shortcut...</MenubarItem>
+                    <MenubarItem>Name Window...</MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarItem>Developer Tools</MenubarItem>
+                  </MenubarSubContent>
+                </MenubarSub>
+                <MenubarSeparator />
+                <MenubarItem variant="destructive">
+                  <Trash />
+                  Delete
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>Edit</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>
+                  Undo <MenubarShortcut>⌘Z</MenubarShortcut>
+                </MenubarItem>
+                <MenubarItem>
+                  Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+        </DialogContent>
+      </Dialog>
     </Example>
   );
 }
