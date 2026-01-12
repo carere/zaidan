@@ -1,13 +1,9 @@
 import {
   Content,
-  Item,
   Menu,
   type NavigationMenuContentProps as NavigationMenuContentPrimitiveProps,
-  type NavigationMenuItemProps as NavigationMenuItemPrimitiveProps,
-  type NavigationMenuMenuProps,
   type NavigationMenuRootProps,
   type NavigationMenuTriggerProps as NavigationMenuTriggerPrimitiveProps,
-  type NavigationMenuViewportProps as NavigationMenuViewportPrimitiveProps,
   Portal,
   Root,
   Trigger,
@@ -27,7 +23,8 @@ type NavigationMenuProps<T extends ValidComponent = "ul"> = PolymorphicProps<
   Pick<ComponentProps<T>, "class" | "children">;
 
 const NavigationMenu = <T extends ValidComponent = "ul">(props: NavigationMenuProps<T>) => {
-  const [local, others] = splitProps(props as NavigationMenuProps, ["class", "children"]);
+  const mergedProps = mergeProps({ gutter: 8, placement: "bottom-start" }, props);
+  const [local, others] = splitProps(mergedProps as NavigationMenuProps, ["class", "children"]);
   return (
     <Root
       data-slot="navigation-menu"
@@ -37,46 +34,29 @@ const NavigationMenu = <T extends ValidComponent = "ul">(props: NavigationMenuPr
       )}
       {...others}
     >
-      {local.children}
-      <NavigationMenuViewport />
+      <div
+        data-slot="navigation-menu-list"
+        class="cn-navigation-menu-list group flex flex-1 list-none items-center justify-center"
+      >
+        {local.children}
+      </div>
+      <Viewport />
     </Root>
   );
 };
 
-type NavigationMenuListProps<T extends ValidComponent = "li"> = PolymorphicProps<
-  T,
-  NavigationMenuMenuProps<T>
-> &
-  Pick<ComponentProps<T>, "class" | "children">;
+type NavigationMenuItemProps = ComponentProps<"div">;
 
-const NavigationMenuList = <T extends ValidComponent = "li">(props: NavigationMenuListProps<T>) => {
-  const [local, others] = splitProps(props as NavigationMenuListProps, ["class"]);
+const NavigationMenuItem = (props: NavigationMenuItemProps) => {
+  const [local, others] = splitProps(props, ["class"]);
   return (
-    <Menu
-      data-slot="navigation-menu-list"
-      class={cn(
-        "cn-navigation-menu-list group flex flex-1 list-none items-center justify-center",
-        local.class,
-      )}
-      {...others}
-    />
-  );
-};
-
-type NavigationMenuItemProps<T extends ValidComponent = "a"> = PolymorphicProps<
-  T,
-  NavigationMenuItemPrimitiveProps<T>
-> &
-  Pick<ComponentProps<T>, "class" | "children">;
-
-const NavigationMenuItem = <T extends ValidComponent = "a">(props: NavigationMenuItemProps<T>) => {
-  const [local, others] = splitProps(props as NavigationMenuItemProps, ["class"]);
-  return (
-    <Item
-      data-slot="navigation-menu-item"
-      class={cn("cn-navigation-menu-item relative", local.class)}
-      {...others}
-    />
+    <Menu>
+      <div
+        data-slot="navigation-menu-item"
+        class={cn("cn-navigation-menu-item relative", local.class)}
+        {...others}
+      />
+    </Menu>
   );
 };
 
@@ -100,7 +80,8 @@ const NavigationMenuTrigger = <T extends ValidComponent = "div">(
       class={cn(navigationMenuTriggerStyle(), "group", local.class)}
       {...others}
     >
-      {local.children} <ChevronDown class="cn-navigation-menu-trigger-icon" aria-hidden="true" />
+      {local.children}
+      <ChevronDown class="cn-navigation-menu-trigger-icon" aria-hidden="true" />
     </Trigger>
   );
 };
@@ -120,40 +101,12 @@ const NavigationMenuContent = <T extends ValidComponent = "ul">(
       <Content
         data-slot="navigation-menu-content"
         class={cn(
-          "cn-navigation-menu-content h-full w-auto **:data-[slot=navigation-menu-link]:focus:outline-none **:data-[slot=navigation-menu-link]:focus:ring-0",
+          "cn-navigation-menu-content absolute top-0 h-full w-auto origin-(--kb-menu-content-transform-origin) **:data-[slot=navigation-menu-link]:focus:outline-none **:data-[slot=navigation-menu-link]:focus:ring-0",
           local.class,
         )}
         {...others}
       />
     </Portal>
-  );
-};
-
-type NavigationMenuViewportProps<T extends ValidComponent = "li"> = PolymorphicProps<
-  T,
-  NavigationMenuViewportPrimitiveProps<T>
-> &
-  Pick<ComponentProps<T>, "class">;
-
-const NavigationMenuViewport = <T extends ValidComponent = "li">(
-  props: NavigationMenuViewportProps<T>,
-) => {
-  const mergedProps = mergeProps(
-    {
-      gutter: 8,
-    } as NavigationMenuViewportProps<T>,
-    props,
-  );
-  const [local, others] = splitProps(mergedProps as NavigationMenuViewportProps, ["class"]);
-  return (
-    <Viewport
-      data-slot="navigation-menu-viewport"
-      class={cn(
-        "cn-navigation-menu-viewport isolate z-50 h-[var(--kb-navigation-menu-viewport-height)] w-[var(--kb-navigation-menu-viewport-width)] max-w-[var(--kb-popper-available-width)] origin-[var(--kb-menu-content-transform-origin)] data-[instant]:transition-none",
-        local.class,
-      )}
-      {...others}
-    />
   );
 };
 
@@ -183,7 +136,7 @@ const NavigationMenuIndicator = (props: NavigationMenuIndicatorProps) => {
     <div
       data-slot="navigation-menu-indicator"
       class={cn(
-        "cn-navigation-menu-indicator top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden",
+        "cn-navigation-menu-indicator top-full z-1 flex h-1.5 items-end justify-center overflow-hidden",
         local.class,
       )}
       {...others}
@@ -199,8 +152,6 @@ export {
   NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-  NavigationMenuViewport,
 };

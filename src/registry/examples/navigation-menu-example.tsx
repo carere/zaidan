@@ -1,14 +1,12 @@
-import type { ComponentProps } from "solid-js";
-import { For } from "solid-js";
+import { CircleAlert } from "lucide-solid";
+import { type ComponentProps, For, splitProps } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/registry/ui/navigation-menu";
 
 const components: { title: string; href: string; description: string }[] = [
@@ -60,60 +58,71 @@ function NavigationMenuBasic() {
   return (
     <Example title="Basic">
       <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul class="w-96">
-                <ListItem href="/docs" title="Introduction">
-                  Re-usable components built with Tailwind CSS.
-                </ListItem>
-                <ListItem href="/docs/installation" title="Installation">
-                  How to install dependencies and structure your app.
-                </ListItem>
-                <ListItem href="/docs/primitives/typography" title="Typography">
-                  Styles for headings, paragraphs, lists...etc
-                </ListItem>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul class="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                <For each={components}>
-                  {(component) => (
-                    <ListItem title={component.title} href={component.href}>
-                      {component.description}
-                    </ListItem>
-                  )}
-                </For>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink href="/docs" class={navigationMenuTriggerStyle()}>
-              Documentation
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul class="w-96 rounded-md bg-popover p-2">
+              <ListItem href="/docs" title="Introduction">
+                Re-usable components built with Tailwind CSS.
+              </ListItem>
+              <ListItem href="/docs/installation" title="Installation">
+                How to install dependencies and structure your app.
+              </ListItem>
+              <ListItem href="/docs/primitives/typography" title="Typography">
+                Styles for headings, paragraphs, lists...etc
+              </ListItem>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul class="grid w-[400px] gap-2 rounded-md bg-popover p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              <For each={components}>
+                {(component) => (
+                  <ListItem title={component.title} href={component.href}>
+                    {component.description}
+                  </ListItem>
+                )}
+              </For>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul class="grid w-[200px] rounded-md bg-popover p-2">
+              <li>
+                <NavigationMenuLink href="#" class="flex-row items-center gap-2">
+                  <CircleAlert />
+                  Backlog
+                </NavigationMenuLink>
+                <NavigationMenuLink href="#" class="flex-row items-center gap-2">
+                  <CircleAlert />
+                  To Do
+                </NavigationMenuLink>
+                <NavigationMenuLink href="#" class="flex-row items-center gap-2">
+                  <CircleAlert />
+                  Done
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuLink href="/docs">Documentation</NavigationMenuLink>
       </NavigationMenu>
     </Example>
   );
 }
 
-type ListItemProps = Omit<ComponentProps<"li">, "title"> & {
-  href: string;
-  title: string;
-};
-
-function ListItem(props: ListItemProps) {
+function ListItem(props: ComponentProps<"li"> & { href: string }) {
+  const [local, others] = splitProps(props, ["title", "children", "href"]);
   return (
-    <li>
-      <NavigationMenuLink href={props.href}>
-        <div class="flex flex-col gap-1 text-sm">
-          <div class="font-medium leading-none">{props.title}</div>
-          <div class="line-clamp-2 text-muted-foreground">{props.children}</div>
+    <li {...others}>
+      <NavigationMenuLink href={local.href}>
+        <div class="flex flex-col gap-1 style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+          <div class="font-medium leading-none">{local.title}</div>
+          <div class="line-clamp-2 text-muted-foreground">{local.children}</div>
         </div>
       </NavigationMenuLink>
     </li>
