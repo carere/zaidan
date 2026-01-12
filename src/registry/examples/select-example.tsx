@@ -31,7 +31,6 @@ export default function SelectExample() {
       <SelectBasic />
       <SelectWithIcons />
       <SelectWithGroups />
-      <SelectLargeList />
       <SelectMultiple />
       <SelectSizes />
       <SelectPlan />
@@ -214,33 +213,6 @@ function SelectWithGroups() {
       >
         <SelectTrigger>
           <SelectValue<FoodOption>>{(state) => state.selectedOption().label}</SelectValue>
-        </SelectTrigger>
-        <SelectContent />
-      </Select>
-    </Example>
-  );
-}
-
-function SelectLargeList() {
-  const items = Array.from({ length: 100 }).map((_, i) => ({
-    label: `Item ${i}`,
-    value: `item-${i}`,
-  }));
-  return (
-    <Example title="Large List">
-      <Select
-        options={items}
-        optionValue="value"
-        optionTextValue="label"
-        placeholder="Select an item"
-        itemComponent={(props) => (
-          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-        )}
-      >
-        <SelectTrigger>
-          <SelectValue<(typeof items)[number]>>
-            {(state) => state.selectedOption().label}
-          </SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
