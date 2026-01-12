@@ -961,7 +961,7 @@
   }
 
   .cn-select-group {
-    @apply scroll-my-1 p-1;
+    @apply scroll-my-1 px-0 py-1;
   }
 
   .cn-select-item-text {

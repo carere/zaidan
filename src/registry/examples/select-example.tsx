@@ -1,4 +1,5 @@
 import { ChartBar, ChartLine, ChartPie } from "lucide-solid";
+import { Show } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
 import { Input } from "@/registry/ui/input";
@@ -10,9 +11,19 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/registry/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Field, FieldDescription, FieldLabel } from "../ui/field";
 
 export default function SelectExample() {
   return (
@@ -23,12 +34,14 @@ export default function SelectExample() {
       <SelectLargeList />
       <SelectMultiple />
       <SelectSizes />
+      <SelectPlan />
       <SelectWithButton />
       <SelectItemAligned />
-      <SelectPlan />
+      <SelectWithField />
       <SelectInvalid />
       <SelectInline />
       <SelectDisabled />
+      <SelectInDialog />
     </ExampleWrapper>
   );
 }
@@ -38,7 +51,7 @@ function SelectBasic() {
     { label: "Apple", value: "apple" },
     { label: "Banana", value: "banana" },
     { label: "Blueberry", value: "blueberry" },
-    { label: "Grapes", value: "grapes" },
+    { label: "Grapes", value: "grapes", disabled: true },
     { label: "Pineapple", value: "pineapple" },
   ];
 
@@ -50,7 +63,9 @@ function SelectBasic() {
         optionTextValue="label"
         placeholder="Select a fruit"
         itemComponent={(props) => (
-          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          <SelectItem item={props.item} data-disabled={props.item.rawValue.disabled}>
+            {props.item.rawValue.label}
+          </SelectItem>
         )}
       >
         <SelectTrigger>
@@ -66,15 +81,6 @@ function SelectBasic() {
 
 function SelectWithIcons() {
   const items = [
-    {
-      label: (
-        <>
-          <ChartLine />
-          Chart Type
-        </>
-      ),
-      value: null,
-    },
     {
       label: (
         <>
@@ -103,6 +109,7 @@ function SelectWithIcons() {
       value: "pie",
     },
   ];
+
   return (
     <Example title="With Icons">
       <div class="flex flex-col gap-4">
@@ -110,12 +117,20 @@ function SelectWithIcons() {
           options={items}
           optionValue="value"
           optionTextValue="label"
+          placeholder={
+            <>
+              <ChartLine />
+              Chart Type
+            </>
+          }
           itemComponent={(props) => (
             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
           )}
         >
           <SelectTrigger size="sm">
-            <SelectValue />
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption()?.label}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent />
         </Select>
@@ -123,12 +138,20 @@ function SelectWithIcons() {
           options={items}
           optionValue="value"
           optionTextValue="label"
+          placeholder={
+            <>
+              <ChartLine />
+              Chart Type
+            </>
+          }
           itemComponent={(props) => (
             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
           )}
         >
           <SelectTrigger size="default">
-            <SelectValue />
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption()?.label}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent />
         </Select>
@@ -179,9 +202,14 @@ function SelectWithGroups() {
           <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
         )}
         sectionComponent={(props) => (
-          <SelectGroup>
-            <SelectLabel>{props.section.rawValue.label}</SelectLabel>
-          </SelectGroup>
+          <>
+            <Show when={props.section.index !== 0}>
+              <SelectSeparator />
+            </Show>
+            <SelectGroup>
+              <SelectLabel>{props.section.rawValue.label}</SelectLabel>
+            </SelectGroup>
+          </>
         )}
       >
         <SelectTrigger>
@@ -233,10 +261,11 @@ function SelectMultiple() {
 
   return (
     <Example title="Multiple Selection">
-      <Select<{ label: string; value: string }>
+      <Select<(typeof items)[number]>
         options={items}
         optionValue="value"
         optionTextValue="label"
+        placeholder="Select fruits"
         multiple
         defaultValue={[]}
         itemComponent={(props) => (
@@ -244,15 +273,12 @@ function SelectMultiple() {
         )}
       >
         <SelectTrigger class="w-72">
-          <SelectValue>
-            {({ selectedOptions }) => {
-              if (selectedOptions().length === 0) {
-                return "Select fruits";
+          <SelectValue<(typeof items)[number]>>
+            {(state) => {
+              if (state.selectedOptions().length === 1) {
+                return state.selectedOptions()[0].label;
               }
-              if (selectedOptions().length === 1) {
-                return items.find((item) => item.value === selectedOptions()[0])?.label;
-              }
-              return `${selectedOptions().length} fruits selected`;
+              return `${state.selectedOptions().length} fruits selected`;
             }}
           </SelectValue>
         </SelectTrigger>
@@ -389,6 +415,38 @@ function SelectItemAligned() {
         </SelectTrigger>
         <SelectContent />
       </Select>
+    </Example>
+  );
+}
+
+function SelectWithField() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
+  ];
+  return (
+    <Example title="With Field">
+      <Field>
+        <FieldLabel for="select-fruit">Favorite Fruit</FieldLabel>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Select a fruit"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
+          <SelectTrigger id="select-fruit">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <FieldDescription>Choose your favorite fruit from the list.</FieldDescription>
+      </Field>
     </Example>
   );
 }
@@ -541,5 +599,48 @@ function SelectPlanItem(props: { plan: (typeof plans)[number] }) {
         <ItemDescription class="text-xs">{props.plan.description}</ItemDescription>
       </ItemContent>
     </Item>
+  );
+}
+
+function SelectInDialog() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
+  ];
+  return (
+    <Example title="In Dialog">
+      <Dialog>
+        <DialogTrigger as={Button} variant="outline">
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Select Example</DialogTitle>
+            <DialogDescription>Use the select below to choose a fruit.</DialogDescription>
+          </DialogHeader>
+          <Select
+            options={items}
+            optionValue="value"
+            optionTextValue="label"
+            placeholder="Select a fruit"
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
+            <SelectTrigger>
+              <SelectValue<(typeof items)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectContent />
+            </SelectContent>
+          </Select>
+        </DialogContent>
+      </Dialog>
+    </Example>
   );
 }

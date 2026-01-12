@@ -165,7 +165,7 @@ const SelectItem = <T extends ValidComponent = "li">(
       <SelectPrimitive.ItemLabel class="cn-select-item-text shrink-0 whitespace-nowrap">
         {local.children}
       </SelectPrimitive.ItemLabel>
-      <SelectPrimitive.ItemIndicator class="cn-select-item-indicator">
+      <SelectPrimitive.ItemIndicator as="span" class="cn-select-item-indicator">
         <Check class="cn-select-item-indicator-icon pointer-events-none" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
