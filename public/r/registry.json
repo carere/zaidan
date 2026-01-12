@@ -290,6 +290,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "menubar",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/menubar.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
