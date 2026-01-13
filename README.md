@@ -82,7 +82,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Sonner | x | x | x |
 | Spinner | x |  | x |
 | Switch | x |  | x |
-| Table |  |  |  |
+| Table | x | x | x |
 | Tabs | x |  |  |
 | Textarea | x | x | x |
 | Toggle | x |  |  |
