@@ -1,12 +1,12 @@
 ---
 title: Sonner
 slug: sonner
-description: An opinionated toast component for SolidJS.
+description: An opinionated toast component for SolidJS with stacking animations.
 ---
 
 # Sonner
 
-An opinionated toast component for SolidJS built on [Kobalte Toast](https://kobalte.dev/docs/core/components/toast).
+An opinionated toast component for SolidJS built on [Kobalte Toast](https://kobalte.dev/docs/core/components/toast). Features a stacking animation where multiple toasts stack behind the front toast and expand on hover.
 
 ## Installation
 
@@ -64,6 +64,25 @@ toast.info("Information");
 toast.loading("Loading...");
 ```
 
+## Stacking Behavior
+
+When multiple toasts are displayed:
+
+1. The most recent toast is fully visible at the front
+2. Older toasts stack behind with reduced scale and opacity
+3. When you hover over the toast area, all toasts expand into a column
+4. After moving your mouse away, toasts collapse back to the stacked view
+
+This behavior can be controlled with the `expand` prop:
+
+```tsx showLineNumbers
+// Disable stacking/expand behavior
+<Toaster expand={false} />
+
+// Customize collapse delay (default: 200ms)
+<Toaster closeDelay={500} />
+```
+
 ## Toast Variants
 
 The toast component supports multiple variants:
@@ -115,7 +134,7 @@ toast.promise(
 
 ## Toaster Position
 
-Position the toasts at different locations:
+Position the toasts at different locations (default is `top-center`):
 
 ```tsx showLineNumbers
 <Toaster position="top-right" />
@@ -155,7 +174,10 @@ Position the toasts at different locations:
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `position` | `string` | `"bottom-right"` | Position of the toast container |
+| `position` | `string` | `"top-center"` | Position of the toast container |
 | `duration` | `number` | `5000` | Default duration for toasts |
 | `limit` | `number` | `3` | Maximum number of visible toasts |
+| `gap` | `number` | `14` | Gap between toasts when expanded (in pixels) |
+| `expand` | `boolean` | `true` | Whether to expand toasts on hover |
+| `closeDelay` | `number` | `200` | Delay before collapsing after mouse leaves (in ms) |
 | `swipeDirection` | `"up" \| "down" \| "left" \| "right"` | `"right"` | Direction to swipe to dismiss |

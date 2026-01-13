@@ -1,11 +1,41 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import * as ToastPrimitive from "@kobalte/core/toast";
 import { CircleAlert, CircleCheck, CircleX, Info, Loader2, X } from "lucide-solid";
-import type { ComponentProps, JSX, ValidComponent } from "solid-js";
-import { Match, mergeProps, Show, Switch, splitProps } from "solid-js";
+import type { Accessor, ComponentProps, JSX, ValidComponent } from "solid-js";
+import {
+  createContext,
+  createEffect,
+  createSignal,
+  Match,
+  mergeProps,
+  onCleanup,
+  Show,
+  splitProps,
+  Switch,
+  useContext,
+} from "solid-js";
 import { Portal } from "solid-js/web";
 
 import { cn } from "@/lib/utils";
+
+/* -------------------------------------------------------------------------------------------------
+ * Toast Context for stacking state
+ * -----------------------------------------------------------------------------------------------*/
+
+type ToastContextValue = {
+  expanded: Accessor<boolean>;
+  position: Accessor<"top" | "bottom">;
+};
+
+const ToastContext = createContext<ToastContextValue>();
+
+const useToastContext = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToastContext must be used within a Toaster");
+  }
+  return context;
+};
 
 /* -------------------------------------------------------------------------------------------------
  * Toast Region (Toaster)
@@ -15,7 +45,7 @@ type ToasterProps = ToastPrimitive.ToastRegionProps &
   Pick<ComponentProps<"div">, "class"> & {
     /**
      * Position of the toasts
-     * @default "bottom-right"
+     * @default "top-center"
      */
     position?:
       | "top-left"
@@ -24,15 +54,30 @@ type ToasterProps = ToastPrimitive.ToastRegionProps &
       | "bottom-left"
       | "bottom-center"
       | "bottom-right";
+    /**
+     * Gap between toasts when expanded (in pixels)
+     * @default 14
+     */
+    gap?: number;
+    /**
+     * Whether to expand toasts on hover
+     * @default true
+     */
+    expand?: boolean;
+    /**
+     * Delay before collapsing toasts after mouse leaves (in ms)
+     * @default 200
+     */
+    closeDelay?: number;
   };
 
 const positionClasses: Record<NonNullable<ToasterProps["position"]>, string> = {
-  "top-left": "top-0 left-0",
-  "top-center": "top-0 left-1/2 -translate-x-1/2",
-  "top-right": "top-0 right-0",
-  "bottom-left": "bottom-0 left-0",
-  "bottom-center": "bottom-0 left-1/2 -translate-x-1/2",
-  "bottom-right": "bottom-0 right-0",
+  "top-left": "top-0 left-0 items-start",
+  "top-center": "top-0 left-1/2 -translate-x-1/2 items-center",
+  "top-right": "top-0 right-0 items-end",
+  "bottom-left": "bottom-0 left-0 items-start",
+  "bottom-center": "bottom-0 left-1/2 -translate-x-1/2 items-center",
+  "bottom-right": "bottom-0 right-0 items-end",
 };
 
 const Toaster = (props: ToasterProps) => {
@@ -43,25 +88,179 @@ const Toaster = (props: ToasterProps) => {
       pauseOnPageIdle: true,
       duration: 5000,
       limit: 3,
-      position: "bottom-right",
+      position: "top-center",
+      gap: 14,
+      expand: true,
+      closeDelay: 200,
     } as ToasterProps,
     props,
   );
-  const [local, others] = splitProps(mergedProps, ["class", "position"]);
+  const [local, others] = splitProps(mergedProps, [
+    "class",
+    "position",
+    "gap",
+    "expand",
+    "closeDelay",
+  ]);
+
+  const [expanded, setExpanded] = createSignal(false);
+  let closeTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  const handleMouseEnter = () => {
+    if (!local.expand) return;
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+      closeTimeout = undefined;
+    }
+    setExpanded(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!local.expand) return;
+    closeTimeout = setTimeout(() => {
+      setExpanded(false);
+    }, local.closeDelay);
+  };
+
+  onCleanup(() => {
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+    }
+  });
+
+  const yPosition = () => (local.position?.startsWith("top") ? "top" : "bottom");
+
+  // Inject the stacking CSS
+  createEffect(() => {
+    const styleId = "sonner-stacking-styles";
+    if (document.getElementById(styleId)) return;
+
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = `
+      /* Toast stacking system */
+      [data-sonner-toaster] {
+        --gap: ${local.gap}px;
+        --offset: 0px;
+        pointer-events: none;
+      }
+
+      [data-sonner-toaster] > ol {
+        pointer-events: auto;
+      }
+
+      /* Base toast positioning */
+      [data-sonner-toast] {
+        --lift: 1;
+        --index: 0;
+        --toasts-before: 0;
+        --z-index: 0;
+        --scale: 1;
+        --y: 0px;
+        position: relative;
+        transition: transform 400ms cubic-bezier(0.25, 1, 0.5, 1),
+                    opacity 400ms cubic-bezier(0.25, 1, 0.5, 1),
+                    height 400ms cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      /* Y position variants */
+      [data-sonner-toaster][data-y-position="top"] [data-sonner-toast] {
+        --lift: 1;
+      }
+
+      [data-sonner-toaster][data-y-position="bottom"] [data-sonner-toast] {
+        --lift: -1;
+      }
+
+      /* Collapsed state - toasts behind front */
+      [data-sonner-toaster][data-expanded="false"] [data-sonner-toast]:not(:first-child) {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      [data-sonner-toaster][data-expanded="false"] [data-sonner-toast]:nth-child(2) {
+        --toasts-before: 1;
+        opacity: 0.8;
+        transform: translateY(calc(var(--lift) * var(--gap) * 0.5)) scale(0.95);
+      }
+
+      [data-sonner-toaster][data-expanded="false"] [data-sonner-toast]:nth-child(3) {
+        --toasts-before: 2;
+        opacity: 0.6;
+        transform: translateY(calc(var(--lift) * var(--gap) * 1)) scale(0.90);
+      }
+
+      [data-sonner-toaster][data-expanded="false"] [data-sonner-toast]:nth-child(n+4) {
+        opacity: 0;
+        transform: translateY(calc(var(--lift) * var(--gap) * 1.5)) scale(0.85);
+      }
+
+      /* Expanded state - all toasts visible */
+      [data-sonner-toaster][data-expanded="true"] [data-sonner-toast] {
+        position: relative;
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+      }
+
+      /* Content fade when collapsed */
+      [data-sonner-toaster][data-expanded="false"] [data-sonner-toast]:not(:first-child) > * {
+        opacity: 0;
+        transition: opacity 200ms;
+      }
+
+      [data-sonner-toaster][data-expanded="true"] [data-sonner-toast] > * {
+        opacity: 1;
+        transition: opacity 400ms;
+      }
+
+      /* Hover area extension to prevent accidental collapse */
+      [data-sonner-toaster][data-expanded="true"]::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 20px;
+      }
+
+      [data-sonner-toaster][data-y-position="bottom"][data-expanded="true"]::after {
+        top: auto;
+        bottom: 100%;
+      }
+    `;
+    document.head.appendChild(style);
+  });
 
   return (
-    <Portal>
-      <ToastPrimitive.Region data-slot="toaster" {...others}>
-        <ToastPrimitive.List
-          data-slot="toast-list"
-          class={cn(
-            "cn-toast-list fixed z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 outline-none sm:max-w-[420px]",
-            local.position && positionClasses[local.position],
-            local.class,
-          )}
-        />
-      </ToastPrimitive.Region>
-    </Portal>
+    <ToastContext.Provider value={{ expanded, position: yPosition }}>
+      <Portal>
+        <ToastPrimitive.Region
+          data-slot="toaster"
+          data-sonner-toaster=""
+          data-expanded={expanded()}
+          data-y-position={yPosition()}
+          onMouseEnter={handleMouseEnter}
+          onMouseMove={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          {...others}
+        >
+          <ToastPrimitive.List
+            data-slot="toast-list"
+            class={cn(
+              "cn-toast-list fixed z-[100] flex w-full flex-col gap-[--gap] p-4 outline-none sm:max-w-[420px]",
+              yPosition() === "bottom" && "flex-col-reverse",
+              local.position && positionClasses[local.position],
+              local.class,
+            )}
+          />
+        </ToastPrimitive.Region>
+      </Portal>
+    </ToastContext.Provider>
   );
 };
 
@@ -86,12 +285,13 @@ const Toast = <T extends ValidComponent = "li">(props: ToastProps<T>) => {
   return (
     <ToastPrimitive.Root
       data-slot="toast"
+      data-sonner-toast=""
       data-variant={local.variant}
       class={cn(
-        "cn-toast group pointer-events-auto relative flex w-full items-center justify-between gap-4 overflow-hidden p-4 pr-8 shadow-lg transition-all",
+        "cn-toast group pointer-events-auto relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-lg border bg-background p-4 pr-8 shadow-lg",
         "data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-(--kb-toast-swipe-end-x) data-[swipe=move]:translate-x-(--kb-toast-swipe-move-x) data-[swipe=move]:transition-none",
-        "data-[opened]:fade-in-0 data-[opened]:slide-in-from-bottom-full data-[opened]:sm:slide-in-from-right-full data-[opened]:animate-in",
-        "data-[closed]:fade-out-80 data-[closed]:slide-out-to-right-full data-[closed]:animate-out",
+        "data-[opened]:animate-in data-[opened]:fade-in-0 data-[opened]:slide-in-from-top-full",
+        "data-[closed]:animate-out data-[closed]:fade-out-80 data-[closed]:slide-out-to-right-full",
         local.class,
       )}
       {...others}
@@ -118,7 +318,7 @@ const ToastCloseButton = <T extends ValidComponent = "button">(props: ToastClose
     <ToastPrimitive.CloseButton
       data-slot="toast-close-button"
       class={cn(
-        "cn-toast-close-button absolute top-2 right-2 rounded-md p-1 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-focus:opacity-100",
+        "cn-toast-close-button absolute top-2 right-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100",
         local.class,
       )}
       {...others}
@@ -144,7 +344,7 @@ const ToastTitle = <T extends ValidComponent = "div">(props: ToastTitleProps<T>)
   return (
     <ToastPrimitive.Title
       data-slot="toast-title"
-      class={cn("cn-toast-title font-semibold text-sm", local.class)}
+      class={cn("cn-toast-title text-sm font-semibold", local.class)}
       {...others}
     />
   );
@@ -191,7 +391,7 @@ const ToastProgressTrack = <T extends ValidComponent = "div">(
     <ToastPrimitive.ProgressTrack
       data-slot="toast-progress-track"
       class={cn(
-        "cn-toast-progress-track absolute right-0 bottom-0 left-0 h-1 overflow-hidden",
+        "cn-toast-progress-track absolute inset-x-0 bottom-0 h-1 overflow-hidden",
         local.class,
       )}
       {...others}
