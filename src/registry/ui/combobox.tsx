@@ -91,50 +91,52 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
   ]);
 
   return (
-    <InputGroup class={cn("cn-combobox-input w-auto", local.class)}>
-      {local.children}
-      <ComboboxPrimitive.Input
-        as={InputGroupInput}
-        disabled={local.disabled}
-        data-slot="combobox-input"
-        {...others}
-      />
-      <InputGroupAddon align="inline-end">
-        <Show when={local.showTrigger}>
-          <ComboboxPrimitive.Trigger
-            as={InputGroupButton}
-            size="icon-xs"
-            variant="ghost"
-            data-slot="combobox-trigger"
-            class="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
+    <ComboboxPrimitive.Control
+      as={InputGroup}
+      class={cn("cn-combobox-input w-auto", local.class)}
+      data-slot="combobox-control"
+    >
+      {(state) => (
+        <>
+          {local.children}
+          <ComboboxPrimitive.Input
+            as={InputGroupInput}
             disabled={local.disabled}
-          >
-            <ComboboxPrimitive.Icon
-              as={ChevronsUpDown}
-              class="cn-combobox-trigger-icon pointer-events-none"
-            />
-          </ComboboxPrimitive.Trigger>
-        </Show>
-        <Show when={local.showClear}>
-          <ComboboxPrimitive.Control>
-            {(state) => (
-              <Show when={state.selectedOptions().length > 0}>
-                <InputGroupButton
-                  variant="ghost"
-                  size="icon-xs"
-                  data-slot="combobox-clear"
-                  class="cn-combobox-clear"
-                  disabled={local.disabled}
-                  onClick={() => state.clear()}
-                >
-                  <X class="cn-combobox-clear-icon pointer-events-none" />
-                </InputGroupButton>
-              </Show>
-            )}
-          </ComboboxPrimitive.Control>
-        </Show>
-      </InputGroupAddon>
-    </InputGroup>
+            data-slot="combobox-input"
+            {...others}
+          />
+          <InputGroupAddon align="inline-end">
+            <Show when={local.showTrigger}>
+              <ComboboxPrimitive.Trigger
+                as={InputGroupButton}
+                size="icon-xs"
+                variant="ghost"
+                data-slot="combobox-trigger"
+                class="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
+                disabled={local.disabled}
+              >
+                <ComboboxPrimitive.Icon
+                  as={ChevronsUpDown}
+                  class="cn-combobox-trigger-icon pointer-events-none"
+                />
+              </ComboboxPrimitive.Trigger>
+            </Show>
+            <Show when={local.showClear && state.selectedOptions().length > 0}>
+              <InputGroupButton
+                variant="ghost"
+                size="icon-xs"
+                data-slot="combobox-clear"
+                class="cn-combobox-clear"
+                disabled={local.disabled}
+                onClick={() => state.clear()}
+              >
+                <X class="cn-combobox-clear-icon pointer-events-none" />
+              </InputGroupButton>
+            </Show>
+          </InputGroupAddon>
+        </>
+      )}
+    </ComboboxPrimitive.Control>
   );
 };
 
