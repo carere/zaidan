@@ -1,0 +1,126 @@
+---
+title: Combobox
+slug: combobox
+description: Autocomplete input and command palette with a list of suggestions.
+example: combobox-example.tsx
+---
+
+# Combobox
+
+Autocomplete input and command palette with a list of suggestions.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add combobox
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/combobox.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx showLineNumbers
+const frameworks = [
+  { label: "Next.js", value: "nextjs" },
+  { label: "SvelteKit", value: "sveltekit" },
+  { label: "Nuxt.js", value: "nuxtjs" },
+  { label: "Remix", value: "remix" },
+  { label: "Astro", value: "astro" },
+];
+
+<Combobox
+  options={frameworks}
+  optionValue="value"
+  optionTextValue="label"
+  placeholder="Select a framework..."
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+  )}
+>
+  <ComboboxInput placeholder="Select a framework..." />
+  <ComboboxContent>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
+  </ComboboxContent>
+</Combobox>
+```
+
+## Props
+
+The Combobox component uses Kobalte's Combobox primitive under the hood. Here are the main props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `T[]` | - | The array of options to display |
+| `optionValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's value |
+| `optionTextValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's text for filtering |
+| `optionDisabled` | `keyof T \| ((option: T) => boolean)` | - | Key or function to determine if option is disabled |
+| `optionGroupChildren` | `keyof T` | - | Key for grouped options' children array |
+| `value` | `T` | - | The controlled value of the combobox |
+| `defaultValue` | `T` | - | The default value of the combobox |
+| `onChange` | `(value: T) => void` | - | Handler called when value changes |
+| `placeholder` | `string` | - | Placeholder text when no value is selected |
+| `disabled` | `boolean` | `false` | Whether the combobox is disabled |
+| `validationState` | `"valid" \| "invalid"` | - | The validation state of the combobox |
+| `multiple` | `boolean` | `false` | Whether multiple options can be selected |
+| `defaultFilter` | `"startsWith" \| "endsWith" \| "contains" \| function` | `"contains"` | The filtering strategy |
+| `triggerMode` | `"input" \| "focus" \| "manual"` | `"input"` | When to open the dropdown |
+
+### ComboboxInput
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showTrigger` | `boolean` | `true` | Show the dropdown trigger button |
+| `showClear` | `boolean` | `false` | Show the clear button when value is selected |
+| `placeholder` | `string` | - | Placeholder text |
+| `disabled` | `boolean` | `false` | Whether the input is disabled |
+| `class` | `string` | - | Additional CSS classes |
+
+### ComboboxTrigger
+
+Used for popup-style combobox (button trigger instead of input).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `size` | `"sm" \| "default"` | `"default"` | The size variant of the trigger |
+| `class` | `string` | - | Additional CSS classes |
+
+### ComboboxContent
+
+The ComboboxContent component wraps the dropdown portal and listbox. It inherits positioning from the Combobox root.
+
+### ComboboxItem
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `item` | `ListState.Option<T>` | - | The item object from Kobalte |
+| `disabled` | `boolean` | `false` | Whether the item is disabled |
+
+### ComboboxEmpty
+
+Displayed when no options match the filter.
+
+### ComboboxSection / ComboboxSectionLabel
+
+Used for grouping options when using `optionGroupChildren`.
+
+### ComboboxSeparator
+
+Visual separator between groups.
