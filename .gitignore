@@ -23,6 +23,8 @@ adws/
 trees/
 specs/
 reviews/
+videos/
+.playwright-mcp/
 
 # System Files
 .DS_Store
