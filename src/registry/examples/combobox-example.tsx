@@ -11,7 +11,6 @@ import {
   ComboboxSection,
   ComboboxSectionLabel,
   ComboboxSeparator,
-  ComboboxTrigger,
 } from "@/registry/ui/combobox";
 import {
   Dialog,
@@ -34,7 +33,6 @@ export default function ComboboxExample() {
       <ComboboxWithGroups />
       <ComboboxLargeList />
       <ComboboxWithIconAddon />
-      <ComboboxPopupStyle />
       <ComboboxMultiple />
       <ComboboxWithField />
       <ComboboxInDialog />
@@ -42,24 +40,16 @@ export default function ComboboxExample() {
   );
 }
 
-const frameworks = [
-  { label: "Next.js", value: "nextjs" },
-  { label: "SvelteKit", value: "sveltekit" },
-  { label: "Nuxt.js", value: "nuxtjs" },
-  { label: "Remix", value: "remix" },
-  { label: "Astro", value: "astro" },
-];
+const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
 function ComboboxBasic() {
   return (
     <Example title="Basic">
       <Combobox
         options={frameworks}
-        optionValue="value"
-        optionTextValue="label"
         placeholder="Select a framework..."
         itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
         <ComboboxInput placeholder="Select a framework..." />
@@ -76,12 +66,10 @@ function ComboboxDisabled() {
     <Example title="Disabled">
       <Combobox
         options={frameworks}
-        optionValue="value"
-        optionTextValue="label"
         placeholder="Select a framework..."
         disabled
         itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
         <ComboboxInput placeholder="Select a framework..." disabled />
@@ -98,12 +86,10 @@ function ComboboxInvalid() {
     <Example title="Invalid">
       <Combobox
         options={frameworks}
-        optionValue="value"
-        optionTextValue="label"
         placeholder="Select a framework..."
         validationState="invalid"
         itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
         <ComboboxInput placeholder="Select a framework..." aria-invalid="true" />
@@ -120,12 +106,10 @@ function ComboboxWithClear() {
     <Example title="With Clear Button">
       <Combobox
         options={frameworks}
-        optionValue="value"
-        optionTextValue="label"
         placeholder="Select a framework..."
         defaultValue={frameworks[0]}
         itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
         <ComboboxInput placeholder="Select a framework..." showClear />
@@ -274,57 +258,16 @@ function ComboboxWithIconAddon() {
   );
 }
 
-const countries = [
-  { code: "us", label: "United States", continent: "North America" },
-  { code: "ca", label: "Canada", continent: "North America" },
-  { code: "gb", label: "United Kingdom", continent: "Europe" },
-  { code: "de", label: "Germany", continent: "Europe" },
-  { code: "fr", label: "France", continent: "Europe" },
-  { code: "jp", label: "Japan", continent: "Asia" },
-  { code: "au", label: "Australia", continent: "Oceania" },
-  { code: "br", label: "Brazil", continent: "South America" },
-];
-
-function ComboboxPopupStyle() {
-  return (
-    <Example title="Popup Style (Button Trigger)">
-      <Combobox
-        options={countries}
-        optionValue="code"
-        optionTextValue="label"
-        placeholder="Select a country..."
-        defaultValue={countries[0]}
-        itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
-        )}
-      >
-        <ComboboxTrigger class="w-64 justify-between font-normal" as={Button} variant="outline">
-          <span data-slot="combobox-value">
-            {/* Value will be shown via placeholder or selected value */}
-            Select a country...
-          </span>
-        </ComboboxTrigger>
-        <ComboboxContent>
-          <ComboboxInput showTrigger={false} placeholder="Search countries..." />
-          <ComboboxEmpty>No countries found.</ComboboxEmpty>
-        </ComboboxContent>
-      </Combobox>
-    </Example>
-  );
-}
-
 function ComboboxMultiple() {
   return (
     <Example title="Multiple Selection">
       <Combobox<(typeof frameworks)[number]>
         options={frameworks}
-        optionValue="value"
-        optionTextValue="label"
         placeholder="Select frameworks..."
         multiple
         defaultValue={[frameworks[0]]}
         itemComponent={(props) => (
-          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
         <ComboboxInput placeholder="Select frameworks..." />
@@ -343,11 +286,9 @@ function ComboboxWithField() {
         <FieldLabel for="combobox-framework">Favorite Framework</FieldLabel>
         <Combobox
           options={frameworks}
-          optionValue="value"
-          optionTextValue="label"
           placeholder="Select a framework..."
           itemComponent={(props) => (
-            <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+            <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
           )}
         >
           <ComboboxInput id="combobox-framework" placeholder="Select a framework..." />
@@ -379,11 +320,9 @@ function ComboboxInDialog() {
           </DialogHeader>
           <Combobox
             options={frameworks}
-            optionValue="value"
-            optionTextValue="label"
             placeholder="Select a framework..."
             itemComponent={(props) => (
-              <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+              <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
             )}
           >
             <ComboboxInput placeholder="Select a framework..." />

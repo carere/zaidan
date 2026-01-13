@@ -39,7 +39,8 @@ const Combobox = <O, OptGroup = never, T extends ValidComponent = "div">(
       gutter: 8,
       placement: "bottom",
       defaultFilter: "contains",
-    } as const,
+      triggerMode: "input",
+    } as ComboboxProps<O>,
     props,
   );
   return <ComboboxPrimitive.Root {...mergedProps} />;
@@ -294,7 +295,7 @@ type ComboboxEmptyProps = ComponentProps<"div"> & {
 const ComboboxEmpty = (props: ComboboxEmptyProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <ComboboxPrimitive.NoResult
+    <div
       class={cn("cn-combobox-empty py-6 text-center text-sm", local.class)}
       data-slot="combobox-empty"
       {...others}
