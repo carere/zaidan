@@ -1,6 +1,7 @@
+import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
-import { Toaster, toast } from "@/registry/ui/sonner";
+import { Toaster } from "@/registry/ui/sonner";
 
 export default function SonnerExample() {
   return (
@@ -17,7 +18,7 @@ export default function SonnerExample() {
 function BasicExample() {
   return (
     <Example title="Basic" class="items-center justify-center">
-      <Button variant="outline" onClick={() => toast.show("Event has been created")}>
+      <Button variant="outline" onClick={() => toast("Event has been created")}>
         Show Toast
       </Button>
     </Example>
@@ -30,8 +31,7 @@ function WithDescriptionExample() {
       <Button
         variant="outline"
         onClick={() =>
-          toast.show({
-            title: "Event has been created",
+          toast("Event has been created", {
             description: "Monday, January 3rd at 6:00pm",
           })
         }
