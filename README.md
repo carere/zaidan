@@ -51,7 +51,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Checkbox | x | x | x |
 | Collapsible | x |  |  |
 | Combobox | x | x | x |
-| Command |  |  |  |
+| Command | x | x | x |
 | Context Menu | x | x | x |
 | Dialog | x |  | x |
 | Drawer | x | x | x |

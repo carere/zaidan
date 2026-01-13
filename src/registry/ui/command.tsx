@@ -1,16 +1,6 @@
-import type { DialogRootProps } from "@kobalte/core/dialog";
-import { Search } from "lucide-solid";
-import type { Accessor, ComponentProps, JSX } from "solid-js";
-import {
-  createContext,
-  createMemo,
-  createSignal,
-  mergeProps,
-  Show,
-  splitProps,
-  useContext,
-} from "solid-js";
-
+import { Command as CommandPrimitive } from "cmdk-solid";
+import { Check, SearchIcon } from "lucide-solid";
+import { type ComponentProps, mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -19,77 +9,41 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/registry/ui/dialog";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/registry/ui/input-group";
+import { InputGroup, InputGroupAddon } from "@/registry/ui/input-group";
 
-// ============================================================================
-// Command Context
-// ============================================================================
-
-type CommandContextValue = {
-  search: Accessor<string>;
-  setSearch: (value: string) => void;
-};
-
-const CommandContext = createContext<CommandContextValue>();
-
-const useCommand = () => {
-  const context = useContext(CommandContext);
-  if (!context) {
-    throw new Error("useCommand must be used within a Command component");
-  }
-  return context;
-};
-
-// ============================================================================
-// Command Root
-// ============================================================================
-
-type CommandProps = ComponentProps<"div">;
-
-const Command = (props: CommandProps) => {
-  const [local, others] = splitProps(props, ["class", "children"]);
-  const [search, setSearch] = createSignal("");
-
+function Command(props: ComponentProps<"div">) {
   return (
-    <CommandContext.Provider value={{ search, setSearch }}>
-      <div
-        data-slot="command"
-        class={cn("cn-command flex size-full flex-col overflow-hidden", local.class)}
-        {...others}
-      >
-        {local.children}
-      </div>
-    </CommandContext.Provider>
+    <CommandPrimitive
+      data-slot="command"
+      class={cn("cn-command flex size-full flex-col overflow-hidden", props.class)}
+      {...props}
+    />
   );
-};
+}
 
-// ============================================================================
-// Command Dialog
-// ============================================================================
+type CommandDialogProps = ComponentProps<typeof Dialog> &
+  Pick<ComponentProps<"div">, "class"> & {
+    title?: string;
+    description?: string;
+    showCloseButton?: boolean;
+  };
 
-type CommandDialogProps = Omit<DialogRootProps, "children"> & {
-  title?: string;
-  description?: string;
-  class?: string;
-  showCloseButton?: boolean;
-  children: JSX.Element;
-};
-
-const CommandDialog = (rawProps: CommandDialogProps) => {
-  const props = mergeProps(
+function CommandDialog(props: CommandDialogProps) {
+  const mergedProps = mergeProps(
     {
       title: "Command Palette",
       description: "Search for a command to run...",
       showCloseButton: false,
-    } as CommandDialogProps,
-    rawProps,
+    },
+    props,
   );
-  const [local, others] = splitProps(props, [
+
+  const [local, others] = splitProps(mergedProps as CommandDialogProps, [
     "title",
     "description",
-    "class",
     "showCloseButton",
     "children",
+    "class",
   ]);
 
   return (
@@ -106,203 +60,105 @@ const CommandDialog = (rawProps: CommandDialogProps) => {
       </DialogContent>
     </Dialog>
   );
-};
+}
 
-// ============================================================================
-// Command Input
-// ============================================================================
-
-type CommandInputProps = Omit<ComponentProps<"input">, "type">;
-
-const CommandInput = (props: CommandInputProps) => {
+function CommandInput(props: ComponentProps<typeof CommandPrimitive.Input>) {
   const [local, others] = splitProps(props, ["class"]);
-  const context = useCommand();
-
   return (
     <div data-slot="command-input-wrapper" class="cn-command-input-wrapper">
       <InputGroup class="cn-command-input-group">
-        <InputGroupInput
-          type="text"
+        <CommandPrimitive.Input
           data-slot="command-input"
           class={cn(
             "cn-command-input outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             local.class,
           )}
-          value={context.search()}
-          onInput={(e) => context.setSearch(e.currentTarget.value)}
           {...others}
         />
         <InputGroupAddon>
-          <Search class="cn-command-input-icon" />
+          <SearchIcon class="cn-command-input-icon" />
         </InputGroupAddon>
       </InputGroup>
     </div>
   );
-};
+}
 
-// ============================================================================
-// Command List
-// ============================================================================
-
-type CommandListProps = ComponentProps<"div">;
-
-const CommandList = (props: CommandListProps) => {
+function CommandList(props: ComponentProps<typeof CommandPrimitive.List>) {
   const [local, others] = splitProps(props, ["class"]);
-
   return (
-    <div
+    <CommandPrimitive.List
       data-slot="command-list"
-      role="listbox"
       class={cn("cn-command-list overflow-y-auto overflow-x-hidden", local.class)}
       {...others}
     />
   );
-};
+}
 
-// ============================================================================
-// Command Empty
-// ============================================================================
-
-type CommandEmptyProps = ComponentProps<"div">;
-
-const CommandEmpty = (props: CommandEmptyProps) => {
+function CommandEmpty(props: ComponentProps<typeof CommandPrimitive.Empty>) {
   const [local, others] = splitProps(props, ["class"]);
-
-  return <div data-slot="command-empty" class={cn("cn-command-empty", local.class)} {...others} />;
-};
-
-// ============================================================================
-// Command Group
-// ============================================================================
-
-type CommandGroupProps = ComponentProps<"div"> & {
-  heading?: string;
-};
-
-const CommandGroup = (props: CommandGroupProps) => {
-  const [local, others] = splitProps(props, ["class", "heading", "children"]);
-
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <command group needs group role>
-    <div
+    <CommandPrimitive.Empty
+      data-slot="command-empty"
+      class={cn("cn-command-empty", local.class)}
+      {...others}
+    />
+  );
+}
+
+function CommandGroup(props: ComponentProps<typeof CommandPrimitive.Group>) {
+  const [local, others] = splitProps(props, ["class"]);
+  return (
+    <CommandPrimitive.Group
       data-slot="command-group"
-      role="group"
       class={cn("cn-command-group", local.class)}
       {...others}
+    />
+  );
+}
+
+function CommandSeparator(props: ComponentProps<typeof CommandPrimitive.Separator>) {
+  const [local, others] = splitProps(props, ["class"]);
+  return (
+    <CommandPrimitive.Separator
+      data-slot="command-separator"
+      class={cn("cn-command-separator", local.class)}
+      {...others}
+    />
+  );
+}
+
+function CommandItem(props: ComponentProps<typeof CommandPrimitive.Item>) {
+  const [local, others] = splitProps(props, ["class", "children"]);
+  return (
+    <CommandPrimitive.Item
+      data-slot="command-item"
+      class={cn(
+        "cn-command-item group/command-item data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        local.class,
+      )}
+      {...others}
     >
-      <Show when={local.heading}>
-        <div data-slot="command-group-heading" class="cn-command-group-heading" aria-hidden="true">
-          {local.heading}
-        </div>
-      </Show>
       {local.children}
-    </div>
+      <Check class="cn-command-item-indicator ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
+    </CommandPrimitive.Item>
   );
-};
+}
 
-// ============================================================================
-// Command Separator
-// ============================================================================
-
-type CommandSeparatorProps = ComponentProps<"hr">;
-
-const CommandSeparator = (props: CommandSeparatorProps) => {
+function CommandShortcut(props: ComponentProps<"span">) {
   const [local, others] = splitProps(props, ["class"]);
-
-  return (
-    <hr data-slot="command-separator" class={cn("cn-command-separator", local.class)} {...others} />
-  );
-};
-
-// ============================================================================
-// Command Item
-// ============================================================================
-
-type CommandItemProps = ComponentProps<"div"> & {
-  value?: string;
-  disabled?: boolean;
-  onSelect?: () => void;
-  keywords?: string[];
-};
-
-const CommandItem = (props: CommandItemProps) => {
-  const [local, others] = splitProps(props, [
-    "class",
-    "children",
-    "value",
-    "disabled",
-    "onSelect",
-    "keywords",
-  ]);
-  const context = useCommand();
-
-  // Compute visibility based on search value
-  const isVisible = createMemo(() => {
-    const search = context.search().toLowerCase().trim();
-    if (search === "") return true;
-
-    const itemValue = (local.value || "").toLowerCase();
-    const keywordsMatch = local.keywords?.some((k) => k.toLowerCase().includes(search)) ?? false;
-
-    return itemValue.includes(search) || keywordsMatch;
-  });
-
-  const handleClick = () => {
-    if (!local.disabled && local.onSelect) {
-      local.onSelect();
-    }
-  };
-
-  const handleKeyDown: JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent> = (e) => {
-    if ((e.key === "Enter" || e.key === " ") && !local.disabled && local.onSelect) {
-      e.preventDefault();
-      local.onSelect();
-    }
-  };
-
-  return (
-    <Show when={isVisible()}>
-      <div
-        data-slot="command-item"
-        role="option"
-        tabIndex={local.disabled ? -1 : 0}
-        data-disabled={local.disabled || undefined}
-        class={cn(
-          "cn-command-item group/command-item data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-          local.class,
-        )}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        {...others}
-      >
-        {local.children}
-      </div>
-    </Show>
-  );
-};
-
-// ============================================================================
-// Command Shortcut
-// ============================================================================
-
-type CommandShortcutProps = ComponentProps<"span">;
-
-const CommandShortcut = (props: CommandShortcutProps) => {
-  const [local, others] = splitProps(props, ["class"]);
-
   return (
     <span data-slot="command-shortcut" class={cn("cn-command-shortcut", local.class)} {...others} />
   );
-};
+}
 
 export {
   Command,
   CommandDialog,
+  CommandInput,
+  CommandList,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
-  CommandList,
-  CommandSeparator,
   CommandShortcut,
+  CommandSeparator,
 };
