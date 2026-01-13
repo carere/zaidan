@@ -1,0 +1,161 @@
+---
+title: Sonner
+slug: sonner
+description: An opinionated toast component for SolidJS.
+---
+
+# Sonner
+
+An opinionated toast component for SolidJS built on [Kobalte Toast](https://kobalte.dev/docs/core/components/toast).
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add sonner
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/sonner.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { toast, Toaster } from "~/components/ui/sonner";
+```
+
+Add the `Toaster` component to your app root:
+
+```tsx showLineNumbers title="App.tsx"
+import { Toaster } from "~/components/ui/sonner";
+
+export default function App() {
+  return (
+    <>
+      <Toaster />
+      {/* Your app content */}
+    </>
+  );
+}
+```
+
+Then use the `toast` API to show notifications:
+
+```tsx showLineNumbers
+toast.show("Event has been created");
+
+// With description
+toast.show({
+  title: "Event has been created",
+  description: "Monday, January 3rd at 6:00pm",
+});
+
+// Different variants
+toast.success("Success!");
+toast.error("Error!");
+toast.warning("Warning!");
+toast.info("Information");
+toast.loading("Loading...");
+```
+
+## Toast Variants
+
+The toast component supports multiple variants:
+
+```tsx showLineNumbers
+// Default toast
+toast.show("Default message");
+
+// Success toast with green icon
+toast.success("Your changes have been saved!");
+
+// Error toast with red icon
+toast.error("Something went wrong");
+
+// Warning toast with amber icon
+toast.warning("Please review your input");
+
+// Info toast with blue icon
+toast.info("Here's some information");
+
+// Loading toast with spinner
+toast.loading("Processing...");
+```
+
+## Promise Toast
+
+Show different states based on a promise:
+
+```tsx showLineNumbers
+toast.promise(
+  fetch("/api/data"),
+  {
+    loading: "Loading data...",
+    success: "Data loaded successfully!",
+    error: "Failed to load data",
+  }
+);
+
+// With dynamic messages
+toast.promise(
+  saveData(),
+  {
+    loading: { title: "Saving...", description: "Please wait" },
+    success: (data) => ({ title: "Saved!", description: `ID: ${data.id}` }),
+    error: (err) => ({ title: "Error", description: err.message }),
+  }
+);
+```
+
+## Toaster Position
+
+Position the toasts at different locations:
+
+```tsx showLineNumbers
+<Toaster position="top-right" />
+<Toaster position="top-center" />
+<Toaster position="top-left" />
+<Toaster position="bottom-right" />
+<Toaster position="bottom-center" />
+<Toaster position="bottom-left" />
+```
+
+## API Reference
+
+### toast
+
+| Method | Description |
+| --- | --- |
+| `toast.show(options)` | Show a toast with the specified options |
+| `toast.success(options)` | Show a success toast |
+| `toast.error(options)` | Show an error toast |
+| `toast.warning(options)` | Show a warning toast |
+| `toast.info(options)` | Show an info toast |
+| `toast.loading(options)` | Show a loading toast |
+| `toast.promise(promise, options)` | Show a toast that updates based on promise state |
+| `toast.dismiss(id)` | Dismiss a toast by ID |
+| `toast.clear()` | Clear all toasts |
+
+### ToastOptions
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `title` | `string` | The title of the toast |
+| `description` | `string` | The description of the toast |
+| `duration` | `number` | Duration in milliseconds before auto-dismiss |
+| `action` | `JSX.Element` | Action element to render |
+
+### Toaster Props
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `position` | `string` | `"bottom-right"` | Position of the toast container |
+| `duration` | `number` | `5000` | Default duration for toasts |
+| `limit` | `number` | `3` | Maximum number of visible toasts |
+| `swipeDirection` | `"up" \| "down" \| "left" \| "right"` | `"right"` | Direction to swipe to dismiss |
