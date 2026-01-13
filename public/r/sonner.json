@@ -1,7 +1,10 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "sonner",
-  "dependencies": ["@kobalte/core", "lucide-solid"],
+  "dependencies": [
+    "@kobalte/core",
+    "lucide-solid"
+  ],
   "registryDependencies": [],
   "files": [
     {
