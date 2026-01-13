@@ -50,7 +50,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Chart |  |  |  |
 | Checkbox | x | x | x |
 | Collapsible | x |  |  |
-| Combobox |  |  |  |
+| Combobox | x | x | x |
 | Command |  |  |  |
 | Context Menu | x | x | x |
 | Dialog | x |  | x |
@@ -65,9 +65,9 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Item | x | x | x |
 | Kbd | x |  |  |
 | Label | x |  | x |
-| Menubar |  |  |  |
+| Menubar | x | x | x |
 | Native Select | x | x | x |
-| Navigation Menu |  |  |  |
+| Navigation Menu | x | x | x |
 | Pagination | x | x | x |
 | Popover | x | x | x |
 | Progress | x | x | x |
@@ -79,7 +79,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Sidebar | x |  |  |
 | Skeleton | x |  |  |
 | Slider | x | x | x |
-| Sonner |  |  |  |
+| Sonner | x | x | x |
 | Spinner | x |  | x |
 | Switch | x |  | x |
 | Table |  |  |  |
