@@ -326,6 +326,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
