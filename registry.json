@@ -362,6 +362,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "dependencies": ["echarts"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }

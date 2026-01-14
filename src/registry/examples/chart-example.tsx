@@ -1,0 +1,487 @@
+import { createSignal } from "solid-js";
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  type ChartConfig,
+  ChartContainer,
+  chartColors,
+  chartGridDefaults,
+  chartLegendDefaults,
+  chartTooltipDefaults,
+  chartXAxisDefaults,
+  chartYAxisDefaults,
+} from "@/registry/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+
+export default function ChartExample() {
+  return (
+    <ExampleWrapper>
+      <ChartBarExample />
+      <ChartLineExample />
+      <ChartPieExample />
+      <ChartAreaExample />
+      <ChartRadarExample />
+      <ChartInteractiveExample />
+    </ExampleWrapper>
+  );
+}
+
+// Sample data for charts
+const monthlyData = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+];
+
+const chartConfig: ChartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "var(--chart-1)",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "var(--chart-2)",
+  },
+};
+
+function ChartBarExample() {
+  const option = {
+    color: chartColors,
+    tooltip: {
+      ...chartTooltipDefaults,
+      trigger: "axis" as const,
+    },
+    legend: {
+      ...chartLegendDefaults,
+      data: ["Desktop", "Mobile"],
+      bottom: 0,
+    },
+    grid: {
+      ...chartGridDefaults,
+      bottom: "15%",
+    },
+    xAxis: {
+      ...chartXAxisDefaults,
+      type: "category" as const,
+      data: monthlyData.map((d) => d.month.slice(0, 3)),
+    },
+    yAxis: {
+      ...chartYAxisDefaults,
+      type: "value" as const,
+    },
+    series: [
+      {
+        name: "Desktop",
+        type: "bar" as const,
+        data: monthlyData.map((d) => d.desktop),
+        barWidth: "40%",
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+        },
+      },
+      {
+        name: "Mobile",
+        type: "bar" as const,
+        data: monthlyData.map((d) => d.mobile),
+        barWidth: "40%",
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+        },
+      },
+    ],
+  };
+
+  return (
+    <Example title="Bar Chart">
+      <Card class="w-full">
+        <CardHeader>
+          <CardTitle>Bar Chart - Multiple</CardTitle>
+          <CardDescription>January - June 2024</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function ChartLineExample() {
+  const option = {
+    color: chartColors,
+    tooltip: {
+      ...chartTooltipDefaults,
+      trigger: "axis" as const,
+    },
+    legend: {
+      ...chartLegendDefaults,
+      data: ["Desktop", "Mobile"],
+      bottom: 0,
+    },
+    grid: {
+      ...chartGridDefaults,
+      bottom: "15%",
+    },
+    xAxis: {
+      ...chartXAxisDefaults,
+      type: "category" as const,
+      data: monthlyData.map((d) => d.month.slice(0, 3)),
+      boundaryGap: false,
+    },
+    yAxis: {
+      ...chartYAxisDefaults,
+      type: "value" as const,
+    },
+    series: [
+      {
+        name: "Desktop",
+        type: "line" as const,
+        data: monthlyData.map((d) => d.desktop),
+        smooth: true,
+        symbolSize: 8,
+        lineStyle: {
+          width: 2,
+        },
+      },
+      {
+        name: "Mobile",
+        type: "line" as const,
+        data: monthlyData.map((d) => d.mobile),
+        smooth: true,
+        symbolSize: 8,
+        lineStyle: {
+          width: 2,
+        },
+      },
+    ],
+  };
+
+  return (
+    <Example title="Line Chart">
+      <Card class="w-full">
+        <CardHeader>
+          <CardTitle>Line Chart</CardTitle>
+          <CardDescription>Showing total visitors for the last 6 months</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function ChartAreaExample() {
+  const option = {
+    color: chartColors,
+    tooltip: {
+      ...chartTooltipDefaults,
+      trigger: "axis" as const,
+    },
+    legend: {
+      ...chartLegendDefaults,
+      data: ["Desktop", "Mobile"],
+      bottom: 0,
+    },
+    grid: {
+      ...chartGridDefaults,
+      bottom: "15%",
+    },
+    xAxis: {
+      ...chartXAxisDefaults,
+      type: "category" as const,
+      data: monthlyData.map((d) => d.month.slice(0, 3)),
+      boundaryGap: false,
+    },
+    yAxis: {
+      ...chartYAxisDefaults,
+      type: "value" as const,
+    },
+    series: [
+      {
+        name: "Desktop",
+        type: "line" as const,
+        data: monthlyData.map((d) => d.desktop),
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3,
+        },
+        lineStyle: {
+          width: 2,
+        },
+      },
+      {
+        name: "Mobile",
+        type: "line" as const,
+        data: monthlyData.map((d) => d.mobile),
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3,
+        },
+        lineStyle: {
+          width: 2,
+        },
+      },
+    ],
+  };
+
+  return (
+    <Example title="Area Chart">
+      <Card class="w-full">
+        <CardHeader>
+          <CardTitle>Area Chart - Stacked</CardTitle>
+          <CardDescription>Showing total visitors for the last 6 months</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function ChartPieExample() {
+  const pieData = [
+    { name: "Chrome", value: 275 },
+    { name: "Safari", value: 200 },
+    { name: "Firefox", value: 287 },
+    { name: "Edge", value: 173 },
+    { name: "Other", value: 190 },
+  ];
+
+  const pieConfig: ChartConfig = {
+    Chrome: { label: "Chrome", color: "var(--chart-1)" },
+    Safari: { label: "Safari", color: "var(--chart-2)" },
+    Firefox: { label: "Firefox", color: "var(--chart-3)" },
+    Edge: { label: "Edge", color: "var(--chart-4)" },
+    Other: { label: "Other", color: "var(--chart-5)" },
+  };
+
+  const option = {
+    color: chartColors,
+    tooltip: {
+      trigger: "item" as const,
+      backgroundColor: "var(--background)",
+      borderColor: "var(--border)",
+      borderWidth: 1,
+      textStyle: {
+        color: "var(--foreground)",
+        fontSize: 12,
+      },
+    },
+    legend: {
+      ...chartLegendDefaults,
+      orient: "horizontal" as const,
+      bottom: 0,
+    },
+    series: [
+      {
+        name: "Visitors",
+        type: "pie" as const,
+        radius: ["40%", "70%"],
+        center: ["50%", "45%"],
+        avoidLabelOverlap: true,
+        itemStyle: {
+          borderRadius: 8,
+          borderColor: "var(--background)",
+          borderWidth: 2,
+        },
+        label: {
+          show: false,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: "bold" as const,
+          },
+        },
+        labelLine: {
+          show: false,
+        },
+        data: pieData,
+      },
+    ],
+  };
+
+  return (
+    <Example title="Pie Chart">
+      <Card class="w-full">
+        <CardHeader>
+          <CardTitle>Pie Chart - Donut</CardTitle>
+          <CardDescription>Browser usage for the last month</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer option={option} config={pieConfig} class="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function ChartRadarExample() {
+  const radarIndicators = [
+    { name: "Sales", max: 100 },
+    { name: "Admin", max: 100 },
+    { name: "Tech", max: 100 },
+    { name: "Support", max: 100 },
+    { name: "Dev", max: 100 },
+    { name: "Marketing", max: 100 },
+  ];
+
+  const option = {
+    color: chartColors,
+    tooltip: {
+      trigger: "item" as const,
+      backgroundColor: "var(--background)",
+      borderColor: "var(--border)",
+      borderWidth: 1,
+      textStyle: {
+        color: "var(--foreground)",
+        fontSize: 12,
+      },
+    },
+    legend: {
+      ...chartLegendDefaults,
+      data: ["Team A", "Team B"],
+      bottom: 0,
+    },
+    radar: {
+      indicator: radarIndicators,
+      shape: "polygon" as const,
+      axisName: {
+        color: "var(--muted-foreground)",
+      },
+      splitLine: {
+        lineStyle: {
+          color: "var(--border)",
+        },
+      },
+      splitArea: {
+        show: false,
+      },
+      axisLine: {
+        lineStyle: {
+          color: "var(--border)",
+        },
+      },
+    },
+    series: [
+      {
+        type: "radar" as const,
+        data: [
+          {
+            name: "Team A",
+            value: [80, 50, 70, 84, 60, 55],
+            areaStyle: {
+              opacity: 0.3,
+            },
+          },
+          {
+            name: "Team B",
+            value: [60, 75, 90, 40, 85, 70],
+            areaStyle: {
+              opacity: 0.3,
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <Example title="Radar Chart">
+      <Card class="w-full">
+        <CardHeader>
+          <CardTitle>Radar Chart</CardTitle>
+          <CardDescription>Team performance comparison</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer option={option} class="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function ChartInteractiveExample() {
+  const [activeView, setActiveView] = createSignal<"desktop" | "mobile">("desktop");
+
+  const data = () =>
+    activeView() === "desktop"
+      ? monthlyData.map((d) => d.desktop)
+      : monthlyData.map((d) => d.mobile);
+
+  const option = () => ({
+    color: [activeView() === "desktop" ? "var(--chart-1)" : "var(--chart-2)"],
+    tooltip: {
+      ...chartTooltipDefaults,
+      trigger: "axis" as const,
+    },
+    grid: chartGridDefaults,
+    xAxis: {
+      ...chartXAxisDefaults,
+      type: "category" as const,
+      data: monthlyData.map((d) => d.month.slice(0, 3)),
+    },
+    yAxis: {
+      ...chartYAxisDefaults,
+      type: "value" as const,
+    },
+    series: [
+      {
+        name: activeView() === "desktop" ? "Desktop" : "Mobile",
+        type: "bar" as const,
+        data: data(),
+        barWidth: "60%",
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+        },
+      },
+    ],
+  });
+
+  return (
+    <Example title="Interactive Chart">
+      <Card class="w-full">
+        <CardHeader class="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+          <div class="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+            <CardTitle>Interactive Bar Chart</CardTitle>
+            <CardDescription>Click buttons to switch between data views</CardDescription>
+          </div>
+          <div class="flex">
+            <button
+              type="button"
+              class={`relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:border-l sm:px-8 sm:py-6 ${
+                activeView() === "desktop" ? "bg-muted/50" : ""
+              }`}
+              onClick={() => setActiveView("desktop")}
+            >
+              <span class="text-muted-foreground text-xs">Desktop</span>
+              <span class="font-bold text-lg leading-none sm:text-3xl">
+                {monthlyData.reduce((sum, d) => sum + d.desktop, 0).toLocaleString()}
+              </span>
+            </button>
+            <button
+              type="button"
+              class={`relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:border-l sm:px-8 sm:py-6 ${
+                activeView() === "mobile" ? "bg-muted/50" : ""
+              }`}
+              onClick={() => setActiveView("mobile")}
+            >
+              <span class="text-muted-foreground text-xs">Mobile</span>
+              <span class="font-bold text-lg leading-none sm:text-3xl">
+                {monthlyData.reduce((sum, d) => sum + d.mobile, 0).toLocaleString()}
+              </span>
+            </button>
+          </div>
+        </CardHeader>
+        <CardContent class="px-2 sm:p-6">
+          <ChartContainer option={option()} config={chartConfig} class="h-[250px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
