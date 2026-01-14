@@ -44,10 +44,10 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Breadcrumb | x |  |  |
 | Button | x |  |  |
 | Button Group | x |  |  |
-| Calendar |  |  |  |
+| Calendar | x | x | x |
 | Card | x |  |  |
 | Carousel | x |  |  |
-| Chart |  |  |  |
+| Chart | x | x | x |
 | Checkbox | x | x | x |
 | Collapsible | x |  |  |
 | Combobox | x | x | x |
