@@ -1,4 +1,3 @@
-import type { ECharts, EChartsOption, SetOptionOpts } from "echarts";
 import { BarChart, LineChart, PieChart, RadarChart, ScatterChart } from "echarts/charts";
 import {
   GridComponent,
@@ -6,7 +5,7 @@ import {
   TitleComponent,
   TooltipComponent,
 } from "echarts/components";
-import * as echarts from "echarts/core";
+import { type ECharts, type EChartsCoreOption, init, type SetOptionOpts, use } from "echarts/core";
 import { SVGRenderer } from "echarts/renderers";
 import type { Component, ComponentProps, JSX } from "solid-js";
 import {
@@ -23,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 
 // Register ECharts components - using SVG renderer for crisp rendering
-echarts.use([
+use([
   SVGRenderer,
   GridComponent,
   TitleComponent,
@@ -62,7 +61,7 @@ export type ChartConfig = {
 
 export type ChartContainerProps = ComponentProps<"div"> & {
   /** ECharts option configuration */
-  option: EChartsOption;
+  option: EChartsCoreOption;
   /** Chart configuration for series styling */
   config?: ChartConfig;
   /** Whether to show loading animation */
@@ -210,22 +209,22 @@ function ChartContainer(props: ChartContainerProps) {
     if (!containerRef) return;
 
     // Initialize with SVG renderer
-    chartInstance = echarts.init(containerRef, undefined, {
+    chartInstance = init(containerRef as HTMLElement, undefined, {
       renderer: "svg",
     });
 
     // Set initial option
-    chartInstance.setOption(local.option, local.setOptionOpts);
+    chartInstance?.setOption(local.option, local.setOptionOpts);
 
     // Register event handlers
     if (local.eventHandlers) {
       for (const [event, handler] of Object.entries(local.eventHandlers)) {
-        chartInstance.on(event, handler);
+        chartInstance?.on(event, handler);
       }
     }
 
     // Call onInit callback
-    local.onInit?.(chartInstance);
+    local.onInit?.(chartInstance as ECharts);
 
     // Setup resize observer
     const resizeObserver = new ResizeObserver(() => {
@@ -289,38 +288,6 @@ function ChartContainer(props: ChartContainerProps) {
       </div>
     </ChartContext.Provider>
   );
-}
-
-// ============================================================================
-// Chart Tooltip Styling
-// ============================================================================
-
-/**
- * Default tooltip formatter that matches shadcn styling.
- * Use this with ECharts tooltip.formatter option.
- */
-export function createChartTooltipFormatter(config: ChartConfig): (params: unknown) => string {
-  return (params: unknown) => {
-    const data = Array.isArray(params) ? params : [params];
-
-    const items = data
-      .map((item: { seriesName?: string; value?: unknown; color?: string }) => {
-        const configEntry = config[item.seriesName || ""];
-        const label = configEntry?.label || item.seriesName || "Value";
-        const color = configEntry?.color || item.color || "var(--color-foreground)";
-
-        return `
-          <div style="display: flex; align-items: center; gap: 8px; padding: 2px 0;">
-            <div style="width: 8px; height: 8px; border-radius: 50%; background: ${color};"></div>
-            <span style="color: var(--color-muted-foreground);">${label}:</span>
-            <span style="font-weight: 500;">${item.value}</span>
-          </div>
-        `;
-      })
-      .join("");
-
-    return `<div style="padding: 4px 0;">${items}</div>`;
-  };
 }
 
 /**
