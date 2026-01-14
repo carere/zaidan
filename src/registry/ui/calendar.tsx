@@ -1,4 +1,4 @@
-import Calendar from "corvu/calendar";
+import Calendar from "@corvu/calendar";
 import { ChevronLeft, ChevronRight } from "lucide-solid";
 import { type ComponentProps, Index, mergeProps, Show, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
@@ -107,6 +107,7 @@ const CalendarComponent = (props: CalendarProps) => {
   };
 
   return (
+    // @ts-expect-error - Calendar component is not typed correctly
     <Calendar
       mode={local.mode}
       value={local.value as Date | null}
@@ -121,12 +122,13 @@ const CalendarComponent = (props: CalendarProps) => {
       disabled={local.disabled}
       startOfWeek={local.weekStartsOn}
     >
+      {/* @ts-expect-error - Calendar component is not typed correctly */}
       {(calendarProps) => (
         <div
           data-slot="calendar"
           class={cn(
-            "cn-calendar group/calendar bg-background p-3",
-            "[[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+            "cn-calendar group/calendar w-fit rounded-lg border bg-popover p-3",
+            "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
             local.class,
           )}
           {...others}
@@ -286,9 +288,9 @@ const CalendarDay = (props: CalendarDayProps) => {
         "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
         "[&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)",
         isRangeStart() &&
-          "isolate -z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
+          "isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
         isRangeEnd() &&
-          "isolate -z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
+          "isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
         isInRange() && "rounded-none",
       )}
       data-selected={isSelected() || undefined}
