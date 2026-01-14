@@ -1,0 +1,145 @@
+---
+title: Calendar
+slug: calendar
+description: A date field component that allows users to enter and edit dates.
+example: calendar-example.tsx
+---
+
+# Calendar
+
+A date field component that allows users to enter and edit dates.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add calendar
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@corvu/calendar lucide-solid
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/calendar.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Calendar } from "~/components/ui/calendar";
+```
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+
+const [date, setDate] = createSignal<Date | null>(null);
+
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+/>
+```
+
+## Props
+
+The Calendar component uses Corvu's Calendar primitive under the hood. Here are the main props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `mode` | `"single" \| "multiple" \| "range"` | `"single"` | The selection mode |
+| `value` | `Date \| null \| Date[] \| { from: Date \| null, to: Date \| null }` | - | The controlled value |
+| `onValueChange` | `(value) => void` | - | Handler called when value changes |
+| `defaultValue` | Same as `value` | - | The default uncontrolled value |
+| `month` | `Date` | - | The controlled month to display |
+| `onMonthChange` | `(month: Date) => void` | - | Handler called when month changes |
+| `defaultMonth` | `Date` | `new Date()` | The initial month to display |
+| `showOutsideDays` | `boolean` | `true` | Whether to show days from adjacent months |
+| `fixedWeeks` | `boolean` | `false` | Whether to always show 6 weeks |
+| `numberOfMonths` | `number` | `1` | Number of months to display |
+| `disabled` | `(date: Date) => boolean` | - | Function to disable specific dates |
+| `weekStartsOn` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1` | Which day of the week to start on (0 = Sunday) |
+| `class` | `string` | - | Additional CSS classes |
+
+## Selection Modes
+
+### Single Selection
+
+Select a single date:
+
+```tsx showLineNumbers
+const [date, setDate] = createSignal<Date | null>(null);
+
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+/>
+```
+
+### Multiple Selection
+
+Select multiple dates:
+
+```tsx showLineNumbers
+const [dates, setDates] = createSignal<Date[]>([]);
+
+<Calendar
+  mode="multiple"
+  value={dates()}
+  onValueChange={setDates}
+/>
+```
+
+### Range Selection
+
+Select a date range:
+
+```tsx showLineNumbers
+const [range, setRange] = createSignal<{ from: Date | null; to: Date | null }>({
+  from: null,
+  to: null,
+});
+
+<Calendar
+  mode="range"
+  value={range()}
+  onValueChange={setRange}
+/>
+```
+
+## Disabling Dates
+
+Use the `disabled` prop to disable specific dates:
+
+```tsx showLineNumbers
+const disablePastDates = (day: Date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return day < today;
+};
+
+<Calendar
+  mode="single"
+  disabled={disablePastDates}
+/>
+```
+
+## Multiple Months
+
+Display multiple months side by side:
+
+```tsx showLineNumbers
+<Calendar
+  mode="single"
+  numberOfMonths={2}
+/>
+```
