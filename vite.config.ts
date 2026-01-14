@@ -2,12 +2,15 @@ import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
 import velite from "@velite/plugin-vite";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import solid from "vite-plugin-solid";
 import paths from "vite-tsconfig-paths";
 import mdx from "./src/lib/vite-plugins/mdx";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  server: {
+    port: parseInt(loadEnv(mode, "../", "").FRONTEND_PORT || "5175", 10),
+  },
   plugins: [
     mdx({
       jsx: true,
@@ -27,4 +30,4 @@ export default defineConfig({
     solid({ ssr: true, hot: true, extensions: [".tsx", ".jsx", ".mdx"] }),
     velite(),
   ],
-});
+}));
