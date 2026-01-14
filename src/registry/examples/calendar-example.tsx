@@ -1,13 +1,14 @@
 import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Calendar } from "@/registry/ui/calendar";
+import { Card, CardContent } from "../ui/card";
 
 export default function CalendarExample() {
   return (
     <ExampleWrapper>
-      <CalendarBasic />
-      <CalendarRange />
+      <CalendarSingle />
       <CalendarMultiple />
+      <CalendarRange />
       <CalendarDisabled />
       <CalendarMultipleMonths />
       <CalendarFixedWeeks />
@@ -15,12 +16,16 @@ export default function CalendarExample() {
   );
 }
 
-function CalendarBasic() {
+function CalendarSingle() {
   const [date, setDate] = createSignal<Date | null>(null);
 
   return (
-    <Example title="Basic">
-      <Calendar mode="single" value={date()} onValueChange={setDate} />
+    <Example title="Single">
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="single" value={date()} onValueChange={setDate} />
+        </CardContent>
+      </Card>
     </Example>
   );
 }
@@ -33,7 +38,11 @@ function CalendarRange() {
 
   return (
     <Example title="Range Selection">
-      <Calendar mode="range" value={range()} onValueChange={setRange} />
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="range" value={range()} onValueChange={setRange} />
+        </CardContent>
+      </Card>
     </Example>
   );
 }
@@ -43,7 +52,11 @@ function CalendarMultiple() {
 
   return (
     <Example title="Multiple Selection">
-      <Calendar mode="multiple" value={dates()} onValueChange={setDates} />
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="multiple" value={dates()} onValueChange={setDates} />
+        </CardContent>
+      </Card>
     </Example>
   );
 }
@@ -59,17 +72,33 @@ function CalendarDisabled() {
 
   return (
     <Example title="Disabled Past Dates">
-      <Calendar mode="single" value={date()} onValueChange={setDate} disabled={disablePastDates} />
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar
+            mode="single"
+            value={date()}
+            onValueChange={setDate}
+            disabled={disablePastDates}
+          />
+        </CardContent>
+      </Card>
     </Example>
   );
 }
 
 function CalendarMultipleMonths() {
-  const [date, setDate] = createSignal<Date | null>(null);
+  const [range, setRange] = createSignal<{ from: Date | null; to: Date | null }>({
+    from: null,
+    to: null,
+  });
 
   return (
     <Example title="Multiple Months">
-      <Calendar mode="single" value={date()} onValueChange={setDate} numberOfMonths={2} />
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="range" value={range()} onValueChange={setRange} numberOfMonths={2} />
+        </CardContent>
+      </Card>
     </Example>
   );
 }
@@ -79,7 +108,11 @@ function CalendarFixedWeeks() {
 
   return (
     <Example title="Fixed Weeks">
-      <Calendar mode="single" value={date()} onValueChange={setDate} fixedWeeks />
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="single" value={date()} onValueChange={setDate} fixedWeeks />
+        </CardContent>
+      </Card>
     </Example>
   );
 }
