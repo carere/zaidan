@@ -12,6 +12,7 @@ public/static
 # Environment
 .env
 .env*.local
+.ports.env
 
 # dependencies
 /node_modules

@@ -267,12 +267,12 @@ function TableWithActions() {
                 <TableCell class="font-medium">{product.name}</TableCell>
                 <TableCell>{product.price}</TableCell>
                 <TableCell class="text-right">
-                  <DropdownMenu>
+                  <DropdownMenu placement="bottom-end">
                     <DropdownMenuTrigger as={Button} variant="ghost" size="icon" class="size-8">
                       <MoreHorizontal />
                       <span class="sr-only">Open menu</span>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent>
                       <DropdownMenuItem>Edit</DropdownMenuItem>
                       <DropdownMenuItem>Duplicate</DropdownMenuItem>
                       <DropdownMenuSeparator />
