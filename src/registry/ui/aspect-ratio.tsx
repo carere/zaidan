@@ -19,7 +19,7 @@ const AspectRatio = (props: AspectRatioProps) => {
           "--ratio": local.ratio,
         } as JSX.CSSProperties
       }
-      class={cn("relative aspect-(--ratio)", local.class)}
+      class={cn("relative aspect-(--ratio) overflow-hidden", local.class)}
       {...others}
     />
   );

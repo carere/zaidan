@@ -1,0 +1,81 @@
+---
+title: Aspect Ratio
+slug: aspect-ratio
+description: Displays content within a desired ratio.
+---
+
+# Aspect Ratio
+
+Displays content within a desired ratio.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add aspect-ratio
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/aspect-ratio.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+```
+
+```tsx showLineNumbers
+<AspectRatio ratio={16 / 9}>
+  <img src="..." alt="Image" class="rounded-md object-cover" />
+</AspectRatio>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### 16 / 9
+
+```tsx
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+```
+
+```tsx file=../../registry/examples/aspect-ratio-example.tsx#L16-L28
+
+```
+
+### 1 / 1
+
+```tsx
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+```
+
+```tsx file=../../registry/examples/aspect-ratio-example.tsx#L30-L42
+
+```
+
+### 9 / 16
+
+```tsx
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+```
+
+```tsx file=../../registry/examples/aspect-ratio-example.tsx#L44-L56
+
+```
+
+### 21 / 9
+
+```tsx
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+```
+
+```tsx file=../../registry/examples/aspect-ratio-example.tsx#L58-L70
+
+```
