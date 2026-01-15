@@ -35,12 +35,12 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 
 | Name | Component | Examples | Docs |
 |------|-----------|----------|------|
-| Accordion | x |  |  |
+| Accordion | x | x | x |
 | Alert | x | x | x |
-| Alert Dialog | x |  |  |
-| Aspect Ratio | x |  |  |
+| Alert Dialog | x | x | x |
+| Aspect Ratio | x | x | x |
 | Avatar | x |  |  |
-| Badge | x |  |  |
+| Badge | x | x | x |
 | Breadcrumb | x |  |  |
 | Button | x |  |  |
 | Button Group | x |  |  |
