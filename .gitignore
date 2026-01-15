@@ -17,6 +17,9 @@ public/static
 # dependencies
 /node_modules
 
+# R2
+.wrangler/
+
 # Claude Code
 .claude
 logs/
