@@ -8,15 +8,15 @@ import { Button } from "@/registry/ui/button";
 export default function AlertExample() {
   return (
     <ExampleWrapper class="lg:grid-cols-1">
-      <AlertExample1 />
-      <AlertExample2 />
-      <AlertExample3 />
-      <AlertExample4 />
+      <Basic />
+      <WithIcons />
+      <Destructive />
+      <WithActions />
     </ExampleWrapper>
   );
 }
 
-function AlertExample1() {
+function Basic() {
   return (
     <Example title="Basic">
       <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
@@ -35,7 +35,7 @@ function AlertExample1() {
   );
 }
 
-function AlertExample2() {
+function WithIcons() {
   return (
     <Example title="With Icons">
       <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
@@ -92,7 +92,7 @@ function AlertExample2() {
   );
 }
 
-function AlertExample3() {
+function Destructive() {
   return (
     <Example title="Destructive">
       <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
@@ -120,7 +120,7 @@ function AlertExample3() {
   );
 }
 
-function AlertExample4() {
+function WithActions() {
   return (
     <Example title="With Actions">
       <div class="mx-auto flex w-full max-w-lg flex-col gap-4">
