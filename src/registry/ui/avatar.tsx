@@ -56,4 +56,56 @@ const AvatarFallback = <T extends ValidComponent = "span">(props: AvatarFallback
   );
 };
 
-export { Avatar, AvatarImage, AvatarFallback };
+type AvatarBadgeProps = ComponentProps<"span">;
+
+function AvatarBadge(props: AvatarBadgeProps) {
+  const [local, others] = splitProps(props as AvatarBadgeProps, ["class"]);
+  return (
+    <span
+      data-slot="avatar-badge"
+      class={cn(
+        "cn-avatar-badge absolute right-0 bottom-0 z-10 inline-flex select-none items-center justify-center rounded-full bg-blend-color ring-2",
+        "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
+        "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
+        "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
+type AvatarGroupProps = ComponentProps<"div">;
+
+function AvatarGroup(props: AvatarGroupProps) {
+  const [local, others] = splitProps(props as AvatarGroupProps, ["class"]);
+  return (
+    <div
+      data-slot="avatar-group"
+      class={cn(
+        "cn-avatar-group group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
+type AvatarGroupCountProps = ComponentProps<"div">;
+
+function AvatarGroupCount(props: AvatarGroupCountProps) {
+  const [local, others] = splitProps(props as AvatarGroupCountProps, ["class"]);
+  return (
+    <div
+      data-slot="avatar-group-count"
+      class={cn(
+        "cn-avatar-group-count relative flex shrink-0 items-center justify-center ring-2 ring-background",
+        "",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
+export { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage };
