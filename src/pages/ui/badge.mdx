@@ -1,0 +1,129 @@
+---
+title: Badge
+slug: badge
+description: Displays a badge or a component that looks like a badge.
+---
+
+# Badge
+
+Displays a badge or a component that looks like a badge.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add badge
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/badge.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx showLineNumbers
+<Badge variant="default | outline | secondary | destructive">Badge</Badge>
+```
+
+### Link
+
+You can use the `as` prop to render the badge as a different element. Here's an example of a link that looks like a badge.
+
+```tsx showLineNumbers
+import { Badge } from "~/components/ui/badge";
+
+export function LinkAsBadge() {
+  return (
+    <Badge as="a" href="/">
+      Badge
+    </Badge>
+  );
+}
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Variants
+
+```tsx
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L21-L34
+
+```
+
+### Icon Left
+
+```tsx
+import { BadgeCheck } from "lucide-solid";
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L36-L67
+
+```
+
+### Icon Right
+
+```tsx
+import { ArrowRight } from "lucide-solid";
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L69-L100
+
+```
+
+### With Spinner
+
+```tsx
+import { Badge } from "~/components/ui/badge";
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L102-L133
+
+```
+
+### As Link
+
+```tsx
+import { ArrowUpRight } from "lucide-solid";
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L135-L154
+
+```
+
+### Long Text
+
+```tsx
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L156-L164
+
+```
+
+### Custom Colors
+
+```tsx
+import { Badge } from "~/components/ui/badge";
+```
+
+```tsx file=../../registry/examples/badge-example.tsx#L166-L186
+
+```
