@@ -10,13 +10,15 @@ export default defineConfig({
     headless: true,
     screenshot: "off",
     trace: "off",
-    video: {
-      mode: "on",
-      size: {
-        width: 1280,
-        height: 720,
-      },
-    },
+    video: process.env.CI
+      ? "off"
+      : {
+          mode: "on",
+          size: {
+            width: 1280,
+            height: 720,
+          },
+        },
   },
   projects: [
     {
