@@ -27,9 +27,14 @@ adws/
 trees/
 specs/
 reviews/
-videos/
-.playwright-mcp/
 
 # System Files
 .DS_Store
 Thumbs.db
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
