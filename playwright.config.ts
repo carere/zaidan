@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default defineConfig({
   testDir: "./tests",
@@ -7,7 +10,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   use: {
-    baseURL: `http://localhost:5175`,
+    baseURL: `http://localhost:${process.env.FRONTEND_PORT || "5175"}`,
     testIdAttribute: "data-slot",
     headless: true,
     screenshot: "off",
