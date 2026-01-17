@@ -39,54 +39,54 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Alert | x | x | x |
 | Alert Dialog | x | x | x |
 | Aspect Ratio | x | x | x |
-| Avatar | x |  |  |
+| Avatar | x | x | x |
 | Badge | x | x | x |
-| Breadcrumb | x |  |  |
-| Button | x |  |  |
-| Button Group | x |  |  |
-| Calendar | x | x | x |
-| Card | x |  |  |
-| Carousel | x |  |  |
-| Chart | x | x | x |
-| Checkbox | x | x | x |
+| Breadcrumb | x | x | x |
+| Button | x | x | x |
+| Button Group | x | x | x |
+| Calendar | x |  |  |
+| Card | x | x | x |
+| Carousel | x | x | x |
+| Chart | x |  |  |
+| Checkbox | x |  |  |
 | Collapsible | x |  |  |
-| Combobox | x | x | x |
-| Command | x | x | x |
-| Context Menu | x | x | x |
-| Dialog | x |  | x |
-| Drawer | x | x | x |
-| Dropdown Menu | x | x | x |
-| Empty | x | x | x |
-| Field | x |  | x |
-| Hover Card | x | x | x |
+| Combobox | x |  |  |
+| Command | x |  |  |
+| Context Menu | x |  |  |
+| Dialog | x |  |  |
+| Drawer | x |  |  |
+| Dropdown Menu | x |  |  |
+| Empty | x |  |  |
+| Field | x |  |  |
+| Hover Card | x |  |  |
 | Input | x |  |  |
-| Input Group | x |  | x |
-| Input OTP | x | x | x |
-| Item | x | x | x |
+| Input Group | x |  |  |
+| Input OTP | x |  |  |
+| Item | x |  |  |
 | Kbd | x |  |  |
-| Label | x |  | x |
-| Menubar | x | x | x |
-| Native Select | x | x | x |
-| Navigation Menu | x | x | x |
-| Pagination | x | x | x |
-| Popover | x | x | x |
-| Progress | x | x | x |
-| Radio Group | x | x | x |
-| Resizable | x | x | x |
-| Select | x | x | x |
+| Label | x |  |  |
+| Menubar | x |  |  |
+| Native Select | x |  |  |
+| Navigation Menu | x |  |  |
+| Pagination | x |  |  |
+| Popover | x |  |  |
+| Progress | x |  |  |
+| Radio Group | x |  |  |
+| Resizable | x |  |  |
+| Select | x |  |  |
 | Separator | x |  |  |
 | Sheet | x |  |  |
 | Sidebar | x |  |  |
 | Skeleton | x |  |  |
-| Slider | x | x | x |
-| Sonner | x | x | x |
-| Spinner | x |  | x |
-| Switch | x |  | x |
-| Table | x | x | x |
+| Slider | x |  |  |
+| Sonner | x |  |  |
+| Spinner | x |  |  |
+| Switch | x |  |  |
+| Table | x |  |  |
 | Tabs | x |  |  |
-| Textarea | x | x | x |
+| Textarea | x |  |  |
 | Toggle | x |  |  |
-| Toggle Group | x | x | x |
+| Toggle Group | x |  |  |
 | Tooltip | x |  |  |
 
 ## Contributing
