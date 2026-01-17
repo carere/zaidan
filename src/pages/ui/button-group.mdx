@@ -1,0 +1,394 @@
+---
+title: Button Group
+slug: button-group
+description: A container that groups related buttons together with consistent styling.
+---
+
+# Button Group
+
+A container that groups related buttons together with consistent styling.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add button-group
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/button-group.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "~/components/ui/button-group";
+```
+
+```tsx showLineNumbers
+<ButtonGroup>
+  <Button>Button 1</Button>
+  <Button>Button 2</Button>
+</ButtonGroup>
+```
+
+## Accessibility
+
+- The `ButtonGroup` component has the `role` attribute set to `group`.
+- Use `Tab` to navigate between the buttons in the group.
+- Use `aria-label` or `aria-labelledby` to label the button group.
+
+```tsx showLineNumbers
+<ButtonGroup aria-label="Button group">
+  <Button>Button 1</Button>
+  <Button>Button 2</Button>
+</ButtonGroup>
+```
+
+## ButtonGroup vs ToggleGroup
+
+- Use the `ButtonGroup` component when you want to group buttons that perform an action.
+- Use the `ToggleGroup` component when you want to group buttons that toggle a state.
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L73-L84
+
+```
+
+### With Input
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L86-L101
+
+```
+
+### With Text
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L103-L120
+
+```
+
+### With Dropdown
+
+```tsx
+import {
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  Copy,
+  Share,
+  Trash,
+  UserRoundX,
+  VolumeX,
+} from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L122-L184
+
+```
+
+### With Select
+
+```tsx
+import { ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import { Field } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L186-L222
+
+```
+
+### With Icons
+
+```tsx
+import { FlipHorizontal, FlipVertical, RotateCw } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L224-L242
+
+```
+
+### With Input Group
+
+```tsx
+import { Search } from "lucide-solid";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L244-L257
+
+```
+
+### With Fields
+
+```tsx
+import { Minus, Plus } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import { Field, FieldGroup } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+import { Label } from "~/components/ui/label";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L259-L284
+
+```
+
+### With Like
+
+```tsx
+import { Heart } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L286-L299
+
+```
+
+### With Select and Input
+
+```tsx
+import { ButtonGroup } from "~/components/ui/button-group";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L301-L331
+
+```
+
+### Nested
+
+```tsx
+import { AudioLines, Plus } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L333-L356
+
+```
+
+### Pagination
+
+```tsx
+import { ArrowLeft, ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L358-L388
+
+```
+
+### Pagination Split
+
+```tsx
+import { ArrowLeft, ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L390-L422
+
+```
+
+### Navigation
+
+```tsx
+import { ArrowLeft, ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L424-L444
+
+```
+
+### Text Alignment
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import { Field } from "~/components/ui/field";
+import { Label } from "~/components/ui/label";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L446-L468
+
+```
+
+### Vertical
+
+```tsx
+import { Minus, Plus } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L470-L485
+
+```
+
+### Vertical Nested
+
+```tsx
+import {
+  Copy,
+  FlipHorizontal,
+  FlipVertical,
+  RotateCw,
+  Search,
+  Share,
+  Trash,
+} from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+```
+
+```tsx file=../../registry/examples/button-group-example.tsx#L487-L521
+
+```
+
+## API Reference
+
+### ButtonGroup
+
+The `ButtonGroup` component is a container that groups related buttons together with consistent styling.
+
+| Prop          | Type                         | Default        |
+| ------------- | ---------------------------- | -------------- |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` |
+
+```tsx
+<ButtonGroup>
+  <Button>Button 1</Button>
+  <Button>Button 2</Button>
+</ButtonGroup>
+```
+
+Nest multiple button groups to create complex layouts with spacing. See the [nested](#nested) example for more details.
+
+```tsx
+<ButtonGroup>
+  <ButtonGroup />
+  <ButtonGroup />
+</ButtonGroup>
+```
+
+### ButtonGroupSeparator
+
+The `ButtonGroupSeparator` component visually divides buttons within a group.
+
+| Prop          | Type                         | Default      |
+| ------------- | ---------------------------- | ------------ |
+| `orientation` | `"horizontal" \| "vertical"` | `"vertical"` |
+
+```tsx
+<ButtonGroup>
+  <Button>Button 1</Button>
+  <ButtonGroupSeparator />
+  <Button>Button 2</Button>
+</ButtonGroup>
+```
+
+### ButtonGroupText
+
+Use this component to display text within a button group.
+
+```tsx
+<ButtonGroup>
+  <ButtonGroupText>Text</ButtonGroupText>
+  <Button>Button</Button>
+</ButtonGroup>
+```
+
+Use a `Label` component inside `ButtonGroupText` to associate it with an input.
+
+```tsx showLineNumbers
+import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+
+export function ButtonGroupTextDemo() {
+  return (
+    <ButtonGroup>
+      <ButtonGroupText>
+        <Label for="name">Text</Label>
+      </ButtonGroupText>
+      <Input placeholder="Type something here..." id="name" />
+    </ButtonGroup>
+  );
+}
+```
