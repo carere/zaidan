@@ -2,7 +2,7 @@
   "mcpServers": {
     "playwright-test": {
       "command": "bunx",
-      "args": ["playwright", "run-test-mcp-server"]
+      "args": ["@playwright/mcp@latest", "--isolated", "--browser", "chrome", "--headless"]
     }
   }
 }
