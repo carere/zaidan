@@ -347,30 +347,6 @@ function ButtonIconOnly() {
   );
 }
 
-function ButtonExamples() {
-  return (
-    <Example title="Examples">
-      <div class="flex flex-wrap items-center gap-4">
-        <div class="flex items-center gap-2">
-          <Button variant="outline">Cancel</Button>
-          <Button>
-            Submit <ArrowRight data-icon="inline-end" />
-          </Button>
-        </div>
-        <div class="flex items-center gap-2">
-          <Button variant="destructive">Delete</Button>
-          <Button size="icon">
-            <ArrowRight data-icon="inline-end" />
-          </Button>
-        </div>
-        <Button as="a" href="#">
-          Link
-        </Button>
-      </div>
-    </Example>
-  );
-}
-
 function ButtonInvalidStates() {
   return (
     <Example title="Invalid States">
@@ -451,6 +427,27 @@ function ButtonInvalidStates() {
         <Button size="lg" variant="link" aria-invalid="true">
           Link
         </Button>
+      </div>
+    </Example>
+  );
+}
+
+function ButtonExamples() {
+  return (
+    <Example title="Examples">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+          <Button variant="outline">Cancel</Button>
+          <Button>
+            Submit <ArrowRight data-icon="inline-end" />
+          </Button>
+        </div>
+        <div class="flex items-center gap-2">
+          <Button variant="destructive">Delete</Button>
+          <Button size="icon">
+            <ArrowRight data-icon="inline-end" />
+          </Button>
+        </div>
       </div>
     </Example>
   );
