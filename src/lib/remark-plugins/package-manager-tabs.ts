@@ -15,8 +15,8 @@ export function remarkPackageManagerTabs() {
   // biome-ignore lint/suspicious/noExplicitAny: <coming from solid base>
   return (tree: any) => {
     const resolvedManagers: PackageManagerConfig = {
-      show: ["npm", "pnpm", "yarn", "bun", "deno"],
-      default: "pnpm",
+      show: ["npm", "pnpm", "yarn", "bun"],
+      default: "bun",
       lang: "sh",
       presets: {
         npm: {
@@ -50,14 +50,6 @@ export function remarkPackageManagerTabs() {
           "run-full": "bun run :content",
           dlx: "bunx :content",
           create: "bun create :content",
-        },
-        deno: {
-          install: "deno add npm::content",
-          "install-dev": "deno add npm::content -D",
-          run: "deno run :content",
-          "run-full": "deno run :content",
-          dlx: "deno run -A npm::content",
-          create: "deno init --npm :content",
         },
       },
     };
