@@ -6,26 +6,43 @@ test.describe("", () => {
 
     await page.waitForLoadState("networkidle");
 
-    // Testing Basic Example
+    // ------------------------------------------------------------
+    // Basic Example
+    // ------------------------------------------------------------
 
-    await page.getByRole("button", { name: "Default", exact: true }).hover();
+    // 1. Get the basic section
+    const basicSection = page.getByText("Basic", { exact: true }).locator("..");
 
+    // 2. Hover over the 'Default' button
+    await basicSection.getByRole("button", { name: "Default", exact: true }).hover();
+
+    // 3. Wait for 300ms to simulate user navigation
     await page.waitForTimeout(300);
 
-    await page.getByRole("button", { name: "Default", exact: true }).click();
+    // 4. Click the 'Default' button
+    await basicSection.getByRole("button", { name: "Default", exact: true }).click();
 
-    await expect(page.getByRole("alertdialog")).toBeVisible();
+    // 5. Verify the alert dialog is visible
+    const alertDialog = page.getByRole("alertdialog");
+    await expect(alertDialog).toBeVisible();
 
-    await expect(page.getByRole("button", { name: "Dismiss" })).toBeVisible();
+    // 6. Verify the 'Dismiss' button is visible
+    await expect(alertDialog.getByRole("button", { name: "Dismiss" })).toBeVisible();
 
-    await page.getByRole("button", { name: "Dismiss", exact: true }).hover();
+    // 7. Hover over the 'Dismiss' button
+    await alertDialog.getByRole("button", { name: "Dismiss", exact: true }).hover();
 
+    // 8. Wait for 300ms to simulate user navigation
     await page.waitForTimeout(300);
 
-    await page.getByRole("button", { name: "Dismiss", exact: true }).click();
+    // 9. Click the 'Dismiss' button
+    await alertDialog.getByRole("button", { name: "Dismiss", exact: true }).click();
 
-    await expect(page.getByRole("alertdialog")).toBeHidden();
+    // 10. Verify the alert dialog is hidden
+    await expect(alertDialog).toBeHidden();
 
+    // ------------------------------------------------------------
     // Other Examples testing goes here...
+    // ------------------------------------------------------------
   });
 });
