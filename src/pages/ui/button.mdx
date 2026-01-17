@@ -1,0 +1,103 @@
+---
+title: Button
+slug: button
+description: Displays a button or a component that looks like a button.
+---
+
+# Button
+
+Displays a button or a component that looks like a button.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add button
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/button.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Button } from "~/components/ui/button";
+```
+
+```tsx showLineNumbers
+<Button variant="outline">Button</Button>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Variants & Sizes
+
+```tsx
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/button-example.tsx#L17-L81
+
+```
+
+### Icon Right
+
+```tsx
+import { ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/button-example.tsx#L83-L168
+
+```
+
+### Icon Left
+
+```tsx
+import { ArrowLeftCircle } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/button-example.tsx#L170-L255
+
+```
+
+### Icon Only
+
+```tsx
+import { ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/button-example.tsx#L257-L326
+
+```
+
+### Examples
+
+```tsx
+import { ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/button-example.tsx#L328-L349
+
+```
+
+### Invalid States
+
+```tsx
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/button-example.tsx#L351-L415
+
+```
