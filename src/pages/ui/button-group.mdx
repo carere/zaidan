@@ -59,6 +59,11 @@ import {
 - Use the `ButtonGroup` component when you want to group buttons that perform an action.
 - Use the `ToggleGroup` component when you want to group buttons that toggle a state.
 
+## Kobalte particularity
+
+When using `Select` inside a `ButtonGroup`, you need to handle yourself the rounded border or not.
+It is necessary because Kobalte wrap `Select` inside a `div`, and button group expect a `button` obviously
+
 ## Examples
 
 Here are the source code of all the examples from the preview page:
@@ -70,7 +75,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L73-L84
+```tsx file=../../registry/examples/button-group-example.tsx#L69-L80
 
 ```
 
@@ -82,7 +87,7 @@ import { ButtonGroup } from "~/components/ui/button-group";
 import { Input } from "~/components/ui/input";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L86-L101
+```tsx file=../../registry/examples/button-group-example.tsx#L82-L97
 
 ```
 
@@ -95,7 +100,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L103-L120
+```tsx file=../../registry/examples/button-group-example.tsx#L99-L116
 
 ```
 
@@ -124,7 +129,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L122-L184
+```tsx file=../../registry/examples/button-group-example.tsx#L118-L180
 
 ```
 
@@ -146,7 +151,7 @@ import {
 } from "~/components/ui/select";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L186-L222
+```tsx file=../../registry/examples/button-group-example.tsx#L188-L218
 
 ```
 
@@ -158,7 +163,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L224-L242
+```tsx file=../../registry/examples/button-group-example.tsx#L220-L238
 
 ```
 
@@ -173,7 +178,7 @@ import {
 } from "~/components/ui/input-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L244-L257
+```tsx file=../../registry/examples/button-group-example.tsx#L240-L253
 
 ```
 
@@ -192,7 +197,7 @@ import {
 import { Label } from "~/components/ui/label";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L259-L284
+```tsx file=../../registry/examples/button-group-example.tsx#L255-L280
 
 ```
 
@@ -204,7 +209,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L286-L299
+```tsx file=../../registry/examples/button-group-example.tsx#L282-L295
 
 ```
 
@@ -222,7 +227,7 @@ import {
 } from "~/components/ui/select";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L301-L331
+```tsx file=../../registry/examples/button-group-example.tsx#L303-L327
 
 ```
 
@@ -236,7 +241,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/in
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L333-L356
+```tsx file=../../registry/examples/button-group-example.tsx#L329-L352
 
 ```
 
@@ -248,7 +253,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L358-L388
+```tsx file=../../registry/examples/button-group-example.tsx#L354-L384
 
 ```
 
@@ -260,7 +265,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L390-L422
+```tsx file=../../registry/examples/button-group-example.tsx#L386-L418
 
 ```
 
@@ -272,7 +277,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L424-L444
+```tsx file=../../registry/examples/button-group-example.tsx#L420-L440
 
 ```
 
@@ -285,7 +290,7 @@ import { Field } from "~/components/ui/field";
 import { Label } from "~/components/ui/label";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L446-L468
+```tsx file=../../registry/examples/button-group-example.tsx#L442-L464
 
 ```
 
@@ -297,7 +302,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L470-L485
+```tsx file=../../registry/examples/button-group-example.tsx#L466-L481
 
 ```
 
@@ -317,7 +322,7 @@ import { Button } from "~/components/ui/button";
 import { ButtonGroup } from "~/components/ui/button-group";
 ```
 
-```tsx file=../../registry/examples/button-group-example.tsx#L487-L521
+```tsx file=../../registry/examples/button-group-example.tsx#L483-L517
 
 ```
 

@@ -200,14 +200,14 @@ function ButtonGroupWithSelect() {
               <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
             )}
           >
-            <SelectTrigger>
+            <SelectTrigger class="rounded-r-none">
               <SelectValue<(typeof currencyItems)[number]>>
                 {(state) => state.selectedOption()?.label}
               </SelectValue>
             </SelectTrigger>
             <SelectContent />
           </Select>
-          <Input placeholder="Enter amount to send" />
+          <Input placeholder="Enter amount to send" class="rounded-l-none border-l-0" />
           <Button variant="outline">
             <ArrowRight />
           </Button>
@@ -313,14 +313,14 @@ function ButtonGroupWithSelectAndInput() {
             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
           )}
         >
-          <SelectTrigger id="duration">
+          <SelectTrigger id="duration" class="rounded-r-none">
             <SelectValue<(typeof durationItems)[number]>>
               {(state) => state.selectedOption()?.label}
             </SelectValue>
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Input />
+        <Input class="rounded-l-none border-l-0" />
       </ButtonGroup>
     </Example>
   );
