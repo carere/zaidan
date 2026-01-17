@@ -1,7 +1,7 @@
 import * as ImagePrimitive from "@kobalte/core/image";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import type { ComponentProps, ValidComponent } from "solid-js";
-import { splitProps } from "solid-js";
+import { mergeProps, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
@@ -9,13 +9,20 @@ type AvatarRootProps<T extends ValidComponent = "span"> = PolymorphicProps<
   T,
   ImagePrimitive.ImageRootProps<T>
 > &
-  Pick<ComponentProps<T>, "class">;
+  Pick<ComponentProps<T>, "class"> & {
+    size?: "sm" | "default" | "lg";
+  };
 
 const Avatar = <T extends ValidComponent = "span">(props: AvatarRootProps<T>) => {
-  const [local, others] = splitProps(props as AvatarRootProps, ["class"]);
+  const mergedProps = mergeProps({ size: "default" }, props);
+  const [local, others] = splitProps(mergedProps as AvatarRootProps, ["class", "size"]);
   return (
     <ImagePrimitive.Root
-      class={cn("relative flex size-8 shrink-0 overflow-hidden rounded-full", local.class)}
+      class={cn(
+        "cn-avatar group/avatar relative flex shrink-0 select-none after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten",
+        local.class,
+      )}
+      data-size={local.size}
       data-slot="avatar"
       {...others}
     />
@@ -32,7 +39,7 @@ const AvatarImage = <T extends ValidComponent = "img">(props: AvatarImageProps<T
   const [local, others] = splitProps(props as AvatarImageProps, ["class"]);
   return (
     <ImagePrimitive.Img
-      class={cn("aspect-square size-full", local.class)}
+      class={cn("cn-avatar-image aspect-square size-full object-cover", local.class)}
       data-slot="avatar-image"
       {...others}
     />
@@ -49,7 +56,10 @@ const AvatarFallback = <T extends ValidComponent = "span">(props: AvatarFallback
   const [local, others] = splitProps(props as AvatarFallbackProps, ["class"]);
   return (
     <ImagePrimitive.Fallback
-      class={cn("flex size-full items-center justify-center rounded-full bg-muted", local.class)}
+      class={cn(
+        "cn-avatar-fallback flex size-full items-center justify-center text-sm group-data-[size=sm]/avatar:text-xs",
+        local.class,
+      )}
       data-slot="avatar-fallback"
       {...others}
     />
