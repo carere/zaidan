@@ -9,7 +9,7 @@ import mdx from "./src/lib/vite-plugins/mdx";
 
 export default defineConfig({
   server: {
-    port: parseInt(Bun.env.FRONTEND_PORT || "5175", 10),
+    port: parseInt(Bun.env.FRONTEND_PORT || "5173", 10),
   },
   plugins: [
     mdx({
