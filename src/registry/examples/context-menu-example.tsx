@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "@/registry/ui/dialog";
 
 export default function ContextMenuExample() {
   return (
