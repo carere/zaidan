@@ -49,6 +49,164 @@ import {
 </InputGroup>
 ```
 
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import { InputGroup, InputGroupInput } from "~/components/ui/input-group";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L77-L110
+
+```
+
+### With Addons
+
+```tsx
+import { toast } from "solid-sonner";
+import {
+  Copy,
+  EyeOff,
+  Info,
+  Mic,
+  Radio,
+  Search,
+  Star,
+} from "lucide-solid";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "~/components/ui/input-group";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L112-L209
+
+```
+
+### With Buttons
+
+```tsx
+import { Copy, Trash } from "lucide-solid";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L211-L261
+
+```
+
+### With Tooltip, Dropdown, Popover
+
+```tsx
+import { toast } from "solid-sonner";
+import { ChevronDown, Info, Star } from "lucide-solid";
+import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L263-L350
+
+```
+
+### With Kbd
+
+```tsx
+import { Check, Info, Search, Sparkles } from "lucide-solid";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L352-L453
+
+```
+
+### In Card
+
+```tsx
+import { ExternalLink, Mail } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "~/components/ui/input-group";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L455-L508
+
+```
+
+### Textarea
+
+```tsx
+import { ArrowUp, Code, Copy, Info, RefreshCw } from "lucide-solid";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  InputGroupTextarea,
+} from "~/components/ui/input-group";
+import { Textarea } from "~/components/ui/textarea";
+```
+
+```tsx file=../../registry/examples/input-group-example.tsx#L510-L623
+
+```
+
 ## API Reference
 
 ### InputGroup

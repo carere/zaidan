@@ -1,6 +1,7 @@
 import {
   ArrowUp,
   Check,
+  ChevronDown,
   Code,
   Copy,
   ExternalLink,
@@ -15,8 +16,11 @@ import {
   Star,
   Trash,
 } from "lucide-solid";
+import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
+import { ButtonGroup, ButtonGroupText } from "@/registry/ui/button-group";
 import {
   Card,
   CardContent,
@@ -25,6 +29,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/registry/ui/dropdown-menu";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
 import {
@@ -36,18 +46,27 @@ import {
   InputGroupTextarea,
 } from "@/registry/ui/input-group";
 import { Kbd, KbdGroup } from "@/registry/ui/kbd";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/registry/ui/popover";
 import { Spinner } from "@/registry/ui/spinner";
 import { Textarea } from "@/registry/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip";
 
 export default function InputGroupExample() {
-  // const [country, setCountry] = createSignal("+1");
+  const [country, setCountry] = createSignal("+1");
 
   return (
     <ExampleWrapper class="min-w-0">
       <InputGroupBasic />
       <InputGroupWithAddons />
       <InputGroupWithButtons />
-      {/* <InputGroupWithTooltip country={country()} setCountry={setCountry} /> */}
+      <InputGroupWithTooltip country={country()} setCountry={setCountry} />
       <InputGroupWithKbd />
       <InputGroupInCard />
       <InputGroupTextareaExamples />
@@ -150,7 +169,7 @@ function InputGroupWithAddons() {
             <InputGroupInput id="input-icon-both-10" />
             <InputGroupAddon align="inline-end">
               <Star />
-              <InputGroupButton size="icon-xs" onClick={() => console.log("Copied to clipboard")}>
+              <InputGroupButton size="icon-xs" onClick={() => toast("Copied to clipboard")}>
                 <Copy />
               </InputGroupButton>
             </InputGroupAddon>
@@ -241,103 +260,93 @@ function InputGroupWithButtons() {
   );
 }
 
-// function InputGroupWithTooltip({
-//   country,
-//   setCountry,
-// }: {
-//   country: string;
-//   setCountry: (value: string) => void;
-// }) {
-//   return (
-//     <Example title="With Tooltip, Dropdown, Popover">
-//       <FieldGroup>
-//         <Field>
-//           <FieldLabel for="input-tooltip-20">Tooltip</FieldLabel>
-//           <InputGroup>
-//             <InputGroupInput id="input-tooltip-20" />
-//             <InputGroupAddon align="inline-end">
-//               <Tooltip>
-//                 <TooltipTrigger as={InputGroupButton} class="rounded-full" size="icon-xs">
-//                   <Info />
-//                 </TooltipTrigger>
-//                 <TooltipContent>This is content in a tooltip.</TooltipContent>
-//               </Tooltip>
-//             </InputGroupAddon>
-//           </InputGroup>
-//           <FieldDescription>This is a description of the input group.</FieldDescription>
-//         </Field>
-//         <Field>
-//           <FieldLabel for="input-dropdown-21">Dropdown</FieldLabel>
-//           <InputGroup>
-//             <InputGroupInput id="input-dropdown-21" />
-//             <InputGroupAddon>
-//               <DropdownMenu>
-//                 <DropdownMenuTrigger
-//                   render={<InputGroupButton class="text-muted-foreground tabular-nums" />}
-//                 >
-//                   {country} <ChevronDown />
-//                 </DropdownMenuTrigger>
-//                 <DropdownMenuContent
-//                   align="start"
-//                   class="min-w-16"
-//                   sideOffset={10}
-//                   alignOffset={-8}
-//                 >
-//                   <DropdownMenuItem onClick={() => setCountry("+1")}>+1</DropdownMenuItem>
-//                   <DropdownMenuItem onClick={() => setCountry("+44")}>+44</DropdownMenuItem>
-//                   <DropdownMenuItem onClick={() => setCountry("+46")}>+46</DropdownMenuItem>
-//                 </DropdownMenuContent>
-//               </DropdownMenu>
-//             </InputGroupAddon>
-//           </InputGroup>
-//           <FieldDescription>This is a description of the input group.</FieldDescription>
-//         </Field>
-//         <Field>
-//           <FieldLabel for="input-secure-19">Popover</FieldLabel>
-//           <InputGroup>
-//             <Popover>
-//               <PopoverTrigger render={<InputGroupAddon />} nativeButton={false}>
-//                 <InputGroupButton variant="secondary" size="icon-xs">
-//                   <Info />
-//                 </InputGroupButton>
-//               </PopoverTrigger>
-//               <PopoverContent align="start">
-//                 <PopoverHeader>
-//                   <PopoverTitle>Your connection is not secure.</PopoverTitle>
-//                   <PopoverDescription>
-//                     You should not enter any sensitive information on this site.
-//                   </PopoverDescription>
-//                 </PopoverHeader>
-//               </PopoverContent>
-//             </Popover>
-//             <InputGroupAddon class="pl-1 text-muted-foreground">https://</InputGroupAddon>
-//             <InputGroupInput id="input-secure-19" />
-//             <InputGroupAddon align="inline-end">
-//               <InputGroupButton size="icon-xs" onClick={() => toast("Added to favorites")}>
-//                 <Star />
-//               </InputGroupButton>
-//             </InputGroupAddon>
-//           </InputGroup>
-//           <FieldDescription>This is a description of the input group.</FieldDescription>
-//         </Field>
-//         <Field>
-//           <FieldLabel for="url">Button Group</FieldLabel>
-//           <ButtonGroup>
-//             <ButtonGroupText>https://</ButtonGroupText>
-//             <InputGroup>
-//               <InputGroupInput id="url" />
-//               <InputGroupAddon align="inline-end">
-//                 <Info />
-//               </InputGroupAddon>
-//             </InputGroup>
-//             <ButtonGroupText>.com</ButtonGroupText>
-//           </ButtonGroup>
-//           <FieldDescription>This is a description of the input group.</FieldDescription>
-//         </Field>
-//       </FieldGroup>
-//     </Example>
-//   );
-// }
+function InputGroupWithTooltip(props: { country: string; setCountry: (value: string) => void }) {
+  return (
+    <Example title="With Tooltip, Dropdown, Popover">
+      <FieldGroup>
+        <Field>
+          <FieldLabel for="input-tooltip-20">Tooltip</FieldLabel>
+          <InputGroup>
+            <InputGroupInput id="input-tooltip-20" />
+            <InputGroupAddon align="inline-end">
+              <Tooltip>
+                <TooltipTrigger as={InputGroupButton} class="rounded-full" size="icon-xs">
+                  <Info />
+                </TooltipTrigger>
+                <TooltipContent>This is content in a tooltip.</TooltipContent>
+              </Tooltip>
+            </InputGroupAddon>
+          </InputGroup>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="input-dropdown-21">Dropdown</FieldLabel>
+          <InputGroup>
+            <InputGroupInput id="input-dropdown-21" />
+            <InputGroupAddon>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  as={InputGroupButton}
+                  class="text-muted-foreground tabular-nums"
+                >
+                  {props.country} <ChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent class="min-w-16">
+                  <DropdownMenuItem onSelect={() => props.setCountry("+1")}>+1</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => props.setCountry("+44")}>+44</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => props.setCountry("+46")}>+46</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </InputGroupAddon>
+          </InputGroup>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="input-secure-19">Popover</FieldLabel>
+          <InputGroup>
+            <Popover>
+              <PopoverTrigger as={InputGroupAddon}>
+                <InputGroupButton variant="secondary" size="icon-xs">
+                  <Info />
+                </InputGroupButton>
+              </PopoverTrigger>
+              <PopoverContent>
+                <PopoverHeader>
+                  <PopoverTitle>Your connection is not secure.</PopoverTitle>
+                  <PopoverDescription>
+                    You should not enter any sensitive information on this site.
+                  </PopoverDescription>
+                </PopoverHeader>
+              </PopoverContent>
+            </Popover>
+            <InputGroupAddon class="pl-1 text-muted-foreground">https://</InputGroupAddon>
+            <InputGroupInput id="input-secure-19" />
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton size="icon-xs" onClick={() => toast("Added to favorites")}>
+                <Star />
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+        <Field>
+          <FieldLabel for="url">Button Group</FieldLabel>
+          <ButtonGroup>
+            <ButtonGroupText>https://</ButtonGroupText>
+            <InputGroup>
+              <InputGroupInput id="url" />
+              <InputGroupAddon align="inline-end">
+                <Info />
+              </InputGroupAddon>
+            </InputGroup>
+            <ButtonGroupText>.com</ButtonGroupText>
+          </ButtonGroup>
+          <FieldDescription>This is a description of the input group.</FieldDescription>
+        </Field>
+      </FieldGroup>
+    </Example>
+  );
+}
 
 function InputGroupWithKbd() {
   return (
@@ -428,9 +437,7 @@ function InputGroupWithKbd() {
           </Field>
         </FieldGroup>
         <Field data-disabled="true">
-          <FieldLabel for="input-group-29">
-            Loading (&quot;data-disabled=&quot;true&quot;)
-          </FieldLabel>
+          <FieldLabel for="input-group-29">Loading ("data-disabled="true")</FieldLabel>
           <InputGroup>
             <InputGroupInput id="input-group-29" disabled value="shadcn" />
             <InputGroupAddon align="inline-end">
@@ -476,7 +483,7 @@ function InputGroupInCard() {
               </InputGroup>
             </Field>
             <Field>
-              <FieldLabel for="feedback-textarea">Feedback & Comments</FieldLabel>
+              <FieldLabel for="feedback-textarea">Feedback &amp; Comments</FieldLabel>
               <InputGroup>
                 <InputGroupTextarea
                   id="feedback-textarea"
