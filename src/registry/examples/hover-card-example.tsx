@@ -33,7 +33,7 @@ function HoverCardSides() {
                 {side}
               </HoverCardTrigger>
               <HoverCardContent>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-1.5">
                   <h4 class="font-medium">Hover Card</h4>
                   <p>This hover card appears on the {side} side of the trigger.</p>
                 </div>
@@ -60,18 +60,12 @@ function HoverCardInDialog() {
               Hover over the button below to see the hover card.
             </DialogDescription>
           </DialogHeader>
-          <HoverCard>
-            <HoverCardTrigger
-              delay={100}
-              closeDelay={100}
-              as={Button}
-              variant="outline"
-              class="w-fit"
-            >
+          <HoverCard openDelay={100} closeDelay={100}>
+            <HoverCardTrigger as={Button} variant="outline" class="w-fit">
               Hover me
             </HoverCardTrigger>
             <HoverCardContent>
-              <div class="flex flex-col style-lyra:gap-1 style-maia:gap-2 style-mira:gap-1 style-nova:gap-1.5 style-vega:gap-2">
+              <div class="flex flex-col gap-1.5">
                 <h4 class="font-medium">Hover Card</h4>
                 <p>This hover card appears inside a dialog. Hover over the button to see it.</p>
               </div>
