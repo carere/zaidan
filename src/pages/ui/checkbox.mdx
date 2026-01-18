@@ -18,6 +18,12 @@ shadcn@latest add checkbox
 
 ### Manual
 
+Install the following dependencies:
+
+```package-install
+@kobalte/core
+```
+
 Copy and paste the following code into your project.
 
 ```tsx file=../../registry/ui/checkbox.tsx showLineNumbers
@@ -34,4 +40,100 @@ import { Checkbox, CheckboxLabel } from "~/components/ui/checkbox";
 <Checkbox>
   <CheckboxLabel>Accept terms and conditions</CheckboxLabel>
 </Checkbox>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L29-L38
+
+```
+
+### With Description
+
+```tsx
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field, FieldContent, FieldDescription, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L40-L54
+
+```
+
+### Invalid
+
+```tsx
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L56-L65
+
+```
+
+### Disabled
+
+```tsx
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L67-L76
+
+```
+
+### With Title
+
+```tsx
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L78-L107
+
+```
+
+### In Table
+
+```tsx
+import { createSignal, For } from "solid-js";
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L109-L193
+
+```
+
+### Group
+
+```tsx
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/checkbox-example.tsx#L195-L227
+
 ```
