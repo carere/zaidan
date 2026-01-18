@@ -3,6 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+if (!process.env.FRONTEND_PORT) {
+  throw new Error("FRONTEND_PORT is not set");
+}
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
@@ -10,7 +14,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   use: {
-    baseURL: `http://localhost:${process.env.FRONTEND_PORT || "5175"}`,
+    baseURL: `http://localhost:${process.env.FRONTEND_PORT}`,
     testIdAttribute: "data-slot",
     headless: true,
     screenshot: "off",
