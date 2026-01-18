@@ -168,3 +168,126 @@ The Command component includes built-in filtering. Each `CommandItem` must have 
 ```
 
 Items that don't match the search query are automatically hidden.
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
+```
+
+```tsx file=../../registry/examples/command-example.tsx#L54-L79
+
+```
+
+### With Shortcuts
+
+```tsx
+import { CreditCard, Settings, User } from "lucide-solid";
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandShortcut,
+} from "~/components/ui/command";
+```
+
+```tsx file=../../registry/examples/command-example.tsx#L81-L118
+
+```
+
+### With Groups
+
+```tsx
+import {
+  Calculator,
+  Calendar,
+  CreditCard,
+  Settings,
+  Smile,
+  User,
+} from "lucide-solid";
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "~/components/ui/command";
+```
+
+```tsx file=../../registry/examples/command-example.tsx#L120-L172
+
+```
+
+### Many Groups & Items
+
+```tsx
+import {
+  Bell,
+  Calculator,
+  Calendar,
+  ClipboardPaste,
+  Code,
+  Copy,
+  CreditCard,
+  FileText,
+  Folder,
+  FolderPlus,
+  HelpCircle,
+  Home,
+  Image,
+  Inbox,
+  LayoutGrid,
+  List,
+  Plus,
+  Scissors,
+  Settings,
+  Trash,
+  User,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-solid";
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "~/components/ui/command";
+```
+
+```tsx file=../../registry/examples/command-example.tsx#L174-L315
+
+```
