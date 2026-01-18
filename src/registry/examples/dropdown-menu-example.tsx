@@ -44,7 +44,16 @@ import {
 } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Avatar, AvatarFallback, AvatarImage } from "@/registry/ui/avatar";
 import { Button } from "@/registry/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -62,15 +71,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 
 export default function DropdownMenuExample() {
   return (
