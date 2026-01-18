@@ -48,7 +48,7 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Card | x | x | x |
 | Carousel | x | x | x |
 | Chart | x |  |  |
-| Checkbox | x |  |  |
+| Checkbox | x | x | x |
 | Collapsible | x |  |  |
 | Combobox | x |  |  |
 | Command | x |  |  |
