@@ -52,6 +52,142 @@ import {
 </Dialog>
 ```
 
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### With Form
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../registry/examples/dialog-example.tsx#L60-L97
+
+```
+
+### Scrollable Content
+
+```tsx
+import { For } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+```
+
+```tsx file=../../registry/examples/dialog-example.tsx#L99-L129
+
+```
+
+### With Sticky Footer
+
+```tsx
+import { For } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+```
+
+```tsx file=../../registry/examples/dialog-example.tsx#L131-L166
+
+```
+
+### No Close Button
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+```
+
+```tsx file=../../registry/examples/dialog-example.tsx#L168-L191
+
+```
+
+### Chat Settings
+
+```tsx
+import { Info } from "lucide-solid";
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "~/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+import { Kbd } from "~/components/ui/kbd";
+import { NativeSelect, NativeSelectOption } from "~/components/ui/native-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Switch } from "~/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Textarea } from "~/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/dialog-example.tsx#L193-L515
+
+```
+
 ## Notes
 
 To use the `Dialog` component from within a `Context Menu` or `Dropdown Menu`, you must encase the `Context Menu` or
