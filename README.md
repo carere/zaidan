@@ -49,20 +49,20 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Carousel | x | x | x |
 | Chart | x |  |  |
 | Checkbox | x | x | x |
-| Collapsible | x |  |  |
+| Collapsible | x | x | x |
 | Combobox | x |  |  |
 | Command | x |  |  |
 | Context Menu | x |  |  |
-| Dialog | x |  |  |
+| Dialog | x | x | x |
 | Drawer | x |  |  |
 | Dropdown Menu | x |  |  |
 | Empty | x |  |  |
 | Field | x |  |  |
 | Hover Card | x |  |  |
-| Input | x |  |  |
-| Input Group | x |  |  |
+| Input | x | x | x |
+| Input Group | x | x | x |
 | Input OTP | x |  |  |
-| Item | x |  |  |
+| Item | x | x | x |
 | Kbd | x |  |  |
 | Label | x |  |  |
 | Menubar | x |  |  |

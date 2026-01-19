@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
-
 import { Inbox } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
@@ -892,7 +891,7 @@ function MutedVariantItemsExtraSmall() {
 
 function DefaultLinkItems() {
   return (
-    <Example title="asChild">
+    <Example title="As Link">
       <ItemGroup>
         <Item as="a" href="#">
           <ItemContent>
@@ -942,7 +941,7 @@ function DefaultLinkItems() {
 
 function OutlineLinkItems() {
   return (
-    <Example title="Outline - asChild">
+    <Example title="Outline - As Link">
       <ItemGroup>
         <Item variant="outline" as="a" href="#">
           <ItemContent>
@@ -992,7 +991,7 @@ function OutlineLinkItems() {
 
 function MutedLinkItems() {
   return (
-    <Example title="Muted - asChild">
+    <Example title="Muted - As Link">
       <ItemGroup>
         <Item variant="muted" as="a" href="#">
           <ItemContent>
@@ -1319,7 +1318,7 @@ function ItemHeaderAndFooterExamples() {
           </ItemDescription>
         </ItemContent>
         <ItemFooter>
-          <span class="text-muted-foreground text-sm">Category: Technical • 3 attachments</span>
+          <span class="text-muted-foreground text-sm">Category: Technical - 3 attachments</span>
         </ItemFooter>
       </Item>
     </Example>
