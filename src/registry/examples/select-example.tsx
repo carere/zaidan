@@ -2,6 +2,15 @@ import { ChartBar, ChartLine, ChartPie } from "lucide-solid";
 import { Show } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/ui/dialog";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/registry/ui/item";
 import { NativeSelect, NativeSelectOption } from "@/registry/ui/native-select";
@@ -15,15 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/registry/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "../ui/field";
 
 export default function SelectExample() {
   return (
@@ -31,6 +31,7 @@ export default function SelectExample() {
       <SelectBasic />
       <SelectWithIcons />
       <SelectWithGroups />
+      <SelectLargeList />
       <SelectMultiple />
       <SelectSizes />
       <SelectPlan />
@@ -213,6 +214,34 @@ function SelectWithGroups() {
       >
         <SelectTrigger>
           <SelectValue<FoodOption>>{(state) => state.selectedOption().label}</SelectValue>
+        </SelectTrigger>
+        <SelectContent />
+      </Select>
+    </Example>
+  );
+}
+
+function SelectLargeList() {
+  const items = Array.from({ length: 100 }).map((_, i) => ({
+    label: `Item ${i}`,
+    value: `item-${i}`,
+  }));
+
+  return (
+    <Example title="Large List">
+      <Select
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Select an item"
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
+        <SelectTrigger>
+          <SelectValue<(typeof items)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent />
       </Select>
@@ -433,23 +462,46 @@ function SelectInvalid() {
   ];
   return (
     <Example title="Invalid">
-      <Select
-        options={items}
-        optionValue="value"
-        optionTextValue="label"
-        placeholder="Select a fruit"
-        validationState="invalid"
-        itemComponent={(props) => (
-          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-        )}
-      >
-        <SelectTrigger aria-invalid="true">
-          <SelectValue<(typeof items)[number]>>
-            {(state) => state.selectedOption().label}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent />
-      </Select>
+      <div class="flex flex-col gap-4">
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Select a fruit"
+          validationState="invalid"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
+          <SelectTrigger aria-invalid="true">
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Field data-invalid>
+          <FieldLabel for="select-fruit-invalid">Favorite Fruit</FieldLabel>
+          <Select
+            options={items}
+            optionValue="value"
+            optionTextValue="label"
+            placeholder="Select a fruit"
+            validationState="invalid"
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
+            <SelectTrigger id="select-fruit-invalid" aria-invalid>
+              <SelectValue<(typeof items)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent />
+          </Select>
+          <FieldError errors={[{ message: "Please select a valid fruit." }]} />
+        </Field>
+      </div>
     </Example>
   );
 }
@@ -607,9 +659,7 @@ function SelectInDialog() {
                 {(state) => state.selectedOption().label}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <SelectContent />
-            </SelectContent>
+            <SelectContent />
           </Select>
         </DialogContent>
       </Dialog>
