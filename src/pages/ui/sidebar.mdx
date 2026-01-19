@@ -1,0 +1,151 @@
+---
+title: Sidebar
+slug: sidebar
+description: A composable, themeable and customizable sidebar component.
+---
+
+# Sidebar
+
+A composable, themeable and customizable sidebar component.
+
+Sidebars are one of the most complex components to build. They are central to any application and often contain a lot of moving parts.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add sidebar
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@kobalte/core class-variance-authority
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/sidebar.tsx showLineNumbers
+
+```
+
+Add the following colors to your CSS file:
+
+```css showLineNumbers
+@layer base {
+  :root {
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+  }
+
+  .dark {
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.439 0 0);
+  }
+}
+```
+
+## Usage
+
+```tsx
+import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { AppSidebar } from "~/components/app-sidebar";
+```
+
+```tsx showLineNumbers
+<SidebarProvider>
+  <AppSidebar />
+  <main>
+    <SidebarTrigger />
+    {children}
+  </main>
+</SidebarProvider>
+```
+
+```tsx showLineNumbers
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+} from "~/components/ui/sidebar";
+
+export function AppSidebar() {
+  return (
+    <Sidebar>
+      <SidebarHeader />
+      <SidebarContent>
+        <SidebarGroup />
+        <SidebarGroup />
+      </SidebarContent>
+      <SidebarFooter />
+    </Sidebar>
+  );
+}
+```
+
+## Structure
+
+A `Sidebar` component is composed of the following parts:
+
+- `SidebarProvider` - Handles collapsible state.
+- `Sidebar` - The sidebar container.
+- `SidebarHeader` and `SidebarFooter` - Sticky at the top and bottom of the sidebar.
+- `SidebarContent` - Scrollable content.
+- `SidebarGroup` - Section within the `SidebarContent`.
+- `SidebarTrigger` - Trigger for the `Sidebar`.
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Check, ChevronsUpDown, Search } from "lucide-solid";
+import { createSignal, For, Show } from "solid-js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "~/components/ui/item";
+import { Label } from "~/components/ui/label";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+```
+
+```tsx file=../../registry/examples/sidebar-example.tsx#L38-L266
+
+```
