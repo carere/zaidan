@@ -1,6 +1,18 @@
+/** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
+import { ArrowRight } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Badge } from "@/registry/ui/badge";
 import { Button } from "@/registry/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/registry/ui/empty";
+import { Field, FieldLabel } from "@/registry/ui/field";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/registry/ui/input-group";
 import { Spinner } from "@/registry/ui/spinner";
 
 export default function SpinnerExample() {
@@ -9,8 +21,8 @@ export default function SpinnerExample() {
       <SpinnerBasic />
       <SpinnerInButtons />
       <SpinnerInBadges />
-      {/* <SpinnerInInputGroup /> */}
-      {/* <SpinnerInEmpty /> */}
+      <SpinnerInInputGroup />
+      <SpinnerInEmpty />
     </ExampleWrapper>
   );
 }
@@ -73,47 +85,47 @@ function SpinnerInBadges() {
   );
 }
 
-// function SpinnerInInputGroup() {
-//   return (
-//     <Example title="In Input Group">
-//       <Field>
-//         <FieldLabel htmlFor="input-group-spinner">Input Group</FieldLabel>
-//         <InputGroup>
-//           <InputGroupInput id="input-group-spinner" />
-//           <InputGroupAddon>
-//             <Spinner />
-//           </InputGroupAddon>
-//         </InputGroup>
-//       </Field>
-//     </Example>
-//   );
-// }
+function SpinnerInInputGroup() {
+  return (
+    <Example title="In Input Group">
+      <Field>
+        <FieldLabel for="input-group-spinner">Input Group</FieldLabel>
+        <InputGroup>
+          <InputGroupInput id="input-group-spinner" />
+          <InputGroupAddon align="inline-end">
+            <Spinner />
+          </InputGroupAddon>
+        </InputGroup>
+      </Field>
+    </Example>
+  );
+}
 
-// function SpinnerInEmpty() {
-//   return (
-//     <Example title="In Empty State" containerClass="lg:col-span-full">
-//       <Empty class="min-h-[300px]">
-//         <EmptyHeader>
-//           <EmptyMedia variant="icon">
-//             <Spinner />
-//           </EmptyMedia>
-//           <EmptyTitle>No projects yet</EmptyTitle>
-//           <EmptyDescription>
-//             You haven&apos;t created any projects yet. Get started by creating your first project.
-//           </EmptyDescription>
-//         </EmptyHeader>
-//         <EmptyContent>
-//           <div class="flex gap-2">
-//             <Button as="a" href="#">
-//               Create project
-//             </Button>
-//             <Button variant="outline">Import project</Button>
-//           </div>
-//           <Button variant="link" as="a" href="#" class="text-muted-foreground">
-//             Learn more <ArrowRight />
-//           </Button>
-//         </EmptyContent>
-//       </Empty>
-//     </Example>
-//   );
-// }
+function SpinnerInEmpty() {
+  return (
+    <Example title="In Empty State" containerClass="lg:col-span-full">
+      <Empty class="min-h-[300px]">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Spinner />
+          </EmptyMedia>
+          <EmptyTitle>No projects yet</EmptyTitle>
+          <EmptyDescription>
+            You haven't created any projects yet. Get started by creating your first project.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <div class="flex gap-2">
+            <Button as="a" href="#">
+              Create project
+            </Button>
+            <Button variant="outline">Import project</Button>
+          </div>
+          <Button as="a" href="#" variant="link" class="text-muted-foreground">
+            Learn more <ArrowRight />
+          </Button>
+        </EmptyContent>
+      </Empty>
+    </Example>
+  );
+}
