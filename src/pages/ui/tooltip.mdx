@@ -1,0 +1,145 @@
+---
+title: Tooltip
+slug: tooltip
+description: A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+---
+
+# Tooltip
+
+A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add tooltip
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@kobalte/core
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/tooltip.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+```
+
+```tsx showLineNumbers
+<Tooltip>
+  <TooltipTrigger>Hover</TooltipTrigger>
+  <TooltipContent>
+    <p>Add to library</p>
+  </TooltipContent>
+</Tooltip>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L25-L38
+
+```
+
+### Sides
+
+```tsx
+import { For } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L40-L59
+
+```
+
+### With Icon
+
+```tsx
+import { Info } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L61-L75
+
+```
+
+### Long Content
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L77-L91
+
+```
+
+### Disabled
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L93-L108
+
+```
+
+### With Keyboard Shortcut
+
+```tsx
+import { Save } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { Kbd } from "~/components/ui/kbd";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L110-L125
+
+```
+
+### On Link
+
+```tsx
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L127-L145
+
+```
+
+### Formatted Content
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+```
+
+```tsx file=../../registry/examples/tooltip-example.tsx#L147-L163
+
+```
