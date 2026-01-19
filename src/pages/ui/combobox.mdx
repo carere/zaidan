@@ -124,3 +124,309 @@ Used for grouping options when using `optionGroupChildren`.
 ### ComboboxSeparator
 
 Visual separator between groups.
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L64-L81
+
+```
+
+### Disabled
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L83-L101
+
+```
+
+### Invalid
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L103-L145
+
+```
+
+### With Clear Button
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L147-L165
+
+```
+
+### With Groups
+
+```tsx
+import { Show } from "solid-js";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxSection,
+  ComboboxSectionLabel,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L210-L235
+
+```
+
+### With Groups and Separator
+
+```tsx
+import { Show } from "solid-js";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxSection,
+  ComboboxSectionLabel,
+  ComboboxSeparator,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L237-L267
+
+```
+
+### Large List (100 items)
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L274-L293
+
+```
+
+### With Icon Addon
+
+```tsx
+import { Globe } from "lucide-solid";
+import { Show } from "solid-js";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxSection,
+  ComboboxSectionLabel,
+  ComboboxSeparator,
+} from "~/components/ui/combobox";
+import { InputGroupAddon } from "~/components/ui/input-group";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L295-L329
+
+```
+
+### Form with Combobox
+
+```tsx
+import { toast } from "solid-sonner";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L331-L375
+
+```
+
+### Multiple Selection
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L377-L396
+
+```
+
+### Multiple Selection Disabled
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L398-L418
+
+```
+
+### Multiple Selection Invalid
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L420-L466
+
+```
+
+### With Custom Item Rendering
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import { Item, ItemContent, ItemDescription, ItemTitle } from "~/components/ui/item";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L497-L525
+
+```
+
+### With Field
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L527-L548
+
+```
+
+### In Dialog
+
+```tsx
+import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
+import { Button } from "~/components/ui/button";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Field, FieldLabel } from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L550-L601
+
+```
+
+### With Other Inputs
+
+```tsx
+import { ChevronDown } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+} from "~/components/ui/combobox";
+import { Input } from "~/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../registry/examples/combobox-example.tsx#L614-L660
+
+```
