@@ -10,6 +10,14 @@ import {
   Underline,
 } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Input } from "@/registry/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/registry/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/registry/ui/toggle-group";
 
 export default function ToggleGroupExample() {
@@ -24,7 +32,7 @@ export default function ToggleGroupExample() {
       <ToggleGroupFilter />
       <ToggleGroupDateRange />
       <ToggleGroupSort />
-      {/* <ToggleGroupWithInputAndSelect /> */}
+      <ToggleGroupWithInputAndSelect />
       <ToggleGroupVertical />
       <ToggleGroupVerticalOutline />
       <ToggleGroupVerticalOutlineWithIcons />
@@ -238,42 +246,44 @@ function ToggleGroupSort() {
   );
 }
 
-// function ToggleGroupWithInputAndSelect() {
-//   const items = [
-//     { label: "All", value: "all" },
-//     { label: "Active", value: "active" },
-//     { label: "Archived", value: "archived" },
-//   ];
-//   return (
-//     <Example title="With Input and Select">
-//       <div class="flex items-center gap-2">
-//         <Input type="search" placeholder="Search..." class="flex-1" />
-//         <Select items={items} defaultValue={items[0]}>
-//           <SelectTrigger class="w-32">
-//             <SelectValue />
-//           </SelectTrigger>
-//           <SelectContent>
-//             <SelectGroup>
-//               {items.map((item) => (
-//                 <SelectItem key={item.value} value={item.value}>
-//                   {item.label}
-//                 </SelectItem>
-//               ))}
-//             </SelectGroup>
-//           </SelectContent>
-//         </Select>
-//         <ToggleGroup defaultValue={["grid"]} variant="outline">
-//           <ToggleGroupItem value="grid" aria-label="Grid view">
-//             Grid
-//           </ToggleGroupItem>
-//           <ToggleGroupItem value="list" aria-label="List view">
-//             List
-//           </ToggleGroupItem>
-//         </ToggleGroup>
-//       </div>
-//     </Example>
-//   );
-// }
+function ToggleGroupWithInputAndSelect() {
+  const items = [
+    { label: "All", value: "all" },
+    { label: "Active", value: "active" },
+    { label: "Archived", value: "archived" },
+  ];
+  return (
+    <Example title="With Input and Select">
+      <div class="flex items-center gap-2">
+        <Input type="search" placeholder="Search..." class="flex-1" />
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          defaultValue={items[0]}
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
+          <SelectTrigger class="w-32">
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption()?.label}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <ToggleGroup multiple={false} defaultValue="grid" variant="outline">
+          <ToggleGroupItem value="grid" aria-label="Grid view">
+            Grid
+          </ToggleGroupItem>
+          <ToggleGroupItem value="list" aria-label="List view">
+            List
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+    </Example>
+  );
+}
 
 function ToggleGroupVertical() {
   return (

@@ -1,0 +1,141 @@
+---
+title: Toggle
+slug: toggle
+description: A two-state button that can be either on or off.
+---
+
+# Toggle
+
+A two-state button that can be either on or off.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add toggle
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/toggle.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx showLineNumbers
+<Toggle>Toggle</Toggle>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L21-L37
+
+```
+
+### Outline
+
+```tsx
+import { Bold, Italic } from "lucide-solid";
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L39-L54
+
+```
+
+### Sizes
+
+```tsx
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L56-L72
+
+```
+
+### With Button Text
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L74-L105
+
+```
+
+### With Button Icon
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L107-L138
+
+```
+
+### With Button Icon + Text
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L140-L177
+
+```
+
+### Disabled
+
+```tsx
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L179-L192
+
+```
+
+### With Icon
+
+```tsx
+import { Bookmark } from "lucide-solid";
+import { Toggle } from "~/components/ui/toggle";
+```
+
+```tsx file=../../registry/examples/toggle-example.tsx#L194-L208
+
+```
+
+## API Reference
+
+### Toggle
+
+| Prop | Type | Default |
+|------|------|---------|
+| `variant` | `"default" \| "outline"` | `"default"` |
+| `size` | `"default" \| "sm" \| "lg"` | `"default"` |
+| `pressed` | `boolean` | - |
+| `defaultPressed` | `boolean` | `false` |
+| `onChange` | `(pressed: boolean) => void` | - |
+| `disabled` | `boolean` | `false` |
+| `class` | `string` | - |
