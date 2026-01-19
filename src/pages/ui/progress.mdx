@@ -75,3 +75,59 @@ Use `minValue` and `maxValue` to set custom value ranges.
   </div>
 </Progress>
 ```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Progress Bar
+
+```tsx
+import { Progress } from "~/components/ui/progress";
+```
+
+```tsx file=../../registry/examples/progress-example.tsx#L26-L38
+
+```
+
+### With Label
+
+```tsx
+import { Progress, ProgressLabel, ProgressValue } from "~/components/ui/progress";
+```
+
+```tsx file=../../registry/examples/progress-example.tsx#L40-L49
+
+```
+
+### Controlled
+
+```tsx
+import { createSignal } from "solid-js";
+import { Progress } from "~/components/ui/progress";
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/progress-example.tsx#L51-L68
+
+```
+
+### File Upload List
+
+```tsx
+import { FileIcon } from "lucide-solid";
+import { For } from "solid-js";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "~/components/ui/item";
+import { Progress } from "~/components/ui/progress";
+```
+
+```tsx file=../../registry/examples/progress-example.tsx#L70-L123
+
+```
