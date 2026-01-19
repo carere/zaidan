@@ -2,7 +2,6 @@
 title: Pagination
 slug: pagination
 description: Pagination with page navigation, next and previous links.
-example: pagination-example.tsx
 ---
 
 # Pagination
@@ -79,4 +78,65 @@ import { PaginationLink } from "~/components/ui/pagination";
 <PaginationLink as={A} href="/page/2">
   2
 </PaginationLink>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "~/components/ui/pagination";
+```
+
+```tsx file=../../registry/examples/pagination-example.tsx#L24-L52
+
+```
+
+### Simple
+
+```tsx
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+} from "~/components/ui/pagination";
+```
+
+```tsx file=../../registry/examples/pagination-example.tsx#L54-L80
+
+```
+
+### With Select
+
+```tsx
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "~/components/ui/pagination";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../registry/examples/pagination-example.tsx#L82-L126
+
 ```
