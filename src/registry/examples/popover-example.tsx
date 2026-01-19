@@ -1,5 +1,14 @@
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
 import {
   Popover,
@@ -9,15 +18,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/registry/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import { Field, FieldGroup, FieldLabel } from "../ui/field";
 
 export default function PopoverExample() {
   return (
