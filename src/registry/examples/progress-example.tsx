@@ -1,9 +1,16 @@
-import { File } from "lucide-solid";
-import { createMemo, createSignal, For } from "solid-js";
+import { FileIcon } from "lucide-solid";
+import { createSignal, For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/registry/ui/item";
 import { Progress, ProgressLabel, ProgressValue } from "@/registry/ui/progress";
-import { Item, ItemActions, ItemContent, ItemGroup, ItemMedia, ItemTitle } from "../ui/item";
-import { Slider } from "../ui/slider";
+import { Slider } from "@/registry/ui/slider";
 
 export default function ProgressExample() {
   return (
@@ -50,7 +57,7 @@ function ProgressControlled() {
         <Progress value={value()} class="w-full" />
         <Slider
           value={[value()]}
-          onChange={(value) => setValue(value[0])}
+          onChange={(values) => setValue(values[0])}
           minValue={0}
           maxValue={100}
           step={1}
@@ -61,44 +68,41 @@ function ProgressControlled() {
 }
 
 function FileUploadList() {
-  const files = createMemo(
-    () => [
-      {
-        id: "1",
-        name: "document.pdf",
-        progress: 45,
-        timeRemaining: "2m 30s",
-      },
-      {
-        id: "2",
-        name: "presentation.pptx",
-        progress: 78,
-        timeRemaining: "45s",
-      },
-      {
-        id: "3",
-        name: "spreadsheet.xlsx",
-        progress: 12,
-        timeRemaining: "5m 12s",
-      },
-      {
-        id: "4",
-        name: "image.jpg",
-        progress: 100,
-        timeRemaining: "Complete",
-      },
-    ],
-    [],
-  );
+  const files = [
+    {
+      id: "1",
+      name: "document.pdf",
+      progress: 45,
+      timeRemaining: "2m 30s",
+    },
+    {
+      id: "2",
+      name: "presentation.pptx",
+      progress: 78,
+      timeRemaining: "45s",
+    },
+    {
+      id: "3",
+      name: "spreadsheet.xlsx",
+      progress: 12,
+      timeRemaining: "5m 12s",
+    },
+    {
+      id: "4",
+      name: "image.jpg",
+      progress: 100,
+      timeRemaining: "Complete",
+    },
+  ];
 
   return (
     <Example title="File Upload List">
       <ItemGroup>
-        <For each={files()}>
+        <For each={files}>
           {(file) => (
             <Item size="xs" class="px-0">
               <ItemMedia variant="icon">
-                <File />
+                <FileIcon class="size-5" />
               </ItemMedia>
               <ItemContent class="inline-block truncate">
                 <ItemTitle class="inline">{file.name}</ItemTitle>
