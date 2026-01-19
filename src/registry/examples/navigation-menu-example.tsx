@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
 import { CircleAlert } from "lucide-solid";
 import { type ComponentProps, For, splitProps } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
@@ -7,6 +8,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
 } from "@/registry/ui/navigation-menu";
 
 const components: { title: string; href: string; description: string }[] = [
@@ -109,7 +111,11 @@ function NavigationMenuBasic() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuLink href="/docs">Documentation</NavigationMenuLink>
+        <NavigationMenuItem>
+          <NavigationMenuLink href="/docs" class={navigationMenuTriggerStyle()}>
+            Documentation
+          </NavigationMenuLink>
+        </NavigationMenuItem>
       </NavigationMenu>
     </Example>
   );
