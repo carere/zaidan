@@ -1,4 +1,5 @@
 import { Example, ExampleWrapper } from "@/components/example";
+import { Field, FieldDescription, FieldLabel } from "@/registry/ui/field";
 import { Textarea } from "@/registry/ui/textarea";
 
 export default function TextareaExample() {
@@ -24,7 +25,7 @@ function TextareaBasic() {
 function TextareaInvalid() {
   return (
     <Example title="Invalid">
-      <Textarea aria-invalid="true" placeholder="Type your message here." />
+      <Textarea placeholder="Type your message here." aria-invalid="true" />
     </Example>
   );
 }
@@ -32,15 +33,10 @@ function TextareaInvalid() {
 function TextareaWithLabel() {
   return (
     <Example title="With Label">
-      <div class="grid w-full gap-1.5">
-        <label
-          for="message"
-          class="font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Message
-        </label>
-        <Textarea id="message" placeholder="Type your message here." rows={4} />
-      </div>
+      <Field>
+        <FieldLabel for="textarea-demo-message">Message</FieldLabel>
+        <Textarea id="textarea-demo-message" placeholder="Type your message here." rows={6} />
+      </Field>
     </Example>
   );
 }
@@ -48,16 +44,11 @@ function TextareaWithLabel() {
 function TextareaWithDescription() {
   return (
     <Example title="With Description">
-      <div class="grid w-full gap-1.5">
-        <label
-          for="message-2"
-          class="font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Message
-        </label>
-        <Textarea id="message-2" placeholder="Type your message here." />
-        <p class="text-muted-foreground text-sm">Type your message and press enter to send.</p>
-      </div>
+      <Field>
+        <FieldLabel for="textarea-demo-message-2">Message</FieldLabel>
+        <Textarea id="textarea-demo-message-2" placeholder="Type your message here." rows={6} />
+        <FieldDescription>Type your message and press enter to send.</FieldDescription>
+      </Field>
     </Example>
   );
 }
@@ -65,7 +56,10 @@ function TextareaWithDescription() {
 function TextareaDisabled() {
   return (
     <Example title="Disabled">
-      <Textarea placeholder="Type your message here." disabled />
+      <Field>
+        <FieldLabel for="textarea-demo-disabled">Message</FieldLabel>
+        <Textarea id="textarea-demo-disabled" placeholder="Type your message here." disabled />
+      </Field>
     </Example>
   );
 }
