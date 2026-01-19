@@ -33,22 +33,19 @@ import {
   NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
+  navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
 ```
 
 ```tsx showLineNumbers
 <NavigationMenu>
-  <NavigationMenuList>
-    <NavigationMenuItem>
-      <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-      <NavigationMenuContent>
-        <NavigationMenuLink>Link</NavigationMenuLink>
-      </NavigationMenuContent>
-    </NavigationMenuItem>
-  </NavigationMenuList>
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <NavigationMenuLink>Link</NavigationMenuLink>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
 </NavigationMenu>
 ```
 
@@ -68,4 +65,33 @@ export function NavigationMenuDemo() {
     </NavigationMenuItem>
   );
 }
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { CircleAlert } from "lucide-solid";
+import { type ComponentProps, For, splitProps } from "solid-js";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "~/components/ui/navigation-menu";
+```
+
+```tsx file=../../registry/examples/navigation-menu-example.tsx#L59-L121
+
+```
+
+The `ListItem` helper component used in the example:
+
+```tsx file=../../registry/examples/navigation-menu-example.tsx#L124-L136
+
 ```
