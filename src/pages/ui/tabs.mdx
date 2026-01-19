@@ -1,0 +1,189 @@
+---
+title: Tabs
+slug: tabs
+description: A set of layered sections of content—known as tab panels—that are displayed one at a time.
+---
+
+# Tabs
+
+A set of layered sections of content—known as tab panels—that are displayed one at a time.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add tabs
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/tabs.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx showLineNumbers
+<Tabs defaultValue="account" class="w-[400px]">
+  <TabsList>
+    <TabsTrigger value="account">Account</TabsTrigger>
+    <TabsTrigger value="password">Password</TabsTrigger>
+  </TabsList>
+  <TabsContent value="account">Make changes to your account here.</TabsContent>
+  <TabsContent value="password">Change your password here.</TabsContent>
+</Tabs>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L34-L45
+
+```
+
+### Line
+
+```tsx
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L47-L59
+
+```
+
+### Variants Alignment
+
+```tsx
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L61-L80
+
+```
+
+### Disabled
+
+```tsx
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L82-L95
+
+```
+
+### With Icons
+
+```tsx
+import { AppWindow, Code } from "lucide-solid";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L97-L114
+
+```
+
+### Icon Only
+
+```tsx
+import { Home, Search, Settings } from "lucide-solid";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L116-L134
+
+```
+
+### Multiple
+
+```tsx
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L136-L149
+
+```
+
+### With Content
+
+```tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L151-L174
+
+```
+
+### Line With Content
+
+```tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L176-L199
+
+```
+
+### Line Disabled
+
+```tsx
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L201-L215
+
+```
+
+### With Dropdown
+
+```tsx
+import { MoreHorizontal } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L217-L253
+
+```
+
+### Vertical
+
+```tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L255-L280
+
+```
+
+### With Input and Button
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../registry/examples/tabs-example.tsx#L282-L308
+
+```
