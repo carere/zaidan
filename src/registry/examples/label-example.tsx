@@ -1,13 +1,14 @@
 import { Example, ExampleWrapper } from "@/components/example";
-import { Field } from "../ui/field";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { Checkbox } from "@/registry/ui/checkbox";
+import { Field } from "@/registry/ui/field";
+import { Input } from "@/registry/ui/input";
+import { Label } from "@/registry/ui/label";
+import { Textarea } from "@/registry/ui/textarea";
 
 export default function LabelExample() {
   return (
     <ExampleWrapper>
-      {/* <LabelWithCheckbox /> */}
+      <LabelWithCheckbox />
       <LabelWithInput />
       <LabelDisabled />
       <LabelWithTextarea />
@@ -15,16 +16,16 @@ export default function LabelExample() {
   );
 }
 
-// function LabelWithCheckbox() {
-//   return (
-//     <Example title="With Checkbox">
-//       <Field orientation="horizontal">
-//         <Checkbox id="label-demo-terms" />
-//         <Label for="label-demo-terms">Accept terms and conditions</Label>
-//       </Field>
-//     </Example>
-//   );
-// }
+function LabelWithCheckbox() {
+  return (
+    <Example title="With Checkbox">
+      <Field orientation="horizontal">
+        <Checkbox id="label-demo-terms" />
+        <Label for="label-demo-terms">Accept terms and conditions</Label>
+      </Field>
+    </Example>
+  );
+}
 
 function LabelWithInput() {
   return (
