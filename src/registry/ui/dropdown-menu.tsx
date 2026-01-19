@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 type DropdownMenuProps = DropdownMenuPrimitive.DropdownMenuRootProps;
 
 const DropdownMenu = (props: DropdownMenuProps) => {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+  const mergedProps = mergeProps({ gutter: 4 }, props);
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...mergedProps} />;
 };
 
 type DropdownMenuPortalProps = DropdownMenuPrimitive.DropdownMenuPortalProps;
@@ -43,9 +44,8 @@ type DropdownMenuContentProps<T extends ValidComponent = "div"> = PolymorphicPro
   Pick<ComponentProps<T>, "class">;
 
 const DropdownMenuContent = <T extends ValidComponent = "div">(
-  rawProps: DropdownMenuContentProps<T>,
+  props: DropdownMenuContentProps<T>,
 ) => {
-  const props = mergeProps({ gutter: 4 }, rawProps);
   const [local, others] = splitProps(props as DropdownMenuContentProps, ["class"]);
   return (
     <DropdownMenuPrimitive.Portal>

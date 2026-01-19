@@ -52,18 +52,18 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Collapsible | x | x | x |
 | Combobox | x |  |  |
 | Command | x |  |  |
-| Context Menu | x |  |  |
+| Context Menu | x | x | x |
 | Dialog | x | x | x |
 | Drawer | x |  |  |
-| Dropdown Menu | x |  |  |
-| Empty | x |  |  |
+| Dropdown Menu | x | x | x |
+| Empty | x | x | x |
 | Field | x |  |  |
-| Hover Card | x |  |  |
+| Hover Card | x | x | x |
 | Input | x | x | x |
 | Input Group | x | x | x |
-| Input OTP | x |  |  |
+| Input OTP | x | x | x |
 | Item | x | x | x |
-| Kbd | x |  |  |
+| Kbd | x | x | x |
 | Label | x |  |  |
 | Menubar | x |  |  |
 | Native Select | x |  |  |
