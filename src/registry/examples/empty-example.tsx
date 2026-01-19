@@ -1,5 +1,5 @@
 /** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
-import { ArrowUpRight, CircleDashed, FolderIcon, Plus } from "lucide-solid";
+import { ArrowUpRight, CircleDashed, Folder, Plus } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
 import {
@@ -10,8 +10,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/registry/ui/empty";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
-import { Kbd } from "../ui/kbd";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/registry/ui/input-group";
+import { Kbd } from "@/registry/ui/kbd";
 
 export default function EmptyExample() {
   return (
@@ -109,7 +109,7 @@ function EmptyWithIcon() {
       <Empty class="border">
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <FolderIcon />
+            <Folder />
           </EmptyMedia>
           <EmptyTitle>Nothing to see here</EmptyTitle>
           <EmptyDescription>
@@ -163,7 +163,7 @@ function EmptyInCard() {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <FolderIcon />
+            <Folder />
           </EmptyMedia>
           <EmptyTitle>No projects yet</EmptyTitle>
           <EmptyDescription>

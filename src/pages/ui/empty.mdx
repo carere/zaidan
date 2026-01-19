@@ -1,12 +1,12 @@
 ---
 title: Empty
 slug: empty
-description: A composable empty state for when there is no data to display.
+description: Use the Empty component to display an empty state.
 ---
 
 # Empty
 
-A composable empty state for when there is no data to display.
+Use the Empty component to display an empty state.
 
 ## Installation
 
@@ -41,26 +41,129 @@ import {
 <Empty>
   <EmptyHeader>
     <EmptyMedia variant="icon">
-      <FolderIcon class="size-10" />
+      <Icon />
     </EmptyMedia>
-    <EmptyTitle>No projects yet</EmptyTitle>
-    <EmptyDescription>
-      You haven't created any projects yet. Get started by creating your first project.
-    </EmptyDescription>
+    <EmptyTitle>No data</EmptyTitle>
+    <EmptyDescription>No data found</EmptyDescription>
   </EmptyHeader>
   <EmptyContent>
-    <Button>Create project</Button>
+    <Button>Add data</Button>
   </EmptyContent>
 </Empty>
 ```
 
-## Structure
+## Examples
 
-The Empty component is composed of several sub-components:
+Here are the source code of all the examples from the preview page:
 
-- `Empty` - The main container
-- `EmptyHeader` - Contains the media, title, and description
-- `EmptyMedia` - Displays an icon, image, or avatar (with "icon" and "default" variants)
-- `EmptyTitle` - The heading text
-- `EmptyDescription` - Supporting descriptive text
-- `EmptyContent` - Action area for buttons, inputs, or links
+### Basic
+
+```tsx
+import { ArrowUpRight } from "lucide-solid";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/empty-example.tsx#L29-L53
+
+```
+
+### With Muted Background
+
+```tsx
+import { ArrowUpRight } from "lucide-solid";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/empty-example.tsx#L55-L74
+
+```
+
+### With Border
+
+```tsx
+import { CircleDashed } from "lucide-solid";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
+import { Kbd } from "~/components/ui/kbd";
+```
+
+```tsx file=../../registry/examples/empty-example.tsx#L76-L104
+
+```
+
+### With Icon
+
+```tsx
+import { Folder, Plus } from "lucide-solid";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/empty-example.tsx#L106-L128
+
+```
+
+### With Muted Background Alt
+
+```tsx
+import { CircleDashed } from "lucide-solid";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
+import { Kbd } from "~/components/ui/kbd";
+```
+
+```tsx file=../../registry/examples/empty-example.tsx#L130-L158
+
+```
+
+### In Card
+
+```tsx
+import { ArrowUpRight, Folder } from "lucide-solid";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { Button } from "~/components/ui/button";
+```
+
+```tsx file=../../registry/examples/empty-example.tsx#L160-L187
+
+```
