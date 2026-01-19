@@ -18,6 +18,12 @@ shadcn@latest add input-otp
 
 ### Manual
 
+Install the following dependencies:
+
+```package-install
+@corvu/otp-field
+```
+
 Copy and paste the following code into your project.
 
 ```tsx file=../../registry/ui/input-otp.tsx showLineNumbers
@@ -51,91 +57,144 @@ import {
 </InputOTP>
 ```
 
-## Pattern
+## Examples
 
-Use the `pattern` prop to define a custom pattern for the OTP input.
+Here are the source code of all the examples from the preview page:
+
+### Form
 
 ```tsx
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "@corvu/otp-field";
+import { RefreshCcw } from "lucide-solid";
+import { Example } from "~/components/example";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
 import {
   InputOTP,
   InputOTPGroup,
+  InputOTPSeparator,
   InputOTPSlot,
 } from "~/components/ui/input-otp";
 ```
 
-```tsx showLineNumbers
-<InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
-  <InputOTPGroup>
-    <InputOTPSlot index={0} />
-    <InputOTPSlot index={1} />
-    <InputOTPSlot index={2} />
-    <InputOTPSlot index={3} />
-    <InputOTPSlot index={4} />
-    <InputOTPSlot index={5} />
-  </InputOTPGroup>
-</InputOTP>
+```tsx file=../../registry/examples/input-otp-example.tsx#L200-L254
+
 ```
 
-## Separator
+### Simple
 
-You can use the `<InputOTPSeparator />` component to add a separator between the input groups.
-
-```tsx showLineNumbers
-<InputOTP maxLength={6}>
-  <InputOTPGroup>
-    <InputOTPSlot index={0} />
-    <InputOTPSlot index={1} />
-  </InputOTPGroup>
-  <InputOTPSeparator />
-  <InputOTPGroup>
-    <InputOTPSlot index={2} />
-    <InputOTPSlot index={3} />
-  </InputOTPGroup>
-  <InputOTPSeparator />
-  <InputOTPGroup>
-    <InputOTPSlot index={4} />
-    <InputOTPSlot index={5} />
-  </InputOTPGroup>
-</InputOTP>
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
 ```
 
-## Controlled
+```tsx file=../../registry/examples/input-otp-example.tsx#L33-L54
 
-You can use the `value` and `onValueChange` props to control the input value.
+```
 
-```tsx showLineNumbers
+### Digits Only
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "~/components/ui/input-otp";
+```
+
+```tsx file=../../registry/examples/input-otp-example.tsx#L56-L74
+
+```
+
+### With Separator
+
+```tsx
 import { createSignal } from "solid-js";
-
-const [value, setValue] = createSignal("");
-
-// ...
-
-<InputOTP maxLength={6} value={value()} onValueChange={setValue}>
-  <InputOTPGroup>
-    <InputOTPSlot index={0} />
-    <InputOTPSlot index={1} />
-    <InputOTPSlot index={2} />
-    <InputOTPSlot index={3} />
-    <InputOTPSlot index={4} />
-    <InputOTPSlot index={5} />
-  </InputOTPGroup>
-</InputOTP>;
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
 ```
 
-## Disabled
+```tsx file=../../registry/examples/input-otp-example.tsx#L76-L102
 
-Add the `disabled` prop to disable the entire input.
+```
 
-```tsx showLineNumbers
-<InputOTP maxLength={6} disabled>
-  <InputOTPGroup>
-    <InputOTPSlot index={0} />
-    <InputOTPSlot index={1} />
-    <InputOTPSlot index={2} />
-    <InputOTPSlot index={3} />
-    <InputOTPSlot index={4} />
-    <InputOTPSlot index={5} />
-  </InputOTPGroup>
-</InputOTP>
+### Alphanumeric
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../registry/examples/input-otp-example.tsx#L104-L126
+
+```
+
+### Disabled
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../registry/examples/input-otp-example.tsx#L128-L149
+
+```
+
+### 4 Digits
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "~/components/ui/input-otp";
+```
+
+```tsx file=../../registry/examples/input-otp-example.tsx#L151-L168
+
+```
+
+### Invalid State
+
+```tsx
+import { createSignal } from "solid-js";
+import { Example } from "~/components/example";
+import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../registry/examples/input-otp-example.tsx#L170-L198
+
 ```
