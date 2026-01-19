@@ -1,0 +1,164 @@
+---
+title: Native Select
+slug: native-select
+description: A styled native HTML select element with consistent design system integration.
+---
+
+# Native Select
+
+A styled native HTML select element with consistent design system integration.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add native-select
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../registry/ui/native-select.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx showLineNumbers
+<NativeSelect>
+  <NativeSelectOption value="">Select a fruit</NativeSelectOption>
+  <NativeSelectOption value="apple">Apple</NativeSelectOption>
+  <NativeSelectOption value="banana">Banana</NativeSelectOption>
+  <NativeSelectOption value="blueberry">Blueberry</NativeSelectOption>
+  <NativeSelectOption value="grapes" disabled>
+    Grapes
+  </NativeSelectOption>
+  <NativeSelectOption value="pineapple">Pineapple</NativeSelectOption>
+</NativeSelect>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/native-select-example.tsx#L22-L37
+
+```
+
+### With Groups
+
+Organize options using `NativeSelectOptGroup` for better categorization.
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/native-select-example.tsx#L39-L57
+
+```
+
+### Sizes
+
+The native select supports different sizes for various use cases.
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/native-select-example.tsx#L59-L78
+
+```
+
+### With Field
+
+Use with the Field component for proper form labeling and descriptions.
+
+```tsx
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/native-select-example.tsx#L80-L96
+
+```
+
+### Disabled
+
+Disable individual options or the entire select component.
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/native-select-example.tsx#L98-L109
+
+```
+
+### Invalid
+
+Show validation errors with the `aria-invalid` attribute and error styling.
+
+```tsx
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/native-select-example.tsx#L111-L122
+
+```
+
+## Native Select vs Select
+
+- Use `NativeSelect` when you need native browser behavior, better performance, or mobile-optimized dropdowns.
+- Use `Select` when you need custom styling, animations, or complex interactions.
+
+The `NativeSelect` component provides native HTML select functionality with consistent styling that matches your design system.
+
+## Accessibility
+
+- The component maintains all native HTML select accessibility features.
+- Screen readers can navigate through options using arrow keys.
+- The chevron icon is marked as `aria-hidden="true"` to avoid duplication.
+- Use `aria-label` or `aria-labelledby` for additional context when needed.
+
+```tsx showLineNumbers
+<NativeSelect aria-label="Choose your preferred language">
+  <NativeSelectOption value="en">English</NativeSelectOption>
+  <NativeSelectOption value="es">Spanish</NativeSelectOption>
+  <NativeSelectOption value="fr">French</NativeSelectOption>
+</NativeSelect>
+```
