@@ -41,9 +41,14 @@ import {
 </Popover>
 ```
 
-## With Title and Description
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
 
 ```tsx
+import { Button } from "~/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -54,53 +59,67 @@ import {
 } from "~/components/ui/popover";
 ```
 
-```tsx showLineNumbers
-<Popover>
-  <PopoverTrigger>Open</PopoverTrigger>
-  <PopoverContent>
-    <PopoverHeader>
-      <PopoverTitle>Dimensions</PopoverTitle>
-      <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
-    </PopoverHeader>
-    {/* Your content here */}
-  </PopoverContent>
-</Popover>
+```tsx file=../../registry/examples/popover-example.tsx#L33-L49
+
 ```
 
-## Custom Placement
-
-Use the `placement` prop on `PopoverContent` to change the popover position.
-
-```tsx showLineNumbers
-<Popover>
-  <PopoverTrigger>Open</PopoverTrigger>
-  <PopoverContent placement="top">
-    Content appears above the trigger.
-  </PopoverContent>
-</Popover>
-```
-
-Available placements: `top`, `top-start`, `top-end`, `right`, `right-start`, `right-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`.
-
-## Custom Anchor
-
-Use the `PopoverAnchor` component to anchor the content to a different element.
+### With Form
 
 ```tsx
+import { Button } from "~/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import {
   Popover,
-  PopoverAnchor,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx file=../../registry/examples/popover-example.tsx#L51-L81
+
+```
+
+### Alignments
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
 ```
 
-```tsx showLineNumbers
-<Popover>
-  <PopoverAnchor>
-    <span>Anchor element</span>
-  </PopoverAnchor>
-  <PopoverTrigger>Open</PopoverTrigger>
-  <PopoverContent>Content anchored to the anchor element.</PopoverContent>
-</Popover>
+```tsx file=../../registry/examples/popover-example.tsx#L83-L108
+
+```
+
+### In Dialog
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx file=../../registry/examples/popover-example.tsx#L110-L139
+
 ```
