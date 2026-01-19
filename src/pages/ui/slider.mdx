@@ -49,3 +49,69 @@ The Slider component uses Kobalte's Slider primitive under the hood. Here are th
 | `step` | `number` | `1` | The stepping interval |
 | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | The orientation of the slider |
 | `disabled` | `boolean` | `false` | Whether the slider is disabled |
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/slider-example.tsx#L19-L25
+
+```
+
+### Range
+
+```tsx
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/slider-example.tsx#L27-L33
+
+```
+
+### Multiple Thumbs
+
+```tsx
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/slider-example.tsx#L35-L41
+
+```
+
+### Vertical
+
+```tsx
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/slider-example.tsx#L43-L52
+
+```
+
+### Controlled
+
+```tsx
+import { createSignal } from "solid-js";
+import { Label } from "~/components/ui/label";
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/slider-example.tsx#L54-L75
+
+```
+
+### Disabled
+
+```tsx
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/slider-example.tsx#L77-L83
+
+```
