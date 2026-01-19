@@ -21,6 +21,15 @@ import {
 } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Button } from "@/registry/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/ui/dialog";
 import {
   Menubar,
   MenubarCheckboxItem,
@@ -37,15 +46,6 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/registry/ui/menubar";
-import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 
 export default function MenubarExample() {
   return (
