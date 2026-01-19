@@ -1,6 +1,7 @@
 import { Example, ExampleWrapper } from "@/components/example";
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@/registry/ui/field";
+import { Label } from "@/registry/ui/label";
 import { Switch } from "@/registry/ui/switch";
-import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "../ui/field";
 
 export default function SwitchExample() {
   return (
@@ -48,11 +49,11 @@ function SwitchDisabled() {
       <div class="flex flex-col gap-12">
         <div class="flex items-center gap-2">
           <Switch id="switch-disabled-unchecked" disabled />
-          <label for="switch-disabled-unchecked">Disabled (Unchecked)</label>
+          <Label for="switch-disabled-unchecked">Disabled (Unchecked)</Label>
         </div>
         <div class="flex items-center gap-2">
           <Switch id="switch-disabled-checked" defaultChecked disabled />
-          <label for="switch-disabled-checked">Disabled (Checked)</label>
+          <Label for="switch-disabled-checked">Disabled (Checked)</Label>
         </div>
       </div>
     </Example>
@@ -65,11 +66,11 @@ function SwitchSizes() {
       <div class="flex flex-col gap-12">
         <div class="flex items-center gap-2">
           <Switch id="switch-size-sm" size="sm" />
-          <label for="switch-size-sm">Small</label>
+          <Label for="switch-size-sm">Small</Label>
         </div>
         <div class="flex items-center gap-2">
           <Switch id="switch-size-default" size="default" />
-          <label for="switch-size-default">Default</label>
+          <Label for="switch-size-default">Default</Label>
         </div>
       </div>
     </Example>
