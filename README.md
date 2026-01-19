@@ -50,14 +50,14 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Chart | x |  |  |
 | Checkbox | x | x | x |
 | Collapsible | x | x | x |
-| Combobox | x |  |  |
-| Command | x |  |  |
+| Combobox | x | x | x |
+| Command | x | x | x |
 | Context Menu | x | x | x |
 | Dialog | x | x | x |
-| Drawer | x |  |  |
+| Drawer | x | x | x |
 | Dropdown Menu | x | x | x |
 | Empty | x | x | x |
-| Field | x |  |  |
+| Field | x | x | x |
 | Hover Card | x | x | x |
 | Input | x | x | x |
 | Input Group | x | x | x |
