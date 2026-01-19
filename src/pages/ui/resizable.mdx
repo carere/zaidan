@@ -2,7 +2,6 @@
 title: Resizable
 slug: resizable
 description: Accessible resizable panel groups and layouts with keyboard support.
-example: resizable-example.tsx
 ---
 
 # Resizable
@@ -18,6 +17,12 @@ shadcn@latest add resizable
 ```
 
 ### Manual
+
+Install the following dependencies:
+
+```package-install
+@corvu/resizable
+```
 
 Copy and paste the following code into your project.
 
@@ -43,26 +48,85 @@ import {
 </ResizablePanelGroup>
 ```
 
-## Vertical
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Horizontal
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../registry/examples/resizable-example.tsx#L17-L35
+
+```
+
+### Vertical
 
 Use the `orientation` prop to set the orientation of the resizable panels.
 
-```tsx showLineNumbers
-<ResizablePanelGroup orientation="vertical">
-  <ResizablePanel>One</ResizablePanel>
-  <ResizableHandle />
-  <ResizablePanel>Two</ResizablePanel>
-</ResizablePanelGroup>
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
 ```
 
-## Handle
+```tsx file=../../registry/examples/resizable-example.tsx#L37-L55
 
-You can set the `withHandle` prop to add a handle to the resizable handle.
+```
 
-```tsx showLineNumbers
-<ResizablePanelGroup orientation="horizontal">
-  <ResizablePanel>One</ResizablePanel>
-  <ResizableHandle withHandle />
-  <ResizablePanel>Two</ResizablePanel>
-</ResizablePanelGroup>
+### With Handle
+
+You can set or hide the handle by using the `withHandle` prop on the `ResizableHandle` component.
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../registry/examples/resizable-example.tsx#L57-L75
+
+```
+
+### Nested
+
+You can nest `ResizablePanelGroup` components to create more complex layouts.
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../registry/examples/resizable-example.tsx#L77-L105
+
+```
+
+### Controlled
+
+Use the `sizes` and `onSizesChange` props to control the panel sizes.
+
+```tsx
+import { createSignal } from "solid-js";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../registry/examples/resizable-example.tsx#L107-L134
+
 ```
