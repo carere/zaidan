@@ -107,6 +107,190 @@ The `Field` family is designed for composing accessible forms. A typical field i
 - `Field` outputs `role="group"` so nested controls inherit labeling from `FieldLabel` and `FieldLegend` when combined.
 - Apply `FieldSeparator` sparingly to ensure screen readers encounter clear section boundaries.
 
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Input Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import { Badge } from "~/components/ui/badge";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L51-L104
+
+```
+
+### Textarea Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import { Textarea } from "~/components/ui/textarea";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L105-L150
+
+```
+
+### Select Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L151-L275
+
+```
+
+### Checkbox Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "~/components/ui/field";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L351-L423
+
+```
+
+### Radio Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldTitle,
+} from "~/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L424-L541
+
+```
+
+### Switch Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import { Switch } from "~/components/ui/switch";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L542-L604
+
+```
+
+### Slider Fields
+
+```tsx
+import { createSignal } from "solid-js";
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import { Slider } from "~/components/ui/slider";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L605-L701
+
+```
+
+### Native Select Fields
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import {
+  NativeSelect,
+  NativeSelectOptGroup,
+  NativeSelectOption,
+} from "~/components/ui/native-select";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L276-L350
+
+```
+
+### OTP Input Fields
+
+```tsx
+import { createSignal } from "solid-js";
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../registry/examples/field-example.tsx#L702-L796
+
+```
+
 ## API Reference
 
 ### FieldSet
