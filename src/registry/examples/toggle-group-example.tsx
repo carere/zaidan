@@ -14,7 +14,6 @@ import { Input } from "@/registry/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -271,9 +270,7 @@ function ToggleGroupWithInputAndSelect() {
               {(state) => state.selectedOption().label}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            <SelectGroup />
-          </SelectContent>
+          <SelectContent />
         </Select>
         <ToggleGroup multiple={false} defaultValue="grid" variant="outline">
           <ToggleGroupItem value="grid" aria-label="Grid view">

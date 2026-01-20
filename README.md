@@ -64,30 +64,30 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 | Input OTP | x | x | x |
 | Item | x | x | x |
 | Kbd | x | x | x |
-| Label | x |  |  |
-| Menubar | x |  |  |
-| Native Select | x |  |  |
-| Navigation Menu | x |  |  |
-| Pagination | x |  |  |
-| Popover | x |  |  |
-| Progress | x |  |  |
-| Radio Group | x |  |  |
-| Resizable | x |  |  |
-| Select | x |  |  |
-| Separator | x |  |  |
-| Sheet | x |  |  |
+| Label | x | x | x |
+| Menubar | x | x | x |
+| Native Select | x | x | x |
+| Navigation Menu | x | x | x |
+| Pagination | x | x | x |
+| Popover | x | x | x |
+| Progress | x | x | x |
+| Radio Group | x | x | x |
+| Resizable | x | x | x |
+| Select | x | x | x |
+| Separator | x | x | x |
+| Sheet | x | x | x |
 | Sidebar | x |  |  |
-| Skeleton | x |  |  |
-| Slider | x |  |  |
-| Sonner | x |  |  |
-| Spinner | x |  |  |
-| Switch | x |  |  |
-| Table | x |  |  |
-| Tabs | x |  |  |
-| Textarea | x |  |  |
-| Toggle | x |  |  |
-| Toggle Group | x |  |  |
-| Tooltip | x |  |  |
+| Skeleton | x | x | x |
+| Slider | x | x | x |
+| Sonner | x | x | x |
+| Spinner | x | x | x |
+| Switch | x | x | x |
+| Table | x | x | x |
+| Tabs | x | x | x |
+| Textarea | x | x | x |
+| Toggle | x | x | x |
+| Toggle Group | x | x | x |
+| Tooltip | x | x | x |
 
 ## Contributing
 
