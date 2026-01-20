@@ -318,7 +318,7 @@ const CalendarDay = (props: CalendarDayProps) => {
           // Outside month
           "data-[outside=true]:text-muted-foreground data-[outside=true]:aria-selected:text-muted-foreground",
           // Disabled
-          "data-[disabled=true]:text-muted-foreground data-[disabled=true]:opacity-50",
+          "data-disabled:text-muted-foreground data-disabled:line-through data-disabled:opacity-50",
         )}
         data-outside={isOutsideMonth() || undefined}
       >

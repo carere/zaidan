@@ -191,13 +191,7 @@ function CalendarBookedDates() {
     <Example title="Booked Dates">
       <Card class="mx-auto w-fit p-0">
         <CardContent class="p-0">
-          <Calendar
-            mode="single"
-            value={date()}
-            onValueChange={setDate}
-            disabled={isBooked}
-            class="[&_[data-disabled=true]]:line-through [&_[data-disabled=true]]:opacity-30"
-          />
+          <Calendar mode="single" value={date()} onValueChange={setDate} disabled={isBooked} />
         </CardContent>
       </Card>
     </Example>
@@ -358,13 +352,13 @@ function DatePickerWithDropdowns() {
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
             <div class="flex gap-2 border-b p-3">
-              <Select
+              <Select<(typeof months)[number]>
                 options={months}
                 optionValue="value"
                 optionTextValue="label"
                 placeholder="Month"
-                value={currentMonth().getMonth()}
-                onChange={handleMonthChange}
+                value={months.find((m) => m.value === currentMonth().getMonth())}
+                onChange={(value) => handleMonthChange(value?.value ?? 0)}
                 itemComponent={(props) => (
                   <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
                 )}
@@ -376,13 +370,13 @@ function DatePickerWithDropdowns() {
                 </SelectTrigger>
                 <SelectContent />
               </Select>
-              <Select
+              <Select<(typeof years)[number]>
                 options={years}
                 optionValue="value"
                 optionTextValue="label"
                 placeholder="Year"
-                value={currentMonth().getFullYear()}
-                onChange={handleYearChange}
+                value={years.find((y) => y.value === currentMonth().getFullYear())}
+                onChange={(value) => handleYearChange(value?.value ?? 0)}
                 itemComponent={(props) => (
                   <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
                 )}
