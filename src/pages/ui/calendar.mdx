@@ -49,9 +49,13 @@ const [date, setDate] = createSignal<Date | null>(null);
 />
 ```
 
+## About
+
+The Calendar component is built on top of [Corvu Calendar](https://corvu.dev/docs/primitives/calendar/). It provides a fully accessible date selection component with keyboard navigation and support for single, multiple, and range selection modes.
+
 ## Props
 
-The Calendar component uses Corvu's Calendar primitive under the hood. Here are the main props:
+The Calendar component accepts the following props:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -69,77 +73,113 @@ The Calendar component uses Corvu's Calendar primitive under the hood. Here are 
 | `weekStartsOn` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1` | Which day of the week to start on (0 = Sunday) |
 | `class` | `string` | - | Additional CSS classes |
 
-## Selection Modes
+## Date Picker
 
-### Single Selection
+You can use the `<Calendar>` component to build a date picker by combining it with `<Popover>` and `<Button>` components. See the Date Picker examples below.
 
-Select a single date:
+## Custom Cell Size
+
+You can customize the size of calendar cells using the `--cell-size` CSS variable. You can also make it responsive by using breakpoint-specific values:
 
 ```tsx showLineNumbers
-const [date, setDate] = createSignal<Date | null>(null);
-
 <Calendar
   mode="single"
   value={date()}
   onValueChange={setDate}
+  class="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(12)]"
 />
 ```
 
-### Multiple Selection
+## Examples
 
-Select multiple dates:
+Here are the source code of all the examples from the preview page:
 
-```tsx showLineNumbers
-const [dates, setDates] = createSignal<Date[]>([]);
+### Single
 
-<Calendar
-  mode="multiple"
-  value={dates()}
-  onValueChange={setDates}
-/>
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
 ```
 
-### Range Selection
+```tsx file=../../registry/examples/calendar-example.tsx#L24-L37
 
-Select a date range:
-
-```tsx showLineNumbers
-const [range, setRange] = createSignal<{ from: Date | null; to: Date | null }>({
-  from: null,
-  to: null,
-});
-
-<Calendar
-  mode="range"
-  value={range()}
-  onValueChange={setRange}
-/>
 ```
 
-## Disabling Dates
+### Multiple
 
-Use the `disabled` prop to disable specific dates:
-
-```tsx showLineNumbers
-const disablePastDates = (day: Date) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return day < today;
-};
-
-<Calendar
-  mode="single"
-  disabled={disablePastDates}
-/>
+```tsx
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
 ```
 
-## Multiple Months
+```tsx file=../../registry/examples/calendar-example.tsx#L39-L49
 
-Display multiple months side by side:
+```
 
-```tsx showLineNumbers
-<Calendar
-  mode="single"
-  numberOfMonths={2}
-/>
+### Range
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L51-L79
+
+```
+
+### Range Multiple Months
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L81-L113
+
+```
+
+### With Presets
+
+```tsx
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L115-L166
+
+```
+
+### Date Picker Simple
+
+```tsx
+import { CalendarIcon } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L168-L202
+
+```
+
+### Date Picker Range
+
+```tsx
+import { CalendarIcon } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L204-L261
+
 ```
