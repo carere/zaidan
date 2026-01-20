@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Toggle Group Component", () => {
+test.describe("", () => {
   test("examples", async ({ page }) => {
-    await page.goto("http://localhost:5175/ui/toggle-group");
+    await page.goto("http://localhost:5173/ui/toggle-group");
 
     await page.waitForLoadState("networkidle");
 
