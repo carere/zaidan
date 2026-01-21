@@ -52,7 +52,9 @@ function RootComponent() {
         <HeadContent />
         <HydrationScript />
       </head>
-      <body class="overflow-hidden overscroll-none antialiased [--header-height:calc(var(--spacing)*14)]">
+      <body
+        class={`style-${initialStyle} overflow-hidden overscroll-none antialiased [--header-height:calc(var(--spacing)*14)]`}
+      >
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
           <StyleProvider initialStyle={initialStyle}>

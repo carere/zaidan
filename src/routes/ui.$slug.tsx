@@ -42,7 +42,7 @@ function RouteComponent() {
         fallback={
           <div class="mx-auto flex max-w-5xl gap-20 p-6">
             <div class="min-w-0 flex-1" id="ui-doc">
-              <Suspense>
+              <Suspense fallback={<div>Skeleton ui docs page</div>}>
                 <MDXContent components={sharedComponents} />
               </Suspense>
             </div>
