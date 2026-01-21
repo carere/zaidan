@@ -7,6 +7,7 @@ import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { Shell } from "@/components/shell";
 import { StyleProvider } from "@/lib/style-context";
+import type { Style } from "@/lib/types";
 import { ViewProvider } from "@/lib/view-context";
 import styleCss from "../styles.css?url";
 
@@ -32,18 +33,31 @@ const getServerCookies = createIsomorphicFn()
   })
   .client(() => document.cookie);
 
+const getStyleCookie = createIsomorphicFn()
+  .server((): Style => {
+    const styleCookie = getCookie("zaidan-style");
+    return (styleCookie as Style) || "vega";
+  })
+  .client((): Style => {
+    // On client, the cookie will be read by the storage manager
+    return "vega";
+  });
+
 function RootComponent() {
   const storageManager = cookieStorageManagerSSR(getServerCookies());
+  const initialStyle = getStyleCookie();
   return (
     <html lang="en">
       <head>
         <HeadContent />
         <HydrationScript />
       </head>
-      <body class="style-vega overflow-hidden overscroll-none antialiased [--header-height:calc(var(--spacing)*14)]">
+      <body
+        class={`style-${initialStyle} overflow-hidden overscroll-none antialiased [--header-height:calc(var(--spacing)*14)]`}
+      >
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
-          <StyleProvider>
+          <StyleProvider initialStyle={initialStyle}>
             <ViewProvider>
               <Suspense>
                 <Shell />

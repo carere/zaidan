@@ -3,7 +3,6 @@ import { ui } from "@velite";
 import { lazy, Show, Suspense } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
-import { useStyle } from "@/lib/style-context";
 import { cn } from "@/lib/utils";
 import { useView } from "@/lib/view-context";
 
@@ -26,7 +25,6 @@ export const Route = createFileRoute("/ui/$slug")({
 });
 
 function RouteComponent() {
-  const { style } = useStyle();
   const { view } = useView();
   const doc = Route.useLoaderData();
   const ExampleComponent = lazy(() => import(`../registry/examples/${doc().slug}-example.tsx`));
@@ -44,7 +42,7 @@ function RouteComponent() {
         fallback={
           <div class="mx-auto flex max-w-5xl gap-20 p-6">
             <div class="min-w-0 flex-1" id="ui-doc">
-              <Suspense>
+              <Suspense fallback={<div>Skeleton ui docs page</div>}>
                 <MDXContent components={sharedComponents} />
               </Suspense>
             </div>
@@ -52,17 +50,7 @@ function RouteComponent() {
           </div>
         }
       >
-        <div
-          class={cn({
-            "style-vega": style() === "vega",
-            "style-nova": style() === "nova",
-            "style-lyra": style() === "lyra",
-            "style-maia": style() === "maia",
-            "style-mira": style() === "mira",
-          })}
-        >
-          <ExampleComponent />
-        </div>
+        <ExampleComponent />
       </Show>
     </div>
   );
