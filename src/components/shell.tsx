@@ -1,5 +1,6 @@
 import { Link, Outlet } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
+import { GitHubLink } from "@/components/github-link";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { Logo } from "@/components/logo";
@@ -38,6 +39,8 @@ export function Shell() {
           <ItemPicker />
         </div>
         <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
+          <GitHubLink />
+          <Separator orientation="vertical" />
           <ViewSwitcher />
           <Separator orientation="vertical" />
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
