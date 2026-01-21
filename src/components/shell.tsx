@@ -39,8 +39,9 @@ export function Shell() {
           <ItemPicker />
         </div>
         <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
-          <ViewSwitcher />
           <GitHubLink />
+          <Separator orientation="vertical" />
+          <ViewSwitcher />
           <Separator orientation="vertical" />
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
