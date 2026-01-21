@@ -7,7 +7,7 @@ import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { Shell } from "@/components/shell";
 import { StyleProvider } from "@/lib/style-context";
-import type { Style } from "@/lib/types";
+import type { Style, View } from "@/lib/types";
 import { ViewProvider } from "@/lib/view-context";
 import styleCss from "../styles.css?url";
 
@@ -43,9 +43,20 @@ const getStyleCookie = createIsomorphicFn()
     return "vega";
   });
 
+const getViewCookie = createIsomorphicFn()
+  .server((): View => {
+    const viewCookie = getCookie("zaidan-view");
+    return (viewCookie as View) || "preview";
+  })
+  .client((): View => {
+    // On client, the cookie will be read by the storage manager
+    return "preview";
+  });
+
 function RootComponent() {
   const storageManager = cookieStorageManagerSSR(getServerCookies());
   const initialStyle = getStyleCookie();
+  const initialView = getViewCookie();
   return (
     <html lang="en">
       <head>
@@ -58,7 +69,7 @@ function RootComponent() {
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
           <StyleProvider initialStyle={initialStyle}>
-            <ViewProvider>
+            <ViewProvider initialView={initialView}>
               <Suspense>
                 <Shell />
                 <TanStackRouterDevtools />
