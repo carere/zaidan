@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/solid-router";
+import { Link, useLocation } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import {
   type ComponentProps,
@@ -47,6 +47,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   const [open, setOpen] = createSignal(false);
   const [currentPage, setCurrentPage] = createSignal("Home");
+  const location = useLocation();
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   createEffect(() => {
@@ -61,8 +62,11 @@ export function ItemPicker(props: ComponentProps<"div">) {
     onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
-  // Detect current page from active link (SSR-safe)
+  // Detect current page from active link (reactive to route changes)
   createEffect(() => {
+    // Access location().pathname to make this effect reactive to route changes
+    const pathname = location().pathname;
+
     // Strategy 1: Query for active link (TanStack Router sets data-status="active")
     const activeLink = document.querySelector('[data-status="active"]');
     if (activeLink) {
@@ -74,8 +78,6 @@ export function ItemPicker(props: ComponentProps<"div">) {
     }
 
     // Strategy 2: Fallback to pathname parsing
-    const pathname = window.location.pathname;
-
     // Match docs route: / or /{slug}
     if (pathname === "/" || (pathname.startsWith("/") && !pathname.startsWith("/ui"))) {
       const slug = pathname === "/" ? "home" : pathname.slice(1);
