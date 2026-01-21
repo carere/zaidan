@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/solid-router";
+import { Link, useRouterState } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { type ComponentProps, createMemo, For, Show, splitProps } from "solid-js";
 import {
@@ -33,9 +33,10 @@ const entries: Entry[] = [
 
 export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
+  const routerState = useRouterState();
 
   const currentPage = createMemo(() => {
-    const pathname = window.location.pathname;
+    const pathname = routerState().location.pathname;
 
     // Match docs route: / or /{slug}
     if (pathname === "/" || (pathname.startsWith("/") && !pathname.startsWith("/ui"))) {
