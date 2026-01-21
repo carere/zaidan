@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/solid-router";
+import { Link, useLocation, useNavigate } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import {
   type ComponentProps,
@@ -48,6 +48,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const [open, setOpen] = createSignal(false);
   const [currentPage, setCurrentPage] = createSignal("Home");
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   createEffect(() => {
@@ -122,7 +123,13 @@ export function ItemPicker(props: ComponentProps<"div">) {
                   <CommandGroup heading={entry.title}>
                     <For each={entry.items}>
                       {(item) => (
-                        <CommandItem value={item.title} onSelect={() => setOpen(false)}>
+                        <CommandItem
+                          value={item.title}
+                          onSelect={() => {
+                            navigate({ to: entry.route, params: { slug: item.slug } });
+                            setOpen(false);
+                          }}
+                        >
                           <Link
                             to={entry.route}
                             params={{ slug: item.slug }}
