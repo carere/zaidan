@@ -33,7 +33,7 @@ function RouteComponent() {
   return (
     <div
       class={cn(
-        "flex h-[calc(100svh-2*var(--header-height)-1rem)] scroll-pt-[calc(var(--header-height)+0.25rem)] sm:h-[calc(100svh-var(--header-height)-2rem)]",
+        "relative flex h-[calc(100svh-2*var(--header-height)-1rem)] flex-1 scroll-pt-[calc(var(--header-height)+0.25rem)] sm:h-[calc(100svh-var(--header-height)-2rem)]",
         { "rounded-lg border": view() === "preview" },
       )}
     >

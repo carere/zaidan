@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
+import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
@@ -12,9 +13,6 @@ import { Separator } from "@/registry/ui/separator";
 import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
 
 export const Route = createFileRoute("/_website")({
-  beforeLoad: ({ params }) => {
-    console.log("beforeLoad", params);
-  },
   component: RouteComponent,
 });
 
@@ -57,8 +55,9 @@ function RouteComponent() {
       </header>
       <SidebarProvider class="flex max-h-full flex-1 items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">
         <ItemExplorer />
-        <SidebarInset>
+        <SidebarInset class="flex flex-col gap-6 sm:flex-row">
           <Outlet />
+          <Customizer class="grow-0" />
         </SidebarInset>
       </SidebarProvider>
     </div>
