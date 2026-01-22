@@ -30,7 +30,7 @@ export function ItemExplorer() {
     {
       title: "UI",
       items: ui.sort((a, b) => a.title.localeCompare(b.title)),
-      route: "/ui/$slug",
+      route: "/ui/{-$slug}",
     },
   ];
 

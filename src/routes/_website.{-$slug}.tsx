@@ -4,7 +4,7 @@ import { lazy, Suspense } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
 
-export const Route = createFileRoute("/{-$slug}")({
+export const Route = createFileRoute("/_website/{-$slug}")({
   loader: async ({ params }) => {
     const doc = docs.find((d) => (params.slug ? d.slug === params.slug : d.slug === "home"));
     if (!doc) {
@@ -26,8 +26,8 @@ function RouteComponent() {
   const MDXContent = lazy(() => import(`../pages/docs/${doc().slug}.mdx`));
 
   return (
-    <div class="mx-auto flex max-w-5xl gap-8 overflow-y-auto p-6">
-      <div class="min-w-0 flex-1">
+    <div class="relative mx-auto flex max-w-5xl gap-8 overflow-hidden overflow-y-auto p-6">
+      <div class="min-w-0 flex-1 overflow-y-auto">
         <Suspense fallback={<div>Skeleton docs page</div>}>
           <MDXContent components={sharedComponents} />
         </Suspense>

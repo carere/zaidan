@@ -1,4 +1,4 @@
-import { Link, Outlet } from "@tanstack/solid-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 import { GitHubLink } from "@/components/github-link";
 import { ItemExplorer } from "@/components/item-explorer";
@@ -6,21 +6,28 @@ import { ItemPicker } from "@/components/item-picker";
 import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { SiteConfig } from "@/components/site-config";
-import { StyleSwitcher } from "@/components/style-switcher";
 import { ViewSwitcher } from "@/components/view-switcher";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/ui/separator";
 import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
 
-export function Shell() {
+export const Route = createFileRoute("/_website")({
+  beforeLoad: ({ params }) => {
+    console.log("beforeLoad", params);
+  },
+  component: RouteComponent,
+});
+
+function RouteComponent() {
   const [isFullLayout, switchLayout] = createSignal(false);
 
   return (
     <div
       data-slot="layout"
-      class={cn("relative z-10 flex h-svh flex-col bg-background contain-layout", {
-        container: isFullLayout(),
-      })}
+      class={cn(
+        "style-vega relative z-10 flex h-svh flex-col overflow-hidden overscroll-none bg-background antialiased contain-layout [--header-height:calc(var(--spacing)*14)]",
+        { container: isFullLayout() },
+      )}
     >
       <header
         class={cn(
@@ -46,7 +53,6 @@ export function Shell() {
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
           <ModeSwitcher />
-          <StyleSwitcher />
         </div>
       </header>
       <SidebarProvider class="flex max-h-full flex-1 items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">
