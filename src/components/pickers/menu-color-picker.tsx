@@ -1,54 +1,20 @@
-import { SquareIcon } from "lucide-solid";
-import { For } from "solid-js";
-import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/registry/ui/dropdown-menu";
-import {
-  MENU_COLORS,
-  pickerContentClass,
-  pickerRadioItemClass,
-  pickerTriggerClass,
-} from "./constants";
+import { DropdownMenu, DropdownMenuTrigger } from "@/registry/ui/dropdown-menu";
+import { Menu } from "../icons/menu";
 
 export default function MenuColorPicker() {
-  const currentValue = MENU_COLORS[0];
-
   return (
     <div class="group/picker relative">
-      <DropdownMenu>
-        <DropdownMenuTrigger class={pickerTriggerClass}>
+      <DropdownMenu placement="left-start">
+        <DropdownMenuTrigger
+          disabled
+          class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent"
+        >
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Menu Color</div>
-            <div class="font-medium text-foreground text-sm">{currentValue.label}</div>
+            <div class="font-medium text-foreground text-sm">Default</div>
           </div>
-          <SquareIcon class="size-4 text-muted-foreground" />
+          <Menu class="size-4 text-muted-foreground" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent class={cn(pickerContentClass, "min-w-40")}>
-          <DropdownMenuRadioGroup value={currentValue.value}>
-            <DropdownMenuGroup>
-              <For each={MENU_COLORS}>
-                {(menu) => (
-                  <DropdownMenuRadioItem value={menu.value} class={pickerRadioItemClass}>
-                    <div class="flex items-center gap-2">
-                      {menu.value === "default" ? (
-                        <SquareIcon class="size-4" />
-                      ) : (
-                        <div class="size-4 rounded-sm bg-foreground" />
-                      )}
-                      <span class="text-sm">{menu.label}</span>
-                    </div>
-                  </DropdownMenuRadioItem>
-                )}
-              </For>
-            </DropdownMenuGroup>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );

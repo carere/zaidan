@@ -1,65 +1,81 @@
-import { MoonIcon } from "lucide-solid";
-import { For } from "solid-js";
-import { cn } from "@/lib/utils";
+import { useColorMode } from "@kobalte/core";
+import { createSignal, For } from "solid-js";
+import { match } from "ts-pattern";
+import type { BaseColor } from "@/lib/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
-import {
-  BASE_COLORS,
-  pickerContentClass,
-  pickerRadioItemClass,
-  pickerTriggerClass,
-} from "./constants";
+
+const colors = ["neutral", "stone", "zinc", "gray"] satisfies BaseColor[];
 
 export default function BaseColorPicker() {
-  const currentValue = BASE_COLORS[0];
+  const [selectedColor, selectColor] = createSignal<BaseColor>("neutral");
+  const { colorMode, toggleColorMode } = useColorMode();
+
+  const getLabel = (color: BaseColor) =>
+    match(color)
+      .with("neutral", () => "Neutral")
+      .with("stone", () => "Stone")
+      .with("zinc", () => "Zinc")
+      .with("gray", () => "Gray")
+      .exhaustive();
+
+  const getColor = (color: BaseColor) =>
+    match(color)
+      .with("neutral", () => "hsl(0 0% 45%)")
+      .with("stone", () => "hsl(25 5% 45%)")
+      .with("zinc", () => "hsl(240 4% 46%)")
+      .with("gray", () => "hsl(220 9% 46%)")
+      .exhaustive();
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu>
-        <DropdownMenuTrigger class={pickerTriggerClass}>
+      <DropdownMenu placement="left-start">
+        <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Base Color</div>
-            <div class="font-medium text-foreground text-sm">{currentValue.label}</div>
+            <div class="font-medium text-foreground text-sm">{getLabel(selectedColor())}</div>
           </div>
           <div
             class="size-4 rounded-full border border-foreground/10"
-            style={{ "background-color": currentValue.color }}
+            style={{ "background-color": getColor(selectedColor()) }}
           />
         </DropdownMenuTrigger>
-        <DropdownMenuContent class={cn(pickerContentClass, "min-w-48")}>
-          <DropdownMenuRadioGroup value={currentValue.value}>
-            <DropdownMenuGroup>
-              <For each={BASE_COLORS}>
-                {(color) => (
-                  <DropdownMenuRadioItem value={color.value} class={pickerRadioItemClass}>
-                    <div class="flex items-center gap-2">
-                      <div
-                        class="size-4 rounded-full border border-foreground/10"
-                        style={{ "background-color": color.color }}
-                      />
-                      <span class="text-sm">{color.label}</span>
-                    </div>
-                  </DropdownMenuRadioItem>
-                )}
-              </For>
-            </DropdownMenuGroup>
+        <DropdownMenuContent class="md:w-52">
+          <DropdownMenuRadioGroup value={selectedColor()} onChange={selectColor}>
+            <For each={colors}>
+              {(color) => (
+                <DropdownMenuRadioItem value={color}>
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="size-4 rounded-full border border-foreground/10"
+                      style={{ "background-color": getColor(color) }}
+                    />
+                    <span class="text-sm">{getLabel(color)}</span>
+                  </div>
+                </DropdownMenuRadioItem>
+              )}
+            </For>
           </DropdownMenuRadioGroup>
           <DropdownMenuSeparator class="my-1" />
           <DropdownMenuGroup>
-            <div class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent">
-              <MoonIcon class="size-4" />
-              <span class="text-sm">Switch to Dark Mode</span>
-            </div>
-            <p class="px-2 pb-1 text-muted-foreground text-xs">
-              Base colors are easier to see in dark mode.
-            </p>
+            <DropdownMenuItem onClick={toggleColorMode}>
+              <div class="flex flex-col justify-start pointer-coarse:gap-1">
+                <span class="text-sm">
+                  Switch to {colorMode() === "dark" ? "Light" : "Dark"} Mode
+                </span>
+                <span class="pointer-coarse:text-sm text-muted-foreground text-xs">
+                  Base colors are easier to see in dark mode.
+                </span>
+              </div>
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

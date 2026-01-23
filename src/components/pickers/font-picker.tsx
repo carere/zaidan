@@ -1,56 +1,75 @@
-import { For } from "solid-js";
-import { cn } from "@/lib/utils";
+import { createSignal, For, Show } from "solid-js";
+import { match } from "ts-pattern";
+import type { Font } from "@/lib/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
-import { FONTS, pickerContentClass, pickerRadioItemClass, pickerTriggerClass } from "./constants";
+
+const fonts = ["inter", "noto-sans", "nunito-sans", "figtree"] satisfies Font[];
 
 export default function FontPicker() {
-  const currentValue = FONTS[0];
+  const [selectedFont, selectFont] = createSignal<Font>("inter");
+
+  const getLabel = (font: Font) =>
+    match(font)
+      .with("inter", () => "Inter")
+      .with("noto-sans", () => "Noto Sans")
+      .with("nunito-sans", () => "Nunito Sans")
+      .with("figtree", () => "Figtree")
+      .exhaustive();
+
+  const getFontFamily = (font: Font) =>
+    match(font)
+      .with("inter", () => "Inter, sans-serif")
+      .with("noto-sans", () => "Noto Sans, sans-serif")
+      .with("nunito-sans", () => "Nunito Sans, sans-serif")
+      .with("figtree", () => "Figtree, sans-serif")
+      .exhaustive();
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu>
-        <DropdownMenuTrigger class={pickerTriggerClass}>
+      <DropdownMenu placement="left-start">
+        <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Font</div>
-            <div class="font-medium text-foreground text-sm">{currentValue.label}</div>
+            <div class="font-medium text-foreground text-sm">{getLabel(selectedFont())}</div>
           </div>
-          <div class="font-medium text-muted-foreground text-sm">Aa</div>
+          <div
+            class="font-medium text-foreground text-sm"
+            style={{ "font-family": getFontFamily(selectedFont()) }}
+          >
+            Aa
+          </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class={cn(pickerContentClass, "max-h-80 min-w-72")}>
-          <DropdownMenuRadioGroup value={currentValue.value}>
-            <DropdownMenuGroup>
-              <For each={FONTS}>
-                {(font) => (
-                  <DropdownMenuRadioItem
-                    value={font.value}
-                    class={cn(pickerRadioItemClass, "flex-col items-start py-2")}
-                  >
-                    <div class="flex items-center gap-2">
-                      <span
-                        class="w-6 text-muted-foreground text-xs"
-                        style={{ "font-family": font.family }}
-                      >
-                        Aa
+        <DropdownMenuContent class="md:w-64">
+          <DropdownMenuRadioGroup value={selectedFont()} onChange={selectFont}>
+            <For each={fonts}>
+              {(font, index) => (
+                <>
+                  <DropdownMenuRadioItem value={font}>
+                    <div class="flex flex-col justify-start gap-2 pointer-coarse:gap-1">
+                      <span class="font-medium text-muted-foreground text-xs">
+                        {getLabel(font)}
                       </span>
-                      <span class="font-medium text-sm">{font.label}</span>
+                      <span
+                        class="font-extralight text-sm"
+                        style={{ "font-family": getFontFamily(font) }}
+                      >
+                        Designers love packing quirky glyphs into test phrases.
+                      </span>
                     </div>
-                    <p
-                      class="mt-0.5 max-w-full truncate pl-8 text-muted-foreground text-xs"
-                      style={{ "font-family": font.family }}
-                    >
-                      Designers love packing quirky glyphs into test phrases.
-                    </p>
                   </DropdownMenuRadioItem>
-                )}
-              </For>
-            </DropdownMenuGroup>
+                  <Show when={index() < fonts.length - 1}>
+                    <DropdownMenuSeparator />
+                  </Show>
+                </>
+              )}
+            </For>
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>

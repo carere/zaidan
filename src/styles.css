@@ -3,6 +3,9 @@
 
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/roboto-mono";
+@import "@fontsource-variable/noto-sans";
+@import "@fontsource-variable/nunito-sans";
+@import "@fontsource-variable/figtree";
 
 @import "./styles/expressive-code.css";
 @import "./styles/style-vega.css" layer(base);
