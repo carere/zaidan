@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
+import { Search } from "lucide-solid";
 import {
   type ComponentProps,
   createEffect,
@@ -10,6 +11,7 @@ import {
   splitProps,
 } from "solid-js";
 import { cn } from "@/lib/utils";
+import { useView } from "@/lib/view-context";
 import { Button } from "@/registry/ui/button";
 import {
   Command,
@@ -47,6 +49,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   const [open, setOpen] = createSignal(false);
   const [currentPage, setCurrentPage] = createSignal("Home");
+  const { view } = useView();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -104,11 +107,17 @@ export function ItemPicker(props: ComponentProps<"div">) {
       <Button
         variant="outline"
         onClick={() => setOpen(true)}
-        class={cn("w-full justify-between", local.class)}
+        class={cn("h-[calc(--spacing(13.5))] flex-1 justify-between sm:h-9 sm:w-full", local.class)}
         {...others}
       >
-        <span class="truncate">{currentPage()}</span>
-        <Kbd class="ml-2">⌘K</Kbd>
+        <span class="flex flex-col items-start">
+          <span class="text-muted-foreground text-xs sm:hidden">
+            {view() === "preview" ? "Preview" : "Docs"}
+          </span>
+          <span class="truncate">{currentPage()}</span>
+        </span>
+        <Kbd class="ml-2 hidden items-center sm:flex">⌘K</Kbd>
+        <Search class="size-4 sm:hidden" />
       </Button>
 
       <CommandDialog open={open()} onOpenChange={setOpen}>

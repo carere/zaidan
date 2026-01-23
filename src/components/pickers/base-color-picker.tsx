@@ -2,6 +2,7 @@ import { useColorMode } from "@kobalte/core";
 import { createSignal, For } from "solid-js";
 import { match } from "ts-pattern";
 import type { BaseColor } from "@/lib/types";
+import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ const colors = ["neutral", "stone", "zinc", "gray"] satisfies BaseColor[];
 export default function BaseColorPicker() {
   const [selectedColor, selectColor] = createSignal<BaseColor>("neutral");
   const { colorMode, toggleColorMode } = useColorMode();
+  const isMobile = useIsMobile();
 
   const getLabel = (color: BaseColor) =>
     match(color)
@@ -37,7 +39,7 @@ export default function BaseColorPicker() {
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu placement="left-start">
+      <DropdownMenu gutter={isMobile() ? 8 : 0} placement={isMobile() ? "top" : "left-start"}>
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Base Color</div>

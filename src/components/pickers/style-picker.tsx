@@ -6,6 +6,7 @@ import { Mira } from "@/components/icons/mira";
 import { Nova } from "@/components/icons/nova";
 import { Vega } from "@/components/icons/vega";
 import type { Style } from "@/lib/types";
+import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ const styles = ["vega", "nova", "lyra", "maia", "mira"] satisfies Style[];
 
 export default function StylePicker() {
   const [selectedStyle, selectStyle] = createSignal<Style>("vega");
+  const isMobile = useIsMobile();
 
   const getLabel = (style: Style) =>
     match(style)
@@ -49,7 +51,7 @@ export default function StylePicker() {
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu placement="left-start">
+      <DropdownMenu gutter={isMobile() ? 8 : 0} placement={isMobile() ? "top" : "left-start"}>
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Style</div>

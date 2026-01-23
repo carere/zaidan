@@ -7,12 +7,14 @@ import { Zaidan } from "@/components/icons/zaidan";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { ModeSwitcher } from "@/components/mode-switcher";
+import { RandomButton } from "@/components/random-button";
+import { ResetButton } from "@/components/reset-button";
 import { SiteConfig } from "@/components/site-config";
 import { ViewSwitcher } from "@/components/view-switcher";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/ui/button";
 import { Separator } from "@/registry/ui/separator";
-import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
+import { SidebarProvider } from "@/registry/ui/sidebar";
 
 export const Route = createFileRoute("/_website")({
   component: RouteComponent,
@@ -42,8 +44,12 @@ function RouteComponent() {
           <Separator orientation="vertical" class="mx-4" />
           <div class="hidden font-medium text-muted-foreground text-sm lg:flex">Zaidan</div>
         </div>
-        <div class="fixed inset-x-0 bottom-0 ml-auto flex-1 gap-2 px-4.5 pb-4 sm:static sm:p-0 lg:ml-0">
+        <div class="fixed inset-x-0 bottom-0 ml-auto flex flex-1 items-center justify-end gap-2 px-4.5 pb-4 sm:static sm:p-0 lg:ml-0">
           <ItemPicker />
+          <div class="items-center gap-0 sm:hidden">
+            <RandomButton />
+            <ResetButton />
+          </div>
         </div>
         <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
           <GitHubLink />
@@ -63,12 +69,12 @@ function RouteComponent() {
           </Button>
         </div>
       </header>
-      <SidebarProvider class="flex max-h-full flex-1 items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">
+      <SidebarProvider class="flex max-h-full flex-1 flex-col items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">
         <ItemExplorer />
-        <SidebarInset class="flex flex-col gap-6 sm:flex-row">
+        <div class="flex w-full basis-[calc(100%-calc(--spacing(13.5))-1.4rem)] flex-col gap-2 sm:flex-row sm:gap-6">
           <Outlet />
-          <Customizer class="grow-0" />
-        </SidebarInset>
+          <Customizer class="shrink-0 grow-0" />
+        </div>
       </SidebarProvider>
     </div>
   );

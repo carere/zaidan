@@ -26,7 +26,7 @@ function RouteComponent() {
   const MDXContent = lazy(() => import(`../pages/docs/${doc().slug}.mdx`));
 
   return (
-    <div class="relative mx-auto flex max-w-5xl gap-8 overflow-hidden overflow-y-auto p-6">
+    <div class="relative mx-auto flex max-w-5xl flex-1 gap-8 overflow-hidden overflow-y-auto p-6">
       <div class="min-w-0 flex-1 overflow-y-auto">
         <Suspense fallback={<div>Skeleton docs page</div>}>
           <MDXContent components={sharedComponents} />

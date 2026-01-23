@@ -3,6 +3,7 @@ import { match } from "ts-pattern";
 import { BaseUI } from "@/components/icons/base-ui";
 import { Kobalte } from "@/components/icons/kobalte";
 import type { Primitive } from "@/lib/types";
+import { useIsMobile } from "@/registry/hooks/use-mobile";
 import { Badge } from "@/registry/ui/badge";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ const bases = ["kobalte", "base"] satisfies Primitive[];
 
 export default function ComponentLibraryPicker() {
   const [selectedBase, selectBase] = createSignal<Primitive>("kobalte");
+  const isMobile = useIsMobile();
 
   const getLabel = (base: Primitive) =>
     match(base)
@@ -31,7 +33,7 @@ export default function ComponentLibraryPicker() {
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu placement="left-start">
+      <DropdownMenu gutter={isMobile() ? 8 : 0} placement={isMobile() ? "top" : "left-start"}>
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Component Library</div>

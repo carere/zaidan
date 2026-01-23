@@ -2,6 +2,7 @@ import { PaintBucket } from "lucide-solid";
 import { createSignal, For } from "solid-js";
 import { match } from "ts-pattern";
 import type { MenuAccent } from "@/lib/types";
+import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ const menuAccents = ["subtle", "bold"] satisfies MenuAccent[];
 
 export default function MenuAccentPicker() {
   const [selectedMenuAccent, selectMenuAccent] = createSignal<MenuAccent>("subtle");
+  const isMobile = useIsMobile();
 
   const getLabel = (menuAccent: MenuAccent) =>
     match(menuAccent)
@@ -23,7 +25,7 @@ export default function MenuAccentPicker() {
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu placement="left-start">
+      <DropdownMenu gutter={isMobile() ? 8 : 0} placement={isMobile() ? "top" : "left-start"}>
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Menu Accent</div>
