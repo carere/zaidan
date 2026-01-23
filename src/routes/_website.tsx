@@ -1,14 +1,16 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
+import { Copy, Share } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
+import { Zaidan } from "@/components/icons/zaidan";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
-import { Logo } from "@/components/logo";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { SiteConfig } from "@/components/site-config";
 import { ViewSwitcher } from "@/components/view-switcher";
 import { cn } from "@/lib/utils";
+import { Button } from "@/registry/ui/button";
 import { Separator } from "@/registry/ui/separator";
 import { SidebarInset, SidebarProvider } from "@/registry/ui/sidebar";
 
@@ -35,7 +37,7 @@ function RouteComponent() {
       >
         <div class="flex items-center lg:mr-2 xl:w-1/3">
           <Link to="/{-$slug}" params={{ slug: "home" }}>
-            <Logo class="size-6" />
+            <Zaidan class="size-6" />
           </Link>
           <Separator orientation="vertical" class="mx-4" />
           <div class="hidden font-medium text-muted-foreground text-sm lg:flex">Zaidan</div>
@@ -51,6 +53,14 @@ function RouteComponent() {
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
           <ModeSwitcher />
+          <Button variant="outline" size="sm">
+            <Share />
+            <span>Share</span>
+          </Button>
+          <Button variant="default" size="sm">
+            <Copy />
+            <span>Get CSS</span>
+          </Button>
         </div>
       </header>
       <SidebarProvider class="flex max-h-full flex-1 items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">

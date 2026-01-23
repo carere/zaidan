@@ -1,6 +1,6 @@
 import type { ComponentProps } from "solid-js";
 
-export function Logo(props: ComponentProps<"svg">) {
+export function Zaidan(props: ComponentProps<"svg">) {
   return (
     <svg viewBox="0 0 206 181" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <title>Zaidan</title>

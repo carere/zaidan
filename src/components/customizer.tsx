@@ -1,5 +1,16 @@
 import { Settings2Icon } from "lucide-solid";
 import type { ComponentProps } from "solid-js";
+import BaseColorPicker from "@/components/pickers/base-color-picker";
+import BasePicker from "@/components/pickers/base-picker";
+import FontPicker from "@/components/pickers/font-picker";
+import IconLibraryPicker from "@/components/pickers/icon-library-picker";
+import MenuAccentPicker from "@/components/pickers/menu-accent-picker";
+import MenuColorPicker from "@/components/pickers/menu-color-picker";
+import RadiusPicker from "@/components/pickers/radius-picker";
+import StylePicker from "@/components/pickers/style-picker";
+import ThemePicker from "@/components/pickers/theme-picker";
+import { RandomButton } from "@/components/random-button";
+import { ResetButton } from "@/components/reset-button";
 import { cn } from "@/lib/utils";
 import { FieldGroup } from "@/registry/ui/field";
 
@@ -24,20 +35,19 @@ export function Customizer(props: ComponentProps<"div">) {
       </div>
       <div class="no-scrollbar h-14 overflow-x-auto overflow-y-hidden p-px md:h-full md:overflow-y-auto md:overflow-x-hidden">
         <FieldGroup class="flex h-full flex-1 flex-row gap-2 md:flex-col md:gap-0">
-          {/* <PresetPicker presets={PRESETS} isMobile={isMobile} />
-          <BasePicker isMobile={isMobile} />
-          <StylePicker styles={STYLES} isMobile={isMobile} />
-          <BaseColorPicker isMobile={isMobile} />
-          <ThemePicker themes={availableThemes} isMobile={isMobile} />
-          <IconLibraryPicker isMobile={isMobile} />
-          <FontPicker fonts={FONTS} isMobile={isMobile} />
-          <RadiusPicker isMobile={isMobile} />
-          <MenuColorPicker isMobile={isMobile} />
-          <MenuAccentPicker isMobile={isMobile} />
+          <BasePicker />
+          <StylePicker />
+          <BaseColorPicker />
+          <ThemePicker />
+          <IconLibraryPicker />
+          <FontPicker />
+          <RadiusPicker />
+          <MenuColorPicker />
+          <MenuAccentPicker />
           <div class="mt-auto hidden w-full flex-col items-center gap-0 md:flex">
             <RandomButton />
             <ResetButton />
-          </div> */}
+          </div>
         </FieldGroup>
       </div>
     </div>
