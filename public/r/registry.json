@@ -4,9 +4,21 @@
   "homepage": "https://zaidan.carere.dev",
   "items": [
     {
+      "name": "accordion",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/accordion.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "alert",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": ["@kobalte/core", "class-variance-authority"],
       "registryDependencies": [],
       "files": [
         {
@@ -16,85 +28,241 @@
       ]
     },
     {
-      "name": "switch",
+      "name": "alert-dialog",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
+      "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/switch.tsx",
+          "path": "src/registry/ui/alert-dialog.tsx",
           "type": "registry:ui"
         }
       ]
     },
     {
-      "name": "slider",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/slider.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "textarea",
+      "name": "aspect-ratio",
       "type": "registry:ui",
       "dependencies": [],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/textarea.tsx",
+          "path": "src/registry/ui/aspect-ratio.tsx",
           "type": "registry:ui"
         }
       ]
     },
     {
-      "name": "label",
-      "type": "registry:ui",
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/label.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "progress",
+      "name": "avatar",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/progress.tsx",
+          "path": "src/registry/ui/avatar.tsx",
           "type": "registry:ui"
         }
       ]
     },
     {
-      "name": "spinner",
-      "type": "registry:ui",
-      "dependencies": ["lucide-solid"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/spinner.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "toggle-group",
+      "name": "badge",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "class-variance-authority"],
-      "registryDependencies": ["toggle"],
+      "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/toggle-group.tsx",
+          "path": "src/registry/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/breadcrumb.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": ["separator"],
+      "files": [
+        {
+          "path": "src/registry/ui/button-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "calendar",
+      "type": "registry:ui",
+      "dependencies": ["@corvu/calendar", "lucide-solid"],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "src/registry/ui/calendar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "carousel",
+      "type": "registry:ui",
+      "dependencies": ["embla-carousel", "embla-carousel-solid", "lucide-solid"],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "src/registry/ui/carousel.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "dependencies": ["echarts"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/checkbox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "collapsible",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/collapsible.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "combobox",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": ["input-group"],
+      "files": [
+        {
+          "path": "src/registry/ui/combobox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "command",
+      "type": "registry:ui",
+      "dependencies": ["cmdk-solid", "lucide-solid"],
+      "registryDependencies": ["dialog", "input-group"],
+      "files": [
+        {
+          "path": "src/registry/ui/command.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/context-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "src/registry/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "dependencies": ["@corvu/drawer"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/drawer.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/empty.tsx",
           "type": "registry:ui"
         }
       ]
@@ -107,6 +275,30 @@
       "files": [
         {
           "path": "src/registry/ui/field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "hover-card",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/hover-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/input.tsx",
           "type": "registry:ui"
         }
       ]
@@ -136,145 +328,61 @@
       ]
     },
     {
-      "name": "radio-group",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/radio-group.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "empty",
+      "name": "item",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
-      "registryDependencies": [],
+      "registryDependencies": ["separator"],
       "files": [
         {
-          "path": "src/registry/ui/empty.tsx",
+          "path": "src/registry/ui/item.tsx",
           "type": "registry:ui"
         }
       ]
     },
     {
-      "name": "dropdown-menu",
+      "name": "kbd",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/kbd.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "menubar",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/dropdown-menu.tsx",
+          "path": "src/registry/ui/menubar.tsx",
           "type": "registry:ui"
         }
       ]
     },
     {
-      "name": "dialog",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["button"],
-      "files": [
-        {
-          "path": "src/registry/ui/dialog.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "drawer",
-      "type": "registry:ui",
-      "dependencies": ["corvu"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/drawer.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "hover-card",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/hover-card.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "resizable",
-      "type": "registry:ui",
-      "dependencies": ["corvu", "lucide-solid"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/resizable.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "popover",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/popover.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "context-menu",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/context-menu.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "select",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/select.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "checkbox",
-      "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/ui/checkbox.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "pagination",
+      "name": "native-select",
       "type": "registry:ui",
       "dependencies": ["lucide-solid"],
-      "registryDependencies": ["button"],
+      "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/pagination.tsx",
+          "path": "src/registry/ui/native-select.tsx",
           "type": "registry:ui"
         }
       ]
@@ -292,13 +400,133 @@
       ]
     },
     {
-      "name": "menubar",
+      "name": "pagination",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
+      "dependencies": ["lucide-solid"],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "src/registry/ui/pagination.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/menubar.tsx",
+          "path": "src/registry/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "resizable",
+      "type": "registry:ui",
+      "dependencies": ["@corvu/resizable", "@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/resizable.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/separator.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "src/registry/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
+      "registryDependencies": ["button", "input", "separator", "sheet", "skeleton", "tooltip"],
+      "files": [
+        {
+          "path": "src/registry/ui/sidebar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/slider.tsx",
           "type": "registry:ui"
         }
       ]
@@ -306,7 +534,7 @@
     {
       "name": "sonner",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": ["@kobalte/core", "lucide-solid", "solid-sonner"],
       "registryDependencies": [],
       "files": [
         {
@@ -316,13 +544,25 @@
       ]
     },
     {
-      "name": "combobox",
+      "name": "spinner",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["button", "input-group"],
+      "dependencies": ["lucide-solid"],
+      "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/combobox.tsx",
+          "path": "src/registry/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/switch.tsx",
           "type": "registry:ui"
         }
       ]
@@ -340,38 +580,74 @@
       ]
     },
     {
-      "name": "command",
+      "name": "tabs",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["dialog", "input-group"],
-      "files": [
-        {
-          "path": "src/registry/ui/command.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "calendar",
-      "type": "registry:ui",
-      "dependencies": ["corvu", "lucide-solid"],
-      "registryDependencies": ["button"],
-      "files": [
-        {
-          "path": "src/registry/ui/calendar.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "chart",
-      "type": "registry:ui",
-      "dependencies": ["echarts"],
+      "dependencies": ["@kobalte/core", "class-variance-authority"],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/chart.tsx",
+          "path": "src/registry/ui/tabs.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toggle",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/toggle.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "registryDependencies": ["toggle"],
+      "files": [
+        {
+          "path": "src/registry/ui/toggle-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/ui/tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "use-mobile",
+      "type": "registry:hook",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/hooks/use-mobile.ts",
+          "type": "registry:hook"
         }
       ]
     }
