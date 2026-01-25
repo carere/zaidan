@@ -3,9 +3,8 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanst
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
-import { Show, Suspense } from "solid-js";
-import { HydrationScript, isServer } from "solid-js/web";
-import { VibeKanbanWebCompanion } from "vibe-kanban-web-companion";
+import { Suspense } from "solid-js";
+import { HydrationScript } from "solid-js/web";
 import type { View } from "@/lib/types";
 import { ViewProvider } from "@/lib/view-context";
 import styleCss from "../styles.css?url";
@@ -59,9 +58,6 @@ function RootComponent() {
             </Suspense>
           </ViewProvider>
         </ColorModeProvider>
-        <Show when={!isServer && import.meta.env.DEV}>
-          <VibeKanbanWebCompanion />
-        </Show>
         <Scripts />
       </body>
     </html>
