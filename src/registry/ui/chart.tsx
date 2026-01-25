@@ -6,7 +6,7 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import { type ECharts, type EChartsCoreOption, init, type SetOptionOpts, use } from "echarts/core";
-import { SVGRenderer } from "echarts/renderers";
+import { CanvasRenderer } from "echarts/renderers";
 import type { Component, ComponentProps, JSX } from "solid-js";
 import {
   createContext,
@@ -21,9 +21,9 @@ import {
 } from "solid-js";
 import { cn } from "@/lib/utils";
 
-// Register ECharts components - using SVG renderer for crisp rendering
+// Register ECharts components - using Canvas renderer for smooth animations without flickering
 use([
-  SVGRenderer,
+  CanvasRenderer,
   GridComponent,
   TitleComponent,
   TooltipComponent,
@@ -168,7 +168,7 @@ function useIsDarkMode() {
 /**
  * ChartContainer is the main wrapper component for ECharts.
  * It handles:
- * - SVG rendering for crisp graphics
+ * - Canvas rendering for smooth animations without flickering
  * - Automatic resizing
  * - Theme integration via CSS variables
  * - Loading states
@@ -208,9 +208,9 @@ function ChartContainer(props: ChartContainerProps) {
   onMount(() => {
     if (!containerRef) return;
 
-    // Initialize with SVG renderer
+    // Initialize with Canvas renderer for smooth animations without flickering
     chartInstance = init(containerRef as HTMLElement, undefined, {
-      renderer: "svg",
+      renderer: "canvas",
     });
 
     // Set initial option
