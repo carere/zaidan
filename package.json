@@ -43,7 +43,8 @@
     "solid-mdx": "^0.0.7",
     "solid-sonner": "^0.2.8",
     "tailwind-merge": "^3.4.0",
-    "ts-pattern": "^5.9.0"
+    "ts-pattern": "^5.9.0",
+    "vibe-kanban-web-companion": "^0.0.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
