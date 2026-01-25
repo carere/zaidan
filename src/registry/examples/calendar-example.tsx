@@ -2,7 +2,7 @@ import { CalendarIcon } from "lucide-solid";
 import { createSignal, Show } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
-import { Calendar } from "@/registry/ui/calendar";
+import { Calendar, type CustomCellProps } from "@/registry/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/registry/ui/card";
 import { Field, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
@@ -22,6 +22,9 @@ export default function CalendarExample() {
       <CalendarMultiple />
       <CalendarRange />
       <CalendarRangeMultipleMonths />
+      <CalendarWeekNumbers />
+      <CalendarCustomCell />
+      <CalendarMonthYearSelection />
       <CalendarWithTime />
       <CalendarBookedDates />
       <CalendarWithPresets />
@@ -116,6 +119,94 @@ function CalendarRangeMultipleMonths() {
             onValueChange={setRange}
             numberOfMonths={3}
             fixedWeeks
+          />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function CalendarWeekNumbers() {
+  const [date, setDate] = createSignal<Date | null>(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 15),
+  );
+
+  return (
+    <Example title="Week Numbers">
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="single" value={date()} onValueChange={setDate} weekNumbers />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function CalendarCustomCell() {
+  const [date, setDate] = createSignal<Date | null>(null);
+
+  // Generate random prices for dates (simulating availability pricing like Airbnb)
+  const getPriceForDate = (date: Date): number | null => {
+    // Only show prices for current and next month
+    const today = new Date();
+    const twoMonthsLater = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
+    if (date < today || date > twoMonthsLater) return null;
+
+    // Generate a "random" but consistent price based on the date
+    const seed = date.getDate() + date.getMonth() * 31;
+    const basePrice = 80;
+    const variation = (seed % 50) + (date.getDay() === 0 || date.getDay() === 6 ? 30 : 0);
+    return basePrice + variation;
+  };
+
+  const renderPriceCell = (props: CustomCellProps) => {
+    const price = getPriceForDate(props.date);
+
+    return (
+      <Show when={price !== null && !props.isOutsideMonth}>
+        <span
+          class={`text-[0.65rem] ${props.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+        >
+          ${price}
+        </span>
+      </Show>
+    );
+  };
+
+  return (
+    <Example title="Custom Cell (Pricing)">
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar
+            mode="single"
+            value={date()}
+            onValueChange={setDate}
+            customCell={renderPriceCell}
+            class="[--cell-size:--spacing(11)]"
+          />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function CalendarMonthYearSelection() {
+  const [date, setDate] = createSignal<Date | null>(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 15),
+  );
+
+  return (
+    <Example title="Month & Year Selection">
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar
+            mode="single"
+            value={date()}
+            onValueChange={setDate}
+            monthYearSelection
+            startYear={1990}
+            endYear={2030}
           />
         </CardContent>
       </Card>
