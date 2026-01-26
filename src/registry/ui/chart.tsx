@@ -21,7 +21,9 @@ import {
 } from "solid-js";
 import { cn } from "@/lib/utils";
 
-// Register ECharts components - using SVG renderer for crisp rendering
+// Register ECharts components - using SVG renderer for CSS variable support
+// Note: SVG is required because Canvas cannot parse CSS variables like var(--chart-1)
+// To prevent flickering on hover, set emphasis.disabled: true or explicit emphasis colors in your chart options
 use([
   SVGRenderer,
   GridComponent,
@@ -168,11 +170,16 @@ function useIsDarkMode() {
 /**
  * ChartContainer is the main wrapper component for ECharts.
  * It handles:
- * - SVG rendering for crisp graphics
+ * - SVG rendering for CSS variable support (Canvas cannot parse CSS variables)
  * - Automatic resizing
  * - Theme integration via CSS variables
  * - Loading states
  * - Proper cleanup on unmount
+ *
+ * Note: To prevent flickering on hover when using CSS variables, either:
+ * 1. Set `emphasis: { disabled: true }` in your series to disable hover effects
+ * 2. Or explicitly set `emphasis: { itemStyle: { color: 'same-as-normal' } }` in your series
+ * This is because ECharts calculates emphasis colors from normal colors, but can't parse CSS variables.
  */
 function ChartContainer(props: ChartContainerProps) {
   const mergedProps = mergeProps(
@@ -208,7 +215,8 @@ function ChartContainer(props: ChartContainerProps) {
   onMount(() => {
     if (!containerRef) return;
 
-    // Initialize with SVG renderer
+    // Initialize with SVG renderer - required for CSS variable support
+    // Canvas renderer cannot parse CSS variables like var(--chart-1)
     chartInstance = init(containerRef as HTMLElement, undefined, {
       renderer: "svg",
     });
