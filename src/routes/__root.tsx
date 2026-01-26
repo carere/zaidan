@@ -5,8 +5,6 @@ import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
-import type { View } from "@/lib/types";
-import { ViewProvider } from "@/lib/view-context";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -31,15 +29,6 @@ const getServerCookies = createIsomorphicFn()
   })
   .client(() => document.cookie);
 
-const getViewCookie = createIsomorphicFn()
-  .server((): View => {
-    const viewCookie = getCookie("zaidan-view");
-    return (viewCookie as View) || "preview";
-  })
-  .client((): View => {
-    return "preview";
-  });
-
 function RootComponent() {
   const storageManager = cookieStorageManagerSSR(getServerCookies());
   return (
@@ -51,12 +40,10 @@ function RootComponent() {
       <body class="style-vega">
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager}>
-          <ViewProvider initialView={getViewCookie()}>
-            <Suspense>
-              <Outlet />
-              <TanStackRouterDevtools />
-            </Suspense>
-          </ViewProvider>
+          <Suspense>
+            <Outlet />
+            <TanStackRouterDevtools />
+          </Suspense>
         </ColorModeProvider>
         <Scripts />
       </body>

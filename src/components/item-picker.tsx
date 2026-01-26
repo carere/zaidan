@@ -4,6 +4,7 @@ import { Search } from "lucide-solid";
 import {
   type ComponentProps,
   createEffect,
+  createMemo,
   createSignal,
   For,
   onCleanup,
@@ -11,7 +12,6 @@ import {
   splitProps,
 } from "solid-js";
 import { cn } from "@/lib/utils";
-import { useView } from "@/lib/view-context";
 import { Button } from "@/registry/ui/button";
 import {
   Command,
@@ -49,9 +49,10 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   const [open, setOpen] = createSignal(false);
   const [currentPage, setCurrentPage] = createSignal("Home");
-  const { view } = useView();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   createEffect(() => {
@@ -112,7 +113,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
       >
         <span class="flex flex-col items-start">
           <span class="text-muted-foreground text-xs sm:hidden">
-            {view() === "preview" ? "Preview" : "Docs"}
+            {isDocsPage() ? "Docs" : "Preview"}
           </span>
           <span class="truncate">{currentPage()}</span>
         </span>

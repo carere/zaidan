@@ -13,6 +13,7 @@ import { Route as WebsiteRouteImport } from './routes/_website'
 import { Route as WebsiteChar123SlugChar125RouteImport } from './routes/_website.{-$slug}'
 import { Route as PreviewPrimitiveSlugRouteImport } from './routes/preview.$primitive.$slug'
 import { Route as WebsiteUiChar123SlugChar125RouteImport } from './routes/_website.ui.{-$slug}'
+import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/_website',
@@ -35,18 +36,25 @@ const WebsiteUiChar123SlugChar125Route =
     path: '/ui/{-$slug}',
     getParentRoute: () => WebsiteRoute,
   } as any)
+const WebsiteUiSlugDocsRoute = WebsiteUiSlugDocsRouteImport.update({
+  id: '/ui/$slug/docs',
+  path: '/ui/$slug/docs',
+  getParentRoute: () => WebsiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -54,18 +62,30 @@ export interface FileRoutesById {
   '/_website/{-$slug}': typeof WebsiteChar123SlugChar125Route
   '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/_website/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
+  fullPaths:
+    | '/'
+    | '/{-$slug}'
+    | '/ui/{-$slug}'
+    | '/preview/$primitive/$slug'
+    | '/ui/$slug/docs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
+  to:
+    | '/'
+    | '/{-$slug}'
+    | '/ui/{-$slug}'
+    | '/preview/$primitive/$slug'
+    | '/ui/$slug/docs'
   id:
     | '__root__'
     | '/_website'
     | '/_website/{-$slug}'
     | '/_website/ui/{-$slug}'
     | '/preview/$primitive/$slug'
+    | '/_website/ui/$slug/docs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -103,17 +123,26 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteUiChar123SlugChar125RouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_website/ui/$slug/docs': {
+      id: '/_website/ui/$slug/docs'
+      path: '/ui/$slug/docs'
+      fullPath: '/ui/$slug/docs'
+      preLoaderRoute: typeof WebsiteUiSlugDocsRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
   }
 }
 
 interface WebsiteRouteChildren {
   WebsiteChar123SlugChar125Route: typeof WebsiteChar123SlugChar125Route
   WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125Route
+  WebsiteUiSlugDocsRoute: typeof WebsiteUiSlugDocsRoute
 }
 
 const WebsiteRouteChildren: WebsiteRouteChildren = {
   WebsiteChar123SlugChar125Route: WebsiteChar123SlugChar125Route,
   WebsiteUiChar123SlugChar125Route: WebsiteUiChar123SlugChar125Route,
+  WebsiteUiSlugDocsRoute: WebsiteUiSlugDocsRoute,
 }
 
 const WebsiteRouteWithChildren =
