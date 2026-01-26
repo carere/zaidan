@@ -70,13 +70,7 @@ export function TableOfContents(props: TableOfContentsProps) {
 
   return (
     <Show when={shouldRender()}>
-      <nav
-        class={cn(
-          "sticky top-[calc(var(--header-height)+1.5rem)] hidden h-fit max-h-[calc(100vh-var(--header-height)-3rem)] w-56 shrink-0 overflow-y-auto xl:block",
-          props.class,
-        )}
-        aria-label="Table of contents"
-      >
+      <nav class={props.class} aria-label="Table of contents">
         <div class="pb-4">
           <p class="mb-2 font-medium text-sm">On This Page</p>
           <ul class="space-y-1">

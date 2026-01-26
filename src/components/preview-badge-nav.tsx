@@ -18,7 +18,8 @@ export function PreviewBadgeNav(props: PreviewBadgeNavProps) {
         //@ts-expect-error Problem with kobalte typing polymorphic props
         params={{ slug: local.slug }}
         variant="secondary"
-        class="rounded-r-none border-r-0 no-underline data-[status=active]:bg-background data-[status=active]:text-foreground data-[status=active]:shadow-sm"
+        activeOptions={{ exact: true }}
+        class="rounded-r-none border-r-0 data-[status=active]:bg-secondary/50 data-[status=active]:text-secondary-foreground"
       >
         Preview
       </Badge>
@@ -28,7 +29,8 @@ export function PreviewBadgeNav(props: PreviewBadgeNavProps) {
         //@ts-expect-error Problem with kobalte typing polymorphic props
         params={{ slug: local.slug }}
         variant="secondary"
-        class="rounded-l-none no-underline data-[status=active]:bg-background data-[status=active]:text-foreground data-[status=active]:shadow-sm"
+        activeOptions={{ exact: true }}
+        class="rounded-l-none data-[status=active]:bg-secondary/50 data-[status=active]:text-secondary-foreground"
       >
         Docs
       </Badge>

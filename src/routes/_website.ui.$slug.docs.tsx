@@ -1,10 +1,10 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { lazy, Suspense } from "solid-js";
+import { lazy } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
+import { PreviewBadgeNav } from "@/components/preview-badge-nav";
 import { TableOfContents } from "@/components/toc";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
-import { Skeleton } from "@/registry/ui/skeleton";
 
 export const Route = createFileRoute("/_website/ui/$slug/docs")({
   loader: ({ params }) => {
@@ -37,14 +37,14 @@ function RouteComponent() {
   const MDXContent = lazy(() => import(`../pages/ui/${doc().slug}.mdx`));
 
   return (
-    <div class="relative flex h-[calc(100svh-2*var(--header-height)-1rem)] flex-1 scroll-pt-[calc(var(--header-height)+0.25rem)] sm:h-[calc(100svh-var(--header-height)-2rem)]">
-      <div class="relative flex sm:mx-auto sm:max-w-6xl">
-        <div class="no-scrollbar min-w-0 flex-1 overflow-y-auto scroll-smooth sm:px-20" id="ui-doc">
-          <Suspense fallback={<Skeleton class="h-64 w-full" />}>
-            <MDXContent components={sharedComponents} />
-          </Suspense>
-        </div>
-        <TableOfContents class="hidden sm:block" toc={doc().toc} />
+    <div class="relative flex h-[calc(100svh-2*var(--header-height)-1rem)] flex-1 scroll-pt-[calc(var(--header-height)+0.25rem)] rounded-2xl ring-1 ring-foreground/15 sm:h-[calc(100svh-var(--header-height)-2rem)]">
+      <div class="z-0 mx-auto max-w-2xl overflow-y-auto scroll-smooth py-10">
+        <MDXContent components={sharedComponents} />
+        <TableOfContents
+          class="absolute top-10 right-0 h-fit max-h-[calc(100vh-var(--header-height)-3rem)] w-56 shrink-0 overflow-y-auto"
+          toc={doc().toc}
+        />
+        <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
       </div>
     </div>
   );
