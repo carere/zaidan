@@ -1,4 +1,4 @@
-import { Badge } from "@/registry/ui/badge";
+import { PreviewBadgeNav } from "@/components/preview-badge-nav";
 
 export function Preview({ slug }: { slug: string }) {
   let iframeRef: HTMLIFrameElement | undefined;
@@ -12,9 +12,7 @@ export function Preview({ slug }: { slug: string }) {
           class="z-10 size-full rounded-lg"
           title="Preview"
         />
-        <Badge class="absolute right-2 bottom-2 isolate z-10" variant="secondary">
-          Preview
-        </Badge>
+        <PreviewBadgeNav slug={slug} class="absolute right-2 bottom-2" />
       </div>
     </div>
   );
