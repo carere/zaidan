@@ -1,30 +1,26 @@
+import { addDays } from "date-fns";
 import { CalendarIcon } from "lucide-solid";
 import { createSignal, Show } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/ui/button";
-import { Calendar } from "@/registry/ui/calendar";
+import { Calendar, type CustomCellProps } from "@/registry/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/registry/ui/card";
 import { Field, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/registry/ui/select";
 
 export default function CalendarExample() {
   return (
     <ExampleWrapper>
       <CalendarSingle />
       <CalendarMultiple />
+      <CalendarWeekNumbers />
+      <CalendarBookedDates />
       <CalendarRange />
       <CalendarRangeMultipleMonths />
       <CalendarWithTime />
-      <CalendarBookedDates />
       <CalendarWithPresets />
+      <CalendarCustomCell />
       <DatePickerSimple />
       <DatePickerWithDropdowns />
       <DatePickerWithRange />
@@ -40,7 +36,7 @@ function CalendarSingle() {
     <Example title="Single">
       <Card class="mx-auto w-fit p-0">
         <CardContent class="p-0">
-          <Calendar mode="single" value={date()} onValueChange={setDate} />
+          <Calendar mode="single" monthYearSelection value={date()} onValueChange={setDate} />
         </CardContent>
       </Card>
     </Example>
@@ -123,6 +119,59 @@ function CalendarRangeMultipleMonths() {
   );
 }
 
+function CalendarWeekNumbers() {
+  const [date, setDate] = createSignal<Date | null>(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 15),
+  );
+
+  return (
+    <Example title="Week Numbers">
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar mode="single" value={date()} onValueChange={setDate} weekNumbers />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
+function CalendarCustomCell() {
+  const [range, setRange] = createSignal<{ from: Date | null; to: Date | null }>({
+    from: new Date(new Date().getFullYear(), 0, 8),
+    to: addDays(new Date(new Date().getFullYear(), 0, 8), 10),
+  });
+
+  const renderPriceCell = (props: CustomCellProps) => {
+    const isWeekend = () => props.date.getDay() === 0 || props.date.getDay() === 6;
+
+    return (
+      <Show when={!props.isOutsideMonth}>
+        <span
+          class={`text-[0.65rem] ${props.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+        >
+          ${isWeekend() ? "100" : "80"}
+        </span>
+      </Show>
+    );
+  };
+
+  return (
+    <Example title="Custom Cell (Pricing)">
+      <Card class="mx-auto w-fit p-0">
+        <CardContent class="p-0">
+          <Calendar
+            mode="range"
+            value={range()}
+            onValueChange={setRange}
+            customCell={renderPriceCell}
+            class="[--cell-size:--spacing(11)]"
+          />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
 function CalendarWithTime() {
   const [date, setDate] = createSignal<Date | null>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 15),
@@ -191,7 +240,7 @@ function CalendarBookedDates() {
     <Example title="Booked Dates">
       <Card class="mx-auto w-fit p-0">
         <CardContent class="p-0">
-          <Calendar mode="single" value={date()} onValueChange={setDate} disabled={isBooked} />
+          <Calendar mode="single" value={date()} onValueChange={setDate} booked={isBooked} />
         </CardContent>
       </Card>
     </Example>
@@ -274,8 +323,8 @@ function DatePickerSimple() {
             class="justify-start px-2.5 font-normal"
           >
             <CalendarIcon data-icon="inline-start" />
-            <Show when={date()} fallback={<span>Pick a date</span>}>
-              {(d) => formatDate(d())}
+            <Show when={date()} fallback={<span>Pick a date</span>} keyed>
+              {(d) => formatDate(d)}
             </Show>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
@@ -289,42 +338,6 @@ function DatePickerSimple() {
 
 function DatePickerWithDropdowns() {
   const [date, setDate] = createSignal<Date | null>(null);
-  const [currentMonth, setCurrentMonth] = createSignal<Date>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
-
-  const months = [
-    { label: "January", value: 0 },
-    { label: "February", value: 1 },
-    { label: "March", value: 2 },
-    { label: "April", value: 3 },
-    { label: "May", value: 4 },
-    { label: "June", value: 5 },
-    { label: "July", value: 6 },
-    { label: "August", value: 7 },
-    { label: "September", value: 8 },
-    { label: "October", value: 9 },
-    { label: "November", value: 10 },
-    { label: "December", value: 11 },
-  ];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 21 }, (_, i) => {
-    const year = currentYear - 10 + i;
-    return { label: year.toString(), value: year };
-  });
-
-  const handleMonthChange = (value: number) => {
-    const newDate = new Date(currentMonth());
-    newDate.setMonth(value);
-    setCurrentMonth(newDate);
-  };
-
-  const handleYearChange = (value: number) => {
-    const newDate = new Date(currentMonth());
-    newDate.setFullYear(value);
-    setCurrentMonth(newDate);
-  };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -346,56 +359,12 @@ function DatePickerWithDropdowns() {
             class="justify-start px-2.5 font-normal"
           >
             <CalendarIcon data-icon="inline-start" />
-            <Show when={date()} fallback={<span>Pick a date</span>}>
-              {(d) => formatDate(d())}
+            <Show when={date()} fallback={<span>Pick a date</span>} keyed>
+              {(d) => formatDate(d)}
             </Show>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <div class="flex gap-2 border-b p-3">
-              <Select<(typeof months)[number]>
-                options={months}
-                optionValue="value"
-                optionTextValue="label"
-                placeholder="Month"
-                value={months.find((m) => m.value === currentMonth().getMonth())}
-                onChange={(value) => handleMonthChange(value?.value ?? 0)}
-                itemComponent={(props) => (
-                  <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-                )}
-              >
-                <SelectTrigger size="sm" class="flex-1">
-                  <SelectValue<(typeof months)[number]>>
-                    {(state) => state.selectedOption().label}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-              <Select<(typeof years)[number]>
-                options={years}
-                optionValue="value"
-                optionTextValue="label"
-                placeholder="Year"
-                value={years.find((y) => y.value === currentMonth().getFullYear())}
-                onChange={(value) => handleYearChange(value?.value ?? 0)}
-                itemComponent={(props) => (
-                  <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-                )}
-              >
-                <SelectTrigger size="sm" class="flex-1">
-                  <SelectValue<(typeof years)[number]>>
-                    {(state) => state.selectedOption().label}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-            </div>
-            <Calendar
-              mode="single"
-              value={date()}
-              onValueChange={setDate}
-              month={currentMonth()}
-              onMonthChange={setCurrentMonth}
-            />
+            <Calendar mode="single" monthYearSelection value={date()} onValueChange={setDate} />
           </PopoverContent>
         </Popover>
       </Field>
@@ -435,12 +404,12 @@ function DatePickerWithRange() {
             class="justify-start px-2.5 font-normal"
           >
             <CalendarIcon data-icon="inline-start" />
-            <Show when={date().from} fallback={<span>Pick a date</span>}>
+            <Show when={date().from} fallback={<span>Pick a date</span>} keyed>
               {(from) => (
-                <Show when={date().to} fallback={formatDate(from())}>
+                <Show when={date().to} fallback={formatDate(from)} keyed>
                   {(to) => (
                     <>
-                      {formatDate(from())} - {formatDate(to())}
+                      {formatDate(from)} - {formatDate(to)}
                     </>
                   )}
                 </Show>

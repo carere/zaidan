@@ -30,7 +30,6 @@ const Select = <O, OptGroup = never, T extends ValidComponent = "div">(
       sameWidth: true,
       gutter: 8,
       placement: "bottom",
-      overlap: true,
     } as const,
     props,
   );

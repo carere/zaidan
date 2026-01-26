@@ -22,7 +22,7 @@ shadcn@latest add calendar
 Install the following dependencies:
 
 ```package-install
-@corvu/calendar lucide-solid
+@corvu/calendar date-fns lucide-solid
 ```
 
 Copy and paste the following code into your project.
@@ -71,7 +71,24 @@ The Calendar component accepts the following props:
 | `numberOfMonths` | `number` | `1` | Number of months to display |
 | `disabled` | `(date: Date) => boolean` | - | Function to disable specific dates |
 | `weekStartsOn` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1` | Which day of the week to start on (0 = Sunday) |
+| `weekNumbers` | `boolean` | `false` | Whether to show ISO week numbers |
+| `customCell` | `(props: CustomCellProps) => JSX.Element` | - | Custom render function for day cells |
+| `monthYearSelection` | `boolean` | `false` | Enable month/year dropdown selection |
+| `startYear` | `number` | `currentYear - 100` | Start year for year dropdown |
+| `endYear` | `number` | `currentYear + 10` | End year for year dropdown |
 | `class` | `string` | - | Additional CSS classes |
+
+## CustomCellProps
+
+The `customCell` render function receives the following props:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `date` | `Date` | The date of the cell |
+| `isOutsideMonth` | `boolean` | Whether the date is outside the current month |
+| `isSelected` | `boolean` | Whether the date is selected |
+| `isDisabled` | `boolean` | Whether the date is disabled |
+| `isToday` | `boolean` | Whether the date is today |
 
 ## Date Picker
 
@@ -87,6 +104,63 @@ You can customize the size of calendar cells using the `--cell-size` CSS variabl
   value={date()}
   onValueChange={setDate}
   class="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(12)]"
+/>
+```
+
+## Week Numbers
+
+Display ISO week numbers alongside the calendar using the `weekNumbers` prop:
+
+```tsx showLineNumbers
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  weekNumbers
+/>
+```
+
+## Custom Cells
+
+Use the `customCell` prop to add custom content to each day cell. This is useful for displaying metadata like prices, events, or availability indicators:
+
+```tsx showLineNumbers
+import { Show } from "solid-js";
+import { Calendar, type CustomCellProps } from "~/components/ui/calendar";
+
+const renderPriceCell = (props: CustomCellProps) => {
+  const price = getPriceForDate(props.date);
+
+  return (
+    <Show when={price !== null && !props.isOutsideMonth}>
+      <span class={`text-[0.65rem] ${props.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+        ${price}
+      </span>
+    </Show>
+  );
+};
+
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  customCell={renderPriceCell}
+  class="[--cell-size:--spacing(11)]"
+/>
+```
+
+## Month/Year Selection
+
+Enable dropdown selection for month and year using the `monthYearSelection` prop:
+
+```tsx showLineNumbers
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  monthYearSelection
+  startYear={1990}
+  endYear={2030}
 />
 ```
 
@@ -108,35 +182,6 @@ const [time, setTime] = createSignal("10:30");
     type="time"
     value={time()}
     onInput={(e) => setTime(e.currentTarget.value)}
-  />
-</div>
-```
-
-## Month/Year Dropdown Navigation
-
-Use Select components to provide dropdown navigation for month and year:
-
-```tsx showLineNumbers
-import { createSignal } from "solid-js";
-import { Calendar } from "~/components/ui/calendar";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "~/components/ui/select";
-
-const [currentMonth, setCurrentMonth] = createSignal<Date>(new Date());
-
-const handleMonthChange = (value: number) => {
-  const newDate = new Date(currentMonth());
-  newDate.setMonth(value);
-  setCurrentMonth(newDate);
-};
-
-<div>
-  <Select onChange={handleMonthChange} value={currentMonth().getMonth()}>
-    {/* Select implementation */}
-  </Select>
-  <Calendar
-    mode="single"
-    month={currentMonth()}
-    onMonthChange={setCurrentMonth}
   />
 </div>
 ```
@@ -178,7 +223,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { Card, CardContent } from "~/components/ui/card";
 ```
 
-```tsx file=../../registry/examples/calendar-example.tsx#L35-L48
+```tsx file=../../registry/examples/calendar-example.tsx#L38-L51
 
 ```
 
@@ -189,7 +234,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { Card, CardContent } from "~/components/ui/card";
 ```
 
-```tsx file=../../registry/examples/calendar-example.tsx#L50-L60
+```tsx file=../../registry/examples/calendar-example.tsx#L53-L63
 
 ```
 
@@ -201,7 +246,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { Card, CardContent } from "~/components/ui/card";
 ```
 
-```tsx file=../../registry/examples/calendar-example.tsx#L62-L90
+```tsx file=../../registry/examples/calendar-example.tsx#L65-L93
 
 ```
 
@@ -213,7 +258,43 @@ import { Calendar } from "~/components/ui/calendar";
 import { Card, CardContent } from "~/components/ui/card";
 ```
 
-```tsx file=../../registry/examples/calendar-example.tsx#L92-L124
+```tsx file=../../registry/examples/calendar-example.tsx#L95-L127
+
+```
+
+### Week Numbers
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L129-L143
+
+```
+
+### Custom Cell (Pricing)
+
+```tsx
+import { createSignal, Show } from "solid-js";
+import { Calendar, type CustomCellProps } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L145-L192
+
+```
+
+### Month & Year Selection
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/calendar-example.tsx#L194-L215
 
 ```
 
@@ -227,7 +308,7 @@ import { Field, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 ```
 
-```tsx file=../../registry/examples/calendar-example.tsx#L126-L162
+```tsx file=../../registry/examples/calendar-example.tsx#L217-L253
 
 ```
 
