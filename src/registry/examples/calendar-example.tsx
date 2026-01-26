@@ -1,3 +1,4 @@
+import { addDays } from "date-fns";
 import { CalendarIcon } from "lucide-solid";
 import { createSignal, Show } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
@@ -135,59 +136,20 @@ function CalendarWeekNumbers() {
 }
 
 function CalendarCustomCell() {
-  const [date, setDate] = createSignal<Date | null>(null);
-
-  // Define pricing data for specific dates (like Airbnb availability)
-  // In a real app, this would come from an API
-  const getPricing = (): Map<string, number> => {
-    const pricing = new Map<string, number>();
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-
-    // Add prices for all days in current month (simulating available dates)
-    for (let day = 1; day <= 31; day++) {
-      const dateKey = `${year}-${month}-${day}`;
-      // Weekends are more expensive
-      const testDate = new Date(year, month, day);
-      if (testDate.getMonth() === month) {
-        const isWeekend = testDate.getDay() === 0 || testDate.getDay() === 6;
-        const basePrice = 89;
-        const variation = (day % 30) + (isWeekend ? 40 : 0);
-        pricing.set(dateKey, basePrice + variation);
-      }
-    }
-
-    // Add prices for next month too
-    const nextMonth = month + 1;
-    const nextYear = nextMonth > 11 ? year + 1 : year;
-    const actualNextMonth = nextMonth % 12;
-    for (let day = 1; day <= 31; day++) {
-      const dateKey = `${nextYear}-${actualNextMonth}-${day}`;
-      const testDate = new Date(nextYear, actualNextMonth, day);
-      if (testDate.getMonth() === actualNextMonth) {
-        const isWeekend = testDate.getDay() === 0 || testDate.getDay() === 6;
-        const basePrice = 95;
-        const variation = (day % 35) + (isWeekend ? 45 : 0);
-        pricing.set(dateKey, basePrice + variation);
-      }
-    }
-
-    return pricing;
-  };
-
-  const pricing = getPricing();
+  const [range, setRange] = createSignal<{ from: Date | null; to: Date | null }>({
+    from: new Date(new Date().getFullYear(), 0, 8),
+    to: addDays(new Date(new Date().getFullYear(), 0, 8), 10),
+  });
 
   const renderPriceCell = (props: CustomCellProps) => {
-    const dateKey = `${props.date.getFullYear()}-${props.date.getMonth()}-${props.date.getDate()}`;
-    const price = pricing.get(dateKey);
+    const isWeekend = () => props.date.getDay() === 0 || props.date.getDay() === 6;
 
     return (
-      <Show when={price !== undefined && !props.isOutsideMonth}>
+      <Show when={!props.isOutsideMonth}>
         <span
           class={`text-[0.65rem] ${props.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}
         >
-          ${price}
+          ${isWeekend() ? "100" : "80"}
         </span>
       </Show>
     );
@@ -198,9 +160,9 @@ function CalendarCustomCell() {
       <Card class="mx-auto w-fit p-0">
         <CardContent class="p-0">
           <Calendar
-            mode="single"
-            value={date()}
-            onValueChange={setDate}
+            mode="range"
+            value={range()}
+            onValueChange={setRange}
             customCell={renderPriceCell}
             class="[--cell-size:--spacing(11)]"
           />
