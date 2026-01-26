@@ -7,13 +7,6 @@ import { Card, CardContent, CardFooter } from "@/registry/ui/card";
 import { Field, FieldLabel } from "@/registry/ui/field";
 import { Input } from "@/registry/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/registry/ui/select";
 
 export default function CalendarExample() {
   return (
@@ -356,42 +349,6 @@ function DatePickerSimple() {
 
 function DatePickerWithDropdowns() {
   const [date, setDate] = createSignal<Date | null>(null);
-  const [currentMonth, setCurrentMonth] = createSignal<Date>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
-
-  const months = [
-    { label: "January", value: 0 },
-    { label: "February", value: 1 },
-    { label: "March", value: 2 },
-    { label: "April", value: 3 },
-    { label: "May", value: 4 },
-    { label: "June", value: 5 },
-    { label: "July", value: 6 },
-    { label: "August", value: 7 },
-    { label: "September", value: 8 },
-    { label: "October", value: 9 },
-    { label: "November", value: 10 },
-    { label: "December", value: 11 },
-  ];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 21 }, (_, i) => {
-    const year = currentYear - 10 + i;
-    return { label: year.toString(), value: year };
-  });
-
-  const handleMonthChange = (value: number) => {
-    const newDate = new Date(currentMonth());
-    newDate.setMonth(value);
-    setCurrentMonth(newDate);
-  };
-
-  const handleYearChange = (value: number) => {
-    const newDate = new Date(currentMonth());
-    newDate.setFullYear(value);
-    setCurrentMonth(newDate);
-  };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -418,51 +375,7 @@ function DatePickerWithDropdowns() {
             </Show>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <div class="flex gap-2 border-b p-3">
-              <Select<(typeof months)[number]>
-                options={months}
-                optionValue="value"
-                optionTextValue="label"
-                placeholder="Month"
-                value={months.find((m) => m.value === currentMonth().getMonth())}
-                onChange={(value) => handleMonthChange(value?.value ?? 0)}
-                itemComponent={(props) => (
-                  <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-                )}
-              >
-                <SelectTrigger size="sm" class="flex-1">
-                  <SelectValue<(typeof months)[number]>>
-                    {(state) => state.selectedOption().label}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-              <Select<(typeof years)[number]>
-                options={years}
-                optionValue="value"
-                optionTextValue="label"
-                placeholder="Year"
-                value={years.find((y) => y.value === currentMonth().getFullYear())}
-                onChange={(value) => handleYearChange(value?.value ?? 0)}
-                itemComponent={(props) => (
-                  <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-                )}
-              >
-                <SelectTrigger size="sm" class="flex-1">
-                  <SelectValue<(typeof years)[number]>>
-                    {(state) => state.selectedOption().label}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent />
-              </Select>
-            </div>
-            <Calendar
-              mode="single"
-              value={date()}
-              onValueChange={setDate}
-              month={currentMonth()}
-              onMonthChange={setCurrentMonth}
-            />
+            <Calendar mode="single" monthYearSelection value={date()} onValueChange={setDate} />
           </PopoverContent>
         </Popover>
       </Field>
