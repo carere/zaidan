@@ -5,6 +5,8 @@ import { sharedComponents } from "@/components/mdx-components";
 import { Preview } from "@/components/preview";
 import { TableOfContents } from "@/components/toc";
 import { useView } from "@/lib/view-context";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
+import { Skeleton } from "@/registry/ui/skeleton";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
   loader: ({ params }) => {
@@ -19,9 +21,17 @@ export const Route = createFileRoute("/_website/ui/{-$slug}")({
     return doc;
   },
   component: RouteComponent,
-  notFoundComponent: (props) => {
-    return <div>Component not found: {(props.data as { slug: string }).slug}</div>;
-  },
+  notFoundComponent: (props) => (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>Component not found</EmptyTitle>
+        <EmptyDescription>
+          The component "{(props.data as { slug: string }).slug}" doesn't exist or couldn't be
+          loaded.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  ),
 });
 
 function RouteComponent() {
@@ -39,7 +49,7 @@ function RouteComponent() {
               class="no-scrollbar min-w-0 flex-1 overflow-y-auto scroll-smooth sm:px-20"
               id="ui-doc"
             >
-              <Suspense fallback={<div>Skeleton ui docs page</div>}>
+              <Suspense fallback={<Skeleton class="h-64 w-full" />}>
                 <MDXContent components={sharedComponents} />
               </Suspense>
             </div>
