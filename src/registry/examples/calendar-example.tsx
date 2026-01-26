@@ -20,14 +20,13 @@ export default function CalendarExample() {
     <ExampleWrapper>
       <CalendarSingle />
       <CalendarMultiple />
+      <CalendarWeekNumbers />
+      <CalendarBookedDates />
       <CalendarRange />
       <CalendarRangeMultipleMonths />
-      <CalendarWeekNumbers />
-      <CalendarCustomCell />
-      <CalendarMonthYearSelection />
       <CalendarWithTime />
-      <CalendarBookedDates />
       <CalendarWithPresets />
+      <CalendarCustomCell />
       <DatePickerSimple />
       <DatePickerWithDropdowns />
       <DatePickerWithRange />
@@ -43,7 +42,7 @@ function CalendarSingle() {
     <Example title="Single">
       <Card class="mx-auto w-fit p-0">
         <CardContent class="p-0">
-          <Calendar mode="single" value={date()} onValueChange={setDate} />
+          <Calendar mode="single" monthYearSelection value={date()} onValueChange={setDate} />
         </CardContent>
       </Card>
     </Example>
@@ -184,29 +183,6 @@ function CalendarCustomCell() {
             onValueChange={setDate}
             customCell={renderPriceCell}
             class="[--cell-size:--spacing(11)]"
-          />
-        </CardContent>
-      </Card>
-    </Example>
-  );
-}
-
-function CalendarMonthYearSelection() {
-  const [date, setDate] = createSignal<Date | null>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 15),
-  );
-
-  return (
-    <Example title="Month & Year Selection">
-      <Card class="mx-auto w-fit p-0">
-        <CardContent class="p-0">
-          <Calendar
-            mode="single"
-            value={date()}
-            onValueChange={setDate}
-            monthYearSelection
-            startYear={1990}
-            endYear={2030}
           />
         </CardContent>
       </Card>
