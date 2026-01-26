@@ -37,11 +37,13 @@ const WebsiteUiChar123SlugChar125Route =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
@@ -55,9 +57,9 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
+  fullPaths: '/' | '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
+  to: '/' | '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
   id:
     | '__root__'
     | '/_website'
@@ -76,7 +78,7 @@ declare module '@tanstack/solid-router' {
     '/_website': {
       id: '/_website'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof WebsiteRouteImport
       parentRoute: typeof rootRouteImport
     }
