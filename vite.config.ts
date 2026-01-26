@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     server: {
-      port: env.PORT ? Number(env.PORT) : undefined,
+      port: env.APP_PORT ? Number(env.APP_PORT) : undefined,
     },
     plugins: [
       mdx({

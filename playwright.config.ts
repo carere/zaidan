@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-if (!process.env.PORT) {
-  throw new Error("PORT is not set");
+if (!process.env.APP_PORT) {
+  throw new Error("APP_PORT is not set");
 }
 
 export default defineConfig({
@@ -14,7 +14,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   use: {
-    baseURL: `http://localhost:${process.env.PORT}`,
+    baseURL: `http://localhost:${process.env.APP_PORT}`,
     testIdAttribute: "data-slot",
     headless: true,
     screenshot: "off",
