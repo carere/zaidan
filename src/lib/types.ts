@@ -24,5 +24,4 @@ export type Theme =
 export type Font = "inter" | "noto-sans" | "nunito-sans" | "figtree";
 export type Radius = "none" | "small" | "medium" | "large";
 export type MenuAccent = "subtle" | "bold";
-export type View = "preview" | "docs";
 export type TocEntry = docs["toc"];

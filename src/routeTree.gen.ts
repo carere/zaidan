@@ -13,6 +13,7 @@ import { Route as WebsiteRouteImport } from './routes/_website'
 import { Route as WebsiteChar123SlugChar125RouteImport } from './routes/_website.{-$slug}'
 import { Route as PreviewPrimitiveSlugRouteImport } from './routes/preview.$primitive.$slug'
 import { Route as WebsiteUiChar123SlugChar125RouteImport } from './routes/_website.ui.{-$slug}'
+import { Route as WebsiteUiChar123SlugChar125DocsRouteImport } from './routes/_website.ui.{-$slug}.docs'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/_website',
@@ -35,37 +36,57 @@ const WebsiteUiChar123SlugChar125Route =
     path: '/ui/{-$slug}',
     getParentRoute: () => WebsiteRoute,
   } as any)
+const WebsiteUiChar123SlugChar125DocsRoute =
+  WebsiteUiChar123SlugChar125DocsRouteImport.update({
+    id: '/docs',
+    path: '/docs',
+    getParentRoute: () => WebsiteUiChar123SlugChar125Route,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
-  '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125RouteWithChildren
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/ui/{-$slug}/docs': typeof WebsiteUiChar123SlugChar125DocsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
-  '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125RouteWithChildren
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/ui/{-$slug}/docs': typeof WebsiteUiChar123SlugChar125DocsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_website': typeof WebsiteRouteWithChildren
   '/_website/{-$slug}': typeof WebsiteChar123SlugChar125Route
-  '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125RouteWithChildren
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/_website/ui/{-$slug}/docs': typeof WebsiteUiChar123SlugChar125DocsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
+  fullPaths:
+    | '/'
+    | '/{-$slug}'
+    | '/ui/{-$slug}'
+    | '/preview/$primitive/$slug'
+    | '/ui/{-$slug}/docs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/{-$slug}' | '/ui/{-$slug}' | '/preview/$primitive/$slug'
+  to:
+    | '/'
+    | '/{-$slug}'
+    | '/ui/{-$slug}'
+    | '/preview/$primitive/$slug'
+    | '/ui/{-$slug}/docs'
   id:
     | '__root__'
     | '/_website'
     | '/_website/{-$slug}'
     | '/_website/ui/{-$slug}'
     | '/preview/$primitive/$slug'
+    | '/_website/ui/{-$slug}/docs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -103,17 +124,39 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteUiChar123SlugChar125RouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_website/ui/{-$slug}/docs': {
+      id: '/_website/ui/{-$slug}/docs'
+      path: '/docs'
+      fullPath: '/ui/{-$slug}/docs'
+      preLoaderRoute: typeof WebsiteUiChar123SlugChar125DocsRouteImport
+      parentRoute: typeof WebsiteUiChar123SlugChar125Route
+    }
   }
 }
 
+interface WebsiteUiChar123SlugChar125RouteChildren {
+  WebsiteUiChar123SlugChar125DocsRoute: typeof WebsiteUiChar123SlugChar125DocsRoute
+}
+
+const WebsiteUiChar123SlugChar125RouteChildren: WebsiteUiChar123SlugChar125RouteChildren =
+  {
+    WebsiteUiChar123SlugChar125DocsRoute: WebsiteUiChar123SlugChar125DocsRoute,
+  }
+
+const WebsiteUiChar123SlugChar125RouteWithChildren =
+  WebsiteUiChar123SlugChar125Route._addFileChildren(
+    WebsiteUiChar123SlugChar125RouteChildren,
+  )
+
 interface WebsiteRouteChildren {
   WebsiteChar123SlugChar125Route: typeof WebsiteChar123SlugChar125Route
-  WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125Route
+  WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125RouteWithChildren
 }
 
 const WebsiteRouteChildren: WebsiteRouteChildren = {
   WebsiteChar123SlugChar125Route: WebsiteChar123SlugChar125Route,
-  WebsiteUiChar123SlugChar125Route: WebsiteUiChar123SlugChar125Route,
+  WebsiteUiChar123SlugChar125Route:
+    WebsiteUiChar123SlugChar125RouteWithChildren,
 }
 
 const WebsiteRouteWithChildren =

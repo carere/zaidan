@@ -1,26 +1,38 @@
+import { Link, useLocation } from "@tanstack/solid-router";
 import { BookOpen, Eye } from "lucide-solid";
-import { Show, splitProps } from "solid-js";
+import { createMemo, Show } from "solid-js";
 import { cn } from "@/lib/utils";
-import { useView } from "@/lib/view-context";
-import { Button, type ButtonProps } from "@/registry/ui/button";
+import { buttonVariants } from "@/registry/ui/button";
 
-export function ViewSwitcher(props: ButtonProps) {
-  const [local, others] = splitProps(props as ButtonProps, ["class"]);
-  const { view, toggleView } = useView();
+interface ViewSwitcherProps {
+  class?: string;
+}
+
+export function ViewSwitcher(props: ViewSwitcherProps) {
+  const location = useLocation();
+
+  const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
+
+  const linkHref = createMemo(() => {
+    const pathname = location().pathname;
+    if (isDocsPage()) {
+      // Remove /docs suffix to go to preview
+      return pathname.replace(/\/docs$/, "");
+    }
+    // Add /docs suffix to go to docs
+    return `${pathname}/docs`;
+  });
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      class={cn("size-8", local.class)}
-      title={`Switch to ${view() === "preview" ? "docs" : "preview"}`}
-      onClick={() => toggleView()}
-      {...others}
+    <Link
+      to={linkHref()}
+      class={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-8", props.class)}
+      title={`Switch to ${isDocsPage() ? "preview" : "docs"}`}
     >
       <span class="sr-only">Toggle between preview and docs</span>
-      <Show when={view() === "preview"} fallback={<Eye />}>
-        <BookOpen />
+      <Show when={isDocsPage()} fallback={<BookOpen />}>
+        <Eye />
       </Show>
-    </Button>
+    </Link>
   );
 }
