@@ -17,25 +17,80 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
 const PORTS_FILE = path.join(import.meta.dir, "..", ".dev-ports.json");
+const ENV_FILE = path.join(import.meta.dir, "..", ".env");
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const updateEnvKey = async (key: string, value: string) => {
+  const normalizedKey = key.trim();
+  if (!normalizedKey) {
+    throw new Error("env key must not be empty");
+  }
+
+  const envFile = Bun.file(ENV_FILE);
+  let contents = "";
+
+  if (await envFile.exists()) {
+    contents = await envFile.text();
+  }
+
+  const newline = contents.includes("\r\n") ? "\r\n" : "\n";
+  const lines = contents === "" ? [] : contents.split(/\r?\n/);
+  const keyPattern = new RegExp(`^(\\s*)${escapeRegExp(normalizedKey)}(\\s*=\\s*)(.*)$`);
+  let updated = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const match = line.match(keyPattern);
+    if (!match) {
+      continue;
+    }
+
+    const [, leading, separator, rest] = match;
+    const commentMatch = rest.match(/(\s+#.*)$/);
+    const comment = commentMatch ? commentMatch[1] : "";
+    lines[i] = `${leading}${normalizedKey}${separator}${value}${comment}`;
+    updated = true;
+    break;
+  }
+
+  if (!updated) {
+    const newLine = `${normalizedKey}=${value}`;
+    const hasTrailingEmptyLine = lines.length > 0 && lines[lines.length - 1] === "";
+
+    if (contents.endsWith("\n") && hasTrailingEmptyLine) {
+      lines.splice(lines.length - 1, 0, newLine);
+    } else {
+      lines.push(newLine);
+    }
+  }
+
+  await Bun.write(ENV_FILE, lines.join(newline));
+};
 
 /**
  * Check if a port is available
  */
 async function isPortAvailable(port: number) {
-  try {
-    const listener = Bun.listen({
-      hostname: "localhost",
-      port,
-      exclusive: true,
-      socket: {
-        data: () => {},
-      },
-    });
-    listener.stop(true);
-    return true;
-  } catch {
-    return false;
-  }
+  const canConnect = async (hostname: string) => {
+    try {
+      const socket = await Bun.connect({
+        hostname,
+        port,
+        socket: {
+          data() {},
+        },
+      });
+      socket.end();
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const isInUse = (await canConnect("127.0.0.1")) || (await canConnect("::1"));
+
+  return !isInUse;
 }
 
 /**
@@ -208,16 +263,24 @@ if (import.meta.main) {
   program
     .command("frontend")
     .description("Print frontend port.")
-    .action(async () => {
+    .option("--env-key <KEY>", "Write port to .env key.")
+    .action(async (options: { envKey?: string }) => {
       const ports = await getPorts();
+      if (options.envKey) {
+        await updateEnvKey(options.envKey, String(ports.frontend));
+      }
       console.log(JSON.stringify(ports.frontend, null, 2));
     });
 
   program
     .command("backend")
     .description("Print backend port.")
-    .action(async () => {
+    .option("--env-key <KEY>", "Write port to .env key.")
+    .action(async (options: { envKey?: string }) => {
       const ports = await getPorts();
+      if (options.envKey) {
+        await updateEnvKey(options.envKey, String(ports.backend));
+      }
       console.log(JSON.stringify(ports.backend, null, 2));
     });
 
