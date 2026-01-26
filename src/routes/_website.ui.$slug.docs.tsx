@@ -6,9 +6,9 @@ import { TableOfContents } from "@/components/toc";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 import { Skeleton } from "@/registry/ui/skeleton";
 
-export const Route = createFileRoute("/_website/ui/{-$slug}/docs")({
+export const Route = createFileRoute("/_website/ui/$slug/docs")({
   loader: ({ params }) => {
-    const doc = ui.find((u) => (params.slug ? u.slug === params.slug : u.slug === "button"));
+    const doc = ui.find((u) => u.slug === params.slug);
     if (!doc) {
       throw notFound({
         data: {

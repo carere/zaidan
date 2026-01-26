@@ -1,8 +1,7 @@
-import { Link, useLocation } from "@tanstack/solid-router";
+import { useLocation, useNavigate, useParams } from "@tanstack/solid-router";
 import { BookOpen, Eye } from "lucide-solid";
 import { createMemo, Show } from "solid-js";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/registry/ui/button";
+import { Button } from "@/registry/ui/button";
 
 interface ViewSwitcherProps {
   class?: string;
@@ -10,29 +9,29 @@ interface ViewSwitcherProps {
 
 export function ViewSwitcher(props: ViewSwitcherProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const params = useParams({ strict: false });
+
+  location();
 
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
 
-  const linkHref = createMemo(() => {
-    const pathname = location().pathname;
-    if (isDocsPage()) {
-      // Remove /docs suffix to go to preview
-      return pathname.replace(/\/docs$/, "");
-    }
-    // Add /docs suffix to go to docs
-    return `${pathname}/docs`;
-  });
-
   return (
-    <Link
-      to={linkHref()}
-      class={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-8", props.class)}
-      title={`Switch to ${isDocsPage() ? "preview" : "docs"}`}
+    <Button
+      onClick={() =>
+        navigate({
+          to: isDocsPage() ? "/ui/{-$slug}" : "/ui/$slug/docs",
+          params: { slug: params().slug },
+        })
+      }
+      variant="ghost"
+      size="icon"
+      class={props.class}
     >
       <span class="sr-only">Toggle between preview and docs</span>
       <Show when={isDocsPage()} fallback={<BookOpen />}>
         <Eye />
       </Show>
-    </Link>
+    </Button>
   );
 }
