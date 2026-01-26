@@ -1,0 +1,82 @@
+---
+title: Sidebar (Floating)
+slug: sidebar-floating
+description: A sidebar variant with rounded corners and visual separation from edges.
+---
+
+# Sidebar (Floating)
+
+A sidebar variant that appears to float with rounded corners and padding, creating a modern card-like appearance.
+
+## Installation
+
+See the [Sidebar](/ui/sidebar) component for installation instructions.
+
+## Usage
+
+```tsx
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+```
+
+```tsx showLineNumbers
+<SidebarProvider
+  style={{
+    "--sidebar-width": "19rem",
+  }}
+>
+  <Sidebar variant="floating">
+    <SidebarHeader>
+      {/* Logo and branding */}
+    </SidebarHeader>
+    <SidebarContent>
+      <SidebarGroup>
+        <SidebarMenu class="gap-2">
+          {/* Navigation items */}
+        </SidebarMenu>
+      </SidebarGroup>
+    </SidebarContent>
+  </Sidebar>
+  <SidebarInset>
+    {/* Main content */}
+  </SidebarInset>
+</SidebarProvider>
+```
+
+## Features
+
+- Floating appearance with rounded corners
+- Visual padding from window edges
+- Modern card-like aesthetic
+- Customizable width via CSS variable
+
+## Props
+
+| Prop | Type | Value | Description |
+|------|------|-------|-------------|
+| `variant` | `string` | `"floating"` | Enables floating visual style |
+
+## CSS Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--sidebar-width` | `16rem` | Width of the sidebar |
+
+## See Also
+
+- [Sidebar](/ui/sidebar) - Default sidebar
+- [Sidebar (Icon)](/ui/sidebar-icon) - Icon collapsible variant
+- [Sidebar (Inset)](/ui/sidebar-inset) - Inset variant
