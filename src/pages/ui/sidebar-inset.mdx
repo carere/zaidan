@@ -1,0 +1,78 @@
+---
+title: Sidebar (Inset)
+slug: sidebar-inset
+description: A sidebar variant inset within the main content area with custom background.
+---
+
+# Sidebar (Inset)
+
+A sidebar variant that appears inset within the main content area, creating a distinct visual separation with the background.
+
+## Installation
+
+See the [Sidebar](/ui/sidebar) component for installation instructions.
+
+## Usage
+
+```tsx
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+```
+
+```tsx showLineNumbers
+<SidebarProvider>
+  <SidebarInset>
+    <header>
+      {/* Header with breadcrumb and trigger */}
+      <SidebarTrigger class="rotate-180" />
+    </header>
+    {/* Main content */}
+  </SidebarInset>
+  <Sidebar variant="inset" side="right">
+    <SidebarContent>
+      <SidebarGroup>
+        <SidebarGroupLabel>Table of Contents</SidebarGroupLabel>
+        <SidebarGroupContent>
+          {/* Navigation items */}
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
+    <SidebarRail />
+  </Sidebar>
+</SidebarProvider>
+```
+
+## Features
+
+- Inset appearance within the content area
+- Perfect for table of contents or secondary navigation
+- Works well on the right side of the page
+- Maintains visual hierarchy with the main content
+
+## Props
+
+| Prop | Type | Value | Description |
+|------|------|-------|-------------|
+| `variant` | `string` | `"inset"` | Enables inset visual style |
+| `side` | `string` | `"right"` | Positions sidebar on the right |
+
+## See Also
+
+- [Sidebar](/ui/sidebar) - Default sidebar
+- [Sidebar (Icon)](/ui/sidebar-icon) - Icon collapsible variant
+- [Sidebar (Floating)](/ui/sidebar-floating) - Floating variant
