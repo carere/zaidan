@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import type { ECBasicOption } from "echarts/types/dist/shared";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
   type ChartConfig,
@@ -15,12 +15,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 export default function ChartExample() {
   return (
     <ExampleWrapper>
+      <ChartAreaExample />
       <ChartBarExample />
       <ChartLineExample />
       <ChartPieExample />
-      <ChartAreaExample />
       <ChartRadarExample />
-      <ChartInteractiveExample />
     </ExampleWrapper>
   );
 }
@@ -46,17 +45,67 @@ const chartConfig: ChartConfig = {
   },
 };
 
+function ChartAreaExample() {
+  const option: ECBasicOption = {
+    color: chartColors,
+    tooltip: {
+      ...chartTooltipDefaults,
+      trigger: "axis" as const,
+    },
+    grid: {
+      ...chartGridDefaults,
+      bottom: "15%",
+    },
+    xAxis: {
+      ...chartXAxisDefaults,
+      type: "category" as const,
+      data: monthlyData.map((d) => d.month.slice(0, 3)),
+      boundaryGap: false,
+    },
+    yAxis: {
+      ...chartYAxisDefaults,
+      axisLabel: {
+        show: false,
+      },
+    },
+    series: [
+      {
+        name: "Desktop",
+        type: "line" as const,
+        data: monthlyData.map((d) => d.desktop),
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3,
+        },
+        lineStyle: {
+          width: 2,
+        },
+        emphasis: { disabled: true },
+      },
+    ],
+  };
+
+  return (
+    <Example title="Area Chart">
+      <Card class="w-full">
+        <CardHeader>
+          <CardTitle>Area Chart - Stacked</CardTitle>
+          <CardDescription>Showing total visitors for the last 6 months</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+    </Example>
+  );
+}
+
 function ChartBarExample() {
   const option = {
     color: chartColors,
     tooltip: {
       ...chartTooltipDefaults,
       trigger: "axis" as const,
-    },
-    legend: {
-      ...chartLegendDefaults,
-      data: ["Desktop", "Mobile"],
-      bottom: 0,
     },
     grid: {
       ...chartGridDefaults,
@@ -69,7 +118,9 @@ function ChartBarExample() {
     },
     yAxis: {
       ...chartYAxisDefaults,
-      type: "value" as const,
+      axisLabel: {
+        show: false,
+      },
     },
     series: [
       {
@@ -169,77 +220,6 @@ function ChartLineExample() {
       <Card class="w-full">
         <CardHeader>
           <CardTitle>Line Chart</CardTitle>
-          <CardDescription>Showing total visitors for the last 6 months</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
-        </CardContent>
-      </Card>
-    </Example>
-  );
-}
-
-function ChartAreaExample() {
-  const option = {
-    color: chartColors,
-    tooltip: {
-      ...chartTooltipDefaults,
-      trigger: "axis" as const,
-    },
-    legend: {
-      ...chartLegendDefaults,
-      data: ["Desktop", "Mobile"],
-      bottom: 0,
-    },
-    grid: {
-      ...chartGridDefaults,
-      bottom: "15%",
-    },
-    xAxis: {
-      ...chartXAxisDefaults,
-      type: "category" as const,
-      data: monthlyData.map((d) => d.month.slice(0, 3)),
-      boundaryGap: false,
-    },
-    yAxis: {
-      ...chartYAxisDefaults,
-      type: "value" as const,
-    },
-    series: [
-      {
-        name: "Desktop",
-        type: "line" as const,
-        data: monthlyData.map((d) => d.desktop),
-        smooth: true,
-        areaStyle: {
-          opacity: 0.3,
-        },
-        lineStyle: {
-          width: 2,
-        },
-        emphasis: { disabled: true },
-      },
-      {
-        name: "Mobile",
-        type: "line" as const,
-        data: monthlyData.map((d) => d.mobile),
-        smooth: true,
-        areaStyle: {
-          opacity: 0.3,
-        },
-        lineStyle: {
-          width: 2,
-        },
-        emphasis: { disabled: true },
-      },
-    ],
-  };
-
-  return (
-    <Example title="Area Chart">
-      <Card class="w-full">
-        <CardHeader>
-          <CardTitle>Area Chart - Stacked</CardTitle>
           <CardDescription>Showing total visitors for the last 6 months</CardDescription>
         </CardHeader>
         <CardContent>
@@ -404,87 +384,6 @@ function ChartRadarExample() {
         </CardHeader>
         <CardContent>
           <ChartContainer option={option} class="h-[300px] w-full" />
-        </CardContent>
-      </Card>
-    </Example>
-  );
-}
-
-function ChartInteractiveExample() {
-  const [activeView, setActiveView] = createSignal<"desktop" | "mobile">("desktop");
-
-  const data = () =>
-    activeView() === "desktop"
-      ? monthlyData.map((d) => d.desktop)
-      : monthlyData.map((d) => d.mobile);
-
-  const option = () => ({
-    color: [activeView() === "desktop" ? "var(--chart-1)" : "var(--chart-2)"],
-    tooltip: {
-      ...chartTooltipDefaults,
-      trigger: "axis" as const,
-    },
-    grid: chartGridDefaults,
-    xAxis: {
-      ...chartXAxisDefaults,
-      type: "category" as const,
-      data: monthlyData.map((d) => d.month.slice(0, 3)),
-    },
-    yAxis: {
-      ...chartYAxisDefaults,
-      type: "value" as const,
-    },
-    series: [
-      {
-        name: activeView() === "desktop" ? "Desktop" : "Mobile",
-        type: "bar" as const,
-        data: data(),
-        barWidth: "60%",
-        itemStyle: {
-          borderRadius: [4, 4, 0, 0],
-        },
-        emphasis: { disabled: true },
-      },
-    ],
-  });
-
-  return (
-    <Example title="Interactive Chart">
-      <Card class="w-full">
-        <CardHeader class="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-          <div class="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-            <CardTitle>Interactive Bar Chart</CardTitle>
-            <CardDescription>Click buttons to switch between data views</CardDescription>
-          </div>
-          <div class="flex">
-            <button
-              type="button"
-              class={`relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:border-l sm:px-8 sm:py-6 ${
-                activeView() === "desktop" ? "bg-muted/50" : ""
-              }`}
-              onClick={() => setActiveView("desktop")}
-            >
-              <span class="text-muted-foreground text-xs">Desktop</span>
-              <span class="font-bold text-lg leading-none sm:text-3xl">
-                {monthlyData.reduce((sum, d) => sum + d.desktop, 0).toLocaleString()}
-              </span>
-            </button>
-            <button
-              type="button"
-              class={`relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:border-l sm:px-8 sm:py-6 ${
-                activeView() === "mobile" ? "bg-muted/50" : ""
-              }`}
-              onClick={() => setActiveView("mobile")}
-            >
-              <span class="text-muted-foreground text-xs">Mobile</span>
-              <span class="font-bold text-lg leading-none sm:text-3xl">
-                {monthlyData.reduce((sum, d) => sum + d.mobile, 0).toLocaleString()}
-              </span>
-            </button>
-          </div>
-        </CardHeader>
-        <CardContent class="px-2 sm:p-6">
-          <ChartContainer option={option()} config={chartConfig} class="h-[250px] w-full" />
         </CardContent>
       </Card>
     </Example>
