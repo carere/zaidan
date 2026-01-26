@@ -80,6 +80,9 @@ function ChartBarExample() {
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
         },
+        // Disable emphasis to prevent flickering when using CSS variables
+        // ECharts can't calculate emphasis colors from CSS variables
+        emphasis: { disabled: true },
       },
       {
         name: "Mobile",
@@ -89,6 +92,7 @@ function ChartBarExample() {
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
         },
+        emphasis: { disabled: true },
       },
     ],
   };
@@ -144,6 +148,7 @@ function ChartLineExample() {
         lineStyle: {
           width: 2,
         },
+        emphasis: { disabled: true },
       },
       {
         name: "Mobile",
@@ -154,6 +159,7 @@ function ChartLineExample() {
         lineStyle: {
           width: 2,
         },
+        emphasis: { disabled: true },
       },
     ],
   };
@@ -211,6 +217,7 @@ function ChartAreaExample() {
         lineStyle: {
           width: 2,
         },
+        emphasis: { disabled: true },
       },
       {
         name: "Mobile",
@@ -223,6 +230,7 @@ function ChartAreaExample() {
         lineStyle: {
           width: 2,
         },
+        emphasis: { disabled: true },
       },
     ],
   };
@@ -291,13 +299,8 @@ function ChartPieExample() {
         label: {
           show: false,
         },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 14,
-            fontWeight: "bold" as const,
-          },
-        },
+        // Disable emphasis to prevent flickering when using CSS variables
+        emphasis: { disabled: true },
         labelLine: {
           show: false,
         },
@@ -371,6 +374,7 @@ function ChartRadarExample() {
     series: [
       {
         type: "radar" as const,
+        emphasis: { disabled: true },
         data: [
           {
             name: "Team A",
@@ -439,6 +443,7 @@ function ChartInteractiveExample() {
         itemStyle: {
           borderRadius: [4, 4, 0, 0],
         },
+        emphasis: { disabled: true },
       },
     ],
   });
