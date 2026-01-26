@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("", () => {
   test("examples", async ({ page }) => {
-    await page.goto("http://localhost:5175/ui/alert-dialog");
+    await page.goto("/ui/alert-dialog");
 
     await page.waitForLoadState("networkidle");
 

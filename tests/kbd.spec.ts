@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Kbd Component", () => {
   test("examples", async ({ page }) => {
-    await page.goto("http://localhost:5175/ui/kbd");
+    await page.goto("/ui/kbd");
 
     await page.waitForLoadState("networkidle");
 

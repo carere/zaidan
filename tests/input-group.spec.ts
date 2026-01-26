@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Input Group Examples", () => {
   test("examples", async ({ page }) => {
-    await page.goto("http://localhost:5175/ui/input-group");
+    await page.goto("/ui/input-group");
 
     await page.waitForLoadState("networkidle");
 

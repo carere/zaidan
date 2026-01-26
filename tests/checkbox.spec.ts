@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Checkbox Component", () => {
   test("examples", async ({ page }) => {
-    await page.goto("http://localhost:5175/ui/checkbox");
+    await page.goto("/ui/checkbox");
 
     await page.waitForLoadState("networkidle");
 

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Popover", () => {
   test("examples", async ({ page }) => {
-    await page.goto("http://localhost:5175/ui/popover");
+    await page.goto("/ui/popover");
 
     await page.waitForLoadState("networkidle");
 
