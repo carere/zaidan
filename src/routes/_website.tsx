@@ -10,7 +10,6 @@ import { ModeSwitcher } from "@/components/mode-switcher";
 import { RandomButton } from "@/components/random-button";
 import { ResetButton } from "@/components/reset-button";
 import { SiteConfig } from "@/components/site-config";
-import { ViewSwitcher } from "@/components/view-switcher";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/ui/button";
 import { Separator } from "@/registry/ui/separator";
@@ -53,8 +52,6 @@ function RouteComponent() {
         </div>
         <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
           <GitHubLink />
-          <Separator orientation="vertical" />
-          <ViewSwitcher />
           <Separator orientation="vertical" />
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
           <Separator orientation="vertical" class="hidden xl:flex" />
