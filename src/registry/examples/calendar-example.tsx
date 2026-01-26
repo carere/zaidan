@@ -137,26 +137,53 @@ function CalendarWeekNumbers() {
 function CalendarCustomCell() {
   const [date, setDate] = createSignal<Date | null>(null);
 
-  // Generate random prices for dates (simulating availability pricing like Airbnb)
-  const getPriceForDate = (date: Date): number | null => {
-    // Only show prices for current and next month
+  // Define pricing data for specific dates (like Airbnb availability)
+  // In a real app, this would come from an API
+  const getPricing = (): Map<string, number> => {
+    const pricing = new Map<string, number>();
     const today = new Date();
-    const twoMonthsLater = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+    const year = today.getFullYear();
+    const month = today.getMonth();
 
-    if (date < today || date > twoMonthsLater) return null;
+    // Add prices for all days in current month (simulating available dates)
+    for (let day = 1; day <= 31; day++) {
+      const dateKey = `${year}-${month}-${day}`;
+      // Weekends are more expensive
+      const testDate = new Date(year, month, day);
+      if (testDate.getMonth() === month) {
+        const isWeekend = testDate.getDay() === 0 || testDate.getDay() === 6;
+        const basePrice = 89;
+        const variation = (day % 30) + (isWeekend ? 40 : 0);
+        pricing.set(dateKey, basePrice + variation);
+      }
+    }
 
-    // Generate a "random" but consistent price based on the date
-    const seed = date.getDate() + date.getMonth() * 31;
-    const basePrice = 80;
-    const variation = (seed % 50) + (date.getDay() === 0 || date.getDay() === 6 ? 30 : 0);
-    return basePrice + variation;
+    // Add prices for next month too
+    const nextMonth = month + 1;
+    const nextYear = nextMonth > 11 ? year + 1 : year;
+    const actualNextMonth = nextMonth % 12;
+    for (let day = 1; day <= 31; day++) {
+      const dateKey = `${nextYear}-${actualNextMonth}-${day}`;
+      const testDate = new Date(nextYear, actualNextMonth, day);
+      if (testDate.getMonth() === actualNextMonth) {
+        const isWeekend = testDate.getDay() === 0 || testDate.getDay() === 6;
+        const basePrice = 95;
+        const variation = (day % 35) + (isWeekend ? 45 : 0);
+        pricing.set(dateKey, basePrice + variation);
+      }
+    }
+
+    return pricing;
   };
 
+  const pricing = getPricing();
+
   const renderPriceCell = (props: CustomCellProps) => {
-    const price = getPriceForDate(props.date);
+    const dateKey = `${props.date.getFullYear()}-${props.date.getMonth()}-${props.date.getDate()}`;
+    const price = pricing.get(dateKey);
 
     return (
-      <Show when={price !== null && !props.isOutsideMonth}>
+      <Show when={price !== undefined && !props.isOutsideMonth}>
         <span
           class={`text-[0.65rem] ${props.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}
         >
@@ -251,7 +278,7 @@ function CalendarBookedDates() {
     <Example title="Booked Dates">
       <Card class="mx-auto w-fit p-0">
         <CardContent class="p-0">
-          <Calendar mode="single" value={date()} onValueChange={setDate} disabled={isBooked} />
+          <Calendar mode="single" value={date()} onValueChange={setDate} booked={isBooked} />
         </CardContent>
       </Card>
     </Example>
@@ -334,8 +361,8 @@ function DatePickerSimple() {
             class="justify-start px-2.5 font-normal"
           >
             <CalendarIcon data-icon="inline-start" />
-            <Show when={date()} fallback={<span>Pick a date</span>}>
-              {(d) => formatDate(d())}
+            <Show when={date()} fallback={<span>Pick a date</span>} keyed>
+              {(d) => formatDate(d)}
             </Show>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
@@ -370,8 +397,8 @@ function DatePickerWithDropdowns() {
             class="justify-start px-2.5 font-normal"
           >
             <CalendarIcon data-icon="inline-start" />
-            <Show when={date()} fallback={<span>Pick a date</span>}>
-              {(d) => formatDate(d())}
+            <Show when={date()} fallback={<span>Pick a date</span>} keyed>
+              {(d) => formatDate(d)}
             </Show>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
@@ -415,12 +442,12 @@ function DatePickerWithRange() {
             class="justify-start px-2.5 font-normal"
           >
             <CalendarIcon data-icon="inline-start" />
-            <Show when={date().from} fallback={<span>Pick a date</span>}>
+            <Show when={date().from} fallback={<span>Pick a date</span>} keyed>
               {(from) => (
-                <Show when={date().to} fallback={formatDate(from())}>
+                <Show when={date().to} fallback={formatDate(from)} keyed>
                   {(to) => (
                     <>
-                      {formatDate(from())} - {formatDate(to())}
+                      {formatDate(from)} - {formatDate(to)}
                     </>
                   )}
                 </Show>

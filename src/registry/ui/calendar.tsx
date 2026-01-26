@@ -49,9 +49,14 @@ type CalendarBaseProps = Omit<ComponentProps<"div">, "onChange"> & {
    */
   numberOfMonths?: number;
   /**
-   * Function to disable specific dates
+   * Function to disable specific dates (grayed out, not selectable)
    */
   disabled?: (date: Date) => boolean;
+  /**
+   * Function to mark specific dates as booked (strikethrough styling)
+   * Booked dates are also disabled but have different visual styling
+   */
+  booked?: (date: Date) => boolean;
   /**
    * The controlled month to display
    */
@@ -162,6 +167,7 @@ const CalendarComponent = (props: CalendarProps) => {
     "fixedWeeks",
     "numberOfMonths",
     "disabled",
+    "booked",
     "month",
     "onMonthChange",
     "defaultMonth",
@@ -201,7 +207,7 @@ const CalendarComponent = (props: CalendarProps) => {
       numberOfMonths={local.numberOfMonths}
       fixedWeeks={local.fixedWeeks}
       disableOutsideDays={!local.showOutsideDays}
-      disabled={local.disabled}
+      disabled={(date: Date) => local.disabled?.(date) || local.booked?.(date) || false}
       startOfWeek={local.weekStartsOn}
     >
       {/* @ts-expect-error - Calendar component is not typed correctly */}
@@ -215,84 +221,108 @@ const CalendarComponent = (props: CalendarProps) => {
           )}
           {...others}
         >
-          <div class="relative flex flex-col gap-4 md:flex-row">
+          <div class="flex flex-col gap-4 md:flex-row">
             <Index each={calendarProps.months}>
               {(monthData, index) => (
                 <div data-slot="calendar-month" class="flex w-full flex-col gap-4">
-                  {/* Month/Year Selection Header */}
-                  <Show
-                    when={local.monthYearSelection}
-                    fallback={
-                      <div
-                        data-slot="calendar-month-caption"
-                        class="flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)"
-                      >
+                  {/* Navigation and Header */}
+                  <nav
+                    data-slot="calendar-header"
+                    class="flex h-(--cell-size) w-full items-center justify-between gap-1"
+                  >
+                    <Calendar.Nav
+                      action="prev-month"
+                      as={Button}
+                      variant="ghost"
+                      class={cn(
+                        buttonVariants({ variant: "ghost" }),
+                        "size-(--cell-size) select-none p-0",
+                      )}
+                    >
+                      <ChevronLeft class="size-4" />
+                      <span class="sr-only">Previous month</span>
+                    </Calendar.Nav>
+
+                    {/* Month/Year Selection or Label */}
+                    <Show
+                      when={local.monthYearSelection}
+                      fallback={
                         <h2
-                          class="select-none font-medium text-sm"
+                          class="flex-1 select-none text-center font-medium text-sm"
                           data-slot="calendar-label"
                           id={calendarProps.labelIds[index]?.()}
                         >
                           {formatMonth(monthData().month)}
                         </h2>
-                      </div>
-                    }
-                  >
-                    <div
-                      data-slot="calendar-month-caption"
-                      class="flex h-(--cell-size) w-full items-center justify-center gap-2 px-(--cell-size)"
+                      }
                     >
-                      <Select<(typeof MONTHS)[number]>
-                        options={MONTHS}
-                        optionValue="value"
-                        optionTextValue="label"
-                        value={MONTHS.find((m) => m.value === monthData().month.getMonth())}
-                        onChange={(selectedMonth) => {
-                          if (selectedMonth) {
-                            const newDate = new Date(monthData().month);
-                            newDate.setMonth(selectedMonth.value);
-                            calendarProps.setMonth(newDate);
-                          }
-                        }}
-                        itemComponent={(itemProps) => (
-                          <SelectItem item={itemProps.item}>
-                            {itemProps.item.rawValue.label}
-                          </SelectItem>
-                        )}
-                      >
-                        <SelectTrigger size="sm" class="h-7 w-[110px]">
-                          <SelectValue<(typeof MONTHS)[number]>>
-                            {(state) => state.selectedOption().label}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent />
-                      </Select>
-                      <Select<{ label: string; value: number }>
-                        options={years()}
-                        optionValue="value"
-                        optionTextValue="label"
-                        value={years().find((y) => y.value === monthData().month.getFullYear())}
-                        onChange={(selectedYear) => {
-                          if (selectedYear) {
-                            const newDate = new Date(monthData().month);
-                            newDate.setFullYear(selectedYear.value);
-                            calendarProps.setMonth(newDate);
-                          }
-                        }}
-                        itemComponent={(itemProps) => (
-                          <SelectItem item={itemProps.item}>
-                            {itemProps.item.rawValue.label}
-                          </SelectItem>
-                        )}
-                      >
-                        <SelectTrigger size="sm" class="h-7 w-[80px]">
-                          <SelectValue<{ label: string; value: number }>>
-                            {(state) => state.selectedOption().label}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent />
-                      </Select>
-                    </div>
-                  </Show>
+                      <div class="flex flex-1 items-center justify-center gap-2">
+                        <Select<(typeof MONTHS)[number]>
+                          options={MONTHS}
+                          optionValue="value"
+                          optionTextValue="label"
+                          value={MONTHS.find((m) => m.value === monthData().month.getMonth())}
+                          onChange={(selectedMonth) => {
+                            if (selectedMonth) {
+                              const newDate = new Date(monthData().month);
+                              newDate.setMonth(selectedMonth.value);
+                              calendarProps.setMonth(newDate);
+                            }
+                          }}
+                          itemComponent={(itemProps) => (
+                            <SelectItem item={itemProps.item}>
+                              {itemProps.item.rawValue.label}
+                            </SelectItem>
+                          )}
+                        >
+                          <SelectTrigger size="sm" class="h-7 w-[110px]">
+                            <SelectValue<(typeof MONTHS)[number]>>
+                              {(state) => state.selectedOption().label}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent />
+                        </Select>
+                        <Select<{ label: string; value: number }>
+                          options={years()}
+                          optionValue="value"
+                          optionTextValue="label"
+                          value={years().find((y) => y.value === monthData().month.getFullYear())}
+                          onChange={(selectedYear) => {
+                            if (selectedYear) {
+                              const newDate = new Date(monthData().month);
+                              newDate.setFullYear(selectedYear.value);
+                              calendarProps.setMonth(newDate);
+                            }
+                          }}
+                          itemComponent={(itemProps) => (
+                            <SelectItem item={itemProps.item}>
+                              {itemProps.item.rawValue.label}
+                            </SelectItem>
+                          )}
+                        >
+                          <SelectTrigger size="sm" class="h-7 w-[80px]">
+                            <SelectValue<{ label: string; value: number }>>
+                              {(state) => state.selectedOption().label}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent />
+                        </Select>
+                      </div>
+                    </Show>
+
+                    <Calendar.Nav
+                      action="next-month"
+                      as={Button}
+                      variant="ghost"
+                      class={cn(
+                        buttonVariants({ variant: "ghost" }),
+                        "size-(--cell-size) select-none p-0",
+                      )}
+                    >
+                      <ChevronRight class="size-4" />
+                      <span class="sr-only">Next month</span>
+                    </Calendar.Nav>
+                  </nav>
 
                   <Calendar.Table index={index} class="w-full border-collapse">
                     <thead data-slot="calendar-weekdays">
@@ -341,6 +371,7 @@ const CalendarComponent = (props: CalendarProps) => {
                                       mode={local.mode}
                                       value={calendarProps.value}
                                       disabled={local.disabled}
+                                      booked={local.booked}
                                       customCell={local.customCell}
                                     />
                                   )}
@@ -355,36 +386,6 @@ const CalendarComponent = (props: CalendarProps) => {
                 </div>
               )}
             </Index>
-            {/* Navigation */}
-            <nav
-              data-slot="calendar-nav"
-              class="absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1"
-            >
-              <Calendar.Nav
-                action="prev-month"
-                as={Button}
-                variant="ghost"
-                class={cn(
-                  buttonVariants({ variant: "ghost" }),
-                  "size-(--cell-size) select-none p-0",
-                )}
-              >
-                <ChevronLeft class="size-4" />
-                <span class="sr-only">Previous month</span>
-              </Calendar.Nav>
-              <Calendar.Nav
-                action="next-month"
-                as={Button}
-                variant="ghost"
-                class={cn(
-                  buttonVariants({ variant: "ghost" }),
-                  "size-(--cell-size) select-none p-0",
-                )}
-              >
-                <ChevronRight class="size-4" />
-                <span class="sr-only">Next month</span>
-              </Calendar.Nav>
-            </nav>
           </div>
         </div>
       )}
@@ -407,6 +408,7 @@ type CalendarDayProps = {
   mode: "single" | "multiple" | "range";
   value: Date | null | Date[] | { from: Date | null; to: Date | null };
   disabled?: (date: Date) => boolean;
+  booked?: (date: Date) => boolean;
   customCell?: (props: CustomCellProps) => JSX.Element;
 };
 
@@ -414,6 +416,7 @@ const CalendarDay = (props: CalendarDayProps) => {
   const isOutsideMonth = () => props.day.getMonth() !== props.month.getMonth();
   const isToday = () => isSameDay(props.day, new Date());
   const isDisabled = () => props.disabled?.(props.day) ?? false;
+  const isBooked = () => props.booked?.(props.day) ?? false;
 
   const isSelected = () => {
     const value = props.value;
@@ -495,8 +498,10 @@ const CalendarDay = (props: CalendarDayProps) => {
           isInRange() && "rounded-none bg-muted text-foreground",
           // Outside month
           "data-[outside=true]:text-muted-foreground data-[outside=true]:aria-selected:text-muted-foreground",
-          // Disabled
-          "data-disabled:text-muted-foreground data-disabled:line-through data-disabled:opacity-50",
+          // Disabled (not selectable, grayed out)
+          "data-disabled:text-muted-foreground data-disabled:opacity-50",
+          // Booked (strikethrough styling)
+          isBooked() && "line-through",
           // Custom cell styling - add padding if custom cell is provided
           props.customCell && "h-auto min-h-(--cell-size) py-1",
         )}
