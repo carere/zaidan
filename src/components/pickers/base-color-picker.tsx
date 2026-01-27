@@ -39,7 +39,7 @@ export default function BaseColorPicker() {
 
   return (
     <div class="group/picker relative">
-      <DropdownMenu gutter={4} placement={isMobile() ? "top" : "left-start"}>
+      <DropdownMenu gutter={6} placement={isMobile() ? "top" : "left-start"}>
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Base Color</div>
@@ -50,7 +50,7 @@ export default function BaseColorPicker() {
             style={{ "background-color": getColor(selectedColor()) }}
           />
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="md:w-52">
+        <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-52">
           <DropdownMenuRadioGroup value={selectedColor()} onChange={selectColor}>
             <For each={colors}>
               {(color) => (

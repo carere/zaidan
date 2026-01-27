@@ -37,15 +37,15 @@ function RouteComponent() {
   const MDXContent = lazy(() => import(`../pages/ui/${doc().slug}.mdx`));
 
   return (
-    <div class="relative flex h-[calc(100svh-2*var(--header-height)-1rem)] flex-1 scroll-pt-[calc(var(--header-height)+0.25rem)] rounded-2xl ring-1 ring-foreground/15 sm:h-[calc(100svh-var(--header-height)-2rem)]">
-      <div class="z-0 mx-auto max-w-2xl overflow-y-auto scroll-smooth py-10">
+    <div class="relative basis-full overflow-hidden rounded-2xl ring-1 ring-foreground/15">
+      <div class="no-scrollbar h-[calc(100svh-4*var(--header-height))] overflow-y-auto scroll-smooth px-4 py-10">
         <MDXContent components={sharedComponents} />
-        <TableOfContents
-          class="absolute top-10 right-0 h-fit max-h-[calc(100vh-var(--header-height)-3rem)] w-56 shrink-0 overflow-y-auto"
-          toc={doc().toc}
-        />
-        <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
       </div>
+      <TableOfContents
+        class="top-10 right-0 hidden h-fit max-h-[calc(100vh-var(--header-height)-3rem)] w-56 shrink-0 overflow-y-auto sm:absolute"
+        toc={doc().toc}
+      />
+      <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }

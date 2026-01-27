@@ -108,7 +108,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
       <Button
         variant="outline"
         onClick={() => setOpen(true)}
-        class={cn("h-[calc(--spacing(13.5))] flex-1 justify-between sm:h-9 sm:w-full", local.class)}
+        class={cn("h-[calc(--spacing(13.5))] flex-1 justify-between md:h-9 md:w-full", local.class)}
         {...others}
       >
         <span class="flex flex-col items-start">
