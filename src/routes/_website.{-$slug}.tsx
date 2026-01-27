@@ -41,9 +41,8 @@ function RouteComponent() {
   return (
     <div
       data-slot="docs-layout"
-      class="relative flex w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)]"
+      class="relative flex w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)] lg:w-full"
     >
-      {/* Mobile/Tablet TOC - shown below md breakpoint */}
       <Collapsible class="absolute top-0 right-0 xl:hidden">
         <CollapsibleTrigger
           as={Button}
@@ -62,10 +61,15 @@ function RouteComponent() {
           <TableOfContents toc={doc().toc} />
         </CollapsibleContent>
       </Collapsible>
-      <div data-slot="docs-content" class="no-scrollbar h-full grow overflow-y-auto scroll-smooth">
-        <MDXContent components={sharedComponents} />
+      <div
+        data-slot="docs-content"
+        class="no-scrollbar flex h-full grow justify-center overflow-y-auto scroll-smooth"
+      >
+        <div class="w-full lg:max-w-2xl">
+          <MDXContent components={sharedComponents} />
+        </div>
       </div>
-      <TableOfContents class="hidden h-fit w-fit xl:block" toc={doc().toc} />
+      <TableOfContents class="hidden h-fit w-fit shrink-0 xl:block xl:w-62" toc={doc().toc} />
     </div>
   );
 }

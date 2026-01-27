@@ -34,7 +34,7 @@ function RouteComponent() {
   const doc = Route.useLoaderData();
 
   return (
-    <div class="relative basis-full overflow-hidden rounded-2xl ring-1 ring-foreground/15">
+    <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden rounded-2xl ring-1 ring-foreground/15 md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
       <iframe
         ref={iframeRef}
         src={`/preview/kobalte/${doc().slug}`}

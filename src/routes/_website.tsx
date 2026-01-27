@@ -62,10 +62,10 @@ function RouteComponent() {
         </div>
       </header>
       <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
-        <ItemExplorer />
-        <div class="flex basis-full flex-col gap-2 md:flex-row">
+        <ItemExplorer class="w-56 shrink-0" />
+        <div data-slot="main-content" class="flex basis-full flex-col gap-2 md:flex-row">
           <Outlet />
-          <Customizer class="shrink-0 grow md:w-48" />
+          <Customizer class="shrink-0 md:w-48" />
         </div>
       </SidebarProvider>
       <div

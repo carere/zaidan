@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
-import { For } from "solid-js";
+import { For, mergeProps, splitProps } from "solid-js";
+import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible";
 import {
   Sidebar,
@@ -11,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  type SidebarProps,
 } from "@/registry/ui/sidebar";
 import type { FileRouteTypes } from "@/routeTree.gen";
 
@@ -20,7 +22,9 @@ type Entry = {
   route: FileRouteTypes["to"];
 };
 
-export function ItemExplorer() {
+export function ItemExplorer(props: SidebarProps) {
+  const mergedProps = mergeProps({ collapsible: "none" }, props);
+  const [local, others] = splitProps(mergedProps as SidebarProps, ["class", "collapsible"]);
   const entries: Entry[] = [
     {
       title: "Getting Started",
@@ -36,8 +40,9 @@ export function ItemExplorer() {
 
   return (
     <Sidebar
-      class="sticky z-30 hidden h-[calc(100svh-var(--header-height)-2rem)] overscroll-none bg-transparent xl:flex"
-      collapsible="none"
+      collapsible={local.collapsible}
+      class={cn("z-30 hidden h-full overscroll-none bg-transparent xl:flex", local.class)}
+      {...others}
     >
       <SidebarContent class="no-scrollbar -mx-1 overflow-x-hidden">
         <For each={entries}>
