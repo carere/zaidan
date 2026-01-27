@@ -16,7 +16,10 @@ import { FieldGroup } from "@/registry/ui/field";
 
 export function Customizer(props: ComponentProps<"div">) {
   return (
-    <div class={cn("no-scrollbar flex flex-col overflow-y-auto md:w-48", props.class)}>
+    <div
+      data-slot="customizer"
+      class={cn("no-scrollbar flex flex-col overflow-y-auto md:w-48", props.class)}
+    >
       <div class="hidden items-center gap-2 px-[calc(--spacing(2.5))] pb-1 md:flex md:flex-col md:items-start">
         <Settings2Icon class="size-4" strokeWidth={2} />
         <div class="relative flex flex-col gap-1 rounded-lg text-[13px]/snug">

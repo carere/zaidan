@@ -1,10 +1,9 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { docs } from "@velite";
-import { lazy, Suspense } from "solid-js";
+import { lazy } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
-import { Skeleton } from "@/registry/ui/skeleton";
 
 export const Route = createFileRoute("/_website/{-$slug}")({
   loader: async ({ params }) => {
@@ -37,13 +36,14 @@ function RouteComponent() {
   const MDXContent = lazy(() => import(`../pages/docs/${doc().slug}.mdx`));
 
   return (
-    <div class="relative basis-full">
-      <div class="no-scrollbar min-w-0 flex-1 overflow-y-auto scroll-smooth">
-        <Suspense fallback={<Skeleton class="h-64 w-full" />}>
-          <MDXContent components={sharedComponents} />
-        </Suspense>
+    <div
+      data-slot="docs-layout"
+      class="relative flex w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)]"
+    >
+      <div data-slot="docs-content" class="no-scrollbar h-full grow overflow-y-auto scroll-smooth">
+        <MDXContent components={sharedComponents} />
       </div>
-      <TableOfContents toc={doc().toc} />
+      <TableOfContents class="hidden h-fit w-fit" toc={doc().toc} />
     </div>
   );
 }

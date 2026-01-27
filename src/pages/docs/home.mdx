@@ -6,10 +6,152 @@ slug: "home"
  
 # Home
 
-This is the home page
+Welcome to a deliberately long page used to stress-test scrolling,
+layout, and content rendering. Everything below is placeholder text,
+examples, and layout patterns that mimic real documentation.
+
+## What this page is for
+
+- Exercise long-form typography and spacing
+- Validate heading anchors and table of contents
+- Confirm code blocks, tables, and lists render correctly
+- Test search indexing and deep-link behavior
+
+## Quick tour
+
+### Layout sections
+
+This page includes several common documentation patterns. Paragraphs
+vary in length so you can see how line-height and max-width feel at
+different breakpoints. Sections are intentionally verbose to make the
+page tall enough for scroll and performance testing.
+
+### Design tokens
+
+Use this area to validate spacing between headings, body text, and
+inline code. The goal is to make sure the page remains readable across
+themes and that headings do not collapse into the content above them.
+
+> Tip: Toggle themes and fonts while scrolling to confirm the layout
+> remains stable. This blockquote is here to verify callout styling.
+
+## Installation (fake)
+
+The following commands are placeholders used to test code blocks. They
+do not correspond to a real package or version.
+
+```bash
+pnpm add zaidan-ui
+pnpm add solid-js
+pnpm add tailwindcss postcss autoprefixer
+```
+
+### Configuration snippet
+
+```json
+{
+  "ui": {
+    "preset": "zaidan",
+    "theme": "system",
+    "radius": "md"
+  }
+}
+```
+
+## Usage example
+
+Below is a sample snippet to confirm syntax highlighting and code block
+spacing. The content is intentionally simple.
 
 ```tsx
-<div>
-  <p>This is the home page!</p>
-</div>
+import { Button, Card } from "zaidan-ui";
+
+export default function Demo() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Example</Card.Title>
+        <Card.Description>Fake content for testing</Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <Button variant="primary">Click me</Button>
+      </Card.Content>
+    </Card>
+  );
+}
 ```
+
+## Sections you can skim
+
+### Component overview
+
+Components are grouped by purpose: actions, layout, data display, and
+feedback. These paragraphs are here to simulate real documentation.
+They also help verify how multi-line text wraps in narrow containers.
+
+### Do's and don'ts
+
+1. Do keep headings short and meaningful.
+2. Do provide clear examples with minimal noise.
+3. Don't mix multiple concepts in a single example.
+4. Don't rely on color alone to convey meaning.
+
+### Compatibility notes
+
+Text here is intentionally repetitive to generate length. The idea is
+to make sure the page can handle a variety of text lengths and styles
+without layout shifts or overlapping margins.
+
+## Table for alignment
+
+| Area | Goal | Notes |
+| --- | --- | --- |
+| Typography | Check line-height and rhythm | Use different font sizes |
+| Code blocks | Validate padding and overflow | Include long lines |
+| Lists | Ensure list markers align | Test nested spacing |
+| Tables | Confirm borders and zebra styles | Add enough rows |
+
+## More filler content
+
+This paragraph is part of the filler content block. It should be long
+enough to wrap across multiple lines on desktop screens, and still feel
+comfortable on mobile. The next paragraph repeats the idea with a
+slightly different cadence so you can test word spacing and readability.
+
+Another paragraph continues the filler. The goal is to provide a tall
+page with varied elements: headings, lists, tables, blockquotes, and
+code blocks. The content itself is intentionally generic.
+
+### Example: simple API surface
+
+```tsx
+type Theme = "light" | "dark" | "system";
+
+interface ZaidanConfig {
+  theme: Theme;
+  radius: "sm" | "md" | "lg";
+  density: "comfortable" | "compact";
+}
+
+export const config: ZaidanConfig = {
+  theme: "system",
+  radius: "md",
+  density: "comfortable"
+};
+```
+
+## FAQ
+
+**Is this real documentation?**  
+No. It's intentionally fake content for layout testing.
+
+**Can I delete this later?**  
+Yes. Replace it with real docs once you're done testing.
+
+**Why is it so long?**  
+To verify scrolling, performance, and layout stability.
+
+---
+
+If you need even more content, duplicate any section above or add
+additional tables and code samples. The exact wording is not important.

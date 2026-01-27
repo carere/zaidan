@@ -61,11 +61,11 @@ function RouteComponent() {
           </Button>
         </div>
       </header>
-      <SidebarProvider class="px-4 pt-15 pb-19.5 md:pb-4">
+      <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
         <ItemExplorer />
         <div class="flex basis-full flex-col gap-2 md:flex-row">
           <Outlet />
-          <Customizer />
+          <Customizer class="shrink-0 grow md:w-48" />
         </div>
       </SidebarProvider>
       <div
