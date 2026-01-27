@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { Preview } from "@/components/preview";
+import { PreviewBadgeNav } from "@/components/preview-badge-nav";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
@@ -30,11 +30,18 @@ export const Route = createFileRoute("/_website/ui/{-$slug}")({
 });
 
 function RouteComponent() {
+  let iframeRef: HTMLIFrameElement | undefined;
   const doc = Route.useLoaderData();
 
   return (
-    <div class="relative flex h-[calc(100svh-2*var(--header-height)-1rem)] flex-1 scroll-pt-[calc(var(--header-height)+0.25rem)] sm:h-[calc(100svh-var(--header-height)-2rem)]">
-      <Preview slug={doc().slug} />
+    <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden rounded-2xl ring-1 ring-foreground/15 md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
+      <iframe
+        ref={iframeRef}
+        src={`/preview/kobalte/${doc().slug}`}
+        class="z-10 size-full rounded-lg"
+        title="Preview"
+      />
+      <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }

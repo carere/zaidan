@@ -8,7 +8,6 @@ import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { RandomButton } from "@/components/random-button";
-import { ResetButton } from "@/components/reset-button";
 import { SiteConfig } from "@/components/site-config";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/ui/button";
@@ -26,13 +25,13 @@ function RouteComponent() {
     <div
       data-slot="layout"
       class={cn(
-        "style-vega relative z-10 flex h-svh flex-col overflow-hidden overscroll-none bg-background antialiased contain-layout [--header-height:calc(var(--spacing)*14)]",
-        { container: isFullLayout() },
+        "relative z-10 flex h-svh flex-col overflow-hidden overscroll-none bg-background antialiased contain-layout",
+        { "mx-auto max-w-screen-2xl px-4 xl:px-6": isFullLayout() },
       )}
     >
       <header
         class={cn(
-          "fixed top-0 z-50 flex w-full items-center px-6 py-3 **:data-[slot=separator]:h-4! md:gap-2",
+          "fixed top-0 z-50 flex w-full items-center px-4 py-3 **:data-[slot=separator]:h-4! md:gap-2",
           { "max-w-screen-2xl pr-[72px]": isFullLayout() },
         )}
       >
@@ -43,12 +42,8 @@ function RouteComponent() {
           <Separator orientation="vertical" class="mx-4" />
           <div class="hidden font-medium text-muted-foreground text-sm lg:flex">Zaidan</div>
         </div>
-        <div class="fixed inset-x-0 bottom-0 ml-auto flex flex-1 items-center justify-end gap-2 px-4.5 pb-4 sm:static sm:p-0 lg:ml-0">
+        <div class="ml-auto hidden flex-1 items-center justify-end gap-2 px-4.5 pb-4 sm:static sm:p-0 md:flex lg:ml-0">
           <ItemPicker />
-          <div class="items-center gap-0 sm:hidden">
-            <RandomButton />
-            <ResetButton />
-          </div>
         </div>
         <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
           <GitHubLink />
@@ -66,13 +61,20 @@ function RouteComponent() {
           </Button>
         </div>
       </header>
-      <SidebarProvider class="flex max-h-full flex-1 flex-col items-start px-6 pt-[calc(var(--header-height)+0.25rem)] sm:flex-row">
-        <ItemExplorer />
-        <div class="flex w-full basis-[calc(100%-calc(--spacing(13.5))-1.4rem)] flex-col gap-2 sm:flex-row sm:gap-6">
+      <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
+        <ItemExplorer class="w-56 shrink-0" />
+        <div data-slot="main-content" class="flex basis-full flex-col gap-2 md:flex-row">
           <Outlet />
-          <Customizer class="shrink-0 grow-0" />
+          <Customizer class="shrink-0 md:w-48" />
         </div>
       </SidebarProvider>
+      <div
+        data-slot="bot-navbar"
+        class="fixed bottom-0 flex w-full flex-row items-center gap-2 px-4 pt-2 pb-4 md:hidden"
+      >
+        <ItemPicker class="rounded-2xl" />
+        <RandomButton />
+      </div>
     </div>
   );
 }

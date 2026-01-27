@@ -70,7 +70,7 @@ export function TableOfContents(props: TableOfContentsProps) {
 
   return (
     <Show when={shouldRender()}>
-      <nav class={props.class} aria-label="Table of contents">
+      <nav data-slot="toc" class={props.class} aria-label="Table of contents">
         <div class="pb-4">
           <p class="mb-2 font-medium text-sm">On This Page</p>
           <ul class="space-y-1">

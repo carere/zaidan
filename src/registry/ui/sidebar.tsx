@@ -710,4 +710,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  type SidebarProps,
 };
