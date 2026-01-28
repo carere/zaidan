@@ -9,3 +9,4 @@ The following URLs will be scraped and cached locally:
 - https://playwright.dev/docs/writing-tests
 - https://playwright.dev/docs/locators
 - https://playwright.dev/docs/api/class-locator
+- https://tanstack.com/router/latest/docs/framework/solid/guide/search-params
