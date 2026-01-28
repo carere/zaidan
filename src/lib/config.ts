@@ -76,11 +76,11 @@ export const THEMES: { name: Theme; label: string; color: string }[] = [
 /**
  * Available radius options with their metadata
  */
-export const RADII: { name: Radius; label: string }[] = [
-  { name: "none", label: "None" },
-  { name: "small", label: "Small" },
-  { name: "medium", label: "Medium" },
-  { name: "large", label: "Large" },
+export const RADII: { name: Radius; label: string; value: string }[] = [
+  { name: "none", label: "None", value: "0" },
+  { name: "small", label: "Small", value: "0.25rem" },
+  { name: "medium", label: "Medium", value: "0.5rem" },
+  { name: "large", label: "Large", value: "0.75rem" },
 ];
 
 /**
@@ -94,11 +94,11 @@ export const MENU_ACCENTS: { name: MenuAccent; label: string }[] = [
 /**
  * Available font options with their metadata and font family values
  */
-export const FONTS: { name: Font; label: string; fontFamily: string }[] = [
-  { name: "inter", label: "Inter", fontFamily: "Inter, sans-serif" },
-  { name: "noto-sans", label: "Noto Sans", fontFamily: "Noto Sans, sans-serif" },
-  { name: "nunito-sans", label: "Nunito Sans", fontFamily: "Nunito Sans, sans-serif" },
-  { name: "figtree", label: "Figtree", fontFamily: "Figtree, sans-serif" },
+export const FONTS: { label: string; value: Font; fontFamily: string }[] = [
+  { label: "Inter", value: "inter", fontFamily: '"Inter Variable", sans-serif' },
+  { label: "Noto Sans", value: "noto-sans", fontFamily: '"Noto Sans Variable", sans-serif' },
+  { label: "Nunito Sans", value: "nunito-sans", fontFamily: '"Nunito Sans Variable", sans-serif' },
+  { label: "Figtree", value: "figtree", fontFamily: '"Figtree Variable", sans-serif' },
 ];
 
 /**

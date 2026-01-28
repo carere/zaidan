@@ -1,15 +1,10 @@
-import { createFileRoute, notFound } from "@tanstack/solid-router";
+import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { createEffect, onCleanup } from "solid-js";
+import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { CMD_K_FORWARD_TYPE } from "@/components/item-picker";
 import { DARK_MODE_FORWARD_TYPE } from "@/components/mode-switcher";
 import { PreviewBadgeNav } from "@/components/preview-badge-nav";
 import { RANDOMIZE_FORWARD_TYPE } from "@/components/random-button";
-import { sendToIframe } from "@/hooks/use-iframe-sync";
-import {
-  serializeDesignSystemSearchParams,
-  useDesignSystemSearchParams,
-} from "@/lib/search-params";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 
 /** Message type for syncing design system params to iframe */
@@ -42,29 +37,14 @@ export const Route = createFileRoute("/_website/ui/{-$slug}")({
 });
 
 function RouteComponent() {
-  let iframeRef: HTMLIFrameElement | undefined;
+  const router = useRouter();
   const doc = Route.useLoaderData();
-  const [params] = useDesignSystemSearchParams();
+  const search = Route.useSearch();
 
-  // Send design system params to iframe when they change or when iframe loads
-  createEffect(() => {
-    const currentParams = params();
-
-    // Send params immediately (for when params change)
-    if (iframeRef) {
-      sendToIframe(iframeRef, DESIGN_SYSTEM_PARAMS_SYNC_TYPE, { params: currentParams });
-    }
-  });
-
-  // Handle iframe load to send initial params
-  const handleIframeLoad = () => {
-    if (iframeRef) {
-      sendToIframe(iframeRef, DESIGN_SYSTEM_PARAMS_SYNC_TYPE, { params: params() });
-    }
-  };
+  let iframeRef: HTMLIFrameElement | undefined;
 
   // Handle forwarded keyboard shortcuts from iframe
-  createEffect(() => {
+  onMount(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === DARK_MODE_FORWARD_TYPE) {
         const syntheticEvent = new KeyboardEvent("keydown", {
@@ -95,14 +75,29 @@ function RouteComponent() {
     onCleanup(() => window.removeEventListener("message", handleMessage));
   });
 
+  // Send design system params to iframe when they change
+  createEffect(() => {
+    if (iframeRef) {
+      iframeRef.contentWindow?.postMessage({
+        type: DESIGN_SYSTEM_PARAMS_SYNC_TYPE,
+        data: search(),
+      });
+    }
+  });
+
   return (
     <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden rounded-2xl ring-1 ring-foreground/15 md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
       <iframe
         ref={iframeRef}
-        src={serializeDesignSystemSearchParams(`/preview/kobalte/${doc().slug}`, params())}
+        src={
+          router.buildLocation({
+            to: "/preview/$primitive/$slug",
+            params: { primitive: "kobalte", slug: doc().slug },
+            search: untrack(search),
+          }).pathname
+        }
         class="z-10 size-full rounded-lg"
         title="Preview"
-        onLoad={handleIframeLoad}
       />
       <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>

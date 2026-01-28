@@ -8,6 +8,7 @@ import {
   createSignal,
   For,
   onCleanup,
+  onMount,
   Show,
   splitProps,
 } from "solid-js";
@@ -55,9 +56,10 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
-  createEffect(() => {
+  onMount(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        console.log("Shortcut pressed");
         e.preventDefault();
         setOpen(true);
       }

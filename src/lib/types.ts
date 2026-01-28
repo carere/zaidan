@@ -25,3 +25,17 @@ export type Font = "inter" | "noto-sans" | "nunito-sans" | "figtree";
 export type Radius = "none" | "small" | "medium" | "large";
 export type MenuAccent = "subtle" | "bold";
 export type TocEntry = docs["toc"];
+
+export type IframeMessageType = "design-system-params-sync";
+
+export type IframeMessage = {
+  type: IframeMessageType;
+  data: {
+    style: Style;
+    baseColor: BaseColor;
+    theme: Theme;
+    font: Font;
+    radius: Radius;
+    menuAccent: MenuAccent;
+  };
+};
