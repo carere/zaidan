@@ -1,9 +1,3 @@
----
-description: Zaidan - ShadCN UI Registry for SolidJS. Use Bun for all commands.
-globs: "*.ts, *.tsx, *.html, *.css, *.js, *.jsx, package.json"
-alwaysApply: false
----
-
 # Zaidan Project Guide
 
 ## About This Project
@@ -23,9 +17,9 @@ Zaidan is a ShadCN UI registry for SolidJS - a collection of beautifully designe
 | Icons | Lucide Solid |
 | Router | TanStack Solid Router (file-based routing) |
 | SSR/Prerendering | TanStack Start |
-| Styling | Tailwind CSS v4, tw-animate-css |
+| Styling | Tailwind CSS v4 |
 | Build Tool | Vite |
-| Content | Velite (MDX collections), solid-mdx |
+| Content | Velite (MDX collections), solid-mdx (MDX generation) |
 | Variants | class-variance-authority (cva) |
 | Pattern Matching | ts-pattern |
 
@@ -49,56 +43,45 @@ scripts/              # Development scripts
 
 ## Development Commands
 
-Default to using Bun instead of Node.js.
+**IMPORTANT**:Default to using Bun instead of Node.js.
 
 ```bash
 # Install dependencies
 bun install
 
 # Start dev server (uses APP_PORT from .env)
-bun dev
+bun run dev
 
 # Build for production
-bun build
+bun run build
 
 # Preview production build
-bun preview
+bun run preview
 
 # Build registry for shadcn CLI
-bun registry:build
+bun run registry:build
 
 # Run E2E tests
-bun playwright test
+bun run playwright test
 
 # Run specific test
-bun playwright test tests/button.spec.ts
+bun run playwright test tests/button.spec.ts
 ```
 
-### Bun Alternatives
+### Bun Specificities
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>`
 - Use `bunx <package>` instead of `npx <package>`
 - Bun automatically loads `.env`, so don't use dotenv
 
 ## Path Aliases
 
-Configured in `tsconfig.json`:
-
-- `@/*` → `./src/*` - Main source imports
-- `@velite` → `./.velite` - Generated content collections
+Configured in `tsconfig.json`
 
 ## Code Style
 
 ### Formatting (Biome)
 
-Biome is used for linting and formatting. Configuration in `biome.json`:
-
-- Line width: 100 characters
-- Indent: 2 spaces
-- Double quotes for JS/TS strings
-- Tailwind classes are auto-sorted via `useSortedClasses` rule
+Biome is used for linting and formatting. Configuration in `biome.json`
 
 ### Class Utilities
 
@@ -110,13 +93,11 @@ import { cn } from "@/lib/utils";
 <div class={cn("base-class", props.class)} />
 ```
 
-### Git Hooks (Lefthook)
+### Git Specificities
 
-Pre-commit hooks run:
-- `sort-package-json` - Sorts package.json
-- `biome check --write` - Lints and formats staged files
+Pre-commit hooks, configured in `lefthook.yml`
 
-Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (enforced by commitlint).
+**IMPORTANT**: Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (enforced by commitlint).
 
 ## Component Patterns
 
@@ -151,6 +132,19 @@ const buttonVariants = cva("base-classes", {
 });
 ```
 
+### Pattern Matching
+
+Use `ts-pattern` for pattern matching instead of `switch` statements:
+
+```ts
+import { match, P } from "ts-pattern";
+
+const result = match(value)
+  .with({ type: P.number() }, (n) => n * 2)
+  .with({ type: P.string() }, (s) => s.toUpperCase())
+  .exhaustive();
+```
+
 ### Test Attributes
 
 Components use `data-slot` attributes for E2E test selectors:
@@ -164,17 +158,6 @@ Components use `data-slot` attributes for E2E test selectors:
 ### Playwright E2E Tests
 
 Tests are in the `tests/` directory with `.spec.ts` extension.
-
-```bash
-# Run all tests
-bun playwright test
-
-# Run with UI
-bun playwright test --ui
-
-# Run specific test file
-bun playwright test tests/dialog.spec.ts
-```
 
 ### Test Selectors
 
@@ -196,23 +179,10 @@ When building server-side functionality:
 - Prefer `Bun.file` over `node:fs`'s readFile/writeFile
 - `Bun.$\`ls\`` instead of execa
 
+For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
+
 ## Environment Variables
 
 - `APP_PORT` - Development server port (auto-configured via `scripts/setup-dev-env.ts`)
 - `CLOUDFLARE_R2_BUCKET_NAME` - Optional R2 bucket for uploads
 - `CLOUDFLARE_R2_PUBLIC_DOMAIN` - Optional R2 public domain
-
-## Key Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| `@kobalte/core` | Accessible UI primitives for SolidJS |
-| `corvu` | Drawer, dialog, and other components |
-| `@tanstack/solid-router` | File-based routing |
-| `@tanstack/solid-start` | SSR and prerendering |
-| `velite` | Type-safe content collections from MDX |
-| `class-variance-authority` | Component variant definitions |
-| `tailwind-merge` + `clsx` | Class name utilities |
-| `ts-pattern` | Pattern matching library |
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
