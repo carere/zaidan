@@ -16,7 +16,7 @@ Zaidan is a ShadCN UI registry for SolidJS - a collection of beautifully designe
 | UI Primitives | Kobalte, Corvu |
 | Icons | Lucide Solid |
 | Router | TanStack Solid Router (file-based routing) |
-| SSR/Prerendering | TanStack Start |
+| SSR/Pre-rendering | TanStack Start |
 | Styling | Tailwind CSS v4 |
 | Build Tool | Vite |
 | Content | Velite (MDX collections), solid-mdx (MDX generation) |
