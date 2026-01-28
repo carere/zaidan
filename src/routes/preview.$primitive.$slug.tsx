@@ -1,10 +1,17 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { lazy, Suspense } from "solid-js";
+import { ItemPickerScript } from "@/components/item-picker";
+import { DarkModeScript } from "@/components/mode-switcher";
+import { PreviewStyle } from "@/components/preview-style";
+import { DesignSystemProvider } from "@/components/providers/design-system-provider";
+import { RandomizeScript } from "@/components/random-button";
+import { validateDesignSystemSearch } from "@/lib/search-params";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 import { Skeleton } from "@/registry/ui/skeleton";
 
 export const Route = createFileRoute("/preview/$primitive/$slug")({
+  validateSearch: validateDesignSystemSearch,
   loader: ({ params }) => {
     const { slug, primitive } = params;
     const component = ui.find((u) => u.slug === slug);
@@ -40,8 +47,16 @@ function PreviewComponent() {
   const ExampleComponent = lazy(() => import(`../registry/examples/${data().slug}-example.tsx`));
 
   return (
-    <Suspense fallback={<Skeleton class="h-full w-full" />}>
-      <ExampleComponent />
-    </Suspense>
+    <>
+      <PreviewStyle />
+      <DarkModeScript />
+      <RandomizeScript />
+      <ItemPickerScript />
+      <DesignSystemProvider>
+        <Suspense fallback={<Skeleton class="h-full w-full" />}>
+          <ExampleComponent />
+        </Suspense>
+      </DesignSystemProvider>
+    </>
   );
 }

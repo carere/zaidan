@@ -1,5 +1,6 @@
-import { createSignal, For, Show } from "solid-js";
+import { For, Show } from "solid-js";
 import { match } from "ts-pattern";
+import { useDesignSystemSearchParams } from "@/lib/search-params";
 import type { Font } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
@@ -14,7 +15,7 @@ import {
 const fonts = ["inter", "noto-sans", "nunito-sans", "figtree"] satisfies Font[];
 
 export default function FontPicker() {
-  const [selectedFont, selectFont] = createSignal<Font>("inter");
+  const [params, setParams] = useDesignSystemSearchParams();
   const isMobile = useIsMobile();
 
   const getLabel = (font: Font) =>
@@ -39,17 +40,20 @@ export default function FontPicker() {
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Font</div>
-            <div class="font-medium text-foreground text-sm">{getLabel(selectedFont())}</div>
+            <div class="font-medium text-foreground text-sm">{getLabel(params().font)}</div>
           </div>
           <div
             class="font-medium text-foreground text-sm"
-            style={{ "font-family": getFontFamily(selectedFont()) }}
+            style={{ "font-family": getFontFamily(params().font) }}
           >
             Aa
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-64">
-          <DropdownMenuRadioGroup value={selectedFont()} onChange={selectFont}>
+          <DropdownMenuRadioGroup
+            value={params().font}
+            onChange={(value) => setParams({ font: value as Font })}
+          >
             <For each={fonts}>
               {(font, index) => (
                 <>

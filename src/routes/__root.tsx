@@ -5,6 +5,7 @@ import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+import { validateDesignSystemSearch } from "@/lib/search-params";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -19,6 +20,7 @@ export const Route = createRootRouteWithContext()({
       { title: "Zaidan", name: "title" },
     ],
   }),
+  validateSearch: validateDesignSystemSearch,
   shellComponent: RootComponent,
 });
 

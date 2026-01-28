@@ -136,13 +136,18 @@ export function ItemPicker(props: ComponentProps<"div">) {
                         <CommandItem
                           value={item.title}
                           onSelect={() => {
-                            navigate({ to: entry.route, params: { slug: item.slug } });
+                            navigate({
+                              to: entry.route,
+                              params: { slug: item.slug },
+                              search: (prev) => prev,
+                            });
                             setOpen(false);
                           }}
                         >
                           <Link
                             to={entry.route}
                             params={{ slug: item.slug }}
+                            search={(prev) => prev}
                             class="flex w-full items-center"
                           >
                             {item.title}
@@ -163,4 +168,24 @@ export function ItemPicker(props: ComponentProps<"div">) {
       </CommandDialog>
     </>
   );
+}
+
+export const CMD_K_FORWARD_TYPE = "cmd-k-forward";
+
+export function ItemPickerScript() {
+  createEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: CMD_K_FORWARD_TYPE, key: e.key }, "*");
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
+  });
+
+  return null;
 }
