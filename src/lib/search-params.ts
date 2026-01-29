@@ -39,31 +39,6 @@ export function validateDesignSystemSearch(
 }
 
 /**
- * Serializes design system search params to a URL query string
- * Only includes non-default values to keep URLs clean and readable
- *
- * @param basePath - The base path for the URL (e.g., "/ui/button")
- * @param params - Partial design system params to serialize
- * @returns Full URL path with query string (or just path if no non-default params)
- */
-export function serializeDesignSystemSearchParams(
-  basePath: string,
-  params: Partial<DesignSystemSearchParams>,
-): string {
-  const searchParams = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    // Only include if different from default
-    if (value !== undefined && value !== DEFAULT_CONFIG[key as keyof typeof DEFAULT_CONFIG]) {
-      searchParams.set(key, String(value));
-    }
-  }
-
-  const queryString = searchParams.toString();
-  return queryString ? `${basePath}?${queryString}` : basePath;
-}
-
-/**
  * Hook for managing design system search params in the URL
  * Provides reactive access to validated params and a setter for updates
  *
