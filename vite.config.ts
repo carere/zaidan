@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
       paths({ projects: ["./tsconfig.json"] }),
       tailwind(),
       tanstackStart(),
-      solid({ ssr: true, hot: false, extensions: [".tsx", ".jsx", ".mdx"] }),
+      solid({ ssr: true, hot: true, extensions: [".tsx", ".jsx", ".mdx"] }),
       velite(),
     ],
   };
