@@ -24,46 +24,6 @@ Copy and paste the following code into your project.
 
 ```
 
-## Usage
-
-```tsx
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
-  FieldTitle,
-} from "~/components/ui/field";
-```
-
-```tsx showLineNumbers
-<FieldSet>
-  <FieldLegend>Profile</FieldLegend>
-  <FieldDescription>This appears on invoices and emails.</FieldDescription>
-  <FieldGroup>
-    <Field>
-      <FieldLabel for="name">Full name</FieldLabel>
-      <Input id="name" autocomplete="off" placeholder="Evil Rabbit" />
-      <FieldDescription>This appears on invoices and emails.</FieldDescription>
-    </Field>
-    <Field>
-      <FieldLabel for="username">Username</FieldLabel>
-      <Input id="username" autocomplete="off" aria-invalid />
-      <FieldError>Choose another username.</FieldError>
-    </Field>
-    <Field orientation="horizontal">
-      <Switch id="newsletter" />
-      <FieldLabel for="newsletter">Subscribe to the newsletter</FieldLabel>
-    </Field>
-  </FieldGroup>
-</FieldSet>
-```
-
 ## Anatomy
 
 The `Field` family is designed for composing accessible forms. A typical field is structured as follows:

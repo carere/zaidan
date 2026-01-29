@@ -12,9 +12,36 @@ A sidebar variant that appears inset within the main content area, creating a di
 
 See the [Sidebar](/ui/sidebar) component for installation instructions.
 
-## Usage
+## Features
+
+- Inset appearance within the content area
+- Perfect for table of contents or secondary navigation
+- Works well on the right side of the page
+- Maintains visual hierarchy with the main content
+
+## Props
+
+| Prop | Type | Value | Description |
+|------|------|-------|-------------|
+| `variant` | `string` | `"inset"` | Enables inset visual style |
+| `side` | `string` | `"right"` | Positions sidebar on the right |
+
+## Examples
+
+Here is the source code of the example from the preview page:
+
+### Inset Variant
 
 ```tsx
+import { For, Show } from "solid-js";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
 import {
   Sidebar,
   SidebarContent,
@@ -34,42 +61,9 @@ import {
 } from "~/components/ui/sidebar";
 ```
 
-```tsx showLineNumbers
-<SidebarProvider>
-  <SidebarInset>
-    <header>
-      {/* Header with breadcrumb and trigger */}
-      <SidebarTrigger class="rotate-180" />
-    </header>
-    {/* Main content */}
-  </SidebarInset>
-  <Sidebar variant="inset" side="right">
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel>Table of Contents</SidebarGroupLabel>
-        <SidebarGroupContent>
-          {/* Navigation items */}
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </SidebarContent>
-    <SidebarRail />
-  </Sidebar>
-</SidebarProvider>
+```tsx file=../../registry/examples/sidebar-inset-example.tsx#L88-L155
+
 ```
-
-## Features
-
-- Inset appearance within the content area
-- Perfect for table of contents or secondary navigation
-- Works well on the right side of the page
-- Maintains visual hierarchy with the main content
-
-## Props
-
-| Prop | Type | Value | Description |
-|------|------|-------|-------------|
-| `variant` | `string` | `"inset"` | Enables inset visual style |
-| `side` | `string` | `"right"` | Positions sidebar on the right |
 
 ## See Also
 

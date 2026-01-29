@@ -29,48 +29,6 @@ You'll also need to install the ECharts dependency:
 bun add echarts
 ```
 
-## Usage
-
-```tsx
-import {
-  ChartContainer,
-  chartColors,
-  chartGridDefaults,
-  chartTooltipDefaults,
-  chartXAxisDefaults,
-  chartYAxisDefaults,
-} from "@/registry/ui/chart"
-
-const data = [
-  { month: "Jan", value: 186 },
-  { month: "Feb", value: 305 },
-  { month: "Mar", value: 237 },
-]
-
-export function MyChart() {
-  const option = {
-    color: chartColors,
-    tooltip: chartTooltipDefaults,
-    grid: chartGridDefaults,
-    xAxis: {
-      ...chartXAxisDefaults,
-      type: "category",
-      data: data.map(d => d.month),
-    },
-    yAxis: {
-      ...chartYAxisDefaults,
-      type: "value",
-    },
-    series: [{
-      type: "bar",
-      data: data.map(d => d.value),
-    }],
-  }
-
-  return <ChartContainer option={option} class="h-[300px]" />
-}
-```
-
 ## Chart Configuration
 
 The `ChartConfig` type allows you to define labels, colors, and icons for each data series:
@@ -348,4 +306,102 @@ type ChartConfig = {
     theme?: { light: string; dark: string }
   }
 }
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Area Chart
+
+```tsx
+import type { ECBasicOption } from "echarts/types/dist/shared";
+import {
+  type ChartConfig,
+  ChartContainer,
+  chartColors,
+  chartGridDefaults,
+  chartTooltipDefaults,
+  chartXAxisDefaults,
+  chartYAxisDefaults,
+} from "~/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/chart-example.tsx#L48-L101
+
+```
+
+### Bar Chart
+
+```tsx
+import type { ECBasicOption } from "echarts/types/dist/shared";
+import {
+  type ChartConfig,
+  ChartContainer,
+  chartColors,
+  chartGridDefaults,
+  chartTooltipDefaults,
+  chartXAxisDefaults,
+  chartYAxisDefaults,
+} from "~/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/chart-example.tsx#L103-L164
+
+```
+
+### Line Chart
+
+```tsx
+import type { ECBasicOption } from "echarts/types/dist/shared";
+import {
+  type ChartConfig,
+  ChartContainer,
+  chartColors,
+  chartGridDefaults,
+  chartLegendDefaults,
+  chartTooltipDefaults,
+  chartXAxisDefaults,
+  chartYAxisDefaults,
+} from "~/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/chart-example.tsx#L166-L231
+
+```
+
+### Pie Chart
+
+```tsx
+import type { ECBasicOption } from "echarts/types/dist/shared";
+import {
+  type ChartConfig,
+  ChartContainer,
+  chartColors,
+  chartLegendDefaults,
+} from "~/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/chart-example.tsx#L233-L305
+
+```
+
+### Radar Chart
+
+```tsx
+import type { ECBasicOption } from "echarts/types/dist/shared";
+import {
+  ChartContainer,
+  chartColors,
+  chartLegendDefaults,
+} from "~/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+```
+
+```tsx file=../../registry/examples/chart-example.tsx#L307-L391
+
 ```
