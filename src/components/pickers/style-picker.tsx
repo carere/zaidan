@@ -6,6 +6,7 @@ import { Maia } from "@/components/icons/maia";
 import { Mira } from "@/components/icons/mira";
 import { Nova } from "@/components/icons/nova";
 import { Vega } from "@/components/icons/vega";
+import { LockButton } from "@/components/lock-button";
 import { DEFAULT_CONFIG, STYLES } from "@/lib/config";
 import type { Style } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
@@ -77,6 +78,7 @@ export default function StylePicker() {
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <LockButton param="style" class="absolute top-1/2 right-10 -translate-y-1/2" />
     </div>
   );
 }

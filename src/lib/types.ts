@@ -41,6 +41,8 @@ export type Radius = z.infer<typeof RadiusSchema>;
 export const MenuAccentSchema = z.enum(["subtle", "bold"]);
 export type MenuAccent = z.infer<typeof MenuAccentSchema>;
 
+export type LockableParam = "style" | "baseColor" | "theme" | "font" | "radius" | "menuAccent";
+
 export type TocEntry = docs["toc"];
 
 export type IframeMessage =

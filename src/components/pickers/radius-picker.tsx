@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For } from "solid-js";
 import { Radius as RadiusIcon } from "@/components/icons/radius";
+import { LockButton } from "@/components/lock-button";
 import { DEFAULT_CONFIG, RADII } from "@/lib/config";
 import type { Radius } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
@@ -63,6 +64,7 @@ export default function RadiusPicker() {
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <LockButton param="radius" class="absolute top-1/2 right-10 -translate-y-1/2" />
     </div>
   );
 }

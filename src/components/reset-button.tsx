@@ -1,4 +1,6 @@
+import { useNavigate } from "@tanstack/solid-router";
 import { Undo2 } from "lucide-solid";
+import { DEFAULT_CONFIG } from "@/lib/config";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +15,23 @@ import {
 import { Button } from "@/registry/ui/button";
 
 export function ResetButton() {
+  const navigate = useNavigate();
+
+  const handleReset = () => {
+    navigate({
+      to: ".",
+      search: (prev) => ({
+        ...prev,
+        style: DEFAULT_CONFIG.style,
+        baseColor: DEFAULT_CONFIG.baseColor,
+        theme: DEFAULT_CONFIG.theme,
+        font: DEFAULT_CONFIG.font,
+        radius: DEFAULT_CONFIG.radius,
+        menuAccent: DEFAULT_CONFIG.menuAccent,
+      }),
+    });
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger
@@ -37,7 +56,9 @@ export function ResetButton() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel class="rounded-lg">Cancel</AlertDialogCancel>
-          <AlertDialogAction class="rounded-lg">Reset</AlertDialogAction>
+          <AlertDialogAction class="rounded-lg" onClick={handleReset}>
+            Reset
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
