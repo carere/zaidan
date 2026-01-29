@@ -1,10 +1,34 @@
 import { Dice5 } from "lucide-solid";
-import { createEffect, onCleanup } from "solid-js";
+import { onCleanup, onMount } from "solid-js";
 import { Button } from "@/registry/ui/button";
 import { Kbd } from "@/registry/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip";
 
+function randomItem<T>(array: readonly T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 export function RandomButton() {
+  onMount(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
+        if (
+          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
+          e.target instanceof HTMLInputElement ||
+          e.target instanceof HTMLTextAreaElement ||
+          e.target instanceof HTMLSelectElement
+        ) {
+          return;
+        }
+        e.preventDefault();
+        // TODO: Randomize the design system params + add locks
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
+  });
+
   return (
     <Tooltip placement="left">
       <TooltipTrigger
@@ -23,32 +47,4 @@ export function RandomButton() {
       <TooltipContent>Use browser back/forward to navigate history</TooltipContent>
     </Tooltip>
   );
-}
-
-export const RANDOMIZE_FORWARD_TYPE = "randomize-forward";
-
-export function RandomizeScript() {
-  createEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
-        if (
-          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
-        ) {
-          return;
-        }
-        e.preventDefault();
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: RANDOMIZE_FORWARD_TYPE, key: e.key }, "*");
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
-  });
-
-  return null;
 }

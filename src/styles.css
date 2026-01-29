@@ -14,7 +14,7 @@
 @import "./styles/style-maia.css" layer(base);
 @import "./styles/style-mira.css" layer(base);
 
-@custom-variant dark ([data-kb-theme="dark"] &);
+@custom-variant dark (&:is(.dark *));
 @custom-variant hover (&:hover);
 
 :root {
@@ -64,7 +64,7 @@
   --error-foreground: oklch(0.396 0.141 25.723);
 }
 
-[data-kb-theme="dark"] {
+.dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);

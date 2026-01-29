@@ -24,13 +24,8 @@ export default defineConfig(({ mode }) => {
       devtools(),
       paths({ projects: ["./tsconfig.json"] }),
       tailwind(),
-      tanstackStart({
-        prerender: {
-          enabled: true,
-          crawlLinks: true,
-        },
-      }),
-      solid({ ssr: true, hot: true, extensions: [".tsx", ".jsx", ".mdx"] }),
+      tanstackStart(),
+      solid({ ssr: true, hot: false, extensions: [".tsx", ".jsx", ".mdx"] }),
       velite(),
     ],
   };

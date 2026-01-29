@@ -58,7 +58,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   onMount(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "p")) {
         console.log("Shortcut pressed");
         e.preventDefault();
         setOpen(true);
@@ -170,24 +170,4 @@ export function ItemPicker(props: ComponentProps<"div">) {
       </CommandDialog>
     </>
   );
-}
-
-export const CMD_K_FORWARD_TYPE = "cmd-k-forward";
-
-export function ItemPickerScript() {
-  createEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: CMD_K_FORWARD_TYPE, key: e.key }, "*");
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
-  });
-
-  return null;
 }

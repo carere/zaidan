@@ -1,6 +1,6 @@
-import { useColorMode } from "@kobalte/core";
 import { For } from "solid-js";
 import { match } from "ts-pattern";
+import { useColorMode } from "@/lib/color-mode";
 import { useDesignSystemSearchParams } from "@/lib/search-params";
 import type { BaseColor } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
@@ -19,8 +19,8 @@ const colors = ["neutral", "stone", "zinc", "gray"] satisfies BaseColor[];
 
 export default function BaseColorPicker() {
   const [params, setParams] = useDesignSystemSearchParams();
-  const { colorMode, toggleColorMode } = useColorMode();
   const isMobile = useIsMobile();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const getLabel = (color: BaseColor) =>
     match(color)
@@ -72,10 +72,10 @@ export default function BaseColorPicker() {
           </DropdownMenuRadioGroup>
           <DropdownMenuSeparator class="my-1" />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={toggleColorMode}>
+            <DropdownMenuItem onClick={() => toggleColorMode()}>
               <div class="flex flex-col justify-start pointer-coarse:gap-1">
                 <span class="text-sm">
-                  Switch to {colorMode() === "dark" ? "Light" : "Dark"} Mode
+                  Switch to {colorMode() === "light" ? "Dark" : "Light"} Mode
                 </span>
                 <span class="pointer-coarse:text-sm text-muted-foreground text-xs">
                   Base colors are easier to see in dark mode.

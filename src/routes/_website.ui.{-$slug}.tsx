@@ -1,14 +1,10 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
-import { CMD_K_FORWARD_TYPE } from "@/components/item-picker";
-import { DARK_MODE_FORWARD_TYPE } from "@/components/mode-switcher";
 import { PreviewBadgeNav } from "@/components/preview-badge-nav";
-import { RANDOMIZE_FORWARD_TYPE } from "@/components/random-button";
+import { useColorMode } from "@/lib/color-mode";
+import type { IframeMessage } from "@/lib/types";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
-
-/** Message type for syncing design system params to iframe */
-const DESIGN_SYSTEM_PARAMS_SYNC_TYPE = "design-system-params-sync";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
   loader: ({ params }) => {
@@ -40,30 +36,33 @@ function RouteComponent() {
   const router = useRouter();
   const doc = Route.useLoaderData();
   const search = Route.useSearch();
+  const { colorMode } = useColorMode();
 
   let iframeRef: HTMLIFrameElement | undefined;
 
   // Handle forwarded keyboard shortcuts from iframe
   onMount(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === DARK_MODE_FORWARD_TYPE) {
+    const handleMessage = (event: MessageEvent<IframeMessage>) => {
+      if (event.data.type === "dark-mode-forward") {
         const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key || "d",
+          key: event.data.key,
           bubbles: true,
           cancelable: true,
         });
         document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === RANDOMIZE_FORWARD_TYPE) {
+      } else if (event.data.type === "randomize-forward") {
         const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key || "r",
+          key: event.data.key,
           bubbles: true,
           cancelable: true,
         });
         document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === CMD_K_FORWARD_TYPE) {
+      } else if (event.data.type === "cmd-k-forward") {
+        const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
         const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key || "k",
-          metaKey: true,
+          key: event.data.key,
+          metaKey: isMac,
+          ctrlKey: !isMac,
           bubbles: true,
           cancelable: true,
         });
@@ -79,9 +78,19 @@ function RouteComponent() {
   createEffect(() => {
     if (iframeRef) {
       iframeRef.contentWindow?.postMessage({
-        type: DESIGN_SYSTEM_PARAMS_SYNC_TYPE,
+        type: "design-system-params-sync",
         data: search(),
-      });
+      } satisfies IframeMessage);
+    }
+  });
+
+  // Send color mode to iframe when it changes
+  createEffect(() => {
+    if (iframeRef) {
+      iframeRef.contentWindow?.postMessage({
+        type: "color-mode-sync",
+        data: colorMode(),
+      } satisfies IframeMessage);
     }
   });
 

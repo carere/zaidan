@@ -1,14 +1,12 @@
-import { useColorMode } from "@kobalte/core";
 import { CircleCheck, Info, LoaderCircle, OctagonX, TriangleAlert } from "lucide-solid";
 import type { Component, ComponentProps, JSX } from "solid-js";
-
 import { Toaster as Sonner } from "solid-sonner";
+import { useColorMode } from "@/lib/color-mode";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
 
 const Toaster: Component<ToasterProps> = (props) => {
   const { colorMode } = useColorMode();
-
   return (
     <Sonner
       theme={colorMode()}
