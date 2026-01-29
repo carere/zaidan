@@ -1,10 +1,11 @@
-import { createSignal, For, Show } from "solid-js";
+import { For, Show } from "solid-js";
 import { match } from "ts-pattern";
 import { Lyra } from "@/components/icons/lyra";
 import { Maia } from "@/components/icons/maia";
 import { Mira } from "@/components/icons/mira";
 import { Nova } from "@/components/icons/nova";
 import { Vega } from "@/components/icons/vega";
+import { useDesignSystemSearchParams } from "@/lib/search-params";
 import type { Style } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
@@ -19,7 +20,7 @@ import {
 const styles = ["vega", "nova", "lyra", "maia", "mira"] satisfies Style[];
 
 export default function StylePicker() {
-  const [selectedStyle, selectStyle] = createSignal<Style>("vega");
+  const [params, setParams] = useDesignSystemSearchParams();
   const isMobile = useIsMobile();
 
   const getLabel = (style: Style) =>
@@ -55,12 +56,15 @@ export default function StylePicker() {
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Style</div>
-            <div class="font-medium text-foreground text-sm">{getLabel(selectedStyle())}</div>
+            <div class="font-medium text-foreground text-sm">{getLabel(params().style)}</div>
           </div>
-          {getIcon(selectedStyle())}
+          {getIcon(params().style)}
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-64">
-          <DropdownMenuRadioGroup value={selectedStyle()} onChange={selectStyle}>
+          <DropdownMenuRadioGroup
+            value={params().style}
+            onChange={(value) => setParams({ style: value as Style })}
+          >
             <For each={["vega", "nova", "lyra", "maia", "mira"] satisfies Style[]}>
               {(style, index) => (
                 <>

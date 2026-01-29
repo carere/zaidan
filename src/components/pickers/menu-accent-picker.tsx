@@ -1,6 +1,7 @@
 import { PaintBucket } from "lucide-solid";
-import { createSignal, For } from "solid-js";
+import { For } from "solid-js";
 import { match } from "ts-pattern";
+import { useDesignSystemSearchParams } from "@/lib/search-params";
 import type { MenuAccent } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
@@ -14,7 +15,7 @@ import {
 const menuAccents = ["subtle", "bold"] satisfies MenuAccent[];
 
 export default function MenuAccentPicker() {
-  const [selectedMenuAccent, selectMenuAccent] = createSignal<MenuAccent>("subtle");
+  const [params, setParams] = useDesignSystemSearchParams();
   const isMobile = useIsMobile();
 
   const getLabel = (menuAccent: MenuAccent) =>
@@ -29,12 +30,15 @@ export default function MenuAccentPicker() {
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Menu Accent</div>
-            <div class="font-medium text-foreground text-sm">{getLabel(selectedMenuAccent())}</div>
+            <div class="font-medium text-foreground text-sm">{getLabel(params().menuAccent)}</div>
           </div>
           <PaintBucket class="size-4 text-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-36">
-          <DropdownMenuRadioGroup value={selectedMenuAccent()} onChange={selectMenuAccent}>
+          <DropdownMenuRadioGroup
+            value={params().menuAccent}
+            onChange={(value) => setParams({ menuAccent: value as MenuAccent })}
+          >
             <For each={menuAccents}>
               {(menuAccent) => (
                 <DropdownMenuRadioItem value={menuAccent}>

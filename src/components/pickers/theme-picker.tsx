@@ -1,5 +1,6 @@
-import { createSignal, For } from "solid-js";
+import { For } from "solid-js";
 import { match } from "ts-pattern";
+import { useDesignSystemSearchParams } from "@/lib/search-params";
 import type { Theme } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
@@ -32,7 +33,7 @@ const themes = [
 ] satisfies Theme[];
 
 export default function ThemePicker() {
-  const [selectedTheme, selectTheme] = createSignal<Theme>("amber");
+  const [params, setParams] = useDesignSystemSearchParams();
   const isMobile = useIsMobile();
 
   const getLabel = (theme: Theme | "neutral") =>
@@ -85,15 +86,18 @@ export default function ThemePicker() {
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Theme</div>
-            <div class="font-medium text-foreground text-sm">{getLabel(selectedTheme())}</div>
+            <div class="font-medium text-foreground text-sm">{getLabel(params().theme)}</div>
           </div>
           <div
             class="size-4 rounded-full border border-foreground/10"
-            style={{ "background-color": getColor(selectedTheme()) }}
+            style={{ "background-color": getColor(params().theme) }}
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent class="no-scrollbar max-h-96 w-[calc(100svw-var(--spacing)*4)] md:w-52">
-          <DropdownMenuRadioGroup value={selectedTheme()} onChange={selectTheme}>
+          <DropdownMenuRadioGroup
+            value={params().theme}
+            onChange={(value) => setParams({ theme: value as Theme })}
+          >
             {/* Base Color Match Group */}
             <DropdownMenuRadioItem value="neutral">
               <div class="flex items-start gap-2">

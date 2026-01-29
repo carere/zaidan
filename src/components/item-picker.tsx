@@ -8,6 +8,7 @@ import {
   createSignal,
   For,
   onCleanup,
+  onMount,
   Show,
   splitProps,
 } from "solid-js";
@@ -55,9 +56,10 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
-  createEffect(() => {
+  onMount(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "p")) {
+        console.log("Shortcut pressed");
         e.preventDefault();
         setOpen(true);
       }
@@ -136,13 +138,18 @@ export function ItemPicker(props: ComponentProps<"div">) {
                         <CommandItem
                           value={item.title}
                           onSelect={() => {
-                            navigate({ to: entry.route, params: { slug: item.slug } });
+                            navigate({
+                              to: entry.route,
+                              params: { slug: item.slug },
+                              search: (prev) => prev,
+                            });
                             setOpen(false);
                           }}
                         >
                           <Link
                             to={entry.route}
                             params={{ slug: item.slug }}
+                            search={(prev) => prev}
                             class="flex w-full items-center"
                           >
                             {item.title}

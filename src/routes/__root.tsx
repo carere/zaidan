@@ -1,10 +1,11 @@
-import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from "@kobalte/core";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+import { type ColorMode, ColorModeProvider } from "@/lib/color-mode";
+import { validateDesignSystemSearch } from "@/lib/search-params";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -19,27 +20,30 @@ export const Route = createRootRouteWithContext()({
       { title: "Zaidan", name: "title" },
     ],
   }),
+  validateSearch: validateDesignSystemSearch,
   shellComponent: RootComponent,
 });
 
-const getServerCookies = createIsomorphicFn()
-  .server(() => {
-    const colorMode = getCookie("kb-color-mode");
-    return colorMode ? `kb-color-mode=${colorMode}` : "";
-  })
-  .client(() => document.cookie);
+const getColorMode = createIsomorphicFn()
+  .server(() => getCookie("zaidan-color-mode") ?? "light")
+  .client(
+    () =>
+      document.cookie
+        .split("; ")
+        .find((cookie) => cookie.startsWith("zaidan-color-mode="))
+        ?.split("=")[1] ?? "light",
+  );
 
 function RootComponent() {
-  const storageManager = cookieStorageManagerSSR(getServerCookies());
+  const colorMode = getColorMode() as ColorMode;
   return (
-    <html lang="en">
+    <html lang="en" class={colorMode}>
       <head>
         <HeadContent />
         <HydrationScript />
       </head>
       <body class="style-vega">
-        <ColorModeScript storageType={storageManager.type} />
-        <ColorModeProvider storageManager={storageManager}>
+        <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
             <Outlet />
             <TanStackRouterDevtools />
