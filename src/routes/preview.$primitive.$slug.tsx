@@ -107,21 +107,6 @@ function PreviewComponent() {
     });
   });
 
-  // Apply baseColor classes to document.body
-  createEffect(
-    on(
-      () => params().baseColor,
-      (baseColor) => {
-        document.body.classList.forEach((className) => {
-          if (className.startsWith("base-color-")) {
-            document.body.classList.remove(className);
-          }
-        });
-        document.body.classList.add(`base-color-${baseColor}`);
-      },
-    ),
-  );
-
   // Apply style classes to document.body
   createEffect(
     on(
