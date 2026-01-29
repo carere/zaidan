@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { match } from "ts-pattern";
 import { Lyra } from "@/components/icons/lyra";
@@ -5,7 +6,7 @@ import { Maia } from "@/components/icons/maia";
 import { Mira } from "@/components/icons/mira";
 import { Nova } from "@/components/icons/nova";
 import { Vega } from "@/components/icons/vega";
-import { useDesignSystemSearchParams } from "@/lib/search-params";
+import { DEFAULT_CONFIG, STYLES } from "@/lib/config";
 import type { Style } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
@@ -17,20 +18,13 @@ import {
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
 
-const styles = ["vega", "nova", "lyra", "maia", "mira"] satisfies Style[];
-
 export default function StylePicker() {
-  const [params, setParams] = useDesignSystemSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const getLabel = (style: Style) =>
-    match(style)
-      .with("vega", () => "Vega")
-      .with("nova", () => "Nova")
-      .with("lyra", () => "Lyra")
-      .with("maia", () => "Maia")
-      .with("mira", () => "Mira")
-      .exhaustive();
+  const getLabel = (style: Style) => STYLES.find((s) => s.name === style)?.label;
+  const getDescription = (style: Style) => STYLES.find((s) => s.name === style)?.description;
 
   const getIcon = (style: Style) =>
     match(style)
@@ -41,29 +35,24 @@ export default function StylePicker() {
       .with("mira", () => <Mira class="size-4" />)
       .exhaustive();
 
-  const getDescription = (style: Style) =>
-    match(style)
-      .with("vega", () => "The classic shadcn/ui look. Clean, neutral, and familiar.")
-      .with("nova", () => "Reduced padding and margins for compact layouts.")
-      .with("lyra", () => "Boxy and sharp. Pairs well with mono fonts.")
-      .with("maia", () => "Soft and rounded, with generous spacing.")
-      .with("mira", () => "Compact. Made for dense interfaces.")
-      .exhaustive();
-
   return (
     <div class="group/picker relative">
       <DropdownMenu gutter={6} placement={isMobile() ? "top" : "left-start"}>
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Style</div>
-            <div class="font-medium text-foreground text-sm">{getLabel(params().style)}</div>
+            <div class="font-medium text-foreground text-sm">
+              {getLabel(location().search.style ?? DEFAULT_CONFIG.style)}
+            </div>
           </div>
-          {getIcon(params().style)}
+          {getIcon(location().search.style ?? DEFAULT_CONFIG.style)}
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-64">
           <DropdownMenuRadioGroup
-            value={params().style}
-            onChange={(value) => setParams({ style: value as Style })}
+            value={location().search.style ?? DEFAULT_CONFIG.style}
+            onChange={(value) =>
+              navigate({ to: ".", search: (prev) => ({ ...prev, style: value as Style }) })
+            }
           >
             <For each={["vega", "nova", "lyra", "maia", "mira"] satisfies Style[]}>
               {(style, index) => (
@@ -79,7 +68,7 @@ export default function StylePicker() {
                       </div>
                     </div>
                   </DropdownMenuRadioItem>
-                  <Show when={index() < styles.length - 1}>
+                  <Show when={index() < STYLES.length - 1}>
                     <DropdownMenuSeparator />
                   </Show>
                 </>

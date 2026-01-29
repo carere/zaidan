@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
-import { Copy, Share } from "lucide-solid";
+import { Share } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
@@ -47,10 +47,11 @@ function RouteComponent() {
           <Separator orientation="vertical" class="mx-4" />
           <div class="hidden font-medium text-muted-foreground text-sm lg:flex">Zaidan</div>
         </div>
-        <div class="ml-auto hidden flex-1 items-center justify-end gap-2 px-4.5 pb-4 sm:static sm:p-0 md:flex lg:ml-0">
-          <ItemPicker />
+        <div class="fixed bottom-0 flex w-[calc(100svw-var(--spacing)*4)] items-center gap-2 pt-2 pr-4 pb-4 md:relative md:bottom-auto md:ml-auto md:p-0 lg:basis-1/3">
+          <ItemPicker class="grow rounded-2xl md:rounded-md" />
+          <RandomButton class="md:hidden" />
         </div>
-        <div class="ml-auto flex items-center gap-2 sm:ml-0 md:justify-end xl:ml-auto xl:w-1/3">
+        <div class="ml-auto flex items-center gap-2 md:justify-end xl:ml-auto xl:w-1/3">
           <GitHubLink />
           <Separator orientation="vertical" />
           <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
@@ -59,10 +60,6 @@ function RouteComponent() {
           <Button variant="outline" size="sm">
             <Share />
             <span>Share</span>
-          </Button>
-          <Button variant="default" size="sm">
-            <Copy />
-            <span>Get CSS</span>
           </Button>
         </div>
       </header>
@@ -73,13 +70,6 @@ function RouteComponent() {
           <Customizer class="shrink-0 md:w-48" />
         </div>
       </SidebarProvider>
-      <div
-        data-slot="bot-navbar"
-        class="fixed bottom-0 flex w-full flex-row items-center gap-2 px-4 pt-2 pb-4 md:hidden"
-      >
-        <ItemPicker class="rounded-2xl" />
-        <RandomButton />
-      </div>
     </div>
   );
 }

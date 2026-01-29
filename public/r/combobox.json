@@ -1,14 +1,8 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "combobox",
-  "dependencies": [
-    "@kobalte/core",
-    "lucide-solid"
-  ],
-  "registryDependencies": [
-    "button",
-    "input-group"
-  ],
+  "dependencies": ["@kobalte/core", "lucide-solid"],
+  "registryDependencies": ["input-group"],
   "files": [
     {
       "path": "src/registry/ui/combobox.tsx",

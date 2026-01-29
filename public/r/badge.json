@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "badge",
+  "dependencies": ["@kobalte/core", "class-variance-authority"],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/badge.tsx",
+      "content": "import { type BadgeRootProps, Root } from \"@kobalte/core/badge\";\nimport type { PolymorphicProps } from \"@kobalte/core/polymorphic\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\nimport { splitProps, type ValidComponent } from \"solid-js\";\nimport { cn } from \"@/lib/utils\";\n\nconst badgeVariants = cva(\n  \"cn-badge group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none\",\n  {\n    variants: {\n      variant: {\n        default: \"cn-badge-variant-default\",\n        secondary: \"cn-badge-variant-secondary\",\n        destructive: \"cn-badge-variant-destructive\",\n        outline: \"cn-badge-variant-outline\",\n        ghost: \"cn-badge-variant-ghost\",\n        link: \"cn-badge-variant-link\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n    },\n  },\n);\n\ntype BadgeProps<T extends ValidComponent = \"span\"> = PolymorphicProps<T, BadgeRootProps<T>> &\n  VariantProps<typeof badgeVariants>;\n\nconst Badge = <T extends ValidComponent = \"span\">(props: BadgeProps<T>) => {\n  const [local, others] = splitProps(props as BadgeProps, [\"class\", \"variant\"]);\n  return (\n    <Root\n      class={cn(badgeVariants({ variant: local.variant }), local.class)}\n      data-slot=\"badge\"\n      data-variant={local.variant}\n      {...others}\n    />\n  );\n};\n\nexport { Badge, badgeVariants };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

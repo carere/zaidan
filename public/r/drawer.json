@@ -1,9 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "drawer",
-  "dependencies": [
-    "corvu"
-  ],
+  "dependencies": ["@corvu/drawer"],
   "registryDependencies": [],
   "files": [
     {

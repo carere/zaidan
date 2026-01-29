@@ -12,6 +12,7 @@ export type ColorMode = "light" | "dark";
 interface ColorModeContextValue {
   colorMode: Accessor<ColorMode>;
   toggleColorMode: () => void;
+  setColorMode: (mode: ColorMode) => void;
 }
 
 const ColorModeContext = createContext<ColorModeContextValue | undefined>();
@@ -37,7 +38,7 @@ export function ColorModeProvider(props: ColorModeProviderProps) {
   };
 
   return (
-    <ColorModeContext.Provider value={{ colorMode, toggleColorMode }}>
+    <ColorModeContext.Provider value={{ colorMode, toggleColorMode, setColorMode }}>
       {props.children}
     </ColorModeContext.Provider>
   );

@@ -1,11 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "menubar",
-  "dependencies": [
-    "@kobalte/core",
-    "class-variance-authority",
-    "lucide-solid"
-  ],
+  "dependencies": ["@kobalte/core", "lucide-solid"],
   "registryDependencies": [],
   "files": [
     {

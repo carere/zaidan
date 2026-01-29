@@ -2,12 +2,10 @@ import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, createSignal, lazy, on, onCleanup, onMount } from "solid-js";
 import { FONTS, RADII } from "@/lib/config";
-import { validateDesignSystemSearch } from "@/lib/search-params";
 import type { IframeMessage } from "@/lib/types";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 
 export const Route = createFileRoute("/preview/$primitive/$slug")({
-  validateSearch: validateDesignSystemSearch,
   loader: ({ params }) => {
     const { slug, primitive } = params;
     const component = ui.find((u) => u.slug === slug);
@@ -48,6 +46,7 @@ function PreviewComponent() {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.data?.type === "design-system-params-sync" && event.data.data)
         setParams(event.data.data);
+
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(event.data.data);
@@ -107,21 +106,6 @@ function PreviewComponent() {
       document.removeEventListener("keydown", handleKeyDown);
     });
   });
-
-  // Apply baseColor classes to document.body
-  createEffect(
-    on(
-      () => params().baseColor,
-      (baseColor) => {
-        document.body.classList.forEach((className) => {
-          if (className.startsWith("base-color-")) {
-            document.body.classList.remove(className);
-          }
-        });
-        document.body.classList.add(`base-color-${baseColor}`);
-      },
-    ),
-  );
 
   // Apply style classes to document.body
   createEffect(

@@ -1,14 +1,16 @@
 import { Dice5 } from "lucide-solid";
-import { onCleanup, onMount } from "solid-js";
+import { type ComponentProps, onCleanup, onMount } from "solid-js";
+import { cn } from "@/lib/utils";
 import { Button } from "@/registry/ui/button";
 import { Kbd } from "@/registry/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip";
 
-function randomItem<T>(array: readonly T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
+// TODO: Uncomment when implementing randomization feature
+// function randomItem<T>(array: readonly T[]): T {
+//   return array[Math.floor(Math.random() * array.length)];
+// }
 
-export function RandomButton() {
+export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
   onMount(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
@@ -35,7 +37,10 @@ export function RandomButton() {
         as={Button}
         variant="ghost"
         size="sm"
-        class="h-[calc(--spacing(13.5))] w-[140px] touch-manipulation select-none justify-between rounded-xl border border-foreground/10 bg-muted/50 focus-visible:border-transparent focus-visible:ring-1 sm:rounded-lg md:w-full md:rounded-lg md:border-transparent md:bg-transparent md:pr-3.5! md:pl-2! md:hover:bg-muted"
+        class={cn(
+          "h-[calc(--spacing(13.5))] w-[140px] touch-manipulation select-none justify-between rounded-xl border border-foreground/10 bg-muted/50 focus-visible:border-transparent focus-visible:ring-1 sm:rounded-lg md:w-full md:rounded-lg md:border-transparent md:bg-transparent md:pr-3.5! md:pl-2! md:hover:bg-muted",
+          props.class,
+        )}
       >
         <div class="flex flex-col justify-start text-left">
           <div class="text-muted-foreground text-xs">Shuffle</div>
