@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "input",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/input.tsx",
+      "content": "import { type ComponentProps, splitProps } from \"solid-js\";\n\nimport { cn } from \"@/lib/utils\";\n\ntype InputProps = ComponentProps<\"input\">;\n\nconst Input = (props: InputProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <input\n      data-slot=\"input\"\n      class={cn(\n        \"cn-input w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50\",\n        local.class,\n      )}\n      {...others}\n    />\n  );\n};\n\nexport { Input, type InputProps };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

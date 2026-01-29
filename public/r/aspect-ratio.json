@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "aspect-ratio",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/aspect-ratio.tsx",
+      "content": "import type { ComponentProps, JSX } from \"solid-js\";\nimport { splitProps } from \"solid-js\";\n\nimport { cn } from \"@/lib/utils\";\n\ntype AspectRatioProps = ComponentProps<\"div\"> & {\n  ratio: number;\n  class?: string | undefined;\n};\n\nconst AspectRatio = (props: AspectRatioProps) => {\n  const [local, others] = splitProps(props, [\"class\", \"ratio\"]);\n\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": local.ratio,\n        } as JSX.CSSProperties\n      }\n      class={cn(\"relative aspect-(--ratio) overflow-hidden\", local.class)}\n      {...others}\n    />\n  );\n};\n\nexport { AspectRatio };\nexport type { AspectRatioProps };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

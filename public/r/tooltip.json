@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tooltip",
+  "dependencies": ["@kobalte/core"],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/tooltip.tsx",
+      "content": "import type { PolymorphicProps } from \"@kobalte/core/polymorphic\";\nimport * as TooltipPrimitive from \"@kobalte/core/tooltip\";\nimport type { ComponentProps, ValidComponent } from \"solid-js\";\nimport { mergeProps, splitProps } from \"solid-js\";\nimport { cn } from \"@/lib/utils\";\n\nconst Tooltip = (props: TooltipPrimitive.TooltipRootProps) => {\n  const mergedProps = mergeProps(\n    {\n      openDelay: 0,\n      placement: \"top\",\n    } as TooltipPrimitive.TooltipRootProps,\n    props,\n  );\n  return <TooltipPrimitive.Root data-slot=\"tooltip\" {...mergedProps} />;\n};\n\ntype TooltipTriggerProps<T extends ValidComponent = \"button\"> = PolymorphicProps<\n  T,\n  TooltipPrimitive.TooltipTriggerProps<T>\n>;\n\nconst TooltipTrigger = <T extends ValidComponent = \"button\">(props: TooltipTriggerProps<T>) => (\n  <TooltipPrimitive.Trigger data-slot=\"tooltip-trigger\" {...props} />\n);\n\ntype TooltipContentProps<T extends ValidComponent = \"div\"> = PolymorphicProps<\n  T,\n  TooltipPrimitive.TooltipContentProps<T>\n> &\n  Pick<ComponentProps<T>, \"class\" | \"children\">;\n\nconst TooltipContent = <T extends ValidComponent = \"div\">(props: TooltipContentProps<T>) => {\n  const [local, others] = splitProps(props as TooltipContentProps, [\"class\", \"children\"]);\n  return (\n    <TooltipPrimitive.Portal>\n      <TooltipPrimitive.Content\n        data-slot=\"tooltip-content\"\n        class={cn(\n          \"cn-tooltip-content z-50 w-fit max-w-xs origin-(--kb-tooltip-content-transform-origin) bg-foreground text-background\",\n          local.class,\n        )}\n        {...others}\n      >\n        {local.children}\n        <TooltipPrimitive.Arrow size={19} />\n      </TooltipPrimitive.Content>\n    </TooltipPrimitive.Portal>\n  );\n};\n\nexport { Tooltip, TooltipTrigger, TooltipContent };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

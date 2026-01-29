@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "collapsible",
+  "dependencies": ["@kobalte/core"],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/ui/collapsible.tsx",
+      "content": "import * as CollapsiblePrimitive from \"@kobalte/core/collapsible\";\nimport type { PolymorphicProps } from \"@kobalte/core/polymorphic\";\nimport type { ValidComponent } from \"solid-js\";\n\ntype CollapsibleProps<T extends ValidComponent = \"div\"> = PolymorphicProps<\n  T,\n  CollapsiblePrimitive.CollapsibleRootProps<T>\n>;\n\nconst Collapsible = <T extends ValidComponent = \"div\">(props: CollapsibleProps<T>) => {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n};\n\ntype CollapsibleTriggerProps<T extends ValidComponent = \"button\"> = PolymorphicProps<\n  T,\n  CollapsiblePrimitive.CollapsibleTriggerProps<T>\n>;\n\nconst CollapsibleTrigger = <T extends ValidComponent = \"button\">(\n  props: CollapsibleTriggerProps<T>,\n) => {\n  return <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />;\n};\n\ntype CollapsibleContentProps<T extends ValidComponent = \"div\"> = PolymorphicProps<\n  T,\n  CollapsiblePrimitive.CollapsibleContentProps<T>\n>;\n\nconst CollapsibleContent = <T extends ValidComponent = \"div\">(\n  props: CollapsibleContentProps<T>,\n) => {\n  return <CollapsiblePrimitive.Content data-slot=\"collapsible-content\" {...props} />;\n};\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

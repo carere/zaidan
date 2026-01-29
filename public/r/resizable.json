@@ -1,10 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "resizable",
-  "dependencies": [
-    "corvu",
-    "lucide-solid"
-  ],
+  "dependencies": ["@corvu/resizable", "@kobalte/core"],
   "registryDependencies": [],
   "files": [
     {
