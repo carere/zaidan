@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For } from "solid-js";
+import { LockButton } from "@/components/lock-button";
 import { useColorMode } from "@/lib/color-mode";
 import { BASE_COLORS, DEFAULT_CONFIG } from "@/lib/config";
 import type { BaseColor } from "@/lib/types";
@@ -77,6 +78,7 @@ export default function BaseColorPicker() {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <LockButton param="baseColor" class="absolute top-1/2 right-10 -translate-y-1/2" />
     </div>
   );
 }

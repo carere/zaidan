@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For } from "solid-js";
+import { LockButton } from "@/components/lock-button";
 import { BASE_COLORS, DEFAULT_CONFIG, THEMES } from "@/lib/config";
 import type { Theme } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
@@ -97,6 +98,7 @@ export default function ThemePicker() {
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <LockButton param="theme" class="absolute top-1/2 right-10 -translate-y-1/2" />
     </div>
   );
 }

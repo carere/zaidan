@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { PaintBucket } from "lucide-solid";
 import { For } from "solid-js";
+import { LockButton } from "@/components/lock-button";
 import { DEFAULT_CONFIG, MENU_ACCENTS } from "@/lib/config";
 import type { MenuAccent } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
@@ -52,6 +53,7 @@ export default function MenuAccentPicker() {
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <LockButton param="menuAccent" class="absolute top-1/2 right-10 -translate-y-1/2" />
     </div>
   );
 }
