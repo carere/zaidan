@@ -1,7 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { createEffect, createSignal, lazy, on, onCleanup, onMount } from "solid-js";
+import { createEffect, createMemo, createSignal, lazy, on, onCleanup, onMount } from "solid-js";
 import { FONTS, RADII } from "@/lib/config";
+import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 
@@ -41,6 +42,20 @@ function PreviewComponent() {
   const search = Route.useSearch();
   const ExampleComponent = lazy(() => import(`../registry/examples/${data().slug}-example.tsx`));
   const [params, setParams] = createSignal(search());
+
+  const registryTheme = createMemo(() => {
+    const p = params();
+    if (!p.baseColor || !p.theme || !p.menuAccent || !p.radius) {
+      return null;
+    }
+
+    return buildRegistryTheme({
+      baseColor: p.baseColor,
+      theme: p.theme,
+      menuAccent: p.menuAccent,
+      radius: p.radius,
+    });
+  });
 
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
@@ -105,6 +120,14 @@ function PreviewComponent() {
       window.removeEventListener("message", handleMessage);
       document.removeEventListener("keydown", handleKeyDown);
     });
+
+    // Clean up the style element on unmount
+    onCleanup(() => {
+      const styleElement = document.getElementById("design-system-theme-vars");
+      if (styleElement) {
+        styleElement.remove();
+      }
+    });
   });
 
   // Apply style classes to document.body
@@ -118,6 +141,23 @@ function PreviewComponent() {
           }
         });
         document.body.classList.add(`style-${style}`);
+      },
+    ),
+  );
+
+  // Apply base color class to document.body
+  createEffect(
+    on(
+      () => params().baseColor,
+      (baseColor) => {
+        document.body.classList.forEach((className) => {
+          if (className.startsWith("base-color-")) {
+            document.body.classList.remove(className);
+          }
+        });
+        if (baseColor) {
+          document.body.classList.add(`base-color-${baseColor}`);
+        }
       },
     ),
   );
@@ -143,6 +183,52 @@ function PreviewComponent() {
         const radiusValue = RADII.find((r) => r.name === radius || r.name === "medium")
           ?.value as string;
         document.documentElement.style.setProperty("--radius", radiusValue);
+      },
+    ),
+  );
+
+  // Apply theme CSS variables to document
+  createEffect(
+    on(
+      () => registryTheme(),
+      (theme) => {
+        if (!theme?.cssVars) {
+          return;
+        }
+
+        const styleId = "design-system-theme-vars";
+        let styleElement = document.getElementById(styleId) as HTMLStyleElement | null;
+
+        if (!styleElement) {
+          styleElement = document.createElement("style");
+          styleElement.id = styleId;
+          document.head.appendChild(styleElement);
+        }
+
+        const { light: lightVars, dark: darkVars } = theme.cssVars;
+
+        let cssText = ":root {\n";
+        // Add light mode vars
+        if (lightVars) {
+          for (const [key, value] of Object.entries(lightVars)) {
+            if (value) {
+              cssText += `  --${key}: ${value};\n`;
+            }
+          }
+        }
+        cssText += "}\n\n";
+
+        cssText += ".dark {\n";
+        if (darkVars) {
+          for (const [key, value] of Object.entries(darkVars)) {
+            if (value) {
+              cssText += `  --${key}: ${value};\n`;
+            }
+          }
+        }
+        cssText += "}\n";
+
+        styleElement.textContent = cssText;
       },
     ),
   );

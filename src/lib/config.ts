@@ -89,6 +89,7 @@ export const THEMES: { name: Theme; label: string; color: string }[] = [
  * Available radius options with their metadata
  */
 export const RADII: { name: Radius; label: string; value: string }[] = [
+  { name: "default", label: "Default", value: "0.625rem" },
   { name: "none", label: "None", value: "0" },
   { name: "small", label: "Small", value: "0.25rem" },
   { name: "medium", label: "Medium", value: "0.5rem" },
