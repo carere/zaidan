@@ -31,24 +31,6 @@ Copy and paste the following code into your project.
 
 ```
 
-## Usage
-
-```tsx
-import { Calendar } from "~/components/ui/calendar";
-```
-
-```tsx showLineNumbers
-import { createSignal } from "solid-js";
-
-const [date, setDate] = createSignal<Date | null>(null);
-
-<Calendar
-  mode="single"
-  value={date()}
-  onValueChange={setDate}
-/>
-```
-
 ## About
 
 The Calendar component is built on top of [Corvu Calendar](https://corvu.dev/docs/primitives/calendar/). It provides a fully accessible date selection component with keyboard navigation and support for single, multiple, and range selection modes.

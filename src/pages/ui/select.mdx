@@ -25,43 +25,6 @@ Copy and paste the following code into your project.
 
 ```
 
-## Usage
-
-```tsx
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
-
-```tsx showLineNumbers
-const items = [
-  { label: "Light", value: "light" },
-  { label: "Dark", value: "dark" },
-  { label: "System", value: "system" },
-];
-
-<Select
-  options={items}
-  optionValue="value"
-  optionTextValue="label"
-  placeholder="Theme"
-  itemComponent={(props) => (
-    <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-  )}
->
-  <SelectTrigger class="w-[180px]">
-    <SelectValue<(typeof items)[number]>>
-      {(state) => state.selectedOption().label}
-    </SelectValue>
-  </SelectTrigger>
-  <SelectContent />
-</Select>
-```
-
 ## Props
 
 The Select component uses Kobalte's Select primitive under the hood. Here are the main props:

@@ -46,52 +46,6 @@ The sidebar component supports multiple variants and collapsible modes:
 - `icon` - Collapses to show only icons
 - `none` - Non-collapsible fixed sidebar
 
-## Usage
-
-```tsx
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarRail,
-  SidebarTrigger,
-} from "~/components/ui/sidebar";
-```
-
-```tsx showLineNumbers
-<SidebarProvider>
-  <Sidebar>
-    <SidebarHeader>
-      {/* Header content */}
-    </SidebarHeader>
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarGroupLabel>Menu</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton>Item</SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </SidebarContent>
-  </Sidebar>
-  <SidebarInset>
-    {/* Main content */}
-  </SidebarInset>
-</SidebarProvider>
-```
-
 ## Props
 
 ### Sidebar
@@ -113,6 +67,53 @@ import {
 ## Keyboard Shortcuts
 
 - `Cmd+B` (Mac) / `Ctrl+B` (Windows) - Toggle sidebar
+
+## Examples
+
+Here is the source code of the example from the preview page:
+
+### Basic
+
+```tsx
+import { Check, ChevronsUpDown, Search } from "lucide-solid";
+import { createSignal, For, Show } from "solid-js";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Label } from "~/components/ui/label";
+import { Separator } from "~/components/ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+```
+
+```tsx file=../../registry/examples/sidebar-example.tsx#L167-L266
+
+```
 
 ## See Also
 

@@ -12,50 +12,6 @@ A sidebar variant that appears to float with rounded corners and padding, creati
 
 See the [Sidebar](/ui/sidebar) component for installation instructions.
 
-## Usage
-
-```tsx
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "~/components/ui/sidebar";
-```
-
-```tsx showLineNumbers
-<SidebarProvider
-  style={{
-    "--sidebar-width": "19rem",
-  }}
->
-  <Sidebar variant="floating">
-    <SidebarHeader>
-      {/* Logo and branding */}
-    </SidebarHeader>
-    <SidebarContent>
-      <SidebarGroup>
-        <SidebarMenu class="gap-2">
-          {/* Navigation items */}
-        </SidebarMenu>
-      </SidebarGroup>
-    </SidebarContent>
-  </Sidebar>
-  <SidebarInset>
-    {/* Main content */}
-  </SidebarInset>
-</SidebarProvider>
-```
-
 ## Features
 
 - Floating appearance with rounded corners
@@ -74,6 +30,46 @@ import {
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `--sidebar-width` | `16rem` | Width of the sidebar |
+
+## Examples
+
+Here is the source code of the example from the preview page:
+
+### Floating Variant
+
+```tsx
+import { GalleryVerticalEnd } from "lucide-solid";
+import type { JSX } from "solid-js";
+import { For, Show } from "solid-js";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import { Separator } from "~/components/ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+```
+
+```tsx file=../../registry/examples/sidebar-floating-example.tsx#L89-L174
+
+```
 
 ## See Also
 

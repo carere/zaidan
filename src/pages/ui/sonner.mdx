@@ -30,46 +30,6 @@ Copy and paste the following code into your project.
 
 ```
 
-## Usage
-
-```tsx
-import { Toaster } from "~/components/ui/sonner";
-import { toast } from "solid-sonner";
-```
-
-Add the `Toaster` component to your app root:
-
-```tsx showLineNumbers title="App.tsx"
-import { Toaster } from "~/components/ui/sonner";
-
-export default function App() {
-  return (
-    <>
-      <Toaster />
-      {/* Your app content */}
-    </>
-  );
-}
-```
-
-Then use the `toast` function to show notifications:
-
-```tsx showLineNumbers
-toast("Event has been created");
-
-// With description
-toast("Event has been created", {
-  description: "Monday, January 3rd at 6:00pm",
-});
-
-// Different variants
-toast.success("Success!");
-toast.error("Error!");
-toast.warning("Warning!");
-toast.info("Information");
-toast.loading("Loading...");
-```
-
 ## Examples
 
 Here are the source code of all the examples from the preview page:

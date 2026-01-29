@@ -25,43 +25,6 @@ Copy and paste the following code into your project.
 
 ```
 
-## Usage
-
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-```
-
-```tsx showLineNumbers
-const frameworks = [
-  { label: "Next.js", value: "nextjs" },
-  { label: "SvelteKit", value: "sveltekit" },
-  { label: "Nuxt.js", value: "nuxtjs" },
-  { label: "Remix", value: "remix" },
-  { label: "Astro", value: "astro" },
-];
-
-<Combobox
-  options={frameworks}
-  optionValue="value"
-  optionTextValue="label"
-  placeholder="Select a framework..."
-  itemComponent={(props) => (
-    <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
-  )}
->
-  <ComboboxInput placeholder="Select a framework..." />
-  <ComboboxContent>
-    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
-  </ComboboxContent>
-</Combobox>
-```
-
 ## Props
 
 The Combobox component uses Kobalte's Combobox primitive under the hood. Here are the main props:
