@@ -2,10 +2,11 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanst
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { type ColorMode, ColorModeProvider } from "@/lib/color-mode";
-import { validateDesignSystemSearch } from "@/lib/search-params";
+import { DesignSystemConfigSchema } from "@/lib/types";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -20,7 +21,7 @@ export const Route = createRootRouteWithContext()({
       { title: "Zaidan", name: "title" },
     ],
   }),
-  validateSearch: validateDesignSystemSearch,
+  validateSearch: zodValidator(DesignSystemConfigSchema),
   shellComponent: RootComponent,
 });
 

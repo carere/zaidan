@@ -1,17 +1,13 @@
-import type { BaseColor, Font, MenuAccent, Radius, Style, Theme } from "@/lib/types";
-
-/**
- * Design system configuration interface
- * Contains all customizable design tokens for the component library
- */
-export interface DesignSystemConfig {
-  style: Style;
-  baseColor: BaseColor;
-  theme: Theme;
-  font: Font;
-  radius: Radius;
-  menuAccent: MenuAccent;
-}
+import type {
+  BaseColor,
+  DesignSystemConfig,
+  Font,
+  MenuAccent,
+  Primitive,
+  Radius,
+  Style,
+  Theme,
+} from "@/lib/types";
 
 /**
  * Default configuration values for the design system
@@ -19,9 +15,9 @@ export interface DesignSystemConfig {
 export const DEFAULT_CONFIG: DesignSystemConfig = {
   style: "vega",
   baseColor: "neutral",
-  theme: "amber",
+  theme: "neutral",
   font: "inter",
-  radius: "medium",
+  radius: "default",
   menuAccent: "subtle",
 };
 
@@ -34,10 +30,26 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
     label: "Vega",
     description: "The classic shadcn/ui look. Clean, neutral, and familiar.",
   },
-  { name: "nova", label: "Nova", description: "Reduced padding and margins for compact layouts." },
-  { name: "lyra", label: "Lyra", description: "Boxy and sharp. Pairs well with mono fonts." },
-  { name: "maia", label: "Maia", description: "Soft and rounded, with generous spacing." },
-  { name: "mira", label: "Mira", description: "Compact. Made for dense interfaces." },
+  {
+    name: "nova",
+    label: "Nova",
+    description: "Reduced padding and margins for compact layouts.",
+  },
+  {
+    name: "lyra",
+    label: "Lyra",
+    description: "Boxy and sharp. Pairs well with mono fonts.",
+  },
+  {
+    name: "maia",
+    label: "Maia",
+    description: "Soft and rounded, with generous spacing.",
+  },
+  {
+    name: "mira",
+    label: "Mira",
+    description: "Compact. Made for dense interfaces.",
+  },
 ];
 
 /**
@@ -96,9 +108,21 @@ export const MENU_ACCENTS: { name: MenuAccent; label: string }[] = [
  */
 export const FONTS: { label: string; value: Font; fontFamily: string }[] = [
   { label: "Inter", value: "inter", fontFamily: '"Inter Variable", sans-serif' },
-  { label: "Noto Sans", value: "noto-sans", fontFamily: '"Noto Sans Variable", sans-serif' },
-  { label: "Nunito Sans", value: "nunito-sans", fontFamily: '"Nunito Sans Variable", sans-serif' },
-  { label: "Figtree", value: "figtree", fontFamily: '"Figtree Variable", sans-serif' },
+  {
+    label: "Noto Sans",
+    value: "noto-sans",
+    fontFamily: '"Noto Sans Variable", sans-serif',
+  },
+  {
+    label: "Nunito Sans",
+    value: "nunito-sans",
+    fontFamily: '"Nunito Sans Variable", sans-serif',
+  },
+  {
+    label: "Figtree",
+    value: "figtree",
+    fontFamily: '"Figtree Variable", sans-serif',
+  },
 ];
 
 /**
@@ -107,4 +131,12 @@ export const FONTS: { label: string; value: Font; fontFamily: string }[] = [
  */
 export const MENU_COLORS: { name: string; label: string }[] = [
   { name: "default", label: "Default" },
+];
+
+/**
+ * Available primitive options with their metadata
+ */
+export const PRIMITIVES: { name: Primitive; label: string }[] = [
+  { name: "kobalte", label: "Kobalte" },
+  { name: "base", label: "Base" },
 ];

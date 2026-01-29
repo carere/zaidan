@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "@tanstack/solid-router";
+import { Link, useLocation } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { Search } from "lucide-solid";
 import {
@@ -12,6 +12,7 @@ import {
   Show,
   splitProps,
 } from "solid-js";
+import { DEFAULT_CONFIG } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/ui/button";
 import {
@@ -51,7 +52,6 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const [open, setOpen] = createSignal(false);
   const [currentPage, setCurrentPage] = createSignal("Home");
   const location = useLocation();
-  const navigate = useNavigate();
 
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
 
@@ -135,21 +135,11 @@ export function ItemPicker(props: ComponentProps<"div">) {
                   <CommandGroup heading={entry.title}>
                     <For each={entry.items}>
                       {(item) => (
-                        <CommandItem
-                          value={item.title}
-                          onSelect={() => {
-                            navigate({
-                              to: entry.route,
-                              params: { slug: item.slug },
-                              search: (prev) => prev,
-                            });
-                            setOpen(false);
-                          }}
-                        >
+                        <CommandItem value={item.title}>
                           <Link
                             to={entry.route}
                             params={{ slug: item.slug }}
-                            search={(prev) => prev}
+                            search={DEFAULT_CONFIG}
                             class="flex w-full items-center"
                           >
                             {item.title}

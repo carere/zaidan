@@ -2,6 +2,7 @@ import { createSignal, For, Show } from "solid-js";
 import { match } from "ts-pattern";
 import { BaseUI } from "@/components/icons/base-ui";
 import { Kobalte } from "@/components/icons/kobalte";
+import { PRIMITIVES } from "@/lib/config";
 import type { Primitive } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import { Badge } from "@/registry/ui/badge";
@@ -13,17 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
 
-const bases = ["kobalte", "base"] satisfies Primitive[];
-
 export default function ComponentLibraryPicker() {
   const [selectedBase, selectBase] = createSignal<Primitive>("kobalte");
   const isMobile = useIsMobile();
 
-  const getLabel = (base: Primitive) =>
-    match(base)
-      .with("kobalte", () => "Kobalte")
-      .with("base", () => "Base UI")
-      .exhaustive();
+  const getLabel = (base: Primitive) => PRIMITIVES.find((p) => p.name === base)?.label;
 
   const getIcon = (base: Primitive) =>
     match(base)
@@ -43,7 +38,7 @@ export default function ComponentLibraryPicker() {
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-64">
           <DropdownMenuRadioGroup value={selectedBase()} onChange={selectBase}>
-            <For each={bases}>
+            <For each={PRIMITIVES.map((p) => p.name)}>
               {(key) => (
                 <DropdownMenuRadioItem value={key} disabled={key === "base"}>
                   <div class="flex items-center gap-2">

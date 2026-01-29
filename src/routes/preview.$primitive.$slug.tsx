@@ -2,12 +2,10 @@ import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, createSignal, lazy, on, onCleanup, onMount } from "solid-js";
 import { FONTS, RADII } from "@/lib/config";
-import { validateDesignSystemSearch } from "@/lib/search-params";
 import type { IframeMessage } from "@/lib/types";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
 
 export const Route = createFileRoute("/preview/$primitive/$slug")({
-  validateSearch: validateDesignSystemSearch,
   loader: ({ params }) => {
     const { slug, primitive } = params;
     const component = ui.find((u) => u.slug === slug);

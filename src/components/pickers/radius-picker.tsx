@@ -1,7 +1,7 @@
+import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For } from "solid-js";
-import { match } from "ts-pattern";
 import { Radius as RadiusIcon } from "@/components/icons/radius";
-import { useDesignSystemSearchParams } from "@/lib/search-params";
+import { DEFAULT_CONFIG, RADII } from "@/lib/config";
 import type { Radius } from "@/lib/types";
 import { useIsMobile } from "@/registry/hooks/use-mobile";
 import {
@@ -13,20 +13,13 @@ import {
   DropdownMenuTrigger,
 } from "@/registry/ui/dropdown-menu";
 
-const radii = ["none", "small", "medium", "large"] satisfies Radius[];
-
 export default function RadiusPicker() {
-  const [params, setParams] = useDesignSystemSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const getLabel = (radius: Radius | "default") =>
-    match(radius)
-      .with("default", () => "Default")
-      .with("none", () => "None")
-      .with("small", () => "Small")
-      .with("medium", () => "Medium")
-      .with("large", () => "Large")
-      .exhaustive();
+    RADII.find((r) => r.name === radius)?.label ?? "Default";
 
   return (
     <div class="group/picker relative">
@@ -34,14 +27,18 @@ export default function RadiusPicker() {
         <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Radius</div>
-            <div class="font-medium text-foreground text-sm">{getLabel(params().radius)}</div>
+            <div class="font-medium text-foreground text-sm">
+              {getLabel(location().search.radius ?? DEFAULT_CONFIG.radius)}
+            </div>
           </div>
           <RadiusIcon class="size-4 rotate-90 text-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-58">
           <DropdownMenuRadioGroup
-            value={params().radius}
-            onChange={(value) => setParams({ radius: value as Radius })}
+            value={location().search.radius ?? DEFAULT_CONFIG.radius}
+            onChange={(value) =>
+              navigate({ to: ".", search: (prev) => ({ ...prev, radius: value as Radius }) })
+            }
           >
             {/* Default Group */}
             <DropdownMenuRadioItem value="default">
@@ -56,7 +53,7 @@ export default function RadiusPicker() {
             <DropdownMenuSeparator class="my-1" />
 
             {/* Radius Values Group */}
-            <For each={(radii as (Radius | "default")[]).filter((radius) => radius !== "default")}>
+            <For each={RADII.map((r) => r.name)}>
               {(radius) => (
                 <DropdownMenuRadioItem value={radius as Radius}>
                   <span class="font-extralight text-sm">{getLabel(radius as Radius)}</span>

@@ -4,9 +4,10 @@ import { Button } from "@/registry/ui/button";
 import { Kbd } from "@/registry/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip";
 
-function randomItem<T>(array: readonly T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
+// TODO: Uncomment when implementing randomization feature
+// function randomItem<T>(array: readonly T[]): T {
+//   return array[Math.floor(Math.random() * array.length)];
+// }
 
 export function RandomButton() {
   onMount(() => {
