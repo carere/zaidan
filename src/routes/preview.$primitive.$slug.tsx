@@ -46,6 +46,7 @@ function PreviewComponent() {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.data?.type === "design-system-params-sync" && event.data.data)
         setParams(event.data.data);
+
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(event.data.data);

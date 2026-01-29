@@ -15,10 +15,11 @@
 @import "./styles/style-mira.css" layer(base);
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant hover (&:hover);
 
 :root {
   --radius: 0.625rem;
+  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "Roboto Mono Variable", monospace;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -113,6 +114,9 @@
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
 
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -161,9 +165,6 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-error: var(--error);
   --color-error-foreground: var(--error-foreground);
-
-  --font-sans: "Inter Variable", sans-serif;
-  --font-mono: "Roboto Mono Variable", monospace;
 }
 
 @layer base {
@@ -175,30 +176,10 @@
     @apply bg-foreground text-background;
   }
 
-  html {
-    @apply scroll-smooth overscroll-y-none;
-  }
-
   body {
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
     @apply bg-background text-foreground;
-  }
-
-  /**
-   * Scrollbar
-   */
-
-  ::-webkit-scrollbar {
-    @apply w-2;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply rounded-lg border-transparent border-4 bg-accent bg-clip-content;
-  }
-
-  ::-webkit-scrollbar-corner {
-    @apply hidden;
   }
 }
 

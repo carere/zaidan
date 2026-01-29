@@ -7,6 +7,7 @@ import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { type ColorMode, ColorModeProvider } from "@/lib/color-mode";
 import { DesignSystemConfigSchema } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -32,18 +33,25 @@ const getColorMode = createIsomorphicFn()
       document.cookie
         .split("; ")
         .find((cookie) => cookie.startsWith("zaidan-color-mode="))
-        ?.split("=")[1] ?? "light",
+        ?.split("=")[1] ??
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
   );
 
 function RootComponent() {
   const colorMode = getColorMode() as ColorMode;
   return (
-    <html lang="en" class={colorMode}>
+    <html
+      lang="en"
+      class={cn("no-scrollbar", {
+        light: colorMode === "light",
+        dark: colorMode === "dark",
+      })}
+    >
       <head>
         <HeadContent />
         <HydrationScript />
       </head>
-      <body class="style-vega">
+      <body class="style-vega no-scrollbar">
         <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
             <Outlet />
