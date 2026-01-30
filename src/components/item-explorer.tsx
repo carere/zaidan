@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/solid-router";
+import { Link, useLocation } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, splitProps } from "solid-js";
@@ -24,6 +24,7 @@ type Entry = {
 
 export function ItemExplorer(props: SidebarProps) {
   const mergedProps = mergeProps({ collapsible: "none" }, props);
+  const location = useLocation();
   const [local, others] = splitProps(mergedProps as SidebarProps, ["class", "collapsible"]);
   const entries: Entry[] = [
     {
@@ -65,6 +66,8 @@ export function ItemExplorer(props: SidebarProps) {
                               to={entry.route}
                               //@ts-expect-error <Problem with kobalte typing polymorphic props>
                               params={{ slug: item.slug }}
+                              //@ts-expect-error <Problem with search params typing>
+                              search={location().search}
                               class="relative h-[26px] w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                             >
                               {item.title}

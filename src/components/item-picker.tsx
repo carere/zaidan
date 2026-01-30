@@ -1,9 +1,8 @@
-import { Link, useLocation } from "@tanstack/solid-router";
+import { useLocation, useNavigate, useParams } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
-  createEffect,
   createMemo,
   createSignal,
   For,
@@ -12,7 +11,6 @@ import {
   Show,
   splitProps,
 } from "solid-js";
-import { DEFAULT_CONFIG } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/ui/button";
 import {
@@ -50,9 +48,9 @@ const entries: Entry[] = [
 export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   const [open, setOpen] = createSignal(false);
-  const [currentPage, setCurrentPage] = createSignal("Home");
   const location = useLocation();
-
+  const navigate = useNavigate();
+  const params = useParams({ strict: false });
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
@@ -68,41 +66,11 @@ export function ItemPicker(props: ComponentProps<"div">) {
     onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
-  // Detect current page from active link (reactive to route changes)
-  createEffect(() => {
-    // Access location().pathname to make this effect reactive to route changes
-    const pathname = location().pathname;
-
-    // Strategy 1: Query for active link (TanStack Router sets data-status="active")
-    const activeLink = document.querySelector('[data-status="active"]');
-    if (activeLink) {
-      const text = activeLink.textContent?.trim();
-      if (text) {
-        setCurrentPage(text);
-        return;
-      }
-    }
-
-    // Strategy 2: Fallback to pathname parsing
-    // Match docs route: / or /{slug}
-    if (pathname === "/" || (pathname.startsWith("/") && !pathname.startsWith("/ui"))) {
-      const slug = pathname === "/" ? "home" : pathname.slice(1);
-      const doc = docs.find((d) => d.slug === slug);
-      setCurrentPage(doc?.title ?? "Home");
-      return;
-    }
-
-    // Match UI route: /ui/{slug}
-    if (pathname.startsWith("/ui/")) {
-      const slug = pathname.slice(4);
-      const component = ui.find((u) => u.slug === slug);
-      setCurrentPage(component?.title ?? "Home");
-      return;
-    }
-
-    // Default fallback
-    setCurrentPage("Home");
-  });
+  const currentPage = createMemo(
+    () =>
+      entries.flatMap(({ items }) => items).find(({ slug }) => slug === params().slug)?.title ??
+      "Zaidan",
+  );
 
   return (
     <>
@@ -123,7 +91,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
       </Button>
 
       <CommandDialog open={open()} onOpenChange={setOpen}>
-        <Command>
+        <Command autofocus={false}>
           <CommandInput placeholder="Search pages..." />
           <CommandList>
             <CommandEmpty>No pages found.</CommandEmpty>
@@ -134,15 +102,19 @@ export function ItemPicker(props: ComponentProps<"div">) {
                   <CommandGroup heading={entry.title}>
                     <For each={entry.items}>
                       {(item) => (
-                        <CommandItem value={item.title}>
-                          <Link
-                            to={entry.route}
-                            params={{ slug: item.slug }}
-                            search={DEFAULT_CONFIG}
-                            class="flex w-full items-center"
-                          >
-                            {item.title}
-                          </Link>
+                        <CommandItem
+                          value={item.slug}
+                          data-selected={params().slug === item.slug}
+                          onSelect={() => {
+                            navigate({
+                              to: entry.route,
+                              params: { slug: item.slug },
+                              search: location().search,
+                            });
+                            setOpen(false);
+                          }}
+                        >
+                          {item.title}
                         </CommandItem>
                       )}
                     </For>

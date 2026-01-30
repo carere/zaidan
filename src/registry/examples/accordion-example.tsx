@@ -9,13 +9,7 @@ import {
   AccordionTrigger,
 } from "@/registry/ui/accordion";
 import { Button } from "@/registry/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/registry/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/registry/ui/card";
 
 export default function AccordionExample() {
   return (
@@ -39,14 +33,12 @@ function AccordionBasic() {
     {
       value: "item-2",
       trigger: "Is it styled?",
-      content:
-        "Yes. It comes with default styles that matches the other components' aesthetic.",
+      content: "Yes. It comes with default styles that matches the other components' aesthetic.",
     },
     {
       value: "item-3",
       trigger: "Is it animated?",
-      content:
-        "Yes. It's animated by default, but you can disable it if you prefer.",
+      content: "Yes. It's animated by default, but you can disable it if you prefer.",
     },
   ];
 
@@ -101,162 +93,57 @@ function AccordionMultiple() {
 }
 
 function AccordionWithBorders() {
-  const items = [
-    {
-      value: "billing",
-      trigger: "How does billing work?",
-      content:
-        "We offer monthly and annual subscription plans. Billing is charged at the beginning of each cycle, and you can cancel anytime. All plans include automatic backups, 24/7 support, and unlimited team members. There are no hidden fees or setup costs.",
-    },
-    {
-      value: "security",
-      trigger: "Is my data secure?",
-      content:
-        "Yes. We use end-to-end encryption, SOC 2 Type II compliance, and regular third-party security audits. All data is encrypted at rest and in transit using industry-standard protocols. We also offer optional two-factor authentication and single sign-on for enterprise customers.",
-    },
-    {
-      value: "integration",
-      trigger: "What integrations do you support?",
-      content: (
-        <>
-          <p>
-            We integrate with 500+ popular tools including Slack, Zapier,
-            Salesforce, HubSpot, and more. You can also build custom
-            integrations using our REST API and webhooks.{" "}
-          </p>
-          <p>
-            Our API documentation includes code examples in 10+ programming
-            languages.
-          </p>
-        </>
-      ),
-    },
-  ];
-
   return (
     <Example title="With Borders">
-      <Accordion class="style-lyra:gap-2 style-vega:gap-2 style-nova:gap-2 mx-auto max-w-lg">
-        <For each={items}>
-          {(item) => (
-            <AccordionItem
-              value={item.value}
-              class="style-vega:border style-nova:border style-lyra:border style-vega:rounded-lg style-nova:rounded-lg"
-            >
-              <AccordionTrigger class="style-nova:px-2.5 style-nova:text-sm style-vega:text-sm style-maia:text-sm style-mira:text-xs style-lyra:px-2 style-lyra:text-xs style-vega:px-4 font-medium">
-                {item.trigger}
-              </AccordionTrigger>
-              <AccordionContent class="text-muted-foreground style-nova:px-2.5 style-nova:text-sm style-lyra:px-2 style-lyra:text-xs style-vega:px-4 style-maia:px-0 style-mira:px-0">
-                {item.content}
-              </AccordionContent>
-            </AccordionItem>
-          )}
-        </For>
+      <Accordion class="mx-auto max-w-lg style-lyra:gap-2 style-nova:gap-2 style-vega:gap-2">
+        <AccordionItem
+          value="billing"
+          class="style-nova:rounded-lg style-vega:rounded-lg style-lyra:border style-nova:border style-vega:border"
+        >
+          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+            How does billing work?
+          </AccordionTrigger>
+          <AccordionContent class="style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
+            We offer monthly and annual subscription plans. Billing is charged at the beginning of
+            each cycle, and you can cancel anytime. All plans include automatic backups, 24/7
+            support, and unlimited team members. There are no hidden fees or setup costs.
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem
+          value="security"
+          class="style-nova:rounded-lg style-vega:rounded-lg style-lyra:border style-nova:border style-vega:border"
+        >
+          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+            Is my data secure?
+          </AccordionTrigger>
+          <AccordionContent class="style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
+            Yes. We use end-to-end encryption, SOC 2 Type II compliance, and regular third-party
+            security audits. All data is encrypted at rest and in transit using industry-standard
+            protocols. We also offer optional two-factor authentication and single sign-on for
+            enterprise customers.
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem
+          value="integration"
+          class="style-nova:rounded-lg style-vega:rounded-lg style-lyra:border style-nova:border style-vega:border"
+        >
+          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+            What integrations do you support?
+          </AccordionTrigger>
+          <AccordionContent class="style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
+            <p>
+              We integrate with 500+ popular tools including Slack, Zapier, Salesforce, HubSpot, and
+              more. You can also build custom integrations using our REST API and webhooks.
+            </p>
+            <p>Our API documentation includes code examples in 10+ programming languages.</p>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
     </Example>
   );
 }
 
 function AccordionInCard() {
-  const items = [
-    {
-      value: "plans",
-      trigger: "What subscription plans do you offer?",
-      content: (
-        <>
-          <p>
-            We offer three subscription tiers: Starter ($9/month), Professional
-            ($29/month), and Enterprise ($99/month). Each plan includes
-            increasing storage limits, API access, priority support, and team
-            collaboration features.
-          </p>
-          <p>
-            <a href="#">Annual billing is available</a> with a 20% discount. All
-            plans include a 14-day free trial with no credit card required.
-          </p>
-          <Button size="sm">
-            View plans
-            <ArrowUpRight />
-          </Button>
-        </>
-      ),
-    },
-    {
-      value: "billing",
-      trigger: "How does billing work?",
-      content: (
-        <>
-          <p>
-            Billing occurs automatically at the start of each billing cycle. We
-            accept all major credit cards, PayPal, and ACH transfers for
-            enterprise customers.
-          </p>
-          <p>
-            You&apos;ll receive an invoice via email after each payment. You can
-            update your payment method or billing information anytime in your
-            account settings. Failed payments will trigger automated retry
-            attempts and email notifications.
-          </p>
-        </>
-      ),
-    },
-    {
-      value: "upgrade",
-      trigger: "Can I upgrade or downgrade my plan?",
-      content: (
-        <>
-          <p>
-            Yes, you can change your plan at any time. When upgrading,
-            you&apos;ll be charged a prorated amount for the remainder of your
-            billing cycle and immediately gain access to new features.
-          </p>
-          <p>
-            When downgrading, the change takes effect at the end of your current
-            billing period, and you&apos;ll retain access to premium features
-            until then. No refunds are provided for downgrades.
-          </p>
-        </>
-      ),
-    },
-    {
-      value: "cancel",
-      trigger: "How do I cancel my subscription?",
-      content: (
-        <>
-          <p>
-            You can cancel your subscription anytime from your account settings.
-            There are no cancellation fees or penalties. Your access will
-            continue until the end of your current billing period.
-          </p>
-          <p>
-            After cancellation, your data is retained for 30 days in case you
-            want to reactivate. You can export all your data before or after
-            canceling. We&apos;d love to hear your feedback about why
-            you&apos;re leaving.
-          </p>
-        </>
-      ),
-    },
-    {
-      value: "refund",
-      trigger: "What is your refund policy?",
-      content: (
-        <>
-          <p>
-            We offer a 30-day money-back guarantee for new subscriptions. If
-            you&apos;re not satisfied within the first 30 days, contact our
-            support team for a full refund.
-          </p>
-          <p>
-            After 30 days, we don&apos;t provide refunds for partial billing
-            periods, but you can cancel anytime to avoid future charges.
-            Enterprise customers have custom refund terms outlined in their
-            contracts.
-          </p>
-        </>
-      ),
-    },
-  ];
-
   return (
     <Example title="In Card">
       <Card class="mx-auto w-full max-w-lg gap-4">
@@ -272,14 +159,82 @@ function AccordionInCard() {
             defaultValue={["plans"]}
             class="style-maia:rounded-md style-mira:rounded-md"
           >
-            <For each={items}>
-              {(item) => (
-                <AccordionItem value={item.value}>
-                  <AccordionTrigger>{item.trigger}</AccordionTrigger>
-                  <AccordionContent>{item.content}</AccordionContent>
-                </AccordionItem>
-              )}
-            </For>
+            <AccordionItem value="plans">
+              <AccordionTrigger>What subscription plans do you offer?</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  We offer three subscription tiers: Starter ($9/month), Professional ($29/month),
+                  and Enterprise ($99/month). Each plan includes increasing storage limits, API
+                  access, priority support, and team collaboration features.
+                </p>
+                <p>
+                  <a href="#">Annual billing is available</a> with a 20% discount. All plans include
+                  a 14-day free trial with no credit card required.
+                </p>
+                <Button size="sm">
+                  View plans
+                  <ArrowUpRight />
+                </Button>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="billing">
+              <AccordionTrigger>How does billing work?</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  Billing occurs automatically at the start of each billing cycle. We accept all
+                  major credit cards, PayPal, and ACH transfers for enterprise customers.
+                </p>
+                <p>
+                  You&apos;ll receive an invoice via email after each payment. You can update your
+                  payment method or billing information anytime in your account settings. Failed
+                  payments will trigger automated retry attempts and email notifications.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="upgrade">
+              <AccordionTrigger>Can I upgrade or downgrade my plan?</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  Yes, you can change your plan at any time. When upgrading, you&apos;ll be charged
+                  a prorated amount for the remainder of your billing cycle and immediately gain
+                  access to new features.
+                </p>
+                <p>
+                  When downgrading, the change takes effect at the end of your current billing
+                  period, and you&apos;ll retain access to premium features until then. No refunds
+                  are provided for downgrades.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="cancel">
+              <AccordionTrigger>How do I cancel my subscription?</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  You can cancel your subscription anytime from your account settings. There are no
+                  cancellation fees or penalties. Your access will continue until the end of your
+                  current billing period.
+                </p>
+                <p>
+                  After cancellation, your data is retained for 30 days in case you want to
+                  reactivate. You can export all your data before or after canceling. We&apos;d love
+                  to hear your feedback about why you&apos;re leaving.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="refund">
+              <AccordionTrigger>What is your refund policy?</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  We offer a 30-day money-back guarantee for new subscriptions. If you&apos;re not
+                  satisfied within the first 30 days, contact our support team for a full refund.
+                </p>
+                <p>
+                  After 30 days, we don&apos;t provide refunds for partial billing periods, but you
+                  can cancel anytime to avoid future charges. Enterprise customers have custom
+                  refund terms outlined in their contracts.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         </CardContent>
       </Card>
@@ -314,18 +269,18 @@ function AccordionWithDisabled() {
 
   return (
     <Example title="With Disabled">
-      <Accordion class="style-lyra:rounded-none style-vega:rounded-lg style-nova:rounded-lg style-maia:rounded-lg style-mira:rounded-lg mx-auto max-w-lg overflow-hidden border">
+      <Accordion class="mx-auto max-w-lg overflow-hidden style-lyra:rounded-none style-maia:rounded-lg style-mira:rounded-lg style-nova:rounded-lg style-vega:rounded-lg border">
         <For each={items}>
           {(item) => (
             <AccordionItem
               value={item.value}
               disabled={item.disabled}
-              class="data-open:bg-muted/50 p-1"
+              class="p-1 data-open:bg-muted/50"
             >
-              <AccordionTrigger class="style-nova:px-2.5 style-lyra:px-2 style-vega:px-4">
+              <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4">
                 {item.trigger}
               </AccordionTrigger>
-              <AccordionContent class="style-nova:px-2.5 style-lyra:px-2 style-vega:px-4">
+              <AccordionContent class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4">
                 {item.content}
               </AccordionContent>
             </AccordionItem>
