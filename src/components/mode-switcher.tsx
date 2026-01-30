@@ -1,8 +1,8 @@
 import { Moon, Sun } from "lucide-solid";
 import { onCleanup, onMount, Show, splitProps } from "solid-js";
-import { useColorMode } from "@/lib/color-mode";
 import { cn } from "@/lib/utils";
-import { Button, type ButtonProps } from "@/registry/ui/button";
+import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { Button, type ButtonProps } from "@/registry/kobalte/ui/button";
 
 export function ModeSwitcher(props: ButtonProps) {
   const [local, others] = splitProps(props as ButtonProps, ["class"]);

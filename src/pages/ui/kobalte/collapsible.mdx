@@ -1,0 +1,67 @@
+---
+title: Collapsible
+slug: collapsible
+description: An interactive component which expands/collapses a panel.
+---
+
+# Collapsible
+
+An interactive component which expands/collapses a panel.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add collapsible
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/collapsible.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### File Tree
+
+```tsx
+import { ChevronRight, File, Folder } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+```
+
+```tsx file=../../../registry/kobalte/examples/collapsible-example.tsx#L22-L118
+
+```
+
+### Settings
+
+```tsx
+import { Maximize, Minimize } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/collapsible-example.tsx#L120-L170
+
+```

@@ -2,9 +2,9 @@ import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { PreviewBadgeNav } from "@/components/preview-badge-nav";
-import { useColorMode } from "@/lib/color-mode";
 import type { IframeMessage } from "@/lib/types";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
+import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
   loader: ({ params }) => {

@@ -1,0 +1,136 @@
+---
+title: Spinner
+slug: spinner
+description: An indicator that can be used to show a loading state.
+---
+
+# Spinner
+
+An indicator that can be used to show a loading state.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add spinner
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/spinner.tsx showLineNumbers
+
+```
+
+## Customization
+
+You can replace the default spinner icon with any other icon by editing the `Spinner` component.
+
+```tsx showLineNumbers title="components/ui/spinner.tsx"
+import { Loader2 } from "lucide-solid"
+import { splitProps, type ComponentProps } from "solid-js"
+
+import { cn } from "~/lib/utils"
+
+type SpinnerProps = ComponentProps<"svg"> & {
+  class?: string | undefined
+}
+
+const Spinner = (props: SpinnerProps) => {
+  const [local, others] = splitProps(props, ["class"])
+  return (
+    <Loader2
+      role="status"
+      aria-label="Loading"
+      class={cn("size-4 animate-spin", local.class)}
+      {...others}
+    />
+  )
+}
+
+export { Spinner }
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../../registry/kobalte/examples/spinner-example.tsx#L30-L39
+
+```
+
+### In Buttons
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../../registry/kobalte/examples/spinner-example.tsx#L41-L61
+
+```
+
+### In Badges
+
+```tsx
+import { Badge } from "~/components/ui/badge";
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../../registry/kobalte/examples/spinner-example.tsx#L63-L86
+
+```
+
+### In Input Group
+
+```tsx
+import { Field, FieldLabel } from "~/components/ui/field";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../../registry/kobalte/examples/spinner-example.tsx#L88-L102
+
+```
+
+### In Empty State
+
+```tsx
+import { ArrowRight } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { Spinner } from "~/components/ui/spinner";
+```
+
+```tsx file=../../../registry/kobalte/examples/spinner-example.tsx#L104-L131
+
+```
+
+## API Reference
+
+### Spinner
+
+Use the `Spinner` component to display a spinner.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` | ``      |
+
+```tsx
+<Spinner />
+```

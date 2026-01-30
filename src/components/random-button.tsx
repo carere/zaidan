@@ -13,9 +13,9 @@ import {
 import type { BaseColor, Font, MenuAccent, Radius, Style, Theme } from "@/lib/types";
 import { useLocks } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
-import { Button } from "@/registry/ui/button";
-import { Kbd } from "@/registry/ui/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip";
+import { Button } from "@/registry/kobalte/ui/button";
+import { Kbd } from "@/registry/kobalte/ui/kbd";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 function randomItem<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];

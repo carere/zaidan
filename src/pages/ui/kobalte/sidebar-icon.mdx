@@ -1,0 +1,112 @@
+---
+title: Sidebar (Icon)
+slug: sidebar-icon
+description: A sidebar that collapses to icons for space-efficient navigation.
+---
+
+# Sidebar (Icon)
+
+A sidebar variant that collapses to show only icons, enabling space-efficient navigation while maintaining full functionality when expanded.
+
+## Installation
+
+See the [Sidebar](/ui/sidebar) component for installation instructions.
+
+## Features
+
+- Collapses to icon-only mode for compact navigation
+- Tooltips appear when collapsed to show full labels
+- Smooth transition animations
+- Header height adjusts when collapsed
+
+## Props
+
+| Prop | Type | Value | Description |
+|------|------|-------|-------------|
+| `collapsible` | `string` | `"icon"` | Enables icon collapse mode |
+
+## Examples
+
+Here is the source code of the example from the preview page:
+
+### Icon Collapsible
+
+```tsx
+import {
+  AudioWaveform,
+  BadgeCheck,
+  Bell,
+  BookOpen,
+  Bot,
+  ChevronRight,
+  ChevronsUpDown,
+  Command,
+  CreditCard,
+  Folder,
+  Forward,
+  Frame,
+  GalleryVerticalEnd,
+  LogOut,
+  Map as MapIcon,
+  MoreHorizontal,
+  PieChart,
+  Plus,
+  Settings2,
+  Sparkles,
+  SquareTerminal,
+  Trash2,
+} from "lucide-solid";
+import type { Component, ComponentProps } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Kbd } from "~/components/ui/kbd";
+import { Separator } from "~/components/ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  useSidebar,
+} from "~/components/ui/sidebar";
+```
+
+```tsx file=../../../registry/kobalte/examples/sidebar-icon-example.tsx#L370-L415
+
+```
+
+## See Also
+
+- [Sidebar](/ui/sidebar) - Default sidebar
+- [Sidebar (Inset)](/ui/sidebar-inset) - Inset variant
+- [Sidebar (Floating)](/ui/sidebar-floating) - Floating variant

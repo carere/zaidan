@@ -4,9 +4,13 @@ import { Menu } from "lucide-solid";
 import { lazy } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
-import { Button } from "@/registry/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
+import { Button } from "@/registry/kobalte/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/registry/kobalte/ui/collapsible";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/_website/{-$slug}")({
   loader: async ({ params }) => {

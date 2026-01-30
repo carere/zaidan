@@ -1,7 +1,7 @@
 import { GalleryHorizontalIcon } from "lucide-solid";
 import { splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
-import { Button, type ButtonProps } from "@/registry/ui/button";
+import { Button, type ButtonProps } from "@/registry/kobalte/ui/button";
 
 export function SiteConfig(props: ButtonProps) {
   const [local, others] = splitProps(props as ButtonProps, ["class"]);

@@ -1,0 +1,310 @@
+---
+title: Select
+slug: select
+description: Displays a list of options for the user to pick from—triggered by a button.
+example: select-example.tsx
+---
+
+# Select
+
+Displays a list of options for the user to pick from—triggered by a button.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add select
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/select.tsx showLineNumbers
+
+```
+
+## Props
+
+The Select component uses Kobalte's Select primitive under the hood. Here are the main props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `T[]` | - | The array of options to display |
+| `optionValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's value |
+| `optionTextValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's text |
+| `optionDisabled` | `keyof T \| ((option: T) => boolean)` | - | Key or function to determine if option is disabled |
+| `value` | `T` | - | The controlled value of the select |
+| `defaultValue` | `T` | - | The default value of the select |
+| `onChange` | `(value: T) => void` | - | Handler called when value changes |
+| `placeholder` | `string` | - | Placeholder text when no value is selected |
+| `disabled` | `boolean` | `false` | Whether the select is disabled |
+| `validationState` | `"valid" \| "invalid"` | - | The validation state of the select |
+| `multiple` | `boolean` | `false` | Whether multiple options can be selected |
+
+### SelectTrigger
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `size` | `"sm" \| "default"` | `"default"` | The size variant of the trigger |
+| `class` | `string` | - | Additional CSS classes |
+
+### SelectContent
+
+The SelectContent component wraps the dropdown portal and listbox. It inherits positioning from the Select root.
+
+### SelectItem
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `item` | `ListState.Option<T>` | - | The item object from Kobalte |
+| `disabled` | `boolean` | `false` | Whether the item is disabled |
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L49-L80
+
+```
+
+### With Icons
+
+```tsx
+import { ChartBar, ChartLine, ChartPie } from "lucide-solid";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L82-L161
+
+```
+
+### With Groups & Labels
+
+```tsx
+import { Show } from "solid-js";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L163-L222
+
+```
+
+### Large List
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L224-L250
+
+```
+
+### Multiple Selection
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L252-L290
+
+```
+
+### Sizes
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L292-L336
+
+```
+
+### With Button
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L338-L390
+
+```
+
+### Item Aligned
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L392-L421
+
+```
+
+### With Field
+
+```tsx
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L423-L453
+
+```
+
+### Invalid
+
+```tsx
+import { Field, FieldError, FieldLabel } from "~/components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L455-L507
+
+```
+
+### Inline with Input & NativeSelect
+
+```tsx
+import { Input } from "~/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "~/components/ui/native-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L509-L544
+
+```
+
+### Disabled
+
+```tsx
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L546-L576
+
+```
+
+### Subscription Plan
+
+```tsx
+import { Item, ItemContent, ItemDescription, ItemTitle } from "~/components/ui/item";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L578-L627
+
+```
+
+### In Dialog
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/select-example.tsx#L629-L668
+
+```

@@ -1,0 +1,220 @@
+---
+title: Toggle Group
+slug: toggle-group
+description: A set of two-state buttons that can be toggled on or off.
+---
+
+# Toggle Group
+
+A set of two-state buttons that can be toggled on or off.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add toggle-group
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@kobalte/core
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/toggle-group.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L44-L60
+
+```
+
+### Outline
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L62-L75
+
+```
+
+### Outline With Icons
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L77-L93
+
+```
+
+### Sizes
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L95-L130
+
+```
+
+### With Spacing
+
+Use `spacing={2}` to add spacing between toggle group items.
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L132-L151
+
+```
+
+### With Icons
+
+```tsx
+import { Bookmark, Heart, Star } from "lucide-solid";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L153-L184
+
+```
+
+### Filter
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L186-L205
+
+```
+
+### Date Range
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L207-L226
+
+```
+
+### Sort
+
+```tsx
+import { ArrowDown, ArrowUp, TrendingUp } from "lucide-solid";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L228-L247
+
+```
+
+### With Input and Select
+
+```tsx
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L249-L286
+
+```
+
+### Vertical
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L288-L304
+
+```
+
+### Vertical Outline
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L306-L331
+
+```
+
+### Vertical Outline With Icons
+
+```tsx
+import { Bold, Italic, Underline } from "lucide-solid";
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L333-L349
+
+```
+
+### Vertical With Spacing
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
+```
+
+```tsx file=../../../registry/kobalte/examples/toggle-group-example.tsx#L351-L377
+
+```
+
+## API Reference
+
+### ToggleGroup
+
+The main wrapper component for toggle group items.
+
+| Prop | Type | Default |
+|------|------|---------|
+| `multiple` | `boolean` | `false` |
+| `variant` | `"default" \| "outline"` | `"default"` |
+| `size` | `"default" \| "sm" \| "lg"` | `"default"` |
+| `spacing` | `number` | `0` |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` |
+| `defaultValue` | `string \| string[]` | - |
+| `value` | `string \| string[]` | - |
+| `onChange` | `(value: string \| string[]) => void` | - |
+| `disabled` | `boolean` | `false` |
+| `class` | `string` | - |
+
+### ToggleGroupItem
+
+Individual toggle elements within a group. Include an `aria-label` on each item for accessibility purposes.
+
+| Prop | Type | Default |
+|------|------|---------|
+| `value` | `string` | Required |
+| `disabled` | `boolean` | `false` |
+| `class` | `string` | - |

@@ -4,7 +4,7 @@ import { Radius as RadiusIcon } from "@/components/icons/radius";
 import { LockButton } from "@/components/lock-button";
 import { DEFAULT_CONFIG, RADII } from "@/lib/config";
 import type { Radius } from "@/lib/types";
-import { useIsMobile } from "@/registry/hooks/use-mobile";
+import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/registry/ui/dropdown-menu";
+} from "@/registry/kobalte/ui/dropdown-menu";
 
 export default function RadiusPicker() {
   const location = useLocation();

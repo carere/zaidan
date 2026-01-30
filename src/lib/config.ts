@@ -13,6 +13,7 @@ import type {
  * Default configuration values for the design system
  */
 export const DEFAULT_CONFIG: DesignSystemConfig = {
+  primitive: "kobalte",
   style: "vega",
   baseColor: "neutral",
   theme: "neutral",

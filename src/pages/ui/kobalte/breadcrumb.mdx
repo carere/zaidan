@@ -1,0 +1,90 @@
+---
+title: Breadcrumb
+slug: breadcrumb
+description: Displays the path to the current resource using a hierarchy of links.
+---
+
+# Breadcrumb
+
+Displays the path to the current resource using a hierarchy of links.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add breadcrumb
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/breadcrumb.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+```
+
+```tsx file=../../../registry/kobalte/examples/breadcrumb-example.tsx#L30-L50
+
+```
+
+### With Dropdown
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+```
+
+```tsx file=../../../registry/kobalte/examples/breadcrumb-example.tsx#L52-L86
+
+```
+
+### With Link
+
+```tsx
+import { Link } from "@tanstack/solid-router";
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+```
+
+```tsx file=../../../registry/kobalte/examples/breadcrumb-example.tsx#L88-L116
+
+```

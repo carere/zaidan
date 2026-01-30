@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/solid-router";
 import { type ComponentProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/registry/ui/badge";
+import { Badge } from "@/registry/kobalte/ui/badge";
 
 type PreviewBadgeNavProps = ComponentProps<"div"> & {
   slug: string;

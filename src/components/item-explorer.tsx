@@ -3,7 +3,11 @@ import { docs, ui } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/registry/kobalte/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   type SidebarProps,
-} from "@/registry/ui/sidebar";
+} from "@/registry/kobalte/ui/sidebar";
 import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {

@@ -5,7 +5,7 @@
   "registryDependencies": [],
   "files": [
     {
-      "path": "src/registry/ui/kbd.tsx",
+      "path": "src/registry/kobalte/ui/kbd.tsx",
       "content": "import type { ComponentProps } from \"solid-js\";\nimport { splitProps } from \"solid-js\";\n\nimport { cn } from \"@/lib/utils\";\n\ntype KbdProps = ComponentProps<\"kbd\">;\n\nconst Kbd = (props: KbdProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n\n  return (\n    <kbd\n      class={cn(\n        \"cn-kbd pointer-events-none inline-flex select-none items-center justify-center\",\n        local.class,\n      )}\n      data-slot=\"kbd\"\n      {...others}\n    />\n  );\n};\n\ntype KbdGroupProps = ComponentProps<\"div\">;\n\nconst KbdGroup = (props: KbdGroupProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n\n  return (\n    <div\n      class={cn(\"cn-kbd-group inline-flex items-center\", local.class)}\n      data-slot=\"kbd-group\"\n      {...others}\n    />\n  );\n};\n\nexport { Kbd, KbdGroup };\n",
       "type": "registry:ui"
     }

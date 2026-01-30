@@ -5,7 +5,7 @@
   "registryDependencies": [],
   "files": [
     {
-      "path": "src/registry/ui/skeleton.tsx",
+      "path": "src/registry/kobalte/ui/skeleton.tsx",
       "content": "import type { ComponentProps } from \"solid-js\";\nimport { splitProps } from \"solid-js\";\n\nimport { cn } from \"@/lib/utils\";\n\nconst Skeleton = (props: ComponentProps<\"div\">) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <div class={cn(\"cn-skeleton animate-pulse\", local.class)} data-slot=\"skeleton\" {...others} />\n  );\n};\n\nexport { Skeleton };\n",
       "type": "registry:ui"
     }

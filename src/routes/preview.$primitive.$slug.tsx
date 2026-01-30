@@ -4,7 +4,7 @@ import { createEffect, createMemo, createSignal, lazy, on, onCleanup, onMount } 
 import { FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/preview/$primitive/$slug")({
   loader: ({ params }) => {
@@ -38,13 +38,15 @@ export const Route = createFileRoute("/preview/$primitive/$slug")({
 });
 
 function PreviewComponent() {
-  const data = Route.useLoaderData();
-  const search = Route.useSearch();
-  const ExampleComponent = lazy(() => import(`../registry/examples/${data().slug}-example.tsx`));
-  const [params, setParams] = createSignal(search());
+  const initialSearch = Route.useSearch();
+  const params = Route.useParams();
+  const [search, setSearch] = createSignal(initialSearch());
+  const ExampleComponent = lazy(
+    () => import(`../registry/${params().primitive}/examples/${params().slug}-example.tsx`),
+  );
 
   const registryTheme = createMemo(() => {
-    const p = params();
+    const p = search();
     if (!p.baseColor || !p.theme || !p.menuAccent || !p.radius) {
       return null;
     }
@@ -60,7 +62,7 @@ function PreviewComponent() {
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.data?.type === "design-system-params-sync" && event.data.data)
-        setParams(event.data.data);
+        setSearch(event.data.data);
 
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
@@ -133,7 +135,7 @@ function PreviewComponent() {
   // Apply style classes to document.body
   createEffect(
     on(
-      () => params().style,
+      () => search().style,
       (style) => {
         document.body.classList.forEach((className) => {
           if (className.startsWith("style-")) {
@@ -148,7 +150,7 @@ function PreviewComponent() {
   // Apply base color class to document.body
   createEffect(
     on(
-      () => params().baseColor,
+      () => search().baseColor,
       (baseColor) => {
         document.body.classList.forEach((className) => {
           if (className.startsWith("base-color-")) {
@@ -165,7 +167,7 @@ function PreviewComponent() {
   // Apply font CSS custom property to document.documentElement
   createEffect(
     on(
-      () => params().font,
+      () => search().font,
       (font) => {
         const fontConfig = FONTS.find((f) => f.value === font);
         if (fontConfig) {
@@ -178,7 +180,7 @@ function PreviewComponent() {
   // Apply radius CSS custom property to document.documentElement
   createEffect(
     on(
-      () => params().radius,
+      () => search().radius,
       (radius) => {
         const radiusValue = RADII.find((r) => r.name === radius || r.name === "medium")
           ?.value as string;

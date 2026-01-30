@@ -1,0 +1,72 @@
+---
+title: Sidebar (Inset)
+slug: sidebar-inset
+description: A sidebar variant inset within the main content area with custom background.
+---
+
+# Sidebar (Inset)
+
+A sidebar variant that appears inset within the main content area, creating a distinct visual separation with the background.
+
+## Installation
+
+See the [Sidebar](/ui/sidebar) component for installation instructions.
+
+## Features
+
+- Inset appearance within the content area
+- Perfect for table of contents or secondary navigation
+- Works well on the right side of the page
+- Maintains visual hierarchy with the main content
+
+## Props
+
+| Prop | Type | Value | Description |
+|------|------|-------|-------------|
+| `variant` | `string` | `"inset"` | Enables inset visual style |
+| `side` | `string` | `"right"` | Positions sidebar on the right |
+
+## Examples
+
+Here is the source code of the example from the preview page:
+
+### Inset Variant
+
+```tsx
+import { For, Show } from "solid-js";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+```
+
+```tsx file=../../../registry/kobalte/examples/sidebar-inset-example.tsx#L88-L155
+
+```
+
+## See Also
+
+- [Sidebar](/ui/sidebar) - Default sidebar
+- [Sidebar (Icon)](/ui/sidebar-icon) - Icon collapsible variant
+- [Sidebar (Floating)](/ui/sidebar-floating) - Floating variant

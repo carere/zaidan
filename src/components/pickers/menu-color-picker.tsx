@@ -1,5 +1,5 @@
-import { useIsMobile } from "@/registry/hooks/use-mobile";
-import { DropdownMenu, DropdownMenuTrigger } from "@/registry/ui/dropdown-menu";
+import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
+import { DropdownMenu, DropdownMenuTrigger } from "@/registry/kobalte/ui/dropdown-menu";
 import { Menu } from "../icons/menu";
 
 export default function MenuColorPicker() {

@@ -1,6 +1,6 @@
 import { type ComponentProps, createSignal, onMount, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
-import { Button } from "@/registry/ui/button";
+import { Button } from "@/registry/kobalte/ui/button";
 import { Github } from "./icons/github";
 
 const FALLBACK_STAR_COUNT = 50;

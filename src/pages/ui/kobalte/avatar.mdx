@@ -1,0 +1,148 @@
+---
+title: Avatar
+slug: avatar
+description: An image element with a fallback for representing the user.
+---
+
+# Avatar
+
+An image element with a fallback for representing the user.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add avatar
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/avatar.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Sizes
+
+```tsx
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/ui/avatar";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L35-L66
+
+```
+
+### Badge
+
+```tsx
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/ui/avatar";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L67-L104
+
+```
+
+### Badge with Icon
+
+```tsx
+import { Check, Plus } from "lucide-solid";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/ui/avatar";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L105-L154
+
+```
+
+### Group
+
+```tsx
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarImage,
+} from "~/components/ui/avatar";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L155-L203
+
+```
+
+### Group with Count
+
+```tsx
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "~/components/ui/avatar";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L204-L255
+
+```
+
+### Group with Icon Count
+
+```tsx
+import { Plus } from "lucide-solid";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "~/components/ui/avatar";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L256-L317
+
+```
+
+### In Empty
+
+```tsx
+import { Plus } from "lucide-solid";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+```
+
+```tsx file=../../../registry/kobalte/examples/avatar-example.tsx#L318-L363
+
+```

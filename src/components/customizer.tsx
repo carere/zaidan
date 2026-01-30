@@ -12,7 +12,7 @@ import ThemePicker from "@/components/pickers/theme-picker";
 import { RandomButton } from "@/components/random-button";
 import { ResetButton } from "@/components/reset-button";
 import { cn } from "@/lib/utils";
-import { FieldGroup } from "@/registry/ui/field";
+import { FieldGroup } from "@/registry/kobalte/ui/field";
 
 export function Customizer(props: ComponentProps<"div">) {
   return (
