@@ -1,0 +1,118 @@
+---
+title: Accordion
+slug: accordion
+description: A vertically stacked set of interactive headings that each reveal a section of content.
+---
+
+# Accordion
+
+A vertically stacked set of interactive headings that each reveal a section of content.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add accordion
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/accordion.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { For } from "solid-js";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+```
+
+```tsx file=../../../registry/kobalte/examples/accordion-example.tsx#L32-L67
+
+```
+
+### Multiple
+
+```tsx
+import { For } from "solid-js";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+```
+
+```tsx file=../../../registry/kobalte/examples/accordion-example.tsx#L69-L101
+
+```
+
+### With Borders
+
+```tsx
+import { For } from "solid-js";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+```
+
+```tsx file=../../../registry/kobalte/examples/accordion-example.tsx#L103-L157
+
+```
+
+### In Card
+
+```tsx
+import { ArrowUpRight } from "lucide-solid";
+import { For } from "solid-js";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/accordion-example.tsx#L159-L288
+
+```
+
+### With Disabled
+
+```tsx
+import { For } from "solid-js";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+```
+
+```tsx file=../../../registry/kobalte/examples/accordion-example.tsx#L290-L337
+
+```

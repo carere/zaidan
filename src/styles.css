@@ -9,11 +9,11 @@
 
 @import "./styles/expressive-code.css";
 
-@import "./styles/style-vega.css" layer(base);
-@import "./styles/style-nova.css" layer(base);
-@import "./styles/style-lyra.css" layer(base);
-@import "./styles/style-maia.css" layer(base);
-@import "./styles/style-mira.css" layer(base);
+@import "./registry/kobalte/styles/style-vega.css" layer(base);
+@import "./registry/kobalte/styles/style-nova.css" layer(base);
+@import "./registry/kobalte/styles/style-lyra.css" layer(base);
+@import "./registry/kobalte/styles/style-maia.css" layer(base);
+@import "./registry/kobalte/styles/style-mira.css" layer(base);
 
 @custom-variant style-vega (&:where(.style-vega *));
 @custom-variant style-nova (&:where(.style-nova *));

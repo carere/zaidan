@@ -9,7 +9,7 @@ import {
   Show,
   splitProps,
 } from "solid-js";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
 
 export const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {

@@ -1,0 +1,210 @@
+---
+title: Card
+slug: card
+description: Displays a card with header, content, and footer.
+---
+
+# Card
+
+Displays a card with header, content, and footer.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add card
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/card.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Default Size
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L41-L63
+
+```
+
+### Small Size
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L65-L87
+
+```
+
+### Header with Border
+
+```tsx
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L89-L106
+
+```
+
+### Footer with Border
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L108-L126
+
+```
+
+### Header with Border (Small)
+
+```tsx
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L128-L147
+
+```
+
+### Footer with Border (Small)
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L149-L167
+
+```
+
+### With Image
+
+```tsx
+import { Plus } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L169-L195
+
+```
+
+### With Image (Small)
+
+```tsx
+import { Plus } from "lucide-solid";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L197-L223
+
+```
+
+### Login
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L225-L269
+
+```
+
+### Meeting Notes
+
+```tsx
+import { Captions } from "lucide-solid";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/card-example.tsx#L271-L315
+
+```

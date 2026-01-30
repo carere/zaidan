@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-color-mode",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/kobalte/hooks/use-color-mode.ts",
+      "content": "import { useContext } from \"solid-js\";\nimport {\n  ColorModeContext,\n  type ColorModeContextValue,\n} from \"@/registry/kobalte/components/color-mode-provider\";\n\nexport function useColorMode(): ColorModeContextValue {\n  const context = useContext(ColorModeContext);\n  if (context === undefined) {\n    throw new Error(\"useColorMode must be used within a ColorModeProvider\");\n  }\n  return context;\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

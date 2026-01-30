@@ -2,7 +2,7 @@ import { Lock, LockOpen } from "lucide-solid";
 import type { LockableParam } from "@/lib/types";
 import { useLocks } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 export function LockButton(props: { param: LockableParam; class?: string }) {
   const { isLocked, toggleLock } = useLocks();

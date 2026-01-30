@@ -1,0 +1,117 @@
+---
+title: Sheet
+slug: sheet
+description: Extends the Dialog component to display content that complements the main content of the screen.
+---
+
+# Sheet
+
+Extends the Dialog component to display content that complements the main content of the screen.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add sheet
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@kobalte/core
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/sheet.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### With Form
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/components/ui/sheet";
+```
+
+```tsx file=../../../registry/kobalte/examples/sheet-example.tsx#L27-L62
+
+```
+
+### No Close Button
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/components/ui/sheet";
+```
+
+```tsx file=../../../registry/kobalte/examples/sheet-example.tsx#L64-L83
+
+```
+
+### Sides
+
+Use the `side` property to `<SheetContent />` to indicate the edge of the screen where the component will appear. The values can be `top`, `right`, `bottom` or `left`.
+
+```tsx
+import { For, Index } from "solid-js";
+import { Button } from "~/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/components/ui/sheet";
+```
+
+```tsx file=../../../registry/kobalte/examples/sheet-example.tsx#L85-L135
+
+```
+
+## Size
+
+You can adjust the size of the sheet using CSS classes:
+
+```tsx showLineNumbers {3}
+<Sheet>
+  <SheetTrigger>Open</SheetTrigger>
+  <SheetContent class="w-[400px] sm:w-[540px]">
+    <SheetHeader>
+      <SheetTitle>Are you absolutely sure?</SheetTitle>
+      <SheetDescription>
+        This action cannot be undone. This will permanently delete your account
+        and remove your data from our servers.
+      </SheetDescription>
+    </SheetHeader>
+  </SheetContent>
+</Sheet>
+```

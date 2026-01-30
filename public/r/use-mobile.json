@@ -5,7 +5,7 @@
   "registryDependencies": [],
   "files": [
     {
-      "path": "src/registry/hooks/use-mobile.ts",
+      "path": "src/registry/kobalte/hooks/use-mobile.ts",
       "content": "import { createEffect, createSignal, onCleanup } from \"solid-js\";\n\nconst MOBILE_BREAKPOINT = 768;\n\nexport function useIsMobile(fallback = false) {\n  const [isMobile, setIsMobile] = createSignal(fallback);\n\n  createEffect(() => {\n    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);\n    const onChange = (e: MediaQueryListEvent | MediaQueryList) => {\n      setIsMobile(e.matches);\n    };\n    mql.addEventListener(\"change\", onChange);\n    onChange(mql);\n    onCleanup(() => mql.removeEventListener(\"change\", onChange));\n  });\n\n  return isMobile;\n}\n",
       "type": "registry:hook"
     }

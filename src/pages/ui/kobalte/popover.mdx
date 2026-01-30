@@ -1,0 +1,108 @@
+---
+title: Popover
+slug: popover
+description: Displays rich content in a portal, triggered by a button.
+---
+
+# Popover
+
+Displays rich content in a portal, triggered by a button.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add popover
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/popover.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx file=../../../registry/kobalte/examples/popover-example.tsx#L33-L49
+
+```
+
+### With Form
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx file=../../../registry/kobalte/examples/popover-example.tsx#L51-L81
+
+```
+
+### Alignments
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx file=../../../registry/kobalte/examples/popover-example.tsx#L83-L108
+
+```
+
+### In Dialog
+
+```tsx
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+```
+
+```tsx file=../../../registry/kobalte/examples/popover-example.tsx#L110-L139
+
+```

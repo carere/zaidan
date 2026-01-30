@@ -5,9 +5,13 @@ import { lazy } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { PreviewBadgeNav } from "@/components/preview-badge-nav";
 import { TableOfContents } from "@/components/toc";
-import { Button } from "@/registry/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/ui/collapsible";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/ui/empty";
+import { Button } from "@/registry/kobalte/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/registry/kobalte/ui/collapsible";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/_website/ui/$slug/docs")({
   loader: ({ params }) => {
@@ -37,7 +41,8 @@ export const Route = createFileRoute("/_website/ui/$slug/docs")({
 
 function RouteComponent() {
   const doc = Route.useLoaderData();
-  const MDXContent = lazy(() => import(`../pages/ui/${doc().slug}.mdx`));
+  const search = Route.useSearch();
+  const MDXContent = lazy(() => import(`../pages/ui/${search().primitive}/${doc().slug}.mdx`));
 
   return (
     <div

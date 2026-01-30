@@ -1,0 +1,114 @@
+---
+title: Resizable
+slug: resizable
+description: Accessible resizable panel groups and layouts with keyboard support.
+---
+
+# Resizable
+
+Accessible resizable panel groups and layouts with keyboard support.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add resizable
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@corvu/resizable
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/resizable.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Horizontal
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../../registry/kobalte/examples/resizable-example.tsx#L17-L35
+
+```
+
+### Vertical
+
+Use the `orientation` prop to set the orientation of the resizable panels.
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../../registry/kobalte/examples/resizable-example.tsx#L37-L55
+
+```
+
+### With Handle
+
+You can set or hide the handle by using the `withHandle` prop on the `ResizableHandle` component.
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../../registry/kobalte/examples/resizable-example.tsx#L57-L75
+
+```
+
+### Nested
+
+You can nest `ResizablePanelGroup` components to create more complex layouts.
+
+```tsx
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../../registry/kobalte/examples/resizable-example.tsx#L77-L105
+
+```
+
+### Controlled
+
+Use the `sizes` and `onSizesChange` props to control the panel sizes.
+
+```tsx
+import { createSignal } from "solid-js";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
+```
+
+```tsx file=../../../registry/kobalte/examples/resizable-example.tsx#L107-L134
+
+```

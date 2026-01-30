@@ -5,7 +5,7 @@
   "registryDependencies": [],
   "files": [
     {
-      "path": "src/registry/ui/native-select.tsx",
+      "path": "src/registry/kobalte/ui/native-select.tsx",
       "content": "import { ChevronDown } from \"lucide-solid\";\nimport { type ComponentProps, mergeProps, splitProps } from \"solid-js\";\nimport { cn } from \"@/lib/utils\";\n\ntype NativeSelectProps = ComponentProps<\"select\"> & {\n  size?: \"sm\" | \"default\";\n};\n\nfunction NativeSelect(props: NativeSelectProps) {\n  const mergedProps = mergeProps({ size: \"default\" }, props);\n  const [local, others] = splitProps(mergedProps, [\"class\", \"size\"]);\n  return (\n    <div\n      class={cn(\n        \"cn-native-select-wrapper group/native-select relative w-fit has-[select:disabled]:opacity-50\",\n        local.class,\n      )}\n      data-slot=\"native-select-wrapper\"\n      data-size={local.size}\n    >\n      <select\n        data-slot=\"native-select\"\n        data-size={local.size}\n        class=\"cn-native-select outline-none disabled:pointer-events-none disabled:cursor-not-allowed\"\n        {...others}\n      />\n      <ChevronDown\n        class=\"cn-native-select-icon pointer-events-none absolute select-none\"\n        data-slot=\"native-select-icon\"\n      />\n    </div>\n  );\n}\n\nfunction NativeSelectOption(props: ComponentProps<\"option\">) {\n  return <option data-slot=\"native-select-option\" {...props} />;\n}\n\nfunction NativeSelectOptGroup(props: ComponentProps<\"optgroup\">) {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return <optgroup data-slot=\"native-select-optgroup\" class={cn(local.class)} {...others} />;\n}\n\nexport { NativeSelect, NativeSelectOptGroup, NativeSelectOption };\n",
       "type": "registry:ui"
     }

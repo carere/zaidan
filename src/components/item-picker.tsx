@@ -12,7 +12,7 @@ import {
   splitProps,
 } from "solid-js";
 import { cn } from "@/lib/utils";
-import { Button } from "@/registry/ui/button";
+import { Button } from "@/registry/kobalte/ui/button";
 import {
   Command,
   CommandDialog,
@@ -22,8 +22,8 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/registry/ui/command";
-import { Kbd } from "@/registry/ui/kbd";
+} from "@/registry/kobalte/ui/command";
+import { Kbd } from "@/registry/kobalte/ui/kbd";
 import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
@@ -40,7 +40,7 @@ const entries: Entry[] = [
   },
   {
     title: "UI",
-    items: [...ui].sort((a, b) => a.title.localeCompare(b.title)),
+    items: ui.sort((a, b) => a.title.localeCompare(b.title)),
     route: "/ui/{-$slug}",
   },
 ];

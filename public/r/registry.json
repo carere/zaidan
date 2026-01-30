@@ -10,7 +10,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/accordion.tsx",
+          "path": "src/registry/kobalte/ui/accordion.tsx",
           "type": "registry:ui"
         }
       ]
@@ -22,7 +22,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/alert.tsx",
+          "path": "src/registry/kobalte/ui/alert.tsx",
           "type": "registry:ui"
         }
       ]
@@ -34,7 +34,7 @@
       "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/alert-dialog.tsx",
+          "path": "src/registry/kobalte/ui/alert-dialog.tsx",
           "type": "registry:ui"
         }
       ]
@@ -46,7 +46,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/aspect-ratio.tsx",
+          "path": "src/registry/kobalte/ui/aspect-ratio.tsx",
           "type": "registry:ui"
         }
       ]
@@ -58,7 +58,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/avatar.tsx",
+          "path": "src/registry/kobalte/ui/avatar.tsx",
           "type": "registry:ui"
         }
       ]
@@ -70,7 +70,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/badge.tsx",
+          "path": "src/registry/kobalte/ui/badge.tsx",
           "type": "registry:ui"
         }
       ]
@@ -82,7 +82,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/breadcrumb.tsx",
+          "path": "src/registry/kobalte/ui/breadcrumb.tsx",
           "type": "registry:ui"
         }
       ]
@@ -94,7 +94,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/button.tsx",
+          "path": "src/registry/kobalte/ui/button.tsx",
           "type": "registry:ui"
         }
       ]
@@ -106,7 +106,7 @@
       "registryDependencies": ["separator"],
       "files": [
         {
-          "path": "src/registry/ui/button-group.tsx",
+          "path": "src/registry/kobalte/ui/button-group.tsx",
           "type": "registry:ui"
         }
       ]
@@ -118,7 +118,7 @@
       "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/calendar.tsx",
+          "path": "src/registry/kobalte/ui/calendar.tsx",
           "type": "registry:ui"
         }
       ]
@@ -130,7 +130,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/card.tsx",
+          "path": "src/registry/kobalte/ui/card.tsx",
           "type": "registry:ui"
         }
       ]
@@ -142,7 +142,7 @@
       "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/carousel.tsx",
+          "path": "src/registry/kobalte/ui/carousel.tsx",
           "type": "registry:ui"
         }
       ]
@@ -154,7 +154,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/chart.tsx",
+          "path": "src/registry/kobalte/ui/chart.tsx",
           "type": "registry:ui"
         }
       ]
@@ -166,7 +166,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/checkbox.tsx",
+          "path": "src/registry/kobalte/ui/checkbox.tsx",
           "type": "registry:ui"
         }
       ]
@@ -178,7 +178,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/collapsible.tsx",
+          "path": "src/registry/kobalte/ui/collapsible.tsx",
           "type": "registry:ui"
         }
       ]
@@ -190,7 +190,7 @@
       "registryDependencies": ["input-group"],
       "files": [
         {
-          "path": "src/registry/ui/combobox.tsx",
+          "path": "src/registry/kobalte/ui/combobox.tsx",
           "type": "registry:ui"
         }
       ]
@@ -202,7 +202,7 @@
       "registryDependencies": ["dialog", "input-group"],
       "files": [
         {
-          "path": "src/registry/ui/command.tsx",
+          "path": "src/registry/kobalte/ui/command.tsx",
           "type": "registry:ui"
         }
       ]
@@ -214,7 +214,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/context-menu.tsx",
+          "path": "src/registry/kobalte/ui/context-menu.tsx",
           "type": "registry:ui"
         }
       ]
@@ -226,7 +226,7 @@
       "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/dialog.tsx",
+          "path": "src/registry/kobalte/ui/dialog.tsx",
           "type": "registry:ui"
         }
       ]
@@ -238,7 +238,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/drawer.tsx",
+          "path": "src/registry/kobalte/ui/drawer.tsx",
           "type": "registry:ui"
         }
       ]
@@ -250,7 +250,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/dropdown-menu.tsx",
+          "path": "src/registry/kobalte/ui/dropdown-menu.tsx",
           "type": "registry:ui"
         }
       ]
@@ -262,7 +262,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/empty.tsx",
+          "path": "src/registry/kobalte/ui/empty.tsx",
           "type": "registry:ui"
         }
       ]
@@ -274,7 +274,7 @@
       "registryDependencies": ["label", "separator"],
       "files": [
         {
-          "path": "src/registry/ui/field.tsx",
+          "path": "src/registry/kobalte/ui/field.tsx",
           "type": "registry:ui"
         }
       ]
@@ -286,7 +286,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/hover-card.tsx",
+          "path": "src/registry/kobalte/ui/hover-card.tsx",
           "type": "registry:ui"
         }
       ]
@@ -298,7 +298,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/input.tsx",
+          "path": "src/registry/kobalte/ui/input.tsx",
           "type": "registry:ui"
         }
       ]
@@ -310,7 +310,7 @@
       "registryDependencies": ["button", "input", "textarea"],
       "files": [
         {
-          "path": "src/registry/ui/input-group.tsx",
+          "path": "src/registry/kobalte/ui/input-group.tsx",
           "type": "registry:ui"
         }
       ]
@@ -322,7 +322,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/input-otp.tsx",
+          "path": "src/registry/kobalte/ui/input-otp.tsx",
           "type": "registry:ui"
         }
       ]
@@ -334,7 +334,7 @@
       "registryDependencies": ["separator"],
       "files": [
         {
-          "path": "src/registry/ui/item.tsx",
+          "path": "src/registry/kobalte/ui/item.tsx",
           "type": "registry:ui"
         }
       ]
@@ -346,7 +346,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/kbd.tsx",
+          "path": "src/registry/kobalte/ui/kbd.tsx",
           "type": "registry:ui"
         }
       ]
@@ -358,7 +358,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/label.tsx",
+          "path": "src/registry/kobalte/ui/label.tsx",
           "type": "registry:ui"
         }
       ]
@@ -370,7 +370,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/menubar.tsx",
+          "path": "src/registry/kobalte/ui/menubar.tsx",
           "type": "registry:ui"
         }
       ]
@@ -382,7 +382,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/native-select.tsx",
+          "path": "src/registry/kobalte/ui/native-select.tsx",
           "type": "registry:ui"
         }
       ]
@@ -394,7 +394,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/navigation-menu.tsx",
+          "path": "src/registry/kobalte/ui/navigation-menu.tsx",
           "type": "registry:ui"
         }
       ]
@@ -406,7 +406,7 @@
       "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/pagination.tsx",
+          "path": "src/registry/kobalte/ui/pagination.tsx",
           "type": "registry:ui"
         }
       ]
@@ -418,7 +418,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/popover.tsx",
+          "path": "src/registry/kobalte/ui/popover.tsx",
           "type": "registry:ui"
         }
       ]
@@ -430,7 +430,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/progress.tsx",
+          "path": "src/registry/kobalte/ui/progress.tsx",
           "type": "registry:ui"
         }
       ]
@@ -442,7 +442,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/radio-group.tsx",
+          "path": "src/registry/kobalte/ui/radio-group.tsx",
           "type": "registry:ui"
         }
       ]
@@ -454,7 +454,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/resizable.tsx",
+          "path": "src/registry/kobalte/ui/resizable.tsx",
           "type": "registry:ui"
         }
       ]
@@ -466,7 +466,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/select.tsx",
+          "path": "src/registry/kobalte/ui/select.tsx",
           "type": "registry:ui"
         }
       ]
@@ -478,7 +478,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/separator.tsx",
+          "path": "src/registry/kobalte/ui/separator.tsx",
           "type": "registry:ui"
         }
       ]
@@ -490,7 +490,7 @@
       "registryDependencies": ["button"],
       "files": [
         {
-          "path": "src/registry/ui/sheet.tsx",
+          "path": "src/registry/kobalte/ui/sheet.tsx",
           "type": "registry:ui"
         }
       ]
@@ -502,7 +502,7 @@
       "registryDependencies": ["button", "input", "separator", "sheet", "skeleton", "tooltip"],
       "files": [
         {
-          "path": "src/registry/ui/sidebar.tsx",
+          "path": "src/registry/kobalte/ui/sidebar.tsx",
           "type": "registry:ui"
         }
       ]
@@ -514,7 +514,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/skeleton.tsx",
+          "path": "src/registry/kobalte/ui/skeleton.tsx",
           "type": "registry:ui"
         }
       ]
@@ -526,7 +526,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/slider.tsx",
+          "path": "src/registry/kobalte/ui/slider.tsx",
           "type": "registry:ui"
         }
       ]
@@ -535,10 +535,10 @@
       "name": "sonner",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid", "solid-sonner"],
-      "registryDependencies": [],
+      "registryDependencies": ["use-color-mode"],
       "files": [
         {
-          "path": "src/registry/ui/sonner.tsx",
+          "path": "src/registry/kobalte/ui/sonner.tsx",
           "type": "registry:ui"
         }
       ]
@@ -550,8 +550,68 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/spinner.tsx",
+          "path": "src/registry/kobalte/ui/spinner.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "style-lyra",
+      "type": "registry:style",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/style-lyra.css",
+          "type": "registry:style"
+        }
+      ]
+    },
+    {
+      "name": "style-maia",
+      "type": "registry:style",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/style-maia.css",
+          "type": "registry:style"
+        }
+      ]
+    },
+    {
+      "name": "style-mira",
+      "type": "registry:style",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/style-mira.css",
+          "type": "registry:style"
+        }
+      ]
+    },
+    {
+      "name": "style-nova",
+      "type": "registry:style",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/style-nova.css",
+          "type": "registry:style"
+        }
+      ]
+    },
+    {
+      "name": "style-vega",
+      "type": "registry:style",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/style-vega.css",
+          "type": "registry:style"
         }
       ]
     },
@@ -562,7 +622,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/switch.tsx",
+          "path": "src/registry/kobalte/ui/switch.tsx",
           "type": "registry:ui"
         }
       ]
@@ -574,7 +634,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/table.tsx",
+          "path": "src/registry/kobalte/ui/table.tsx",
           "type": "registry:ui"
         }
       ]
@@ -586,7 +646,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/tabs.tsx",
+          "path": "src/registry/kobalte/ui/tabs.tsx",
           "type": "registry:ui"
         }
       ]
@@ -598,7 +658,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/textarea.tsx",
+          "path": "src/registry/kobalte/ui/textarea.tsx",
           "type": "registry:ui"
         }
       ]
@@ -610,7 +670,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/toggle.tsx",
+          "path": "src/registry/kobalte/ui/toggle.tsx",
           "type": "registry:ui"
         }
       ]
@@ -622,7 +682,7 @@
       "registryDependencies": ["toggle"],
       "files": [
         {
-          "path": "src/registry/ui/toggle-group.tsx",
+          "path": "src/registry/kobalte/ui/toggle-group.tsx",
           "type": "registry:ui"
         }
       ]
@@ -634,8 +694,20 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/ui/tooltip.tsx",
+          "path": "src/registry/kobalte/ui/tooltip.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "use-color-mode",
+      "type": "registry:hook",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/hooks/use-color-mode.ts",
+          "type": "registry:hook"
         }
       ]
     },
@@ -646,7 +718,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/hooks/use-mobile.ts",
+          "path": "src/registry/kobalte/hooks/use-mobile.ts",
           "type": "registry:hook"
         }
       ]

@@ -11,8 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/registry/ui/alert-dialog";
-import { Button } from "@/registry/ui/button";
+} from "@/registry/kobalte/ui/alert-dialog";
+import { Button } from "@/registry/kobalte/ui/button";
 
 export function ResetButton() {
   const navigate = useNavigate();

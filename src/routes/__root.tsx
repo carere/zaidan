@@ -5,9 +5,12 @@ import { getCookie } from "@tanstack/solid-start/server";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
-import { type ColorMode, ColorModeProvider } from "@/lib/color-mode";
 import { DesignSystemConfigSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import {
+  type ColorMode,
+  ColorModeProvider,
+} from "@/registry/kobalte/components/color-mode-provider";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({

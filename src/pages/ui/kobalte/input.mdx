@@ -1,0 +1,151 @@
+---
+title: Input
+slug: input
+description: Displays a form input field or a component that looks like an input field.
+---
+
+# Input
+
+Displays a form input field or a component that looks like an input field.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add input
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/input.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L31-L37
+
+```
+
+### Invalid
+
+```tsx
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L39-L45
+
+```
+
+### With Label
+
+```tsx
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L47-L56
+
+```
+
+### With Description
+
+```tsx
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L58-L68
+
+```
+
+### Disabled
+
+```tsx
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L70-L79
+
+```
+
+### Input Types
+
+```tsx
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L81-L120
+
+```
+
+### With Select
+
+```tsx
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L122-L152
+
+```
+
+### With Button
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L154-L163
+
+```
+
+### With Native Select
+
+```tsx
+import { Input } from "~/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "~/components/ui/native-select";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L165-L178
+
+```
+
+### Form
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/input-example.tsx#L180-L239
+
+```

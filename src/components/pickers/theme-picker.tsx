@@ -3,7 +3,7 @@ import { For } from "solid-js";
 import { LockButton } from "@/components/lock-button";
 import { BASE_COLORS, DEFAULT_CONFIG, THEMES } from "@/lib/config";
 import type { Theme } from "@/lib/types";
-import { useIsMobile } from "@/registry/hooks/use-mobile";
+import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/registry/ui/dropdown-menu";
+} from "@/registry/kobalte/ui/dropdown-menu";
 
 const getLabel = (theme: Theme) => [...BASE_COLORS, ...THEMES].find((t) => t.name === theme)?.label;
 const getColor = (theme: Theme) => [...BASE_COLORS, ...THEMES].find((t) => t.name === theme)?.color;

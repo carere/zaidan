@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
+import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
 import { Share } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Customizer } from "@/components/customizer";
@@ -9,12 +9,11 @@ import { ItemPicker } from "@/components/item-picker";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { RandomButton } from "@/components/random-button";
 import { SiteConfig } from "@/components/site-config";
-import { DEFAULT_CONFIG } from "@/lib/config";
 import { LocksProvider } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
-import { Button } from "@/registry/ui/button";
-import { Separator } from "@/registry/ui/separator";
-import { SidebarProvider } from "@/registry/ui/sidebar";
+import { Button } from "@/registry/kobalte/ui/button";
+import { Separator } from "@/registry/kobalte/ui/separator";
+import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
 
 export const Route = createFileRoute("/_website")({
   component: RouteComponent,
@@ -22,6 +21,7 @@ export const Route = createFileRoute("/_website")({
 
 function RouteComponent() {
   const [isFullLayout, switchLayout] = createSignal(false);
+  const search = useSearch({ strict: false });
 
   return (
     <LocksProvider>
@@ -39,11 +39,7 @@ function RouteComponent() {
           )}
         >
           <div class="flex items-center lg:mr-2 xl:w-1/3">
-            <Link
-              to="/{-$slug}"
-              params={{ slug: "home" }}
-              search={(prev) => ({ ...DEFAULT_CONFIG, ...prev })}
-            >
+            <Link to="/{-$slug}" params={{ slug: "home" }} search={search()}>
               <Zaidan class="size-6" />
             </Link>
             <Separator orientation="vertical" class="mx-4" />

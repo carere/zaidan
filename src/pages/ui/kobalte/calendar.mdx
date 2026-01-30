@@ -1,0 +1,372 @@
+---
+title: Calendar
+slug: calendar
+description: A date field component that allows users to enter and edit dates.
+example: calendar-example.tsx
+---
+
+# Calendar
+
+A date field component that allows users to enter and edit dates.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add calendar
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@corvu/calendar date-fns lucide-solid
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/calendar.tsx showLineNumbers
+
+```
+
+## About
+
+The Calendar component is built on top of [Corvu Calendar](https://corvu.dev/docs/primitives/calendar/). It provides a fully accessible date selection component with keyboard navigation and support for single, multiple, and range selection modes.
+
+## Props
+
+The Calendar component accepts the following props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `mode` | `"single" \| "multiple" \| "range"` | `"single"` | The selection mode |
+| `value` | `Date \| null \| Date[] \| { from: Date \| null, to: Date \| null }` | - | The controlled value |
+| `onValueChange` | `(value) => void` | - | Handler called when value changes |
+| `defaultValue` | Same as `value` | - | The default uncontrolled value |
+| `month` | `Date` | - | The controlled month to display |
+| `onMonthChange` | `(month: Date) => void` | - | Handler called when month changes |
+| `defaultMonth` | `Date` | `new Date()` | The initial month to display |
+| `showOutsideDays` | `boolean` | `true` | Whether to show days from adjacent months |
+| `fixedWeeks` | `boolean` | `false` | Whether to always show 6 weeks |
+| `numberOfMonths` | `number` | `1` | Number of months to display |
+| `disabled` | `(date: Date) => boolean` | - | Function to disable specific dates |
+| `weekStartsOn` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6` | `1` | Which day of the week to start on (0 = Sunday) |
+| `weekNumbers` | `boolean` | `false` | Whether to show ISO week numbers |
+| `customCell` | `(props: CustomCellProps) => JSX.Element` | - | Custom render function for day cells |
+| `monthYearSelection` | `boolean` | `false` | Enable month/year dropdown selection |
+| `startYear` | `number` | `currentYear - 100` | Start year for year dropdown |
+| `endYear` | `number` | `currentYear + 10` | End year for year dropdown |
+| `class` | `string` | - | Additional CSS classes |
+
+## CustomCellProps
+
+The `customCell` render function receives the following props:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `date` | `Date` | The date of the cell |
+| `isOutsideMonth` | `boolean` | Whether the date is outside the current month |
+| `isSelected` | `boolean` | Whether the date is selected |
+| `isDisabled` | `boolean` | Whether the date is disabled |
+| `isToday` | `boolean` | Whether the date is today |
+
+## Date Picker
+
+You can use the `<Calendar>` component to build a date picker by combining it with `<Popover>` and `<Button>` components. See the Date Picker examples below.
+
+## Custom Cell Size
+
+You can customize the size of calendar cells using the `--cell-size` CSS variable. You can also make it responsive by using breakpoint-specific values:
+
+```tsx showLineNumbers
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  class="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(12)]"
+/>
+```
+
+## Week Numbers
+
+Display ISO week numbers alongside the calendar using the `weekNumbers` prop:
+
+```tsx showLineNumbers
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  weekNumbers
+/>
+```
+
+## Custom Cells
+
+Use the `customCell` prop to add custom content to each day cell. This is useful for displaying metadata like prices, events, or availability indicators:
+
+```tsx showLineNumbers
+import { Show } from "solid-js";
+import { Calendar, type CustomCellProps } from "~/components/ui/calendar";
+
+const renderPriceCell = (props: CustomCellProps) => {
+  const price = getPriceForDate(props.date);
+
+  return (
+    <Show when={price !== null && !props.isOutsideMonth}>
+      <span class={`text-[0.65rem] ${props.isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+        ${price}
+      </span>
+    </Show>
+  );
+};
+
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  customCell={renderPriceCell}
+  class="[--cell-size:--spacing(11)]"
+/>
+```
+
+## Month/Year Selection
+
+Enable dropdown selection for month and year using the `monthYearSelection` prop:
+
+```tsx showLineNumbers
+<Calendar
+  mode="single"
+  value={date()}
+  onValueChange={setDate}
+  monthYearSelection
+  startYear={1990}
+  endYear={2030}
+/>
+```
+
+## Combining with Time Inputs
+
+You can combine the calendar with time inputs to create a date-time picker:
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Input } from "~/components/ui/input";
+
+const [date, setDate] = createSignal<Date | null>(null);
+const [time, setTime] = createSignal("10:30");
+
+<div>
+  <Calendar mode="single" value={date()} onValueChange={setDate} />
+  <Input
+    type="time"
+    value={time()}
+    onInput={(e) => setTime(e.currentTarget.value)}
+  />
+</div>
+```
+
+## Styling Disabled Dates
+
+You can style disabled dates differently using the `disabled` prop and CSS selectors:
+
+```tsx showLineNumbers
+import { Calendar } from "~/components/ui/calendar";
+
+const bookedDates = [
+  new Date(2024, 0, 15),
+  new Date(2024, 0, 20),
+];
+
+const isBooked = (day: Date) => {
+  return bookedDates.some(booked =>
+    booked.toDateString() === day.toDateString()
+  );
+};
+
+<Calendar
+  mode="single"
+  disabled={isBooked}
+  class="[&_[data-disabled=true]]:line-through [&_[data-disabled=true]]:opacity-30"
+/>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Single
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L38-L51
+
+```
+
+### Multiple
+
+```tsx
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L53-L63
+
+```
+
+### Range
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L65-L93
+
+```
+
+### Range Multiple Months
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L95-L127
+
+```
+
+### Week Numbers
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L129-L143
+
+```
+
+### Custom Cell (Pricing)
+
+```tsx
+import { createSignal, Show } from "solid-js";
+import { Calendar, type CustomCellProps } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L145-L192
+
+```
+
+### Month & Year Selection
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L194-L215
+
+```
+
+### With Time
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L217-L253
+
+```
+
+### Booked Dates
+
+```tsx
+import { createSignal } from "solid-js";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L164-L199
+
+```
+
+### With Presets
+
+```tsx
+import { createSignal } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L201-L252
+
+```
+
+### Date Picker Simple
+
+```tsx
+import { CalendarIcon } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L254-L288
+
+```
+
+### Date Picker with Dropdowns
+
+```tsx
+import { CalendarIcon } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L290-L404
+
+```
+
+### Date Picker Range
+
+```tsx
+import { CalendarIcon } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+```
+
+```tsx file=../../../registry/kobalte/examples/calendar-example.tsx#L406-L463
+
+```

@@ -5,7 +5,7 @@
   "registryDependencies": [],
   "files": [
     {
-      "path": "src/registry/ui/label.tsx",
+      "path": "src/registry/kobalte/ui/label.tsx",
       "content": "/** biome-ignore-all lint/a11y/noLabelWithoutControl: <component file - for/htmlFor handled by consumer> */\nimport type { ComponentProps } from \"solid-js\";\nimport { splitProps } from \"solid-js\";\nimport { cn } from \"@/lib/utils\";\n\ntype LabelProps = ComponentProps<\"label\">;\n\nconst Label = (props: LabelProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n\n  return (\n    <label\n      class={cn(\n        \"cn-label flex select-none items-center peer-disabled:cursor-not-allowed group-data-[disabled=true]:pointer-events-none\",\n        local.class,\n      )}\n      data-slot=\"label\"\n      {...others}\n    />\n  );\n};\n\nexport { Label };\n",
       "type": "registry:ui"
     }

@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For } from "solid-js";
 import { LockButton } from "@/components/lock-button";
-import { useColorMode } from "@/lib/color-mode";
 import { BASE_COLORS, DEFAULT_CONFIG } from "@/lib/config";
 import type { BaseColor } from "@/lib/types";
-import { useIsMobile } from "@/registry/hooks/use-mobile";
+import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/registry/ui/dropdown-menu";
+} from "@/registry/kobalte/ui/dropdown-menu";
 
 export default function BaseColorPicker() {
   const navigate = useNavigate();

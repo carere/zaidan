@@ -1,6 +1,6 @@
 import type { docs } from "@velite";
 import { z } from "zod";
-import type { ColorMode } from "./color-mode";
+import type { ColorMode } from "@/registry/kobalte/components/color-mode-provider";
 
 export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira"]);
 export type Style = z.infer<typeof StyleSchema>;
@@ -48,14 +48,7 @@ export type TocEntry = docs["toc"];
 export type IframeMessage =
   | {
       type: "design-system-params-sync";
-      data: {
-        style: Style;
-        baseColor: BaseColor;
-        theme: Theme;
-        font: Font;
-        radius: Radius;
-        menuAccent: MenuAccent;
-      };
+      data: DesignSystemConfig;
     }
   | {
       type: "cmd-k-forward";
@@ -81,6 +74,7 @@ export const PrimitiveSchema = z.enum(["kobalte", "base"]);
 export type Primitive = z.infer<typeof PrimitiveSchema>;
 
 export const DesignSystemConfigSchema = z.object({
+  primitive: PrimitiveSchema.optional().default("kobalte"),
   style: StyleSchema.optional().default("vega"),
   baseColor: BaseColorSchema.optional().default("neutral"),
   theme: ThemeSchema.optional().default("neutral"),

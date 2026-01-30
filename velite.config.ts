@@ -15,7 +15,7 @@ export default defineConfig({
     },
     ui: {
       name: "ui",
-      pattern: "ui/*.mdx",
+      pattern: "ui/**/*.mdx",
       schema: s.object({
         slug: s.slug("ui"),
         title: s.string(),
