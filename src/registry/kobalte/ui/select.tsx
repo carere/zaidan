@@ -28,7 +28,7 @@ const Select = <O, OptGroup = never, T extends ValidComponent = "div">(
   const mergedProps = mergeProps(
     {
       sameWidth: true,
-      gutter: 8,
+      gutter: 4,
       placement: "bottom",
     } as const,
     props,

@@ -121,14 +121,7 @@ function PreviewComponent() {
     onCleanup(() => {
       window.removeEventListener("message", handleMessage);
       document.removeEventListener("keydown", handleKeyDown);
-    });
-
-    // Clean up the style element on unmount
-    onCleanup(() => {
-      const styleElement = document.getElementById("design-system-theme-vars");
-      if (styleElement) {
-        styleElement.remove();
-      }
+      document.getElementById("design-system-theme-vars")?.remove();
     });
   });
 

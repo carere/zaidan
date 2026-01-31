@@ -7,7 +7,7 @@ import {
   Separator,
 } from "@kobalte/core/breadcrumbs";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import { ChevronRight, Ellipsis } from "lucide-solid";
+import { Ellipsis } from "lucide-solid";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
@@ -92,12 +92,12 @@ type BreadcrumbSeparatorProps<T extends ValidComponent = "span"> = PolymorphicPr
   T,
   BreadcrumbsSeparatorPrimitiveProps<T>
 > &
-  Pick<ComponentProps<T>, "class" | "children">;
+  Pick<ComponentProps<T>, "class">;
 
 const BreadcrumbSeparator = <T extends ValidComponent = "span">(
   props: BreadcrumbSeparatorProps<T>,
 ) => {
-  const [local, others] = splitProps(props as BreadcrumbSeparatorProps, ["class", "children"]);
+  const [local, others] = splitProps(props as BreadcrumbSeparatorProps, ["class"]);
   return (
     <Separator
       data-slot="breadcrumb-separator"
@@ -105,9 +105,7 @@ const BreadcrumbSeparator = <T extends ValidComponent = "span">(
       aria-hidden="true"
       class={cn("cn-breadcrumb-separator", local.class)}
       {...others}
-    >
-      {local.children ?? <ChevronRight />}
-    </Separator>
+    />
   );
 };
 

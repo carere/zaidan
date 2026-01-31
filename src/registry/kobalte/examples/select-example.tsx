@@ -1,5 +1,6 @@
 import { ChartBar, ChartLine, ChartPie } from "lucide-solid";
 import { Show } from "solid-js";
+import { match } from "ts-pattern";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -80,43 +81,33 @@ function SelectBasic() {
 }
 
 function SelectWithIcons() {
-  const items = [
-    {
-      label: (
+  const getLabel = (item: string) => {
+    return match(item)
+      .with("line", () => (
         <>
           <ChartLine />
           Line
         </>
-      ),
-      value: "line",
-    },
-    {
-      label: (
+      ))
+      .with("bar", () => (
         <>
           <ChartBar />
           Bar
         </>
-      ),
-      value: "bar",
-    },
-    {
-      label: (
+      ))
+      .otherwise(() => (
         <>
           <ChartPie />
           Pie
         </>
-      ),
-      value: "pie",
-    },
-  ];
+      ));
+  };
 
   return (
     <Example title="With Icons">
       <div class="flex flex-col gap-4">
         <Select
-          options={items}
-          optionValue="value"
-          optionTextValue="label"
+          options={["line", "bar", "pie"]}
           placeholder={
             <>
               <ChartLine />
@@ -124,20 +115,16 @@ function SelectWithIcons() {
             </>
           }
           itemComponent={(props) => (
-            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            <SelectItem item={props.item}>{getLabel(props.item.rawValue)}</SelectItem>
           )}
         >
           <SelectTrigger size="sm">
-            <SelectValue<(typeof items)[number]>>
-              {(state) => state.selectedOption()?.label}
-            </SelectValue>
+            <SelectValue<string>>{(state) => getLabel(state.selectedOption())}</SelectValue>
           </SelectTrigger>
           <SelectContent />
         </Select>
         <Select
-          options={items}
-          optionValue="value"
-          optionTextValue="label"
+          options={["line", "bar", "pie"]}
           placeholder={
             <>
               <ChartLine />
@@ -145,13 +132,11 @@ function SelectWithIcons() {
             </>
           }
           itemComponent={(props) => (
-            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            <SelectItem item={props.item}>{getLabel(props.item.rawValue)}</SelectItem>
           )}
         >
           <SelectTrigger size="default">
-            <SelectValue<(typeof items)[number]>>
-              {(state) => state.selectedOption()?.label}
-            </SelectValue>
+            <SelectValue<string>>{(state) => getLabel(state.selectedOption())}</SelectValue>
           </SelectTrigger>
           <SelectContent />
         </Select>

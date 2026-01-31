@@ -5,6 +5,7 @@ import {
   type SliderRootProps,
   type SliderThumbProps,
   type SliderTrackProps,
+  useSliderContext,
 } from "@kobalte/core/slider";
 import {
   type ComponentProps,
@@ -57,9 +58,11 @@ type SliderTrackComponentProps<T extends ValidComponent = "div"> = PolymorphicPr
 
 const SliderTrack = <T extends ValidComponent = "div">(props: SliderTrackComponentProps<T>) => {
   const [local, others] = splitProps(props as SliderTrackComponentProps, ["class", "children"]);
+  const context = useSliderContext();
   return (
     <SliderPrimitive.Track
       data-slot="slider-track"
+      data-orientation={context.state.orientation()}
       class={cn(
         "cn-slider-track relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1.5",
         local.class,
@@ -79,9 +82,11 @@ type SliderFillComponentProps<T extends ValidComponent = "div"> = PolymorphicPro
 
 const SliderFill = <T extends ValidComponent = "div">(props: SliderFillComponentProps<T>) => {
   const [local, others] = splitProps(props as SliderFillComponentProps, ["class"]);
+  const context = useSliderContext();
   return (
     <SliderPrimitive.Fill
       data-slot="slider-range"
+      data-orientation={context.state.orientation()}
       class={cn(
         "cn-slider-range absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full",
         local.class,

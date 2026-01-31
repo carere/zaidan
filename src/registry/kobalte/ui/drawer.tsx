@@ -15,6 +15,7 @@ import {
   type RootProps,
   Trigger,
   type TriggerProps,
+  useContext,
 } from "@corvu/drawer";
 import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
@@ -43,11 +44,16 @@ type DrawerOverlayProps<T extends ValidComponent = "div"> = DynamicProps<T, Over
 
 const DrawerOverlay = <T extends ValidComponent = "div">(props: DrawerOverlayProps<T>) => {
   const [local, others] = splitProps(props as DrawerOverlayProps, ["class"]);
+  const context = useContext();
   return (
     <Overlay
       data-slot="drawer-overlay"
       class={cn("cn-drawer-overlay fixed inset-0 z-50", local.class)}
       {...others}
+      style={{
+        "background-color": `rgb(0 0 0 / ${0.1 * context.openPercentage()})`,
+        "backdrop-filter": `blur(${4 * context.openPercentage()}px)`,
+      }}
     />
   );
 };
