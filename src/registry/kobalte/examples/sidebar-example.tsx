@@ -177,7 +177,7 @@ export default function SidebarExample() {
                 <DropdownMenuTrigger
                   as={SidebarMenuButton}
                   size="lg"
-                  class="data-[expanded]:bg-sidebar-accent data-[expanded]:text-sidebar-accent-foreground"
+                  class="data-expanded:bg-sidebar-accent data-expanded:text-sidebar-accent-foreground"
                 >
                   <div class="flex flex-col gap-0.5 leading-none">
                     <span class="font-medium">Documentation</span>
@@ -258,7 +258,7 @@ export default function SidebarExample() {
             <div class="aspect-video rounded-xl bg-muted/50" />
             <div class="aspect-video rounded-xl bg-muted/50" />
           </div>
-          <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+          <div class="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
         </div>
       </SidebarInset>
     </SidebarProvider>

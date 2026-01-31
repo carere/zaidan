@@ -1,4 +1,5 @@
 import type { ECBasicOption } from "echarts/types/dist/shared";
+import { TrendingUpIcon } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
   type ChartConfig,
@@ -10,7 +11,7 @@ import {
   chartXAxisDefaults,
   chartYAxisDefaults,
 } from "@/registry/kobalte/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 
 export default function ChartExample() {
   return (
@@ -95,6 +96,18 @@ function ChartAreaExample() {
         <CardContent>
           <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
         </CardContent>
+        <CardFooter>
+          <div class="flex w-full items-start gap-2">
+            <div class="grid gap-2">
+              <div class="flex items-center gap-2 font-medium leading-none">
+                Trending up by 5.2% this month <TrendingUpIcon class="size-4" />
+              </div>
+              <div class="flex items-center gap-2 text-muted-foreground leading-none">
+                January - June 2024
+              </div>
+            </div>
+          </div>
+        </CardFooter>
       </Card>
     </Example>
   );
@@ -158,6 +171,14 @@ function ChartBarExample() {
         <CardContent>
           <ChartContainer option={option} config={chartConfig} class="h-[300px] w-full" />
         </CardContent>
+        <CardFooter class="flex-col items-start gap-2">
+          <div class="flex gap-2 font-medium leading-none">
+            Trending up by 5.2% this month <TrendingUpIcon class="size-4" />
+          </div>
+          <div class="text-muted-foreground leading-none">
+            Showing total visitors for the last 6 months
+          </div>
+        </CardFooter>
       </Card>
     </Example>
   );

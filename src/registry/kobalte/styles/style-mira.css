@@ -383,11 +383,11 @@
   }
 
   .cn-command-item {
-    @apply data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none [&_svg:not([class*='size-'])]:size-3.5 in-data-[slot=dialog-content]:rounded-md;
+    @apply data-[selected=true]:bg-muted data-[selected=true]:text-foreground data-[selected=true]:*:[svg]:text-foreground relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none [&_svg:not([class*='size-'])]:size-3.5 in-data-[slot=dialog-content]:rounded-md;
   }
 
   .cn-command-shortcut {
-    @apply text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-[0.625rem] tracking-widest;
+    @apply text-muted-foreground group-data-[selected=true]/command-item:text-foreground ml-auto text-[0.625rem] tracking-widest;
   }
 
   /* MARK: Context Menu */
@@ -466,11 +466,11 @@
 
   /* MARK: Drawer */
   .cn-drawer-overlay {
-    @apply data-transitioning:transition-colors duration-200 bg-black/80 supports-backdrop-filter:backdrop-blur-xs;
+    @apply data-transitioning:transition-colors data-transitioning:duration-400 bg-black/80 supports-backdrop-filter:backdrop-blur-xs;
   }
 
   .cn-drawer-content {
-    @apply data-transitioning:transition-transform duration-200 before:bg-background relative flex h-auto flex-col bg-transparent p-2 text-xs/relaxed before:absolute before:inset-2 before:-z-10 before:rounded-xl data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:mt-24 data-[side=bottom]:max-h-[80vh] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:w-3/4 data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:w-3/4 data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:mb-24 data-[side=top]:max-h-[80vh] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm;
+    @apply data-transitioning:transition-transform data-transitioning:duration-400 before:bg-background relative flex h-auto flex-col bg-transparent p-2 text-xs/relaxed before:absolute before:inset-2 before:-z-10 before:rounded-xl data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:mt-24 data-[side=bottom]:max-h-[80vh] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:w-3/4 data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:w-3/4 data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:mb-24 data-[side=top]:max-h-[80vh] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm;
   }
 
   .cn-drawer-handle {
@@ -801,11 +801,11 @@
   }
 
   .cn-navigation-menu-trigger {
-    @apply bg-background hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/30 data-expanded:bg-muted/50 data-expanded:hover:bg-muted rounded-md px-2.5 py-1.5 text-xs/relaxed font-medium transition-all focus-visible:ring-2 focus-visible:outline-1 disabled:opacity-50;
+    @apply bg-background hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/30 rounded-md px-2.5 py-1.5 text-xs/relaxed font-medium transition-all focus-visible:ring-2 focus-visible:outline-1 disabled:opacity-50;
   }
 
   .cn-navigation-menu-trigger-icon {
-    @apply relative top-px ml-1 size-3 transition duration-300 group-data-expanded/navigation-menu-trigger:rotate-180 group-data-expanded/navigation-menu-trigger:rotate-180;
+    @apply relative top-px ml-1 size-3 transition duration-300 group-data-expanded/navigation-menu-trigger:rotate-180;
   }
 
   .cn-navigation-menu-content {
@@ -924,7 +924,7 @@
 
   /* MARK: Scroll Area */
   .cn-scroll-area-scrollbar {
-    @apply data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-l data-vertical:border-l-transparent;
+    @apply data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:border-l data-[orientation=vertical]:border-l-transparent;
   }
 
   .cn-scroll-area-thumb {
@@ -1082,7 +1082,7 @@
   }
 
   .cn-sidebar-menu-button {
-    @apply ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-expanded:hover:bg-sidebar-accent data-expanded:hover:text-sidebar-accent-foreground gap-2 rounded-[calc(var(--radius-sm)+2px)] p-2 text-left text-xs transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 data-active:font-medium;
+    @apply ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-expanded:hover:bg-sidebar-accent data-expanded:hover:text-sidebar-accent-foreground gap-2 rounded-[calc(var(--radius-sm)+2px)] p-2 text-left text-xs transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 data-[active=true]:font-medium;
   }
 
   .cn-sidebar-menu-button-variant-default {
@@ -1110,7 +1110,7 @@
   }
 
   .cn-sidebar-menu-badge {
-    @apply text-sidebar-foreground peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground pointer-events-none absolute right-1 flex h-5 min-w-5 rounded-[calc(var(--radius-sm)-2px)] px-1 text-xs font-medium peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1;
+    @apply text-sidebar-foreground peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground pointer-events-none absolute right-1 flex h-5 min-w-5 rounded-[calc(var(--radius-sm)-2px)] px-1 text-xs font-medium peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1;
   }
 
   .cn-sidebar-menu-skeleton {
@@ -1130,7 +1130,7 @@
   }
 
   .cn-sidebar-menu-sub-button {
-    @apply text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-xs data-[size=sm]:text-xs [&>svg]:size-4;
+    @apply text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-xs data-[size=sm]:text-xs [&>svg]:size-4;
   }
 
   /* MARK: Skeleton */
@@ -1140,11 +1140,11 @@
 
   /* MARK: Slider */
   .cn-slider {
-    @apply data-vertical:min-h-40;
+    @apply data-[orientation=vertical]:min-h-40;
   }
 
   .cn-slider-track {
-    @apply bg-muted rounded-md data-horizontal:h-3 data-horizontal:w-full data-vertical:h-full data-vertical:w-3;
+    @apply bg-muted rounded-md data-[orientation=horizontal]:h-3 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-3;
   }
 
   .cn-slider-range {
@@ -1162,7 +1162,7 @@
 
   /* MARK: Switch */
   .cn-switch {
-    @apply data-checked:bg-primary bg-input focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 dark:bg-input/80 shrink-0 rounded-full border border-transparent focus-visible:ring-2 aria-invalid:ring-2 data-[size=default]:h-[16.6px] data-[size=default]:w-[28px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px];
+    @apply data-checked:bg-primary bg-input focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 dark:data-unchecked:bg-input/80 shrink-0 rounded-full border border-transparent focus-visible:ring-2 aria-invalid:ring-2 data-[size=default]:h-[16.6px] data-[size=default]:w-[28px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px];
   }
 
   .cn-switch-thumb {
@@ -1212,11 +1212,11 @@
   }
 
   .cn-tabs-list {
-    @apply rounded-lg p-[3px] group-data-horizontal/tabs:h-8 data-[variant=line]:rounded-none;
+    @apply rounded-lg p-[3px] group-data-[orientation=horizontal]/tabs:h-8 data-[variant=line]:rounded-none;
   }
 
   .cn-tabs-trigger {
-    @apply gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-xs font-medium group-data-vertical/tabs:py-[calc(--spacing(1.25))] [&_svg:not([class*='size-'])]:size-3.5;
+    @apply gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-xs font-medium group-data-[orientation=vertical]/tabs:py-[calc(--spacing(1.25))] [&_svg:not([class*='size-'])]:size-3.5;
   }
 
   .cn-tabs-content {
@@ -1259,7 +1259,7 @@
   }
 
   .cn-toggle-group-item {
-    @apply group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-l-md group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-md group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-r-md group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-md;
+    @apply group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-l-md group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:first:rounded-t-md group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-r-md group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:last:rounded-b-md;
   }
 
   /* MARK: Tooltip */

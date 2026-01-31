@@ -1,5 +1,4 @@
 /** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
-import { CircleAlert } from "lucide-solid";
 import { type ComponentProps, For, splitProps } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
@@ -14,35 +13,35 @@ import {
 const components: { title: string; href: string; description: string }[] = [
   {
     title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
+    href: "#",
     description:
       "A modal dialog that interrupts the user with important content and expects a response.",
   },
   {
     title: "Hover Card",
-    href: "/docs/primitives/hover-card",
+    href: "#",
     description: "For sighted users to preview content available behind a link.",
   },
   {
     title: "Progress",
-    href: "/docs/primitives/progress",
+    href: "#",
     description:
       "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
   },
   {
     title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
+    href: "#",
     description: "Visually or semantically separates content.",
   },
   {
     title: "Tabs",
-    href: "/docs/primitives/tabs",
+    href: "#",
     description:
       "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
   },
   {
     title: "Tooltip",
-    href: "/docs/primitives/tooltip",
+    href: "#",
     description:
       "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
   },
@@ -64,13 +63,13 @@ function NavigationMenuBasic() {
           <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul class="w-96 rounded-md bg-popover p-2">
-              <ListItem href="/docs" title="Introduction">
+              <ListItem href="#" title="Introduction">
                 Re-usable components built with Tailwind CSS.
               </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
+              <ListItem href="#" title="Installation">
                 How to install dependencies and structure your app.
               </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
+              <ListItem href="#" title="Typography">
                 Styles for headings, paragraphs, lists...etc
               </ListItem>
             </ul>
@@ -87,27 +86,6 @@ function NavigationMenuBasic() {
                   </ListItem>
                 )}
               </For>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul class="grid w-[200px] rounded-md bg-popover p-2">
-              <li>
-                <NavigationMenuLink href="#" class="flex-row items-center gap-2">
-                  <CircleAlert />
-                  Backlog
-                </NavigationMenuLink>
-                <NavigationMenuLink href="#" class="flex-row items-center gap-2">
-                  <CircleAlert />
-                  To Do
-                </NavigationMenuLink>
-                <NavigationMenuLink href="#" class="flex-row items-center gap-2">
-                  <CircleAlert />
-                  Done
-                </NavigationMenuLink>
-              </li>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>

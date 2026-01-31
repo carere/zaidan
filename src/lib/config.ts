@@ -37,14 +37,14 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
     description: "Reduced padding and margins for compact layouts.",
   },
   {
-    name: "lyra",
-    label: "Lyra",
-    description: "Boxy and sharp. Pairs well with mono fonts.",
-  },
-  {
     name: "maia",
     label: "Maia",
     description: "Soft and rounded, with generous spacing.",
+  },
+  {
+    name: "lyra",
+    label: "Lyra",
+    description: "Boxy and sharp. Pairs well with mono fonts.",
   },
   {
     name: "mira",

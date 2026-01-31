@@ -55,7 +55,7 @@ export default function StylePicker() {
               navigate({ to: ".", search: (prev) => ({ ...prev, style: value as Style }) })
             }
           >
-            <For each={["vega", "nova", "lyra", "maia", "mira"] satisfies Style[]}>
+            <For each={STYLES.map((s) => s.name)}>
               {(style, index) => (
                 <>
                   <DropdownMenuRadioItem value={style}>
