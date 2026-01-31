@@ -103,8 +103,8 @@ function codeImport(options: CodeImportOptions = {}) {
         options.preserveTrailingNewline,
       );
 
-      node.value = node.value.replace(/@\/registry\/ui/g, "~/components/ui");
-      node.value = node.value.replace(/@\/registry\/lib\/hooks/g, "~/lib/hooks");
+      node.value = node.value.replace(/@\/registry\/(?:kobalte|base)\/ui/g, "~/components/ui");
+      node.value = node.value.replace(/@\/registry\/(?:kobalte|base)\/hooks/g, "~/lib/hooks");
       node.value = node.value.replace(/@\/lib\/utils/g, "~/lib/utils");
 
       if (options.removeRedundantIndentations) {
