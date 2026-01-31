@@ -40,7 +40,7 @@ const NavigationMenu = <T extends ValidComponent = "ul">(props: NavigationMenuPr
       >
         {local.children}
       </div>
-      <Viewport />
+      <Viewport class="origin-(--kb-menu-content-transform-origin)" />
     </Root>
   );
 };

@@ -1,19 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/roboto-mono";
-@import "@fontsource-variable/noto-sans";
-@import "@fontsource-variable/nunito-sans";
-@import "@fontsource-variable/figtree";
-
 @import "./styles/expressive-code.css";
-
-@import "./registry/kobalte/styles/style-vega.css" layer(base);
-@import "./registry/kobalte/styles/style-nova.css" layer(base);
-@import "./registry/kobalte/styles/style-lyra.css" layer(base);
-@import "./registry/kobalte/styles/style-maia.css" layer(base);
-@import "./registry/kobalte/styles/style-mira.css" layer(base);
 
 @custom-variant style-vega (&:where(.style-vega *));
 @custom-variant style-nova (&:where(.style-nova *));
@@ -187,6 +175,26 @@
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
     @apply bg-background text-foreground;
+  }
+
+  .style-vega {
+    @import "./registry/kobalte/styles/style-vega.css";
+  }
+
+  .style-nova {
+    @import "./registry/kobalte/styles/style-nova.css";
+  }
+
+  .style-lyra {
+    @import "./registry/kobalte/styles/style-lyra.css";
+  }
+
+  .style-maia {
+    @import "./registry/kobalte/styles/style-maia.css";
+  }
+
+  .style-mira {
+    @import "./registry/kobalte/styles/style-mira.css";
   }
 }
 
