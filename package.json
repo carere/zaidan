@@ -14,6 +14,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "check": "biome check",
+    "deploy": "wrangler deploy",
     "dev": "vite dev",
     "preview": "vite preview",
     "registry:build": "shadcn build"
@@ -24,6 +26,7 @@
     ]
   },
   "dependencies": {
+    "@cloudflare/vite-plugin": "^1.22.1",
     "@corvu/otp-field": "^0.1.4",
     "@kobalte/core": "^0.13.11",
     "@solid-primitives/storage": "^4.3.3",
@@ -93,7 +96,7 @@
     "unist-util-visit": "^5.1.0",
     "velite": "^0.3.1",
     "vfile": "^6.0.3",
-    "vite": "^7.3.1",
+    "vite": "npm:rolldown-vite@latest",
     "vite-plugin-solid": "^2.11.10",
     "vite-tsconfig-paths": "^6.0.5"
   }
