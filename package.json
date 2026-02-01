@@ -18,7 +18,7 @@
     "compile": "tsc --noEmit",
     "dev": "vite dev",
     "preview": "vite preview",
-    "registry:build": "shadcn build"
+    "r:build:kobalte": "shadcn build src/registry/kobalte/registry.json --output public/r/kobalte"
   },
   "commitlint": {
     "extends": [

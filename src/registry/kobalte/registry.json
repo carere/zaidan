@@ -557,61 +557,81 @@
     },
     {
       "name": "style-lyra",
-      "type": "registry:style",
+      "type": "registry:theme",
       "dependencies": [],
       "registryDependencies": [],
+      "css": {
+        "@import": "./styles/style-lyra.css"
+      },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-lyra.css",
-          "type": "registry:style"
+          "target": "@/styles/style-lyra.css",
+          "type": "registry:file"
         }
       ]
     },
     {
       "name": "style-maia",
-      "type": "registry:style",
+      "type": "registry:theme",
       "dependencies": [],
       "registryDependencies": [],
+      "css": {
+        "@import": "./styles/style-maia.css"
+      },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-maia.css",
-          "type": "registry:style"
+          "target": "@/styles/style-maia.css",
+          "type": "registry:file"
         }
       ]
     },
     {
       "name": "style-mira",
-      "type": "registry:style",
+      "type": "registry:theme",
       "dependencies": [],
       "registryDependencies": [],
+      "css": {
+        "@import": "./styles/style-mira.css"
+      },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-mira.css",
-          "type": "registry:style"
+          "target": "@/styles/style-mira.css",
+          "type": "registry:file"
         }
       ]
     },
     {
       "name": "style-nova",
-      "type": "registry:style",
+      "type": "registry:theme",
       "dependencies": [],
       "registryDependencies": [],
+      "css": {
+        "@import": "./styles/style-nova.css"
+      },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-nova.css",
-          "type": "registry:style"
+          "target": "@/styles/style-nova.css",
+          "type": "registry:file"
         }
       ]
     },
     {
       "name": "style-vega",
-      "type": "registry:style",
+      "type": "registry:theme",
       "dependencies": [],
       "registryDependencies": [],
+      "css": {
+        "@import": "./styles/style-vega.css"
+      },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-vega.css",
-          "type": "registry:style"
+          "target": "@/styles/style-vega.css",
+          "type": "registry:file"
         }
       ]
     },
