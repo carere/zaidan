@@ -3,5 +3,6 @@
   "name": "zaidan",
   "compatibility_date": "2026-01-20",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/solid-start/server-entry"
+  "main": "@tanstack/solid-start/server-entry",
+  "workers_dev": false
 }

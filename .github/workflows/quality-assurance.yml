@@ -1,0 +1,35 @@
+name: Quality Assurance
+
+on:
+  push:
+
+jobs:
+  static-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: TypeScript Compiler
+        run: bun run compile
+
+      - name: Biome Lint + Format
+        run: bun run check
+
+      - name: Assuring build is working
+        run: bun run build
+
+      - name: Assuring registry build is working
+        run: bun run registry:build
+
+      - name: Validate current commit (last commit)
+        if: github.event_name == 'push'
+        run: bun commitlint --last --verbose
