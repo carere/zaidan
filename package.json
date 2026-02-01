@@ -15,7 +15,6 @@
   "scripts": {
     "build": "vite build",
     "check": "biome check",
-    "deploy": "wrangler deploy",
     "dev": "vite dev",
     "preview": "vite preview",
     "registry:build": "shadcn build"
@@ -74,7 +73,6 @@
     "@velite/plugin-vite": "^0.0.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
-    "knip": "^5.82.1",
     "lefthook": "^2.0.16",
     "mdast": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
