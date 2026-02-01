@@ -14,6 +14,8 @@
     &middot;
     <a href="https://zaidan.carere.dev/ui">Components</a>
   </p>
+
+  [![Quality Assurance](https://github.com/carere/zaidan/actions/workflows/quality-assurance.yml/badge.svg)](https://github.com/carere/zaidan/actions/workflows/quality-assurance.yml)
 </div>
 
 ## About
