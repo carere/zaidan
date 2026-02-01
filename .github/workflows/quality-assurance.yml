@@ -21,11 +21,20 @@ jobs:
       - name: Biome Lint + Format
         run: bun run check
 
+      - name: Cache dist
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: dist
+          key: ${{ runner.os }}-${{ hashFiles('**/dist') }}
+
       - name: Assuring build is working
+        if: steps.cache.outputs.cache-hit != 'true'
         run: bun run build
 
       - name: Assuring registry build is working
-        run: bun run registry:build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: bun run r:build:kobalte
 
       - name: TypeScript Compiler
         run: bun run compile

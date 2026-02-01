@@ -46,13 +46,22 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Cache dist
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: dist
+          key: ${{ runner.os }}-${{ hashFiles('**/dist') }}
+
       - name: Build project
+        if: steps.cache.outputs.cache-hit != 'true'
         run: bun run build
 
       - name: Build registry
-        run: bun run registry:build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: bun run r:build:kobalte
 
-      - name: Upload artifacts to release
+      - name: Create release
         run: |
           gh release edit ${{ needs.get-tag.outputs.tag_name }} --draft=false --latest
 
