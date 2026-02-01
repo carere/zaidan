@@ -5,6 +5,7 @@
 .tanstack
 dist/
 public/static
+public/r
 
 # Content
 .velite
