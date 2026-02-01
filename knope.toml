@@ -16,6 +16,7 @@ command = "git checkout -b knope/pre-release"
 
 [[workflows.steps]]
 type = "PrepareRelease"
+allow_empty = true
 
 [[workflows.steps]]
 type = "Command"
