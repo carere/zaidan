@@ -15,6 +15,7 @@
   "scripts": {
     "build": "vite build",
     "check": "biome check",
+    "compile": "tsc --build --noEmit",
     "dev": "vite dev",
     "preview": "vite preview",
     "registry:build": "shadcn build"

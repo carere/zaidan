@@ -1,0 +1,43 @@
+name: Pre-Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      override_version:
+        description: "Override the version to use for the pre-release"
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  pre-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Knope
+        uses: knope-dev/action@v2.1.0
+        with:
+          version: 0.21.0
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Set up Git user
+        run: |
+          git config user.name "knope-bot"
+          git config user.email "knope-bot@users.noreply.github.com"
+
+      - name: Run Knope Pre-Release
+        run: knope pre-release ${{ inputs.override_version != '' && format('--override-version={0}', inputs.override_version) || '' }}
+        env:
+          GH_TOKEN: ${{ secrets.CI_WORKER_PAT }}
