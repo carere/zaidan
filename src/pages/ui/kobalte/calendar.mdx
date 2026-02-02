@@ -14,7 +14,7 @@ A date field component that allows users to enter and edit dates.
 ### CLI
 
 ```package-dlx
-shadcn@latest add calendar
+shadcn@latest add @zaidan/calendar
 ```
 
 ### Manual
@@ -189,7 +189,7 @@ const isBooked = (day: Date) => {
 <Calendar
   mode="single"
   disabled={isBooked}
-  class="[&_[data-disabled=true]]:line-through [&_[data-disabled=true]]:opacity-30"
+  class="**:data-[disabled=true]:line-through **:data-[disabled=true]:opacity-30"
 />
 ```
 
