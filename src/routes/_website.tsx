@@ -1,5 +1,4 @@
 import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
-import { Share } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
@@ -8,10 +7,10 @@ import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { RandomButton } from "@/components/random-button";
+import { ShareButton } from "@/components/share-button";
 import { SiteConfig } from "@/components/site-config";
 import { LocksProvider } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
-import { Button } from "@/registry/kobalte/ui/button";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
 
@@ -55,10 +54,7 @@ function RouteComponent() {
             <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
             <Separator orientation="vertical" class="hidden xl:flex" />
             <ModeSwitcher />
-            <Button variant="outline" size="sm">
-              <Share />
-              <span>Share</span>
-            </Button>
+            <ShareButton />
           </div>
         </header>
         <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
