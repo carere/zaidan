@@ -18,6 +18,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: get-tag
+
+      - name: Echo tag
+        run: echo "tag_name=${{ steps.get-tag.outputs.tag_name }}"
     outputs:
       tag_name: ${{ steps.get-tag.outputs.tag_name }}
 
