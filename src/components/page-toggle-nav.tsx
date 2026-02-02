@@ -1,44 +1,49 @@
-import { useLocation, useNavigate } from "@tanstack/solid-router";
-import { type ComponentProps, splitProps } from "solid-js";
+import { Link, useLocation } from "@tanstack/solid-router";
+import { splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
-import { ToggleGroup, ToggleGroupItem } from "@/registry/kobalte/ui/toggle-group";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+  type ToggleGroupProps,
+} from "@/registry/kobalte/ui/toggle-group";
 
-type PageToggleNavProps = ComponentProps<"div"> & {
+type PageToggleNavProps<T extends ValidComponent = "div"> = ToggleGroupProps<T> & {
   slug: string;
 };
 
-export function PageToggleNav(props: PageToggleNavProps) {
+export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggleNavProps<T>) {
   const [local, others] = splitProps(props, ["slug", "class"]);
-  const navigate = useNavigate();
   const location = useLocation();
-
-  // Derive current page from pathname
-  const currentPage = () => (location().pathname.endsWith("/docs") ? "docs" : "preview");
-
-  const handleValueChange = (value: string | null) => {
-    if (value === "docs") {
-      navigate({ to: "/ui/$slug/docs", params: { slug: local.slug } });
-    } else if (value === "preview") {
-      navigate({ to: "/ui/{-$slug}", params: { slug: local.slug } });
-    }
-  };
 
   return (
     <ToggleGroup
       data-slot="page-toggle-nav"
       multiple={false}
-      value={currentPage()}
-      onChange={handleValueChange}
+      value={location().pathname.endsWith("/docs") ? "docs" : "preview"}
       variant="outline"
       size="sm"
-      class={cn("", local.class)}
+      class={cn("bg-background", local.class)}
       aria-label="Toggle between preview and docs"
       {...others}
     >
-      <ToggleGroupItem value="preview" aria-label="View preview">
+      <ToggleGroupItem
+        as={Link}
+        to="/ui/{-$slug}"
+        //@ts-expect-error <Problem with kobalte typing polymorphic props>
+        params={{ slug: local.slug }}
+        value="preview"
+        aria-label="View preview"
+      >
         Preview
       </ToggleGroupItem>
-      <ToggleGroupItem value="docs" aria-label="View documentation">
+      <ToggleGroupItem
+        as={Link}
+        to="/ui/$slug/docs"
+        //@ts-expect-error <Problem with kobalte typing polymorphic props>
+        params={{ slug: local.slug }}
+        value="docs"
+        aria-label="View documentation"
+      >
         Docs
       </ToggleGroupItem>
     </ToggleGroup>

@@ -47,7 +47,7 @@ const ToggleGroup = <T extends ValidComponent = "div">(rawProps: ToggleGroupProp
     } as const,
     rawProps,
   );
-  const [local, others] = splitProps(props, [
+  const [local, others] = splitProps(props as ToggleGroupProps, [
     "class",
     "children",
     "variant",
@@ -125,4 +125,4 @@ const ToggleGroupItem = <T extends ValidComponent = "button">(
   );
 };
 
-export { ToggleGroup, ToggleGroupItem };
+export { ToggleGroup, ToggleGroupItem, type ToggleGroupProps };
