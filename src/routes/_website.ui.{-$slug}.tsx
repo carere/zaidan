@@ -1,10 +1,10 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
+import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
   loader: ({ params }) => {
@@ -20,15 +20,10 @@ export const Route = createFileRoute("/_website/ui/{-$slug}")({
   },
   component: RouteComponent,
   notFoundComponent: (props) => (
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>Component not found</EmptyTitle>
-        <EmptyDescription>
-          The component "{(props.data as { slug: string }).slug}" doesn't exist or couldn't be
-          loaded.
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
+    <NotFoundPage
+      title="Component not found"
+      description={`The component "${(props.data as { slug: string }).slug}" doesn't exist or couldn't be loaded.`}
+    />
   ),
 });
 
