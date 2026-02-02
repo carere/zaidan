@@ -12,7 +12,7 @@ function NativeSelect(props: NativeSelectProps) {
   return (
     <div
       class={cn(
-        "cn-native-select-wrapper group/native-select relative w-fit has-[select:disabled]:opacity-50",
+        "group/native-select relative z-native-select-wrapper w-fit has-[select:disabled]:opacity-50",
         local.class,
       )}
       data-slot="native-select-wrapper"
@@ -21,11 +21,11 @@ function NativeSelect(props: NativeSelectProps) {
       <select
         data-slot="native-select"
         data-size={local.size}
-        class="cn-native-select outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
+        class="z-native-select outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
         {...others}
       />
       <ChevronDown
-        class="cn-native-select-icon pointer-events-none absolute select-none"
+        class="pointer-events-none absolute z-native-select-icon select-none"
         data-slot="native-select-icon"
       />
     </div>

@@ -221,7 +221,7 @@ const Sidebar: Component<SidebarProps> = (props) => {
           <div
             data-slot="sidebar-gap"
             class={cn(
-              "cn-sidebar-gap relative w-(--sidebar-width) bg-transparent",
+              "relative z-sidebar-gap w-(--sidebar-width) bg-transparent",
               "group-data-[collapsible=offcanvas]:w-0",
               "group-data-[side=right]:rotate-180",
               local.variant === "floating" || local.variant === "inset"
@@ -247,7 +247,7 @@ const Sidebar: Component<SidebarProps> = (props) => {
             <div
               data-sidebar="sidebar"
               data-slot="sidebar-inner"
-              class="cn-sidebar-inner flex size-full flex-col"
+              class="z-sidebar-inner flex size-full flex-col"
             >
               {local.children}
             </div>
@@ -270,7 +270,7 @@ const SidebarTrigger = (props: SidebarTriggerProps) => {
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon-sm"
-      class={cn("cn-sidebar-trigger", local.class)}
+      class={cn("z-sidebar-trigger", local.class)}
       onClick={(event: MouseEvent) => {
         //@ts-expect-error - TODO: Typescript wizardry needed here
         local.onClick?.(event);
@@ -297,7 +297,7 @@ const SidebarRail = (props: ComponentProps<"button">) => {
       onClick={toggleSidebar}
       title="Toggle Sidebar"
       class={cn(
-        "cn-sidebar-rail absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
+        "absolute inset-y-0 z-20 z-sidebar-rail hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
         "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
         "group-data-[collapsible=offcanvas]:translate-x-0 hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:after:left-full",
@@ -315,7 +315,7 @@ const SidebarInset = (props: ComponentProps<"main">) => {
   return (
     <main
       data-slot="sidebar-inset"
-      class={cn("cn-sidebar-inset relative flex w-full flex-1 flex-col", local.class)}
+      class={cn("relative z-sidebar-inset flex w-full flex-1 flex-col", local.class)}
       {...others}
     />
   );
@@ -327,7 +327,7 @@ const SidebarInput = (props: ComponentProps<typeof Input>) => {
     <Input
       data-slot="sidebar-input"
       data-sidebar="input"
-      class={cn("cn-sidebar-input", local.class)}
+      class={cn("z-sidebar-input", local.class)}
       {...others}
     />
   );
@@ -339,7 +339,7 @@ const SidebarHeader = (props: ComponentProps<"div">) => {
     <div
       data-slot="sidebar-header"
       data-sidebar="header"
-      class={cn("cn-sidebar-header flex flex-col", local.class)}
+      class={cn("z-sidebar-header flex flex-col", local.class)}
       {...others}
     />
   );
@@ -351,7 +351,7 @@ const SidebarFooter = (props: ComponentProps<"div">) => {
     <div
       data-slot="sidebar-footer"
       data-sidebar="footer"
-      class={cn("cn-sidebar-footer flex flex-col", local.class)}
+      class={cn("z-sidebar-footer flex flex-col", local.class)}
       {...others}
     />
   );
@@ -368,7 +368,7 @@ const SidebarSeparator = <T extends ValidComponent = "hr">(props: SidebarSeparat
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      class={cn("cn-sidebar-separator w-auto", local.class)}
+      class={cn("z-sidebar-separator w-auto", local.class)}
       {...others}
     />
   );
@@ -381,7 +381,7 @@ const SidebarContent = (props: ComponentProps<"div">) => {
       data-slot="sidebar-content"
       data-sidebar="content"
       class={cn(
-        "cn-sidebar-content flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "z-sidebar-content flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         local.class,
       )}
       {...others}
@@ -395,7 +395,7 @@ const SidebarGroup = (props: ComponentProps<"div">) => {
     <div
       data-slot="sidebar-group"
       data-sidebar="group"
-      class={cn("cn-sidebar-group relative flex w-full min-w-0 flex-col", local.class)}
+      class={cn("relative z-sidebar-group flex w-full min-w-0 flex-col", local.class)}
       {...others}
     />
   );
@@ -415,7 +415,7 @@ const SidebarGroupLabel = <T extends ValidComponent = "div">(props: SidebarGroup
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       class={cn(
-        "cn-sidebar-group-label flex shrink-0 items-center outline-hidden [&>svg]:shrink-0",
+        "z-sidebar-group-label flex shrink-0 items-center outline-hidden [&>svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -438,7 +438,7 @@ const SidebarGroupAction = <T extends ValidComponent = "button">(
       data-slot="sidebar-group-action"
       data-sidebar="group-action"
       class={cn(
-        "cn-sidebar-group-action flex aspect-square items-center justify-center outline-hidden transition-transform after:absolute after:-inset-2 group-data-[collapsible=icon]:hidden md:after:hidden [&>svg]:shrink-0",
+        "z-sidebar-group-action flex aspect-square items-center justify-center outline-hidden transition-transform after:absolute after:-inset-2 group-data-[collapsible=icon]:hidden md:after:hidden [&>svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -452,7 +452,7 @@ const SidebarGroupContent = (props: ComponentProps<"div">) => {
     <div
       data-slot="sidebar-group-content"
       data-sidebar="group-content"
-      class={cn("cn-sidebar-group-content w-full", local.class)}
+      class={cn("z-sidebar-group-content w-full", local.class)}
       {...others}
     />
   );
@@ -464,7 +464,7 @@ const SidebarMenu = (props: ComponentProps<"ul">) => {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      class={cn("cn-sidebar-menu flex w-full min-w-0 flex-col", local.class)}
+      class={cn("z-sidebar-menu flex w-full min-w-0 flex-col", local.class)}
       {...others}
     />
   );
@@ -483,17 +483,17 @@ const SidebarMenuItem = (props: ComponentProps<"li">) => {
 };
 
 const sidebarMenuButtonVariants = cva(
-  "cn-sidebar-menu-button peer/menu-button group/menu-button flex w-full items-center overflow-hidden outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&_svg]:size-4 [&_svg]:shrink-0",
+  "peer/menu-button group/menu-button z-sidebar-menu-button flex w-full items-center overflow-hidden outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "cn-sidebar-menu-button-variant-default",
-        outline: "cn-sidebar-menu-button-variant-outline",
+        default: "z-sidebar-menu-button-variant-default",
+        outline: "z-sidebar-menu-button-variant-outline",
       },
       size: {
-        default: "cn-sidebar-menu-button-size-default",
-        sm: "cn-sidebar-menu-button-size-sm",
-        lg: "cn-sidebar-menu-button-size-lg",
+        default: "z-sidebar-menu-button-size-default",
+        sm: "z-sidebar-menu-button-size-sm",
+        lg: "z-sidebar-menu-button-size-lg",
       },
     },
     defaultVariants: {
@@ -573,7 +573,7 @@ const SidebarMenuAction = <T extends ValidComponent = "button">(
       data-slot="sidebar-menu-action"
       data-sidebar="menu-action"
       class={cn(
-        "cn-sidebar-menu-action flex items-center justify-center outline-hidden transition-transform after:absolute after:-inset-2 group-data-[collapsible=icon]:hidden md:after:hidden [&>svg]:shrink-0",
+        "z-sidebar-menu-action flex items-center justify-center outline-hidden transition-transform after:absolute after:-inset-2 group-data-[collapsible=icon]:hidden md:after:hidden [&>svg]:shrink-0",
         local.showOnHover &&
           "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-open:opacity-100 peer-data-active/menu-button:text-sidebar-accent-foreground md:opacity-0",
         local.class,
@@ -590,7 +590,7 @@ const SidebarMenuBadge: Component<ComponentProps<"div">> = (props) => {
       data-slot="sidebar-menu-badge"
       data-sidebar="menu-badge"
       class={cn(
-        "cn-sidebar-menu-badge flex select-none items-center justify-center tabular-nums group-data-[collapsible=icon]:hidden",
+        "z-sidebar-menu-badge flex select-none items-center justify-center tabular-nums group-data-[collapsible=icon]:hidden",
         local.class,
       )}
       {...others}
@@ -613,14 +613,14 @@ const SidebarMenuSkeleton: Component<SidebarMenuSkeletonProps> = (rawProps) => {
     <div
       data-slot="sidebar-menu-skeleton"
       data-sidebar="menu-skeleton"
-      class={cn("cn-sidebar-menu-skeleton flex items-center", local.class)}
+      class={cn("z-sidebar-menu-skeleton flex items-center", local.class)}
       {...others}
     >
       <Show when={local.showIcon}>
-        <Skeleton class="cn-sidebar-menu-skeleton-icon" data-sidebar="menu-skeleton-icon" />
+        <Skeleton class="z-sidebar-menu-skeleton-icon" data-sidebar="menu-skeleton-icon" />
       </Show>
       <Skeleton
-        class="cn-sidebar-menu-skeleton-text max-w-(--skeleton-width) flex-1"
+        class="z-sidebar-menu-skeleton-text max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"
         style={{
           "--skeleton-width": width(),
@@ -636,7 +636,7 @@ const SidebarMenuSub: Component<ComponentProps<"ul">> = (props) => {
     <ul
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
-      class={cn("cn-sidebar-menu-sub flex min-w-0 flex-col", local.class)}
+      class={cn("z-sidebar-menu-sub flex min-w-0 flex-col", local.class)}
       {...others}
     />
   );
@@ -677,7 +677,7 @@ const SidebarMenuSubButton = <T extends ValidComponent = "a">(
       data-size={local.size}
       data-active={local.isActive}
       class={cn(
-        "cn-sidebar-menu-sub-button flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 group-data-[collapsible=icon]:hidden [&>span:last-child]:truncate [&>svg]:shrink-0",
+        "z-sidebar-menu-sub-button flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 group-data-[collapsible=icon]:hidden [&>span:last-child]:truncate [&>svg]:shrink-0",
         local.class,
       )}
       {...others}

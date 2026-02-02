@@ -31,7 +31,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
       <HoverCardPrimitive.Content
         data-slot="hover-card-content"
         class={cn(
-          "cn-hover-card-content z-50 origin-(--kb-hovercard-content-transform-origin) outline-hidden",
+          "z-50 z-hover-card-content origin-(--kb-hovercard-content-transform-origin) outline-hidden",
           local.class,
         )}
         {...others}

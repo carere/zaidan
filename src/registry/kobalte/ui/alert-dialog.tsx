@@ -37,7 +37,7 @@ const AlertDialogOverlay = <T extends ValidComponent = "div">(
   const [local, others] = splitProps(props as AlertDialogOverlayProps, ["class"]);
   return (
     <AlertDialogPrimitive.Overlay
-      class={cn("cn-alert-dialog-overlay fixed inset-0 z-50", local.class)}
+      class={cn("fixed inset-0 z-50 z-alert-dialog-overlay", local.class)}
       data-slot="alert-dialog-overlay"
       {...others}
     />
@@ -60,7 +60,7 @@ const AlertDialogContent = <T extends ValidComponent = "div">(
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Content
         class={cn(
-          "cn-alert-dialog-content group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+          "group/alert-dialog-content fixed top-1/2 left-1/2 z-50 z-alert-dialog-content grid w-full -translate-x-1/2 -translate-y-1/2 outline-none",
           local.class,
         )}
         data-size={local.size}
@@ -77,7 +77,7 @@ const AlertDialogHeader = (props: AlertDialogHeaderProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
-      class={cn("cn-alert-dialog-header", local.class)}
+      class={cn("z-alert-dialog-header", local.class)}
       data-slot="alert-dialog-header"
       {...others}
     />
@@ -92,7 +92,7 @@ const AlertDialogFooter = (props: AlertDialogFooterProps) => {
     <div
       data-slot="alert-dialog-footer"
       class={cn(
-        "cn-alert-dialog-footer flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
+        "z-alert-dialog-footer flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
         local.class,
       )}
       {...others}
@@ -107,7 +107,7 @@ const AlertDialogMedia = (props: AlertDialogMediaProps) => {
   return (
     <div
       data-slot="alert-dialog-media"
-      class={cn("cn-alert-dialog-media", local.class)}
+      class={cn("z-alert-dialog-media", local.class)}
       {...others}
     />
   );
@@ -123,7 +123,7 @@ const AlertDialogTitle = <T extends ValidComponent = "h2">(props: AlertDialogTit
   const [local, others] = splitProps(props as AlertDialogTitleProps, ["class"]);
   return (
     <AlertDialogPrimitive.Title
-      class={cn("cn-alert-dialog-title", local.class)}
+      class={cn("z-alert-dialog-title", local.class)}
       data-slot="alert-dialog-title"
       {...others}
     />
@@ -142,7 +142,7 @@ const AlertDialogDescription = <T extends ValidComponent = "p">(
   const [local, others] = splitProps(props as AlertDialogDescriptionProps, ["class"]);
   return (
     <AlertDialogPrimitive.Description
-      class={cn("cn-alert-dialog-description", local.class)}
+      class={cn("z-alert-dialog-description", local.class)}
       data-slot="alert-dialog-description"
       {...others}
     />
@@ -155,7 +155,7 @@ const AlertDialogAction = (props: AlertDialogActionProps) => {
   const [local, others] = splitProps(props, ["class", "children"]);
   return (
     <Button
-      class={cn("cn-alert-dialog-action", local.class)}
+      class={cn("z-alert-dialog-action", local.class)}
       data-slot="alert-dialog-action"
       {...others}
     >
@@ -185,7 +185,7 @@ const AlertDialogCancel = <T extends ValidComponent = "button">(
       size={local.size}
       variant={local.variant}
       data-slot="alert-dialog-cancel"
-      class={cn("cn-alert-dialog-cancel", local.class)}
+      class={cn("z-alert-dialog-cancel", local.class)}
       {...others}
     />
   );

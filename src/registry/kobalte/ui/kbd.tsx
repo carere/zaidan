@@ -11,7 +11,7 @@ const Kbd = (props: KbdProps) => {
   return (
     <kbd
       class={cn(
-        "cn-kbd pointer-events-none inline-flex select-none items-center justify-center",
+        "pointer-events-none z-kbd inline-flex select-none items-center justify-center",
         local.class,
       )}
       data-slot="kbd"
@@ -27,7 +27,7 @@ const KbdGroup = (props: KbdGroupProps) => {
 
   return (
     <div
-      class={cn("cn-kbd-group inline-flex items-center", local.class)}
+      class={cn("z-kbd-group inline-flex items-center", local.class)}
       data-slot="kbd-group"
       {...others}
     />

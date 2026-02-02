@@ -52,7 +52,7 @@ const DropdownMenuContent = <T extends ValidComponent = "div">(
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         class={cn(
-          "cn-dropdown-menu-content cn-menu-target z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-menu-content-transform-origin) overflow-y-auto overflow-x-hidden outline-none data-closed:overflow-hidden",
+          "z-50 z-dropdown-menu-content z-menu-target max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-menu-content-transform-origin) overflow-y-auto overflow-x-hidden outline-none data-closed:overflow-hidden",
           local.class,
         )}
         {...others}
@@ -88,7 +88,7 @@ const DropdownMenuLabel = <T extends ValidComponent = "span">(props: DropdownMen
     <DropdownMenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
       data-inset={local.inset}
-      class={cn("cn-dropdown-menu-label data-inset:pl-8", local.class)}
+      class={cn("z-dropdown-menu-label data-inset:pl-8", local.class)}
       {...others}
     />
   );
@@ -112,7 +112,7 @@ const DropdownMenuItem = <T extends ValidComponent = "div">(rawProps: DropdownMe
       data-inset={local.inset}
       data-variant={local.variant}
       class={cn(
-        "cn-dropdown-menu-item group/dropdown-menu-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-inset:pl-8 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "group/dropdown-menu-item relative z-dropdown-menu-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-inset:pl-8 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -147,7 +147,7 @@ const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
       data-slot="dropdown-menu-sub-trigger"
       data-inset={local.inset}
       class={cn(
-        "cn-dropdown-menu-sub-trigger flex cursor-default select-none items-center outline-hidden data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "z-dropdown-menu-sub-trigger flex cursor-default select-none items-center outline-hidden data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -173,7 +173,7 @@ const DropdownMenuSubContent = <T extends ValidComponent = "div">(
       <DropdownMenuPrimitive.SubContent
         data-slot="dropdown-menu-sub-content"
         class={cn(
-          "cn-dropdown-menu-sub-content cn-menu-target z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-menu-content-transform-origin) overflow-y-auto overflow-x-hidden outline-none data-closed:overflow-hidden",
+          "z-50 z-dropdown-menu-sub-content z-menu-target max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-menu-content-transform-origin) overflow-y-auto overflow-x-hidden outline-none data-closed:overflow-hidden",
           local.class,
         )}
         {...others}
@@ -196,13 +196,13 @@ const DropdownMenuCheckboxItem = <T extends ValidComponent = "div">(
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
       class={cn(
-        "cn-dropdown-menu-checkbox-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative z-dropdown-menu-checkbox-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
     >
       <span
-        class="cn-dropdown-menu-item-indicator pointer-events-none"
+        class="pointer-events-none z-dropdown-menu-item-indicator"
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <DropdownMenuPrimitive.ItemIndicator>
@@ -247,13 +247,13 @@ const DropdownMenuRadioItem = <T extends ValidComponent = "div">(
     <DropdownMenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
       class={cn(
-        "cn-dropdown-menu-radio-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative z-dropdown-menu-radio-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
     >
       <span
-        class="cn-dropdown-menu-item-indicator pointer-events-none"
+        class="pointer-events-none z-dropdown-menu-item-indicator"
         data-slot="dropdown-menu-radio-item-indicator"
       >
         <DropdownMenuPrimitive.ItemIndicator>
@@ -278,7 +278,7 @@ const DropdownMenuSeparator = <T extends ValidComponent = "hr">(
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      class={cn("cn-dropdown-menu-separator", local.class)}
+      class={cn("z-dropdown-menu-separator", local.class)}
       {...others}
     />
   );
@@ -291,7 +291,7 @@ const DropdownMenuShortcut = (props: DropdownMenuShortcutProps) => {
   return (
     <span
       data-slot="dropdown-menu-shortcut"
-      class={cn("cn-dropdown-menu-shortcut", local.class)}
+      class={cn("z-dropdown-menu-shortcut", local.class)}
       {...others}
     />
   );

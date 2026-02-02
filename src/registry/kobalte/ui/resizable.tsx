@@ -25,7 +25,7 @@ const ResizablePanelGroup = <T extends ValidComponent = "div">(
   return (
     <Root
       class={cn(
-        "cn-resizable-panel-group flex h-full w-full data-[orientation=vertical]:flex-col",
+        "z-resizable-panel-group flex h-full w-full data-[orientation=vertical]:flex-col",
         local.class,
       )}
       data-slot="resizable-panel-group"
@@ -53,14 +53,14 @@ const ResizableHandle = <T extends ValidComponent = "button">(props: ResizableHa
   return (
     <Handle
       class={cn(
-        "cn-resizable-handle relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full data-[orientation=vertical]:after:left-0 data-[orientation=vertical]:after:h-1 data-[orientation=vertical]:after:w-full data-[orientation=vertical]:after:translate-x-0 data-[orientation=vertical]:after:-translate-y-1/2 [&[data-orientation=vertical]>div]:rotate-90",
+        "relative z-resizable-handle flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full data-[orientation=vertical]:after:left-0 data-[orientation=vertical]:after:h-1 data-[orientation=vertical]:after:w-full data-[orientation=vertical]:after:translate-x-0 data-[orientation=vertical]:after:-translate-y-1/2 [&[data-orientation=vertical]>div]:rotate-90",
         local.class,
       )}
       data-slot="resizable-handle"
       {...others}
     >
       <Show when={local.withHandle}>
-        <div class="cn-resizable-handle-icon z-10 flex shrink-0" />
+        <div class="z-10 z-resizable-handle-icon flex shrink-0" />
       </Show>
     </Handle>
   );

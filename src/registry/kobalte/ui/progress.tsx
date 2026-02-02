@@ -22,7 +22,7 @@ const Progress = <T extends ValidComponent = "div">(props: ProgressProps<T>) => 
   return (
     <Root
       data-slot="progress"
-      class={cn("cn-progress-root flex flex-wrap gap-3", local.class)}
+      class={cn("z-progress-root flex flex-wrap gap-3", local.class)}
       {...others}
     >
       {local.children}
@@ -45,7 +45,7 @@ const ProgressTrack = <T extends ValidComponent = "div">(props: ProgressTrackCom
     <Track
       data-slot="progress-track"
       class={cn(
-        "cn-progress-track relative flex w-full items-center overflow-x-hidden",
+        "relative z-progress-track flex w-full items-center overflow-x-hidden",
         local.class,
       )}
       {...others}
@@ -65,7 +65,7 @@ const ProgressIndicator = <T extends ValidComponent = "div">(props: ProgressIndi
     <Fill
       data-slot="progress-indicator"
       class={cn(
-        "cn-progress-indicator h-full w-(--kb-progress-fill-width) transition-all",
+        "z-progress-indicator h-full w-(--kb-progress-fill-width) transition-all",
         local.class,
       )}
       {...others}
@@ -84,7 +84,7 @@ const ProgressLabel = <T extends ValidComponent = "span">(
 ) => {
   const [local, others] = splitProps(props as ProgressLabelComponentProps, ["class"]);
   return (
-    <Label data-slot="progress-label" class={cn("cn-progress-label", local.class)} {...others} />
+    <Label data-slot="progress-label" class={cn("z-progress-label", local.class)} {...others} />
   );
 };
 
@@ -99,7 +99,7 @@ const ProgressValue = <T extends ValidComponent = "div">(props: ProgressValuePro
   return (
     <ValueLabel
       data-slot="progress-value"
-      class={cn("cn-progress-value", local.class)}
+      class={cn("z-progress-value", local.class)}
       {...others}
     />
   );

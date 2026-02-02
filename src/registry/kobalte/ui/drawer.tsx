@@ -48,7 +48,7 @@ const DrawerOverlay = <T extends ValidComponent = "div">(props: DrawerOverlayPro
   return (
     <Overlay
       data-slot="drawer-overlay"
-      class={cn("cn-drawer-overlay fixed inset-0 z-50", local.class)}
+      class={cn("fixed inset-0 z-50 z-drawer-overlay", local.class)}
       {...others}
       style={{
         "background-color": `rgb(0 0 0 / ${0.1 * context.openPercentage()})`,
@@ -68,10 +68,10 @@ const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentPro
       <DrawerOverlay />
       <Content
         data-slot="drawer-content"
-        class={cn("cn-drawer-content group/drawer-content fixed z-50", local.class)}
+        class={cn("group/drawer-content fixed z-50 z-drawer-content", local.class)}
         {...others}
       >
-        <div class="cn-drawer-handle mx-auto hidden shrink-0 bg-muted group-data-[side=bottom]/drawer-content:block" />
+        <div class="z-drawer-handle mx-auto hidden shrink-0 bg-muted group-data-[side=bottom]/drawer-content:block" />
         {local.children}
       </Content>
     </Portal>
@@ -85,7 +85,7 @@ const DrawerHeader = (props: DrawerHeaderProps) => {
   return (
     <div
       data-slot="drawer-header"
-      class={cn("cn-drawer-header flex flex-col", local.class)}
+      class={cn("z-drawer-header flex flex-col", local.class)}
       {...others}
     />
   );
@@ -98,7 +98,7 @@ const DrawerFooter = (props: DrawerFooterProps) => {
   return (
     <div
       data-slot="drawer-footer"
-      class={cn("cn-drawer-footer mt-auto flex flex-col", local.class)}
+      class={cn("z-drawer-footer mt-auto flex flex-col", local.class)}
       {...others}
     />
   );
@@ -109,7 +109,7 @@ type DrawerLabelProps<T extends ValidComponent = "h2"> = DynamicProps<T, LabelPr
 
 const DrawerLabel = <T extends ValidComponent = "h2">(props: DrawerLabelProps<T>) => {
   const [local, others] = splitProps(props as DrawerLabelProps, ["class"]);
-  return <Label data-slot="drawer-title" class={cn("cn-drawer-title", local.class)} {...others} />;
+  return <Label data-slot="drawer-title" class={cn("z-drawer-title", local.class)} {...others} />;
 };
 
 type DrawerDescriptionProps<T extends ValidComponent = "p"> = DynamicProps<T, DescriptionProps> &
@@ -120,7 +120,7 @@ const DrawerDescription = <T extends ValidComponent = "p">(props: DrawerDescript
   return (
     <Description
       data-slot="drawer-description"
-      class={cn("cn-drawer-description", local.class)}
+      class={cn("z-drawer-description", local.class)}
       {...others}
     />
   );

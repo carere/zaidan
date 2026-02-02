@@ -37,7 +37,7 @@ const Slider = <T extends ValidComponent = "div">(rawProps: SliderProps<T>) => {
       defaultValue={local.defaultValue}
       value={local.value}
       class={cn(
-        "cn-slider relative flex w-full touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-disabled:opacity-50",
+        "relative z-slider flex w-full touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-disabled:opacity-50",
         local.class,
       )}
       {...others}
@@ -64,7 +64,7 @@ const SliderTrack = <T extends ValidComponent = "div">(props: SliderTrackCompone
       data-slot="slider-track"
       data-orientation={context.state.orientation()}
       class={cn(
-        "cn-slider-track relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1.5",
+        "relative z-slider-track grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1.5",
         local.class,
       )}
       {...others}
@@ -88,7 +88,7 @@ const SliderFill = <T extends ValidComponent = "div">(props: SliderFillComponent
       data-slot="slider-range"
       data-orientation={context.state.orientation()}
       class={cn(
-        "cn-slider-range absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full",
+        "absolute z-slider-range data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full",
         local.class,
       )}
       {...others}
@@ -108,7 +108,7 @@ const SliderThumb = <T extends ValidComponent = "span">(props: SliderThumbCompon
     <SliderPrimitive.Thumb
       data-slot="slider-thumb"
       class={cn(
-        "cn-slider-thumb block shrink-0 select-none disabled:pointer-events-none disabled:opacity-50",
+        "z-slider-thumb block shrink-0 select-none disabled:pointer-events-none disabled:opacity-50",
         local.class,
       )}
       {...others}

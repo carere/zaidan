@@ -215,7 +215,7 @@ const CalendarComponent = (props: CalendarProps) => {
         <div
           data-slot="calendar"
           class={cn(
-            "cn-calendar group/calendar w-fit bg-popover p-3",
+            "group/calendar z-calendar w-fit bg-popover p-3",
             "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
             local.class,
           )}

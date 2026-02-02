@@ -12,7 +12,7 @@ const Empty = (props: EmptyProps) => {
     <div
       data-slot="empty"
       class={cn(
-        "cn-empty flex w-full min-w-0 flex-1 flex-col items-center justify-center text-balance text-center",
+        "z-empty flex w-full min-w-0 flex-1 flex-col items-center justify-center text-balance text-center",
         local.class,
       )}
       {...others}
@@ -28,19 +28,19 @@ const EmptyHeader = (props: EmptyHeaderProps) => {
   return (
     <div
       data-slot="empty-header"
-      class={cn("cn-empty-header flex max-w-sm flex-col items-center", local.class)}
+      class={cn("z-empty-header flex max-w-sm flex-col items-center", local.class)}
       {...others}
     />
   );
 };
 
 const emptyMediaVariants = cva(
-  "cn-empty-media flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "z-empty-media flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "cn-empty-media-default",
-        icon: "cn-empty-media-icon",
+        default: "z-empty-media-default",
+        icon: "z-empty-media-icon",
       },
     },
     defaultVariants: {
@@ -69,7 +69,7 @@ type EmptyTitleProps = ComponentProps<"div">;
 const EmptyTitle = (props: EmptyTitleProps) => {
   const [local, others] = splitProps(props, ["class"]);
 
-  return <div data-slot="empty-title" class={cn("cn-empty-title", local.class)} {...others} />;
+  return <div data-slot="empty-title" class={cn("z-empty-title", local.class)} {...others} />;
 };
 
 type EmptyDescriptionProps = ComponentProps<"p">;
@@ -81,7 +81,7 @@ const EmptyDescription = (props: EmptyDescriptionProps) => {
     <div
       data-slot="empty-description"
       class={cn(
-        "cn-empty-description text-muted-foreground [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
+        "z-empty-description text-muted-foreground [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         local.class,
       )}
       {...others}
@@ -98,7 +98,7 @@ const EmptyContent = (props: EmptyContentProps) => {
     <div
       data-slot="empty-content"
       class={cn(
-        "cn-empty-content flex w-full min-w-0 max-w-sm flex-col items-center text-balance",
+        "z-empty-content flex w-full min-w-0 max-w-sm flex-col items-center text-balance",
         local.class,
       )}
       {...others}

@@ -26,13 +26,13 @@ const InputOTP = (props: InputOTPProps) => {
     <OtpField
       data-slot="input-otp"
       spellcheck={false}
-      class={cn("cn-input-otp flex items-center has-disabled:opacity-50", local.containerClass)}
+      class={cn("z-input-otp flex items-center has-disabled:opacity-50", local.containerClass)}
       {...others}
     >
       <OtpField.Input
         id={local.id}
         data-slot="input-otp-input"
-        class={cn("cn-input-otp-input disabled:cursor-not-allowed", local.class)}
+        class={cn("z-input-otp-input disabled:cursor-not-allowed", local.class)}
         spellcheck={false}
         disabled={local.disabled}
         required={local.required}
@@ -51,7 +51,7 @@ const InputOTPGroup = (props: InputOTPGroupProps) => {
   return (
     <div
       data-slot="input-otp-group"
-      class={cn("cn-input-otp-group flex items-center", local.class)}
+      class={cn("z-input-otp-group flex items-center", local.class)}
       {...others}
     />
   );
@@ -74,15 +74,15 @@ const InputOTPSlot = (props: InputOTPSlotProps) => {
       data-slot="input-otp-slot"
       data-active={isActive()}
       class={cn(
-        "cn-input-otp-slot relative flex items-center justify-center data-[active=true]:z-10",
+        "relative z-input-otp-slot flex items-center justify-center data-[active=true]:z-10",
         local.class,
       )}
       {...others}
     >
       {char()}
       <Show when={showCaret()}>
-        <div class="cn-input-otp-caret pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div class="cn-input-otp-caret-line h-4 w-px animate-caret-blink bg-foreground" />
+        <div class="pointer-events-none absolute inset-0 z-input-otp-caret flex items-center justify-center">
+          <div class="z-input-otp-caret-line h-4 w-px animate-caret-blink bg-foreground" />
         </div>
       </Show>
     </div>
@@ -96,7 +96,7 @@ const InputOTPSeparator = (props: InputOTPSeparatorProps) => {
   return (
     <div
       data-slot="input-otp-separator"
-      class={cn("cn-input-otp-separator flex items-center", local.class)}
+      class={cn("z-input-otp-separator flex items-center", local.class)}
       aria-hidden="true"
       {...others}
     >

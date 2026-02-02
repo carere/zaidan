@@ -29,14 +29,14 @@ const NavigationMenu = <T extends ValidComponent = "ul">(props: NavigationMenuPr
     <Root
       data-slot="navigation-menu"
       class={cn(
-        "cn-navigation-menu group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
+        "group/navigation-menu relative z-navigation-menu flex max-w-max flex-1 items-center justify-center",
         local.class,
       )}
       {...others}
     >
       <div
         data-slot="navigation-menu-list"
-        class="cn-navigation-menu-list group flex flex-1 list-none items-center justify-center"
+        class="group z-navigation-menu-list flex flex-1 list-none items-center justify-center"
       >
         {local.children}
       </div>
@@ -53,7 +53,7 @@ const NavigationMenuItem = (props: NavigationMenuItemProps) => {
     <Menu>
       <div
         data-slot="navigation-menu-item"
-        class={cn("cn-navigation-menu-item relative", local.class)}
+        class={cn("relative z-navigation-menu-item", local.class)}
         {...others}
       />
     </Menu>
@@ -61,7 +61,7 @@ const NavigationMenuItem = (props: NavigationMenuItemProps) => {
 };
 
 const navigationMenuTriggerStyle = cva(
-  "cn-navigation-menu-trigger group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center outline-none disabled:pointer-events-none",
+  "group/navigation-menu-trigger z-navigation-menu-trigger inline-flex h-9 w-max items-center justify-center outline-none disabled:pointer-events-none",
 );
 
 type NavigationMenuTriggerProps<T extends ValidComponent = "div"> = PolymorphicProps<
@@ -81,7 +81,7 @@ const NavigationMenuTrigger = <T extends ValidComponent = "div">(
       {...others}
     >
       {local.children}
-      <ChevronDown class="cn-navigation-menu-trigger-icon" aria-hidden="true" />
+      <ChevronDown class="z-navigation-menu-trigger-icon" aria-hidden="true" />
     </Trigger>
   );
 };
@@ -101,7 +101,7 @@ const NavigationMenuContent = <T extends ValidComponent = "ul">(
       <Content
         data-slot="navigation-menu-content"
         class={cn(
-          "cn-navigation-menu-content absolute top-0 h-full w-auto origin-(--kb-menu-content-transform-origin) **:data-[slot=navigation-menu-link]:focus:outline-none **:data-[slot=navigation-menu-link]:focus:ring-0",
+          "absolute top-0 z-navigation-menu-content h-full w-auto origin-(--kb-menu-content-transform-origin) **:data-[slot=navigation-menu-link]:focus:outline-none **:data-[slot=navigation-menu-link]:focus:ring-0",
           local.class,
         )}
         {...others}
@@ -120,7 +120,7 @@ const NavigationMenuLink = (props: NavigationMenuLinkProps) => {
   return (
     <a
       data-slot="navigation-menu-link"
-      class={cn("cn-navigation-menu-link", local.class)}
+      class={cn("z-navigation-menu-link", local.class)}
       {...others}
     />
   );
@@ -136,12 +136,12 @@ const NavigationMenuIndicator = (props: NavigationMenuIndicatorProps) => {
     <div
       data-slot="navigation-menu-indicator"
       class={cn(
-        "cn-navigation-menu-indicator top-full z-1 flex h-1.5 items-end justify-center overflow-hidden",
+        "top-full z-1 z-navigation-menu-indicator flex h-1.5 items-end justify-center overflow-hidden",
         local.class,
       )}
       {...others}
     >
-      <div class="cn-navigation-menu-indicator-arrow relative top-[60%] h-2 w-2 rotate-45" />
+      <div class="relative top-[60%] z-navigation-menu-indicator-arrow h-2 w-2 rotate-45" />
     </div>
   );
 };

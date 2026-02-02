@@ -44,9 +44,7 @@ type SelectGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
 
 const SelectGroup = <T extends ValidComponent = "div">(props: SelectGroupProps<T>) => {
   const [local, others] = splitProps(props as SelectGroupProps, ["class"]);
-  return (
-    <Section class={cn("cn-select-group", local.class)} data-slot="select-group" {...others} />
-  );
+  return <Section class={cn("z-select-group", local.class)} data-slot="select-group" {...others} />;
 };
 
 type SelectValueProps<Option, T extends ValidComponent = "span"> = PolymorphicProps<
@@ -62,7 +60,7 @@ const SelectValue = <Option, T extends ValidComponent = "span">(
   const [local, others] = splitProps(props as SelectValueProps<Option>, ["class"]);
   return (
     <Value
-      class={cn("cn-select-value", local.class, {
+      class={cn("z-select-value", local.class, {
         "text-muted-foreground": context.selectedOptions().length === 0,
       })}
       data-slot="select-value"
@@ -86,7 +84,7 @@ const SelectTrigger = <T extends ValidComponent = "button">(rawProps: SelectTrig
   return (
     <SelectPrimitive.Trigger
       class={cn(
-        "cn-select-trigger flex w-fit items-center justify-between whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "z-select-trigger flex w-fit items-center justify-between whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       data-size={local.size}
@@ -94,10 +92,7 @@ const SelectTrigger = <T extends ValidComponent = "button">(rawProps: SelectTrig
       {...others}
     >
       {local.children}
-      <SelectPrimitive.Icon
-        as={ChevronsUpDown}
-        class="cn-select-trigger-icon pointer-events-none"
-      />
+      <SelectPrimitive.Icon as={ChevronsUpDown} class="pointer-events-none z-select-trigger-icon" />
     </SelectPrimitive.Trigger>
   );
 };
@@ -114,7 +109,7 @@ const SelectContent = <T extends ValidComponent = "div">(props: SelectContentPro
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         class={cn(
-          "cn-select-content cn-menu-target relative isolate z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
+          "relative isolate z-50 z-menu-target z-select-content max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
         )}
         data-slot="select-content"
@@ -136,7 +131,7 @@ const SelectLabel = <T extends ValidComponent = "span">(
   const [local, others] = splitProps(props as SelectLabelProps, ["class"]);
   return (
     <SelectPrimitive.Label
-      class={cn("cn-select-label", local.class)}
+      class={cn("z-select-label", local.class)}
       data-slot="select-label"
       {...others}
     />
@@ -155,17 +150,17 @@ const SelectItem = <T extends ValidComponent = "li">(
   return (
     <SelectPrimitive.Item
       class={cn(
-        "cn-select-item relative flex w-full cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative z-select-item flex w-full cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       data-slot="select-item"
       {...others}
     >
-      <SelectPrimitive.ItemLabel class="cn-select-item-text shrink-0 whitespace-nowrap">
+      <SelectPrimitive.ItemLabel class="z-select-item-text shrink-0 whitespace-nowrap">
         {local.children}
       </SelectPrimitive.ItemLabel>
-      <SelectPrimitive.ItemIndicator as="span" class="cn-select-item-indicator">
-        <Check class="cn-select-item-indicator-icon pointer-events-none" />
+      <SelectPrimitive.ItemIndicator as="span" class="z-select-item-indicator">
+        <Check class="pointer-events-none z-select-item-indicator-icon" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   );
@@ -181,7 +176,7 @@ const SelectSeparator = <T extends ValidComponent = "hr">(
   const [local, others] = splitProps(props as SelectSeparatorProps, ["class"]);
   return (
     <hr
-      class={cn("cn-select-separator pointer-events-none", local.class)}
+      class={cn("pointer-events-none z-select-separator", local.class)}
       data-slot="select-separator"
       {...others}
     />

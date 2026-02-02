@@ -5,16 +5,16 @@ import { splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "cn-badge group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
+  "group/badge z-badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
   {
     variants: {
       variant: {
-        default: "cn-badge-variant-default",
-        secondary: "cn-badge-variant-secondary",
-        destructive: "cn-badge-variant-destructive",
-        outline: "cn-badge-variant-outline",
-        ghost: "cn-badge-variant-ghost",
-        link: "cn-badge-variant-link",
+        default: "z-badge-variant-default",
+        secondary: "z-badge-variant-secondary",
+        destructive: "z-badge-variant-destructive",
+        outline: "z-badge-variant-outline",
+        ghost: "z-badge-variant-ghost",
+        link: "z-badge-variant-link",
       },
     },
     defaultVariants: {

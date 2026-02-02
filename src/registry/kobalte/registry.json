@@ -772,11 +772,15 @@
       ]
     },
     {
-      "name": "use-color-mode",
-      "type": "registry:hook",
-      "dependencies": [],
+      "name": "color-mode",
+      "type": "registry:item",
+      "dependencies": ["solid-js"],
       "registryDependencies": [],
       "files": [
+        {
+          "path": "src/registry/kobalte/components/color-mode-provider.tsx",
+          "type": "registry:component"
+        },
         {
           "path": "src/registry/kobalte/hooks/use-color-mode.ts",
           "type": "registry:hook"

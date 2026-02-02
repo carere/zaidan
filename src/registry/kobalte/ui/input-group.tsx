@@ -16,7 +16,7 @@ const InputGroup = (props: InputGroupProps) => {
       data-slot="input-group"
       role="group"
       class={cn(
-        "group/input-group cn-input-group relative flex w-full min-w-0 items-center outline-none has-[>textarea]:h-auto",
+        "group/input-group relative z-input-group flex w-full min-w-0 items-center outline-none has-[>textarea]:h-auto",
         local.class,
       )}
       {...others}
@@ -25,14 +25,14 @@ const InputGroup = (props: InputGroupProps) => {
 };
 
 const inputGroupAddonVariants = cva(
-  "cn-input-group-addon flex cursor-text select-none items-center justify-center",
+  "z-input-group-addon flex cursor-text select-none items-center justify-center",
   {
     variants: {
       align: {
-        "inline-start": "cn-input-group-addon-align-inline-start order-first",
-        "inline-end": "cn-input-group-addon-align-inline-end order-last",
-        "block-start": "cn-input-group-addon-align-block-start order-first w-full justify-start",
-        "block-end": "cn-input-group-addon-align-block-end order-last w-full justify-start",
+        "inline-start": "z-input-group-addon-align-inline-start order-first",
+        "inline-end": "z-input-group-addon-align-inline-end order-last",
+        "block-start": "z-input-group-addon-align-block-start order-first w-full justify-start",
+        "block-end": "z-input-group-addon-align-block-end order-last w-full justify-start",
       },
     },
     defaultVariants: {
@@ -71,13 +71,13 @@ const InputGroupAddon = (props: InputGroupAddonProps) => {
   );
 };
 
-const inputGroupButtonVariants = cva("cn-input-group-button flex items-center shadow-none", {
+const inputGroupButtonVariants = cva("z-input-group-button flex items-center shadow-none", {
   variants: {
     size: {
-      xs: "cn-input-group-button-size-xs",
-      sm: "cn-input-group-button-size-sm",
-      "icon-xs": "cn-input-group-button-size-icon-xs",
-      "icon-sm": "cn-input-group-button-size-icon-sm",
+      xs: "z-input-group-button-size-xs",
+      sm: "z-input-group-button-size-sm",
+      "icon-xs": "z-input-group-button-size-icon-xs",
+      "icon-sm": "z-input-group-button-size-icon-sm",
     },
   },
   defaultVariants: {
@@ -113,7 +113,7 @@ const InputGroupText = (props: InputGroupTextProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <span
-      class={cn("cn-input-group-text flex items-center [&_svg]:pointer-events-none", local.class)}
+      class={cn("z-input-group-text flex items-center [&_svg]:pointer-events-none", local.class)}
       {...others}
     />
   );
@@ -126,7 +126,7 @@ const InputGroupInput = (props: InputGroupInputProps) => {
   return (
     <Input
       data-slot="input-group-control"
-      class={cn("cn-input-group-input flex-1", local.class)}
+      class={cn("z-input-group-input flex-1", local.class)}
       {...others}
     />
   );
@@ -139,7 +139,7 @@ const InputGroupTextarea = (props: InputGroupTextareaProps) => {
   return (
     <Textarea
       data-slot="input-group-control"
-      class={cn("cn-input-group-textarea flex-1 resize-none", local.class)}
+      class={cn("z-input-group-textarea flex-1 resize-none", local.class)}
       {...others}
     />
   );

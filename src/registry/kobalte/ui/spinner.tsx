@@ -14,7 +14,7 @@ const Spinner = (props: SpinnerProps) => {
     <LoaderCircle
       role="status"
       aria-label="Loading"
-      class={cn("cn-spinner size-4 animate-spin", local.class)}
+      class={cn("z-spinner size-4 animate-spin", local.class)}
       data-slot="spinner"
       {...others}
     />

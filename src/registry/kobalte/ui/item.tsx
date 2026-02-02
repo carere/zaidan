@@ -19,7 +19,7 @@ const ItemGroup = (props: ItemGroupProps) => {
     <div
       role="list"
       data-slot="item-group"
-      class={cn("cn-item-group group/item-group flex w-full flex-col", local.class)}
+      class={cn("group/item-group z-item-group flex w-full flex-col", local.class)}
       {...others}
     />
   );
@@ -33,25 +33,25 @@ const ItemSeparator = (props: ItemSeparatorProps) => {
     <Separator
       data-slot="item-separator"
       orientation="horizontal"
-      class={cn("cn-item-separator", local.class)}
+      class={cn("z-item-separator", local.class)}
       {...others}
     />
   );
 };
 
 const itemVariants = cva(
-  "cn-item group/item flex w-full flex-wrap items-center outline-none transition-colors duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors",
+  "group/item z-item flex w-full flex-wrap items-center outline-none transition-colors duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors",
   {
     variants: {
       variant: {
-        default: "cn-item-variant-default",
-        outline: "cn-item-variant-outline",
-        muted: "cn-item-variant-muted",
+        default: "z-item-variant-default",
+        outline: "z-item-variant-outline",
+        muted: "z-item-variant-muted",
       },
       size: {
-        default: "cn-item-size-default",
-        sm: "cn-item-size-sm",
-        xs: "cn-item-size-xs",
+        default: "z-item-size-default",
+        sm: "z-item-size-sm",
+        xs: "z-item-size-xs",
       },
     },
     defaultVariants: {
@@ -87,13 +87,13 @@ const Item = <T extends ValidComponent = "div">(rawProps: ItemProps<T>) => {
 };
 
 const itemMediaVariants = cva(
-  "cn-item-media flex shrink-0 items-center justify-center [&_svg]:pointer-events-none",
+  "z-item-media flex shrink-0 items-center justify-center [&_svg]:pointer-events-none",
   {
     variants: {
       variant: {
-        default: "cn-item-media-variant-default",
-        icon: "cn-item-media-variant-icon",
-        image: "cn-item-media-variant-image",
+        default: "z-item-media-variant-default",
+        icon: "z-item-media-variant-icon",
+        image: "z-item-media-variant-image",
       },
     },
     defaultVariants: {
@@ -125,7 +125,7 @@ const ItemContent = (props: ItemContentProps) => {
     <div
       data-slot="item-content"
       class={cn(
-        "cn-item-content flex flex-1 flex-col [&+[data-slot=item-content]]:flex-none",
+        "z-item-content flex flex-1 flex-col [&+[data-slot=item-content]]:flex-none",
         local.class,
       )}
       {...others}
@@ -140,7 +140,7 @@ const ItemTitle = (props: ItemTitleProps) => {
   return (
     <div
       data-slot="item-title"
-      class={cn("cn-item-title line-clamp-1 flex w-fit items-center", local.class)}
+      class={cn("z-item-title line-clamp-1 flex w-fit items-center", local.class)}
       {...others}
     />
   );
@@ -154,7 +154,7 @@ const ItemDescription = (props: ItemDescriptionProps) => {
     <p
       data-slot="item-description"
       class={cn(
-        "cn-item-description line-clamp-2 font-normal [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
+        "z-item-description line-clamp-2 font-normal [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         local.class,
       )}
       {...others}
@@ -169,7 +169,7 @@ const ItemActions = (props: ItemActionsProps) => {
   return (
     <div
       data-slot="item-actions"
-      class={cn("cn-item-actions flex items-center", local.class)}
+      class={cn("z-item-actions flex items-center", local.class)}
       {...others}
     />
   );
@@ -182,7 +182,7 @@ const ItemHeader = (props: ItemHeaderProps) => {
   return (
     <div
       data-slot="item-header"
-      class={cn("cn-item-header flex basis-full items-center justify-between", local.class)}
+      class={cn("z-item-header flex basis-full items-center justify-between", local.class)}
       {...others}
     />
   );
@@ -195,7 +195,7 @@ const ItemFooter = (props: ItemFooterProps) => {
   return (
     <div
       data-slot="item-footer"
-      class={cn("cn-item-footer flex basis-full items-center justify-between", local.class)}
+      class={cn("z-item-footer flex basis-full items-center justify-between", local.class)}
       {...others}
     />
   );

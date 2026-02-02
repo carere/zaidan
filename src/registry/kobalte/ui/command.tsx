@@ -15,7 +15,7 @@ function Command(props: ComponentProps<"div">) {
   return (
     <CommandPrimitive
       data-slot="command"
-      class={cn("cn-command flex size-full flex-col overflow-hidden", props.class)}
+      class={cn("z-command flex size-full flex-col overflow-hidden", props.class)}
       {...props}
     />
   );
@@ -53,7 +53,7 @@ function CommandDialog(props: CommandDialogProps) {
         <DialogDescription>{local.description}</DialogDescription>
       </DialogHeader>
       <DialogContent
-        class={cn("cn-command-dialog overflow-hidden p-0", local.class)}
+        class={cn("z-command-dialog overflow-hidden p-0", local.class)}
         showCloseButton={local.showCloseButton}
       >
         {local.children}
@@ -65,18 +65,18 @@ function CommandDialog(props: CommandDialogProps) {
 function CommandInput(props: ComponentProps<typeof CommandPrimitive.Input>) {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <div data-slot="command-input-wrapper" class="cn-command-input-wrapper">
-      <InputGroup class="cn-command-input-group">
+    <div data-slot="command-input-wrapper" class="z-command-input-wrapper">
+      <InputGroup class="z-command-input-group">
         <CommandPrimitive.Input
           data-slot="command-input"
           class={cn(
-            "cn-command-input outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+            "z-command-input outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             local.class,
           )}
           {...others}
         />
         <InputGroupAddon>
-          <SearchIcon class="cn-command-input-icon" />
+          <SearchIcon class="z-command-input-icon" />
         </InputGroupAddon>
       </InputGroup>
     </div>
@@ -88,7 +88,7 @@ function CommandList(props: ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      class={cn("cn-command-list overflow-y-auto overflow-x-hidden", local.class)}
+      class={cn("z-command-list overflow-y-auto overflow-x-hidden", local.class)}
       {...others}
     />
   );
@@ -99,7 +99,7 @@ function CommandEmpty(props: ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
-      class={cn("cn-command-empty", local.class)}
+      class={cn("z-command-empty", local.class)}
       {...others}
     />
   );
@@ -110,7 +110,7 @@ function CommandGroup(props: ComponentProps<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
       data-slot="command-group"
-      class={cn("cn-command-group", local.class)}
+      class={cn("z-command-group", local.class)}
       {...others}
     />
   );
@@ -121,7 +121,7 @@ function CommandSeparator(props: ComponentProps<typeof CommandPrimitive.Separato
   return (
     <CommandPrimitive.Separator
       data-slot="command-separator"
-      class={cn("cn-command-separator", local.class)}
+      class={cn("z-command-separator", local.class)}
       {...others}
     />
   );
@@ -133,13 +133,13 @@ function CommandItem(props: ComponentProps<typeof CommandPrimitive.Item>) {
     <CommandPrimitive.Item
       data-slot="command-item"
       class={cn(
-        "cn-command-item group/command-item data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "group/command-item z-command-item data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
     >
       {local.children}
-      <Check class="cn-command-item-indicator ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
+      <Check class="z-command-item-indicator ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
   );
 }
@@ -147,7 +147,7 @@ function CommandItem(props: ComponentProps<typeof CommandPrimitive.Item>) {
 function CommandShortcut(props: ComponentProps<"span">) {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <span data-slot="command-shortcut" class={cn("cn-command-shortcut", local.class)} {...others} />
+    <span data-slot="command-shortcut" class={cn("z-command-shortcut", local.class)} {...others} />
   );
 }
 

@@ -5,11 +5,11 @@ import type { ComponentProps, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
-const alertVariants = cva("cn-alert group/alert relative w-full", {
+const alertVariants = cva("group/alert relative z-alert w-full", {
   variants: {
     variant: {
-      default: "cn-alert-variant-default",
-      destructive: "cn-alert-variant-destructive",
+      default: "z-alert-variant-default",
+      destructive: "z-alert-variant-destructive",
     },
   },
   defaultVariants: {
@@ -41,7 +41,7 @@ const AlertTitle = (props: AlertTitleProps) => {
   return (
     <div
       class={cn(
-        "cn-alert-title [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
+        "z-alert-title [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
         local.class,
       )}
       data-slot="alert-title"
@@ -58,7 +58,7 @@ const AlertDescription = (props: AlertDescriptionProps) => {
   return (
     <div
       class={cn(
-        "cn-alert-description [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
+        "z-alert-description [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
         local.class,
       )}
       data-slot="alert-description"
@@ -72,7 +72,7 @@ type AlertActionProps = ComponentProps<"div">;
 const AlertAction = (props: AlertActionProps) => {
   const [local, others] = splitProps(props, ["class"]);
 
-  return <div class={cn("cn-alert-action", local.class)} data-slot="alert-action" {...others} />;
+  return <div class={cn("z-alert-action", local.class)} data-slot="alert-action" {...others} />;
 };
 
 export { Alert, AlertTitle, AlertDescription, AlertAction, alertVariants };

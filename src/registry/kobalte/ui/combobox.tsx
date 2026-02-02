@@ -60,7 +60,7 @@ const ComboboxControl = <T extends ValidComponent = "div">(props: ComboboxContro
   const [local, others] = splitProps(props as ComboboxControlProps, ["class"]);
   return (
     <ComboboxPrimitive.Control
-      class={cn("cn-combobox-control", local.class)}
+      class={cn("z-combobox-control", local.class)}
       data-slot="combobox-control"
       {...others}
     />
@@ -94,7 +94,7 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
   return (
     <ComboboxPrimitive.Control
       as={InputGroup}
-      class={cn("cn-combobox-input w-auto", local.class)}
+      class={cn("z-combobox-input w-auto", local.class)}
       data-slot="combobox-control"
     >
       {(state) => (
@@ -118,7 +118,7 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
               >
                 <ComboboxPrimitive.Icon
                   as={ChevronsUpDown}
-                  class="cn-combobox-trigger-icon pointer-events-none"
+                  class="pointer-events-none z-combobox-trigger-icon"
                 />
               </ComboboxPrimitive.Trigger>
             </Show>
@@ -127,11 +127,11 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
                 variant="ghost"
                 size="icon-xs"
                 data-slot="combobox-clear"
-                class="cn-combobox-clear"
+                class="z-combobox-clear"
                 disabled={local.disabled}
                 onClick={() => state.clear()}
               >
-                <X class="cn-combobox-clear-icon pointer-events-none" />
+                <X class="pointer-events-none z-combobox-clear-icon" />
               </InputGroupButton>
             </Show>
           </InputGroupAddon>
@@ -163,7 +163,7 @@ const ComboboxTrigger = <T extends ValidComponent = "button">(
     <ComboboxPrimitive.Control>
       <ComboboxPrimitive.Trigger
         class={cn(
-          "cn-combobox-trigger cn-select-trigger flex w-fit items-center justify-between whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=combobox-value]:line-clamp-1 *:data-[slot=combobox-value]:flex *:data-[slot=combobox-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
+          "z-combobox-trigger z-select-trigger flex w-fit items-center justify-between whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=combobox-value]:line-clamp-1 *:data-[slot=combobox-value]:flex *:data-[slot=combobox-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
           local.class,
         )}
         data-size={local.size}
@@ -173,7 +173,7 @@ const ComboboxTrigger = <T extends ValidComponent = "button">(
         {local.children}
         <ComboboxPrimitive.Icon
           as={ChevronsUpDown}
-          class="cn-combobox-trigger-icon pointer-events-none"
+          class="pointer-events-none z-combobox-trigger-icon"
         />
       </ComboboxPrimitive.Trigger>
     </ComboboxPrimitive.Control>
@@ -196,13 +196,13 @@ const ComboboxContent = <T extends ValidComponent = "div">(props: ComboboxConten
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Content
         class={cn(
-          "cn-combobox-content cn-menu-target relative isolate z-50 max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-combobox-content-transform-origin) overflow-y-auto overflow-x-hidden",
+          "relative isolate z-50 z-combobox-content z-menu-target max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-combobox-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
         )}
         data-slot="combobox-content"
         {...others}
       >
-        <ComboboxPrimitive.Listbox class="cn-combobox-listbox m-0 p-1" />
+        <ComboboxPrimitive.Listbox class="z-combobox-listbox m-0 p-1" />
       </ComboboxPrimitive.Content>
     </ComboboxPrimitive.Portal>
   );
@@ -222,7 +222,7 @@ const ComboboxSection = <T extends ValidComponent = "li">(props: ComboboxSection
   const [local, others] = splitProps(props as ComboboxSectionProps, ["class"]);
   return (
     <ComboboxPrimitive.Section
-      class={cn("cn-combobox-section", local.class)}
+      class={cn("z-combobox-section", local.class)}
       data-slot="combobox-section"
       {...others}
     />
@@ -241,7 +241,7 @@ const ComboboxSectionLabel = (props: ComboboxSectionLabelProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <span
-      class={cn("cn-combobox-section-label cn-select-label", local.class)}
+      class={cn("z-combobox-section-label z-select-label", local.class)}
       data-slot="combobox-section-label"
       {...others}
     />
@@ -265,20 +265,20 @@ const ComboboxItem = <T extends ValidComponent = "li">(props: ComboboxItemProps<
   return (
     <ComboboxPrimitive.Item
       class={cn(
-        "cn-combobox-item cn-select-item relative flex w-full cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative z-combobox-item z-select-item flex w-full cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       data-slot="combobox-item"
       {...others}
     >
-      <ComboboxPrimitive.ItemLabel class="cn-combobox-item-label cn-select-item-text shrink-0 whitespace-nowrap">
+      <ComboboxPrimitive.ItemLabel class="z-combobox-item-label z-select-item-text shrink-0 whitespace-nowrap">
         {local.children}
       </ComboboxPrimitive.ItemLabel>
       <ComboboxPrimitive.ItemIndicator
         as="span"
-        class="cn-combobox-item-indicator cn-select-item-indicator"
+        class="z-combobox-item-indicator z-select-item-indicator"
       >
-        <Check class="cn-combobox-item-indicator-icon cn-select-item-indicator-icon pointer-events-none" />
+        <Check class="pointer-events-none z-combobox-item-indicator-icon z-select-item-indicator-icon" />
       </ComboboxPrimitive.ItemIndicator>
     </ComboboxPrimitive.Item>
   );
@@ -296,7 +296,7 @@ const ComboboxEmpty = (props: ComboboxEmptyProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <div
-      class={cn("cn-combobox-empty py-6 text-center text-sm", local.class)}
+      class={cn("z-combobox-empty py-6 text-center text-sm", local.class)}
       data-slot="combobox-empty"
       {...others}
     />
@@ -317,7 +317,7 @@ const ComboboxSeparator = <T extends ValidComponent = "hr">(
   const [local, others] = splitProps(props as ComboboxSeparatorProps, ["class"]);
   return (
     <hr
-      class={cn("cn-combobox-separator cn-select-separator pointer-events-none", local.class)}
+      class={cn("pointer-events-none z-combobox-separator z-select-separator", local.class)}
       data-slot="combobox-separator"
       {...others}
     />
