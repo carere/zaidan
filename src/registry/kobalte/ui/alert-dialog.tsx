@@ -149,18 +149,30 @@ const AlertDialogDescription = <T extends ValidComponent = "p">(
   );
 };
 
-type AlertDialogActionProps = ButtonProps;
+type AlertDialogActionProps<T extends ValidComponent = "button"> = PolymorphicProps<
+  T,
+  AlertDialogPrimitive.AlertDialogCloseButtonProps<T>
+> &
+  Pick<ButtonProps, "variant" | "size" | "class">;
 
-const AlertDialogAction = (props: AlertDialogActionProps) => {
-  const [local, others] = splitProps(props, ["class", "children"]);
+const AlertDialogAction = <T extends ValidComponent = "button">(
+  props: AlertDialogActionProps<T>,
+) => {
+  const mergedProps = mergeProps({ variant: "default", size: "default" }, props);
+  const [local, others] = splitProps(mergedProps as AlertDialogActionProps, [
+    "class",
+    "variant",
+    "size",
+  ]);
   return (
-    <Button
-      class={cn("z-alert-dialog-action", local.class)}
+    <AlertDialogPrimitive.CloseButton
+      as={Button}
+      size={local.size}
+      variant={local.variant}
       data-slot="alert-dialog-action"
+      class={cn("z-alert-dialog-action", local.class)}
       {...others}
-    >
-      {local.children}
-    </Button>
+    />
   );
 };
 

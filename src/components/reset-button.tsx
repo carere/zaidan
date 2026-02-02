@@ -20,15 +20,7 @@ export function ResetButton() {
   const handleReset = () => {
     navigate({
       to: ".",
-      search: (prev) => ({
-        ...prev,
-        style: DEFAULT_CONFIG.style,
-        baseColor: DEFAULT_CONFIG.baseColor,
-        theme: DEFAULT_CONFIG.theme,
-        font: DEFAULT_CONFIG.font,
-        radius: DEFAULT_CONFIG.radius,
-        menuAccent: DEFAULT_CONFIG.menuAccent,
-      }),
+      search: DEFAULT_CONFIG,
     });
   };
 
