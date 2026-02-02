@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
+import { CliButton } from "@/components/cli-button";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
 import { Zaidan } from "@/components/icons/zaidan";
@@ -57,6 +58,7 @@ function RouteComponent() {
             <Separator orientation="vertical" class="hidden xl:flex" />
             <ModeSwitcher />
             <ShareButton />
+            <CliButton />
           </div>
         </header>
         <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
