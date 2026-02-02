@@ -1,18 +1,10 @@
-import { useLocation } from "@tanstack/solid-router";
 import { Check, Share } from "lucide-solid";
-import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 export function ShareButton() {
-  const location = useLocation();
   const [hasCopied, setHasCopied] = createSignal(false);
-
-  const shareUrl = createMemo(() => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const loc = location();
-    return `${origin}${loc.pathname}${loc.search}`;
-  });
 
   createEffect(() => {
     if (hasCopied()) {
@@ -23,7 +15,9 @@ export function ShareButton() {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl());
+      // Use window.location.href directly to get the full URL with search params
+      const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+      await navigator.clipboard.writeText(shareUrl);
       setHasCopied(true);
     } catch (err) {
       console.error("Failed to copy URL:", err);
