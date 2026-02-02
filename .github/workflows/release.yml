@@ -16,13 +16,13 @@ jobs:
       - name: "Get tag of latest draft release"
         run: echo "tag_name=$(gh release list --repo ${{ github.repository }} --json 'isDraft,tagName' --jq '.[] | select(.isDraft) | .tagName')" >> $GITHUB_OUTPUT
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: get-tag
     outputs:
       tag_name: ${{ steps.get-tag.outputs.tag_name }}
 
   release:
-    needs: [get-tag]
+    needs: get-tag
     runs-on: ubuntu-latest
     environment:
       name: production
