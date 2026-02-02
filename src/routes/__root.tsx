@@ -5,6 +5,7 @@ import { getCookie } from "@tanstack/solid-start/server";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+import { NotFoundPage } from "@/components/not-found-page";
 import { DesignSystemConfigSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -27,6 +28,7 @@ export const Route = createRootRouteWithContext()({
   }),
   validateSearch: zodValidator(DesignSystemConfigSchema),
   shellComponent: RootComponent,
+  notFoundComponent: () => <NotFoundPage />,
 });
 
 const getColorMode = createIsomorphicFn()

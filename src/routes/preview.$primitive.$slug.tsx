@@ -1,10 +1,10 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, createMemo, createSignal, lazy, on, onCleanup, onMount } from "solid-js";
+import { NotFoundPage } from "@/components/not-found-page";
 import { FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/preview/$primitive/$slug")({
   loader: ({ params }) => {
@@ -24,17 +24,7 @@ export const Route = createFileRoute("/preview/$primitive/$slug")({
     };
   },
   component: PreviewComponent,
-  notFoundComponent: (props) => (
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>Component not found</EmptyTitle>
-        <EmptyDescription>
-          The component "{(props.data as { slug: string }).slug}" doesn't exist or couldn't be
-          loaded.
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  ),
+  notFoundComponent: () => <NotFoundPage />,
 });
 
 function PreviewComponent() {

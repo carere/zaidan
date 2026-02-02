@@ -3,6 +3,7 @@ import { docs } from "@velite";
 import { Menu } from "lucide-solid";
 import { lazy } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
+import { NotFoundPage } from "@/components/not-found-page";
 import { TableOfContents } from "@/components/toc";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -10,7 +11,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/registry/kobalte/ui/collapsible";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
 
 export const Route = createFileRoute("/_website/{-$slug}")({
   loader: async ({ params }) => {
@@ -26,16 +26,7 @@ export const Route = createFileRoute("/_website/{-$slug}")({
     return doc;
   },
   component: RouteComponent,
-  notFoundComponent: (props) => (
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>Page not found</EmptyTitle>
-        <EmptyDescription>
-          The page "{(props.data as { slug: string }).slug}" doesn't exist or couldn't be loaded.
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  ),
+  notFoundComponent: () => <NotFoundPage />,
 });
 
 function RouteComponent() {
