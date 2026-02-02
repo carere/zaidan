@@ -16,7 +16,7 @@ jobs:
       - name: "Get tag of latest draft release"
         run: echo "tag_name=$(gh release list --repo ${{ github.repository }} --json 'isDraft,tagName' --jq '.[] | select(.isDraft) | .tagName')" >> $GITHUB_OUTPUT
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CI_WORKER_PAT }}
         id: get-tag
 
       - name: Echo tag
@@ -31,7 +31,7 @@ jobs:
       name: production
       url: https://zaidan.carere.dev
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.CI_WORKER_PAT }}
     permissions:
       id-token: write
       contents: write
