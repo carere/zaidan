@@ -24,6 +24,9 @@ jobs:
   release:
     needs: [get-tag]
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://zaidan.carere.dev
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
@@ -55,13 +58,13 @@ jobs:
             .velite
           key: ${{ runner.os }}-${{ hashFiles('vite.config.ts', 'velite.config.ts', 'src/**', 'public/**', 'bun.lockb') }}
 
+      - name: Build registry (Kobalte)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: bun run r:build:kobalte
+
       - name: Build project
         if: steps.cache.outputs.cache-hit != 'true'
         run: bun run build
-
-      - name: Build registry
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: bun run r:build:kobalte
 
       - name: Create release
         run: |
