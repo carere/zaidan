@@ -1,4 +1,4 @@
-import { cookieStorage, makePersisted, messageSync } from "@solid-primitives/storage";
+import { makePersisted, messageSync } from "@solid-primitives/storage";
 import { Terminal } from "lucide-solid";
 import {
   type ComponentProps,
@@ -9,6 +9,8 @@ import {
   Show,
   splitProps,
 } from "solid-js";
+import { isServer } from "solid-js/web";
+import { getStorage } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
 
 export const sharedComponents = {
@@ -166,11 +168,8 @@ export const sharedComponents = {
 
       const [openTab, setOpenTab] = makePersisted(createSignal(tabNames[0]), {
         name: `tab-group:${props.title}`,
-        sync: messageSync(new BroadcastChannel("tab-group")),
-        // biome-ignore lint/complexity/useLiteralKeys: <TS don't allow dynamic keys as literals>
-        storage: cookieStorage["withOptions"]({
-          expires: new Date(Date.now() + 3e10),
-        }),
+        sync: isServer ? undefined : messageSync(new BroadcastChannel("tab-group")),
+        storage: getStorage(),
       });
 
       if (props.title === "package-manager") {
