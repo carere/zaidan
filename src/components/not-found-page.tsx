@@ -20,14 +20,14 @@ import { Kbd } from "@/registry/kobalte/ui/kbd";
 import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Option = {
-  title: string;
+  pathname: string;
   slug: string;
   route: FileRouteTypes["to"];
 };
 
 const getOptions = (): Option[] => {
   const docsOptions = docs.map((d) => ({
-    title: d.title,
+    pathname: `/${d.slug}`,
     slug: d.slug,
     route: "/{-$slug}" as FileRouteTypes["to"],
   }));
@@ -35,7 +35,7 @@ const getOptions = (): Option[] => {
   const uiOptions = ui
     .sort((a, b) => a.title.localeCompare(b.title))
     .map((u) => ({
-      title: u.title,
+      pathname: `/ui/${u.slug}`,
       slug: u.slug,
       route: "/ui/{-$slug}" as FileRouteTypes["to"],
     }));
@@ -60,11 +60,11 @@ export function NotFoundPage() {
         <Combobox<Option>
           options={options()}
           optionValue="slug"
-          optionTextValue="title"
-          placeholder="Try searching for pages..."
+          optionTextValue="pathname"
+          placeholder="Type / to search pages..."
           class="w-3/4"
           itemComponent={(props) => (
-            <ComboboxItem item={props.item}>{props.item.rawValue.title}</ComboboxItem>
+            <ComboboxItem item={props.item}>{props.item.rawValue.pathname}</ComboboxItem>
           )}
           onChange={(value) => {
             if (value) {
@@ -76,12 +76,12 @@ export function NotFoundPage() {
             }
           }}
         >
-          <ComboboxInput placeholder="Try searching for pages..." showTrigger={false}>
+          <ComboboxInput placeholder="Type / to search pages..." showTrigger={false}>
             <InputGroupAddon align="inline-end">
               <Kbd>/</Kbd>
             </InputGroupAddon>
           </ComboboxInput>
-          <ComboboxContent>
+          <ComboboxContent class="no-scrollbar max-h-96">
             <ComboboxEmpty>No pages found.</ComboboxEmpty>
           </ComboboxContent>
         </Combobox>

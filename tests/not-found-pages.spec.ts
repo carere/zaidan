@@ -15,7 +15,7 @@ test.describe("Not Found Pages", () => {
         "The page you're looking for doesn't exist. Try searching for what you need below.",
       ),
     ).toBeVisible();
-    await expect(page.getByPlaceholder("Try searching for pages...")).toBeVisible();
+    await expect(page.getByPlaceholder("Type / to search pages...")).toBeVisible();
     await expect(page.getByRole("link", { name: "Go to homepage" })).toBeVisible();
   });
 
@@ -24,7 +24,7 @@ test.describe("Not Found Pages", () => {
 
     // Verify the NotFoundPage component renders with correct title
     await expect(page.getByText("404 - Not Found")).toBeVisible();
-    await expect(page.getByPlaceholder("Try searching for pages...")).toBeVisible();
+    await expect(page.getByPlaceholder("Type / to search pages...")).toBeVisible();
     await expect(page.getByRole("link", { name: "Go to homepage" })).toBeVisible();
   });
 
@@ -33,7 +33,7 @@ test.describe("Not Found Pages", () => {
 
     // Verify the NotFoundPage component renders with correct title
     await expect(page.getByText("404 - Not Found")).toBeVisible();
-    await expect(page.getByPlaceholder("Try searching for pages...")).toBeVisible();
+    await expect(page.getByPlaceholder("Type / to search pages...")).toBeVisible();
   });
 
   test("shows 404 page for nonexistent preview", async ({ page }) => {
@@ -54,12 +54,12 @@ test.describe("Not Found Pages", () => {
     await page.waitForLoadState("networkidle");
 
     // Verify the Combobox input is visible
-    const comboboxInput = page.getByPlaceholder("Try searching for pages...");
+    const comboboxInput = page.getByPlaceholder("Type / to search pages...");
     await expect(comboboxInput).toBeVisible();
 
-    // Focus the input and type to open the dropdown (triggerMode is "input")
+    // Focus the input and type "/" to open the dropdown (all pathnames start with /)
     await comboboxInput.focus();
-    await comboboxInput.type("a", { delay: 50 });
+    await comboboxInput.type("/", { delay: 50 });
 
     // Verify the combobox content is displayed with options
     const comboboxContent = page.locator('[data-slot="combobox-content"]');
@@ -76,17 +76,17 @@ test.describe("Not Found Pages", () => {
     // Wait for hydration to complete
     await page.waitForLoadState("networkidle");
 
-    // Focus the Combobox input and type to open dropdown and filter
-    const comboboxInput = page.getByPlaceholder("Try searching for pages...");
+    // Focus the Combobox input and type to open dropdown and filter by pathname
+    const comboboxInput = page.getByPlaceholder("Type / to search pages...");
     await comboboxInput.focus();
-    await comboboxInput.type("button", { delay: 50 });
+    await comboboxInput.type("/ui/button", { delay: 50 });
 
     // Wait for the combobox content to be visible
     const comboboxContent = page.locator('[data-slot="combobox-content"]');
     await expect(comboboxContent).toBeVisible();
 
-    // Verify filtered results appear (Button component should be visible)
-    await expect(comboboxContent.getByText("Button", { exact: true })).toBeVisible();
+    // Verify filtered results appear (Button component pathname should be visible)
+    await expect(comboboxContent.getByText("/ui/button", { exact: true })).toBeVisible();
   });
 
   test("selecting a page from combobox navigates correctly", async ({ page }) => {
@@ -95,19 +95,19 @@ test.describe("Not Found Pages", () => {
     // Wait for hydration to complete
     await page.waitForLoadState("networkidle");
 
-    // Open the Combobox by typing
-    const comboboxInput = page.getByPlaceholder("Try searching for pages...");
+    // Open the Combobox by typing the pathname
+    const comboboxInput = page.getByPlaceholder("Type / to search pages...");
     await comboboxInput.focus();
-    await comboboxInput.type("button", { delay: 50 });
+    await comboboxInput.type("/ui/button", { delay: 50 });
 
     // Wait for the combobox content to be visible
     const comboboxContent = page.locator('[data-slot="combobox-content"]');
     await expect(comboboxContent).toBeVisible();
 
-    // Click on the Button option (exact match)
+    // Click on the /ui/button option (exact match)
     await page
       .locator('[data-slot="combobox-item"]')
-      .filter({ hasText: /^Button$/ })
+      .filter({ hasText: /^\/ui\/button$/ })
       .click();
 
     // Verify navigation to the Button component page (URL may include query params)
@@ -124,10 +124,10 @@ test.describe("Not Found Pages", () => {
     // Wait for hydration to complete
     await page.waitForLoadState("networkidle");
 
-    // First, type something that matches to open the combobox
-    const comboboxInput = page.getByPlaceholder("Try searching for pages...");
+    // First, type "/" to open the combobox (all pathnames start with /)
+    const comboboxInput = page.getByPlaceholder("Type / to search pages...");
     await comboboxInput.focus();
-    await comboboxInput.type("a", { delay: 50 });
+    await comboboxInput.type("/", { delay: 50 });
 
     // Verify the combobox content opens
     const comboboxContent = page.locator('[data-slot="combobox-content"]');
