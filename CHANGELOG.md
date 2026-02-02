@@ -1,3 +1,9 @@
+## 0.0.4 (2026-02-02)
+
+### Features
+
+- add proper registry config for themes, fonts, styles & radii (#134)
+
 ## 0.0.3 (2026-02-02)
 
 ### Fixes
