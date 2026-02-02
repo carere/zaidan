@@ -1,3 +1,9 @@
+## 0.0.3 (2026-02-02)
+
+### Fixes
+
+- apllying good registry dependencies to items
+
 ## 0.0.2 (2026-02-01)
 
 ### Features
