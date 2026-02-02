@@ -3,6 +3,17 @@
 
 @import "./styles/expressive-code.css";
 
+@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans";
+@import "@fontsource-variable/nunito-sans";
+@import "@fontsource-variable/roboto";
+@import "@fontsource-variable/raleway";
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/public-sans";
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/geist-mono";
+
 @custom-variant style-vega (&:where(.style-vega *));
 @custom-variant style-nova (&:where(.style-nova *));
 @custom-variant style-lyra (&:where(.style-lyra *));

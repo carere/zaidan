@@ -43,7 +43,7 @@ const SheetOverlay = <T extends ValidComponent = "div">(props: SheetOverlayProps
   return (
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
-      class={cn("cn-sheet-overlay fixed inset-0 z-50", local.class)}
+      class={cn("fixed inset-0 z-50 z-sheet-overlay", local.class)}
       {...others}
     />
   );
@@ -70,7 +70,7 @@ const SheetContent = <T extends ValidComponent = "div">(props: SheetContentProps
       <SheetPrimitive.Content
         data-slot="sheet-content"
         data-side={local.side}
-        class={cn("cn-sheet-content", local.class)}
+        class={cn("z-sheet-content", local.class)}
         {...others}
       >
         {local.children}
@@ -80,7 +80,7 @@ const SheetContent = <T extends ValidComponent = "div">(props: SheetContentProps
             variant="ghost"
             size="icon-sm"
             data-slot="sheet-close"
-            class="cn-sheet-close"
+            class="z-sheet-close"
           >
             <X />
             <span class="sr-only">Close</span>
@@ -98,7 +98,7 @@ const SheetHeader = (props: SheetHeaderProps) => {
   return (
     <div
       data-slot="sheet-header"
-      class={cn("cn-sheet-header flex flex-col", local.class)}
+      class={cn("z-sheet-header flex flex-col", local.class)}
       {...others}
     />
   );
@@ -111,7 +111,7 @@ const SheetFooter = (props: SheetFooterProps) => {
   return (
     <div
       data-slot="sheet-footer"
-      class={cn("cn-sheet-footer mt-auto flex flex-col", local.class)}
+      class={cn("z-sheet-footer mt-auto flex flex-col", local.class)}
       {...others}
     />
   );
@@ -128,7 +128,7 @@ const SheetTitle = <T extends ValidComponent = "h2">(props: SheetTitleProps<T>) 
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      class={cn("cn-sheet-title", local.class)}
+      class={cn("z-sheet-title", local.class)}
       {...others}
     />
   );
@@ -145,7 +145,7 @@ const SheetDescription = <T extends ValidComponent = "p">(props: SheetDescriptio
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
-      class={cn("cn-sheet-description", local.class)}
+      class={cn("z-sheet-description", local.class)}
       {...others}
     />
   );

@@ -109,6 +109,7 @@ export const MENU_ACCENTS: { name: MenuAccent; label: string }[] = [
  * Available font options with their metadata and font family values
  */
 export const FONTS: { label: string; value: Font; fontFamily: string }[] = [
+  { label: "Geist", value: "geist", fontFamily: '"Geist Variable", sans-serif' },
   { label: "Inter", value: "inter", fontFamily: '"Inter Variable", sans-serif' },
   {
     label: "Noto Sans",
@@ -124,6 +125,41 @@ export const FONTS: { label: string; value: Font; fontFamily: string }[] = [
     label: "Figtree",
     value: "figtree",
     fontFamily: '"Figtree Variable", sans-serif',
+  },
+  {
+    label: "Roboto",
+    value: "roboto",
+    fontFamily: '"Roboto", sans-serif',
+  },
+  {
+    label: "Raleway",
+    value: "raleway",
+    fontFamily: '"Raleway", sans-serif',
+  },
+  {
+    label: "DM Sans",
+    value: "dm-sans",
+    fontFamily: '"DM Sans", sans-serif',
+  },
+  {
+    label: "Public Sans",
+    value: "public-sans",
+    fontFamily: '"Public Sans", sans-serif',
+  },
+  {
+    label: "Outfit",
+    value: "outfit",
+    fontFamily: '"Outfit", sans-serif',
+  },
+  {
+    label: "Geist Mono",
+    value: "geist-mono",
+    fontFamily: '"Geist Mono Variable", monospace',
+  },
+  {
+    label: "JetBrains Mono",
+    value: "jetbrains-mono",
+    fontFamily: '"JetBrains Mono Variable", monospace',
   },
 ];
 

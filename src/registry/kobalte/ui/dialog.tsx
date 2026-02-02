@@ -44,7 +44,7 @@ const DialogOverlay = <T extends ValidComponent = "div">(props: DialogOverlayPro
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      class={cn("cn-dialog-overlay fixed inset-0 isolate z-50", local.class)}
+      class={cn("fixed inset-0 isolate z-50 z-dialog-overlay", local.class)}
       {...others}
     />
   );
@@ -67,7 +67,7 @@ const DialogContent = <T extends ValidComponent = "div">(props: DialogContentPro
       <DialogPrimitive.Content
         data-slot="dialog-content"
         class={cn(
-          "cn-dialog-content fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+          "fixed top-1/2 left-1/2 z-50 z-dialog-content w-full -translate-x-1/2 -translate-y-1/2 outline-none",
           local.class,
         )}
         {...others}
@@ -79,7 +79,7 @@ const DialogContent = <T extends ValidComponent = "div">(props: DialogContentPro
             variant="ghost"
             size="icon-sm"
             data-slot="dialog-close"
-            class="cn-dialog-close"
+            class="z-dialog-close"
           >
             <X />
             <span class="sr-only">Close</span>
@@ -97,7 +97,7 @@ const DialogHeader = (props: DialogHeaderProps) => {
   return (
     <div
       data-slot="dialog-header"
-      class={cn("cn-dialog-header flex flex-col", local.class)}
+      class={cn("z-dialog-header flex flex-col", local.class)}
       {...others}
     />
   );
@@ -118,7 +118,7 @@ const DialogFooter = <T extends ValidComponent = "div">(props: DialogFooterProps
     <div
       data-slot="dialog-footer"
       class={cn(
-        "cn-dialog-footer flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "z-dialog-footer flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
         local.class,
       )}
       {...others}
@@ -144,7 +144,7 @@ const DialogTitle = <T extends ValidComponent = "h2">(props: DialogTitleProps<T>
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      class={cn("cn-dialog-title", local.class)}
+      class={cn("z-dialog-title", local.class)}
       {...others}
     />
   );
@@ -161,7 +161,7 @@ const DialogDescription = <T extends ValidComponent = "p">(props: DialogDescript
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      class={cn("cn-dialog-description", local.class)}
+      class={cn("z-dialog-description", local.class)}
       {...others}
     />
   );

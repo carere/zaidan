@@ -10,7 +10,7 @@ const Textarea = (props: TextareaProps) => {
     <textarea
       data-slot="textarea"
       class={cn(
-        "cn-textarea field-sizing-content flex min-h-16 w-full outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "field-sizing-content z-textarea flex min-h-16 w-full outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
         local.class,
       )}
       {...others}

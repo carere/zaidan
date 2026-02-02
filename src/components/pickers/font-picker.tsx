@@ -38,7 +38,7 @@ export default function FontPicker() {
             Aa
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="w-[calc(100svw-var(--spacing)*4)] md:w-64">
+        <DropdownMenuContent class="no-scrollbar max-h-96 w-[calc(100svw-var(--spacing)*4)] md:w-64">
           <DropdownMenuRadioGroup
             value={location().search.font ?? DEFAULT_CONFIG.font}
             onChange={(value) =>

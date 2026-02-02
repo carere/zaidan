@@ -24,7 +24,7 @@ const Breadcrumb = <T extends ValidComponent = "nav">(props: BreadcrumbProps<T>)
   return (
     <Root
       aria-label="breadcrumb"
-      class={cn("cn-breadcrumb", local.class)}
+      class={cn("z-breadcrumb", local.class)}
       data-slot="breadcrumb"
       {...others}
     />
@@ -37,7 +37,7 @@ const BreadcrumbList = (props: BreadcrumbListProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <ol
-      class={cn("cn-breadcrumb-list wrap-break-word flex flex-wrap items-center", local.class)}
+      class={cn("wrap-break-word z-breadcrumb-list flex flex-wrap items-center", local.class)}
       data-slot="breadcrumb-list"
       {...others}
     />
@@ -50,7 +50,7 @@ const BreadcrumbItem = (props: BreadcrumbItemProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <li
-      class={cn("cn-breadcrumb-item inline-flex items-center", local.class)}
+      class={cn("z-breadcrumb-item inline-flex items-center", local.class)}
       data-slot="breadcrumb-item"
       {...others}
     />
@@ -66,7 +66,7 @@ type BreadcrumbLinkProps<T extends ValidComponent = "a"> = PolymorphicProps<
 const BreadcrumbLink = <T extends ValidComponent = "a">(props: BreadcrumbLinkProps<T>) => {
   const [local, others] = splitProps(props as BreadcrumbLinkProps, ["class"]);
   return (
-    <Link class={cn("cn-breadcrumb-link", local.class)} data-slot="breadcrumb-link" {...others} />
+    <Link class={cn("z-breadcrumb-link", local.class)} data-slot="breadcrumb-link" {...others} />
   );
 };
 
@@ -80,7 +80,7 @@ const BreadcrumbPage = (props: BreadcrumbPageProps) => {
     <span
       aria-current="page"
       aria-disabled="true"
-      class={cn("cn-breadcrumb-page", local.class)}
+      class={cn("z-breadcrumb-page", local.class)}
       data-slot="breadcrumb-page"
       role="link"
       {...others}
@@ -103,7 +103,7 @@ const BreadcrumbSeparator = <T extends ValidComponent = "span">(
       data-slot="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
-      class={cn("cn-breadcrumb-separator", local.class)}
+      class={cn("z-breadcrumb-separator", local.class)}
       {...others}
     />
   );
@@ -118,7 +118,7 @@ const BreadcrumbEllipsis = (props: BreadcrumbEllipsisProps) => {
       data-slot="breadcrumb-ellipsis"
       role="presentation"
       aria-hidden="true"
-      class={cn("cn-breadcrumb-ellipsis flex items-center justify-center", local.class)}
+      class={cn("z-breadcrumb-ellipsis flex items-center justify-center", local.class)}
       {...others}
     >
       <Ellipsis />

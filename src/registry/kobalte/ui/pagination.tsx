@@ -13,7 +13,7 @@ const Pagination = (props: PaginationProps) => {
     <nav
       aria-label="pagination"
       data-slot="pagination"
-      class={cn("cn-pagination mx-auto flex w-full justify-center", local.class)}
+      class={cn("z-pagination mx-auto flex w-full justify-center", local.class)}
       {...others}
     />
   );
@@ -26,7 +26,7 @@ const PaginationContent = (props: PaginationContentProps) => {
   return (
     <ul
       data-slot="pagination-content"
-      class={cn("cn-pagination-content flex items-center", local.class)}
+      class={cn("z-pagination-content flex items-center", local.class)}
       {...others}
     />
   );
@@ -51,7 +51,7 @@ const PaginationLink = (props: PaginationLinkProps) => {
       as="a"
       variant={local.isActive ? "outline" : "ghost"}
       size={local.size}
-      class={cn("cn-pagination-link", local.class)}
+      class={cn("z-pagination-link", local.class)}
       aria-current={local.isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={local.isActive}
@@ -68,11 +68,11 @@ const PaginationPrevious = (props: PaginationPreviousProps) => {
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      class={cn("cn-pagination-previous", local.class)}
+      class={cn("z-pagination-previous", local.class)}
       {...others}
     >
       <ChevronLeft data-icon="inline-start" />
-      <span class="cn-pagination-previous-text hidden sm:block">Previous</span>
+      <span class="z-pagination-previous-text hidden sm:block">Previous</span>
     </PaginationLink>
   );
 };
@@ -85,10 +85,10 @@ const PaginationNext = (props: PaginationNextProps) => {
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      class={cn("cn-pagination-next", local.class)}
+      class={cn("z-pagination-next", local.class)}
       {...others}
     >
-      <span class="cn-pagination-next-text hidden sm:block">Next</span>
+      <span class="z-pagination-next-text hidden sm:block">Next</span>
       <ChevronRight data-icon="inline-end" />
     </PaginationLink>
   );
@@ -102,7 +102,7 @@ const PaginationEllipsis = (props: PaginationEllipsisProps) => {
     <span
       aria-hidden
       data-slot="pagination-ellipsis"
-      class={cn("cn-pagination-ellipsis flex items-center justify-center", local.class)}
+      class={cn("z-pagination-ellipsis flex items-center justify-center", local.class)}
       {...others}
     >
       <Ellipsis />

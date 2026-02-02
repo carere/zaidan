@@ -10,7 +10,7 @@ const Card = (props: CardProps) => {
     <div
       data-slot="card"
       data-size={local.size}
-      class={cn("cn-card group/card flex flex-col", local.class)}
+      class={cn("group/card z-card flex flex-col", local.class)}
       {...others}
     />
   );
@@ -24,7 +24,7 @@ const CardHeader = (props: CardHeaderProps) => {
     <div
       data-slot="card-header"
       class={cn(
-        "cn-card-header group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
+        "group/card-header @container/card-header z-card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
         local.class,
       )}
       {...others}
@@ -36,7 +36,7 @@ type CardTitleProps = ComponentProps<"div">;
 
 const CardTitle = (props: CardTitleProps) => {
   const [local, others] = splitProps(props, ["class"]);
-  return <div data-slot="card-title" class={cn("cn-card-title", local.class)} {...others} />;
+  return <div data-slot="card-title" class={cn("z-card-title", local.class)} {...others} />;
 };
 
 type CardDescriptionProps = ComponentProps<"div">;
@@ -44,7 +44,7 @@ type CardDescriptionProps = ComponentProps<"div">;
 const CardDescription = (props: CardDescriptionProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <div data-slot="card-description" class={cn("cn-card-description", local.class)} {...others} />
+    <div data-slot="card-description" class={cn("z-card-description", local.class)} {...others} />
   );
 };
 
@@ -56,7 +56,7 @@ const CardAction = (props: CardActionProps) => {
     <div
       data-slot="card-action"
       class={cn(
-        "cn-card-action col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        "z-card-action col-start-2 row-span-2 row-start-1 self-start justify-self-end",
         local.class,
       )}
       {...others}
@@ -68,7 +68,7 @@ type CardContentProps = ComponentProps<"div">;
 
 const CardContent = (props: CardContentProps) => {
   const [local, others] = splitProps(props, ["class"]);
-  return <div data-slot="card-content" class={cn("cn-card-content", local.class)} {...others} />;
+  return <div data-slot="card-content" class={cn("z-card-content", local.class)} {...others} />;
 };
 
 type CardFooterProps = ComponentProps<"div">;
@@ -78,7 +78,7 @@ const CardFooter = (props: CardFooterProps) => {
   return (
     <div
       data-slot="card-footer"
-      class={cn("cn-card-footer flex items-center", local.class)}
+      class={cn("z-card-footer flex items-center", local.class)}
       {...others}
     />
   );

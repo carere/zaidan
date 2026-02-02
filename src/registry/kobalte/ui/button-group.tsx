@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/kobalte/ui/separator";
 
 const buttonGroupVariants = cva(
-  "cn-button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
+  "z-button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
   {
     variants: {
       orientation: {
         horizontal:
-          "cn-button-group-orientation-horizontal *:data-slot:rounded-r-none [&>[data-slot]~[data-slot]]:rounded-l-none [&>[data-slot]~[data-slot]]:border-l-0",
+          "z-button-group-orientation-horizontal *:data-slot:rounded-r-none [&>[data-slot]~[data-slot]]:rounded-l-none [&>[data-slot]~[data-slot]]:border-l-0",
         vertical:
-          "cn-button-group-orientation-vertical flex-col *:data-slot:rounded-b-none [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t-0",
+          "z-button-group-orientation-vertical flex-col *:data-slot:rounded-b-none [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t-0",
       },
     },
     defaultVariants: {
@@ -44,7 +44,7 @@ const ButtonGroupText = (props: ButtonGroupTextProps) => {
   return (
     <div
       data-slot="button-group-text"
-      class={cn("cn-button-group-text flex items-center [&_svg]:pointer-events-none", local.class)}
+      class={cn("z-button-group-text flex items-center [&_svg]:pointer-events-none", local.class)}
       {...others}
     />
   );
@@ -58,7 +58,7 @@ const ButtonGroupSeparator = (props: ButtonGroupSeparatorProps) => {
   return (
     <Separator
       class={cn(
-        "cn-button-group-separator relative self-stretch data-[orientation=horizontal]:mx-px data-[orientation=vertical]:my-px data-[orientation=vertical]:h-auto data-[orientation=horizontal]:w-auto",
+        "relative z-button-group-separator self-stretch data-[orientation=horizontal]:mx-px data-[orientation=vertical]:my-px data-[orientation=vertical]:h-auto data-[orientation=horizontal]:w-auto",
         local.class,
       )}
       data-slot="button-group-separator"

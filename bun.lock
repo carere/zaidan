@@ -9,11 +9,11 @@
         "@corvu/otp-field": "^0.1.4",
         "@kobalte/core": "^0.13.11",
         "@solid-primitives/storage": "^4.3.3",
-        "@tanstack/router-plugin": "^1.157.16",
-        "@tanstack/solid-router": "^1.157.16",
-        "@tanstack/solid-router-ssr-query": "^1.157.16",
-        "@tanstack/solid-start": "^1.157.16",
-        "@tanstack/zod-adapter": "^1.157.16",
+        "@tanstack/router-plugin": "^1.157.18",
+        "@tanstack/solid-router": "^1.157.18",
+        "@tanstack/solid-router-ssr-query": "^1.157.18",
+        "@tanstack/solid-start": "^1.157.18",
+        "@tanstack/zod-adapter": "^1.157.18",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk-solid": "^1.1.2",
@@ -32,26 +32,33 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^2.3.13",
-        "@commitlint/cli": "^20.3.1",
-        "@commitlint/config-conventional": "^20.3.1",
+        "@commitlint/cli": "^20.4.0",
+        "@commitlint/config-conventional": "^20.4.0",
         "@expressive-code/core": "^0.41.6",
         "@expressive-code/plugin-collapsible-sections": "^0.41.6",
         "@expressive-code/plugin-line-numbers": "^0.41.6",
+        "@fontsource-variable/dm-sans": "^5.2.8",
         "@fontsource-variable/figtree": "^5.2.10",
+        "@fontsource-variable/geist-mono": "^5.2.7",
         "@fontsource-variable/inter": "^5.2.8",
+        "@fontsource-variable/jetbrains-mono": "^5.2.8",
         "@fontsource-variable/noto-sans": "^5.2.10",
         "@fontsource-variable/nunito-sans": "^5.2.7",
+        "@fontsource-variable/outfit": "^5.2.8",
+        "@fontsource-variable/public-sans": "^5.2.7",
+        "@fontsource-variable/raleway": "^5.2.8",
+        "@fontsource-variable/roboto": "^5.2.9",
         "@fontsource-variable/roboto-mono": "^5.2.8",
         "@mdx-js/mdx": "^3.1.1",
-        "@playwright/test": "^1.58.0",
+        "@playwright/test": "^1.58.1",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/devtools-vite": "^0.4.1",
-        "@tanstack/solid-router-devtools": "^1.157.16",
+        "@tanstack/solid-router-devtools": "^1.157.18",
         "@total-typescript/ts-reset": "^0.6.1",
-        "@types/bun": "^1.3.7",
+        "@types/bun": "^1.3.8",
         "@types/resolve": "^1.20.6",
         "@velite/plugin-vite": "^0.0.2",
-        "commander": "^14.0.2",
+        "commander": "^14.0.3",
         "dotenv": "^17.2.3",
         "lefthook": "^2.0.16",
         "mdast": "^3.0.0",
@@ -64,7 +71,7 @@
         "remark-frontmatter": "^5.0.0",
         "remark-gfm": "^4.0.1",
         "resolve": "^1.22.11",
-        "shadcn": "^3.7.0",
+        "shadcn": "^3.8.1",
         "sort-package-json": "^3.6.1",
         "strip-indent": "^4.1.1",
         "tailwindcss": "^4.1.18",
@@ -311,13 +318,27 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.10", "", {}, "sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ=="],
 
+    "@fontsource-variable/dm-sans": ["@fontsource-variable/dm-sans@5.2.8", "", {}, "sha512-AxkvMTvNWgfrmlyjiV05vlHYJa+nRQCf1EfvIrQAPBpFJW0O9VTz7oAFr9S3lvbWdmnFoBk7yFqQL86u64nl2g=="],
+
     "@fontsource-variable/figtree": ["@fontsource-variable/figtree@5.2.10", "", {}, "sha512-a5Gumbpy3mdd+Yg31g6Qb7CmjYbrfyutJa3bWfP5q8A4GclIOwX7mI+ZuSHsJnw/mHvW6r9oh1AHJcJTIxK4JA=="],
 
+    "@fontsource-variable/geist-mono": ["@fontsource-variable/geist-mono@5.2.7", "", {}, "sha512-ZKlZ5sjtalb2TwXKs400mAGDlt/+2ENLNySPx0wTz3bP3mWARCsUW+rpxzZc7e05d2qGch70pItt3K4qttbIYA=="],
+
     "@fontsource-variable/inter": ["@fontsource-variable/inter@5.2.8", "", {}, "sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ=="],
+
+    "@fontsource-variable/jetbrains-mono": ["@fontsource-variable/jetbrains-mono@5.2.8", "", {}, "sha512-WBA9elru6Jdp5df2mES55wuOO0WIrn3kpXnI4+W2ek5u3ZgLS9XS4gmIlcQhiZOWEKl95meYdvK7xI+ETLCq/Q=="],
 
     "@fontsource-variable/noto-sans": ["@fontsource-variable/noto-sans@5.2.10", "", {}, "sha512-wyFgKkFu7jki5kEL8qv7avjQ8rxHX0J/nhLWvbR9T0hOH1HRKZEvb9EW9lMjZfWHHfEzKkYf5J+NadwgCS7TXA=="],
 
     "@fontsource-variable/nunito-sans": ["@fontsource-variable/nunito-sans@5.2.7", "", {}, "sha512-rflH5HeAoNjIkwftStzQvxqCJhIS+usMr/lfslWg/RCa499B5qxyjo+74R/QMM0geQt4AY1URlG7wAR1iq6KPQ=="],
+
+    "@fontsource-variable/outfit": ["@fontsource-variable/outfit@5.2.8", "", {}, "sha512-4oUDCZx/Tcz6HZP423w/niqEH31Gks5IsqHV2ZZz1qKHaVIZdj2f0/S1IK2n8jl6Xo0o3N+3RjNHlV9R73ozQA=="],
+
+    "@fontsource-variable/public-sans": ["@fontsource-variable/public-sans@5.2.7", "", {}, "sha512-4mvade2J3slKkvwRkS+p8T3szet/0vhWoSnuUJTVU81Uo2pRpSZY/Y8bSLRqpSwzIPxjVmRJ53oq6JKP/l/PSg=="],
+
+    "@fontsource-variable/raleway": ["@fontsource-variable/raleway@5.2.8", "", {}, "sha512-PahqGI7bkz4a80m91Jt65DRsuFQmRip5vGDbI9sChVSKjLrdDfXbeGIwnTPi/ZVCOoQrbLnqzBOLQpLohnz+WA=="],
+
+    "@fontsource-variable/roboto": ["@fontsource-variable/roboto@5.2.9", "", {}, "sha512-uH58g1An9Z4Efiviu0YuN8lvYf22TXidCx2++ZPpEegviaPaYQUwNbQZyr5lO2ae3pM07AolUabngLrlYtuzfA=="],
 
     "@fontsource-variable/roboto-mono": ["@fontsource-variable/roboto-mono@5.2.8", "", {}, "sha512-6M2U3wGIUxYNKRrUoKls8BRRIPDA57T8J0agqwyDkiEHrLEEAqptsxcUl3eTm6tnRNEn6yEm4pCefvtnujebDA=="],
 

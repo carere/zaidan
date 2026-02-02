@@ -15,7 +15,7 @@ const FieldSet = (props: FieldSetProps) => {
   return (
     <fieldset
       data-slot="field-set"
-      class={cn("cn-field-set flex flex-col", local.class)}
+      class={cn("z-field-set flex flex-col", local.class)}
       {...others}
     />
   );
@@ -32,7 +32,7 @@ const FieldLegend = (props: FieldLegendProps) => {
     <legend
       data-slot="field-legend"
       data-variant={local.variant ?? "legend"}
-      class={cn("cn-field-legend", local.class)}
+      class={cn("z-field-legend", local.class)}
       {...others}
     />
   );
@@ -48,7 +48,7 @@ const FieldGroup = (props: FieldGroupProps) => {
     <div
       data-slot="field-group"
       class={cn(
-        "cn-field-group group/field-group @container/field-group flex w-full flex-col",
+        "group/field-group @container/field-group z-field-group flex w-full flex-col",
         local.class,
       )}
       {...others}
@@ -56,14 +56,14 @@ const FieldGroup = (props: FieldGroupProps) => {
   );
 };
 
-const fieldVariants = cva("cn-field group/field flex w-full", {
+const fieldVariants = cva("group/field z-field flex w-full", {
   variants: {
     orientation: {
-      vertical: "cn-field-orientation-vertical flex-col *:w-full [&>.sr-only]:w-auto",
+      vertical: "z-field-orientation-vertical flex-col *:w-full [&>.sr-only]:w-auto",
       horizontal:
-        "cn-field-orientation-horizontal flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+        "z-field-orientation-horizontal flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
       responsive:
-        "cn-field-orientation-responsive @md/field-group:flex-row flex-col @md/field-group:items-center *:w-full @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:flex-auto [&>.sr-only]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+        "z-field-orientation-responsive @md/field-group:flex-row flex-col @md/field-group:items-center *:w-full @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:flex-auto [&>.sr-only]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
     },
   },
   defaultVariants: {
@@ -100,7 +100,7 @@ const FieldContent = (props: FieldContentProps) => {
     <div
       data-slot="field-content"
       class={cn(
-        "cn-field-content group/field-content flex flex-1 flex-col leading-snug",
+        "group/field-content z-field-content flex flex-1 flex-col leading-snug",
         local.class,
       )}
       {...others}
@@ -118,7 +118,7 @@ const FieldLabel = (props: FieldLabelProps) => {
     <Label
       data-slot="field-label"
       class={cn(
-        "cn-field-label group/field-label peer/field-label flex w-fit leading-snug",
+        "group/field-label peer/field-label z-field-label flex w-fit leading-snug",
         "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
         local.class,
       )}
@@ -136,7 +136,7 @@ const FieldTitle = (props: FieldTitleProps) => {
   return (
     <div
       data-slot="field-label"
-      class={cn("cn-field-title flex w-fit items-center leading-snug", local.class)}
+      class={cn("z-field-title flex w-fit items-center leading-snug", local.class)}
       {...others}
     />
   );
@@ -152,7 +152,7 @@ const FieldDescription = (props: FieldDescriptionProps) => {
     <p
       data-slot="field-description"
       class={cn(
-        "cn-field-description font-normal leading-normal group-has-data-[orientation=horizontal]/field:text-balance",
+        "z-field-description font-normal leading-normal group-has-data-[orientation=horizontal]/field:text-balance",
         "nth-last-2:-mt-1 last:mt-0",
         "[&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         local.class,
@@ -173,13 +173,13 @@ const FieldSeparator = (props: FieldSeparatorProps) => {
     <div
       data-slot="field-separator"
       data-content={!!local.children}
-      class={cn("cn-field-separator relative", local.class)}
+      class={cn("relative z-field-separator", local.class)}
       {...others}
     >
       <Separator class="absolute inset-0 top-1/2" />
       <Show when={local.children}>
         <span
-          class="cn-field-separator-content relative mx-auto block w-fit bg-background"
+          class="relative z-field-separator-content mx-auto block w-fit bg-background"
           data-slot="field-separator-content"
         >
           {local.children}
@@ -233,7 +233,7 @@ const FieldError = (props: FieldErrorProps) => {
       <div
         role="alert"
         data-slot="field-error"
-        class={cn("cn-field-error font-normal", local.class)}
+        class={cn("z-field-error font-normal", local.class)}
         {...others}
       >
         {content()}

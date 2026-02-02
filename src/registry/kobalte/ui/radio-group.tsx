@@ -23,7 +23,7 @@ const RadioGroup = <T extends ValidComponent = "div">(props: RadioGroupProps<T>)
   return (
     <RadioGroupRoot
       data-slot="radio-group"
-      class={cn("cn-radio-group w-full", local.class)}
+      class={cn("z-radio-group w-full", local.class)}
       {...others}
     />
   );
@@ -41,14 +41,14 @@ const RadioGroupItem = <T extends ValidComponent = "div">(props: RadioGroupItemP
     <Item
       data-slot="radio-group-item"
       class={cn(
-        "cn-radio-group-item group/radio-group-item peer relative aspect-square shrink-0 border outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        "group/radio-group-item peer relative z-radio-group-item aspect-square shrink-0 border outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50",
         local.class,
       )}
       {...others}
     >
       <ItemInput data-slot="radio-group-item-input" class="peer sr-only" id={local.id} />
-      <ItemIndicator data-slot="radio-group-indicator" class="cn-radio-group-indicator">
-        <Circle class="cn-radio-group-indicator-icon" />
+      <ItemIndicator data-slot="radio-group-indicator" class="z-radio-group-indicator">
+        <Circle class="z-radio-group-indicator-icon" />
       </ItemIndicator>
     </Item>
   );

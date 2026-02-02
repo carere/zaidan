@@ -16,7 +16,7 @@ const Accordion = <T extends ValidComponent = "div">(props: AccordionProps<T>) =
   const [local, others] = splitProps(props as AccordionProps, ["class"]);
   return (
     <AccordionPrimitive.Root
-      class={cn("cn-accordion flex w-full flex-col", local.class)}
+      class={cn("z-accordion flex w-full flex-col", local.class)}
       data-slot="accordion"
       {...others}
     />
@@ -33,7 +33,7 @@ const AccordionItem = <T extends ValidComponent = "div">(props: AccordionItemPro
   const [local, others] = splitProps(props as AccordionItemProps, ["class"]);
   return (
     <AccordionPrimitive.Item
-      class={cn("cn-accordion-item", local.class)}
+      class={cn("z-accordion-item", local.class)}
       data-slot="accordion-item"
       {...others}
     />
@@ -52,7 +52,7 @@ const AccordionTrigger = <T extends ValidComponent = "button">(props: AccordionT
     <AccordionPrimitive.Header class="flex" data-slot="accordion-header">
       <AccordionPrimitive.Trigger
         class={cn(
-          "cn-accordion-trigger group/accordion-trigger relative flex flex-1 items-start justify-between border border-transparent outline-none transition-all disabled:pointer-events-none disabled:opacity-50",
+          "group/accordion-trigger relative z-accordion-trigger flex flex-1 items-start justify-between border border-transparent outline-none transition-all disabled:pointer-events-none disabled:opacity-50",
           local.class,
         )}
         data-slot="accordion-trigger"
@@ -60,7 +60,7 @@ const AccordionTrigger = <T extends ValidComponent = "button">(props: AccordionT
       >
         {local.children}
         <ChevronDown
-          class="cn-accordion-trigger-icon pointer-events-none shrink-0 duration-300 group-aria-expanded/accordion-trigger:rotate-180"
+          class="pointer-events-none z-accordion-trigger-icon shrink-0 duration-300 group-aria-expanded/accordion-trigger:rotate-180"
           data-slot="accordion-trigger-icon"
         />
       </AccordionPrimitive.Trigger>
@@ -78,13 +78,13 @@ const AccordionContent = <T extends ValidComponent = "div">(props: AccordionCont
   const [local, others] = splitProps(props as AccordionContentProps, ["class", "children"]);
   return (
     <AccordionPrimitive.Content
-      class="cn-accordion-content overflow-hidden"
+      class="z-accordion-content overflow-hidden"
       data-slot="accordion-content"
       {...others}
     >
       <div
         class={cn(
-          "cn-accordion-content-inner h-(--kb-collapsible-content-height) [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+          "z-accordion-content-inner h-(--kb-collapsible-content-height) [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
           local.class,
         )}
         data-slot="accordion-content-inner"

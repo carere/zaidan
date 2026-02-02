@@ -32,7 +32,20 @@ export const ThemeSchema = z.union([
 ]);
 export type Theme = z.infer<typeof ThemeSchema>;
 
-export const FontSchema = z.enum(["inter", "noto-sans", "nunito-sans", "figtree"]);
+export const FontSchema = z.enum([
+  "geist",
+  "inter",
+  "noto-sans",
+  "nunito-sans",
+  "figtree",
+  "roboto",
+  "raleway",
+  "dm-sans",
+  "public-sans",
+  "outfit",
+  "geist-mono",
+  "jetbrains-mono",
+]);
 export type Font = z.infer<typeof FontSchema>;
 
 export const RadiusSchema = z.enum(["default", "none", "small", "medium", "large"]);
@@ -80,7 +93,7 @@ export const DesignSystemConfigSchema = z.object({
   theme: ThemeSchema.optional().default("neutral"),
   font: FontSchema.optional().default("inter"),
   radius: RadiusSchema.optional().default("default"),
-  menuAccent: MenuAccentSchema.optional().default("bold"),
+  menuAccent: MenuAccentSchema.optional().default("subtle"),
 });
 
 export type DesignSystemConfig = z.infer<typeof DesignSystemConfigSchema>;

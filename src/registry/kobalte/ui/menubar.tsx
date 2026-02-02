@@ -17,7 +17,7 @@ const Menubar = <T extends ValidComponent = "div">(props: MenubarProps<T>) => {
   return (
     <MenubarPrimitive.Root
       data-slot="menubar"
-      class={cn("cn-menubar flex items-center", local.class)}
+      class={cn("z-menubar flex items-center", local.class)}
       {...others}
     />
   );
@@ -39,7 +39,7 @@ const MenubarTrigger = <T extends ValidComponent = "button">(props: MenubarTrigg
   return (
     <MenubarPrimitive.Trigger
       data-slot="menubar-trigger"
-      class={cn("cn-menubar-trigger flex select-none items-center outline-hidden", local.class)}
+      class={cn("z-menubar-trigger flex select-none items-center outline-hidden", local.class)}
       {...others}
     >
       {local.children}
@@ -63,7 +63,7 @@ const MenubarContent = <T extends ValidComponent = "div">(props: MenubarContentP
     <MenubarPortal>
       <MenubarPrimitive.Content
         data-slot="menubar-content"
-        class={cn("cn-menubar-content cn-menu-target z-50 min-w-48 overflow-hidden", local.class)}
+        class={cn("z-50 z-menu-target z-menubar-content min-w-48 overflow-hidden", local.class)}
         {...others}
       />
     </MenubarPortal>
@@ -81,7 +81,7 @@ const MenubarGroup = <T extends ValidComponent = "div">(props: MenubarGroupProps
   return (
     <MenubarPrimitive.Group
       data-slot="menubar-group"
-      class={cn("cn-menubar-group", local.class)}
+      class={cn("z-menubar-group", local.class)}
       {...others}
     />
   );
@@ -112,7 +112,7 @@ const MenubarItem = <T extends ValidComponent = "div">(props: MenubarItemProps<T
       data-inset={local.inset || undefined}
       data-variant={local.variant}
       class={cn(
-        "cn-menubar-item group/menubar-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "group/menubar-item relative z-menubar-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -134,12 +134,12 @@ const MenubarCheckboxItem = <T extends ValidComponent = "div">(
     <MenubarPrimitive.CheckboxItem
       data-slot="menubar-checkbox-item"
       class={cn(
-        "cn-menubar-checkbox-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative z-menubar-checkbox-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
     >
-      <span class="cn-menubar-checkbox-item-indicator pointer-events-none absolute flex items-center justify-center">
+      <span class="pointer-events-none absolute z-menubar-checkbox-item-indicator flex items-center justify-center">
         <MenubarPrimitive.ItemIndicator>
           <Check />
         </MenubarPrimitive.ItemIndicator>
@@ -160,7 +160,7 @@ const MenubarRadioGroup = <T extends ValidComponent = "div">(props: MenubarRadio
   return (
     <MenubarPrimitive.RadioGroup
       data-slot="menubar-radio-group"
-      class={cn("cn-menubar-radio-group", local.class)}
+      class={cn("z-menubar-radio-group", local.class)}
       {...others}
     />
   );
@@ -178,12 +178,12 @@ const MenubarRadioItem = <T extends ValidComponent = "div">(props: MenubarRadioI
     <MenubarPrimitive.RadioItem
       data-slot="menubar-radio-item"
       class={cn(
-        "cn-menubar-radio-item relative flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative z-menubar-radio-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
     >
-      <span class="cn-menubar-radio-item-indicator pointer-events-none absolute flex items-center justify-center">
+      <span class="pointer-events-none absolute z-menubar-radio-item-indicator flex items-center justify-center">
         <MenubarPrimitive.ItemIndicator>
           <Check />
         </MenubarPrimitive.ItemIndicator>
@@ -208,7 +208,7 @@ const MenubarLabel = <T extends ValidComponent = "span">(props: MenubarGroupLabe
     <MenubarPrimitive.GroupLabel
       data-slot="menubar-label"
       data-inset={local.inset || undefined}
-      class={cn("cn-menubar-label", local.class)}
+      class={cn("z-menubar-label", local.class)}
       {...others}
     />
   );
@@ -225,7 +225,7 @@ const MenubarSeparator = <T extends ValidComponent = "hr">(props: MenubarSeparat
   return (
     <MenubarPrimitive.Separator
       data-slot="menubar-separator"
-      class={cn("cn-menubar-separator -mx-1 my-1 h-px", local.class)}
+      class={cn("z-menubar-separator -mx-1 my-1 h-px", local.class)}
       {...others}
     />
   );
@@ -238,7 +238,7 @@ const MenubarShortcut = (props: MenubarShortcutProps) => {
   return (
     <span
       data-slot="menubar-shortcut"
-      class={cn("cn-menubar-shortcut ml-auto", local.class)}
+      class={cn("z-menubar-shortcut ml-auto", local.class)}
       {...others}
     />
   );
@@ -268,7 +268,7 @@ const MenubarSubTrigger = <T extends ValidComponent = "div">(props: MenubarSubTr
       data-slot="menubar-sub-trigger"
       data-inset={local.inset || undefined}
       class={cn(
-        "cn-menubar-sub-trigger flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "z-menubar-sub-trigger flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -291,7 +291,7 @@ const MenubarSubContent = <T extends ValidComponent = "div">(props: MenubarSubCo
     <MenubarPrimitive.Portal>
       <MenubarPrimitive.SubContent
         data-slot="menubar-sub-content"
-        class={cn("cn-menubar-sub-content z-50 min-w-32 overflow-hidden", local.class)}
+        class={cn("z-50 z-menubar-sub-content min-w-32 overflow-hidden", local.class)}
         {...others}
       />
     </MenubarPrimitive.Portal>

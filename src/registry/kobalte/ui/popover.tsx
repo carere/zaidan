@@ -43,7 +43,7 @@ const PopoverContent = <T extends ValidComponent = "div">(props: PopoverContentP
       <PopoverPrimitive.Content
         data-slot="popover-content"
         class={cn(
-          "cn-popover-content z-50 w-72 origin-(--kb-popover-content-transform-origin) outline-hidden",
+          "z-50 z-popover-content w-72 origin-(--kb-popover-content-transform-origin) outline-hidden",
           local.class,
         )}
         {...others}
@@ -67,7 +67,7 @@ const PopoverCloseButton = <T extends ValidComponent = "button">(
   return (
     <PopoverPrimitive.CloseButton
       data-slot="popover-close-button"
-      class={cn("cn-popover-close-button", local.class)}
+      class={cn("z-popover-close-button", local.class)}
       {...others}
     />
   );
@@ -79,9 +79,7 @@ type PopoverHeaderProps = ComponentProps<"div"> & {
 
 const PopoverHeader = (props: PopoverHeaderProps) => {
   const [local, others] = splitProps(props, ["class"]);
-  return (
-    <div data-slot="popover-header" class={cn("cn-popover-header", local.class)} {...others} />
-  );
+  return <div data-slot="popover-header" class={cn("z-popover-header", local.class)} {...others} />;
 };
 
 type PopoverTitleProps<T extends ValidComponent = "h2"> = PolymorphicProps<
@@ -95,7 +93,7 @@ const PopoverTitle = <T extends ValidComponent = "h2">(props: PopoverTitleProps<
   return (
     <PopoverPrimitive.Title
       data-slot="popover-title"
-      class={cn("cn-popover-title", local.class)}
+      class={cn("z-popover-title", local.class)}
       {...others}
     />
   );
@@ -112,7 +110,7 @@ const PopoverDescription = <T extends ValidComponent = "p">(props: PopoverDescri
   return (
     <PopoverPrimitive.Description
       data-slot="popover-description"
-      class={cn("cn-popover-description", local.class)}
+      class={cn("z-popover-description", local.class)}
       {...others}
     />
   );
@@ -129,7 +127,7 @@ const PopoverArrow = <T extends ValidComponent = "div">(props: PopoverArrowProps
   return (
     <PopoverPrimitive.Arrow
       data-slot="popover-arrow"
-      class={cn("cn-popover-arrow", local.class)}
+      class={cn("z-popover-arrow", local.class)}
       {...others}
     />
   );

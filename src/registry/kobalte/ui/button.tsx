@@ -5,26 +5,26 @@ import { type ComponentProps, splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "cn-button group/button inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "group/button z-button inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "cn-button-variant-default",
-        outline: "cn-button-variant-outline",
-        secondary: "cn-button-variant-secondary",
-        ghost: "cn-button-variant-ghost",
-        destructive: "cn-button-variant-destructive",
-        link: "cn-button-variant-link",
+        default: "z-button-variant-default",
+        outline: "z-button-variant-outline",
+        secondary: "z-button-variant-secondary",
+        ghost: "z-button-variant-ghost",
+        destructive: "z-button-variant-destructive",
+        link: "z-button-variant-link",
       },
       size: {
-        default: "cn-button-size-default",
-        xs: "cn-button-size-xs",
-        sm: "cn-button-size-sm",
-        lg: "cn-button-size-lg",
-        icon: "cn-button-size-icon",
-        "icon-xs": "cn-button-size-icon-xs",
-        "icon-sm": "cn-button-size-icon-sm",
-        "icon-lg": "cn-button-size-icon-lg",
+        default: "z-button-size-default",
+        xs: "z-button-size-xs",
+        sm: "z-button-size-sm",
+        lg: "z-button-size-lg",
+        icon: "z-button-size-icon",
+        "icon-xs": "z-button-size-icon-xs",
+        "icon-sm": "z-button-size-icon-sm",
+        "icon-lg": "z-button-size-icon-lg",
       },
     },
     defaultVariants: {
