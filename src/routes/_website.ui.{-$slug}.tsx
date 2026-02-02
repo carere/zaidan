@@ -1,7 +1,7 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
-import { PreviewBadgeNav } from "@/components/preview-badge-nav";
+import { PageToggleNav } from "@/components/page-toggle-nav";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/registry/kobalte/ui/empty";
@@ -108,7 +108,7 @@ function RouteComponent() {
         class="z-10 size-full rounded-lg"
         title="Preview"
       />
-      <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
+      <PageToggleNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }
