@@ -31,7 +31,7 @@
       "name": "alert-dialog",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
-      "registryDependencies": ["button"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/alert-dialog.tsx",
@@ -103,7 +103,7 @@
       "name": "button-group",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["separator"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/separator.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/button-group.tsx",
@@ -115,7 +115,7 @@
       "name": "calendar",
       "type": "registry:ui",
       "dependencies": ["@corvu/calendar", "lucide-solid"],
-      "registryDependencies": ["button"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/calendar.tsx",
@@ -139,7 +139,7 @@
       "name": "carousel",
       "type": "registry:ui",
       "dependencies": ["embla-carousel", "embla-carousel-solid", "lucide-solid"],
-      "registryDependencies": ["button"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/carousel.tsx",
@@ -187,7 +187,7 @@
       "name": "combobox",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["input-group"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/input-group.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/combobox.tsx",
@@ -199,7 +199,10 @@
       "name": "command",
       "type": "registry:ui",
       "dependencies": ["cmdk-solid", "lucide-solid"],
-      "registryDependencies": ["dialog", "input-group"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/dialog.json",
+        "https://zaidan.carere.dev/r/kobalte/input-group.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/command.tsx",
@@ -223,7 +226,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["button"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/dialog.tsx",
@@ -271,7 +274,10 @@
       "name": "field",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["label", "separator"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/label.json",
+        "https://zaidan.carere.dev/r/kobalte/separator.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/field.tsx",
@@ -307,7 +313,11 @@
       "name": "input-group",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["button", "input", "textarea"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/textarea.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/input-group.tsx",
@@ -331,7 +341,7 @@
       "name": "item",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["separator"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/separator.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/item.tsx",
@@ -403,7 +413,7 @@
       "name": "pagination",
       "type": "registry:ui",
       "dependencies": ["lucide-solid"],
-      "registryDependencies": ["button"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/pagination.tsx",
@@ -487,7 +497,7 @@
       "name": "sheet",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["button"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/sheet.tsx",
@@ -499,7 +509,14 @@
       "name": "sidebar",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
-      "registryDependencies": ["button", "input", "separator", "sheet", "skeleton", "tooltip"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/separator.json",
+        "https://zaidan.carere.dev/r/kobalte/sheet.json",
+        "https://zaidan.carere.dev/r/kobalte/skeleton.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/sidebar.tsx",
@@ -535,7 +552,7 @@
       "name": "sonner",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid", "solid-sonner"],
-      "registryDependencies": ["use-color-mode"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/use-color-mode.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/sonner.tsx",
@@ -699,7 +716,7 @@
       "name": "toggle-group",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "class-variance-authority"],
-      "registryDependencies": ["toggle"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/toggle.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/toggle-group.tsx",
