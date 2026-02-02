@@ -578,12 +578,19 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
-        "@import": "./styles/style-lyra.css"
+        "@import \"./styles/base.css\"": {},
+        "@utility no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            "display": "none"
+          }
+        }
       },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-lyra.css",
-          "target": "@/styles/style-lyra.css",
+          "target": "styles/base.css",
           "type": "registry:file"
         }
       ]
@@ -594,12 +601,19 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
-        "@import": "./styles/style-maia.css"
+        "@import \"./styles/base.css\"": {},
+        "@utility no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            "display": "none"
+          }
+        }
       },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-maia.css",
-          "target": "@/styles/style-maia.css",
+          "target": "styles/base.css",
           "type": "registry:file"
         }
       ]
@@ -610,12 +624,19 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
-        "@import": "./styles/style-mira.css"
+        "@import \"./styles/base.css\"": {},
+        "@utility no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            "display": "none"
+          }
+        }
       },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-mira.css",
-          "target": "@/styles/style-mira.css",
+          "target": "styles/base.css",
           "type": "registry:file"
         }
       ]
@@ -626,12 +647,19 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
-        "@import": "./styles/style-nova.css"
+        "@import \"./styles/base.css\"": {},
+        "@utility no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            "display": "none"
+          }
+        }
       },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-nova.css",
-          "target": "@/styles/style-nova.css",
+          "target": "styles/base.css",
           "type": "registry:file"
         }
       ]
@@ -642,12 +670,19 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
-        "@import": "./styles/style-vega.css"
+        "@import \"./styles/base.css\"": {},
+        "@utility no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            "display": "none"
+          }
+        }
       },
       "files": [
         {
           "path": "src/registry/kobalte/styles/style-vega.css",
-          "target": "@/styles/style-vega.css",
+          "target": "styles/base.css",
           "type": "registry:file"
         }
       ]
