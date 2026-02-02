@@ -3,7 +3,7 @@ import { ui } from "@velite";
 import { Menu } from "lucide-solid";
 import { lazy } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
-import { PreviewBadgeNav } from "@/components/preview-badge-nav";
+import { PageToggleNav } from "@/components/page-toggle-nav";
 import { TableOfContents } from "@/components/toc";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -79,7 +79,7 @@ function RouteComponent() {
         class="hidden h-fit w-fit shrink-0 xl:block xl:w-50 xl:pt-10"
         toc={doc().toc}
       />
-      <PreviewBadgeNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
+      <PageToggleNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }
