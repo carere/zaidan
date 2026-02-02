@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/solid-router";
 import { CircleDashed } from "lucide-solid";
 import {
   Empty,
@@ -9,22 +10,14 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/registry/kobalte/ui/input-group";
 import { Kbd } from "@/registry/kobalte/ui/kbd";
 
-interface NotFoundPageProps {
-  title?: string;
-  description?: string;
-}
-
-export function NotFoundPage(props: NotFoundPageProps) {
-  const title = () => props.title ?? "404 - Not Found";
-  const description = () =>
-    props.description ??
-    "The page you're looking for doesn't exist. Try searching for what you need below.";
-
+export function NotFoundPage() {
   return (
     <Empty class="border">
       <EmptyHeader>
-        <EmptyTitle>{title()}</EmptyTitle>
-        <EmptyDescription>{description()}</EmptyDescription>
+        <EmptyTitle>404 - Not Found</EmptyTitle>
+        <EmptyDescription>
+          "The page you're looking for doesn't exist. Try searching for what you need below."
+        </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <InputGroup class="w-3/4">
@@ -37,7 +30,7 @@ export function NotFoundPage(props: NotFoundPageProps) {
           </InputGroupAddon>
         </InputGroup>
         <EmptyDescription>
-          Need help? <a href="/">Go to homepage</a>
+          Need help? <Link to="/">Go to homepage</Link>
         </EmptyDescription>
       </EmptyContent>
     </Empty>

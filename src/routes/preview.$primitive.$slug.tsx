@@ -24,12 +24,7 @@ export const Route = createFileRoute("/preview/$primitive/$slug")({
     };
   },
   component: PreviewComponent,
-  notFoundComponent: (props) => (
-    <NotFoundPage
-      title="Component not found"
-      description={`The component "${(props.data as { slug: string }).slug}" doesn't exist or couldn't be loaded.`}
-    />
-  ),
+  notFoundComponent: () => <NotFoundPage />,
 });
 
 function PreviewComponent() {

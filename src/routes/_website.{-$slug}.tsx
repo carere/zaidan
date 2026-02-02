@@ -26,12 +26,7 @@ export const Route = createFileRoute("/_website/{-$slug}")({
     return doc;
   },
   component: RouteComponent,
-  notFoundComponent: (props) => (
-    <NotFoundPage
-      title="Page not found"
-      description={`The page "${(props.data as { slug: string }).slug}" doesn't exist or couldn't be loaded.`}
-    />
-  ),
+  notFoundComponent: () => <NotFoundPage />,
 });
 
 function RouteComponent() {

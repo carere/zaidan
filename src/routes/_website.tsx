@@ -6,6 +6,7 @@ import { Zaidan } from "@/components/icons/zaidan";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { ModeSwitcher } from "@/components/mode-switcher";
+import { NotFoundPage } from "@/components/not-found-page";
 import { RandomButton } from "@/components/random-button";
 import { ShareButton } from "@/components/share-button";
 import { SiteConfig } from "@/components/site-config";
@@ -16,6 +17,7 @@ import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
 
 export const Route = createFileRoute("/_website")({
   component: RouteComponent,
+  notFoundComponent: () => <NotFoundPage />,
 });
 
 function RouteComponent() {
