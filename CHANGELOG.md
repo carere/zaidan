@@ -1,3 +1,9 @@
+## 0.0.5 (2026-02-03)
+
+### Features
+
+- add CLI command dialog button to header
+
 ## 0.0.4 (2026-02-02)
 
 ### Features
