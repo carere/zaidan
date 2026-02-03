@@ -1,6 +1,15 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { createEffect, createMemo, createSignal, lazy, on, onCleanup, onMount } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  lazy,
+  on,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
@@ -31,6 +40,7 @@ function PreviewComponent() {
   const initialSearch = Route.useSearch();
   const params = Route.useParams();
   const [search, setSearch] = createSignal(initialSearch());
+  const [isReady, setIsReady] = createSignal(false);
   const ExampleComponent = lazy(
     () => import(`../registry/${params().primitive}/examples/${params().slug}-example.tsx`),
   );
@@ -115,26 +125,18 @@ function PreviewComponent() {
     });
   });
 
-  // Apply style classes to document.body
+  // Apply style/base color/font to document
   createEffect(
     on(
-      () => search().style,
-      (style) => {
+      [() => search().style, () => search().baseColor, () => search().font],
+      ([style, baseColor, font]) => {
         document.body.classList.forEach((className) => {
           if (className.startsWith("style-")) {
             document.body.classList.remove(className);
           }
         });
         document.body.classList.add(`style-${style}`);
-      },
-    ),
-  );
 
-  // Apply base color class to document.body
-  createEffect(
-    on(
-      () => search().baseColor,
-      (baseColor) => {
         document.body.classList.forEach((className) => {
           if (className.startsWith("base-color-")) {
             document.body.classList.remove(className);
@@ -143,19 +145,13 @@ function PreviewComponent() {
         if (baseColor) {
           document.body.classList.add(`base-color-${baseColor}`);
         }
-      },
-    ),
-  );
 
-  // Apply font CSS custom property to document.documentElement
-  createEffect(
-    on(
-      () => search().font,
-      (font) => {
         const fontConfig = FONTS.find((f) => f.value === font);
         if (fontConfig) {
           document.documentElement.style.setProperty("--font-sans", fontConfig.fontFamily);
         }
+
+        setIsReady(true);
       },
     ),
   );
@@ -218,5 +214,9 @@ function PreviewComponent() {
     ),
   );
 
-  return <ExampleComponent />;
+  return (
+    <Show when={isReady()}>
+      <ExampleComponent />
+    </Show>
+  );
 }

@@ -66,22 +66,18 @@ function RouteComponent() {
 
   // Send design system params to iframe when they change
   createEffect(() => {
-    if (iframeRef) {
-      iframeRef.contentWindow?.postMessage({
-        type: "design-system-params-sync",
-        data: search(),
-      } satisfies IframeMessage);
-    }
+    iframeRef?.contentWindow?.postMessage({
+      type: "design-system-params-sync",
+      data: search(),
+    } satisfies IframeMessage);
   });
 
   // Send color mode to iframe when it changes
   createEffect(() => {
-    if (iframeRef) {
-      iframeRef.contentWindow?.postMessage({
-        type: "color-mode-sync",
-        data: colorMode(),
-      } satisfies IframeMessage);
-    }
+    iframeRef?.contentWindow?.postMessage({
+      type: "color-mode-sync",
+      data: colorMode(),
+    } satisfies IframeMessage);
   });
 
   return (
@@ -93,7 +89,7 @@ function RouteComponent() {
             to: "/preview/$primitive/$slug",
             params: { primitive: "kobalte", slug: doc().slug },
             search: untrack(search),
-          }).pathname
+          }).href
         }
         class="z-10 size-full rounded-lg"
         title="Preview"
