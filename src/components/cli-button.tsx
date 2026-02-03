@@ -1,11 +1,12 @@
 import { useSearch } from "@tanstack/solid-router";
-import { Check, Copy, Terminal } from "lucide-solid";
-import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
+import { Check, Copy, SquareTerminal } from "lucide-solid";
+import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
 import { DEFAULT_CONFIG } from "@/lib/config";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,7 +14,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/registry/kobalte/ui/dialog";
+import { FieldGroup } from "@/registry/kobalte/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 type PackageManager = "pnpm" | "npm" | "yarn" | "bun";
 
@@ -25,10 +28,8 @@ const PACKAGE_MANAGER_PREFIXES: Record<PackageManager, string> = {
 };
 
 export function CliButton() {
-  const [open, setOpen] = createSignal(false);
-  const [packageManager, setPackageManager] = createSignal<PackageManager>("pnpm");
+  const [packageManager, setPackageManager] = createSignal<PackageManager>("bun");
   const [hasCopied, setHasCopied] = createSignal(false);
-
   const search = useSearch({ strict: false });
 
   createEffect(() => {
@@ -48,10 +49,10 @@ export function CliButton() {
 
     // Build packages list, avoiding duplicates when baseColor and theme are the same
     const packagesList = [
-      `@zaidan/${font}`,
+      `@zaidan/font-${font}`,
       `@zaidan/${theme}`,
-      `@zaidan/${radius}`,
-      `@zaidan/${style}`,
+      `@zaidan/radius-${radius}`,
+      `@zaidan/style-${style}`,
     ];
 
     // Only add baseColor if it's different from theme
@@ -80,77 +81,66 @@ export function CliButton() {
     }
   };
 
-  const handleCopyAndClose = async () => {
-    await handleCopy();
-    setOpen(false);
-  };
-
   return (
-    <Dialog open={open()} onOpenChange={setOpen}>
-      <DialogTrigger as={Button} variant="outline" size="sm">
-        <Terminal />
-        <span class="hidden sm:inline">CLI</span>
+    <Dialog>
+      <DialogTrigger as={Button} size="sm">
+        <SquareTerminal />
+        <span class="hidden sm:inline">Setup Project</span>
       </DialogTrigger>
 
-      <DialogContent class="dialog-ring max-w-[calc(100vw-2rem)] rounded-xl sm:max-w-lg">
+      <DialogContent class="min-w-0 overflow-hidden rounded-xl ring-4 sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Install Configuration</DialogTitle>
           <DialogDescription>
             Run this command to add your design system configuration to your project.
           </DialogDescription>
         </DialogHeader>
+        <FieldGroup class="gap-3">
+          <Tabs
+            class="min-w-0 gap-0 overflow-hidden rounded-lg border bg-surface"
+            value={packageManager()}
+            onChange={(value) => setPackageManager(value as PackageManager)}
+          >
+            <div class="flex items-center gap-2 p-2">
+              <TabsList class="h-auto rounded-none bg-transparent p-0 font-mono *:data-[slot=tabs-trigger]:data-[state=active]:border-input *:data-[slot=tabs-trigger]:h-7 *:data-[slot=tabs-trigger]:border *:data-[slot=tabs-trigger]:border-transparent *:data-[slot=tabs-trigger]:pt-0.5 *:data-[slot=tabs-trigger]:shadow-none! group-data-[orientation=horizontal]/tabs:h-8">
+                <TabsTrigger value="pnpm">pnpm</TabsTrigger>
+                <TabsTrigger value="npm">npm</TabsTrigger>
+                <TabsTrigger value="yarn">yarn</TabsTrigger>
+                <TabsTrigger value="bun">bun</TabsTrigger>
+              </TabsList>
+              <Tooltip>
+                <TooltipTrigger
+                  as={Button}
+                  class="ml-auto size-7 rounded-lg"
+                  size="icon-sm"
+                  variant="ghost"
+                  onClick={handleCopy}
+                >
+                  {hasCopied() ? <Check class="size-4" /> : <Copy class="size-4" />}
+                  <span class="sr-only">Copy command</span>
+                </TooltipTrigger>
+                <TooltipContent>{hasCopied() ? "Copied!" : "Copy command"}</TooltipContent>
+              </Tooltip>
+            </div>
 
-        <Tabs
-          value={packageManager()}
-          onChange={(value) => setPackageManager(value as PackageManager)}
-        >
-          <div class="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="pnpm" class="font-mono">
-                pnpm
-              </TabsTrigger>
-              <TabsTrigger value="npm" class="font-mono">
-                npm
-              </TabsTrigger>
-              <TabsTrigger value="yarn" class="font-mono">
-                yarn
-              </TabsTrigger>
-              <TabsTrigger value="bun" class="font-mono">
-                bun
-              </TabsTrigger>
-            </TabsList>
-            <Button variant="ghost" size="icon-sm" onClick={handleCopy}>
-              {hasCopied() ? <Check /> : <Copy />}
-              <span class="sr-only">Copy command</span>
-            </Button>
-          </div>
+            <For each={Object.entries(commands())}>
+              {([pm, cmd]) => (
+                <TabsContent value={pm}>
+                  <div class="relative overflow-hidden border-border/50 border-t bg-surface px-3 py-3 text-surface-foreground">
+                    <div class="no-scrollbar overflow-x-auto">
+                      <code class="whitespace-nowrap font-mono text-sm">{cmd}</code>
+                    </div>
+                  </div>
+                </TabsContent>
+              )}
+            </For>
+          </Tabs>
+        </FieldGroup>
 
-          <TabsContent value="pnpm" class="mt-2">
-            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-              <code class="block w-max">{commands().pnpm}</code>
-            </pre>
-          </TabsContent>
-          <TabsContent value="npm" class="mt-2">
-            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-              <code class="block w-max">{commands().npm}</code>
-            </pre>
-          </TabsContent>
-          <TabsContent value="yarn" class="mt-2">
-            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-              <code class="block w-max">{commands().yarn}</code>
-            </pre>
-          </TabsContent>
-          <TabsContent value="bun" class="mt-2">
-            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
-              <code class="block w-max">{commands().bun}</code>
-            </pre>
-          </TabsContent>
-        </Tabs>
-
-        <DialogFooter class="sm:flex-col">
-          <Button class="w-full" onClick={handleCopyAndClose}>
+        <DialogFooter class="-mx-6 mt-2 -mb-6 flex flex-col gap-2 border-t bg-muted/50 p-6 sm:flex-col">
+          <DialogClose as={Button} size="sm" class="h-9 w-full rounded-lg" onClick={handleCopy}>
             Copy Command
-          </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

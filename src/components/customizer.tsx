@@ -23,11 +23,9 @@ export function Customizer(props: ComponentProps<"div">) {
       <div class="hidden items-center gap-2 px-[calc(--spacing(2.5))] pb-1 md:flex md:flex-col md:items-start">
         <Settings2Icon class="size-4" strokeWidth={2} />
         <div class="relative flex flex-col gap-1 rounded-lg text-[13px]/snug">
-          <div class="flex items-center gap-1 text-balance font-medium">
-            Build your own shadcn/ui
-          </div>
+          <div class="flex items-center gap-1 text-balance font-medium">Build your own Zaidan</div>
           <div class="hidden md:flex">
-            When you&apos;re done, click Create Project to start a new project.
+            When you&apos;re done, click Setup Project to setup your new project.
           </div>
         </div>
       </div>

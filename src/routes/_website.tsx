@@ -15,6 +15,7 @@ import { LocksProvider } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
+import { Toaster } from "@/registry/kobalte/ui/sonner";
 
 export const Route = createFileRoute("/_website")({
   component: RouteComponent,
@@ -27,6 +28,7 @@ function RouteComponent() {
 
   return (
     <LocksProvider>
+      <Toaster position="top-center" />
       <div
         data-slot="layout"
         class={cn(
