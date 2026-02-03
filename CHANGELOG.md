@@ -1,3 +1,9 @@
+## 0.0.6 (2026-02-03)
+
+### Features
+
+- add proper github link to website (#144)
+
 ## 0.0.5 (2026-02-03)
 
 ### Features
