@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/solid-router";
+import { Link, useLocation, useSearch } from "@tanstack/solid-router";
 import { splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
 import {
@@ -14,6 +14,7 @@ type PageToggleNavProps<T extends ValidComponent = "div"> = ToggleGroupProps<T> 
 export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggleNavProps<T>) {
   const [local, others] = splitProps(props, ["slug", "class"]);
   const location = useLocation();
+  const search = useSearch({ strict: false });
 
   return (
     <ToggleGroup
@@ -31,6 +32,8 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
         to="/ui/{-$slug}"
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         params={{ slug: local.slug }}
+        //@ts-expect-error <Problem with kobalte typing polymorphic props>
+        search={search()}
         value="preview"
         aria-label="View preview"
       >
@@ -41,6 +44,8 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
         to="/ui/$slug/docs"
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         params={{ slug: local.slug }}
+        //@ts-expect-error <Problem with kobalte typing polymorphic props>
+        search={search()}
         value="docs"
         aria-label="View documentation"
       >

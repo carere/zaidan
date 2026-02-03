@@ -1,65 +1,47 @@
-import { type ComponentProps, createSignal, onMount, splitProps } from "solid-js";
-import { cn } from "@/lib/utils";
+import { createMemo, createResource, Suspense } from "solid-js";
+
+import { Github } from "@/components/icons/github";
 import { Button } from "@/registry/kobalte/ui/button";
-import { Github } from "./icons/github";
+import { Skeleton } from "@/registry/kobalte/ui/skeleton";
 
-const FALLBACK_STAR_COUNT = 50;
-const GITHUB_REPO_URL = "https://github.com/carere/zaidan";
-const UNGH_API_URL = "https://ungh.cc/repos/carere/zaidan";
-
-interface UnghRepoResponse {
-  repo: {
-    stars: number;
-    forks: number;
-    watchers: number;
-  };
-}
-
-async function getGithubStarCount(): Promise<number> {
-  try {
-    const response = await fetch(UNGH_API_URL);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    const data = (await response.json()) as UnghRepoResponse;
-    return data.repo?.stars ?? FALLBACK_STAR_COUNT;
-  } catch (error) {
-    console.warn("Failed to fetch GitHub stars:", error);
-    return FALLBACK_STAR_COUNT;
-  }
-}
-
-type GitHubLinkProps = Omit<ComponentProps<"a">, "href" | "target" | "rel">;
-
-export function GitHubLink(props: GitHubLinkProps) {
-  const [local, others] = splitProps(props, ["class"]);
-  const [stars, setStars] = createSignal(FALLBACK_STAR_COUNT);
-
-  onMount(async () => {
-    const count = await getGithubStarCount();
-    setStars(count);
+export function StarsCount() {
+  const [data] = createResource(async () => {
+    const response = await fetch("https://api.github.com/repos/carere/zaidan", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "zaidan-app/1.0.0",
+      },
+    });
+    return (await response.json()) as { stargazers_count: number };
   });
 
-  const formatStarCount = () => {
-    const count = stars();
-    return count >= 1000 ? `${(count / 1000).toFixed(1)}k` : count.toLocaleString();
-  };
+  const formattedCount = createMemo(() => {
+    const json = data();
+    if (!json) return;
+    return json.stargazers_count >= 1000
+      ? `${Math.round(json.stargazers_count / 1000)}k`
+      : json.stargazers_count.toLocaleString();
+  });
 
+  return <span class="w-fit text-muted-foreground text-xs tabular-nums">{formattedCount()}</span>;
+}
+
+export function GitHubLink() {
   return (
     <Button
-      variant="ghost"
-      size="icon"
-      class={cn("size-8 w-auto gap-1.5 px-2", local.class)}
-      title={`View on GitHub (${stars()} stars)`}
       as="a"
-      href={GITHUB_REPO_URL}
+      href="https://github.com/carere/zaidan"
       target="_blank"
-      rel="noopener noreferrer"
-      {...others}
+      rel="noreferrer"
+      size="sm"
+      variant="ghost"
+      class="h-8 shadow-none"
     >
-      <span class="sr-only">View Zaidan on GitHub</span>
-      <Github class="size-4 fill-foreground" />
-      <span class="font-medium text-xs tabular-nums">{formatStarCount()}</span>
+      <Github class="fill-foreground" />
+      <Suspense fallback={<Skeleton class="h-4 w-[42px]" />}>
+        <StarsCount />
+      </Suspense>
     </Button>
   );
 }
