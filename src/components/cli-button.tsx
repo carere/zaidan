@@ -6,7 +6,6 @@ import { DEFAULT_CONFIG } from "@/lib/config";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -15,7 +14,6 @@ import {
   DialogTrigger,
 } from "@/registry/kobalte/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 type PackageManager = "pnpm" | "npm" | "yarn" | "bun";
 
@@ -48,13 +46,20 @@ export function CliButton() {
     const style = params.style ?? DEFAULT_CONFIG.style;
     const baseColor = params.baseColor ?? DEFAULT_CONFIG.baseColor;
 
-    const packages = [
+    // Build packages list, avoiding duplicates when baseColor and theme are the same
+    const packagesList = [
       `@zaidan/${font}`,
       `@zaidan/${theme}`,
       `@zaidan/${radius}`,
       `@zaidan/${style}`,
-      `@zaidan/${baseColor}`,
-    ].join(" ");
+    ];
+
+    // Only add baseColor if it's different from theme
+    if (baseColor !== theme) {
+      packagesList.push(`@zaidan/${baseColor}`);
+    }
+
+    const packages = packagesList.join(" ");
 
     return Object.fromEntries(
       Object.entries(PACKAGE_MANAGER_PREFIXES).map(([pm, prefix]) => [
@@ -82,19 +87,12 @@ export function CliButton() {
 
   return (
     <Dialog open={open()} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger
-          as={DialogTrigger}
-          asChild={false}
-          class="z-button z-button-size-sm z-button-variant-outline inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
-        >
-          <Terminal />
-          <span class="hidden sm:inline">CLI</span>
-        </TooltipTrigger>
-        <TooltipContent>Copy CLI Command</TooltipContent>
-      </Tooltip>
+      <DialogTrigger as={Button} variant="outline" size="sm">
+        <Terminal />
+        <span class="hidden sm:inline">CLI</span>
+      </DialogTrigger>
 
-      <DialogContent class="dialog-ring rounded-xl sm:max-w-md">
+      <DialogContent class="dialog-ring max-w-[calc(100vw-2rem)] rounded-xl sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Install Configuration</DialogTitle>
           <DialogDescription>
@@ -128,32 +126,31 @@ export function CliButton() {
           </div>
 
           <TabsContent value="pnpm" class="mt-2">
-            <pre class="overflow-x-auto whitespace-nowrap rounded-lg bg-muted p-4 font-mono text-sm">
-              {commands().pnpm}
+            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
+              <code class="block w-max">{commands().pnpm}</code>
             </pre>
           </TabsContent>
           <TabsContent value="npm" class="mt-2">
-            <pre class="overflow-x-auto whitespace-nowrap rounded-lg bg-muted p-4 font-mono text-sm">
-              {commands().npm}
+            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
+              <code class="block w-max">{commands().npm}</code>
             </pre>
           </TabsContent>
           <TabsContent value="yarn" class="mt-2">
-            <pre class="overflow-x-auto whitespace-nowrap rounded-lg bg-muted p-4 font-mono text-sm">
-              {commands().yarn}
+            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
+              <code class="block w-max">{commands().yarn}</code>
             </pre>
           </TabsContent>
           <TabsContent value="bun" class="mt-2">
-            <pre class="overflow-x-auto whitespace-nowrap rounded-lg bg-muted p-4 font-mono text-sm">
-              {commands().bun}
+            <pre class="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm">
+              <code class="block w-max">{commands().bun}</code>
             </pre>
           </TabsContent>
         </Tabs>
 
-        <DialogFooter>
-          <DialogClose as={Button} variant="outline">
-            Close
-          </DialogClose>
-          <Button onClick={handleCopyAndClose}>Copy Command</Button>
+        <DialogFooter class="sm:flex-col">
+          <Button class="w-full" onClick={handleCopyAndClose}>
+            Copy Command
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
