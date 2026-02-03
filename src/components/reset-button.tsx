@@ -38,7 +38,7 @@ export function ResetButton() {
         </div>
         <Undo2 class="-translate-x-0.5" />
       </AlertDialogTrigger>
-      <AlertDialogContent class="dialog-ring p-4 sm:max-w-sm">
+      <AlertDialogContent class="dialog-ring p-4 ring-4 sm:max-w-sm">
         <AlertDialogHeader>
           <AlertDialogTitle>Reset to defaults?</AlertDialogTitle>
           <AlertDialogDescription>

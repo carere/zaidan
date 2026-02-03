@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
+import { CliButton } from "@/components/cli-button";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
 import { Zaidan } from "@/components/icons/zaidan";
@@ -14,6 +15,7 @@ import { LocksProvider } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
+import { Toaster } from "@/registry/kobalte/ui/sonner";
 
 export const Route = createFileRoute("/_website")({
   component: RouteComponent,
@@ -26,6 +28,7 @@ function RouteComponent() {
 
   return (
     <LocksProvider>
+      <Toaster position="top-center" />
       <div
         data-slot="layout"
         class={cn(
@@ -57,6 +60,7 @@ function RouteComponent() {
             <Separator orientation="vertical" class="hidden xl:flex" />
             <ModeSwitcher />
             <ShareButton />
+            <CliButton />
           </div>
         </header>
         <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
