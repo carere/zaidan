@@ -1,15 +1,98 @@
 ---
 title: "Installation"
-description: "This is the installation page"
+description: "How to install and configure Zaidan components in your SolidJS project."
 slug: "installation"
 ---
- 
+
 # Installation
 
-This is the installation page
+Get started with Zaidan by installing components from our registry into your SolidJS project.
 
-```tsx
-<div>
-  <p>This is the installation page!</p>
-</div>
+## Prerequisites
+
+Before installing Zaidan components, ensure you have:
+
+- A SolidJS project set up with one of the following:
+  - [Vite](https://vitejs.dev/guide/) + [SolidJS](https://www.solidjs.com/guides/getting-started)
+  - [TanStack Start](https://tanstack.com/start/latest)
+  - [Solid Start](https://start.solidjs.com/)
+- Tailwind CSS v4 configured in your project
+
+> [!NOTE]
+> Zaidan components are styled with Tailwind CSS v4. Make sure you have Tailwind properly configured before proceeding.
+
+> [!IMPORTANT]
+> Zaidan is a component registry, not an npm package. You'll use the [shadcn CLI](https://ui.shadcn.com/docs/cli) to add components to your project.
+
+## Setup
+
+Follow these steps to set up Zaidan in your project:
+
+### 1. Customize Your Design System
+
+Visit the [Zaidan homepage](/) to customize your design system. You can configure:
+
+- **Style**: Choose from Vega (default), Nova, Maia, Lyra, or Mira
+- **Theme Color**: Select your primary color theme (17 options available)
+- **Base Color**: Choose between Neutral, Stone, Zinc, or Gray
+- **Font**: Pick from 12 font options including Inter, Geist, and more
+- **Radius**: Adjust border radius from none to large
+
+Your selections will be used in the setup command later.
+
+### 2. Initialize shadcn
+
+If you haven't already, initialize shadcn in your project:
+
+```package-dlx
+shadcn@latest init
 ```
+
+Follow the prompts to configure your project. When asked for the base color, you can specify the one you chose in step 1.
+
+### 3. Configure the Registry
+
+After initialization, open your `components.json` file and update it with the following configuration:
+
+```json
+{
+  "style": "kobalte",
+  "registries": {
+    "@zaidan": "https://zaidan.carere.dev/r/kobalte/{name}.json"
+  }
+}
+```
+
+Key configuration values:
+
+- **style**: Must be set to `"kobalte"` for SolidJS/Kobalte components
+- **registries**: Adds the Zaidan registry with the `@zaidan` namespace
+
+### 4. Apply Your Design System
+
+Install your design system configuration using the shadcn CLI. Replace the values with your customizations from step 1:
+
+```package-dlx
+shadcn@latest add @zaidan/font-inter @zaidan/neutral @zaidan/radius-default @zaidan/style-vega
+```
+
+This installs:
+
+- Your chosen font configuration
+- Theme colors (neutral, blue, etc.)
+- Border radius settings
+- Style variant (spacing, padding, etc.)
+
+## Adding Components
+
+Once set up, you can add any Zaidan component to your project:
+
+```package-dlx
+shadcn@latest add @zaidan/button
+```
+
+Browse all available components in the [component documentation](/ui/accordion).
+
+## Manual Installation
+
+Prefer to copy and paste? Each component page includes the full source code. Simply copy the component file from the [registry](https://github.com/carere/zaidan/tree/main/src/registry/kobalte/ui) and paste it into your project.
