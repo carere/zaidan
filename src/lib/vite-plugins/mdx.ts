@@ -56,7 +56,7 @@ export const rehypePlugins: Pluggable[] = [
     rehypeExpressiveCode,
     {
       themes: ["github-dark-default", "github-light-default"],
-      themeCssSelector: (theme: ExpressiveCodeTheme) => `[data-kb-theme*="${theme.type}"]`,
+      themeCssSelector: (theme: ExpressiveCodeTheme) => `class="${theme.type}"`,
       plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
       defaultProps: {
         showLineNumbers: false,

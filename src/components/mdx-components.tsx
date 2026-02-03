@@ -1,4 +1,5 @@
 import { makePersisted, messageSync } from "@solid-primitives/storage";
+import { Link } from "@tanstack/solid-router";
 import { Terminal } from "lucide-solid";
 import {
   type ComponentProps,
@@ -10,10 +11,16 @@ import {
   splitProps,
 } from "solid-js";
 import { isServer } from "solid-js/web";
+import { SolidJS } from "@/components/icons/solidjs";
 import { getStorage } from "@/lib/utils";
+import { Button } from "@/registry/kobalte/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
 
 export const sharedComponents = {
+  Button,
+  Link,
+  SolidJS,
+
   h1: (props: ComponentProps<"h1">) => {
     return (
       <h1

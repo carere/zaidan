@@ -1,163 +1,68 @@
 ---
 title: "Home"
-description: "This is the home page"
+description: "A beautiful ShadCN UI registry for SolidJS - accessible, customizable components built on Kobalte and Corvu."
 slug: "home"
 ---
- 
-# Home
 
-Welcome to a deliberately long page used to stress-test scrolling,
-layout, and content rendering. Everything below is placeholder text,
-examples, and layout patterns that mimic real documentation.
+<div class="flex flex-col items-center text-center py-8">
+  <svg viewBox="0 0 206 181" fill="none" xmlns="http://www.w3.org/2000/svg" class="size-24 mb-6">
+    <title>Zaidan</title>
+    <path d="M205.24 0H0V180.27H205.24V0Z" class="fill-primary dark:fill-transparent" />
+    <path d="M193.24 11.35H12.3199V60.31H193.24V11.35Z" fill="white" />
+    <path d="M193.24 117.05H87.0599L131.64 72.63H193.24V117.05Z" fill="#7071BB" />
+    <path d="M12.3199 117.05V171.09L114.13 72.63H12.3199V117.05Z" fill="white" />
+  </svg>
 
-## What this page is for
-
-- Exercise long-form typography and spacing
-- Validate heading anchors and table of contents
-- Confirm code blocks, tables, and lists render correctly
-- Test search indexing and deep-link behavior
-
-## Quick tour
-
-### Layout sections
-
-This page includes several common documentation patterns. Paragraphs
-vary in length so you can see how line-height and max-width feel at
-different breakpoints. Sections are intentionally verbose to make the
-page tall enough for scroll and performance testing.
-
-### Design tokens
-
-Use this area to validate spacing between headings, body text, and
-inline code. The goal is to make sure the page remains readable across
-themes and that headings do not collapse into the content above them.
-
-> Tip: Toggle themes and fonts while scrolling to confirm the layout
-> remains stable. This blockquote is here to verify callout styling.
-
-## Installation (fake)
-
-The following commands are placeholders used to test code blocks. They
-do not correspond to a real package or version.
-
-```bash
-pnpm add zaidan-ui
-pnpm add solid-js
-pnpm add tailwindcss postcss autoprefixer
-```
-
-### Configuration snippet
-
-```json
-{
-  "ui": {
-    "preset": "zaidan",
-    "theme": "system",
-    "radius": "md"
-  }
-}
-```
-
-## Usage example
-
-Below is a sample snippet to confirm syntax highlighting and code block
-spacing. The content is intentionally simple.
-
-```tsx
-import { Button, Card } from "zaidan-ui";
-
-export default function Demo() {
-  return (
-    <Card>
-      <Card.Header>
-        <Card.Title>Example</Card.Title>
-        <Card.Description>Fake content for testing</Card.Description>
-      </Card.Header>
-      <Card.Content>
-        <Button variant="primary">Click me</Button>
-      </Card.Content>
-    </Card>
-  );
-}
-```
-
-## Sections you can skim
-
-### Component overview
-
-Components are grouped by purpose: actions, layout, data display, and
-feedback. These paragraphs are here to simulate real documentation.
-They also help verify how multi-line text wraps in narrow containers.
-
-### Do's and don'ts
-
-1. Do keep headings short and meaningful.
-2. Do provide clear examples with minimal noise.
-3. Don't mix multiple concepts in a single example.
-4. Don't rely on color alone to convey meaning.
-
-### Compatibility notes
-
-Text here is intentionally repetitive to generate length. The idea is
-to make sure the page can handle a variety of text lengths and styles
-without layout shifts or overlapping margins.
-
-## Table for alignment
-
-| Area | Goal | Notes |
-| --- | --- | --- |
-| Typography | Check line-height and rhythm | Use different font sizes |
-| Code blocks | Validate padding and overflow | Include long lines |
-| Lists | Ensure list markers align | Test nested spacing |
-| Tables | Confirm borders and zebra styles | Add enough rows |
-
-## More filler content
-
-This paragraph is part of the filler content block. It should be long
-enough to wrap across multiple lines on desktop screens, and still feel
-comfortable on mobile. The next paragraph repeats the idea with a
-slightly different cadence so you can test word spacing and readability.
-
-Another paragraph continues the filler. The goal is to provide a tall
-page with varied elements: headings, lists, tables, blockquotes, and
-code blocks. The content itself is intentionally generic.
-
-### Example: simple API surface
-
-```tsx
-type Theme = "light" | "dark" | "system";
-
-interface ZaidanConfig {
-  theme: Theme;
-  radius: "sm" | "md" | "lg";
-  density: "comfortable" | "compact";
-}
-
-export const config: ZaidanConfig = {
-  theme: "system",
-  radius: "md",
-  density: "comfortable"
-};
-```
-
-## FAQ
-
-**Is this real documentation?**  
-No. It's intentionally fake content for layout testing.
-
-**Can I delete this later?**  
-Yes. Replace it with real docs once you're done testing.
-
-**Why is it so long?**  
-To verify scrolling, performance, and layout stability.
+  <h1 class="text-4xl font-bold tracking-tight mb-4">Zaidan</h1>
+  <div class="flex flex-col items-center justify-center gap-4">
+    <p class="text-lg text-muted-foreground max-w-xl mb-8">
+      Beautifully designed, accessible components for SolidJS.<br />
+      Open source and free forever.
+    </p>
+    <div class="flex flex-wrap items-center justify-center">
+      <Button as="a" variant="link" href="/installation">Installation -></Button>
+      <Button as="a" variant="link" href="/ui/accordion">Explore components -></Button>
+    </div>
+  </div>
+</div>
 
 ---
 
-If you need even more content, duplicate any section above or add
-additional tables and code samples. The exact wording is not important.
+## Why Zaidan?
 
-<div align="center" style="margin-top: 2rem;">
-  <a href="https://www.netlify.com">
-    <img src="https://www.netlify.com/assets/badges/netlify-badge-color-accent.svg" alt="Deploys by Netlify" />
-  </a>
+We love SolidJS. Its fine-grained reactivity and simple mental model make it a joy to work with. Thus, in order to build polished and accessible UIs, we need a library of ready-to-use components that feel as professional as Shadcn/ui.
+
+That's why we created Zaidan (which means "Foundation" in Japanese).
+
+## What to Expect
+
+Zaidan aims to bring everything you love about Shadcn/ui to the SolidJS ecosystem:
+
+- **Shadcn Feature Parity** — We're working to port all Shadcn components. Same design, same API patterns, built for SolidJS from the ground up.
+- **Community-Driven Priorities** — Not sure which component to build next? We listen. The most requested components get implemented first.
+- **Flexible Installation** — Copy and paste the source code directly, or use the CLI for quick setup. Your codebase, your rules.
+- **Accessible by Default** — Every component follows WAI-ARIA guidelines. Keyboard navigation, screen reader support, and focus management are built in, not bolted on.
+- **Styled with Tailwind** — Works seamlessly with Tailwind CSS v4. Customize colors, spacing, and typography to match your brand.
+
+## Roadmap
+
+We have big plans for Zaidan. Here's what's coming:
+
+- [ ] **RTL Support** — Full right-to-left language support for RTL languages
+- [ ] **Base-ui Flavor** — Use Base-ui (SolidJs port) instead of Kobalte
+- [ ] **Claude Code Agents** — We will share with the community the agents we used to build and sync Zaidan. 
+
+## Acknowledgements
+
+Zaidan wouldn't exist without the incredible work of others. A heartfelt thank you to:
+
+- **[Kobalte](https://kobalte.dev)** — The backbone of our component library. Their accessible primitives make building complex UI components straightforward and reliable.
+- **[Corvu](https://corvu.dev)** — For specialized components like the drawer and OTP field. When we needed something extra, Corvu delivered.
+- **[Solid-ui](https://solid-ui.com)** — Early inspiration and proof that a great SolidJS component library was possible.
+- **[Shadcn/ui](https://ui.shadcn.com)** — The original. Their vision of a copy-paste component library changed how we think about UI development. We're proud to bring that vision to SolidJS.
+
+---
+
+<div class="text-center py-8 text-muted-foreground">
+  Made with ❤️ from 🇫🇷 for the <SolidJS class="inline-block size-5 align-text-bottom mx-0.5" /> community
 </div>
