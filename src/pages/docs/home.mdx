@@ -1,5 +1,5 @@
 ---
-title: "Zaidan"
+title: "Home"
 description: "A beautiful ShadCN UI registry for SolidJS - accessible, customizable components built on Kobalte and Corvu."
 slug: "home"
 ---
@@ -14,17 +14,23 @@ slug: "home"
   </svg>
 
   <h1 class="text-4xl font-bold tracking-tight mb-4">Zaidan</h1>
-  <p class="text-lg text-muted-foreground max-w-xl mb-8">
-    Beautifully designed, accessible components for SolidJS.<br />
-    Copy-paste or install via CLI. Open source and free.
-  </p>
+  <div class="flex flex-col items-center justify-center gap-4">
+    <p class="text-lg text-muted-foreground max-w-xl mb-8">
+      Beautifully designed, accessible components for SolidJS.<br />
+      Open source and free forever.
+    </p>
+    <div class="flex flex-wrap items-center justify-center">
+      <Button as="a" variant="link" href="/installation">Installation -></Button>
+      <Button as="a" variant="link" href="/ui/accordion">Explore components -></Button>
+    </div>
+  </div>
 </div>
 
 ---
 
 ## Why Zaidan?
 
-We love SolidJS. Its fine-grained reactivity and simple mental model make it a joy to work with. Thus, in order to build polished, accessible UIs, we need a library of ready-to-use components that feel as professional as what React developers have with Shadcn/ui.
+We love SolidJS. Its fine-grained reactivity and simple mental model make it a joy to work with. Thus, in order to build polished and accessible UIs, we need a library of ready-to-use components that feel as professional as Shadcn/ui.
 
 That's why we created Zaidan (which means "Foundation" in Japanese).
 
@@ -42,9 +48,9 @@ Zaidan aims to bring everything you love about Shadcn/ui to the SolidJS ecosyste
 
 We have big plans for Zaidan. Here's what's coming:
 
-- **RTL Support** — Full right-to-left language support for Arabic, Hebrew, and other RTL languages. We want Zaidan to work beautifully for everyone, everywhere.
-- **Base-ui Flavor** — An alternative set of primitives for those who prefer a different foundation. More choices, more flexibility.
-- **Claude Code Agents** — We will share with the community the agents we used to build and sync Zaidan with SolidJS. It's the best way to grow Zaidan available components list.
+- [ ] **RTL Support** — Full right-to-left language support for RTL languages
+- [ ] **Base-ui Flavor** — Use Base-ui (SolidJs port) instead of Kobalte
+- [ ] **Claude Code Agents** — We will share with the community the agents we used to build and sync Zaidan. 
 
 ## Acknowledgements
 
@@ -58,5 +64,5 @@ Zaidan wouldn't exist without the incredible work of others. A heartfelt thank y
 ---
 
 <div class="text-center py-8 text-muted-foreground">
-  Made with ❤️ from 🇫🇷 for the SolidJS community
+  Made with ❤️ from 🇫🇷 for the <SolidJS class="inline-block size-5 align-text-bottom mx-0.5" /> community
 </div>
