@@ -33,7 +33,7 @@ export function ItemExplorer(props: SidebarProps) {
   const entries: Entry[] = [
     {
       title: "Getting Started",
-      items: docs,
+      items: docs.filter((d) => d.parent === undefined),
       route: "/{-$slug}",
     },
     {

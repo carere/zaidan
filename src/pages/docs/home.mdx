@@ -4,24 +4,19 @@ description: "A beautiful ShadCN UI registry for SolidJS - accessible, customiza
 slug: "home"
 ---
 
-<div class="flex flex-col items-center text-center py-8">
-  <svg viewBox="0 0 206 181" fill="none" xmlns="http://www.w3.org/2000/svg" class="size-24 mb-6">
-    <title>Zaidan</title>
-    <path d="M205.24 0H0V180.27H205.24V0Z" class="fill-primary dark:fill-transparent" />
-    <path d="M193.24 11.35H12.3199V60.31H193.24V11.35Z" fill="white" />
-    <path d="M193.24 117.05H87.0599L131.64 72.63H193.24V117.05Z" fill="#7071BB" />
-    <path d="M12.3199 117.05V171.09L114.13 72.63H12.3199V117.05Z" fill="white" />
-  </svg>
-
-  <h1 class="text-4xl font-bold tracking-tight mb-4">Zaidan</h1>
-  <div class="flex flex-col items-center justify-center gap-4">
-    <p class="text-lg text-muted-foreground max-w-xl mb-8">
-      Beautifully designed, accessible components for SolidJS.<br />
+<div class="flex flex-col items-center text-center gap-8">
+  <div class="flex flex-col items-center gap-6">
+    <Zaidan class="size-24" />
+    <h1 class="text-4xl font-bold tracking-tight">Zaidan</h1>
+  </div>
+  <div class="flex flex-col items-center gap-4">
+    <p class="text-lg text-muted-foreground max-w-sm">
+      Beautifully designed, accessible components for SolidJS.
       Open source and free forever.
     </p>
-    <div class="flex flex-wrap items-center justify-center">
-      <Button as="a" variant="link" href="/installation">Installation -></Button>
-      <Button as="a" variant="link" href="/ui/accordion">Explore components -></Button>
+    <div class="flex items-center gap-4">
+      <Button as="a" size="sm" variant="default" href="/installation">Get Started</Button>
+      <Button as="a" variant="ghost" href="/ui/accordion">View components</Button>
     </div>
   </div>
 </div>
@@ -34,35 +29,8 @@ We love SolidJS. Its fine-grained reactivity and simple mental model make it a j
 
 That's why we created Zaidan (which means "Foundation" in Japanese).
 
-## What to Expect
-
-Zaidan aims to bring everything you love about Shadcn/ui to the SolidJS ecosystem:
-
-- **Shadcn Feature Parity** — We're working to port all Shadcn components. Same design, same API patterns, built for SolidJS from the ground up.
-- **Community-Driven Priorities** — Not sure which component to build next? We listen. The most requested components get implemented first.
-- **Flexible Installation** — Copy and paste the source code directly, or use the CLI for quick setup. Your codebase, your rules.
-- **Accessible by Default** — Every component follows WAI-ARIA guidelines. Keyboard navigation, screen reader support, and focus management are built in, not bolted on.
-- **Styled with Tailwind** — Works seamlessly with Tailwind CSS v4. Customize colors, spacing, and typography to match your brand.
-
-## Roadmap
-
-We have big plans for Zaidan. Here's what's coming:
-
-- [ ] **RTL Support** — Full right-to-left language support for RTL languages
-- [ ] **Base-ui Flavor** — Use Base-ui (SolidJs port) instead of Kobalte
-- [ ] **Claude Code Agents** — We will share with the community the agents we used to build and sync Zaidan. 
-
-## Acknowledgements
-
-Zaidan wouldn't exist without the incredible work of others. A heartfelt thank you to:
-
-- **[Kobalte](https://kobalte.dev)** — The backbone of our component library. Their accessible primitives make building complex UI components straightforward and reliable.
-- **[Corvu](https://corvu.dev)** — For specialized components like the drawer and OTP field. When we needed something extra, Corvu delivered.
-- **[Solid-ui](https://solid-ui.com)** — Early inspiration and proof that a great SolidJS component library was possible.
-- **[Shadcn/ui](https://ui.shadcn.com)** — The original. Their vision of a copy-paste component library changed how we think about UI development. We're proud to bring that vision to SolidJS.
-
 ---
 
-<div class="text-center py-8 text-muted-foreground">
-  Made with ❤️ from 🇫🇷 for the <SolidJS class="inline-block size-5 align-text-bottom mx-0.5" /> community
+<div class="w-full inline-flex items-center justify-center py-4 text-muted-foreground">
+  Made with ❤️ from 🇫🇷 for the <SolidJS class="inline-block size-3.5 align-text-bottom mx-0.5" /> community
 </div>

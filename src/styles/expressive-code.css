@@ -22,21 +22,17 @@
   }
 
   .frame {
-    @apply shadow-none;
+    @apply shadow-none bg-transparent;
 
     pre {
       @apply max-h-[450px] overflow-y-auto rounded-xl border-0 bg-neutral-100 dark:bg-zinc-900;
     }
 
+    .header {
+      @apply bg-transparent;
+    }
+
     &.has-title:not(.is-terminal) {
-      .header {
-        @apply rounded-t-xl border-b border-neutral-200/50 bg-none bg-neutral-100 dark:border-zinc-800/50 dark:bg-zinc-900;
-
-        &:before {
-          @apply border-0;
-        }
-      }
-
       .title {
         @apply border-none bg-transparent py-2 text-[0.9rem] font-mono text-foreground after:border-none dark:text-zinc-400;
       }

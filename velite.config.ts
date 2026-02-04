@@ -5,11 +5,12 @@ export default defineConfig({
   collections: {
     docs: {
       name: "docs",
-      pattern: "docs/*.mdx",
+      pattern: "docs/**/*.mdx",
       schema: s.object({
         slug: s.slug("docs"),
         title: s.string(),
         description: s.string(),
+        parent: s.string().optional(),
         toc: s.toc(),
       }),
     },

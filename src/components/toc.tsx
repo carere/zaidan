@@ -1,24 +1,10 @@
 import { For, Show } from "solid-js";
 import type { TocEntry } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, flattenTocUrls } from "@/lib/utils";
 
 interface TableOfContentsProps {
   toc: TocEntry;
   class?: string;
-}
-
-/**
- * Flattens nested TOC entries into a list of URL fragments for scroll spy
- */
-function flattenTocUrls(entries: TocEntry): string[] {
-  const urls: string[] = [];
-  for (const entry of entries) {
-    urls.push(entry.url);
-    if (entry.items.length > 0) {
-      urls.push(...flattenTocUrls(entry.items));
-    }
-  }
-  return urls;
 }
 
 /**
