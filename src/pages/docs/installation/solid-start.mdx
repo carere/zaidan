@@ -1,0 +1,115 @@
+---
+title: "Solid Start"
+description: "How to install and configure Zaidan components in your Solid Start project."
+slug: "solid-start"
+parent: "installation"
+---
+
+## Solid Start
+
+Install and configure shadcn/ui with Zaidan for Solid Start.
+
+<Steps>
+
+### Create project
+
+Start by creating a new Solid Start project:
+
+```package-create
+solid@latest --solidstart --ts --template with-tailwindcss
+```
+
+### Update vite.config.ts
+
+Add the following code to the vite.config.ts so your app can resolve paths without error:
+
+```package-install-dev
+@types/node
+```
+
+```typescript title="app.config.ts" showLineNumbers {8-12}
+import path from "node:path"
+import { defineConfig } from "@solidjs/start/config";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
+  }
+});
+```
+
+### Run the CLI
+
+Run the `shadcn` init command to setup your project:
+
+```package-dlx
+shadcn@latest init
+```
+
+### Configure your Shadcn installation
+
+Update the `components.json` file to point to the Zaidan registry and use the `kobalte` style:
+
+```json title="components.json" showLineNumbers {3, 9, 22-26}
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "kobalte",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles/globals.css",
+    "baseColor": "neutral", // or "gray", "stone", "zinc"
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "rtl": false,
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "menuColor": "default", // or "inverted"
+  "menuAccent": "subtle", // or "bold"
+  "registries": {
+    "@zaidan": "https://zaidan.carere.dev/r/{style}/{name}.json"
+  }
+}
+```
+
+### Customize your Design System
+
+Customize your Design System then <CliButton />
+
+### Add Components
+
+You can now start adding components to your project.
+
+```package-dlx
+shadcn@latest add @zaidan/button
+```
+
+The command above will add the `Button` component to your project. You can then import it like this:
+
+```tsx showLineNumbers title="src/routes/index.tsx"
+import { Button } from "@/components/ui/button";
+
+export default function Home() {
+  return (
+    <div className="flex min-h-svh flex-col items-center justify-center">
+      <Button>Click me</Button>
+    </div>
+  )
+}
+```
+
+</Steps>
