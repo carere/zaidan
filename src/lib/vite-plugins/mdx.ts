@@ -21,7 +21,6 @@ import { remarkDirectiveContainers } from "../remark-plugins/directives";
 import { remarkGithubAlertsToDirectives } from "../remark-plugins/gh-directives";
 import { remarkAddClass } from "../remark-plugins/kbd";
 import { remarkPackageManagerTabs } from "../remark-plugins/package-manager-tabs";
-import { remarkSteps } from "../remark-plugins/steps";
 import { remarkTabGroup } from "../remark-plugins/tab-group";
 
 async function jsxToES2019(code_jsx: string) {
@@ -55,8 +54,8 @@ export const rehypePlugins: Pluggable[] = [
   [
     rehypeExpressiveCode,
     {
-      themes: ["github-dark-default", "github-light-default"],
-      themeCssSelector: (theme: ExpressiveCodeTheme) => `class="${theme.type}"`,
+      themes: ["catppuccin-mocha", "catppuccin-latte"],
+      themeCssSelector: (theme: ExpressiveCodeTheme) => `.${theme.type}`,
       plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
       defaultProps: {
         showLineNumbers: false,
@@ -71,7 +70,6 @@ export const rehypePlugins: Pluggable[] = [
 ];
 
 export const remarkPlugins: Pluggable[] = [
-  remarkSteps,
   remarkFrontmatter,
   remarkGfm,
   remarkGithubAlertsToDirectives,

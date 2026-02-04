@@ -1,0 +1,178 @@
+---
+title: "Vite"
+description: "How to install and configure Zaidan components in your Vite project."
+slug: "vite"
+parent: "installation"
+---
+
+## Vite
+
+Install and configure shadcn/ui with zaidan for Vite.
+
+<Steps>
+
+### Create project
+
+Start by creating a new SolidJs project using `vite`. Select the **SolidJs + TypeScript** template:
+
+```package-create
+vite@latest --template solid-ts
+```
+
+### Add Tailwind CSS
+
+```package-install
+tailwindcss @tailwindcss/vite
+```
+
+Replace everything in `src/index.css` with the following:
+
+```css title="src/index.css"
+@import "tailwindcss";
+```
+
+### Edit tsconfig.json file
+
+The current version of Vite splits TypeScript configuration into three files, two of which need to be edited.
+Add the `baseUrl` and `paths` properties to the `compilerOptions` section of the `tsconfig.json` and
+`tsconfig.app.json` files:
+
+```ts title="tsconfig.json" {11-16} showLineNumbers
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+### Edit tsconfig.app.json file
+
+Add the following code to the `tsconfig.app.json` file to resolve paths, for your IDE:
+
+```ts title="tsconfig.app.json" {4-9} showLineNumbers
+{
+  "compilerOptions": {
+    // ...
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+    // ...
+  }
+}
+```
+
+### Update vite.config.ts
+
+Add the following code to the vite.config.ts so your app can resolve paths without error:
+
+```package-install-dev
+@types/node
+```
+
+```typescript title="vite.config.ts" showLineNumbers {1,2,8-13}
+import path from "node:path"
+import tailwindcss from "@tailwindcss/vite"
+import solid from "vite-plugin-solid"
+import { defineConfig } from "vite"
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [solid(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+})
+```
+
+### Run the CLI
+
+Run the `shadcn` init command to setup your project:
+
+```package-dlx
+shadcn@latest init
+```
+
+You will be asked a few questions to configure `components.json`.
+
+```txt
+Which color would you like to use as base color? › Neutral
+```
+
+### Update `components.json` file
+
+Update the `components.json` file to point to the Zaidan registry and use the `kobalte` style.
+
+```json title="components.json" showLineNumbers {3, 22-24}
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "kobalte",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles.css",
+    "baseColor": "gray",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "rtl": false,
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@zaidan": "https://zaidan.carere.dev/r/{style}/{name}.json"
+  }
+}
+```
+
+### Setup your project with your customization
+
+Click on the <CliButton /> button to copy the command to setup your project with your customization.
+
+### Add Components
+
+You can now start adding components to your project.
+
+```package-dlx
+shadcn@latest add @zaidan/button
+```
+
+The command above will add the `Button` component to your project. You can then import it like this:
+
+```tsx showLineNumbers title="src/App.tsx"
+import { Button } from "@/components/ui/button"
+
+function App() {
+  return (
+    <div class="flex min-h-svh flex-col items-center justify-center">
+      <Button>Click me</Button>
+    </div>
+  )
+}
+
+export default App
+```
+
+</Steps>

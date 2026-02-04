@@ -1,30 +1,22 @@
 import { makePersisted, messageSync } from "@solid-primitives/storage";
-import { Link } from "@tanstack/solid-router";
-import { Terminal } from "lucide-solid";
-import {
-  type ComponentProps,
-  children,
-  createSignal,
-  For,
-  type ParentProps,
-  Show,
-  splitProps,
-} from "solid-js";
+import { CircleAlert, Terminal, TriangleAlert } from "lucide-solid";
+import { type ComponentProps, children, createSignal, For, type ParentProps, Show } from "solid-js";
 import { isServer } from "solid-js/web";
+import { CliButton } from "@/components/cli-button";
+import { SolidStartLogo } from "@/components/icons/solid-start";
 import { SolidJS } from "@/components/icons/solidjs";
+import { SolidJsOff } from "@/components/icons/solidjs-off";
+import { Zaidan } from "@/components/icons/zaidan";
 import { getStorage } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/registry/kobalte/ui/alert";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
 
 export const sharedComponents = {
-  Button,
-  Link,
-  SolidJS,
-
   h1: (props: ComponentProps<"h1">) => {
     return (
       <h1
-        class="mt-2 font-bold font-heading text-3xl tracking-tight [&>a]:no-underline"
+        class="relative mt-2 scroll-m-28 font-bold font-heading text-3xl tracking-tight [&>a]:no-underline"
         {...props}
       />
     );
@@ -32,7 +24,7 @@ export const sharedComponents = {
   h2: (props: ComponentProps<"h2">) => {
     return (
       <h2
-        class="mt-12 font-heading font-medium text-2xl tracking-tight [&>a]:no-underline *:[code]:text-2xl"
+        class="relative mt-10 scroll-m-28 font-heading font-medium text-xl tracking-tight first:mt-0 lg:mt-12 [&+.steps>h3]:mt-4! [&+.steps]:mt-0! [&+h3]:mt-6! [&+p]:mt-4! [&+]*:[code]:text-xl"
         {...props}
       />
     );
@@ -40,30 +32,35 @@ export const sharedComponents = {
   h3: (props: ComponentProps<"h3">) => {
     return (
       <h3
-        class="mt-8 font-heading text-lg tracking-tight [&>a]:no-underline *:[code]:text-xl"
+        class="relative mt-12 scroll-m-28 font-heading font-medium text-lg tracking-tight [&+p]:mt-4! *:[code]:text-xl"
         {...props}
       />
     );
   },
 
   h4: (props: ComponentProps<"h4">) => {
-    return <h4 class="mt-8 font-heading font-medium text-lg tracking-tight" {...props} />;
+    return (
+      <h4
+        class="relative mt-8 scroll-m-28 font-heading font-medium text-base tracking-tight"
+        {...props}
+      />
+    );
   },
 
   h5: (props: ComponentProps<"h5">) => {
-    return <h5 class="mt-8 font-medium text-lg tracking-tight" {...props} />;
+    return <h5 class="relative mt-8 scroll-m-28 font-medium text-base tracking-tight" {...props} />;
   },
 
   h6: (props: ComponentProps<"h6">) => {
-    return <h6 class="mt-8 font-medium text-base tracking-tight" {...props} />;
+    return <h6 class="relative mt-8 scroll-m-28 font-medium text-base tracking-tight" {...props} />;
   },
 
   a: (props: ComponentProps<"a">) => {
-    return <a class="underline underline-offset-4" {...props} />;
+    return <a class="font-medium underline-offset-4" {...props} />;
   },
 
   p: (props: ComponentProps<"p">) => {
-    return <p class="not-first:mt-6 text-muted-foreground leading-relaxed" {...props} />;
+    return <p class="not-first:mt-6 text-sm leading-relaxed" {...props} />;
   },
 
   strong: (props: ComponentProps<"strong">) => {
@@ -71,7 +68,11 @@ export const sharedComponents = {
   },
 
   ul: (props: ComponentProps<"ul">) => {
-    return <ul class="my-6 ml-6 list-decimal" {...props} />;
+    return <ul class="my-6 ml-6 list-disc" {...props} />;
+  },
+
+  ol: (props: ComponentProps<"ol">) => {
+    return <ol class="my-6 ml-6 list-decimal" {...props} />;
   },
 
   li: (props: ComponentProps<"li">) => {
@@ -83,8 +84,8 @@ export const sharedComponents = {
   },
 
   img: (props: ComponentProps<"img">) => {
-    const [local, others] = splitProps(props, ["alt"]);
-    return <img alt={local.alt} class="rounded-md" {...others} />;
+    // biome-ignore lint/a11y/useAltText: <will be passed as props>
+    return <img class="rounded-md" {...props} />;
   },
 
   hr: (props: ComponentProps<"hr">) => {
@@ -93,7 +94,7 @@ export const sharedComponents = {
 
   table: (props: ComponentProps<"table">) => {
     return (
-      <div class="no-scrollbar my-6 w-full overflow-y-auto rounded-lg border">
+      <div class="no-scrollbar my-6 w-full overflow-y-auto rounded-xl border">
         <table
           class="relative w-full overflow-hidden border-none text-sm [&_tbody_tr:last-child]:border-b-0"
           {...props}
@@ -125,7 +126,12 @@ export const sharedComponents = {
   },
 
   pre: (props: ComponentProps<"pre">) => {
-    return <pre class="no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none" {...props} />;
+    return (
+      <pre
+        class="no-scrollbar min-w-0 overflow-x-auto overflow-y-auto overscroll-y-auto overscroll-x-contain px-4 py-3.5 outline-none has-data-[slot=tabs]:p-0 has-data-highlighted-line:px-0 has-data-line-numbers:px-0"
+        {...props}
+      />
+    );
   },
 
   code: (props: ComponentProps<"code">) => {
@@ -138,11 +144,14 @@ export const sharedComponents = {
   },
 
   Step: (props: ComponentProps<"h3">) => (
-    <h3 class="mt-8 font-heading font-medium text-xl tracking-tight" {...props} />
+    <h3 class="mt-8 scroll-m-32 font-heading font-medium text-lg tracking-tight" {...props} />
   ),
 
   Steps: (props: ComponentProps<"div">) => (
-    <div class="[&>h3]:step steps mb-12 [counter-reset:step] *:[h3]:first:mt-0!" {...props} />
+    <div
+      class="[&>h3]:step steps mb-12 [counter-reset:step] md:ml-4 md:border-l md:pl-8"
+      {...props}
+    />
   ),
 
   DirectiveContainer: (
@@ -267,4 +276,15 @@ export const sharedComponents = {
       </div>
     );
   },
+  Button,
+  SolidJS,
+  SolidJsOff,
+  SolidStartLogo,
+  Zaidan,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  CircleAlert,
+  TriangleAlert,
+  CliButton,
 };

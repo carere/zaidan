@@ -13,6 +13,7 @@ import { Route as WebsiteRouteImport } from './routes/_website'
 import { Route as WebsiteChar123SlugChar125RouteImport } from './routes/_website.{-$slug}'
 import { Route as PreviewPrimitiveSlugRouteImport } from './routes/preview.$primitive.$slug'
 import { Route as WebsiteUiChar123SlugChar125RouteImport } from './routes/_website.ui.{-$slug}'
+import { Route as WebsiteInstallationSlugRouteImport } from './routes/_website.installation.$slug'
 import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
 
 const WebsiteRoute = WebsiteRouteImport.update({
@@ -36,6 +37,11 @@ const WebsiteUiChar123SlugChar125Route =
     path: '/ui/{-$slug}',
     getParentRoute: () => WebsiteRoute,
   } as any)
+const WebsiteInstallationSlugRoute = WebsiteInstallationSlugRouteImport.update({
+  id: '/installation/$slug',
+  path: '/installation/$slug',
+  getParentRoute: () => WebsiteRoute,
+} as any)
 const WebsiteUiSlugDocsRoute = WebsiteUiSlugDocsRouteImport.update({
   id: '/ui/$slug/docs',
   path: '/ui/$slug/docs',
@@ -45,6 +51,7 @@ const WebsiteUiSlugDocsRoute = WebsiteUiSlugDocsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
+  '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
@@ -52,6 +59,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof WebsiteRouteWithChildren
   '/{-$slug}': typeof WebsiteChar123SlugChar125Route
+  '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_website': typeof WebsiteRouteWithChildren
   '/_website/{-$slug}': typeof WebsiteChar123SlugChar125Route
+  '/_website/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
   '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
   '/_website/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/{-$slug}'
+    | '/installation/$slug'
     | '/ui/{-$slug}'
     | '/preview/$primitive/$slug'
     | '/ui/$slug/docs'
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/{-$slug}'
+    | '/installation/$slug'
     | '/ui/{-$slug}'
     | '/preview/$primitive/$slug'
     | '/ui/$slug/docs'
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_website'
     | '/_website/{-$slug}'
+    | '/_website/installation/$slug'
     | '/_website/ui/{-$slug}'
     | '/preview/$primitive/$slug'
     | '/_website/ui/$slug/docs'
@@ -123,6 +135,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteUiChar123SlugChar125RouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_website/installation/$slug': {
+      id: '/_website/installation/$slug'
+      path: '/installation/$slug'
+      fullPath: '/installation/$slug'
+      preLoaderRoute: typeof WebsiteInstallationSlugRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
     '/_website/ui/$slug/docs': {
       id: '/_website/ui/$slug/docs'
       path: '/ui/$slug/docs'
@@ -135,12 +154,14 @@ declare module '@tanstack/solid-router' {
 
 interface WebsiteRouteChildren {
   WebsiteChar123SlugChar125Route: typeof WebsiteChar123SlugChar125Route
+  WebsiteInstallationSlugRoute: typeof WebsiteInstallationSlugRoute
   WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125Route
   WebsiteUiSlugDocsRoute: typeof WebsiteUiSlugDocsRoute
 }
 
 const WebsiteRouteChildren: WebsiteRouteChildren = {
   WebsiteChar123SlugChar125Route: WebsiteChar123SlugChar125Route,
+  WebsiteInstallationSlugRoute: WebsiteInstallationSlugRoute,
   WebsiteUiChar123SlugChar125Route: WebsiteUiChar123SlugChar125Route,
   WebsiteUiSlugDocsRoute: WebsiteUiSlugDocsRoute,
 }

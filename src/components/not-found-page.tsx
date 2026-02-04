@@ -27,9 +27,9 @@ type Option = {
 
 const getOptions = (): Option[] => {
   const docsOptions = docs.map((d) => ({
-    pathname: `/${d.slug}`,
+    pathname: d.parent ? `/${d.parent}/${d.slug}` : `/${d.slug}`,
     slug: d.slug,
-    route: "/{-$slug}" as FileRouteTypes["to"],
+    route: (d.parent ? `/${d.parent}/${d.slug}` : "/{-$slug}") as FileRouteTypes["to"],
   }));
 
   const uiOptions = ui
