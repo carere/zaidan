@@ -115,11 +115,12 @@ You will be asked a few questions to configure `components.json`.
 Which color would you like to use as base color? › Neutral
 ```
 
-### Update `components.json` file
+### Configure your Shadcn installation
 
 Update the `components.json` file to point to the Zaidan registry and use the `kobalte` style.
+You can also configure the `menuColor` and `menuAccent` to your liking.
 
-```json title="components.json" showLineNumbers {3, 22-24}
+```json title="components.json" showLineNumbers {3, 22-26}
 {
   "$schema": "https://ui.shadcn.com/schema.json",
   "style": "kobalte",
@@ -141,6 +142,8 @@ Update the `components.json` file to point to the Zaidan registry and use the `k
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "registries": {
     "@zaidan": "https://zaidan.carere.dev/r/{style}/{name}.json"
   }
@@ -151,28 +154,8 @@ Update the `components.json` file to point to the Zaidan registry and use the `k
 
 Click on the <CliButton /> button to copy the command to setup your project with your customization.
 
-### Add Components
+### You can now start adding components to your project
 
-You can now start adding components to your project.
-
-```package-dlx
-shadcn@latest add @zaidan/button
-```
-
-The command above will add the `Button` component to your project. You can then import it like this:
-
-```tsx showLineNumbers title="src/App.tsx"
-import { Button } from "@/components/ui/button"
-
-function App() {
-  return (
-    <div class="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
-  )
-}
-
-export default App
-```
+<Button as="a" variant="link" href="/ui/accordion">Explore components -></Button>
 
 </Steps>
