@@ -49,7 +49,7 @@ export function remarkPackageManagerTabs() {
           run: "bun :content",
           "run-full": "bun run :content",
           dlx: "bunx :content",
-          create: "bun create :content",
+          create: "bun --bun create :content",
         },
       },
     };
