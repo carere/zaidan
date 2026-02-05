@@ -78,7 +78,9 @@ function RouteComponent() {
           <MDXContent components={sharedComponents} />
         </div>
       </div>
-      <TableOfContents class="hidden h-fit w-fit shrink-0 xl:block xl:w-62" toc={doc().toc} />
+      <Show when={flattenTocUrls(doc().toc).length > 1}>
+        <TableOfContents class="hidden h-fit w-fit shrink-0 xl:block xl:w-62" toc={doc().toc} />
+      </Show>
     </div>
   );
 }

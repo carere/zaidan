@@ -1,12 +1,13 @@
-import { createFileRoute, notFound } from "@tanstack/solid-router";
+import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { Menu } from "lucide-solid";
-import { lazy } from "solid-js";
+import { lazy, Show } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import { TableOfContents } from "@/components/toc";
 import { createPageHead } from "@/lib/seo";
+import { flattenTocUrls } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Collapsible,
@@ -48,24 +49,28 @@ function RouteComponent() {
       data-slot="ui-docs-layout"
       class="relative flex w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)] lg:w-full"
     >
-      <Collapsible class="absolute top-0 right-0 xl:hidden">
-        <CollapsibleTrigger
-          as={Button}
-          variant="secondary"
-          size="icon-sm"
-          class="z-10"
-          data-slot="mobile-toc-trigger"
-        >
-          <Menu class="size-4" />
-          <span class="sr-only">Toggle table of contents</span>
-        </CollapsibleTrigger>
-        <CollapsibleContent
-          class="absolute top-full right-0 z-10 mt-2 w-64 rounded-lg border bg-background p-4 shadow-lg"
-          data-slot="mobile-toc-content"
-        >
-          <TableOfContents toc={doc().toc} />
-        </CollapsibleContent>
-      </Collapsible>
+      <Show when={flattenTocUrls(doc().toc).length > 1}>
+        <Collapsible class="absolute top-0 right-0 xl:hidden">
+          <CollapsibleTrigger
+            as={Button}
+            variant="secondary"
+            size="icon-sm"
+            class="z-10"
+            data-slot="mobile-toc-trigger"
+          >
+            <Menu class="size-4" />
+            <span class="sr-only">Toggle table of contents</span>
+          </CollapsibleTrigger>
+          <CollapsibleContent
+            class="absolute top-full right-0 z-10 mt-2 w-64 rounded-lg border bg-background p-4 shadow-lg"
+            data-slot="mobile-toc-content"
+          >
+            <ClientOnly>
+              <TableOfContents toc={doc().toc} />
+            </ClientOnly>
+          </CollapsibleContent>
+        </Collapsible>
+      </Show>
       <div
         data-slot="ui-docs-content"
         class="no-scrollbar flex h-full grow justify-center overflow-y-auto scroll-smooth"
@@ -74,10 +79,12 @@ function RouteComponent() {
           <MDXContent components={sharedComponents} />
         </div>
       </div>
-      <TableOfContents
-        class="hidden h-fit w-fit shrink-0 xl:block xl:w-50 xl:pt-10"
-        toc={doc().toc}
-      />
+      <Show when={flattenTocUrls(doc().toc).length > 1}>
+        <TableOfContents
+          class="hidden h-fit w-fit shrink-0 xl:block xl:w-50 xl:pt-10"
+          toc={doc().toc}
+        />
+      </Show>
       <PageToggleNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );

@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import type { TocEntry } from "@/lib/types";
-import { cn, flattenTocUrls } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface TableOfContentsProps {
   toc: TocEntry;
@@ -47,23 +47,14 @@ function TocItems(props: { items: TocEntry; depth?: number }) {
  * Displays on xl screens and larger, sticky positioned on the right side
  */
 export function TableOfContents(props: TableOfContentsProps) {
-  // Skip rendering if TOC is empty or only has one top-level item with no children
-  const shouldRender = () => {
-    if (props.toc.length === 0) return false;
-    const totalItems = flattenTocUrls(props.toc).length;
-    return totalItems > 1;
-  };
-
   return (
-    <Show when={shouldRender()}>
-      <nav data-slot="toc" class={props.class} aria-label="Table of contents">
-        <div class="pb-4">
-          <p class="mb-2 font-medium text-sm">On This Page</p>
-          <ul class="space-y-1">
-            <TocItems items={props.toc} />
-          </ul>
-        </div>
-      </nav>
-    </Show>
+    <nav data-slot="toc" class={props.class} aria-label="Table of contents">
+      <div class="pb-4">
+        <p class="mb-2 font-medium text-sm">On This Page</p>
+        <ul class="space-y-1">
+          <TocItems items={props.toc} />
+        </ul>
+      </div>
+    </nav>
   );
 }
