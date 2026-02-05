@@ -1,4 +1,4 @@
-import { ClientOnly, createFileRoute, notFound } from "@tanstack/solid-router";
+import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { Menu } from "lucide-solid";
 import { lazy, Show } from "solid-js";
@@ -65,9 +65,7 @@ function RouteComponent() {
             class="absolute top-full right-0 z-10 mt-2 w-64 rounded-lg border bg-background p-4 shadow-lg"
             data-slot="mobile-toc-content"
           >
-            <ClientOnly>
-              <TableOfContents toc={doc().toc} />
-            </ClientOnly>
+            <TableOfContents toc={doc().toc} />
           </CollapsibleContent>
         </Collapsible>
       </Show>

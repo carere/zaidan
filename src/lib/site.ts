@@ -10,8 +10,8 @@ export const siteConfig = {
   links: {
     github: "https://github.com/carere/zaidan",
   },
-  ogImage: "/og-image.png",
-  twitterHandle: undefined,
+  ogImage: "/zaidan-og.png",
+  twitterHandle: "carere_dev",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

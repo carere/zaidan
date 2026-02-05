@@ -17,32 +17,41 @@ import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
   head: () => ({
+    title: siteConfig.name,
     links: [
       { rel: "stylesheet", href: styleCss },
-      { rel: "icon", href: "/zaidan.svg", type: "image/svg+xml" },
-      { rel: "manifest", href: "/manifest.json" },
-      { rel: "apple-touch-icon", href: "/zaidan.svg" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "canonical", href: siteConfig.url },
     ],
     meta: [
       { charset: "utf-8" },
-      { content: "width=device-width, initial-scale=1.0", name: "viewport" },
-      { title: "Zaidan", name: "title" },
+      { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       { name: "description", content: siteConfig.description },
-      { name: "theme-color", content: "#000000" },
+      {
+        name: "robots",
+        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      },
 
       // Open Graph
+      { property: "og:locale", content: "en_US" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: siteConfig.name },
       { property: "og:description", content: siteConfig.description },
       { property: "og:url", content: siteConfig.url },
       { property: "og:site_name", content: siteConfig.name },
-      { property: "og:image", content: siteConfig.url + siteConfig.ogImage },
+      { property: "og:image", content: `${siteConfig.url}${siteConfig.ogImage}` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "628" },
+      { property: "og:image:alt", content: siteConfig.description },
 
       // Twitter Card
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: siteConfig.name },
       { name: "twitter:description", content: siteConfig.description },
-      { name: "twitter:image", content: siteConfig.url + siteConfig.ogImage },
+      { name: "twitter:image", content: `${siteConfig.url}${siteConfig.ogImage}` },
+      { name: "twitter:image:width", content: "1200" },
+      { name: "twitter:image:height", content: "628" },
+      { name: "twitter:image:alt", content: siteConfig.description },
     ],
   }),
   validateSearch: zodValidator(DesignSystemConfigSchema),
