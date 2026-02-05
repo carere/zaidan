@@ -20,9 +20,8 @@ export const Route = createRootRouteWithContext()({
     links: [
       { rel: "stylesheet", href: styleCss },
       { rel: "icon", href: "/zaidan.svg", type: "image/svg+xml" },
-      { rel: "icon", href: "/favicon.ico", sizes: "any" },
       { rel: "manifest", href: "/manifest.json" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-icon", href: "/zaidan.svg" },
     ],
     meta: [
       { charset: "utf-8" },

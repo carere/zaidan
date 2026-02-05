@@ -1,15 +1,46 @@
 {
-  "short_name": "Zaidan",
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "id": "/",
   "name": "Zaidan",
+  "short_name": "Zaidan",
+  "description": "A beautiful ShadCN UI registry for SolidJS - accessible, customizable components built on Kobalte and Corvu.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#000000",
+  "background_color": "#09090b",
+  "lang": "en",
+  "categories": ["developer tools", "utilities"],
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/zaidan.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }
