@@ -1,3 +1,9 @@
+## 1.0.1 (2026-02-05)
+
+### Fixes
+
+- weird bug, button on first render cause unable to load js
+
 ## 1.0.0 (2026-02-05)
 
 ### Features
