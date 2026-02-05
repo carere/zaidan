@@ -6,6 +6,7 @@ import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import { TableOfContents } from "@/components/toc";
+import { createPageHead } from "@/lib/seo";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Collapsible,
@@ -24,6 +25,14 @@ export const Route = createFileRoute("/_website/ui/$slug/docs")({
       });
     }
     return doc;
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData) return {};
+    return createPageHead({
+      title: loaderData.title,
+      description: loaderData.description,
+      path: `/ui/${loaderData.slug}/docs`,
+    });
   },
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
