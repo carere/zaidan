@@ -2,6 +2,8 @@ name: Quality Assurance
 
 on:
   push:
+    branches:
+      - "**"
 
 jobs:
   static-test:
