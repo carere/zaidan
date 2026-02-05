@@ -13,18 +13,17 @@ import {
   type ColorMode,
   ColorModeProvider,
 } from "@/registry/kobalte/components/color-mode-provider";
-import styleCss from "../styles.css?url";
+import "../styles.css";
 
 export const Route = createRootRouteWithContext()({
   head: () => ({
-    title: siteConfig.name,
     links: [
-      { rel: "stylesheet", href: styleCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "canonical", href: siteConfig.url },
     ],
     meta: [
       { charset: "utf-8" },
+      { title: siteConfig.name },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       { name: "description", content: siteConfig.description },
       {
@@ -81,10 +80,10 @@ function RootComponent() {
       })}
     >
       <head>
-        <HeadContent />
         <HydrationScript />
       </head>
       <body class="style-vega">
+        <HeadContent />
         <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
             <Outlet />
