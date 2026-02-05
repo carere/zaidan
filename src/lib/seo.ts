@@ -14,10 +14,10 @@ export function createPageHead(page: PageMetadata) {
   const image = page.image ?? `${siteConfig.url}${siteConfig.ogImage}`;
 
   return {
-    title,
     meta: [
       // Basic meta
       { name: "description", content: page.description },
+      { title: title },
 
       // Open Graph
       { property: "og:type", content: page.type ?? "website" },
