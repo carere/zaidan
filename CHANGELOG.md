@@ -1,3 +1,9 @@
+## 1.0.3 (2026-02-05)
+
+### Fixes
+
+- title was not updated
+
 ## 1.0.2 (2026-02-05)
 
 ### Fixes
