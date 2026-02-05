@@ -5,6 +5,7 @@ import { lazy, Show } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
 import { TableOfContents } from "@/components/toc";
+import { createPageHead } from "@/lib/seo";
 import { flattenTocUrls } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -27,6 +28,14 @@ export const Route = createFileRoute("/_website/{-$slug}")({
     }
 
     return doc;
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData) return {};
+    return createPageHead({
+      title: loaderData.title,
+      description: loaderData.description,
+      path: loaderData.slug === "home" ? "/" : `/${loaderData.slug}`,
+    });
   },
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,

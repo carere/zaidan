@@ -3,6 +3,7 @@ import { ui } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
+import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
 
@@ -17,6 +18,14 @@ export const Route = createFileRoute("/_website/ui/{-$slug}")({
       });
     }
     return doc;
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData) return {};
+    return createPageHead({
+      title: loaderData.title,
+      description: loaderData.description,
+      path: `/ui/${loaderData.slug}`,
+    });
   },
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
