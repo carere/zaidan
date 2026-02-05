@@ -1,3 +1,9 @@
+## 1.0.2 (2026-02-05)
+
+### Fixes
+
+- add image og and better seo
+
 ## 1.0.1 (2026-02-05)
 
 ### Fixes
