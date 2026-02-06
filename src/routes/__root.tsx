@@ -13,7 +13,7 @@ import {
   type ColorMode,
   ColorModeProvider,
 } from "@/registry/kobalte/components/color-mode-provider";
-import styleCss from "../styles.css?url";
+import styleCss from "@/styles.css?url";
 
 export const Route = createRootRouteWithContext()({
   head: () => ({
@@ -82,9 +82,9 @@ function RootComponent() {
     >
       <head>
         <HydrationScript />
-        <HeadContent />
       </head>
       <body class="style-vega">
+        <HeadContent />
         <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
             <Outlet />
