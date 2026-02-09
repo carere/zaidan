@@ -22,9 +22,6 @@ public/r
 .wrangler/
 
 # Claude Code
-.claude
-logs/
-adws/
 trees/
 specs/
 app_review/

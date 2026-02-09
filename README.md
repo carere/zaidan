@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/carere/zaidan">
-    <img src="public/zaidan.svg" alt="Zaidan Logo" width="10%">
+    <img src="public/favicon.svg" alt="Zaidan Logo" width="10%">
   </a>
 
   <h1 style="font-size: 3rem; font-weight: 600;">Zaidan</h1>
