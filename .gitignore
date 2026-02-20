@@ -18,13 +18,12 @@ public/r
 # dependencies
 /node_modules
 
-# R2
+# Coudflare
 .wrangler/
 
 # Claude Code
 trees/
 specs/
-app_review/
 ai_docs/*
 !ai_docs/README.md
 
@@ -32,10 +31,6 @@ ai_docs/*
 .DS_Store
 Thumbs.db
 
-# Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
-.playwright-mcp/
+# UI Review
+.playwright-cli/
+screenshots/
