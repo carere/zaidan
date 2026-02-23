@@ -99,7 +99,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
 
             <For each={entries}>
               {(entry, index) => (
-                <>
+                <Show when={entry.items.length > 0}>
                   <CommandGroup heading={entry.title}>
                     <For each={entry.items}>
                       {(item) => (
@@ -124,7 +124,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
                   <Show when={index() < entries.length - 1}>
                     <CommandSeparator />
                   </Show>
-                </>
+                </Show>
               )}
             </For>
           </CommandList>
