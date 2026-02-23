@@ -6,14 +6,7 @@ argument-hint: "[name] [--primitive=kobalte|base] [--registry=<url>] [--docs=<ur
 
 # Purpose
 
-Unified sync command replacing `/sync-component`, `/sync-block`, `/sync-external`, `/sync-registry`, and `/sync-all`. Routes to the appropriate workflow based on flags:
-
-- **Name alone** -- shadcn single sync (subagent path)
-- **Name + `--registry`** -- external single sync (subagent path)
-- **`--all` flag** -- shadcn batch sync (Agent Teams path)
-- **`--registry` without name** -- external batch sync (Agent Teams path)
-
-Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager`, `git-github-ops`, and `source-resolver` skills, and generates QA user stories.
+Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager`, `git-github-ops` and `source-resolver` skills, and generates QA user stories to transform react shadcn-based components/blocks/registry to Zaidan.
 
 ## Variables
 
@@ -41,11 +34,14 @@ src/registry/
     ui/                   # Component files (*.tsx)
     blocks/               # Block composition files (may not exist yet)
     examples/             # Component usage examples
+
 src/pages/
   ui/
     <PRIMITIVE>/          # MDX documentation pages
+
 ai_review/
   user_stories/           # YAML user stories for QA validation
+
 .claude/
   agents/
     zaidan-transformer.md # Unified transformer agent
@@ -63,7 +59,6 @@ ai_review/
 - Route based on the combination of name and flags (4 routing paths described in Phase 0)
 - Single sync uses the Task tool (subagent) to spawn agents
 - Batch sync uses Agent Teams (`TeamCreate`, `TaskCreate`, `SendMessage`, `TeamDelete`)
-- **IMPORTANT**: Agent Teams is experimental. Must be enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable or in `settings.json`
 - Git operations (commit, push, PR) are handled at this command level, NOT by agents
 - Use the `worktree-manager` skill for worktree creation
 - Use the `git-github-ops` skill for git and GitHub operations
@@ -122,7 +117,7 @@ Use the `source-resolver` skill to derive all URLs from the component name for s
 
 ```
 Raw source:   https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base/ui/{NAME}.tsx
-              (or .../blocks/{NAME}/**/*.tsx for multi-file sources)
+              (or https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base//blocks/{NAME}/**/*.tsx for multi-file sources)
 Registry:     https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/_registry.ts
 Raw Docs:     https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/base/{NAME}.mdx
 Playground:   https://ui.shadcn.com/create?item={NAME}-example
@@ -147,7 +142,7 @@ Run the Playwright three-stage pipeline on the playground URL:
 
 - **EXPLORE**: Visit the playground URL. Systematically interact with the component -- click triggers, open menus/dialogs/popovers, type into inputs, navigate tabs, hover elements, resize viewport, use keyboard navigation (Tab, Enter, Escape, Arrow keys). Screenshot at each significant state change across 3 viewports (1280px, 768px, 375px).
 - **FILTER**: From all observed interactions, keep only those revealing meaningful component behavior (open/close, data input, selection, navigation, animation, state change, responsive layout differences). Discard noise (redundant clicks, non-interactive elements, duplicate states).
-- **ENCODE**: Store filtered interactions for user story generation (Step 1.9) and visual baseline screenshots for post-transformation validation (Step 1.7).
+- **ENCODE**: Store filtered interactions for user story generation (Step 1.7).
 
 #### Step 1.4: Dependency Gate
 
@@ -223,20 +218,7 @@ when done.
 
 The agent file is located at `.claude/agents/docs-syncer.md`.
 
-#### Step 1.7: Visual Validation (Optional)
-
-**Only if `--playground` was provided and the EXPLORE stage ran in Step 1.3.**
-
-1. Start the dev server in the worktree: `bun run dev &`
-2. Wait for the dev server to be ready
-3. Navigate to the Zaidan version of the component
-4. Replay the same interactions discovered during Step 1.3
-5. Capture screenshots at the same state changes and viewports
-6. Compare against the baseline screenshots from Step 1.3
-7. Flag any visual regressions (layout shifts, missing elements, broken animations)
-8. Stop the dev server
-
-#### Step 1.8: Generate User Story
+#### Step 1.7: Generate User Story
 
 Read `$APP_PORT` from the `.env` file in the worktree (or use `3000` as fallback).
 
@@ -270,6 +252,16 @@ stories:
 ```
 
 Replace `{ComponentTitle}` with the PascalCase title of the component (e.g., "Dialog", "Alert Dialog", "Shimmer Button").
+
+#### Step 1.8: Visual Validation (Optional)
+
+**Only if `--playground` was provided and the EXPLORE stage ran in Step 1.3.**
+
+1. Start the dev server if not already running in the worktree: `bun run dev &`
+2. Wait for the dev server to be ready
+3. Spawn one `bowser-qa-agent` agent per user story in the generated user stories from previous step
+4. Report results from the visual validation (pass/fail per story, with details on any discrepancies observed compared to the baseline screenshots from Step 1.3)
+5. Stop the dev server
 
 #### Step 1.9: Ship
 
@@ -330,13 +322,13 @@ PRIMITIVE={PRIMITIVE}
 COMPONENT_TYPE={auto-detected from transformer}
 ```
 
-#### Step 2.7: Visual Validation (Optional)
+#### Step 2.7: Generate User Story
 
-Same as Path 1 Step 1.7. Only runs if `--playground` was provided.
+Same as Path 1 Step 1.7.
 
-#### Step 2.8: Generate User Story
+#### Step 2.8: Visual Validation (Optional)
 
-Same as Path 1 Step 1.8.
+Same as Path 1 Step 1.8. Only runs if `--playground` was provided.
 
 #### Step 2.9: Ship
 
@@ -355,8 +347,6 @@ Present the final summary using the **Single Sync Report Format** below.
 ### Path 3: Shadcn Batch Sync (Agent Teams)
 
 Discover all missing shadcn components and sync them in parallel using Agent Teams.
-
-**IMPORTANT**: Agent Teams is experimental. Ensure `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set before proceeding.
 
 #### Step 3.1: Discovery
 
@@ -450,7 +440,7 @@ Configuration per teammate:
 - `subagent_type: "zaidan-transformer"`
 - `team_name: "sync-batch"`
 
-Teammates self-claim tasks from the shared list and transform independently.
+Teammates self-claim tasks from the shared list and transform independently, they should coordinate between them for updating the registry file sequentially.
 
 #### Step 3.7: Wait for Transforms
 
@@ -485,34 +475,7 @@ Configuration per teammate:
 
 Wait for all docs teammates to complete.
 
-#### Step 3.9: Generate User Stories
-
-For each successfully synced component (both transform and docs), generate a template-based user story YAML at `ai_review/user_stories/{component-name}.yaml`:
-
-```yaml
-stories:
-  - name: "{ComponentTitle} renders correctly"
-    url: "http://localhost:{APP_PORT}/ui/{component-name}"
-    workflow: |
-      1. Verify the page loads without console errors
-      2. Verify the component preview section is visible
-      3. Interact with the component's primary trigger
-      4. Verify expected behavior (open/close, toggle, animation)
-      5. Scroll to the Examples section
-      6. Verify all example variants are rendered
-
-  - name: "{ComponentTitle} documentation is complete"
-    url: "http://localhost:{APP_PORT}/ui/{component-name}"
-    workflow: |
-      1. Verify the page title is "{ComponentTitle}"
-      2. Verify the Installation section exists
-      3. Verify the Usage section exists with code blocks
-      4. Verify the Examples section lists all variants
-      5. Scroll to the bottom of the page
-      6. Verify no broken links or missing images
-```
-
-#### Step 3.10: Ship
+#### Step 3.9: Ship
 
 Use `git-github-ops` to:
 
@@ -536,18 +499,14 @@ Use `git-github-ops` to:
 | {name} | FAILURE | SKIPPED | {error summary} |
 | {name} | BLOCKED | SKIPPED | Missing dep: {dep} |
 
-## User Stories Generated
-- {count} user stories written to `ai_review/user_stories/`
-
 ## Test plan
-- [ ] Run `/ui-review` to validate all new components
 - [ ] Verify registry.json is valid
 - [ ] Check that all new component files exist in src/registry/{PRIMITIVE}/ui/
 - [ ] Check that all MDX docs exist in src/pages/ui/{PRIMITIVE}/
 - [ ] Check that all example files exist in src/registry/{PRIMITIVE}/examples/
 ```
 
-#### Step 3.11: Cleanup
+#### Step 3.10: Cleanup
 
 1. `SendMessage` with `type: "shutdown_request"` to all teammates
 2. Wait for shutdown acknowledgments
@@ -594,9 +553,9 @@ Run `bun install` inside the worktree.
 
 Same Agent Teams pattern as Path 3 Steps 3.4-3.6, but each teammate receives the source manifest from the external registry instead of shadcn URLs.
 
-#### Step 4.5: Wait, Docs, User Stories
+#### Step 4.5: Wait, Docs
 
-Same as Path 3 Steps 3.7-3.9.
+Same as Path 3 Steps 3.7.
 
 #### Step 4.6: Ship
 

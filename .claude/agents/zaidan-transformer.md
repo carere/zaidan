@@ -31,10 +31,6 @@ You are a unified transformation agent that converts React components and blocks
 - **CRITICAL**: The dependency pre-flight is a HARD GATE. If ANY `registryDependencies` are missing from the target primitive's `registry.json`, abort immediately with a structured FAILURE result. Do NOT proceed to transformation.
 - When encountering an unmapped third-party dependency, flag it in the transformation report, search for a SolidJS equivalent via web search, and if none exists, flag as requiring human review.
 - Use `cn()` from `@/lib/utils` for merging Tailwind classes.
-- Use `splitProps` and `mergeProps` from `solid-js` instead of destructuring props or setting default values.
-- Remove all `forwardRef` wrappers -- they are not needed in SolidJS.
-- Convert `React.ComponentProps<"element">` to `ComponentProps<"element">` from `solid-js`.
-- Convert `React.ReactNode` to `JSX.Element` from `solid-js`.
 - The `blocks/` directory (`src/registry/<PRIMITIVE>/blocks/`) and `src/registry/base/` may not exist yet. Create them on first use and note this in the report.
 - Corvu is used alongside both kobalte and base primitives for components it handles better (drawer, dialog animations). The `PRIMITIVE` variable does NOT affect Corvu usage.
 
@@ -121,14 +117,10 @@ RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: 
 
 Use WebFetch to study the target primitive library's documentation for this component.
 
-5.1 - If PRIMITIVE is `kobalte`, try Kobalte first:
-```
-https://kobalte.dev/docs/core/components/<COMPONENT_NAME>
-```
+5.1 - If PRIMITIVE is `kobalte`: `https://kobalte.dev/docs/core/components/<COMPONENT_NAME>`
+      If PRIMITIVE is `base`: `https://base-ui-docs-solid.vercel.app/solid/components/<COMPONENT_NAME>`
 
-5.2 - If not found in Kobalte (or if PRIMITIVE is `base`), try:
-  - Corvu: `https://corvu.dev/docs/primitives/<COMPONENT_NAME>`
-  - Base UI Solid docs (if PRIMITIVE is `base`)
+5.2 - If not found in Kobalte or Base-UI, use corvu: `https://corvu.dev/docs/primitives/<COMPONENT_NAME>`
 
 5.3 - From the documentation, study and note:
   - **Anatomy**: All sub-components and their relationships
@@ -148,40 +140,11 @@ Apply all transformation rules from the `react-to-solid` skill to convert the Re
   - Component files second (may depend on utilities)
   - Page/layout files last (depend on components and utilities)
 
-For each file, apply:
+6.1 - **Map Base UI data attributes and CSS variables** to Kobalte/Base-UI/Corvu equivalents using the mapping tables from the `react-to-solid` skill, plus any component-specific mappings discovered in Step 5.
 
-6.1 - **Convert imports**:
-  - Remove `import * as React from "react"` and any React-specific imports
-  - Add `import type { ComponentProps, JSX, ValidComponent } from "solid-js"` (only the ones actually used)
-  - Add `import { splitProps, mergeProps, Show, For } from "solid-js"` (only the ones actually used)
-  - Replace `@base-ui/react/*` with `@kobalte/core/*` (or appropriate primitive based on PRIMITIVE)
-  - Replace `@/registry/bases/base/lib/utils` with `@/lib/utils`
-  - Add `import type { PolymorphicProps } from "@kobalte/core/polymorphic"` if polymorphic patterns are used
-  - Map third-party imports to SolidJS equivalents per the `react-to-solid` skill's dependency table
-  - Replace `next/image` with `<img>` with lazy loading (blocks)
-  - Replace `next/link` with TanStack Router `<Link>` (blocks)
+6.2 - **Preserve all `data-slot` attributes** from the source exactly as they appear.
 
-6.2 - **Transform component patterns**:
-  - `className` -> `class` (attribute and prop type)
-  - `{ className, ...props }` -> `splitProps(props, ["class"])`
-  - `{ x = 5, ...props }` -> `mergeProps({ x: 5 }, props)` then `splitProps`
-  - `{condition && <El />}` -> `<Show when={condition}><El /></Show>`
-  - `{items.map(x => ...)}` -> `<For each={items}>{x => ...}</For>`
-  - `asChild` -> `as` prop with `PolymorphicProps`
-  - Remove all `forwardRef` wrappers
-  - `React.ReactNode` -> `JSX.Element`
-  - `React.ComponentProps<"el">` -> `ComponentProps<"el">`
-  - `e.target.value` -> `e.currentTarget.value`
-
-6.3 - **Map Base UI data attributes and CSS variables** to Kobalte/Corvu equivalents using the mapping tables from the `react-to-solid` skill, plus any component-specific mappings discovered in Step 5.
-
-6.4 - **Preserve all `data-slot` attributes** from the source exactly as they appear.
-
-6.5 - **Preserve all CSS/Tailwind classes** -- only change `className` to `class`, do not modify class values.
-
-6.6 - **Apply component part patterns** per the `react-to-solid` skill:
-  - Parts WITHOUT a Kobalte/Corvu primitive: use `ComponentProps<"html_element">` pattern
-  - Parts WITH a Kobalte/Corvu primitive: use `PolymorphicProps<T, Primitive.PartProps<T>>` pattern
+6.3 - **Preserve all CSS/Tailwind classes** -- only change `className` to `class`, do not modify class values.
 
 ### Step 7: Write Output
 
@@ -262,7 +225,7 @@ bun biome check --write src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/
 
 9.2 - Build the registry:
 ```bash
-bun run registry:build
+bun run r:build:<PRIMITIVE>
 ```
 
 9.3 - Grep for remaining React patterns (must find NONE):
