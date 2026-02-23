@@ -5,77 +5,66 @@ default_qa_prompt := "Navigate to https://news.ycombinator.com/. Verify the fron
 default:
     @just --list
 
-# ─── Layer 1: Skill (Capability) ─────────────────────────────
+# ─── Layer 1: Skills (Capabilities) ─────────────────────────
 
-# Playwright skill — direct (headless by default)
-test-playwright-skill headed="true" prompt=default_prompt:
+# Playwright skill — headless browser automation
+test-playwright headed="true" prompt=default_prompt:
     claude --dangerously-skip-permissions --model opus -p "/playwright-bowser (headed: {{ headed }}) {{ prompt }}"
 
-# ─── Layer 2: Subagent (Scale) ───────────────────────────────
+# ─── Layer 2: Subagents (Scale) ─────────────────────────────
 
 # QA agent — structured user story validation
 test-qa headed="true" prompt=default_qa_prompt:
     claude --dangerously-skip-permissions --model opus -p "Use a @bowser-qa-agent: (headed: {{ headed }}) {{ prompt }}"
 
-# Run a single component transformer agent
-transform-component component="accordion":
-    claude --dangerously-skip-permissions --model opus -p "Use @component-transformer to sync {{ component }}"
+# Unified transformer — auto-detects component vs block
+transform name="accordion" primitive="kobalte":
+    claude --dangerously-skip-permissions --model opus -p "Use @zaidan-transformer to sync {{ name }} with primitive={{ primitive }}"
 
-# Run a single block transformer agent
-transform-block block="login-01":
-    claude --dangerously-skip-permissions --model opus -p "Use @block-transformer to sync {{ block }}"
+# Docs syncer — fetch and transform examples + MDX documentation
+sync-docs name="button" primitive="kobalte":
+    claude --dangerously-skip-permissions --model opus -p "Use @docs-syncer to sync docs for {{ name }} with primitive={{ primitive }}"
 
-# ─── Layer 3: Command (Orchestration) ────────────────────────
+# Registry manager — audit or update registry.json
+manage-registry mode="audit" primitive="kobalte":
+    claude --dangerously-skip-permissions --model opus -p "Use @registry-manager in {{ mode }} mode with primitive={{ primitive }}"
 
-# Full component sync (transform + docs + QA + PR)
-sync-component component="button" primitive="kobalte":
-    claude --dangerously-skip-permissions --model opus -p "/sync-component {{ component }} {{ primitive }}"
+# ─── Layer 3: Commands (Orchestration) ──────────────────────
+
+# Sync a single shadcn component (full lifecycle: transform + docs + QA + PR)
+sync name primitive="kobalte" playground="" docs="":
+    claude --dangerously-skip-permissions --model opus -p "/sync {{ name }} --primitive={{ primitive }}{{ if playground != '' { ' --playground=' + playground } else { '' } }}{{ if docs != '' { ' --docs=' + docs } else { '' } }}"
+
+# Sync a single component from an external registry
+sync-external name registry="" primitive="kobalte" playground="" docs="":
+    claude --dangerously-skip-permissions --model opus -p "/sync {{ name }} --registry={{ registry }} --primitive={{ primitive }}{{ if playground != '' { ' --playground=' + playground } else { '' } }}{{ if docs != '' { ' --docs=' + docs } else { '' } }}"
+
+# Batch sync all missing shadcn components
+sync-all primitive="kobalte" filter="" dry-run="":
+    claude --dangerously-skip-permissions --model opus -p "/sync --all --primitive={{ primitive }}{{ if filter != '' { ' --filter=' + filter } else { '' } }}{{ if dry-run != '' { ' --dry-run' } else { '' } }}"
+
+# Batch sync from a third-party registry
+sync-registry registry="" primitive="kobalte" filter="" dry-run="":
+    claude --dangerously-skip-permissions --model opus -p "/sync --registry={{ registry }} --primitive={{ primitive }}{{ if filter != '' { ' --filter=' + filter } else { '' } }}{{ if dry-run != '' { ' --dry-run' } else { '' } }}"
 
 # UI Review — parallel user story validation across all YAML stories
 ui-review headed="headed" filter="" *flags="":
     claude --dangerously-skip-permissions --model opus -p "/ui-review {{ headed }} {{ filter }} {{ flags }}"
 
-# Registry audit — check for missing entries, orphans, schema violations
-registry-audit:
-    claude --dangerously-skip-permissions --model opus -p "/registry-audit"
+# Registry audit — read-only check for missing entries, orphans, schema violations
+registry-audit primitive="kobalte":
+    claude --dangerously-skip-permissions --model opus -p "/registry-audit --primitive={{ primitive }}"
 
-# Registry update — apply fixes, rebuild registry output
-registry-update:
-    claude --dangerously-skip-permissions --model opus -p "/registry-update"
+# Registry update — apply fixes, rebuild registry output, commit
+registry-update primitive="kobalte":
+    claude --dangerously-skip-permissions --model opus -p "/registry-update --primitive={{ primitive }}"
 
-# ═══════════════════════════════════════════════════════════════
-# Zaidan Forge — Agentic Component Registry Lifecycle
-# ═══════════════════════════════════════════════════════════════
-# ─── Layer 3: Commands — shadcn-native ─────────────────────
+# ─── Layer 4: Composed Recipes ──────────────────────────────
 
-# Full block sync
-sync-block block="login-01":
-    claude --dangerously-skip-permissions --model opus \
-      "/sync-block {{ block }}"
-
-# Batch sync all missing shadcn components
-sync-all primitive="kobalte" filter="":
-    claude --dangerously-skip-permissions --model opus \
-      "/sync-all {{ primitive }} {{ filter }}"
-
-# ─── Layer 3: Commands — external sources ──────────────────
-
-# Sync a component from any external source
-sync-external name url="" source="" type="component" primitive="kobalte":
-    claude --dangerously-skip-permissions --model opus \
-      "/sync-external {{ name }} --url={{ url }} --source={{ source }} --type={{ type }} --primitive={{ primitive }}"
-
-# Batch sync from a third-party registry
-sync-registry registry_url="" filter="":
-    claude --dangerously-skip-permissions --model opus \
-      "/sync-registry {{ registry_url }} --filter={{ filter }}"
-
-# ─── Layer 4: Composed recipes ──────────────────────────────
-
-# Sync multiple shadcn components in one shot
+# Sync multiple shadcn components sequentially
 sync-batch *components:
-    for c in {{ components }}; do just sync-component $c; done
+    for c in {{ components }}; do just sync $c; done
 
 # Sync all components from Magic UI
 sync-magicui filter="":
-    just sync-registry "https://magicui.design/r/registry.json" "{{ filter }}"
+    just sync-registry registry="https://magicui.design/r/registry.json" filter="{{ filter }}"
