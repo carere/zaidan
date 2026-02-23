@@ -11,7 +11,7 @@ Resolves user-provided source inputs into a normalized, fetchable manifest. Hand
 
 | Input Format | Example | Resolution |
 |---|---|---|
-| **shadcn default** (no `--source`) | `/sync-component dialog` | Fetch from `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/dialog.tsx` |
+| **shadcn default** (no `--source`) | `/sync dialog` | Fetch from `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/dialog.tsx` |
 | **Raw GitHub URL** | `--source=https://raw.githubusercontent.com/...` | Direct fetch, parse imports for dependencies |
 | **Registry JSON endpoint** | `--source=https://magicui.design/r/shimmer-button.json` | Fetch JSON, parse `files[]` array, fetch each file |
 | **Multiple URLs** | `--source=url1 --source=url2` | Fetch each URL, combine into multi-file manifest |
@@ -63,7 +63,7 @@ Regardless of input format, resolution always produces this JSON structure:
 Determine which resolution strategy to use based on the input:
 
 1. **No `--source` flag**: Default to shadcn GitHub source
-2. **URL ending in `.json`**: Treat as registry JSON endpoint
+2. **URL ending in `.json`**: Fetch JSON. If response has top-level `items[]` array → Format F (multi-item registry). Otherwise → Format C (single component manifest)
 3. **URL starting with `https://`**: Treat as raw GitHub URL (or any raw file URL)
 4. **Multiple `--source` flags**: Treat as multiple URLs
 5. **Path containing glob characters** (`*`, `**`, `?`): Treat as local glob
@@ -104,6 +104,8 @@ curl -s "<url>"
 7. Set `type` based on file location hints or default to `"registry:ui"`
 
 #### Format C: Registry JSON Endpoint
+
+**Note:** If the JSON response contains a top-level `items[]` array, use Format F instead. Format C handles JSON where the response IS the component manifest directly.
 
 When `--source` ends in `.json`:
 
@@ -172,6 +174,53 @@ ls <glob-pattern>
 5. Parse imports from each file to extract `dependencies` and `registryDependencies`
 6. Set `type` based on file location (e.g., files in `ui/` -> `"registry:ui"`, files in `hooks/` -> `"registry:hook"`)
 
+#### Format F: Multi-Item Registry JSON
+
+When a `.json` URL returns a response with a top-level `items[]` array (following the shadcn registry schema `$schema: https://ui.shadcn.com/schema/registry.json`):
+
+1. Fetch the JSON endpoint
+2. Check if the response has a top-level `items` array
+3. **If component name is provided** (single sync):
+   - Find the item where `item.name === component-name`
+   - If not found, report error: "Component `<name>` not found in registry. Available items: `<list of item names>`" and stop
+   - Extract that item's `files[]`, `dependencies`, `registryDependencies`, `cssVars`
+   - For each file in `files[]`:
+     - If the file entry contains `content` inline, use it directly
+     - If the file entry contains a `url`, fetch that URL to get the content
+     - If the file entry contains only a `path`, construct the URL from the registry base and fetch
+   - Set `source` from the registry domain
+   - Set `name` from the matched item's `name` field
+   - Set `type` from the matched item's `type` field
+4. **If no component name** (batch discovery):
+   - Return all items from the `items[]` array for discovery/diffing
+   - Each item contains at minimum `name` and `type` fields
+   - The caller (e.g., `/sync --registry=<url>`) uses this list to diff against Zaidan's registry and determine what's missing
+5. If JSON has no `items[]` array, fall back to existing Format C behavior (the JSON IS the component manifest)
+
+**Example multi-item registry JSON response:**
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "data-table-filter",
+      "type": "registry:block",
+      "files": [
+        { "path": "index.tsx", "content": "...", "type": "registry:block" },
+        { "path": "components/filter-popover.tsx", "content": "...", "type": "registry:block" }
+      ],
+      "dependencies": ["date-fns"],
+      "registryDependencies": ["button", "calendar", "popover"]
+    },
+    {
+      "name": "data-table-filter-i18n",
+      "type": "registry:block",
+      "files": [...]
+    }
+  ]
+}
+```
+
 ### Step 3: Parse Dependencies from Imports
 
 For any file content, extract dependencies by scanning import statements:
@@ -205,7 +254,7 @@ Before returning the manifest, validate:
 
 Input:
 ```
-/sync-component dialog
+/sync dialog
 ```
 
 Resolution:
@@ -235,7 +284,7 @@ Resolution:
 
 Input:
 ```
-/sync-external shimmer-button --source=https://magicui.design/r/shimmer-button.json
+/sync shimmer-button --source=https://magicui.design/r/shimmer-button.json
 ```
 
 Resolution:
@@ -268,7 +317,7 @@ Resolution:
 
 Input:
 ```
-/sync-external marquee --source=https://raw.githubusercontent.com/magicuidesign/magicui/main/registry/magicui/marquee.tsx
+/sync marquee --source=https://raw.githubusercontent.com/magicuidesign/magicui/main/registry/magicui/marquee.tsx
 ```
 
 Resolution:
@@ -298,7 +347,7 @@ Resolution:
 
 Input:
 ```
-/sync-external my-component --source="./external/magic-ui/src/**/*.tsx"
+/sync my-component --source="./external/magic-ui/src/**/*.tsx"
 ```
 
 Resolution:
@@ -328,6 +377,48 @@ Resolution:
 }
 ```
 
+### Example 5: Multi-Item Registry (batch discovery)
+
+Input:
+```
+/sync --registry=https://raw.githubusercontent.com/bazzalabs/ui/refs/heads/main/apps/web/registry.json
+```
+
+Resolution:
+1. URL ends in `.json` → fetch JSON
+2. Response has top-level `items[]` array → Format F (multi-item registry)
+3. No component name provided → batch discovery mode
+4. Return all items for diffing against Zaidan's registry
+5. Caller determines which items are missing and processes each
+
+### Example 6: Multi-Item Registry (single component extraction)
+
+Input:
+```
+/sync data-table-filter --registry=https://raw.githubusercontent.com/bazzalabs/ui/refs/heads/main/apps/web/registry.json
+```
+
+Resolution:
+1. URL ends in `.json` → fetch JSON
+2. Response has top-level `items[]` array → Format F (multi-item registry)
+3. Component name `data-table-filter` provided → find matching item
+4. Extract 21 files, `dependencies: ["date-fns"]`, `registryDependencies: ["button", "calendar", ...]`
+5. Produce manifest:
+
+```json
+{
+  "source": "bazza",
+  "name": "data-table-filter",
+  "files": [
+    { "path": "index.tsx", "content": "...", "type": "registry:block" },
+    { "path": "components/filter-popover.tsx", "content": "...", "type": "registry:block" }
+  ],
+  "dependencies": ["date-fns"],
+  "registryDependencies": ["button", "calendar", "checkbox", "command", "dropdown-menu", "input", "label", "popover", "separator", "slider", "table", "tabs", "use-mobile"],
+  "cssVars": {}
+}
+```
+
 ## Error Handling
 
 | Error | Action |
@@ -339,14 +430,18 @@ Resolution:
 | **No files matched** (local glob) | Report: "No files matched the glob pattern `<pattern>`. Verify the path and pattern." Stop resolution. |
 | **Missing `files[]` in JSON** | Report: "Registry JSON does not contain a `files` array. Attempting to treat as a single-file source." Fall back to direct content extraction. |
 | **Import parse failure** | Report: "Could not parse imports from `<file>`. Dependencies may be incomplete." Continue with partial results. |
+| **Component not found in multi-item registry** | Report: "Component `<name>` not found in registry `<url>`. Available items: `<comma-separated list of item.name>`. Verify the component name." Stop resolution. |
 
 ## Registry Discovery
 
-When using `/sync-registry` to batch-sync from a third-party registry:
+When using `/sync --registry=<url>` to batch-sync from a third-party registry:
 
-1. Fetch the registry manifest (e.g., `https://magicui.design/r/registry.json`)
-2. The manifest contains an array of component entries
-3. Each entry has at minimum `name` and `type` fields
-4. Diff against Zaidan's `registry.json` to find components not yet synced
-5. For each component to sync, resolve its individual source using the appropriate format above
-6. Return an array of manifests, one per component
+1. Fetch the registry manifest (e.g., `https://raw.githubusercontent.com/bazzalabs/ui/refs/heads/main/apps/web/registry.json`)
+2. If the manifest has a top-level `items[]` array (Format F), return all items for discovery
+3. If the manifest is a flat array of component entries, return all entries for discovery
+4. Each entry has at minimum `name` and `type` fields
+5. Diff against Zaidan's `src/registry/<PRIMITIVE>/registry.json` to find components not yet synced
+6. For each component to sync, resolve its individual source:
+   - For multi-item registries (Format F): extract the specific item from the `items[]` array
+   - For flat registries: resolve using the appropriate format (Format B or Format C)
+7. Return an array of manifests, one per component
