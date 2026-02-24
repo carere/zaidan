@@ -1,0 +1,20 @@
+stories:
+  - name: "Data Table Filter i18n add-on renders correctly"
+    url: "http://localhost:3000/registry/bazza/data-table-filter-i18n"
+    workflow: |
+      1. Verify the page loads without console errors
+      2. Verify the component preview section is visible
+      3. Verify i18n locale switching functionality is demonstrated
+      4. Verify filter labels change when locale is switched
+      5. Scroll to the Examples section
+      6. Verify all locale variants (en, fr, de, nl, zh-CN, zh-TW) are shown
+
+  - name: "Data Table Filter i18n documentation is complete"
+    url: "http://localhost:3000/registry/bazza/data-table-filter-i18n"
+    workflow: |
+      1. Verify the page title is "Data Table Filter - i18n"
+      2. Verify the Installation section exists
+      3. Verify the Usage section exists with code blocks
+      4. Verify instructions for adding custom locales are present
+      5. Scroll to the bottom of the page
+      6. Verify no broken links or missing images

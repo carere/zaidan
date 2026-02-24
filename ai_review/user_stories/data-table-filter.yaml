@@ -1,0 +1,20 @@
+stories:
+  - name: "Data Table Filter renders correctly"
+    url: "http://localhost:3000/registry/bazza/data-table-filter"
+    workflow: |
+      1. Verify the page loads without console errors
+      2. Verify the component preview section is visible
+      3. Interact with the component's primary trigger (filter button)
+      4. Verify the filter popover opens with filter options
+      5. Select a filter category and verify filter value inputs appear
+      6. Apply a filter and verify the active filter tag is displayed
+
+  - name: "Data Table Filter documentation is complete"
+    url: "http://localhost:3000/registry/bazza/data-table-filter"
+    workflow: |
+      1. Verify the page title is "Data Table Filter"
+      2. Verify the Installation section exists
+      3. Verify the Usage section exists with code blocks
+      4. Verify the Examples section lists all variants
+      5. Scroll to the bottom of the page
+      6. Verify no broken links or missing images

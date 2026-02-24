@@ -1,0 +1,20 @@
+stories:
+  - name: "Data Table Filter TanStack Table add-on renders correctly"
+    url: "http://localhost:3000/registry/bazza/data-table-filter-tst"
+    workflow: |
+      1. Verify the page loads without console errors
+      2. Verify the component preview section is visible
+      3. Verify TanStack Table integration is demonstrated
+      4. Interact with the table filter controls
+      5. Verify client-side filtering updates the table rows
+      6. Scroll to the Examples section and verify examples render
+
+  - name: "Data Table Filter TanStack Table documentation is complete"
+    url: "http://localhost:3000/registry/bazza/data-table-filter-tst"
+    workflow: |
+      1. Verify the page title is "Data Table Filter - TanStack Table"
+      2. Verify the Installation section exists
+      3. Verify the Usage section exists with code blocks
+      4. Verify integration setup instructions are present
+      5. Scroll to the bottom of the page
+      6. Verify no broken links or missing images
