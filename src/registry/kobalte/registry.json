@@ -552,7 +552,7 @@
       "name": "sonner",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid", "solid-sonner"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/use-color-mode.json"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/color-mode.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/sonner.tsx",
