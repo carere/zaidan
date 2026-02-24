@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
-import { createSignal } from "solid-js";
+import { CircleAlert } from "lucide-solid";
+import { createSignal, ErrorBoundary } from "solid-js";
 import { CliButton } from "@/components/cli-button";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
@@ -39,7 +40,7 @@ function RouteComponent() {
         <header
           class={cn(
             "fixed top-0 z-50 flex w-full items-center px-4 py-3 **:data-[slot=separator]:h-4! md:gap-2",
-            { "max-w-screen-2xl pr-[72px]": isFullLayout() },
+            { "max-w-screen-2xl pr-18": isFullLayout() },
           )}
         >
           <div class="flex items-center lg:mr-2 xl:w-1/3">
@@ -54,7 +55,14 @@ function RouteComponent() {
             <RandomButton class="md:hidden" />
           </div>
           <div class="ml-auto flex items-center gap-2 md:justify-end xl:ml-auto xl:w-1/3">
-            <GitHubLink />
+            <ErrorBoundary
+              fallback={(error) => {
+                console.error("Error loading GitHub stars:", error);
+                return <CircleAlert class="size-4 fill-red-800" />;
+              }}
+            >
+              <GitHubLink />
+            </ErrorBoundary>
             <Separator orientation="vertical" />
             <SiteConfig class="hidden xl:flex" onClick={() => switchLayout(!isFullLayout())} />
             <Separator orientation="vertical" class="hidden xl:flex" />

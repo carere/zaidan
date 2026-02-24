@@ -48,12 +48,12 @@ export function CliButton() {
     const baseColor = params.baseColor ?? DEFAULT_CONFIG.baseColor;
 
     // Build packages list, avoiding duplicates when baseColor and theme are the same
-    const packagesList = [
-      `@zaidan/font-${font}`,
-      `@zaidan/${theme}`,
-      `@zaidan/radius-${radius}`,
-      `@zaidan/style-${style}`,
-    ];
+    const packagesList = [`@zaidan/font-${font}`, `@zaidan/${theme}`, `@zaidan/style-${style}`];
+
+    // Only add radius package when it's not the default value
+    if (radius !== "default") {
+      packagesList.push(`@zaidan/radius-${radius}`);
+    }
 
     // Only add baseColor if it's different from theme
     if (baseColor !== theme) {

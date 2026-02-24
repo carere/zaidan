@@ -1,8 +1,7 @@
 import { createMemo, createResource, Suspense } from "solid-js";
-
-import { Github } from "@/components/icons/github";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Skeleton } from "@/registry/kobalte/ui/skeleton";
+import { Github } from "./icons/github";
 
 export function StarsCount() {
   const [data] = createResource(async () => {
@@ -18,7 +17,7 @@ export function StarsCount() {
 
   const formattedCount = createMemo(() => {
     const json = data();
-    if (!json) return;
+    if (!json || json.stargazers_count === undefined) return;
     return json.stargazers_count >= 1000
       ? `${Math.round(json.stargazers_count / 1000)}k`
       : json.stargazers_count.toLocaleString();
@@ -39,7 +38,7 @@ export function GitHubLink() {
       class="h-8 shadow-none"
     >
       <Github class="fill-foreground" />
-      <Suspense fallback={<Skeleton class="h-4 w-[42px]" />}>
+      <Suspense fallback={<Skeleton class="h-4 w-10.5" />}>
         <StarsCount />
       </Suspense>
     </Button>
