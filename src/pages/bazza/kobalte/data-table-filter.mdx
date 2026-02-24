@@ -1,0 +1,339 @@
+---
+title: Data Table Filter
+slug: data-table-filter
+description: A powerful data table filter component. Library-agnostic. Supports client and server-side filtering.
+---
+
+# Data Table Filter
+
+A powerful data table filter component. Library-agnostic. Supports client and server-side filtering.
+
+Inspired by [Linear's](https://linear.app) filter UI, this block provides:
+
+- A `useDataTableFilters()` hook that exposes filter state
+- A `<DataTableFilter />` component built with shadcn/ui components
+- Integrations for TanStack Table and nuqs (URL persistence)
+- Built-in internationalization support (en, fr, de, nl, zh_CN, zh_TW)
+
+> This component is ported from [bazza/ui](https://ui.bazza.dev/docs/data-table-filter).
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/data-table-filter
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+date-fns lucide-solid
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/blocks/data-table-filter/index.tsx showLineNumbers
+
+```
+
+Then copy the remaining block files from the `data-table-filter` directory:
+
+- `components/data-table-filter.tsx` -- Main filter component
+- `components/active-filters.tsx` -- Active filter pills
+- `components/filter-actions.tsx` -- Filter action buttons
+- `components/filter-operator.tsx` -- Operator selector
+- `components/filter-selector.tsx` -- Column filter selector
+- `components/filter-subject.tsx` -- Subject display
+- `components/filter-value.tsx` -- Value input controls
+- `core/filters.ts` -- Column configuration builder
+- `core/operators.ts` -- Filter operator definitions
+- `core/types.ts` -- TypeScript types
+- `hooks/use-data-table-filters.tsx` -- Main hook
+- `hooks/use-debounce-callback.tsx` -- Debounce hook
+- `hooks/use-unmount.tsx` -- Unmount lifecycle hook
+- `lib/array.ts` -- Array utilities
+- `lib/debounce.ts` -- Debounce utility
+- `lib/filter-fns.ts` -- Filter functions
+- `lib/helpers.ts` -- Helper functions
+- `lib/i18n.ts` -- Internationalization
+- `lib/memo.ts` -- Memoization utility
+- `ui/debounced-input.tsx` -- Debounced input component
+- `locales/en.json` -- English translations
+
+## Usage
+
+```tsx
+import { DataTableFilter } from "~/components/data-table-filter";
+import { createColumnConfigHelper } from "~/components/data-table-filter/core/filters";
+import { useDataTableFilters } from "~/components/data-table-filter/hooks/use-data-table-filters";
+```
+
+```tsx showLineNumbers
+const dtf = createColumnConfigHelper<YourDataType>();
+
+const columnsConfig = [
+  dtf
+    .text()
+    .id("title")
+    .accessor((row) => row.title)
+    .displayName("Title")
+    .icon(Heading1Icon)
+    .build(),
+  dtf
+    .option()
+    .id("status")
+    .accessor((row) => row.status)
+    .displayName("Status")
+    .icon(CircleDotDashedIcon)
+    .options(statusOptions)
+    .build(),
+] as const;
+
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: yourData,
+  columnsConfig,
+});
+
+<DataTableFilter
+  filters={filters()}
+  columns={columns()}
+  actions={actions}
+  strategy={strategy}
+/>
+```
+
+## Column Data Types
+
+The filter supports five column data types:
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `text` | Searchable text data | Title, description |
+| `number` | Numerical data | Hours, price |
+| `date` | Date values | Created at, due date |
+| `option` | Single-valued option | Status, priority |
+| `multiOption` | Multi-valued option | Labels, tags |
+
+## Strategies
+
+### Client Strategy
+
+With the client strategy, the client receives all the table data and filters locally in the browser.
+
+```tsx showLineNumbers
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: allData,
+  columnsConfig,
+});
+```
+
+### Server Strategy
+
+With the server strategy, the client sends filter requests to the server. The server applies filters and sends back only filtered data.
+
+```tsx showLineNumbers
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "server",
+  data: fetchedData,
+  columnsConfig,
+  options: {
+    status: statusOptions,
+    assignee: userOptions,
+  },
+});
+```
+
+## Default Filters
+
+You can set default filters that are applied when the component mounts:
+
+```tsx showLineNumbers
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: issues,
+  columnsConfig,
+  defaultFilters: [
+    {
+      columnId: "status",
+      type: "option",
+      operator: "is",
+      values: ["backlog"],
+    },
+  ],
+});
+```
+
+## Controlled State
+
+For full control over the filter state (e.g., for URL persistence), use controlled mode:
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+import type { FiltersState } from "~/components/data-table-filter/core/types";
+
+const [filters, setFilters] = createSignal<FiltersState>([]);
+
+const { columns, filters: filterState, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: issues,
+  columnsConfig,
+  filters: filters,
+  onFiltersChange: setFilters,
+});
+```
+
+## Remote Options
+
+When your filter options come from an API, pass them via the `options` parameter:
+
+```tsx showLineNumbers
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: issues,
+  columnsConfig,
+  options: {
+    status: statusOptions,
+    assignee: userOptions,
+    labels: labelOptions,
+  },
+});
+```
+
+## Faceted Values
+
+Faceted values show the count of each option value, helping users understand the data distribution:
+
+```tsx showLineNumbers
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: issues,
+  columnsConfig,
+  faceted: {
+    status: facetedStatuses,
+    assignee: facetedUsers,
+    labels: facetedLabels,
+    estimatedHours: facetedEstimatedHours,
+  },
+});
+```
+
+## Internationalization
+
+Install the i18n add-on to enable locale support:
+
+```package-dlx
+shadcn@latest add @zaidan/data-table-filter-i18n
+```
+
+Supported locales: `en`, `fr`, `zh_CN`, `zh_TW`, `nl`, `de`
+
+```tsx showLineNumbers
+<DataTableFilter
+  filters={filters()}
+  columns={columns()}
+  actions={actions}
+  strategy={strategy}
+  locale="fr"
+/>
+```
+
+## TanStack Table Integration
+
+Install the TanStack Table integration:
+
+```package-dlx
+shadcn@latest add @zaidan/data-table-filter-tst
+```
+
+```tsx showLineNumbers
+import { createTSTColumns, createTSTFilters } from "~/components/data-table-filter/integrations/tanstack-table";
+import { createColumnHelper, createSolidTable, getCoreRowModel, getFilteredRowModel } from "@tanstack/solid-table";
+
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: "client",
+  data: issues,
+  columnsConfig,
+});
+
+const tstColumns = createMemo(() =>
+  createTSTColumns({
+    columns: tableColumnDefs,
+    configs: columns(),
+  }),
+);
+
+const tstFilters = createMemo(() => createTSTFilters(filters()));
+
+const table = createSolidTable({
+  get data() {
+    return issues;
+  },
+  get columns() {
+    return tstColumns();
+  },
+  getCoreRowModel: getCoreRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+  state: {
+    get columnFilters() {
+      return tstFilters();
+    },
+  },
+});
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { CircleDotDashedIcon, HashIcon, Heading1Icon, TagIcon, UserIcon, CalendarIcon } from "lucide-solid";
+import { DataTableFilter } from "~/components/data-table-filter";
+import { createColumnConfigHelper } from "~/components/data-table-filter/core/filters";
+import { useDataTableFilters } from "~/components/data-table-filter/hooks/use-data-table-filters";
+```
+
+```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L159-L177
+
+```
+
+### With Default Filters
+
+```tsx
+import { DataTableFilter } from "~/components/data-table-filter";
+import { useDataTableFilters } from "~/components/data-table-filter/hooks/use-data-table-filters";
+```
+
+```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L179-L205
+
+```
+
+### Controlled State
+
+```tsx
+import { createMemo, createSignal } from "solid-js";
+import { DataTableFilter } from "~/components/data-table-filter";
+import type { FiltersState } from "~/components/data-table-filter/core/types";
+import { useDataTableFilters } from "~/components/data-table-filter/hooks/use-data-table-filters";
+```
+
+```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L207-L254
+
+```
+
+### Internationalization (French)
+
+```tsx
+import { DataTableFilter } from "~/components/data-table-filter";
+import { useDataTableFilters } from "~/components/data-table-filter/hooks/use-data-table-filters";
+```
+
+```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L256-L283
+
+```
