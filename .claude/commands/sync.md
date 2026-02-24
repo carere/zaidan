@@ -1,12 +1,12 @@
 ---
 model: opus
-description: "Unified sync command for shadcn and external components/blocks. Routes to single or batch path based on flags."
-argument-hint: "[name] [--primitive=kobalte|base] [--registry=<url>] [--docs=<url>] [--playground=<url>] [--all] [--filter=<pattern>] [--dry-run]"
+description: "Unified sync command for shadcn and external components/blocks. Auto-detects scope from filters."
+argument-hint: "[--primitive=kobalte|base] [--registry=<url>] [--docs=<template>] [--playground=<template>] [--filter=<pattern>] [--dry-run]"
 ---
 
 # Purpose
 
-Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager` and `git-github-ops` skills, and generates QA user stories to transform react shadcn-based components/blocks/registry to Zaidan.
+Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager` and `git-github-ops` skills, and generates QA user stories to transform react shadcn-based components/blocks/registry to Zaidan. Routes between two modes: **shadcn** (default) and **external** (when `--registry` is provided).
 
 ## Variables
 
@@ -16,15 +16,21 @@ ARGUMENTS: $ARGUMENTS
 
 Parse from `$ARGUMENTS`:
 
-- `NAME` -- first positional argument (optional)
-- `REGISTRY` -- derived from routing: `shadcn` for Paths 1/3, derived from registry URL domain for Paths 2/4 (e.g., `bazza` from bazzalabs URL). Defaults to `shadcn`.
-- `--primitive=kobalte|base` (default: `kobalte`)
-- `--registry=<url>` (optional -- external registry JSON URL)
-- `--docs=<url>` (optional -- raw documentation URL)
-- `--playground=<url>` (optional -- live playground URL, enables visual analysis)
-- `--all` (optional -- batch sync all missing shadcn components)
-- `--filter=<pattern>` (optional -- regex pattern to scope batch selection)
-- `--dry-run` (optional -- report discovery results without syncing)
+- `PRIMITIVE` -- `--primitive` value (default: `kobalte`)
+- `REGISTRY_URL` -- `--registry` value (optional, external registry JSON URL)
+- `DOCS_INPUT` -- `--docs` value (optional, URL template with `{component}` placeholder and optional `|prompt` suffix)
+- `PLAYGROUND_INPUT` -- `--playground` value (optional, URL template with `{component}` placeholder and optional `|prompt` suffix)
+- `FILTER` -- `--filter` value (optional, regex pattern)
+- `DRY_RUN` -- boolean, true if `--dry-run` flag present
+
+Derived variables:
+
+- `MODE` -- `shadcn` if no `--registry`, `external` if `--registry` is provided
+- `REGISTRY_NAME` -- `shadcn` for shadcn mode, derived from URL domain for external mode
+- `DOCS_URL_TEMPLATE` -- URL part of `--docs` (before `|`)
+- `DOCS_PROMPT` -- prompt part of `--docs` (after `|`, or empty)
+- `PLAYGROUND_URL_TEMPLATE` -- URL part of `--playground` (before `|`)
+- `PLAYGROUND_PROMPT` -- prompt part of `--playground` (after `|`, or empty)
 
 ## Codebase Structure
 
@@ -56,10 +62,12 @@ ai_review/
 
 ## Instructions
 
-- Parse `$ARGUMENTS` to extract name, flags, and options
-- Route based on the combination of name and flags (4 routing paths described in Phase 0)
-- Single sync uses the Task tool (subagent) to spawn agents
-- Batch sync uses Agent Teams (`TeamCreate`, `TaskCreate`, `SendMessage`, `TeamDelete`)
+- Parse `$ARGUMENTS` to extract flags and options
+- Route based on presence of `--registry` flag (2 modes: shadcn or external)
+- If `--registry` is provided and points to a shadcn URL (contains `shadcn` or `ui.shadcn.com`), abort with message: "For shadcn components, use `/sync` without `--registry`. Shadcn URLs are built-in."
+- If `--registry` is provided, require both `--docs` and `--playground` -- abort if either is missing
+- If `--registry` is NOT provided, ignore `--docs`/`--playground` even if passed -- use hardcoded shadcn URLs
+- Always uses Agent Teams for execution, regardless of component count
 - Git operations (commit, push, PR) are handled at this command level, NOT by agents
 - Use the `worktree-manager` skill for worktree creation
 - Use the `git-github-ops` skill for git and GitHub operations
@@ -73,309 +81,93 @@ ai_review/
 0.1 - Parse all arguments from `$ARGUMENTS`:
 
 ```
-NAME         = first positional argument (no -- prefix), or empty
-PRIMITIVE    = value of --primitive flag, default "kobalte"
-REGISTRY_URL = value of --registry flag, or empty
-DOCS_URL     = value of --docs flag, or empty
-PLAYGROUND   = value of --playground flag, or empty
-ALL          = true if --all flag is present
-FILTER       = value of --filter flag, or empty
-DRY_RUN      = true if --dry-run flag is present
-REGISTRY     = "shadcn" (updated to source name in Path 2/4)
+PRIMITIVE         = value of --primitive flag, default "kobalte"
+REGISTRY_URL      = value of --registry flag, or empty
+DOCS_INPUT        = value of --docs flag, or empty
+PLAYGROUND_INPUT  = value of --playground flag, or empty
+FILTER            = value of --filter flag, or empty
+DRY_RUN           = true if --dry-run flag is present
 ```
 
-0.2 - Determine routing path:
+0.2 - Parse URL templates (if provided):
 
-| Condition | Path | Mode |
-|-----------|------|------|
-| NAME is provided AND no `--registry` AND no `--all` | **Path 1** | Shadcn single sync (subagent) |
-| NAME is provided AND `--registry` is provided | **Path 2** | External single sync (subagent) |
-| `--all` is provided (no NAME required) | **Path 3** | Shadcn batch sync (Agent Teams) |
-| `--registry` is provided AND no NAME | **Path 4** | External batch sync (Agent Teams) |
-| None of the above match | **Abort** | Usage error |
+```
+For --docs="https://example.com/docs/{component}|Look in the API section":
+  DOCS_URL_TEMPLATE    = "https://example.com/docs/{component}"
+  DOCS_PROMPT          = "Look in the API section"
 
-0.3 - If no valid path matches, abort with:
+For --playground="https://example.com/{component}":
+  PLAYGROUND_URL_TEMPLATE = "https://example.com/{component}"
+  PLAYGROUND_PROMPT       = "" (empty, no prompt)
+```
+
+Split on `|` -- first part is URL template, second part (if present) is the extraction prompt.
+
+0.3 - Determine mode:
+
+**If `--registry` is provided:**
+
+- Check if the URL contains `shadcn` or `ui.shadcn.com` -- abort with: "For shadcn components, use `/sync` without `--registry`. Shadcn URLs are built-in."
+- Check `--docs` is provided -- abort with: "External registries require `--docs` flag. Provide a docs URL template with `{component}` placeholder."
+- Check `--playground` is provided -- abort with: "External registries require `--playground` flag. Provide a playground URL template with `{component}` placeholder."
+- `MODE = "external"`
+- `REGISTRY_NAME` = derive from URL domain (e.g., `bazza` from bazzalabs URL, `magicui` from `magicui.design`)
+
+**If `--registry` is NOT provided:**
+
+- `MODE = "shadcn"`
+- `REGISTRY_NAME = "shadcn"`
+- Use hardcoded shadcn URLs:
+  ```
+  SOURCE_TEMPLATE     = https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base/ui/{component}.tsx
+  BLOCKS_TEMPLATE     = https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base/blocks/{component}/**/*.tsx
+  REGISTRY_DISCOVERY  = https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/_registry.ts
+  DOCS_URL_TEMPLATE   = https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/base/{component}.mdx
+  PLAYGROUND_URL_TEMPLATE = https://ui.shadcn.com/create?item={component}-example
+  DOCS_PROMPT         = ""
+  PLAYGROUND_PROMPT   = ""
+  ```
+
+0.4 - If no valid mode matches, abort with:
 
 ```
 ERROR: Invalid arguments. Usage:
-  /sync <name>                                    # shadcn single component
-  /sync <name> --registry=<url>                   # external single component
-  /sync --all                                     # shadcn batch (all missing)
-  /sync --registry=<url>                          # external batch (all missing from registry)
+  /sync                                              # sync all missing shadcn components
+  /sync --filter=<pattern>                           # sync matching shadcn components
+  /sync --registry=<url> --docs=<tpl> --playground=<tpl>  # sync from external registry
 
-Optional flags: --primitive=kobalte|base --docs=<url> --playground=<url> --filter=<pattern> --dry-run
+Optional flags: --primitive=kobalte|base --filter=<pattern> --dry-run
+
+URL templates use {component} placeholder:
+  --docs="https://example.com/docs/{component}|Optional extraction prompt"
+  --playground="https://example.com/{component}"
 ```
 
 ---
 
-### Path 1: Shadcn Single Sync (Subagent)
+### Phase 1: Discovery
 
-Full lifecycle for syncing a single component from the shadcn GitHub repository.
+1.1 - **Shadcn mode**: Fetch the shadcn component registry from `REGISTRY_DISCOVERY` URL, extract all component names.
 
-#### Step 1.1: Resolve Source
+1.2 - **External mode**: Fetch the `REGISTRY_URL` JSON. If it has `items[]` array, extract all item names. Otherwise, treat as single-component manifest.
 
-Derive all URLs from the component name for shadcn GitHub:
+1.3 - Read Zaidan's registry at `src/registry/{PRIMITIVE}/registry.json`. Diff against the source to find missing components.
 
-```
-Raw source:   https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base/ui/{NAME}.tsx
-              (or https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base//blocks/{NAME}/**/*.tsx for multi-file sources)
-Registry:     https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/_registry.ts
-Raw Docs:     https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/base/{NAME}.mdx
-Playground:   https://ui.shadcn.com/create?item={NAME}-example
-```
+1.4 - If `FILTER` is set, apply regex to the missing components list. Only keep matches.
 
-Produce a normalized source manifest (JSON) with `files[]`, `dependencies[]`, `registryDependencies[]`.
+1.5 - If no components are missing, report "Registry is fully synced" and STOP.
 
-#### Step 1.2: Create Worktree
+1.6 - Set `COMPONENTS_TO_SYNC` = the filtered list of missing component names.
 
-Use the `worktree-manager` skill to create a new git worktree:
-
-- Branch name: `feat/sync-{NAME}`
-- Worktree path: `trees/feat/sync-{NAME}`
-
-Run `bun install` inside the worktree to ensure all dependencies are available.
-
-#### Step 1.3: Visual Analysis (Optional)
-
-**Only if `--playground` is provided (or PLAYGROUND is derived from shadcn URL).**
-
-Run the Playwright three-stage pipeline on the playground URL:
-
-- **EXPLORE**: Visit the playground URL. Systematically interact with the component -- click triggers, open menus/dialogs/popovers, type into inputs, navigate tabs, hover elements, resize viewport, use keyboard navigation (Tab, Enter, Escape, Arrow keys). Screenshot at each significant state change across 3 viewports (1280px, 768px, 375px).
-- **FILTER**: From all observed interactions, keep only those revealing meaningful component behavior (open/close, data input, selection, navigation, animation, state change, responsive layout differences). Discard noise (redundant clicks, non-interactive elements, duplicate states).
-- **ENCODE**: Store filtered interactions for user story generation (Step 1.7).
-
-#### Step 1.4: Dependency Gate
-
-Check all `registryDependencies` from the source manifest against `src/registry/{PRIMITIVE}/registry.json`.
-
-**This is a HARD GATE.** If ANY registry dependency is missing:
-
-1. Report the missing dependencies clearly
-2. Provide the exact `/sync` commands to run first
-3. **ABORT immediately** -- do NOT proceed to transformation
-
-```
-BLOCKED: Missing registry dependencies
-
-The component "{NAME}" requires {N} registry dependencies.
-Checked against: src/registry/{PRIMITIVE}/registry.json
-{found} found, {missing_count} missing:
-
-  Missing:
-    - {dep1}
-    - {dep2}
-
-Sync the missing dependencies first (same --primitive), then retry:
-
-  /sync {dep1} --primitive={PRIMITIVE}
-  /sync {dep2} --primitive={PRIMITIVE}
-  /sync {NAME} --primitive={PRIMITIVE}
-```
-
-#### Step 1.5: Spawn Transformer
-
-Deploy the `zaidan-transformer` agent via the Task tool with the following prompt:
-
-```
-Transform this component and report results:
-
-COMPONENT_NAME={NAME}
-SOURCE_MANIFEST={source manifest JSON from Step 1.1}
-PRIMITIVE={PRIMITIVE}
-VISUAL_URL={PLAYGROUND if provided, otherwise omit this line}
-WORKTREE_PATH={worktree absolute path}
-
-Follow your full workflow: source resolution, dependency pre-flight,
-auto-detect component vs block from file count, transform all files,
-write output to the correct path, update registry, validate.
-Use the specified primitive for all import mappings and output paths.
-
-Use this exact format for your final result line:
-  RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path}
-```
-
-The agent file is located at `.claude/agents/zaidan-transformer.md`.
-
-Parse the `RESULT` line from the transformer's report.
-
-#### Step 1.6: Spawn Docs Syncer
-
-Deploy the `docs-syncer` agent via the Task tool with the following prompt:
-
-```
-Sync documentation and examples for the following component:
-
-COMPONENT_NAME={NAME}
-SOURCE={shadcn raw docs URL from Step 1.1}
-PRIMITIVE={PRIMITIVE}
-REGISTRY=shadcn
-COMPONENT_TYPE={auto-detected from transformer: "component" or "block"}
-
-Follow your full workflow: worktree guard, resolve source, fetch and transform
-examples, write examples, fetch and transform documentation, write MDX
-documentation, lint and format, type check. Provide the full structured report
-when done.
-```
-
-The agent file is located at `.claude/agents/docs-syncer.md`.
-
-#### Step 1.7: Generate User Story
-
-Read `$APP_PORT` from the `.env` file in the worktree (or use `3000` as fallback).
-
-Generate a YAML user story file at `ai_review/user_stories/{NAME}.yaml`.
-
-**If `--playground` was provided**: derive workflow steps from the Playwright observations (three-stage pipeline). Each filtered interaction from FILTER becomes a step (action), each observed result becomes an assertion (verification). The stories are derived from observed behavior, not templated.
-
-**If `--playground` was NOT provided**: use the template-based generic workflow:
-
-```yaml
-stories:
-  - name: "{ComponentTitle} renders correctly"
-    url: "http://localhost:{APP_PORT}/registry/{REGISTRY}/{NAME}"
-    workflow: |
-      1. Verify the page loads without console errors
-      2. Verify the component preview section is visible
-      3. Interact with the component's primary trigger
-      4. Verify expected behavior (open/close, toggle, animation)
-      5. Scroll to the Examples section
-      6. Verify all example variants are rendered
-
-  - name: "{ComponentTitle} documentation is complete"
-    url: "http://localhost:{APP_PORT}/registry/{REGISTRY}/{NAME}"
-    workflow: |
-      1. Verify the page title is "{ComponentTitle}"
-      2. Verify the Installation section exists
-      3. Verify the Usage section exists with code blocks
-      4. Verify the Examples section lists all variants
-      5. Scroll to the bottom of the page
-      6. Verify no broken links or missing images
-```
-
-Replace `{ComponentTitle}` with the PascalCase title of the component (e.g., "Dialog", "Alert Dialog", "Shimmer Button").
-
-#### Step 1.8: Visual Validation (Optional)
-
-**Only if `--playground` was provided and the EXPLORE stage ran in Step 1.3.**
-
-1. Start the dev server if not already running in the worktree: `bun run dev &`
-2. Wait for the dev server to be ready
-3. Spawn one `bowser-qa-agent` agent per user story in the generated user stories from previous step
-4. Report results from the visual validation (pass/fail per story, with details on any discrepancies observed compared to the baseline screenshots from Step 1.3)
-5. Stop the dev server
-
-#### Step 1.9: Ship
-
-Use the `git-github-ops` skill to perform the following operations inside the worktree:
-
-- Stage all changed files
-- Create a conventional commit with message: `feat(ui): sync {NAME} component`
-- Push the branch to the remote
-- Create a pull request using `gh pr create` with:
-  - Title: `feat(ui): sync {NAME} component`
-  - Body summarizing: what was synced (component name, source, primitive), files created/modified, transformation notes, user story generated, link to component documentation page
-
-#### Step 1.10: Report
-
-Present the final summary using the **Single Sync Report Format** below.
-
----
-
-### Path 2: External Single Sync (Subagent)
-
-Full lifecycle for syncing a single component from an external (non-shadcn) source.
-
-Same workflow as Path 1 with these differences:
-
-#### Step 2.1: Resolve Source
-
-Fetch and parse the `--registry` URL directly:
-
-- If the registry JSON has a top-level `items[]` array (multi-item registry): find the item where `item.name === NAME` and extract its files, dependencies, and registryDependencies
-- If the JSON has no `items[]` array: treat the JSON itself as the component manifest
-
-Produce a normalized source manifest (JSON).
-
-#### Step 2.2: Create Worktree
-
-Same as Path 1 Step 1.2.
-
-#### Step 2.3: Visual Analysis (Optional)
-
-**Only if `--playground` is provided.** Runs the same three-stage Playwright pipeline (EXPLORE, FILTER, ENCODE) on the `--playground` URL.
-
-#### Step 2.4: Dependency Gate
-
-Same HARD GATE as Path 1 Step 1.4. Check against `src/registry/{PRIMITIVE}/registry.json`.
-
-#### Step 2.5: Spawn Transformer
-
-Same as Path 1 Step 1.5, but the source manifest comes from the external registry resolution.
-
-#### Step 2.6: Spawn Docs Syncer
-
-Same as Path 1 Step 1.6, but pass the `--docs` URL as SOURCE if provided:
-
-```
-COMPONENT_NAME={NAME}
-SOURCE={DOCS_URL if provided, otherwise omit}
-PRIMITIVE={PRIMITIVE}
-REGISTRY={REGISTRY}
-COMPONENT_TYPE={auto-detected from transformer}
-```
-
-#### Step 2.7: Generate User Story
-
-Same as Path 1 Step 1.7.
-
-#### Step 2.8: Visual Validation (Optional)
-
-Same as Path 1 Step 1.8. Only runs if `--playground` was provided.
-
-#### Step 2.9: Ship
-
-Use `git-github-ops` with commit message: `feat: add {NAME} {type} from {source}`
-
-Where `{type}` is auto-detected ("component" or "block") and `{source}` is extracted from the registry URL domain (e.g., "bazza/ui" from `https://raw.githubusercontent.com/bazzalabs/ui/...`).
-
-Create PR with body summarizing: source registry URL, transformation results, dependency analysis, visual validation results (if `--playground`), files created/modified.
-
-#### Step 2.10: Report
-
-Present the final summary using the **Single Sync Report Format** below.
-
----
-
-### Path 3: Shadcn Batch Sync (Agent Teams)
-
-Discover all missing shadcn components and sync them in parallel using Agent Teams.
-
-#### Step 3.1: Discovery
-
-Fetch the shadcn component registry:
-
-```bash
-curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/_registry.ts"
-```
-
-Extract all component names from the response.
-
-Read Zaidan's registry manifest at `src/registry/{PRIMITIVE}/registry.json`.
-
-Diff the two registries: identify all component names present in shadcn that do NOT exist in Zaidan's registry.
-
-If `--filter` is set, apply the regex pattern to the list of missing components. Only keep components whose names match the filter.
-
-Report discovery results:
+1.7 - Report discovery results:
 
 ```
 Discovery Report
 ================
-Source: shadcn (https://ui.shadcn.com)
+Source: {REGISTRY_NAME} ({source URL or "https://ui.shadcn.com"})
 Primitive: {PRIMITIVE}
 Filter: {FILTER or "none"}
-Total components in shadcn registry: {count}
+Total components in source registry: {count}
 Components already in Zaidan: {count}
 Components to sync: {count}
 
@@ -385,39 +177,141 @@ Missing components:
   - ...
 ```
 
-If no components are missing, report "All shadcn components are already in Zaidan. Registry is fully synced." and STOP.
+---
 
-#### Step 3.2: Dry Run Gate
+### Phase 1.5: Dry Run Gate
 
-If `--dry-run` is set, output the discovery report and STOP:
+If `DRY_RUN` is set, output the discovery report and STOP:
 
 ```
 Dry run complete. Re-run without --dry-run to proceed with transformation.
 ```
 
-#### Step 3.3: Create Worktree
+---
 
-Use the `worktree-manager` skill:
+### Phase 2: Worktree Setup
 
-- Branch name: `feat/sync-batch`
-- Worktree path: `trees/feat/sync-batch`
+2.1 - Create worktree using `worktree-manager` skill:
 
-Run `bun install` inside the worktree.
+- **Shadcn mode**: branch `feat/sync-shadcn`, path `trees/feat/sync-shadcn`
+- **External mode**: branch `feat/sync-{REGISTRY_NAME}`, path `trees/feat/sync-{REGISTRY_NAME}`
+- **If FILTER is set**, append filter to branch name: `feat/sync-shadcn-{FILTER}` or `feat/sync-{REGISTRY_NAME}-{FILTER}`
+- Worktree path always matches: `trees/{branch-name}`
 
-#### Step 3.4: Create Team
+2.2 - `cd` into the worktree and run `bun install`.
 
-Use `TeamCreate` to create a team named `sync-batch`.
+**All the following phases should operate inside the worktree directory.** The agents will receive the worktree path as part of their input and should perform all file operations within that path.
 
-#### Step 3.5: Create Transform Tasks
+---
 
-Use `TaskCreate` to create one task per missing component:
+### Phase 3: Registry Integration (external mode only)
 
-- Subject: component name
-- Description: source manifest JSON + primitive + worktree path
+**Only runs if `MODE = "external"`. All file modifications happen inside the worktree.**
 
-#### Step 3.6: Spawn Transformer Teammates
+3.1 - Check if `REGISTRY_NAME` exists in the zaidan codebase:
 
-Spawn `zaidan-transformer` teammates **in a single message** (all parallel). Each teammate receives:
+- `src/lib/registries.ts` -- is `REGISTRY_NAME` in the `REGISTRIES` array?
+- `velite.config.ts` -- does a collection named `REGISTRY_NAME` exist?
+- `src/components/item-picker.tsx` -- does it include the new registry?
+- `src/components/item-explorer.tsx` -- does it include the new registry?
+
+3.2 - If ALL four files already include the registry -- skip to Phase 4.
+
+3.3 - If ANY file is missing the registry, update them:
+
+**registries.ts** -- Add to REGISTRIES array, add REGISTRY_META entry, add to getCollectionByRegistry:
+
+```typescript
+import { shadcn, {REGISTRY_NAME} } from "@velite";
+
+export const REGISTRIES = ["shadcn", "{REGISTRY_NAME}"] as const;
+
+export const REGISTRY_META: Record<Registry, { label: string }> = {
+  shadcn: { label: "Shadcn" },
+  {REGISTRY_NAME}: { label: "{PascalCase(REGISTRY_NAME)}" },
+};
+
+export function getCollectionByRegistry(registry: Registry) {
+  const collections = {
+    shadcn,
+    {REGISTRY_NAME},
+  } satisfies Record<Registry, typeof shadcn>;
+  return collections[registry];
+}
+```
+
+**velite.config.ts** -- Add a new collection:
+
+```typescript
+{REGISTRY_NAME}: {
+  name: "{REGISTRY_NAME}",
+  pattern: "{REGISTRY_NAME}/**/*.mdx",
+  schema: s.object({
+    slug: s.slug("{REGISTRY_NAME}"),
+    title: s.string(),
+    description: s.string(),
+    toc: s.toc(),
+  }),
+},
+```
+
+**item-picker.tsx** -- Add a new entry to the `entries` array:
+
+```typescript
+{
+  title: REGISTRY_META.{REGISTRY_NAME}.label,
+  items: {REGISTRY_NAME}.sort((a, b) => a.title.localeCompare(b.title)),
+  route: "/registry/$registry/{-$slug}",
+},
+```
+
+Also add the import: `import { docs, shadcn, {REGISTRY_NAME} } from "@velite";`
+
+**item-explorer.tsx** -- Same pattern as item-picker.tsx.
+
+3.4 - Create the pages directory: `mkdir -p src/pages/{REGISTRY_NAME}/{PRIMITIVE}/`
+
+3.5 - Create the examples directory: `mkdir -p src/registry/{PRIMITIVE}/examples/{REGISTRY_NAME}/`
+
+---
+
+### Phase 4: Execution
+
+#### Step 4.1: Create Team
+
+Use `TeamCreate` to create team `sync-{REGISTRY_NAME}`.
+
+#### Step 4.2: Start Dev Server
+
+Read `APP_PORT` from `.env` in the worktree directory (fallback to `3000` if not found).
+
+Start the dev server in the background:
+
+```
+cd {WORKTREE_PATH} && bun run dev &
+```
+
+Store the PID of the dev server process for later cleanup.
+
+#### Step 4.3: Wait for Dev Server Ready
+
+Poll `http://localhost:{APP_PORT}` until it responds with a successful status code.
+
+- Poll interval: 2 seconds
+- Timeout: 60 seconds
+- If timeout is reached, log a warning but continue (transforms can still run without the dev server)
+
+Log: `Dev server ready on port {APP_PORT}`
+
+#### Step 4.4: Create Transform Tasks and Spawn Transformer Teammates
+
+For each component in `COMPONENTS_TO_SYNC`:
+
+1. `TaskCreate` one task per component:
+   - Subject: component name
+   - Description: source manifest JSON + primitive + worktree path
+
+2. Spawn `zaidan-transformer` teammates **in a single message** (all parallel). Each teammate receives:
 
 ```
 Transform this component and report results:
@@ -425,33 +319,38 @@ Transform this component and report results:
 **Component:** {component-name}
 **Primitive:** {PRIMITIVE}
 **Source URLs:**
-  - Registry: {shadcn registry URL}
-  - Raw Source: {shadcn raw source URL}
+  - Registry: {registry URL or shadcn registry URL}
+  - Raw Source: {resolved source URL for this component}
 
 **Worktree:** {worktree-path}
+**Playground URL:** {resolved PLAYGROUND_URL_TEMPLATE with {component} replaced}
+**App Port:** {APP_PORT}
 
 Follow your full workflow: source resolution, dependency pre-flight,
 auto-detect component vs block from file count, transform all files,
-write output, update registry, validate.
+write output, update registry, validate, visual analysis, user story
+generation, and UI review.
 Use the specified primitive for all import mappings and output paths.
 
 Use this exact format for your final result line:
-  RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path}
+  RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path} | QA: {PASS|FAIL|SKIPPED}
 ```
 
 Configuration per teammate:
 - `subagent_type: "zaidan-transformer"`
-- `team_name: "sync-batch"`
+- `team_name: "sync-{REGISTRY_NAME}"`
+
+For external mode, resolve the source URL for each component by replacing `{component}` in the URL templates.
 
 Teammates self-claim tasks from the shared list and transform independently, they should coordinate between them for updating the registry file sequentially.
 
-#### Step 3.7: Wait for Transforms
+#### Step 4.5: Wait for Transforms
 
-Wait for all transformer teammates to complete. Parse `RESULT` lines from each teammate's report. Track successes and failures.
+Wait for all transformer teammates to complete. Parse `RESULT` lines from each teammate's report. Track successes, failures, and blocked.
 
 If a component fails due to missing registry dependencies, log it as blocked (not failed) and note the missing deps.
 
-#### Step 3.8: Spawn Docs Teammates
+#### Step 4.6: Create Docs Tasks and Spawn Docs Teammates
 
 For each successfully transformed component:
 
@@ -464,229 +363,175 @@ Each docs teammate receives:
 Sync documentation and examples for the following component:
 
 COMPONENT_NAME={component-name}
+SOURCE={resolved DOCS_URL_TEMPLATE with {component} replaced, or empty for shadcn default}
 PRIMITIVE={PRIMITIVE}
-REGISTRY=shadcn
+REGISTRY={REGISTRY_NAME}
+COMPONENT_TYPE={auto-detected from transformer: "component" or "block"}
+```
 
+If DOCS_PROMPT is set, append: `\nDOCS_EXTRACTION_PROMPT={DOCS_PROMPT}`
+
+```
 Follow your full workflow: worktree guard, resolve source (use default shadcn
-GitHub source), fetch and transform examples, write examples, fetch and
-transform documentation, write/update MDX documentation, lint and format,
-type check. Generate the complete report.
+GitHub source if shadcn mode), fetch and transform examples, write examples,
+fetch and transform documentation, write/update MDX documentation, lint and
+format, type check. Generate the complete report.
 ```
 
 Configuration per teammate:
 - `subagent_type: "docs-syncer"`
-- `team_name: "sync-batch"`
+- `team_name: "sync-{REGISTRY_NAME}"`
 
-Wait for all docs teammates to complete.
+#### Step 4.7: Wait for Docs
 
-#### Step 3.9: Ship
+Wait for all docs teammates to complete. Parse reports from each teammate.
 
-Use `git-github-ops` to:
+#### Step 4.8: Stop Dev Server
 
-- Stage all changes
-- Create a single conventional commit: `feat: sync {N} shadcn components`
-- Push the branch
-- Create a PR with a summary table:
+Kill the dev server process using the stored PID from Step 4.2:
+
+```
+kill {DEV_SERVER_PID}
+```
+
+Log: `Dev server stopped (PID {DEV_SERVER_PID})`
+
+#### Step 4.9: Verify
+
+Run automated verification checks before shipping.
+
+**4.9.1: Registry Validation**
+
+Spawn a `registry-manager` teammate to audit and fix registry.json:
+
+- `subagent_type: "registry-manager"`
+- `team_name: "sync-{REGISTRY_NAME}"`
+- Prompt: `Audit and fix the registry at src/registry/{PRIMITIVE}/registry.json. MODE=update PRIMITIVE={PRIMITIVE}`
+
+Wait for completion and parse the report summary.
+
+**4.9.2: Component File Check**
+
+For each successfully transformed component, verify the output file exists:
+
+- Component: `ls src/registry/{PRIMITIVE}/ui/{COMPONENT_NAME}.tsx`
+- Block: `ls src/registry/{PRIMITIVE}/blocks/{COMPONENT_NAME}/`
+
+**4.9.3: Documentation File Check**
+
+For each component with successful docs sync, verify:
+
+- MDX: `ls src/pages/{REGISTRY_NAME}/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
+
+**4.9.4: Example File Check**
+
+For each component with successful docs sync, verify:
+
+- Example: `ls src/registry/{PRIMITIVE}/examples/{REGISTRY_NAME}/{COMPONENT_NAME}-example.tsx`
+
+Collect results: for each component, record PASS/FAIL for each check. Store verification results for inclusion in PR body and report.
+
+#### Step 4.10: Ship
+
+Use the `git-github-ops` skill to perform the following operations inside the worktree:
+
+- Stage all changed files
+- Create a conventional commit:
+  - **Shadcn mode**: `feat: sync {component-list} from shadcn`
+  - **External mode**: `feat: sync {component-list} from {REGISTRY_NAME}`
+  - Where `{component-list}` is the component name if 1 component, or `{N} components` if 2+
+- Push the branch to the remote
+- Create a pull request using `gh pr create` with:
+  - Title matching the commit message
+  - Body with unified table format:
 
 ```markdown
 ## Summary
-- Synced {N} shadcn components into Zaidan registry (primitive: {PRIMITIVE})
+- Synced {component-list} from {REGISTRY_NAME} into Zaidan registry (primitive: {PRIMITIVE})
 - Components synced: {comma-separated list}
 - Components failed: {comma-separated list or "none"}
 - Components blocked: {comma-separated list with missing deps or "none"}
 
 ## Components
 
-| Component | Transform | Docs | Notes |
-|-----------|-----------|------|-------|
-| {name} | SUCCESS | SUCCESS | {brief note} |
-| {name} | FAILURE | SKIPPED | {error summary} |
-| {name} | BLOCKED | SKIPPED | Missing dep: {dep} |
+| Component | Transform | Docs | Visual | QA | Notes |
+|-----------|-----------|------|--------|-----|-------|
+| {name} | SUCCESS | SUCCESS | PASS | PASS | {brief note} |
+| {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | {error summary} |
+| {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
-## Test plan
-- [ ] Verify registry.json is valid
-- [ ] Check that all new component files exist in src/registry/{PRIMITIVE}/ui/
-- [ ] Check that all MDX docs exist in src/pages/{REGISTRY}/{PRIMITIVE}/
-- [ ] Check that all example files exist in src/registry/{PRIMITIVE}/examples/{REGISTRY}/
+Visual and QA columns are populated from the transformer RESULT lines.
+
+## Verification Results
+
+| Check | Status | Details |
+|-------|--------|---------|
+| Registry validation | PASS/FAIL | {registry-manager report summary} |
+| Component files exist | PASS/FAIL | {N}/{total} files found |
+| MDX docs exist | PASS/FAIL | {N}/{total} docs found |
+| Example files exist | PASS/FAIL | {N}/{total} examples found |
+
+If any verification check failed, a warning is included noting which checks failed.
 ```
 
-#### Step 3.10: Cleanup
+#### Step 4.11: Cleanup
 
 1. `SendMessage` with `type: "shutdown_request"` to all teammates
 2. Wait for shutdown acknowledgments
-3. `TeamDelete` to clean up the `sync-batch` team
-
-#### Step 3.12: Report
-
-Present the final summary using the **Batch Sync Report Format** below.
+3. `TeamDelete` to clean up the `sync-{REGISTRY_NAME}` team
 
 ---
 
-### Path 4: External Batch Sync (Agent Teams)
+### Phase 5: Report
 
-Discover all missing components from an external registry and sync them in parallel using Agent Teams.
-
-Same workflow as Path 3 with these differences:
-
-#### Step 4.1: Discovery
-
-Fetch and parse the `--registry` URL directly:
-
-- Fetch the registry JSON from the `--registry` URL
-- If JSON has top-level `items[]` array: extract all items
-- Diff extracted items against `src/registry/{PRIMITIVE}/registry.json`
-- Apply `--filter` if provided
-- Report discovery results
-
-Extract a short source name from the registry URL for branch naming (e.g., `bazza` from `https://raw.githubusercontent.com/bazzalabs/ui/...`).
-
-#### Step 4.2: Dry Run Gate
-
-Same as Path 3 Step 3.2.
-
-#### Step 4.3: Create Worktree
-
-Use the `worktree-manager` skill:
-
-- Branch name: `feat/sync-registry-{source-name}`
-- Worktree path: `trees/feat/sync-registry-{source-name}`
-
-Run `bun install` inside the worktree.
-
-#### Step 4.4: Create Team and Spawn Teammates
-
-Same Agent Teams pattern as Path 3 Steps 3.4-3.6, but each teammate receives the source manifest from the external registry instead of shadcn URLs.
-
-#### Step 4.5: Wait, Docs
-
-Same as Path 3 Steps 3.7.
-
-#### Step 4.6: Ship
-
-Use `git-github-ops` with commit message: `feat: sync {N} components from {source-name}`
-
-PR body follows the same table format as Path 3 Step 3.10, with the registry URL noted in the summary.
-
-#### Step 4.7: Cleanup
-
-Same as Path 3 Step 3.11.
-
-#### Step 4.8: Report
-
-Present the final summary using the **Batch Sync Report Format** below.
+Use the Report Format below.
 
 ---
 
-## Report Formats
-
-### Single Sync Report Format
-
-Used by Path 1 and Path 2.
+## Report Format
 
 ```
-## Sync Report: {NAME}
+## Sync Report
 
-**Source**: {shadcn or registry URL}
-**Primitive**: {PRIMITIVE}
-**Type**: {component or block} (auto-detected)
-
-| Phase | Status | Details |
-|-------|--------|---------|
-| Source Resolution | PASS/FAIL | {manifest summary} |
-| Dependency Gate | PASS/FAIL | {N}/{total} deps found |
-| Transform | PASS/FAIL | {summary from zaidan-transformer report} |
-| Documentation | PASS/FAIL | {summary from docs-syncer report} |
-| Visual Validation | PASS/FAIL/SKIPPED | {comparison results or "no --playground"} |
-| User Story | PASS/FAIL | ai_review/user_stories/{NAME}.yaml |
-| Ship | PASS/FAIL | {commit hash, PR URL} |
-
-### Files Created/Modified
-
-- {list all files with absolute paths}
-
-### Transformation Notes
-
-- {key notes from the zaidan-transformer agent report}
-
-### Next Steps
-
-- Review the PR at {PR URL}
-- Run `/ui-review {NAME}` to validate with bowser-qa-agent
-```
-
-If the dependency gate blocked the sync:
-
-```
-## Sync Report: {NAME}
-
-**Status**: BLOCKED -- missing registry dependencies
-
-| Phase | Status | Details |
-|-------|--------|---------|
-| Source Resolution | PASS | {manifest summary} |
-| Dependency Gate | BLOCKED | {missing_count} deps missing |
-
-### Missing Dependencies
-
-- {dep1}
-- {dep2}
-
-### Remediation
-
-Run these commands first, then retry:
-
-  /sync {dep1} --primitive={PRIMITIVE}
-  /sync {dep2} --primitive={PRIMITIVE}
-  /sync {NAME} --primitive={PRIMITIVE} {original flags}
-```
-
-### Batch Sync Report Format
-
-Used by Path 3 and Path 4.
-
-```
-## Batch Sync Report
-
-**Source**: {shadcn or registry URL}
+**Source**: {REGISTRY_NAME} ({source URL})
 **Primitive**: {PRIMITIVE}
 **Filter**: {FILTER or "none"}
 **Total synced**: {success_count} / {total_count}
 
 ### Discovery Summary
-
 | Metric | Count |
 |--------|-------|
 | Total in source registry | {count} |
 | Already in Zaidan | {count} |
 | Missing (to sync) | {count} |
-| Filter applied | {yes/no} |
 
 ### Results
+| Component | Transform | Docs | Visual | QA | Notes |
+|-----------|-----------|------|--------|-----|-------|
+| {name} | SUCCESS | SUCCESS | PASS | PASS | {brief note} |
+| {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | {error summary} |
+| {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
-| Component | Transform | Docs | Notes |
-|-----------|-----------|------|-------|
-| {name} | SUCCESS | SUCCESS | {brief note} |
-| {name} | FAILURE | SKIPPED | {error summary} |
-| {name} | BLOCKED | SKIPPED | Missing dep: {dep} |
+### User Stories
+| Component | Story File | QA Result |
+|-----------|-----------|-----------|
+| {name} | ai_review/user_stories/{name}.yaml | PASS/FAIL |
 
-### User Stories Generated
-
-| Component | User Story File |
-|-----------|----------------|
-| {name} | ai_review/user_stories/{name}.yaml |
+### Verification
+| Check | Status | Details |
+|-------|--------|---------|
+| Registry validation | PASS/FAIL | {summary} |
+| Component files | PASS/FAIL | {N}/{total} |
+| MDX docs | PASS/FAIL | {N}/{total} |
+| Example files | PASS/FAIL | {N}/{total} |
 
 ### Git Operations
-
 - **Branch**: {branch name}
 - **Commit**: {commit message}
 - **PR**: {PR URL}
-
-### Next Steps
-
-- Run `/ui-review` to validate all new components with bowser-qa-agent
-- Review the PR for any components that need manual attention
-- Check failed/blocked components and retry individually with `/sync`
 ```
+
+If a component was blocked, show it in the Results table with Transform=BLOCKED and appropriate notes.
 
 If `--dry-run` was set, only show the Discovery Summary section and omit all other sections. End with:
 
