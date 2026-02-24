@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearch } from "@tanstack/solid-router";
-import { docs, ui } from "@velite";
+import { docs, shadcn } from "@velite";
 import { createMemo } from "solid-js";
 import {
   Combobox,
@@ -32,15 +32,15 @@ const getOptions = (): Option[] => {
     route: (d.parent ? `/${d.parent}/${d.slug}` : "/{-$slug}") as FileRouteTypes["to"],
   }));
 
-  const uiOptions = ui
+  const shadcnOptions = shadcn
     .sort((a, b) => a.title.localeCompare(b.title))
     .map((u) => ({
-      pathname: `/ui/${u.slug}`,
+      pathname: `/registry/shadcn/${u.slug}`,
       slug: u.slug,
-      route: "/ui/{-$slug}" as FileRouteTypes["to"],
+      route: "/registry/shadcn/{-$slug}" as FileRouteTypes["to"],
     }));
 
-  return [...docsOptions, ...uiOptions];
+  return [...docsOptions, ...shadcnOptions];
 };
 
 export function NotFoundPage() {

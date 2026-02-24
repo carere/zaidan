@@ -1,7 +1,8 @@
 import { Link, useSearch } from "@tanstack/solid-router";
-import { docs, ui } from "@velite";
+import { docs, shadcn } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
+import { REGISTRY_META } from "@/lib/registries";
 import { cn } from "@/lib/utils";
 import {
   Collapsible,
@@ -22,7 +23,7 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
   title: string;
-  items: typeof docs | typeof ui;
+  items: typeof docs | typeof shadcn;
   route: FileRouteTypes["to"];
 };
 
@@ -37,9 +38,9 @@ export function ItemExplorer(props: SidebarProps) {
       route: "/{-$slug}",
     },
     {
-      title: "UI",
-      items: ui.sort((a, b) => a.title.localeCompare(b.title)),
-      route: "/ui/{-$slug}",
+      title: REGISTRY_META.shadcn.label,
+      items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+      route: "/registry/$registry/{-$slug}",
     },
   ];
 
@@ -70,8 +71,8 @@ export function ItemExplorer(props: SidebarProps) {
                                 as={Link}
                                 to={entry.route}
                                 //@ts-expect-error <Problem with kobalte typing polymorphic props>
-                                params={{ slug: item.slug }}
-                                //@ts-expect-error <Problem with search params typing>
+                                params={{ registry: "shadcn", slug: item.slug }}
+                                //@ts-expect-error <Problem with kobalte typing polymorphic props>
                                 search={search()}
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >

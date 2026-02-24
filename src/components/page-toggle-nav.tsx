@@ -9,10 +9,11 @@ import {
 
 type PageToggleNavProps<T extends ValidComponent = "div"> = ToggleGroupProps<T> & {
   slug: string;
+  registry: string;
 };
 
 export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggleNavProps<T>) {
-  const [local, others] = splitProps(props, ["slug", "class"]);
+  const [local, others] = splitProps(props, ["slug", "registry", "class"]);
   const location = useLocation();
   const search = useSearch({ strict: false });
 
@@ -29,9 +30,9 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
     >
       <ToggleGroupItem
         as={Link}
-        to="/ui/{-$slug}"
+        to="/registry/$registry/{-$slug}"
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
-        params={{ slug: local.slug }}
+        params={{ registry: local.registry, slug: local.slug }}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         search={search()}
         value="preview"
@@ -41,9 +42,9 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
       </ToggleGroupItem>
       <ToggleGroupItem
         as={Link}
-        to="/ui/$slug/docs"
+        to="/registry/$registry/$slug/docs"
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
-        params={{ slug: local.slug }}
+        params={{ registry: local.registry, slug: local.slug }}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         search={search()}
         value="docs"

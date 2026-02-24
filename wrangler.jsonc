@@ -1,8 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "zaidan",
-  "compatibility_date": "2026-01-20",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2026-02-24",
+  "compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
   "main": "@tanstack/solid-start/server-entry",
   "workers_dev": false
 }

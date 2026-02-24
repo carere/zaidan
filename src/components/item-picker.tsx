@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
-import { docs, ui } from "@velite";
+import { docs, shadcn } from "@velite";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -11,6 +11,7 @@ import {
   Show,
   splitProps,
 } from "solid-js";
+import { REGISTRY_META } from "@/lib/registries";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -28,7 +29,7 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
   title: string;
-  items: typeof docs | typeof ui;
+  items: typeof docs | typeof shadcn;
   route: FileRouteTypes["to"];
 };
 
@@ -39,9 +40,9 @@ const entries: Entry[] = [
     route: "/{-$slug}",
   },
   {
-    title: "UI",
-    items: ui.sort((a, b) => a.title.localeCompare(b.title)),
-    route: "/ui/{-$slug}",
+    title: REGISTRY_META.shadcn.label,
+    items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+    route: "/registry/$registry/{-$slug}",
   },
 ];
 
@@ -109,7 +110,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           onSelect={() => {
                             navigate({
                               to: entry.route,
-                              params: { slug: item.slug },
+                              params: { registry: "shadcn", slug: item.slug },
                               search: search(),
                             });
                             setOpen(false);

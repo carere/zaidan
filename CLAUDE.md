@@ -28,18 +28,37 @@ Zaidan is a ShadCN UI registry for SolidJS - a collection of beautifully designe
 ```
 src/
 ├── registry/
-│   ├── ui/           # Shadcn-style UI components (53 components)
-│   ├── examples/     # Component usage examples
-│   └── hooks/        # Custom SolidJS hooks
-├── components/       # Website-specific components
-├── routes/           # TanStack Router file-based routes
-├── pages/            # MDX documentation pages (docs, ui docs)
-├── lib/              # Utilities and Vite plugins
-└── styles/           # Additional style files
+│   └── kobalte/
+│       ├── ui/               # Shadcn-style UI components (53 components)
+│       ├── examples/
+│       │   └── shadcn/       # Component usage examples per registry
+│       └── hooks/            # Custom SolidJS hooks
+├── components/               # Website-specific components
+├── routes/                   # TanStack Router file-based routes
+├── pages/
+│   ├── docs/                 # General documentation MDX pages
+│   └── shadcn/               # Component docs MDX pages per registry
+├── lib/                      # Utilities, registries config, Vite plugins
+└── styles/                   # Additional style files
 
-tests/                # Playwright E2E tests (*.spec.ts)
-scripts/              # Development scripts
+tests/                        # Playwright E2E tests (*.spec.ts)
+scripts/                      # Development scripts
 ```
+
+### Multi-Registry URL Structure
+
+Components are served under `/registry/<registry>/<component>`:
+- Preview: `/registry/shadcn/button`
+- Docs: `/registry/shadcn/button/docs`
+- Preview iframe: `/preview/shadcn/kobalte/button`
+
+Registry configuration is centralized in `src/lib/registries.ts` which exports:
+- `REGISTRIES` — allowlist of registry names (`["shadcn"]`)
+- `Registry` — union type derived from the allowlist
+- `REGISTRY_META` — display labels per registry
+- `getCollectionByRegistry()` — returns the Velite collection for a given registry
+
+Velite collections are defined per registry in `velite.config.ts` (e.g., `shadcn` collection maps to `src/pages/shadcn/**/*.mdx`).
 
 ## Development Commands
 
