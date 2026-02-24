@@ -23,7 +23,8 @@ src/registry/
     ui/                   # Component files (*.tsx)
     blocks/               # Block composition files
     hooks/                # Custom hooks
-    examples/             # Component usage examples
+    examples/
+      <REGISTRY>/         # Component usage examples per registry
 ```
 
 ## Instructions

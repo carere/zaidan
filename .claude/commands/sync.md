@@ -6,7 +6,7 @@ argument-hint: "[name] [--primitive=kobalte|base] [--registry=<url>] [--docs=<ur
 
 # Purpose
 
-Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager`, `git-github-ops` and `source-resolver` skills, and generates QA user stories to transform react shadcn-based components/blocks/registry to Zaidan.
+Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager` and `git-github-ops` skills, and generates QA user stories to transform react shadcn-based components/blocks/registry to Zaidan.
 
 ## Variables
 
@@ -17,6 +17,7 @@ ARGUMENTS: $ARGUMENTS
 Parse from `$ARGUMENTS`:
 
 - `NAME` -- first positional argument (optional)
+- `REGISTRY` -- derived from routing: `shadcn` for Paths 1/3, derived from registry URL domain for Paths 2/4 (e.g., `bazza` from bazzalabs URL). Defaults to `shadcn`.
 - `--primitive=kobalte|base` (default: `kobalte`)
 - `--registry=<url>` (optional -- external registry JSON URL)
 - `--docs=<url>` (optional -- raw documentation URL)
@@ -33,10 +34,11 @@ src/registry/
     registry.json         # Registry manifest
     ui/                   # Component files (*.tsx)
     blocks/               # Block composition files (may not exist yet)
-    examples/             # Component usage examples
+    examples/
+      <REGISTRY>/         # Component usage examples per registry
 
 src/pages/
-  ui/
+  <REGISTRY>/
     <PRIMITIVE>/          # MDX documentation pages
 
 ai_review/
@@ -48,7 +50,6 @@ ai_review/
     docs-syncer.md        # Documentation syncing agent
   skills/
     react-to-solid/       # Transformation rules (single source of truth)
-    source-resolver/      # Normalize source inputs to manifest
     worktree-manager/     # Git worktree lifecycle
     git-github-ops/       # Conventional commits, push, PR creation
 ```
@@ -62,7 +63,6 @@ ai_review/
 - Git operations (commit, push, PR) are handled at this command level, NOT by agents
 - Use the `worktree-manager` skill for worktree creation
 - Use the `git-github-ops` skill for git and GitHub operations
-- Use the `source-resolver` skill for source resolution
 - The `$APP_PORT` environment variable is available from `.env`
 - The dependency pre-flight gate in the transformer is a **HARD GATE** -- if deps are missing, transformation aborts. Do NOT proceed with transformation when registry dependencies are unsatisfied
 
@@ -81,6 +81,7 @@ PLAYGROUND   = value of --playground flag, or empty
 ALL          = true if --all flag is present
 FILTER       = value of --filter flag, or empty
 DRY_RUN      = true if --dry-run flag is present
+REGISTRY     = "shadcn" (updated to source name in Path 2/4)
 ```
 
 0.2 - Determine routing path:
@@ -113,7 +114,7 @@ Full lifecycle for syncing a single component from the shadcn GitHub repository.
 
 #### Step 1.1: Resolve Source
 
-Use the `source-resolver` skill to derive all URLs from the component name for shadcn GitHub:
+Derive all URLs from the component name for shadcn GitHub:
 
 ```
 Raw source:   https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base/ui/{NAME}.tsx
@@ -208,6 +209,7 @@ Sync documentation and examples for the following component:
 COMPONENT_NAME={NAME}
 SOURCE={shadcn raw docs URL from Step 1.1}
 PRIMITIVE={PRIMITIVE}
+REGISTRY=shadcn
 COMPONENT_TYPE={auto-detected from transformer: "component" or "block"}
 
 Follow your full workflow: worktree guard, resolve source, fetch and transform
@@ -231,7 +233,7 @@ Generate a YAML user story file at `ai_review/user_stories/{NAME}.yaml`.
 ```yaml
 stories:
   - name: "{ComponentTitle} renders correctly"
-    url: "http://localhost:{APP_PORT}/ui/{NAME}"
+    url: "http://localhost:{APP_PORT}/registry/{REGISTRY}/{NAME}"
     workflow: |
       1. Verify the page loads without console errors
       2. Verify the component preview section is visible
@@ -241,7 +243,7 @@ stories:
       6. Verify all example variants are rendered
 
   - name: "{ComponentTitle} documentation is complete"
-    url: "http://localhost:{APP_PORT}/ui/{NAME}"
+    url: "http://localhost:{APP_PORT}/registry/{REGISTRY}/{NAME}"
     workflow: |
       1. Verify the page title is "{ComponentTitle}"
       2. Verify the Installation section exists
@@ -288,10 +290,10 @@ Same workflow as Path 1 with these differences:
 
 #### Step 2.1: Resolve Source
 
-Use the `source-resolver` skill with the `--registry` URL:
+Fetch and parse the `--registry` URL directly:
 
-- If the registry JSON has a top-level `items[]` array (multi-item registry, source-resolver Format F): find the item where `item.name === NAME` and extract its files, dependencies, and registryDependencies
-- If the JSON has no `items[]` array: treat the JSON itself as the component manifest (source-resolver Format C)
+- If the registry JSON has a top-level `items[]` array (multi-item registry): find the item where `item.name === NAME` and extract its files, dependencies, and registryDependencies
+- If the JSON has no `items[]` array: treat the JSON itself as the component manifest
 
 Produce a normalized source manifest (JSON).
 
@@ -319,6 +321,7 @@ Same as Path 1 Step 1.6, but pass the `--docs` URL as SOURCE if provided:
 COMPONENT_NAME={NAME}
 SOURCE={DOCS_URL if provided, otherwise omit}
 PRIMITIVE={PRIMITIVE}
+REGISTRY={REGISTRY}
 COMPONENT_TYPE={auto-detected from transformer}
 ```
 
@@ -462,6 +465,7 @@ Sync documentation and examples for the following component:
 
 COMPONENT_NAME={component-name}
 PRIMITIVE={PRIMITIVE}
+REGISTRY=shadcn
 
 Follow your full workflow: worktree guard, resolve source (use default shadcn
 GitHub source), fetch and transform examples, write examples, fetch and
@@ -502,8 +506,8 @@ Use `git-github-ops` to:
 ## Test plan
 - [ ] Verify registry.json is valid
 - [ ] Check that all new component files exist in src/registry/{PRIMITIVE}/ui/
-- [ ] Check that all MDX docs exist in src/pages/ui/{PRIMITIVE}/
-- [ ] Check that all example files exist in src/registry/{PRIMITIVE}/examples/
+- [ ] Check that all MDX docs exist in src/pages/{REGISTRY}/{PRIMITIVE}/
+- [ ] Check that all example files exist in src/registry/{PRIMITIVE}/examples/{REGISTRY}/
 ```
 
 #### Step 3.10: Cleanup
@@ -526,7 +530,7 @@ Same workflow as Path 3 with these differences:
 
 #### Step 4.1: Discovery
 
-Use the `source-resolver` skill with the `--registry` URL and Format F (multi-item registry):
+Fetch and parse the `--registry` URL directly:
 
 - Fetch the registry JSON from the `--registry` URL
 - If JSON has top-level `items[]` array: extract all items
