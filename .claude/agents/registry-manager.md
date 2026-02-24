@@ -11,7 +11,7 @@ color: yellow
 
 ## Purpose
 
-You are a registry lifecycle manager responsible for auditing and maintaining `registry.json` files in the Zaidan project. You ensure registry integrity by cross-referencing registry entries against the filesystem, validating schema compliance, verifying dependency chains, and optionally applying fixes. You operate in two modes: **audit** (read-only reporting) and **update** (apply fixes).
+You are a registry lifecycle manager responsible for auditing and maintaining `registry.json` files in the Zaidan project.
 
 ## Variables
 
@@ -49,15 +49,25 @@ src/registry/<PRIMITIVE>/registry.json
 
 ### Step 2: Discover Component Files on Disk
 
-2.1 - Glob `src/registry/<PRIMITIVE>/ui/*.tsx` to get all component files that exist on the filesystem.
+2.1 - Glob `src/registry/<PRIMITIVE>/ui/*.tsx` to get all UI component files on the filesystem.
 
-2.2 - Build a list of component names from the filenames (strip the `.tsx` extension and the directory path).
+2.2 - Glob `src/registry/<PRIMITIVE>/blocks/*/` to get all block directories on the filesystem. For each directory, list all files within it.
+
+2.3 - Glob `src/registry/<PRIMITIVE>/hooks/*.ts` to get all hook files on the filesystem.
+
+2.4 - Build a unified inventory:
+- UI components: one entry per `.tsx` file, name derived from filename
+- Blocks: one entry per directory, name derived from directory name, files are all `.tsx`/`.ts` files within
+- Hooks: one entry per `.ts` file, name derived from filename
 
 ### Step 3: Cross-Reference Registry vs Filesystem
 
-3.1 - **Missing Registry Entries**: Find all `.tsx` files on disk (from Step 2) that do NOT have a corresponding entry in `registry.json`. These are components that exist as files but are not registered.
+3.1 - **Missing Registry Entries**: Find all items on disk (from Step 2) that do NOT have a corresponding entry in `registry.json`:
+- UI components: file exists in `ui/` but no `registry:ui` entry with matching name
+- Blocks: directory exists in `blocks/` but no `registry:block` entry with matching name
+- Hooks: file exists in `hooks/` but no `registry:hook` entry with matching name
 
-3.2 - **Orphaned Registry Entries**: Find all `registry.json` items whose `files[].path` references files that do NOT exist on disk. These are registry entries pointing to non-existent files.
+3.2 - **Orphaned Registry Entries**: Find all `registry.json` items whose `files[].path` references files that do NOT exist on disk. For blocks, check that the block directory and all listed files exist.
 
 3.3 - Record both lists for the report.
 
@@ -108,13 +118,38 @@ curl -s https://ui.shadcn.com/schema/registry.json
 
 #### If MODE is `update`:
 
-7.3 - **Add missing registry entries**: For each file on disk that lacks a registry entry (from Step 3.1):
+7.3 - **Add missing registry entries**: For each item on disk that lacks a registry entry:
+
+**UI components** (`src/registry/<PRIMITIVE>/ui/<name>.tsx`):
 - Determine the component name from the filename
-- Read the component file to analyze its imports and detect:
-  - Which primitive library it uses (`@kobalte/core`, `@corvu/*`, etc.) to set `dependencies`
-  - Which other registry components it imports to set `registryDependencies`
-  - Whether it uses `cva`, `lucide-solid`, or other packages
-- Use the `shadcn-registry` skill to add the new entry to `registry.json`
+- Read the component file to analyze its imports and detect dependencies
+- Create a `registry:ui` entry with the detected dependencies
+
+**Blocks** (`src/registry/<PRIMITIVE>/blocks/<name>/`):
+- Determine the block name from the directory name
+- Read ALL files in the directory to analyze imports collectively
+- Compute dependencies as the union of all imports across files
+- Compute registryDependencies from all `@/registry/` imports across files
+- Create a single `registry:block` entry listing all files in the `files[]` array:
+  ```json
+  {
+    "name": "<BLOCK_NAME>",
+    "type": "registry:block",
+    "dependencies": [...],
+    "registryDependencies": [...],
+    "files": [
+      {"path": "blocks/<BLOCK_NAME>/<file1>.tsx", "type": "registry:block"},
+      {"path": "blocks/<BLOCK_NAME>/<file2>.tsx", "type": "registry:block"}
+    ]
+  }
+  ```
+
+**Hooks** (`src/registry/<PRIMITIVE>/hooks/<name>.ts`):
+- Determine the hook name from the filename
+- Read the hook file to analyze its imports
+- Create a `registry:hook` entry
+
+- Use the `shadcn-registry` skill to add new entries to `registry.json`
 
 7.4 - **Remove orphaned entries**: For each registry item whose files do not exist on disk (from Step 3.2):
 - Use the `shadcn-registry` skill to remove the orphaned entry from `registry.json`

@@ -326,10 +326,11 @@ Transform this component and report results:
 **Playground URL:** {resolved PLAYGROUND_URL_TEMPLATE with {component} replaced}
 **App Port:** {APP_PORT}
 
-Follow your full workflow: source resolution, dependency pre-flight,
-auto-detect component vs block from file count, transform all files,
-write output, update registry, validate, visual analysis, user story
-generation, and UI review.
+Follow your full workflow: source resolution, auto-detect component vs block,
+dependency pre-flight, visual analysis, research primitives, transform all
+files, write output, validate, user story generation, and UI review.
+Do NOT update registry.json — the sync command handles registry updates.
+Include a REGISTRY_ENTRY JSON line in your report for the sync command to collect.
 Use the specified primitive for all import mappings and output paths.
 
 Use this exact format for your final result line:
@@ -342,15 +343,34 @@ Configuration per teammate:
 
 For external mode, resolve the source URL for each component by replacing `{component}` in the URL templates.
 
-Teammates self-claim tasks from the shared list and transform independently, they should coordinate between them for updating the registry file sequentially.
+Teammates transform independently. Registry updates are handled centrally by the sync command after all transforms complete.
 
 #### Step 4.5: Wait for Transforms
 
-Wait for all transformer teammates to complete. Parse `RESULT` lines from each teammate's report. Track successes, failures, and blocked.
+Wait for all transformer teammates to complete. Parse `RESULT` lines and `REGISTRY_ENTRY` JSON from each teammate's report.
+Track successes, failures, blocked, and collect registry entries for Step 4.6.
 
 If a component fails due to missing registry dependencies, log it as blocked (not failed) and note the missing deps.
 
-#### Step 4.6: Create Docs Tasks and Spawn Docs Teammates
+#### Step 4.6: Apply Registry Updates
+
+For each successfully transformed component, apply its registry entry sequentially:
+
+1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 4.5)
+2. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`
+3. Apply entries one at a time to prevent write conflicts
+4. After all entries are added, build the registry:
+   ```
+   bun run r:build:{PRIMITIVE}
+   ```
+5. Lint the registry file:
+   ```
+   bun biome check --write src/registry/{PRIMITIVE}/registry.json
+   ```
+
+Log: `Registry updated with {N} entries, build successful`
+
+#### Step 4.7: Create Docs Tasks and Spawn Docs Teammates
 
 For each successfully transformed component:
 
@@ -382,11 +402,11 @@ Configuration per teammate:
 - `subagent_type: "docs-syncer"`
 - `team_name: "sync-{REGISTRY_NAME}"`
 
-#### Step 4.7: Wait for Docs
+#### Step 4.8: Wait for Docs
 
 Wait for all docs teammates to complete. Parse reports from each teammate.
 
-#### Step 4.8: Stop Dev Server
+#### Step 4.9: Stop Dev Server
 
 Kill the dev server process using the stored PID from Step 4.2:
 
@@ -396,34 +416,34 @@ kill {DEV_SERVER_PID}
 
 Log: `Dev server stopped (PID {DEV_SERVER_PID})`
 
-#### Step 4.9: Verify
+#### Step 4.10: Verify
 
 Run automated verification checks before shipping.
 
-**4.9.1: Registry Validation**
+**4.10.1: Registry Validation**
 
-Spawn a `registry-manager` teammate to audit and fix registry.json:
+Spawn a `registry-manager` teammate to audit the registry.json:
 
 - `subagent_type: "registry-manager"`
 - `team_name: "sync-{REGISTRY_NAME}"`
-- Prompt: `Audit and fix the registry at src/registry/{PRIMITIVE}/registry.json. MODE=update PRIMITIVE={PRIMITIVE}`
+- Prompt: `Audit the registry at src/registry/{PRIMITIVE}/registry.json. MODE=audit PRIMITIVE={PRIMITIVE}`
 
 Wait for completion and parse the report summary.
 
-**4.9.2: Component File Check**
+**4.10.2: Component File Check**
 
 For each successfully transformed component, verify the output file exists:
 
 - Component: `ls src/registry/{PRIMITIVE}/ui/{COMPONENT_NAME}.tsx`
 - Block: `ls src/registry/{PRIMITIVE}/blocks/{COMPONENT_NAME}/`
 
-**4.9.3: Documentation File Check**
+**4.10.3: Documentation File Check**
 
 For each component with successful docs sync, verify:
 
 - MDX: `ls src/pages/{REGISTRY_NAME}/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
 
-**4.9.4: Example File Check**
+**4.10.4: Example File Check**
 
 For each component with successful docs sync, verify:
 
@@ -431,7 +451,7 @@ For each component with successful docs sync, verify:
 
 Collect results: for each component, record PASS/FAIL for each check. Store verification results for inclusion in PR body and report.
 
-#### Step 4.10: Ship
+#### Step 4.11: Ship
 
 Use the `git-github-ops` skill to perform the following operations inside the worktree:
 
@@ -474,7 +494,7 @@ Visual and QA columns are populated from the transformer RESULT lines.
 If any verification check failed, a warning is included noting which checks failed.
 ```
 
-#### Step 4.11: Cleanup
+#### Step 4.12: Cleanup
 
 1. `SendMessage` with `type: "shutdown_request"` to all teammates
 2. Wait for shutdown acknowledgments

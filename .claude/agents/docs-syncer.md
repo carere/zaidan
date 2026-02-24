@@ -1,7 +1,7 @@
 ---
 name: docs-syncer
 description: Fetches examples and documentation from shadcn or external sources, transforms React to SolidJS, and creates/updates example files and MDX documentation. No git operations — those are handled by the orchestrating command.
-tools: WebFetch, Read, Write, Edit, Glob, Grep, Bash, Skill
+tools: WebFetch, Read, Write, Edit, Glob, Grep, Bash, Skill, Task
 skills: react-to-solid
 model: opus
 color: cyan
@@ -91,17 +91,6 @@ curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/
 
 3.3 - Transform the fetched example code using the `react-to-solid` skill transformation rules:
 
-- `className` -> `class`
-- `{ className, ...props }` -> `splitProps(props, ["class"])`
-- `{condition && <El />}` -> `<Show when={condition}><El /></Show>`
-- `{items.map(x => ...)}` -> `<For each={items}>{x => ...}</For>`
-- Remove `forwardRef` wrappers entirely (not needed in SolidJS)
-- `React.ReactNode` -> `JSX.Element`
-- `React.ComponentProps<"div">` -> `ComponentProps<"div">`
-- `e.target.value` -> `e.currentTarget.value`
-- Remove `import * as React from "react"` and similar React imports
-- Add SolidJS imports as needed: `import { Show, For, splitProps, mergeProps } from "solid-js"`
-
 3.4 - Replace `IconPlaceholder` with actual icons from `lucide-solid`:
 - Find all `<IconPlaceholder lucide="icon-name" />` usages
 - Replace with the corresponding icon component: `<IconName />`
@@ -155,25 +144,37 @@ function ExampleVariant1() {
 // ... more example variants
 ```
 
-### Step 5: Fetch and Transform Documentation
+### Step 5: Lint and Format Examples
 
-5.1 - Fetch the MDX documentation from the resolved source:
+5.1 - Lint and format the example file:
+
+```bash
+bun biome check --write src/registry/<PRIMITIVE>/examples/<REGISTRY>/<COMPONENT_NAME>-example.tsx
+```
+
+5.2 - If the example file has lint errors that cannot be auto-fixed, analyze and fix them manually, then re-run the lint.
+
+5.3 - Do NOT proceed until the example file passes linting. The formatted file's line numbers will be used for MDX references in Step 7.
+
+### Step 6: Fetch and Transform Documentation
+
+6.1 - Fetch the MDX documentation from the resolved source:
 
 ```bash
 curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/<COMPONENT_NAME>.mdx"
 ```
 
-5.2 - If the response is empty or indicates a 404, note that no upstream docs exist and create minimal documentation based on the component name and description.
+6.2 - If the response is empty or indicates a 404, note that no upstream docs exist and create minimal documentation based on the component name and description.
 
-5.3 - Extract from the fetched MDX:
+6.3 - Extract from the fetched MDX:
 - Component title (from frontmatter or first heading)
 - Component description (from frontmatter or first paragraph)
 - Usage patterns and code examples
 - Any external dependencies mentioned
 
-5.4 - Transform all code blocks in the documentation from React to SolidJS using the same `react-to-solid` transformation rules from Step 3.
+6.4 - Transform all code blocks in the documentation from React to SolidJS using the same `react-to-solid` transformation rules from Step 3.
 
-5.5 - Apply import path replacements for the documentation context:
+6.5 - Apply import path replacements for the documentation context:
 
 | Original Path | Replacement Path |
 |---|---|
@@ -182,21 +183,21 @@ curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/
 | `@/registry/bases/base/lib/utils` | `~/lib/utils` |
 | `@/lib/utils` | `~/lib/utils` |
 
-### Step 6: Write/Update MDX Documentation
+### Step 7: Write/Update MDX Documentation
 
-6.1 - Read the written example file from Step 4 to determine the line ranges for each example function. For each named function that renders an `<Example>` component, record:
+7.1 - Read the formatted example file from Step 5 to determine the line ranges for each example function. For each named function that renders an `<Example>` component, record:
 - The function name (used as the example title from the `title` prop on `<Example>`)
 - The start line (function declaration line)
 - The end line (closing bracket of the function)
 - The imports needed for that specific example
 
-6.2 - Write the MDX documentation to:
+7.2 - Write the MDX documentation to:
 
 ```
 src/pages/<REGISTRY>/<PRIMITIVE>/<COMPONENT_NAME>.mdx
 ```
 
-6.3 - Use this template structure (adapt based on extracted content):
+7.3 - Use this template structure (adapt based on extracted content):
 
 ```mdx
 ---
@@ -263,28 +264,10 @@ Here are the source code of all the examples from the preview page:
 
 **Key template rules:**
 - The `file=` path uses relative paths from the MDX file location: `../../../registry/<PRIMITIVE>/...`
-- Line ranges `#LX-LY` correspond to function declarations in the example file written in Step 4
+- Line ranges `#LX-LY` correspond to function declarations in the example file formatted in Step 5
 - Import blocks in the Examples section use user-facing `~/components/ui/` paths
 - The `Usage` section import also uses `~/components/ui/` paths
 - Each example's imports should only list what that specific example needs
-
-### Step 7: Lint and Format
-
-7.1 - Lint and format the example file:
-
-```bash
-bun biome check --write src/registry/<PRIMITIVE>/examples/<REGISTRY>/<COMPONENT_NAME>-example.tsx
-```
-
-7.2 - If the example file has lint errors that cannot be auto-fixed, analyze and fix them manually, then re-run the lint.
-
-7.3 - Attempt to lint the MDX file (biome may not support MDX -- if it fails, skip this step):
-
-```bash
-bun biome check --write src/pages/<REGISTRY>/<PRIMITIVE>/<COMPONENT_NAME>.mdx
-```
-
-7.4 - Do NOT proceed until the example file passes linting.
 
 ### Step 8: Type Check
 
