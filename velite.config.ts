@@ -24,5 +24,15 @@ export default defineConfig({
         toc: s.toc(),
       }),
     },
+    bazza: {
+      name: "bazza",
+      pattern: "bazza/**/*.mdx",
+      schema: s.object({
+        slug: s.slug("bazza"),
+        title: s.string(),
+        description: s.string(),
+        toc: s.toc(),
+      }),
+    },
   },
 });

@@ -33,6 +33,7 @@
     "@tanstack/solid-router": "^1.162.8",
     "@tanstack/solid-router-ssr-query": "^1.162.8",
     "@tanstack/solid-start": "^1.162.8",
+    "@tanstack/solid-table": "^8.21.3",
     "@tanstack/zod-adapter": "^1.162.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
