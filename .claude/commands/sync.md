@@ -1,7 +1,7 @@
 ---
 model: opus
 description: "Unified sync command for shadcn and external components/blocks. Auto-detects scope from filters."
-argument-hint: "[--primitive=kobalte|base] [--registry=<url>] [--docs=<template>] [--playground=<template>] [--filter=<pattern>] [--dry-run]"
+argument-hint: "[--primitive=kobalte|base] [--registry=<url>] [--docs=<template>] [--examples=<template>] [--playground=<template>] [--filter=<pattern>] [--dry-run]"
 ---
 
 # Purpose
@@ -19,6 +19,7 @@ Parse from `$ARGUMENTS`:
 - `PRIMITIVE` -- `--primitive` value (default: `kobalte`)
 - `REGISTRY_URL` -- `--registry` value (optional, external registry JSON URL)
 - `DOCS_INPUT` -- `--docs` value (optional, URL template with `{component}` placeholder and optional `|prompt` suffix)
+- `EXAMPLES_INPUT` -- `--examples` value (optional, URL template with `{component}` placeholder and optional `|prompt` suffix)
 - `PLAYGROUND_INPUT` -- `--playground` value (optional, URL template with `{component}` placeholder and optional `|prompt` suffix)
 - `FILTER` -- `--filter` value (optional, regex pattern)
 - `DRY_RUN` -- boolean, true if `--dry-run` flag present
@@ -29,6 +30,8 @@ Derived variables:
 - `REGISTRY_NAME` -- `shadcn` for shadcn mode, derived from URL domain for external mode
 - `DOCS_URL_TEMPLATE` -- URL part of `--docs` (before `|`)
 - `DOCS_PROMPT` -- prompt part of `--docs` (after `|`, or empty)
+- `EXAMPLES_URL_TEMPLATE` -- URL part of `--examples` (before `|`)
+- `EXAMPLES_PROMPT` -- prompt part of `--examples` (after `|`, or empty)
 - `PLAYGROUND_URL_TEMPLATE` -- URL part of `--playground` (before `|`)
 - `PLAYGROUND_PROMPT` -- prompt part of `--playground` (after `|`, or empty)
 
@@ -65,8 +68,8 @@ ai_review/
 - Parse `$ARGUMENTS` to extract flags and options
 - Route based on presence of `--registry` flag (2 modes: shadcn or external)
 - If `--registry` is provided and points to a shadcn URL (contains `shadcn` or `ui.shadcn.com`), abort with message: "For shadcn components, use `/sync` without `--registry`. Shadcn URLs are built-in."
-- If `--registry` is provided, require both `--docs` and `--playground` -- abort if either is missing
-- If `--registry` is NOT provided, ignore `--docs`/`--playground` even if passed -- use hardcoded shadcn URLs
+- If `--registry` is provided, require `--docs`, `--examples`, and `--playground` -- abort if any is missing
+- If `--registry` is NOT provided, ignore `--docs`/`--examples`/`--playground` even if passed -- use hardcoded shadcn URLs
 - Always uses Agent Teams for execution, regardless of component count
 - Git operations (commit, push, PR) are handled at this command level, NOT by agents
 - Use the `worktree-manager` skill for worktree creation
@@ -84,6 +87,7 @@ ai_review/
 PRIMITIVE         = value of --primitive flag, default "kobalte"
 REGISTRY_URL      = value of --registry flag, or empty
 DOCS_INPUT        = value of --docs flag, or empty
+EXAMPLES_INPUT    = value of --examples flag, or empty
 PLAYGROUND_INPUT  = value of --playground flag, or empty
 FILTER            = value of --filter flag, or empty
 DRY_RUN           = true if --dry-run flag is present
@@ -95,6 +99,10 @@ DRY_RUN           = true if --dry-run flag is present
 For --docs="https://example.com/docs/{component}|Look in the API section":
   DOCS_URL_TEMPLATE    = "https://example.com/docs/{component}"
   DOCS_PROMPT          = "Look in the API section"
+
+For --examples="https://example.com/examples/{component}|Extract the example code":
+  EXAMPLES_URL_TEMPLATE  = "https://example.com/examples/{component}"
+  EXAMPLES_PROMPT        = "Extract the example code"
 
 For --playground="https://example.com/{component}":
   PLAYGROUND_URL_TEMPLATE = "https://example.com/{component}"
@@ -109,6 +117,7 @@ Split on `|` -- first part is URL template, second part (if present) is the extr
 
 - Check if the URL contains `shadcn` or `ui.shadcn.com` -- abort with: "For shadcn components, use `/sync` without `--registry`. Shadcn URLs are built-in."
 - Check `--docs` is provided -- abort with: "External registries require `--docs` flag. Provide a docs URL template with `{component}` placeholder."
+- Check `--examples` is provided -- abort with: "External registries require `--examples` flag. Provide an examples URL template with `{component}` placeholder for raw example code."
 - Check `--playground` is provided -- abort with: "External registries require `--playground` flag. Provide a playground URL template with `{component}` placeholder."
 - `MODE = "external"`
 - `REGISTRY_NAME` = derive from URL domain (e.g., `bazza` from bazzalabs URL, `magicui` from `magicui.design`)
@@ -123,8 +132,10 @@ Split on `|` -- first part is URL template, second part (if present) is the extr
   BLOCKS_TEMPLATE     = https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/bases/base/blocks/{component}/**/*.tsx
   REGISTRY_DISCOVERY  = https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/_registry.ts
   DOCS_URL_TEMPLATE   = https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/base/{component}.mdx
+  EXAMPLES_URL_TEMPLATE = https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/examples/{component}-example.tsx
   PLAYGROUND_URL_TEMPLATE = https://ui.shadcn.com/create?item={component}-example
   DOCS_PROMPT         = ""
+  EXAMPLES_PROMPT     = ""
   PLAYGROUND_PROMPT   = ""
   ```
 
@@ -134,12 +145,13 @@ Split on `|` -- first part is URL template, second part (if present) is the extr
 ERROR: Invalid arguments. Usage:
   /sync                                              # sync all missing shadcn components
   /sync --filter=<pattern>                           # sync matching shadcn components
-  /sync --registry=<url> --docs=<tpl> --playground=<tpl>  # sync from external registry
+  /sync --registry=<url> --docs=<tpl> --examples=<tpl> --playground=<tpl>  # sync from external registry
 
 Optional flags: --primitive=kobalte|base --filter=<pattern> --dry-run
 
 URL templates use {component} placeholder:
   --docs="https://example.com/docs/{component}|Optional extraction prompt"
+  --examples="https://example.com/examples/{component}|Optional extraction prompt"
   --playground="https://example.com/{component}"
 ```
 
@@ -383,13 +395,15 @@ Each docs teammate receives:
 Sync documentation and examples for the following component:
 
 COMPONENT_NAME={component-name}
-SOURCE={resolved DOCS_URL_TEMPLATE with {component} replaced, or empty for shadcn default}
+DOC_SOURCE={resolved DOCS_URL_TEMPLATE with {component} replaced, or empty for shadcn default}
+EXAMPLE_SOURCE={resolved EXAMPLES_URL_TEMPLATE with {component} replaced, or empty for shadcn default}
 PRIMITIVE={PRIMITIVE}
 REGISTRY={REGISTRY_NAME}
 COMPONENT_TYPE={auto-detected from transformer: "component" or "block"}
 ```
 
 If DOCS_PROMPT is set, append: `\nDOCS_EXTRACTION_PROMPT={DOCS_PROMPT}`
+If EXAMPLES_PROMPT is set, append: `\nEXAMPLES_EXTRACTION_PROMPT={EXAMPLES_PROMPT}`
 
 ```
 Follow your full workflow: worktree guard, resolve source (use default shadcn

@@ -205,3 +205,7 @@ For more information, read the Bun API docs in `node_modules/bun-types/docs/**.m
 - `APP_PORT` - Development server port (auto-configured via `scripts/setup-dev-env.ts`)
 - `CLOUDFLARE_R2_BUCKET_NAME` - Optional R2 bucket for uploads
 - `CLOUDFLARE_R2_PUBLIC_DOMAIN` - Optional R2 public domain
+
+## Behaviors
+
+- When you fetch raw files, use `curl -s` instead of `WebFetch` tool

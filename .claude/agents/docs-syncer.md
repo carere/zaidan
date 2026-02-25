@@ -19,7 +19,8 @@ You do NOT perform Playwright visual validation -- that is handled separately by
 ## Variables
 
 - `COMPONENT_NAME` -- kebab-case name of the component (e.g., `dialog`, `button`, `alert-dialog`)
-- `SOURCE` (optional) -- URL or glob for examples/docs source. If omitted, defaults to shadcn GitHub
+- `DOC_SOURCE` (optional) -- URL or glob for documentation source. If omitted, defaults to shadcn GitHub docs URL
+- `EXAMPLE_SOURCE` (optional) -- URL for raw example code. If omitted, defaults to shadcn GitHub example URL
 - `COMPONENT_TYPE` (`component` | `block`, default: `component`) -- affects file paths and template structure
 - `PRIMITIVE` (`kobalte` | `base-ui`, default: `kobalte`) -- which registry namespace to target
 - `REGISTRY` (`shadcn`, default: `shadcn`) -- which design system registry this component belongs to. Determines the subdirectory for examples and documentation pages.
@@ -59,33 +60,37 @@ ERROR: Not inside a git worktree. This agent must run inside a worktree created 
 
 ### Step 2: Resolve Source
 
-2.1 - Determine the source URLs based on whether `SOURCE` was provided:
+2.1 - Determine the documentation URL based on whether `DOC_SOURCE` was provided:
 
-**If no SOURCE provided (shadcn default):**
+**If no DOC_SOURCE provided (shadcn default):**
 
-- Examples URL: `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/examples/<COMPONENT_NAME>-example.tsx`
 - Documentation URL: `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/<COMPONENT_NAME>.mdx`
 
-**If SOURCE is provided:**
+**If DOC_SOURCE is provided:**
 
-- Fetch and parse the SOURCE URL directly. If the URL ends in `.json`, treat as a registry JSON manifest and extract the component's files, dependencies, and registryDependencies.
-- The manifest will contain file contents, dependencies, and registryDependencies.
+- Fetch and parse the DOC_SOURCE URL directly. If the URL contains `{component}`, replace it with the actual component name. If it contains a `|` character, split on it and use the part after `|` as an additional prompt for documentation extraction.
 
-2.2 - Verify the component implementation file exists in the registry before proceeding:
+2.1b - Determine the examples URL based on whether `EXAMPLE_SOURCE` was provided:
 
-```bash
-ls -la src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
-```
+**If no EXAMPLE_SOURCE provided (shadcn default):**
 
-If it does not exist, warn the user: "Component implementation file not found at `src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx`. The component should be synced first using `/sync`."
+- Examples URL: `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/examples/<COMPONENT_NAME>-example.tsx`
+
+**If EXAMPLE_SOURCE is provided:**
+
+- Examples URL: Fetch and parse the EXAMPLE_SOURCE URLs directly. If the URL contains `{component}`, replace it with the actual component name. If it contains a `|` character, split on it and use the part after `|` as an additional prompt for example extraction.
+
+2.2 - Verify the component / block implementation file exists in the registry before proceeding:
 
 ### Step 3: Fetch and Transform Examples
 
-3.1 - Fetch the example file from the resolved source:
+3.1 - Fetch the example file from the resolved examples URL (determined in Step 2.1b):
 
 ```bash
-curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/examples/<COMPONENT_NAME>-example.tsx"
+curl -s "<EXAMPLES_URL>"
 ```
+
+Where `<EXAMPLES_URL>` is either the `EXAMPLE_SOURCE` value (if provided) or the default shadcn GitHub URL from Step 2.1b.
 
 3.2 - If the response is empty or indicates a 404, inform the user that no examples exist for this component and STOP.
 
@@ -102,8 +107,9 @@ curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/
 | Original Path | Replacement Path |
 |---|---|
 | `@/registry/ui/<name>` | `@/registry/<PRIMITIVE>/ui/<name>` |
+| `@/registry/blocks/<name>` | `@/registry/<PRIMITIVE>/blocks/<name>` | 
 | `@/registry/examples/<name>` | `@/registry/<PRIMITIVE>/examples/<name>` |
-| `@/registry/lib/hooks/<name>` | `~/lib/hooks/<name>` |
+| `@/registry/lib/hooks/<name>` | `@/lib/hooks/<name>` |
 | `@/registry/bases/base/lib/utils` | `@/lib/utils` |
 
 3.6 - Ensure the `Example` and `ExampleWrapper` imports from `@/components/example` are preserved. These are Zaidan-specific components that wrap each example for display.
@@ -178,10 +184,11 @@ curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/
 
 | Original Path | Replacement Path |
 |---|---|
-| `@/registry/ui/<name>` | `~/components/ui/<name>` |
-| `@/registry/lib/hooks/<name>` | `~/lib/hooks/<name>` |
-| `@/registry/bases/base/lib/utils` | `~/lib/utils` |
-| `@/lib/utils` | `~/lib/utils` |
+| `@/registry/ui/<name>` | `@/components/ui/<name>` |
+| `@/registry/blocks/<name>` | `@/components/blocks/<name>` |
+| `@/registry/lib/hooks/<name>` | `@/lib/hooks/<name>` |
+| `@/registry/bases/base/lib/utils` | `@/lib/utils` |
+| `@/lib/utils` | `@/lib/utils` |
 
 ### Step 7: Write/Update MDX Documentation
 
@@ -235,16 +242,6 @@ Copy and paste the following code into your project.
 
 ```
 
-## Usage
-
-```tsx
-import { ComponentName } from "~/components/ui/<component-name>";
-```
-
-```tsx showLineNumbers
-<ComponentName />
-```
-
 ## Examples
 
 Here are the source code of all the examples from the preview page:
@@ -252,7 +249,7 @@ Here are the source code of all the examples from the preview page:
 ### <Example Title from Example component title prop>
 
 ```tsx
-<Relevant imports for this example using ~/components/ui/ paths>
+<Relevant imports for this example using @/* paths>
 ```
 
 ```tsx file=../../../registry/<PRIMITIVE>/examples/<REGISTRY>/<component-name>-example.tsx#LX-LY
@@ -265,8 +262,7 @@ Here are the source code of all the examples from the preview page:
 **Key template rules:**
 - The `file=` path uses relative paths from the MDX file location: `../../../registry/<PRIMITIVE>/...`
 - Line ranges `#LX-LY` correspond to function declarations in the example file formatted in Step 5
-- Import blocks in the Examples section use user-facing `~/components/ui/` paths
-- The `Usage` section import also uses `~/components/ui/` paths
+- Import blocks in the Examples section use user-facing `@/*` paths
 - Each example's imports should only list what that specific example needs
 
 ### Step 8: Type Check
