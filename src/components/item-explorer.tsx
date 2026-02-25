@@ -1,5 +1,5 @@
 import { Link, useSearch } from "@tanstack/solid-router";
-import { docs, shadcn } from "@velite";
+import { bazza, docs, shadcn } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
 import { REGISTRY_META } from "@/lib/registries";
@@ -40,6 +40,11 @@ export function ItemExplorer(props: SidebarProps) {
     {
       title: REGISTRY_META.shadcn.label,
       items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+      route: "/registry/$registry/{-$slug}",
+    },
+    {
+      title: REGISTRY_META.bazza.label,
+      items: bazza.sort((a, b) => a.title.localeCompare(b.title)),
       route: "/registry/$registry/{-$slug}",
     },
   ];

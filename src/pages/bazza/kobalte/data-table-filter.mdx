@@ -1,0 +1,344 @@
+---
+title: Data Table Filter
+slug: data-table-filter
+description: A powerful data table filter component. Library-agnostic. Supports client and server-side filtering.
+---
+
+# Data Table Filter
+
+A powerful data table filter component. Library-agnostic. Supports client and server-side filtering.
+
+## Introduction
+
+This library is an add-on to your existing data table for filtering your data, providing key building blocks for building a powerful filtering experience:
+
+- A SolidJS hook, `useDataTableFilters()`, which exposes your data table filters state.
+- A `<DataTableFilter />` component, inspired by [Linear](https://linear.app/homepage)'s design.
+- Integrations for key libraries, such as [TanStack Table](https://tanstack.com/table).
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/data-table-filter
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@tanstack/solid-table date-fns
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/blocks/data-table-filter/index.tsx showLineNumbers
+
+```
+
+## Quick Start
+
+### Concepts
+
+#### Column data types
+
+When you want to make a column filterable, you first need to define what type of data it contains.
+
+```ts
+type ColumnDataType =
+  | 'text'         /* Text data */
+  | 'number'       /* Numerical data */
+  | 'date'         /* Dates */
+  | 'option'       /* Single-valued option (e.g. status) */
+  | 'multiOption'  /* Multi-valued option (e.g. labels) */
+```
+
+#### Column configuration
+
+We describe each column in our data table as a `ColumnConfig`.
+
+We create a `ColumnConfig` using a builder instance:
+
+```ts
+import { createColumnConfigHelper } from "~/components/blocks/data-table-filter/core/filters"
+
+/* Create the configuration builder instance. */
+const dtf = createColumnConfigHelper<Issue>()
+
+/* Create the column configurations. */
+export const columnsConfig = [
+  dtf
+    .text()
+    .id('title')
+    .accessor((row) => row.title)
+    .displayName('Title')
+    .icon(Heading1Icon)
+    .build(),
+  dtf
+    .option()
+    .accessor((row) => row.status.id)
+    .id('status')
+    .displayName('Status')
+    .icon(CircleDotDashedIcon)
+    .build(),
+  /* ... */
+] as const
+```
+
+#### Instance
+
+We use the `useDataTableFilters()` hook to create our data table filters instance.
+
+```tsx
+import { useDataTableFilters } from "~/components/blocks/data-table-filter"
+
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: 'client',
+  data: issues ?? [],
+  columnsConfig,
+})
+```
+
+The instance has the following properties:
+
+- `columns`: The `Column[]` for your data table filters, with additional properties and methods.
+- `filters`: The filters state, represented as a `FilterState` object.
+- `actions`: A collection of mutators for the filters state.
+- `strategy`: The strategy used for filtering (`client` or `server` side filtering).
+
+#### Component
+
+The visual component for the data table filter is the `<DataTableFilter />` component.
+
+```tsx
+import { DataTableFilter } from "~/components/blocks/data-table-filter"
+
+export function IssuesTable() {
+  return (
+    <div>
+      <DataTableFilter
+        filters={filters()}
+        columns={columns()}
+        actions={actions}
+        strategy={strategy}
+      />
+      <DataTable />
+    </div>
+  )
+}
+```
+
+### Columns
+
+#### Column builders
+
+We describe each column in our data table using a fluent API:
+
+```ts
+import { createColumnConfigHelper } from "~/components/blocks/data-table-filter/core/filters"
+
+const dtf = createColumnConfigHelper<Issue>()
+```
+
+The builder supports the following data type methods: `text()`, `number()`, `date()`, `option()`, or `multiOption()`.
+
+Each column requires an `id()`, `accessor()`, `displayName()`, `icon()`, and finally `build()`:
+
+```ts
+dtf
+  .text()
+  .id('title')
+  .accessor((row) => row.title)
+  .displayName('Title')
+  .icon(Heading1Icon)
+  .build()
+```
+
+For `option` and `multiOption` columns, you can declare static options:
+
+```ts
+dtf
+  .option()
+  .accessor((row) => row.status.id)
+  .id('status')
+  .displayName('Status')
+  .icon(CircleDotDashedIcon)
+  .options(
+    ISSUE_STATUSES.map((s) => ({
+      value: s.id,
+      label: s.name,
+      icon: s.icon
+    }))
+  )
+  .build()
+```
+
+Or use `transformOptionFn()` to infer options from the data:
+
+```tsx
+dtf
+  .option()
+  .accessor((row) => row.assignee)
+  .id('assignee')
+  .displayName('Assignee')
+  .icon(UserCheckIcon)
+  .transformOptionFn((u) => ({
+    value: u.id,
+    label: u.name,
+    icon: (
+      <Avatar class="size-4">
+        <AvatarImage src={u.picture} />
+        <AvatarFallback>{u.name[0]}</AvatarFallback>
+      </Avatar>
+    )
+  }))
+  .build()
+```
+
+For `number` columns, use `min()` and `max()`:
+
+```ts
+dtf
+  .number()
+  .accessor((row) => row.estimatedHours)
+  .id('estimatedHours')
+  .displayName('Estimated hours')
+  .icon(ClockIcon)
+  .min(0)
+  .max(100)
+  .build()
+```
+
+### Using controlled state
+
+You can use controlled (external) state for your filters:
+
+```tsx
+import { createSignal } from "solid-js"
+import type { FiltersState } from "~/components/blocks/data-table-filter/core/types"
+
+const [filters, setFilters] = createSignal<FiltersState>([])
+
+const { columns, filters, actions, strategy } = useDataTableFilters({
+  strategy: 'client',
+  data: issues ?? [],
+  columnsConfig,
+  filters: () => filters(),
+  onFiltersChange: setFilters,
+})
+```
+
+### TanStack Table Integration
+
+For client-side filtering with TanStack Table, use the integration helpers:
+
+```tsx
+import { createSolidTable, getCoreRowModel, getFilteredRowModel } from "@tanstack/solid-table"
+import {
+  createTSTColumns,
+  createTSTFilters,
+} from "~/components/blocks/data-table-filter/integrations/tanstack-table"
+
+const tstColumns = createMemo(() =>
+  createTSTColumns({
+    columns: tstColumnDefs,
+    configs: columns(),
+  }),
+)
+
+const tstFilters = createMemo(() => createTSTFilters(filters()))
+
+const table = createSolidTable({
+  get data() {
+    return issues
+  },
+  get columns() {
+    return tstColumns()
+  },
+  getRowId: (row) => row.id,
+  getCoreRowModel: getCoreRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+  state: {
+    get columnFilters() {
+      return tstFilters()
+    },
+  },
+})
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Issues Table with Filters
+
+```tsx
+import {
+  CircleAlertIcon,
+  CircleCheckIcon,
+  CircleDashedIcon,
+  CircleDotDashedIcon,
+  CircleDotIcon,
+  CircleIcon,
+  ClockIcon,
+  Heading1Icon,
+  TagsIcon,
+  UserCheckIcon,
+} from "lucide-solid";
+import { createMemo, createSignal, For, Show } from "solid-js";
+import { cn } from "~/lib/utils";
+import { DataTableFilter, useDataTableFilters } from "~/components/blocks/data-table-filter";
+import { createColumnConfigHelper } from "~/components/blocks/data-table-filter/core/filters";
+import type { FiltersState } from "~/components/blocks/data-table-filter/core/types";
+import {
+  createTSTColumns,
+  createTSTFilters,
+} from "~/components/blocks/data-table-filter/integrations/tanstack-table";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+import {
+  type ColumnDef,
+  createColumnHelper,
+  createSolidTable,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+} from "@tanstack/solid-table";
+```
+
+```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L371-L521
+
+```
+
+### Internationalization
+
+The component supports internationalization. You can specify the `locale` prop:
+
+```tsx
+<DataTableFilter
+  filters={filters()}
+  columns={columns()}
+  actions={actions}
+  strategy={strategy}
+  locale="fr"
+/>
+```
+
+Supported locales: `en` (default), `fr`, `zh_CN`, `zh_TW`, `nl`, `de`.
+
+## Changelog
+
+See the [upstream changelog](https://ui.bazza.dev/docs/data-table-filter#changelog) for the latest updates.

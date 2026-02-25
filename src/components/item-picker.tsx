@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
-import { docs, shadcn } from "@velite";
+import { bazza, docs, shadcn } from "@velite";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -42,6 +42,11 @@ const entries: Entry[] = [
   {
     title: REGISTRY_META.shadcn.label,
     items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+    route: "/registry/$registry/{-$slug}",
+  },
+  {
+    title: REGISTRY_META.bazza.label,
+    items: bazza.sort((a, b) => a.title.localeCompare(b.title)),
     route: "/registry/$registry/{-$slug}",
   },
 ];
