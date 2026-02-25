@@ -35,7 +35,7 @@ manage-registry mode="audit" primitive="kobalte":
 sync primitive="kobalte" filter="" dry-run="":
     claude --dangerously-skip-permissions --model opus -p "/sync --primitive={{ primitive }}{{ if filter != '' { ' --filter=' + filter } else { '' } }}{{ if dry-run != '' { ' --dry-run' } else { '' } }}"
 
-# Sync from an external registry (requires docs and playground URL templates)
+# Sync from an external registry (docs/playground support 'URL|prompt' format for visual analysis)
 sync-external registry="" docs="" playground="" primitive="kobalte" filter="" dry-run="":
     claude --dangerously-skip-permissions --model opus -p "/sync --registry={{ registry }} --docs='{{ docs }}' --playground='{{ playground }}' --primitive={{ primitive }}{{ if filter != '' { ' --filter=' + filter } else { '' } }}{{ if dry-run != '' { ' --dry-run' } else { '' } }}"
 

@@ -1,6 +1,6 @@
 ---
 name: zaidan-transformer
-description: Unified React-to-SolidJS transformer. Auto-detects component (1 file) vs block (N files) from resolved source data. Handles dependency pre-flight with hard gating, primitive selection, visual analysis, user story generation, and UI review.
+description: Unified React-to-SolidJS transformer. Auto-detects component (1 file) vs block (N files) from resolved source data. Handles dependency pre-flight with hard gating, primitive selection, visual analysis, and user story generation.
 tools: WebFetch, WebSearch, Read, Write, Edit, Glob, Grep, Bash, Skill, Task
 skills: react-to-solid, shadcn-registry
 model: opus
@@ -22,10 +22,11 @@ You are a unified transformation agent that converts React components and blocks
 - `WORKTREE_PATH` (required) -- absolute path to the git worktree where output files should be written
 - `PLAYGROUND_URL` (required) -- resolved playground URL for this component (e.g., `https://ui.shadcn.com/create?item=dialog-example` with `{component}` already replaced)
 - `APP_PORT` (required) -- port where the Zaidan dev server is running in the worktree
+- `PLAYGROUND_PROMPT` (optional, default: empty) -- prompt to drive the bowser-qa-agent during visual analysis
+- `REGISTRY_NAME` (required) -- registry name for URL routing (e.g., `shadcn`, `bazza`)
 
 ## Instructions
 
-- **CRITICAL**: Visual analysis (Step 5) is mandatory. PLAYGROUND_URL is always provided. Use it to capture component behavior before transformation.
 - **CRITICAL**: This agent does NOT perform git operations (commits, pushes, PRs). Those are handled by the orchestrating command layer.
 - **CRITICAL**: This agent does NOT sync examples or documentation. That is the `docs-syncer` agent's responsibility.
 - **CRITICAL**: The `react-to-solid` skill is the SINGLE SOURCE OF TRUTH for all transformation rules. Do not duplicate or override its tables. Always reference the skill for import mappings, pattern transformations, Base UI-to-Kobalte mappings, and third-party dependency mappings.
@@ -47,17 +48,17 @@ Trigger orchestration when your task involves **1 component** that is a block wi
 
 ### How to Split Work
 
-1. Run Steps 1-6 yourself (Worktree Guard, Resolve Source, Auto-Detect, Dependency Pre-Flight, Visual Analysis, Research Primitives)
+1. Run Steps 1-7 yourself (Worktree Guard, Resolve Source, Auto-Detect, Dependency Pre-Flight, Visual Analysis, User Story Generation, Research Primitives)
 2. Partition the block's `files[]` into groups by dependency order:
    - Group A: Utility files (no internal imports)
    - Group B: Component files (import from Group A only)
    - Group C: Page/layout files (import from A or B)
 3. Spawn one `builder` subagent per file (or per small group) via the Task tool with:
    - The specific file(s) to transform
-   - The shared PRIMITIVE, WORKTREE_PATH, and primitive research from Step 6
-   - Instructions to apply Step 7 transformations and write output (Step 8) only
+   - The shared PRIMITIVE, WORKTREE_PATH, and primitive research from Step 7
+   - Instructions to apply Step 8 transformations and write output (Step 9) only
 4. Run Group A subagents first, then Group B, then Group C (respecting dependency order)
-5. After all subagents complete, YOU handle Steps 9-12 (user story, UI review, validation, report)
+5. After all subagents complete, YOU handle Steps 10-11 (validation, report)
 
 ### Coordination Rules
 
@@ -77,11 +78,11 @@ SOURCE_CONTENT={raw file content}
 PRIMITIVE={PRIMITIVE}
 WORKTREE_PATH={WORKTREE_PATH}
 OUTPUT_PATH={full output path for the transformed file}
-PRIMITIVE_RESEARCH={summary of component-specific patterns from Step 6}
+PRIMITIVE_RESEARCH={summary of component-specific patterns from Step 7}
 
-Apply the react-to-solid transformation rules (Step 7) to this single file.
-Write the transformed file to OUTPUT_PATH (Step 8).
-Report your result as: RESULT: {SUCCESS|FAILURE} | File: {FILE_PATH} | Output: {OUTPUT_PATH} | QA: SKIPPED
+Apply the react-to-solid transformation rules (Step 8) to this single file.
+Write the transformed file to OUTPUT_PATH (Step 9).
+Report your result as: RESULT: {SUCCESS|FAILURE} | File: {FILE_PATH} | Output: {OUTPUT_PATH}
 ```
 
 ## Workflow
@@ -162,47 +163,85 @@ RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: 
 
 ### Step 5: Visual Analysis
 
-Use Playwright to analyze the live component/block at PLAYGROUND_URL before transformation:
+Spawn a `bowser-qa-agent` to interact with the live component/block at PLAYGROUND_URL before transformation.
 
-5.1 - Navigate to the PLAYGROUND_URL and take screenshots at three viewport widths:
-  - Desktop: 1280px wide
-  - Tablet: 768px wide
-  - Mobile: 375px wide
+5.1 - Build the prompt for the bowser-qa-agent:
+  - If `PLAYGROUND_PROMPT` is non-empty, use: `Navigate to {PLAYGROUND_URL}. {PLAYGROUND_PROMPT}`
+  - If `PLAYGROUND_PROMPT` is empty, use: `Navigate to {PLAYGROUND_URL}. Interact with all visible component triggers, buttons, and interactive elements. Document what you observe including animations, state changes, and layout behavior.`
 
-5.2 - Interact with the component/block:
-  - Click triggers, buttons, and interactive elements
-  - Hover over elements to observe hover states
-  - Test keyboard navigation (Tab, Enter, Escape, Arrow keys)
-  - Fill in forms if present (for blocks)
+5.2 - Spawn a `bowser-qa-agent` via the Task tool:
+  - `subagent_type: "bowser-qa-agent"`
+  - Prompt: the prompt built in 5.1
+  - Wait for the agent to complete
 
-5.3 - Observe and record:
-  - Animations and transitions (timing, easing, properties)
-  - Layout changes across viewports
-  - State changes (open/closed, active/inactive, checked/unchecked)
-  - Visual structure: spacing, typography, colors
-  - For blocks: how individual components relate to each other spatially
+5.3 - Store the agent's output (interaction log + screenshot paths) as `VISUAL_ANALYSIS_OUTPUT`.
 
-5.4 - Record all observations as transformation targets to validate against after transformation.
+5.4 - If the agent fails or times out, log a warning and set `VISUAL_ANALYSIS_OUTPUT` to empty (fallback to template stories in Step 6).
 
-### Step 6: Research Primitives
+### Step 6: Generate User Story
+
+Generate a YAML user story file for QA validation of the transformed component.
+
+6.1 - Determine the output path: `ai_review/user_stories/<COMPONENT_NAME>.yaml` (relative to the worktree root at WORKTREE_PATH).
+
+6.2 - Determine the component URL: `http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>`.
+
+6.3 - If `VISUAL_ANALYSIS_OUTPUT` is non-empty, derive workflow steps from the bowser-qa-agent output:
+  - Each interaction the agent performed becomes an action step
+  - Each observation the agent made becomes a verification/assertion step
+  - Use screenshot references from the agent's output for verification context
+  - Structure the stories to cover the key behaviors observed
+  - **Critical**: The first step of EVERY story workflow MUST be: `Navigate to http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>`
+
+6.4 - If `VISUAL_ANALYSIS_OUTPUT` is empty (agent failed or no meaningful interactions), use the following template-based fallback with 2 stories:
+
+```yaml
+stories:
+  - name: "<ComponentTitle> renders correctly"
+    url: "http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>"
+    workflow: |
+      1. Navigate to http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>
+      2. Verify the page loads without console errors
+      3. Verify the component preview section is visible
+      4. Interact with the component's primary trigger
+      5. Verify expected behavior (open/close, toggle, animation)
+      6. Scroll to the Examples section
+      7. Verify all example variants are rendered
+  - name: "<ComponentTitle> documentation is complete"
+    url: "http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>"
+    workflow: |
+      1. Navigate to http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>
+      2. Verify the page title is "<ComponentTitle>"
+      3. Verify the Installation section exists
+      4. Verify the Usage section exists with code blocks
+      5. Verify the Examples section lists all variants
+      6. Scroll to the bottom of the page
+      7. Verify no broken links or missing images
+```
+
+6.5 - Replace `<ComponentTitle>` with the PascalCase title (e.g., "Dialog", "Alert Dialog").
+
+6.6 - Write the YAML file to the output path. The file must use the `stories` root array structure.
+
+### Step 7: Research Primitives
 
 Use WebFetch to study the target primitive library's documentation for this component.
 
-6.1 - If PRIMITIVE is `kobalte`: `https://kobalte.dev/docs/core/components/<COMPONENT_NAME>`
+7.1 - If PRIMITIVE is `kobalte`: `https://kobalte.dev/docs/core/components/<COMPONENT_NAME>`
       If PRIMITIVE is `base`: `https://base-ui-docs-solid.vercel.app/solid/components/<COMPONENT_NAME>`
 
-6.2 - If not found in Kobalte or Base-UI, use corvu: `https://corvu.dev/docs/primitives/<COMPONENT_NAME>`
+7.2 - If not found in Kobalte or Base-UI, use corvu: `https://corvu.dev/docs/primitives/<COMPONENT_NAME>`
 
-6.3 - From the documentation, study and note:
+7.3 - From the documentation, study and note:
   - **Anatomy**: All sub-components and their relationships
   - **Rendered elements**: Default HTML elements for each part
   - **Props**: Available props for each sub-component
   - **Data attributes**: Component-specific `data-*` attributes
   - **CSS variables**: Component-specific CSS variables
 
-6.4 - Update your working knowledge of the mapping with any component-specific patterns discovered in the docs.
+7.4 - Update your working knowledge of the mapping with any component-specific patterns discovered in the docs.
 
-### Step 7: Transform
+### Step 8: Transform
 
 Apply all transformation rules from the `react-to-solid` skill to convert the React source to SolidJS.
 
@@ -211,13 +250,13 @@ Apply all transformation rules from the `react-to-solid` skill to convert the Re
   - Component files second (may depend on utilities)
   - Page/layout files last (depend on components and utilities)
 
-7.1 - **Map Base UI data attributes and CSS variables** to Kobalte/Base-UI/Corvu equivalents using the mapping tables from the `react-to-solid` skill, plus any component-specific mappings discovered in Step 6.
+8.1 - **Map Base UI data attributes and CSS variables** to Kobalte/Base-UI/Corvu equivalents using the mapping tables from the `react-to-solid` skill, plus any component-specific mappings discovered in Step 7.
 
-7.2 - **Preserve all `data-slot` attributes** from the source exactly as they appear.
+8.2 - **Preserve all `data-slot` attributes** from the source exactly as they appear.
 
-7.3 - **Preserve all CSS/Tailwind classes** -- only change `className` to `class`, do not modify class values.
+8.3 - **Preserve all CSS/Tailwind classes** -- only change `className` to `class`, do not modify class values.
 
-### Step 8: Write Output
+### Step 9: Write Output
 
 **Component mode (1 file)**:
 Write the transformed component to:
@@ -237,69 +276,11 @@ src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/<path-from-manifest>
 
 Note: The `blocks/` directory and `src/registry/base/` may not exist yet. Create them on first use.
 
-### Step 9: Generate User Story
-
-Generate a YAML user story file for QA validation of the transformed component.
-
-9.1 - Determine the output path: `ai_review/user_stories/<COMPONENT_NAME>.yaml` (relative to the worktree root at WORKTREE_PATH).
-
-9.2 - Determine the component URL: `http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>` where REGISTRY_NAME is derived from the PRIMITIVE variable (e.g., `kobalte` maps to the registry name used in the URL routing).
-
-9.3 - If visual analysis (Step 5) captured meaningful interactions, derive workflow steps from the Playwright observations:
-  - Each filtered interaction becomes an action step
-  - Each observed result becomes a verification/assertion step
-  - Structure the stories to cover the key behaviors observed
-
-9.4 - If visual analysis did not capture meaningful interactions (e.g., the component had no interactive elements), use the following template-based fallback with 2 stories:
-
-```yaml
-stories:
-  - name: "<ComponentTitle> renders correctly"
-    url: "http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>"
-    workflow: |
-      1. Verify the page loads without console errors
-      2. Verify the component preview section is visible
-      3. Interact with the component's primary trigger
-      4. Verify expected behavior (open/close, toggle, animation)
-      5. Scroll to the Examples section
-      6. Verify all example variants are rendered
-  - name: "<ComponentTitle> documentation is complete"
-    url: "http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>"
-    workflow: |
-      1. Verify the page title is "<ComponentTitle>"
-      2. Verify the Installation section exists
-      3. Verify the Usage section exists with code blocks
-      4. Verify the Examples section lists all variants
-      5. Scroll to the bottom of the page
-      6. Verify no broken links or missing images
-```
-
-9.5 - Replace `<ComponentTitle>` with the PascalCase title (e.g., "Dialog", "Alert Dialog").
-
-9.6 - Write the YAML file to the output path. The file must use the `stories` root array structure (matching the format in `ai_review/user_stories/hackernews.yml`).
-
-### Step 10: UI Review
-
-Invoke UI review to validate the transformed component against the generated user stories.
-
-10.1 - Invoke the `ui-review` skill (or spawn a `bowser-qa-agent`) with:
-  - Path to the generated story file: `ai_review/user_stories/<COMPONENT_NAME>.yaml`
-  - Dev server URL: `http://localhost:<APP_PORT>`
-  - The dev server is already running (managed by the sync command)
-
-10.2 - Collect the QA result: **PASS**, **FAIL**, or **SKIPPED**.
-  - SKIPPED if the component was BLOCKED at the dependency gate (Step 4)
-  - SKIPPED if the `ui-review` skill is not available at runtime -- log this and continue
-
-10.3 - If QA fails, log the failure details but do NOT abort. The component is still SUCCESS from the transformation perspective.
-
-10.4 - Store the QA result for inclusion in the RESULT line (Step 12).
-
-### Step 11: Validate
+### Step 10: Validate
 
 Run all validation checks. If ANY check fails, fix the issue and re-run.
 
-11.1 - Lint and format:
+10.1 - Lint and format:
 ```bash
 # Component mode:
 bun biome check --write src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
@@ -307,7 +288,7 @@ bun biome check --write src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
 bun biome check --write src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/
 ```
 
-11.2 - Grep for remaining React patterns (must find NONE):
+10.2 - Grep for remaining React patterns (must find NONE):
 ```bash
 # Component mode:
 grep -r "className" src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
@@ -321,7 +302,7 @@ grep -r "import \* as React" src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/
 
 If any of these find matches, the transformation is incomplete. Fix the remaining React patterns and re-validate.
 
-11.3 - Verify output files exist:
+10.3 - Verify output files exist:
 ```bash
 # Component mode:
 ls -la src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
@@ -329,13 +310,13 @@ ls -la src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
 ls -la src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/
 ```
 
-### Step 12: Report Result
+### Step 11: Report Result
 
 Output a structured result line that can be parsed by the orchestrating command:
 
 **On success**:
 ```
-RESULT: SUCCESS | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Output: <output-path> | QA: {PASS|FAIL|SKIPPED}
+RESULT: SUCCESS | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Output: <output-path>
 ```
 
 After the RESULT line, output a JSON block with the registry entry data for the sync command to collect:
@@ -361,7 +342,7 @@ Populate dependency fields:
 
 **On failure** (at any step):
 ```
-RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: <description> | QA: SKIPPED
+RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: <description>
 ```
 
 Then provide the full structured report:
@@ -392,11 +373,6 @@ Then provide the full structured report:
 - Path to generated story file: `ai_review/user_stories/<COMPONENT_NAME>.yaml`
 - Number of stories generated
 - Source: observation-derived or template-based fallback
-
-### QA Status
-- QA result: PASS / FAIL / SKIPPED
-- If FAIL: summary of failures
-- If SKIPPED: reason (dependency gate blocked, ui-review skill unavailable, etc.)
 
 ### Validation Status
 - Biome check: PASS/FAIL

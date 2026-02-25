@@ -136,7 +136,7 @@ Split on `|` -- first part is URL template, second part (if present) is the extr
   PLAYGROUND_URL_TEMPLATE = https://ui.shadcn.com/create?item={component}-example
   DOCS_PROMPT         = ""
   EXAMPLES_PROMPT     = ""
-  PLAYGROUND_PROMPT   = ""
+  PLAYGROUND_PROMPT   = "Interact with all component triggers and interactive elements. Click buttons, open dropdowns, toggle switches. Document all animations, state changes, and visual behaviors you observe."
   ```
 
 0.4 - If no valid mode matches, abort with:
@@ -152,7 +152,7 @@ Optional flags: --primitive=kobalte|base --filter=<pattern> --dry-run
 URL templates use {component} placeholder:
   --docs="https://example.com/docs/{component}|Optional extraction prompt"
   --examples="https://example.com/examples/{component}|Optional extraction prompt"
-  --playground="https://example.com/{component}"
+  --playground="https://example.com/{component}|Optional interaction prompt for visual analysis"
 ```
 
 ---
@@ -336,17 +336,19 @@ Transform this component and report results:
 
 **Worktree:** {worktree-path}
 **Playground URL:** {resolved PLAYGROUND_URL_TEMPLATE with {component} replaced}
+**Playground Prompt:** {PLAYGROUND_PROMPT or ""}
+**Registry Name:** {REGISTRY_NAME}
 **App Port:** {APP_PORT}
 
 Follow your full workflow: source resolution, auto-detect component vs block,
-dependency pre-flight, visual analysis, research primitives, transform all
-files, write output, validate, user story generation, and UI review.
+dependency pre-flight, visual analysis, user story generation, research primitives,
+transform all files, write output, and validate.
 Do NOT update registry.json — the sync command handles registry updates.
 Include a REGISTRY_ENTRY JSON line in your report for the sync command to collect.
 Use the specified primitive for all import mappings and output paths.
 
 Use this exact format for your final result line:
-  RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path} | QA: {PASS|FAIL|SKIPPED}
+  RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path}
 ```
 
 Configuration per teammate:
@@ -360,6 +362,7 @@ Teammates transform independently. Registry updates are handled centrally by the
 #### Step 4.5: Wait for Transforms
 
 Wait for all transformer teammates to complete. Parse `RESULT` lines and `REGISTRY_ENTRY` JSON from each teammate's report.
+The RESULT format from the transformer is: `RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path}` (no QA field -- QA comes from the UI review phase in Step 4.9).
 Track successes, failures, blocked, and collect registry entries for Step 4.6.
 
 If a component fails due to missing registry dependencies, log it as blocked (not failed) and note the missing deps.
@@ -420,7 +423,23 @@ Configuration per teammate:
 
 Wait for all docs teammates to complete. Parse reports from each teammate.
 
-#### Step 4.9: Stop Dev Server
+#### Step 4.9: UI Review
+
+For each successfully transformed component that has a user story file:
+
+1. Verify story files exist by globbing: `ai_review/user_stories/*.yaml`
+2. Filter to only include stories for components that were successfully transformed
+3. Spawn one teammate per component **in a single message** (all parallel):
+   - Each teammate invokes the `/ui-review` command scoped to the component's story file
+   - Prompt: `/ui-review {COMPONENT_NAME}` (the component name acts as the filename-filter argument)
+   - `subagent_type: "general-purpose"` (the /ui-review command handles bowser-qa-agent spawning internally)
+   - `team_name: "sync-{REGISTRY_NAME}"`
+4. Wait for all ui-review teammates to complete
+5. Parse results from each teammate's output (look for the UI Review Summary report)
+6. Track per-component QA results: PASS, FAIL, or SKIPPED (if no story file exists)
+7. Store results for inclusion in the report and PR body
+
+#### Step 4.10: Stop Dev Server
 
 Kill the dev server process using the stored PID from Step 4.2:
 
@@ -430,11 +449,11 @@ kill {DEV_SERVER_PID}
 
 Log: `Dev server stopped (PID {DEV_SERVER_PID})`
 
-#### Step 4.10: Verify
+#### Step 4.11: Verify
 
 Run automated verification checks before shipping.
 
-**4.10.1: Registry Validation**
+**4.11.1: Registry Validation**
 
 Spawn a `registry-manager` teammate to audit the registry.json:
 
@@ -444,20 +463,20 @@ Spawn a `registry-manager` teammate to audit the registry.json:
 
 Wait for completion and parse the report summary.
 
-**4.10.2: Component File Check**
+**4.11.2: Component File Check**
 
 For each successfully transformed component, verify the output file exists:
 
 - Component: `ls src/registry/{PRIMITIVE}/ui/{COMPONENT_NAME}.tsx`
 - Block: `ls src/registry/{PRIMITIVE}/blocks/{COMPONENT_NAME}/`
 
-**4.10.3: Documentation File Check**
+**4.11.3: Documentation File Check**
 
 For each component with successful docs sync, verify:
 
 - MDX: `ls src/pages/{REGISTRY_NAME}/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
 
-**4.10.4: Example File Check**
+**4.11.4: Example File Check**
 
 For each component with successful docs sync, verify:
 
@@ -465,7 +484,7 @@ For each component with successful docs sync, verify:
 
 Collect results: for each component, record PASS/FAIL for each check. Store verification results for inclusion in PR body and report.
 
-#### Step 4.11: Ship
+#### Step 4.12: Ship
 
 Use the `git-github-ops` skill to perform the following operations inside the worktree:
 
@@ -494,7 +513,8 @@ Use the `git-github-ops` skill to perform the following operations inside the wo
 | {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | {error summary} |
 | {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
-Visual and QA columns are populated from the transformer RESULT lines.
+Visual column is populated from transformer visual analysis.
+QA column is populated from UI review results (Step 4.9).
 
 ## Verification Results
 
@@ -508,7 +528,7 @@ Visual and QA columns are populated from the transformer RESULT lines.
 If any verification check failed, a warning is included noting which checks failed.
 ```
 
-#### Step 4.12: Cleanup
+#### Step 4.13: Cleanup
 
 1. `SendMessage` with `type: "shutdown_request"` to all teammates
 2. Wait for shutdown acknowledgments
