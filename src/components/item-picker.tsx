@@ -29,7 +29,8 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
   title: string;
-  items: typeof docs | typeof shadcn;
+  items: typeof docs | typeof shadcn | typeof bazza;
+  registry?: "shadcn" | "bazza";
   route: FileRouteTypes["to"];
 };
 
@@ -42,11 +43,13 @@ const entries: Entry[] = [
   {
     title: REGISTRY_META.shadcn.label,
     items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+    registry: "shadcn",
     route: "/registry/$registry/{-$slug}",
   },
   {
     title: REGISTRY_META.bazza.label,
     items: bazza.sort((a, b) => a.title.localeCompare(b.title)),
+    registry: "bazza",
     route: "/registry/$registry/{-$slug}",
   },
 ];
@@ -115,7 +118,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           onSelect={() => {
                             navigate({
                               to: entry.route,
-                              params: { registry: "shadcn", slug: item.slug },
+                              params: { registry: entry.registry, slug: item.slug },
                               search: search(),
                             });
                             setOpen(false);

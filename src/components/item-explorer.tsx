@@ -23,7 +23,8 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
   title: string;
-  items: typeof docs | typeof shadcn;
+  items: typeof docs | typeof shadcn | typeof bazza;
+  registry?: "shadcn" | "bazza";
   route: FileRouteTypes["to"];
 };
 
@@ -40,11 +41,13 @@ export function ItemExplorer(props: SidebarProps) {
     {
       title: REGISTRY_META.shadcn.label,
       items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+      registry: "shadcn",
       route: "/registry/$registry/{-$slug}",
     },
     {
       title: REGISTRY_META.bazza.label,
       items: bazza.sort((a, b) => a.title.localeCompare(b.title)),
+      registry: "bazza",
       route: "/registry/$registry/{-$slug}",
     },
   ];
@@ -76,7 +79,7 @@ export function ItemExplorer(props: SidebarProps) {
                                 as={Link}
                                 to={entry.route}
                                 //@ts-expect-error <Problem with kobalte typing polymorphic props>
-                                params={{ registry: "shadcn", slug: item.slug }}
+                                params={{ registry: entry.registry, slug: item.slug }}
                                 //@ts-expect-error <Problem with kobalte typing polymorphic props>
                                 search={search()}
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"

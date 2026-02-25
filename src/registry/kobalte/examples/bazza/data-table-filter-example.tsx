@@ -361,24 +361,14 @@ const columnsConfig = [
 // --- Main Example ---
 
 export default function DataTableFilterExample() {
+  const [filters, setFilters] = createSignal<FiltersState>([]);
   return (
-    <ExampleWrapper>
-      <IssuesTableDemo />
+    <ExampleWrapper class="grid-cols-1 md:grid-cols-1">
+      <Example title="Issues Table with Filters" class="w-full">
+        <IssuesTable filters={filters()} onFiltersChange={setFilters} />
+      </Example>
     </ExampleWrapper>
   );
-}
-
-function IssuesTableDemo() {
-  return (
-    <Example title="Issues Table with Filters" class="w-full">
-      <IssuesTableWrapper />
-    </Example>
-  );
-}
-
-function IssuesTableWrapper() {
-  const [filters, setFilters] = createSignal<FiltersState>([]);
-  return <IssuesTable filters={filters()} onFiltersChange={setFilters} />;
 }
 
 function IssuesTable(props: {

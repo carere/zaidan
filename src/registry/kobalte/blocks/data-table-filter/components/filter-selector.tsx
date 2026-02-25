@@ -110,6 +110,7 @@ export function FilterSelector<TData>(props: FilterSelectorProps<TData>) {
 
   return (
     <Popover
+      placement="bottom-start"
       open={open()}
       onOpenChange={async (val) => {
         setOpen(val);
