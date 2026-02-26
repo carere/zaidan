@@ -1,7 +1,6 @@
 import { Link, useSearch } from "@tanstack/solid-router";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
-import { REGISTRY_META } from "@/lib/registries";
 import { getEntries, isDraft } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/registry/kobalte/ui/badge";
@@ -59,11 +58,6 @@ export function ItemExplorer(props: SidebarProps) {
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >
                                 {item.title}
-                                <Show when={item.registry !== "shadcn"}>
-                                  <span class="ml-1 text-[0.65rem] text-muted-foreground">
-                                    ({REGISTRY_META[item.registry].label})
-                                  </span>
-                                </Show>
                                 <Show when={isDraft(item.slug)}>
                                   <Badge
                                     variant="outline"
