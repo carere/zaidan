@@ -1,7 +1,7 @@
 import { CircleCheck, Info, LoaderCircle, OctagonX, TriangleAlert } from "lucide-solid";
 import type { Component, ComponentProps, JSX } from "solid-js";
 import { Toaster as Sonner } from "solid-sonner";
-import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
 type ToasterProps = ComponentProps<typeof Sonner>;
 

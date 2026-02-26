@@ -5,7 +5,7 @@ import { PageToggleNav } from "@/components/page-toggle-nav";
 import { getCollectionByRegistry, type Registry } from "@/lib/registries";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
-import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const Route = createFileRoute("/_website/registry/$registry/{-$slug}")({
   loader: ({ params }) => {

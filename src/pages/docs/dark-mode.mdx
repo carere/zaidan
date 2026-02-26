@@ -1,0 +1,88 @@
+---
+title: "Dark Mode"
+description: "How to implement and manage dark mode in your Zaidan-enabled SolidJS project."
+slug: "dark-mode"
+---
+
+# Dark Mode
+
+Zaidan shipped with dark mode support out of the box. All the tools are included in the registry, let's see how to enable it in your app.
+
+## Quick Start 
+
+To start using the dark mode feature, you first need to add the items to your project:
+
+```package-dlx
+shadcn@latest add @zaidan/color-mode
+```
+
+Then, you need to wrap your applications in the `ColorModeProvider` and set the initial mode (will show you later how to detect it automatically):
+
+```tsx showLineNumbers
+import { ColorModeProvider } from "@components/color-mode-provider";
+
+function RootComponent() {
+  const colorMode = "light";
+
+  return (
+    <html lang="en" class={colorMode}>
+      <head>{/* ... */}</head>
+      <body>
+        <ColorModeProvider initialColorMode={colorMode}>
+          {/* Your app */}
+        </ColorModeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+Then use the `useColorMode` hook to access the current mode or toggle it from anywhere in your app:
+
+```tsx showLineNumbers
+import { useColorMode } from "@components/color-mode-provider";
+
+function ThemeToggle() {
+  const { colorMode, toggleColorMode } = useColorMode();
+
+  return (
+    <button onClick={toggleColorMode}>
+      {colorMode() === "light" ? "Switch to Dark" : "Switch to Light"}
+    </button>
+  );
+}
+```
+
+That's it! You now have a working dark mode toggle in your app. You can define `dark:` modifiers in your Tailwind CSS classes to style elements based on the current mode.
+
+## Automatic Detection & SSR
+
+Zaidan provides client-side utility to automatically detect the user's preferred color mode either from the cookie or from the system preference
+
+On the server side (SSR), you'll need to come up with your own solution, since it's depends on your framework and setup. We will show you how we did it on Zaidan with Tanstack Start:
+
+```tsx title="__root.tsx" showLineNumbers {3,11}
+import { createIsomorphicFn } from "@tanstack/solid-start";
+import { getCookie } from "@tanstack/solid-start/server";
+import { getClientColorMode, ZAIDAN_COLOR_MODE_COOKIE_KEY } from "@components/color-mode-provider";
+
+// Tanstack Start provides powerful utilities to create function that work on server & client
+const getColorMode = createIsomorphicFn()
+  .server(() => getCookie(ZAIDAN_COLOR_MODE_COOKIE_KEY) ?? "light") // Use your framework's cookie parsing utility to read the color mode from cookies
+  .client(() => getClientColorMode());
+
+function RootComponent() {
+  const colorMode = getColorMode();
+
+  return (
+    <html lang="en" class={colorMode}>
+      <head>{/* ... */}</head>
+      <body>
+        <ColorModeProvider initialColorMode={colorMode}>
+          {/* Your app */}
+        </ColorModeProvider>
+      </body>
+    </html>
+  );
+}
+```

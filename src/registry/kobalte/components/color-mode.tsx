@@ -1,4 +1,13 @@
-import { type Accessor, createContext, createSignal, type ParentProps, untrack } from "solid-js";
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  type ParentProps,
+  untrack,
+  useContext,
+} from "solid-js";
+
+export const ZAIDAN_COLOR_MODE_COOKIE_KEY = "zaidan-color-mode";
 
 export type ColorMode = "light" | "dark";
 
@@ -27,7 +36,7 @@ export function ColorModeProvider(
 
     // Set the cookie
     // biome-ignore lint/suspicious/noDocumentCookie: <will find a better way to do this>
-    document.cookie = `zaidan-color-mode=${untrack(colorMode)}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `${ZAIDAN_COLOR_MODE_COOKIE_KEY}=${untrack(colorMode)}; path=/; max-age=31536000; SameSite=Lax`;
   };
 
   return (
@@ -36,3 +45,18 @@ export function ColorModeProvider(
     </ColorModeContext.Provider>
   );
 }
+
+export function useColorMode(): ColorModeContextValue {
+  const context = useContext(ColorModeContext);
+  if (context === undefined) {
+    throw new Error("useColorMode must be used within a ColorModeProvider");
+  }
+  return context;
+}
+
+export const getClientColorMode = () =>
+  document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${ZAIDAN_COLOR_MODE_COOKIE_KEY}=`))
+    ?.split("=")[1] ??
+  (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");

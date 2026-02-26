@@ -3,7 +3,7 @@ import { For } from "solid-js";
 import { LockButton } from "@/components/lock-button";
 import { BASE_COLORS, DEFAULT_CONFIG } from "@/lib/config";
 import type { BaseColor } from "@/lib/types";
-import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { useColorMode } from "@/registry/kobalte/components/color-mode";
 import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import {
   DropdownMenu,
