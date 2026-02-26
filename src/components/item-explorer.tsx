@@ -1,5 +1,5 @@
 import { Link, useSearch } from "@tanstack/solid-router";
-import { bazza, docs, shadcn } from "@velite";
+import { bazza, docs, motionPrimitives, shadcn } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
 import { DRAFT_SLUGS } from "@/lib/config";
@@ -25,8 +25,8 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
   title: string;
-  items: typeof docs | typeof shadcn | typeof bazza;
-  registry?: "shadcn" | "bazza";
+  items: typeof docs | typeof shadcn | typeof bazza | typeof motionPrimitives;
+  registry?: "shadcn" | "bazza" | "motion-primitives";
   route: FileRouteTypes["to"];
 };
 
@@ -54,6 +54,12 @@ export function ItemExplorer(props: SidebarProps) {
       title: REGISTRY_META.shadcn.label,
       items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
       registry: "shadcn",
+      route: "/registry/$registry/{-$slug}",
+    },
+    {
+      title: REGISTRY_META["motion-primitives"].label,
+      items: filterDrafts(motionPrimitives.sort((a, b) => a.title.localeCompare(b.title))),
+      registry: "motion-primitives",
       route: "/registry/$registry/{-$slug}",
     },
   ];

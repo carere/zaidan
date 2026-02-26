@@ -34,5 +34,15 @@ export default defineConfig({
         toc: s.toc(),
       }),
     },
+    motionPrimitives: {
+      name: "motionPrimitives",
+      pattern: "motion-primitives/**/*.mdx",
+      schema: s.object({
+        slug: s.slug("motion-primitives"),
+        title: s.string(),
+        description: s.string(),
+        toc: s.toc(),
+      }),
+    },
   },
 });

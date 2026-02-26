@@ -1,0 +1,85 @@
+---
+title: Animated Background
+slug: animated-background
+description: Visually highlights selected items by sliding a background into view when hovered over or clicked. Ideal for interactive lists, menus, or navigations where clear selection feedback is important.
+---
+
+# Animated Background
+
+Visually highlights selected items by sliding a background into view when hovered over or clicked. This smooth transition helps users focus on the active item, making it ideal for interactive lists, menus, or navigations where clear selection feedback is important.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/animated-background
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/animated-background.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Animated Tabs
+
+```tsx
+import { Home, PhoneCall, Settings, User } from "lucide-solid";
+import { For } from "solid-js";
+import { AnimatedBackground } from "~/components/ui/animated-background";
+```
+
+```tsx file=../../../registry/kobalte/examples/motion-primitives/animated-background-example.tsx#L17-L63
+
+```
+
+### Animated Tabs Hover
+
+```tsx
+import { For } from "solid-js";
+import { AnimatedBackground } from "~/components/ui/animated-background";
+```
+
+```tsx file=../../../registry/kobalte/examples/motion-primitives/animated-background-example.tsx#L65-L95
+
+```
+
+### Animated Card Background
+
+```tsx
+import { For } from "solid-js";
+import { AnimatedBackground } from "~/components/ui/animated-background";
+```
+
+```tsx file=../../../registry/kobalte/examples/motion-primitives/animated-background-example.tsx#L97-L158
+
+```
+
+### Segmented Control
+
+```tsx
+import { For } from "solid-js";
+import { AnimatedBackground } from "~/components/ui/animated-background";
+```
+
+```tsx file=../../../registry/kobalte/examples/motion-primitives/animated-background-example.tsx#L160-L188
+
+```
+
+## Component API
+
+| Prop | Type | Default | Description |
+| :------------ | :----------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children | JSX.Element | | The content to be displayed within the animated background. **Each child must have a unique `data-id` attribute to ensure correct functionality.** |
+| defaultValue | string | | The default value to be used as the active item identifier. |
+| onValueChange | (newActiveId: string \| null) => void | | Callback function that is called when the active item changes. |
+| class | string | | The class name to apply to the animated background indicator for custom styling. |
+| transition | \{ duration?: number; easing?: string \} | | The transition configuration for animation effects. |
+| enableHover | boolean | false | Enables or disables the hover effect. When `enableHover` is true, spacing between children cannot be added. |
