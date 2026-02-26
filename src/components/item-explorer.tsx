@@ -2,8 +2,10 @@ import { Link, useSearch } from "@tanstack/solid-router";
 import { bazza, docs, shadcn } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
+import { DRAFT_SLUGS } from "@/lib/config";
 import { REGISTRY_META } from "@/lib/registries";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/registry/kobalte/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
@@ -32,6 +34,10 @@ export function ItemExplorer(props: SidebarProps) {
   const mergedProps = mergeProps({ collapsible: "none" }, props);
   const search = useSearch({ strict: false });
   const [local, others] = splitProps(mergedProps as SidebarProps, ["class", "collapsible"]);
+  const isDraft = (slug: string) => DRAFT_SLUGS.includes(slug);
+  const filterDrafts = <T extends { slug: string }>(items: T[]) =>
+    import.meta.env.DEV ? items : items.filter((item) => !isDraft(item.slug));
+
   const entries: Entry[] = [
     {
       title: "Getting Started",
@@ -40,13 +46,13 @@ export function ItemExplorer(props: SidebarProps) {
     },
     {
       title: REGISTRY_META.shadcn.label,
-      items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+      items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
       registry: "shadcn",
       route: "/registry/$registry/{-$slug}",
     },
     {
       title: REGISTRY_META.bazza.label,
-      items: bazza.sort((a, b) => a.title.localeCompare(b.title)),
+      items: filterDrafts(bazza.sort((a, b) => a.title.localeCompare(b.title))),
       registry: "bazza",
       route: "/registry/$registry/{-$slug}",
     },
@@ -85,6 +91,14 @@ export function ItemExplorer(props: SidebarProps) {
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >
                                 {item.title}
+                                <Show when={isDraft(item.slug)}>
+                                  <Badge
+                                    variant="outline"
+                                    class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
+                                  >
+                                    draft
+                                  </Badge>
+                                </Show>
                                 <span class="absolute inset-0 flex w-(--sidebar-width) bg-transparent" />
                               </SidebarMenuButton>
                             </SidebarMenuItem>

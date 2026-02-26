@@ -1,6 +1,6 @@
 import { X } from "lucide-solid";
 import type { JSX } from "solid-js";
-import { createEffect, createSignal, For, on, onCleanup, Show } from "solid-js";
+import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import type {
@@ -103,7 +103,7 @@ export function ActiveFiltersMobileContainer(props: { children: JSX.Element }) {
     }
   };
 
-  createEffect(() => {
+  onMount(() => {
     if (scrollContainerRef) {
       const resizeObserver = new ResizeObserver(() => {
         checkScroll();
@@ -115,19 +115,10 @@ export function ActiveFiltersMobileContainer(props: { children: JSX.Element }) {
     }
   });
 
-  createEffect(
-    on(
-      () => props.children,
-      () => {
-        checkScroll();
-      },
-    ),
-  );
-
   return (
-    <div class="relative w-full overflow-x-hidden">
+    <div data-slot="active-filters-mobile-container" class="relative w-full overflow-x-hidden">
       <Show when={showLeftBlur()}>
-        <div class="fade-in-0 pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-16 animate-in bg-gradient-to-r from-background to-transparent" />
+        <div class="fade-in-0 pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-16 animate-in bg-linear-to-r from-background to-transparent" />
       </Show>
 
       <div
@@ -141,7 +132,7 @@ export function ActiveFiltersMobileContainer(props: { children: JSX.Element }) {
       </div>
 
       <Show when={showRightBlur()}>
-        <div class="fade-in-0 pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-16 animate-in bg-gradient-to-l from-background to-transparent" />
+        <div class="fade-in-0 pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-16 animate-in bg-linear-to-l from-background to-transparent" />
       </Show>
     </div>
   );

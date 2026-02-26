@@ -178,3 +178,10 @@ export const PRIMITIVES: { name: Primitive; label: string }[] = [
   { name: "kobalte", label: "Kobalte" },
   { name: "base", label: "Base" },
 ];
+
+/**
+ * Components in draft mode.
+ * Draft components are only visible in DEV and excluded from the production registry build.
+ * Add the component slug (kebab-case) to this array to mark it as draft.
+ */
+export const DRAFT_SLUGS: string[] = ["data-table-filter"];

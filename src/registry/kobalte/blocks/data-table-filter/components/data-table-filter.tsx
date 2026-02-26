@@ -21,7 +21,7 @@ export function DataTableFilter<TData>(props: DataTableFilterProps<TData>) {
     <Show
       when={!isMobile()}
       fallback={
-        <div class="flex w-full items-start justify-between gap-2">
+        <div data-slot="data-table-filter" class="flex w-full items-start justify-between gap-2">
           <div class="flex gap-1">
             <FilterSelector
               columns={props.columns}
@@ -48,7 +48,7 @@ export function DataTableFilter<TData>(props: DataTableFilterProps<TData>) {
         </div>
       }
     >
-      <div class="flex w-full items-start justify-between gap-2">
+      <div data-slot="data-table-filter" class="flex w-full items-start justify-between gap-2">
         <div class="flex w-full flex-1 gap-2 md:flex-wrap">
           <FilterSelector
             columns={props.columns}

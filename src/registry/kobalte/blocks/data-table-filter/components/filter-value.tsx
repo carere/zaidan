@@ -2,6 +2,7 @@ import { format, isEqual } from "date-fns";
 import { Ellipsis } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, on, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
+import { match } from "ts-pattern";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Calendar } from "@/registry/kobalte/ui/calendar";
@@ -53,21 +54,17 @@ export function FilterValue<TData, TType extends ColumnDataType>(
     <Popover>
       <PopoverAnchor class="h-full" />
       <PopoverTrigger
-        as={(triggerProps: any) => (
-          <Button
-            variant="ghost"
-            class="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
-            {...triggerProps}
-          >
-            <FilterValueDisplay
-              filter={props.filter}
-              column={props.column}
-              actions={props.actions}
-              locale={props.locale}
-            />
-          </Button>
-        )}
-      />
+        as={Button}
+        variant="ghost"
+        class="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
+      >
+        <FilterValueDisplay
+          filter={props.filter}
+          column={props.column}
+          actions={props.actions}
+          locale={props.locale}
+        />
+      </PopoverTrigger>
       <PopoverContent align="start" class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
         <FilterValueController
           filter={props.filter}
@@ -91,64 +88,48 @@ interface FilterValueDisplayProps<TData, TType extends ColumnDataType> {
 export function FilterValueDisplay<TData, TType extends ColumnDataType>(
   props: FilterValueDisplayProps<TData, TType>,
 ) {
-  return (
-    <Show
-      when={props.column.type === "option"}
-      fallback={
-        <Show
-          when={props.column.type === "multiOption"}
-          fallback={
-            <Show
-              when={props.column.type === "date"}
-              fallback={
-                <Show
-                  when={props.column.type === "text"}
-                  fallback={
-                    <Show when={props.column.type === "number"}>
-                      <FilterValueNumberDisplay
-                        filter={props.filter as FilterModel<"number">}
-                        column={props.column as Column<TData, "number">}
-                        actions={props.actions}
-                        locale={props.locale}
-                      />
-                    </Show>
-                  }
-                >
-                  <FilterValueTextDisplay
-                    filter={props.filter as FilterModel<"text">}
-                    column={props.column as Column<TData, "text">}
-                    actions={props.actions}
-                    locale={props.locale}
-                  />
-                </Show>
-              }
-            >
-              <FilterValueDateDisplay
-                filter={props.filter as FilterModel<"date">}
-                column={props.column as Column<TData, "date">}
-                actions={props.actions}
-                locale={props.locale}
-              />
-            </Show>
-          }
-        >
-          <FilterValueMultiOptionDisplay
-            filter={props.filter as FilterModel<"multiOption">}
-            column={props.column as Column<TData, "multiOption">}
-            actions={props.actions}
-            locale={props.locale}
-          />
-        </Show>
-      }
-    >
+  return match(props.column.type as ColumnDataType)
+    .with("option", () => (
       <FilterValueOptionDisplay
         filter={props.filter as FilterModel<"option">}
         column={props.column as Column<TData, "option">}
         actions={props.actions}
         locale={props.locale}
       />
-    </Show>
-  );
+    ))
+    .with("multiOption", () => (
+      <FilterValueMultiOptionDisplay
+        filter={props.filter as FilterModel<"multiOption">}
+        column={props.column as Column<TData, "multiOption">}
+        actions={props.actions}
+        locale={props.locale}
+      />
+    ))
+    .with("date", () => (
+      <FilterValueDateDisplay
+        filter={props.filter as FilterModel<"date">}
+        column={props.column as Column<TData, "date">}
+        actions={props.actions}
+        locale={props.locale}
+      />
+    ))
+    .with("text", () => (
+      <FilterValueTextDisplay
+        filter={props.filter as FilterModel<"text">}
+        column={props.column as Column<TData, "text">}
+        actions={props.actions}
+        locale={props.locale}
+      />
+    ))
+    .with("number", () => (
+      <FilterValueNumberDisplay
+        filter={props.filter as FilterModel<"number">}
+        column={props.column as Column<TData, "number">}
+        actions={props.actions}
+        locale={props.locale}
+      />
+    ))
+    .exhaustive();
 }
 
 export function FilterValueOptionDisplay<TData>(props: FilterValueDisplayProps<TData, "option">) {
@@ -159,27 +140,23 @@ export function FilterValueOptionDisplay<TData>(props: FilterValueDisplayProps<T
 
   return (
     <Show
-      when={selected().length === 1}
+      when={selected().length === 1 && selected()[0]}
       fallback={
         <MultiOptionIconsDisplay column={props.column} selected={selected()} options={options()} />
       }
     >
-      {(() => {
-        const item = selected()[0];
-        const hasIcon = !!item.icon;
-        return (
-          <span class="inline-flex items-center gap-1">
-            <Show when={hasIcon && item.icon}>
-              {(icon) => (
-                <Show when={typeof icon() === "function"} fallback={icon() as any}>
-                  <Dynamic component={icon() as any} class="size-4 text-primary" />
-                </Show>
-              )}
-            </Show>
-            <span>{item.label}</span>
-          </span>
-        );
-      })()}
+      {(item) => (
+        <span class="inline-flex items-center gap-1">
+          <Show when={item().icon}>
+            {(icon) => (
+              <Show when={typeof icon() === "function"} fallback={icon() as any}>
+                <Dynamic component={icon() as any} class="size-4 text-primary" />
+              </Show>
+            )}
+          </Show>
+          <span>{item().label}</span>
+        </span>
+      )}
     </Show>
   );
 }
@@ -219,27 +196,23 @@ export function FilterValueMultiOptionDisplay<TData>(
 
   return (
     <Show
-      when={selected().length === 1}
+      when={selected().length === 1 && selected()[0]}
       fallback={
         <MultiOptionIconsDisplay column={props.column} selected={selected()} options={options()} />
       }
     >
-      {(() => {
-        const item = selected()[0];
-        const hasIcon = !!item.icon;
-        return (
-          <span class="inline-flex items-center gap-1.5">
-            <Show when={hasIcon && item.icon}>
-              {(icon) => (
-                <Show when={typeof icon() === "function"} fallback={icon() as any}>
-                  <Dynamic component={icon() as any} class="size-4 text-primary" />
-                </Show>
-              )}
-            </Show>
-            <span>{item.label}</span>
-          </span>
-        );
-      })()}
+      {(item) => (
+        <span class="inline-flex items-center gap-1.5">
+          <Show when={item().icon}>
+            {(icon) => (
+              <Show when={typeof icon() === "function"} fallback={icon() as any}>
+                <Dynamic component={icon() as any} class="size-4 text-primary" />
+              </Show>
+            )}
+          </Show>
+          <span>{item().label}</span>
+        </span>
+      )}
     </Show>
   );
 }
@@ -318,60 +291,8 @@ interface FilterValueControllerProps<TData, TType extends ColumnDataType> {
 export function FilterValueController<TData, TType extends ColumnDataType>(
   props: FilterValueControllerProps<TData, TType>,
 ) {
-  return (
-    <Show
-      when={props.column.type === "option"}
-      fallback={
-        <Show
-          when={props.column.type === "multiOption"}
-          fallback={
-            <Show
-              when={props.column.type === "date"}
-              fallback={
-                <Show
-                  when={props.column.type === "text"}
-                  fallback={
-                    <Show when={props.column.type === "number"}>
-                      <FilterValueNumberController
-                        filter={props.filter as FilterModel<"number">}
-                        column={props.column as Column<TData, "number">}
-                        actions={props.actions}
-                        strategy={props.strategy}
-                        locale={props.locale}
-                      />
-                    </Show>
-                  }
-                >
-                  <FilterValueTextController
-                    filter={props.filter as FilterModel<"text">}
-                    column={props.column as Column<TData, "text">}
-                    actions={props.actions}
-                    strategy={props.strategy}
-                    locale={props.locale}
-                  />
-                </Show>
-              }
-            >
-              <FilterValueDateController
-                filter={props.filter as FilterModel<"date">}
-                column={props.column as Column<TData, "date">}
-                actions={props.actions}
-                strategy={props.strategy}
-                locale={props.locale}
-              />
-            </Show>
-          }
-        >
-          <FilterValueMultiOptionController
-            filter={props.filter as FilterModel<"multiOption">}
-            column={props.column as Column<TData, "multiOption">}
-            actions={props.actions}
-            strategy={props.strategy}
-            locale={props.locale}
-          />
-        </Show>
-      }
-    >
+  return match(props.column.type as ColumnDataType)
+    .with("option", () => (
       <FilterValueOptionController
         filter={props.filter as FilterModel<"option">}
         column={props.column as Column<TData, "option">}
@@ -379,8 +300,44 @@ export function FilterValueController<TData, TType extends ColumnDataType>(
         strategy={props.strategy}
         locale={props.locale}
       />
-    </Show>
-  );
+    ))
+    .with("multiOption", () => (
+      <FilterValueMultiOptionController
+        filter={props.filter as FilterModel<"multiOption">}
+        column={props.column as Column<TData, "multiOption">}
+        actions={props.actions}
+        strategy={props.strategy}
+        locale={props.locale}
+      />
+    ))
+    .with("date", () => (
+      <FilterValueDateController
+        filter={props.filter as FilterModel<"date">}
+        column={props.column as Column<TData, "date">}
+        actions={props.actions}
+        strategy={props.strategy}
+        locale={props.locale}
+      />
+    ))
+    .with("text", () => (
+      <FilterValueTextController
+        filter={props.filter as FilterModel<"text">}
+        column={props.column as Column<TData, "text">}
+        actions={props.actions}
+        strategy={props.strategy}
+        locale={props.locale}
+      />
+    ))
+    .with("number", () => (
+      <FilterValueNumberController
+        filter={props.filter as FilterModel<"number">}
+        column={props.column as Column<TData, "number">}
+        actions={props.actions}
+        strategy={props.strategy}
+        locale={props.locale}
+      />
+    ))
+    .exhaustive();
 }
 
 interface OptionItemProps {
@@ -623,11 +580,11 @@ export function FilterValueNumberController<TData>(
     on(
       () => props.filter?.values,
       (filterValues) => {
-        if (
-          filterValues &&
-          filterValues.length === values().length &&
-          filterValues.every((v, i) => v === values()[i])
-        ) {
+        if (!filterValues) return;
+        const current = values();
+        const isSame =
+          filterValues.length === current.length && filterValues.every((v, i) => v === current[i]);
+        if (!isSame) {
           setValues(filterValues);
         }
       },

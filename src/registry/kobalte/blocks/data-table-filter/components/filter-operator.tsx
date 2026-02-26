@@ -1,4 +1,5 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For } from "solid-js";
+import { match } from "ts-pattern";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Command,
@@ -43,20 +44,16 @@ export function FilterOperator<TData, TType extends ColumnDataType>(
   return (
     <Popover open={open()} onOpenChange={setOpen}>
       <PopoverTrigger
-        as={(triggerProps: any) => (
-          <Button
-            variant="ghost"
-            class="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
-            {...triggerProps}
-          >
-            <FilterOperatorDisplay
-              filter={props.filter}
-              columnType={props.column.type}
-              locale={props.locale}
-            />
-          </Button>
-        )}
-      />
+        as={Button}
+        variant="ghost"
+        class="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
+      >
+        <FilterOperatorDisplay
+          filter={props.filter}
+          columnType={props.column.type}
+          locale={props.locale}
+        />
+      </PopoverTrigger>
       <PopoverContent align="start" class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
         <Command loop>
           <CommandInput placeholder={t("search", props.locale ?? "en")} />
@@ -102,60 +99,8 @@ interface FilterOperatorControllerProps<TData, TType extends ColumnDataType> {
 export function FilterOperatorController<TData, TType extends ColumnDataType>(
   props: FilterOperatorControllerProps<TData, TType>,
 ) {
-  return (
-    <Show
-      when={props.column.type === "option"}
-      fallback={
-        <Show
-          when={props.column.type === "multiOption"}
-          fallback={
-            <Show
-              when={props.column.type === "date"}
-              fallback={
-                <Show
-                  when={props.column.type === "text"}
-                  fallback={
-                    <Show when={props.column.type === "number"}>
-                      <FilterOperatorNumberController
-                        filter={props.filter as FilterModel<"number">}
-                        column={props.column as Column<TData, "number">}
-                        actions={props.actions}
-                        closeController={props.closeController}
-                        locale={props.locale}
-                      />
-                    </Show>
-                  }
-                >
-                  <FilterOperatorTextController
-                    filter={props.filter as FilterModel<"text">}
-                    column={props.column as Column<TData, "text">}
-                    actions={props.actions}
-                    closeController={props.closeController}
-                    locale={props.locale}
-                  />
-                </Show>
-              }
-            >
-              <FilterOperatorDateController
-                filter={props.filter as FilterModel<"date">}
-                column={props.column as Column<TData, "date">}
-                actions={props.actions}
-                closeController={props.closeController}
-                locale={props.locale}
-              />
-            </Show>
-          }
-        >
-          <FilterOperatorMultiOptionController
-            filter={props.filter as FilterModel<"multiOption">}
-            column={props.column as Column<TData, "multiOption">}
-            actions={props.actions}
-            closeController={props.closeController}
-            locale={props.locale}
-          />
-        </Show>
-      }
-    >
+  return match(props.column.type as ColumnDataType)
+    .with("option", () => (
       <FilterOperatorOptionController
         filter={props.filter as FilterModel<"option">}
         column={props.column as Column<TData, "option">}
@@ -163,8 +108,44 @@ export function FilterOperatorController<TData, TType extends ColumnDataType>(
         closeController={props.closeController}
         locale={props.locale}
       />
-    </Show>
-  );
+    ))
+    .with("multiOption", () => (
+      <FilterOperatorMultiOptionController
+        filter={props.filter as FilterModel<"multiOption">}
+        column={props.column as Column<TData, "multiOption">}
+        actions={props.actions}
+        closeController={props.closeController}
+        locale={props.locale}
+      />
+    ))
+    .with("date", () => (
+      <FilterOperatorDateController
+        filter={props.filter as FilterModel<"date">}
+        column={props.column as Column<TData, "date">}
+        actions={props.actions}
+        closeController={props.closeController}
+        locale={props.locale}
+      />
+    ))
+    .with("text", () => (
+      <FilterOperatorTextController
+        filter={props.filter as FilterModel<"text">}
+        column={props.column as Column<TData, "text">}
+        actions={props.actions}
+        closeController={props.closeController}
+        locale={props.locale}
+      />
+    ))
+    .with("number", () => (
+      <FilterOperatorNumberController
+        filter={props.filter as FilterModel<"number">}
+        column={props.column as Column<TData, "number">}
+        actions={props.actions}
+        closeController={props.closeController}
+        locale={props.locale}
+      />
+    ))
+    .exhaustive();
 }
 
 function FilterOperatorOptionController<TData>(

@@ -34,5 +34,5 @@ export function DebouncedInput(props: DebouncedInputProps) {
     debouncedOnChange(newValue);
   };
 
-  return <Input {...others} value={value()} onInput={handleInput} />;
+  return <Input data-slot="debounced-input" {...others} value={value()} onInput={handleInput} />;
 }

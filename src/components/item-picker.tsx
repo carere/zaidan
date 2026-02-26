@@ -11,8 +11,10 @@ import {
   Show,
   splitProps,
 } from "solid-js";
+import { DRAFT_SLUGS } from "@/lib/config";
 import { REGISTRY_META } from "@/lib/registries";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/registry/kobalte/ui/badge";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Command,
@@ -34,6 +36,10 @@ type Entry = {
   route: FileRouteTypes["to"];
 };
 
+const isDraft = (slug: string) => DRAFT_SLUGS.includes(slug);
+const filterDrafts = <T extends { slug: string }>(items: T[]) =>
+  import.meta.env.DEV ? items : items.filter((item) => !isDraft(item.slug));
+
 const entries: Entry[] = [
   {
     title: "Getting Started",
@@ -42,13 +48,13 @@ const entries: Entry[] = [
   },
   {
     title: REGISTRY_META.shadcn.label,
-    items: shadcn.sort((a, b) => a.title.localeCompare(b.title)),
+    items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
     registry: "shadcn",
     route: "/registry/$registry/{-$slug}",
   },
   {
     title: REGISTRY_META.bazza.label,
-    items: bazza.sort((a, b) => a.title.localeCompare(b.title)),
+    items: filterDrafts(bazza.sort((a, b) => a.title.localeCompare(b.title))),
     registry: "bazza",
     route: "/registry/$registry/{-$slug}",
   },
@@ -125,6 +131,14 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           }}
                         >
                           {item.title}
+                          <Show when={isDraft(item.slug)}>
+                            <Badge
+                              variant="outline"
+                              class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
+                            >
+                              draft
+                            </Badge>
+                          </Show>
                         </CommandItem>
                       )}
                     </For>

@@ -1,5 +1,5 @@
 import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from "lucide-solid";
-import { createEffect, createMemo, createSignal, For, on, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, on, onCleanup, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -60,54 +60,6 @@ export function FilterSelector<TData>(props: FilterSelectorProps<TData>) {
     }),
   );
 
-  const content = createMemo(() => {
-    const prop = property();
-    const col = column();
-    if (prop && col) {
-      return (
-        <FilterValueController
-          filter={filter()!}
-          column={col as Column<TData, ColumnDataType>}
-          actions={props.actions}
-          strategy={props.strategy}
-          locale={props.locale}
-        />
-      );
-    }
-    return (
-      <Command
-        loop
-        filter={(val, search, keywords) => {
-          const extendValue = `${val} ${keywords?.join(" ")}`;
-          return extendValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
-        }}
-      >
-        <CommandInput
-          value={value()}
-          onValueChange={setValue}
-          ref={inputRef}
-          placeholder={t("search", props.locale ?? "en")}
-        />
-        <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>
-        <CommandList class="max-h-fit">
-          <CommandGroup>
-            <For each={props.columns}>
-              {(col) => <FilterableColumn column={col} setProperty={setProperty} />}
-            </For>
-            <QuickSearchFilters
-              search={value()}
-              filters={props.filters}
-              columns={props.columns}
-              actions={props.actions}
-              strategy={props.strategy}
-              locale={props.locale}
-            />
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    );
-  });
-
   return (
     <Popover
       placement="bottom-start"
@@ -118,21 +70,61 @@ export function FilterSelector<TData>(props: FilterSelectorProps<TData>) {
       }}
     >
       <PopoverTrigger
-        as={(triggerProps: any) => (
-          <Button
-            variant="outline"
-            class={cn("h-7", hasFilters() && "!px-2 w-fit")}
-            {...triggerProps}
-          >
-            <FilterIcon class="size-4" />
-            <Show when={!hasFilters()}>
-              <span>{t("filter", props.locale ?? "en")}</span>
-            </Show>
-          </Button>
-        )}
-      />
+        as={Button}
+        variant="outline"
+        class={cn("h-7", hasFilters() && "!px-2 w-fit")}
+      >
+        <FilterIcon class="size-4" />
+        <Show when={!hasFilters()}>
+          <span>{t("filter", props.locale ?? "en")}</span>
+        </Show>
+      </PopoverTrigger>
       <PopoverContent align="start" class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
-        {content()}
+        <Show
+          when={property() ? column() : undefined}
+          fallback={
+            <Command
+              loop
+              filter={(val, search, keywords) => {
+                const extendValue = `${val} ${keywords?.join(" ")}`;
+                return extendValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
+              }}
+            >
+              <CommandInput
+                value={value()}
+                onValueChange={setValue}
+                ref={inputRef}
+                placeholder={t("search", props.locale ?? "en")}
+              />
+              <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>
+              <CommandList class="max-h-fit">
+                <CommandGroup>
+                  <For each={props.columns}>
+                    {(col) => <FilterableColumn column={col} setProperty={setProperty} />}
+                  </For>
+                  <QuickSearchFilters
+                    search={value()}
+                    filters={props.filters}
+                    columns={props.columns}
+                    actions={props.actions}
+                    strategy={props.strategy}
+                    locale={props.locale}
+                  />
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          }
+        >
+          {(col) => (
+            <FilterValueController
+              filter={filter()!}
+              column={col() as Column<TData, ColumnDataType>}
+              actions={props.actions}
+              strategy={props.strategy}
+              locale={props.locale}
+            />
+          )}
+        </Show>
       </PopoverContent>
     </Popover>
   );
@@ -169,7 +161,7 @@ export function FilterableColumn<TData, TType extends ColumnDataType, TVal>(prop
       attributeFilter: ["data-selected"],
     });
 
-    return () => observer.disconnect();
+    onCleanup(() => observer.disconnect());
   });
 
   return (

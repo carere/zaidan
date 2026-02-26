@@ -52,13 +52,16 @@ src/pages/
 
 ai_review/
   user_stories/           # YAML user stories for QA validation
+  code_reviews/           # JSON code review results per component
 
 .claude/
   agents/
     zaidan-transformer.md # Unified transformer agent
     docs-syncer.md        # Documentation syncing agent
+    code-reviewer.md      # Per-component code reviewer agent
   skills/
     react-to-solid/       # Transformation rules (single source of truth)
+    code-review/          # Code review rules, anti-patterns, scoring rubric
     worktree-manager/     # Git worktree lifecycle
     git-github-ops/       # Conventional commits, push, PR creation
 ```
@@ -367,9 +370,52 @@ Track successes, failures, blocked, and collect registry entries for Step 4.6.
 
 If a component fails due to missing registry dependencies, log it as blocked (not failed) and note the missing deps.
 
+#### Step 4.5.5: Code Review
+
+For each successfully transformed component, spawn a code-reviewer teammate:
+
+1. Build the `BATCH_COMPONENTS` list: JSON array of all component names that succeeded in Step 4.5
+2. Ensure the review output directory exists:
+```
+mkdir -p ai_review/code_reviews
+```
+3. Spawn `code-reviewer` teammates **in a single message** (all parallel). Each teammate receives:
+
+```
+Review the transformed component and fix any issues:
+
+**Component:** {component-name}
+**Primitive:** {PRIMITIVE}
+**Output Path:** {output-path from RESULT line}
+**Component Type:** {auto-detected from transformer: "component" or "block"}
+**Worktree:** {worktree-path}
+**Batch Components:** {JSON array of all component names in this sync}
+**App Port:** {APP_PORT}
+
+Follow your full workflow: load context, discover files, review each file,
+fix FAIL files, cross-component analysis, format/lint/typecheck, persist results, and report.
+
+Use this exact format for your final result line:
+  REVIEW: {PASS|WARN|FAIL} | Component: {name} | Primitive: {primitive} | Files: {reviewed}/{total} | Issues: {count} | Fixed: {count}
+```
+
+Configuration per teammate:
+- `subagent_type: "code-reviewer"`
+- `team_name: "sync-{REGISTRY_NAME}"`
+
+4. Wait for all code-reviewer teammates to complete
+5. Parse `REVIEW` result lines from each teammate's report
+6. Gate logic:
+   - **PASS or WARN**: Component proceeds to Step 4.6 (registry updates)
+   - **FAIL**: Component is excluded from registry updates. Log as review-failed with details.
+7. Track review results for Phase 5 report
+
 #### Step 4.6: Apply Registry Updates
 
-For each successfully transformed component, apply its registry entry sequentially:
+Only process components that passed code review (PASS or WARN in Step 4.5.5).
+Components that FAIL code review are excluded from registry updates.
+
+For each successfully transformed component that passed code review, apply its registry entry sequentially:
 
 1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 4.5)
 2. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`
@@ -507,13 +553,16 @@ Use the `git-github-ops` skill to perform the following operations inside the wo
 
 ## Components
 
-| Component | Transform | Docs | Visual | QA | Notes |
-|-----------|-----------|------|--------|-----|-------|
-| {name} | SUCCESS | SUCCESS | PASS | PASS | {brief note} |
-| {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | {error summary} |
-| {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
+| Component | Transform | Review | Docs | Visual | QA | Notes |
+|-----------|-----------|--------|------|--------|-----|-------|
+| {name} | SUCCESS | PASS | SUCCESS | PASS | PASS | {brief note} |
+| {name} | SUCCESS | WARN | SUCCESS | PASS | PASS | 2 warnings |
+| {name} | SUCCESS | FAIL | SKIPPED | SKIPPED | SKIPPED | Review failed |
+| {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | SKIPPED | {error summary} |
+| {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
 Visual column is populated from transformer visual analysis.
+Review column is populated from code review results (Step 4.5.5).
 QA column is populated from UI review results (Step 4.9).
 
 ## Verification Results
@@ -560,16 +609,24 @@ Use the Report Format below.
 | Missing (to sync) | {count} |
 
 ### Results
-| Component | Transform | Docs | Visual | QA | Notes |
-|-----------|-----------|------|--------|-----|-------|
-| {name} | SUCCESS | SUCCESS | PASS | PASS | {brief note} |
-| {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | {error summary} |
-| {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
+| Component | Transform | Review | Docs | Visual | QA | Notes |
+|-----------|-----------|--------|------|--------|-----|-------|
+| {name} | SUCCESS | PASS | SUCCESS | PASS | PASS | {brief note} |
+| {name} | SUCCESS | WARN | SUCCESS | PASS | PASS | 2 warnings |
+| {name} | SUCCESS | FAIL | SKIPPED | SKIPPED | SKIPPED | Review failed |
+| {name} | FAILURE | SKIPPED | SKIPPED | SKIPPED | SKIPPED | {error summary} |
+| {name} | BLOCKED | SKIPPED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
 ### User Stories
 | Component | Story File | QA Result |
 |-----------|-----------|-----------|
 | {name} | ai_review/user_stories/{name}.yaml | PASS/FAIL |
+
+### Code Review
+| Component | Score | Files | Issues | Fixed | Details |
+|-----------|-------|-------|--------|-------|---------|
+| {name} | PASS | 1/1 | 0 | 0 | Clean |
+| {name} | WARN | 3/3 | 2 | 1 | Cross-component similarity with {other} |
 
 ### Verification
 | Check | Status | Details |
