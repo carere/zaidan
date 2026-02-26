@@ -43,7 +43,9 @@ const filterDrafts = <T extends { slug: string }>(items: T[]) =>
 const entries: Entry[] = [
   {
     title: "Getting Started",
-    items: docs.filter((d) => d.parent === undefined),
+    items: docs
+      .filter((d) => d.parent === undefined)
+      .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
     route: "/{-$slug}",
   },
   {

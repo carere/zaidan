@@ -10,6 +10,7 @@ export default defineConfig({
         slug: s.slug("docs"),
         title: s.string(),
         description: s.string(),
+        order: s.number().optional(),
         parent: s.string().optional(),
         toc: s.toc(),
       }),
