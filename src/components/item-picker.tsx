@@ -47,15 +47,15 @@ const entries: Entry[] = [
     route: "/{-$slug}",
   },
   {
-    title: REGISTRY_META.shadcn.label,
-    items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
-    registry: "shadcn",
-    route: "/registry/$registry/{-$slug}",
-  },
-  {
     title: REGISTRY_META.bazza.label,
     items: filterDrafts(bazza.sort((a, b) => a.title.localeCompare(b.title))),
     registry: "bazza",
+    route: "/registry/$registry/{-$slug}",
+  },
+  {
+    title: REGISTRY_META.shadcn.label,
+    items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
+    registry: "shadcn",
     route: "/registry/$registry/{-$slug}",
   },
 ];
