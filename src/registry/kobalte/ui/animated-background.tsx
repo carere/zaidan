@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 export type AnimatedBackgroundProps = ComponentProps<"div"> & {
   defaultValue?: string;
   onValueChange?: (newActiveId: string | null) => void;
+  containerClass?: string;
   transition?: {
     duration?: number;
     easing?: string;
@@ -31,6 +32,7 @@ export function AnimatedBackground(rawProps: AnimatedBackgroundProps) {
   const [local, others] = splitProps(props, [
     "children",
     "class",
+    "containerClass",
     "defaultValue",
     "onValueChange",
     "transition",
@@ -167,7 +169,7 @@ export function AnimatedBackground(rawProps: AnimatedBackgroundProps) {
     <div
       data-slot="animated-background"
       ref={containerRef}
-      style={{ position: "relative" }}
+      class={cn("relative", local.containerClass)}
       {...others}
     >
       <div

@@ -184,4 +184,4 @@ export const PRIMITIVES: { name: Primitive; label: string }[] = [
  * Draft components are only visible in DEV and excluded from the production registry build.
  * Add the component slug (kebab-case) to this array to mark it as draft.
  */
-export const DRAFT_SLUGS: string[] = ["data-table-filter"];
+export const DRAFT_SLUGS: string[] = ["data-table-filter", "animated-background"];

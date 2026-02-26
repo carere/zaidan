@@ -130,8 +130,9 @@ function AnimatedCardBackgroundHover() {
 
   return (
     <Example title="Animated Card Background">
-      <div class="grid grid-cols-2 p-10 md:grid-cols-3">
+      <div class="p-10">
         <AnimatedBackground
+          containerClass="grid grid-cols-2 md:grid-cols-3"
           class="rounded-lg bg-zinc-100 dark:bg-zinc-800"
           transition={{
             duration: 0.6,
