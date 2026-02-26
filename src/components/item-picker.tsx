@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
-import { bazza, docs, shadcn } from "@velite";
+import { bazza, docs, motionPrimitives, shadcn } from "@velite";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -31,8 +31,8 @@ import type { FileRouteTypes } from "@/routeTree.gen";
 
 type Entry = {
   title: string;
-  items: typeof docs | typeof shadcn | typeof bazza;
-  registry?: "shadcn" | "bazza";
+  items: typeof docs | typeof shadcn | typeof bazza | typeof motionPrimitives;
+  registry?: "shadcn" | "bazza" | "motion-primitives";
   route: FileRouteTypes["to"];
 };
 
@@ -50,6 +50,12 @@ const entries: Entry[] = [
     title: REGISTRY_META.bazza.label,
     items: filterDrafts(bazza.sort((a, b) => a.title.localeCompare(b.title))),
     registry: "bazza",
+    route: "/registry/$registry/{-$slug}",
+  },
+  {
+    title: REGISTRY_META["motion-primitives"].label,
+    items: filterDrafts(motionPrimitives.sort((a, b) => a.title.localeCompare(b.title))),
+    registry: "motion-primitives",
     route: "/registry/$registry/{-$slug}",
   },
   {
