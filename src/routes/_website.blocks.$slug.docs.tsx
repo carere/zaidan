@@ -1,11 +1,12 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
+import { bazza, motionPrimitives } from "@velite";
 import { Menu } from "lucide-solid";
 import { lazy, Show } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import { TableOfContents } from "@/components/toc";
-import { getCollectionByRegistry, type Registry } from "@/lib/registries";
+import { getRegistryForBlockSlug } from "@/lib/registries";
 import { createPageHead } from "@/lib/seo";
 import { flattenTocUrls } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -15,11 +16,10 @@ import {
   CollapsibleTrigger,
 } from "@/registry/kobalte/ui/collapsible";
 
-export const Route = createFileRoute("/_website/registry/$registry/$slug/docs")({
+export const Route = createFileRoute("/_website/blocks/$slug/docs")({
   loader: ({ params }) => {
-    const doc = getCollectionByRegistry(params.registry as Registry).find(
-      (u) => u.slug === params.slug,
-    );
+    const allBlocks = [...bazza, ...motionPrimitives];
+    const doc = allBlocks.find((u) => u.slug === params.slug);
     if (!doc) {
       throw notFound({
         data: {
@@ -27,14 +27,15 @@ export const Route = createFileRoute("/_website/registry/$registry/$slug/docs")(
         },
       });
     }
-    return { ...doc, registry: params.registry };
+    const registry = getRegistryForBlockSlug(doc.slug);
+    return { ...doc, registry };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
     return createPageHead({
       title: loaderData.title,
       description: loaderData.description,
-      path: `/registry/${loaderData.registry}/${loaderData.slug}/docs`,
+      path: `/blocks/${loaderData.slug}/docs`,
     });
   },
   component: RouteComponent,
@@ -44,9 +45,9 @@ export const Route = createFileRoute("/_website/registry/$registry/$slug/docs")(
 function RouteComponent() {
   const doc = Route.useLoaderData();
   const search = Route.useSearch();
-  const routeParams = Route.useParams();
+  const sourceRegistry = doc().registry;
   const MDXContent = lazy(
-    () => import(`../pages/${routeParams().registry}/${search().primitive}/${doc().slug}.mdx`),
+    () => import(`../pages/${sourceRegistry}/${search().primitive}/${doc().slug}.mdx`),
   );
 
   return (
@@ -89,7 +90,7 @@ function RouteComponent() {
         />
       </Show>
       <PageToggleNav
-        registry={routeParams().registry}
+        kind="blocks"
         slug={doc().slug}
         class="absolute right-2 bottom-2 isolate z-10"
       />

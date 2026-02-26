@@ -1,9 +1,8 @@
 import { Link, useSearch } from "@tanstack/solid-router";
-import { bazza, docs, motionPrimitives, shadcn } from "@velite";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
-import { DRAFT_SLUGS } from "@/lib/config";
 import { REGISTRY_META } from "@/lib/registries";
+import { getEntries, isDraft } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/registry/kobalte/ui/badge";
 import {
@@ -21,50 +20,11 @@ import {
   SidebarMenuItem,
   type SidebarProps,
 } from "@/registry/kobalte/ui/sidebar";
-import type { FileRouteTypes } from "@/routeTree.gen";
-
-type Entry = {
-  title: string;
-  items: typeof docs | typeof shadcn | typeof bazza | typeof motionPrimitives;
-  registry?: "shadcn" | "bazza" | "motion-primitives";
-  route: FileRouteTypes["to"];
-};
 
 export function ItemExplorer(props: SidebarProps) {
   const mergedProps = mergeProps({ collapsible: "none" }, props);
   const search = useSearch({ strict: false });
   const [local, others] = splitProps(mergedProps as SidebarProps, ["class", "collapsible"]);
-  const isDraft = (slug: string) => DRAFT_SLUGS.includes(slug);
-  const filterDrafts = <T extends { slug: string }>(items: T[]) =>
-    import.meta.env.DEV ? items : items.filter((item) => !isDraft(item.slug));
-
-  const entries: Entry[] = [
-    {
-      title: "Getting Started",
-      items: docs
-        .filter((d) => d.parent === undefined)
-        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
-      route: "/{-$slug}",
-    },
-    {
-      title: REGISTRY_META.bazza.label,
-      items: filterDrafts(bazza.sort((a, b) => a.title.localeCompare(b.title))),
-      registry: "bazza",
-      route: "/registry/$registry/{-$slug}",
-    },
-    {
-      title: REGISTRY_META["motion-primitives"].label,
-      items: filterDrafts(motionPrimitives.sort((a, b) => a.title.localeCompare(b.title))),
-      registry: "motion-primitives",
-      route: "/registry/$registry/{-$slug}",
-    },
-    {
-      title: REGISTRY_META.shadcn.label,
-      items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
-      registry: "shadcn",
-      route: "/registry/$registry/{-$slug}",
-    },
-  ];
 
   return (
     <Sidebar
@@ -73,7 +33,7 @@ export function ItemExplorer(props: SidebarProps) {
       {...others}
     >
       <SidebarContent class="no-scrollbar -mx-1 overflow-x-hidden">
-        <For each={entries}>
+        <For each={getEntries()}>
           {(entry) => (
             <Show when={entry.items.length > 0}>
               <Collapsible defaultOpen class="group/collapsible">
@@ -93,12 +53,17 @@ export function ItemExplorer(props: SidebarProps) {
                                 as={Link}
                                 to={entry.route}
                                 //@ts-expect-error <Problem with kobalte typing polymorphic props>
-                                params={{ registry: entry.registry, slug: item.slug }}
+                                params={{ slug: item.slug }}
                                 //@ts-expect-error <Problem with kobalte typing polymorphic props>
                                 search={search()}
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >
                                 {item.title}
+                                <Show when={item.registry !== "shadcn"}>
+                                  <span class="ml-1 text-[0.65rem] text-muted-foreground">
+                                    ({REGISTRY_META[item.registry].label})
+                                  </span>
+                                </Show>
                                 <Show when={isDraft(item.slug)}>
                                   <Badge
                                     variant="outline"

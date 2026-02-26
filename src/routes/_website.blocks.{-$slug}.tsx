@@ -1,17 +1,18 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
+import { bazza, motionPrimitives } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
-import { getCollectionByRegistry, type Registry } from "@/lib/registries";
+import { getRegistryForBlockSlug } from "@/lib/registries";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
-export const Route = createFileRoute("/_website/registry/$registry/{-$slug}")({
+export const Route = createFileRoute("/_website/blocks/{-$slug}")({
   loader: ({ params }) => {
-    const collection = getCollectionByRegistry(params.registry as Registry);
+    const allBlocks = [...bazza, ...motionPrimitives];
     const doc =
-      collection.find((u) => (params.slug ? u.slug === params.slug : false)) ?? collection[0];
+      allBlocks.find((u) => (params.slug ? u.slug === params.slug : false)) ?? allBlocks[0];
     if (!doc) {
       throw notFound({
         data: {
@@ -19,14 +20,15 @@ export const Route = createFileRoute("/_website/registry/$registry/{-$slug}")({
         },
       });
     }
-    return { ...doc, registry: params.registry };
+    const registry = getRegistryForBlockSlug(doc.slug);
+    return { ...doc, registry };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
     return createPageHead({
       title: loaderData.title,
       description: loaderData.description,
-      path: `/registry/${loaderData.registry}/${loaderData.slug}`,
+      path: `/blocks/${loaderData.slug}`,
     });
   },
   component: RouteComponent,
@@ -37,7 +39,6 @@ function RouteComponent() {
   const router = useRouter();
   const doc = Route.useLoaderData();
   const search = Route.useSearch();
-  const routeParams = Route.useParams();
   const { colorMode } = useColorMode();
 
   let iframeRef: HTMLIFrameElement | undefined;
@@ -98,8 +99,8 @@ function RouteComponent() {
         ref={iframeRef}
         src={
           router.buildLocation({
-            to: "/preview/$registry/$primitive/$slug",
-            params: { registry: routeParams().registry, primitive: "kobalte", slug: doc().slug },
+            to: "/preview/$kind/$primitive/$slug",
+            params: { kind: "blocks", primitive: "kobalte", slug: doc().slug },
             search: untrack(search),
           }).href
         }
@@ -107,7 +108,7 @@ function RouteComponent() {
         title="Preview"
       />
       <PageToggleNav
-        registry={routeParams().registry}
+        kind="blocks"
         slug={doc().slug}
         class="absolute right-2 bottom-2 isolate z-10"
       />

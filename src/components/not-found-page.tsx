@@ -35,9 +35,9 @@ const getOptions = (): Option[] => {
   const shadcnOptions = shadcn
     .sort((a, b) => a.title.localeCompare(b.title))
     .map((u) => ({
-      pathname: `/registry/shadcn/${u.slug}`,
+      pathname: `/ui/${u.slug}`,
       slug: u.slug,
-      route: "/registry/shadcn/{-$slug}" as FileRouteTypes["to"],
+      route: "/ui/{-$slug}" as FileRouteTypes["to"],
     }));
 
   return [...docsOptions, ...shadcnOptions];

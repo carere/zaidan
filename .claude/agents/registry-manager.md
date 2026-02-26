@@ -91,9 +91,27 @@ curl -s https://ui.shadcn.com/schema/registry.json
 
 5.1 - For each item in the registry, check its `registryDependencies` array (if present):
 - Every name listed in `registryDependencies` MUST exist as another item's `name` in the same registry
+- Note that external registry items use prefixed names (e.g., `bazza-data-table-filter`), so cross-references must use the prefixed name
 - Record any unresolved registry dependencies
 
 5.2 - Build a dependency graph and check for circular dependencies. Record any cycles found.
+
+### Step 5.5: Validate Naming Conventions
+
+5.5.1 - Determine each item's source registry from its file paths or name prefix:
+- Items whose `files[].path` starts with a known external registry's examples directory (e.g., `examples/bazza/`, `examples/motion-primitives/`) or whose name starts with a known external registry prefix (e.g., `bazza-`, `motion-primitives-`) are external registry items
+- All other items are shadcn items
+
+5.5.2 - **External registry items** MUST have their name prefixed with `<registry>-`:
+- Example: an item from the `bazza` registry named `data-table-filter` MUST be named `bazza-data-table-filter`
+- Record any external registry items that are missing the prefix as naming violations
+
+5.5.3 - **Shadcn items** MUST NOT have a registry prefix:
+- Shadcn component names should be plain (e.g., `button`, `dialog`, `alert-dialog`)
+- They MUST NOT start with `shadcn-`
+- Record any shadcn items that incorrectly have a prefix as naming violations
+
+5.5.4 - Record all naming convention violations for the report.
 
 ### Step 6: Validate Package Dependencies
 
@@ -195,6 +213,7 @@ After completing the workflow, output the following report:
 | Missing registry entries | (number) |
 | Orphaned registry entries | (number) |
 | Schema violations | (number) |
+| Naming convention violations | (number) |
 | Broken registryDependencies | (number) |
 | Invalid package dependencies | (number) |
 | Circular dependencies | (number) |
@@ -218,6 +237,12 @@ After completing the workflow, output the following report:
 | Item | Field | Issue |
 |------|-------|-------|
 | (name or top-level) | (field) | (description of violation) |
+
+#### Naming Convention Violations
+
+| Item | Issue |
+|------|-------|
+| (name) | External registry item missing `<registry>-` prefix / Shadcn item has incorrect prefix |
 
 #### Broken Registry Dependencies
 

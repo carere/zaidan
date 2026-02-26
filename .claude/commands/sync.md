@@ -227,19 +227,22 @@ Dry run complete. Re-run without --dry-run to proceed with transformation.
 
 - `src/lib/registries.ts` -- is `REGISTRY_NAME` in the `REGISTRIES` array?
 - `velite.config.ts` -- does a collection named `REGISTRY_NAME` exist?
-- `src/components/item-picker.tsx` -- does it include the new registry?
-- `src/components/item-explorer.tsx` -- does it include the new registry?
+- `src/lib/registry-entries.ts` -- is the new registry included in `getAllBlocks()`?
 
-3.2 - If ALL four files already include the registry -- skip to Phase 4.
+3.2 - If ALL three files already include the registry -- skip to Phase 4.
 
 3.3 - If ANY file is missing the registry, update them:
 
-**registries.ts** -- Add to REGISTRIES array, add REGISTRY_META entry, add to getCollectionByRegistry:
+**registries.ts** -- Add to REGISTRIES array, add REGISTRY_META entry, add to getCollectionByRegistry, and ensure the new helper functions exist:
 
 ```typescript
 import { shadcn, {REGISTRY_NAME} } from "@velite";
 
 export const REGISTRIES = ["shadcn", "{REGISTRY_NAME}"] as const;
+
+export const EXTERNAL_REGISTRIES = REGISTRIES.filter((r) => r !== "shadcn");
+
+export type Kind = "ui" | "blocks";
 
 export const REGISTRY_META: Record<Registry, { label: string }> = {
   shadcn: { label: "Shadcn" },
@@ -252,6 +255,18 @@ export function getCollectionByRegistry(registry: Registry) {
     {REGISTRY_NAME},
   } satisfies Record<Registry, typeof shadcn>;
   return collections[registry];
+}
+
+export function getKindForRegistry(registry: Registry): Kind {
+  return registry === "shadcn" ? "ui" : "blocks";
+}
+
+export function getRegistrySlug(componentName: string, registry: Registry): string {
+  return registry === "shadcn" ? componentName : `${registry}-${componentName}`;
+}
+
+export function getDisplayName(title: string, registry: Registry): { title: string; suffix?: string } {
+  return registry === "shadcn" ? { title } : { title, suffix: REGISTRY_META[registry].label };
 }
 ```
 
@@ -270,19 +285,24 @@ export function getCollectionByRegistry(registry: Registry) {
 },
 ```
 
-**item-picker.tsx** -- Add a new entry to the `entries` array:
+**item-picker.tsx** -- The item-picker now uses shared entries from `@/lib/registry-entries`. Ensure the new registry's items are included in `registry-entries.ts` by adding them to the `getAllBlocks()` function:
 
 ```typescript
-{
-  title: REGISTRY_META.{REGISTRY_NAME}.label,
-  items: {REGISTRY_NAME}.sort((a, b) => a.title.localeCompare(b.title)),
-  route: "/registry/$registry/{-$slug}",
-},
+// In src/lib/registry-entries.ts — add to getAllBlocks():
+import { {REGISTRY_NAME} } from "@velite";
+
+export function getAllBlocks(): MergedItem[] {
+  return filterDrafts([
+    ...tagWithRegistry(bazza, "bazza"),
+    ...tagWithRegistry(motionPrimitives, "motion-primitives"),
+    ...tagWithRegistry({REGISTRY_NAME}, "{REGISTRY_NAME}"),
+  ]).sort((a, b) => a.title.localeCompare(b.title));
+}
 ```
 
-Also add the import: `import { docs, shadcn, {REGISTRY_NAME} } from "@velite";`
+The new registry's items will appear in the "Blocks" group with route `/blocks/{-$slug}` and `kind: "blocks"`. No direct changes to `item-picker.tsx` or `item-explorer.tsx` are needed — they import from shared `registry-entries.ts`.
 
-**item-explorer.tsx** -- Same pattern as item-picker.tsx.
+**item-explorer.tsx** -- Same as item-picker: uses shared entries from `@/lib/registry-entries`.
 
 3.4 - Create the pages directory: `mkdir -p src/pages/{REGISTRY_NAME}/{PRIMITIVE}/`
 
@@ -418,13 +438,14 @@ Components that FAIL code review are excluded from registry updates.
 For each successfully transformed component that passed code review, apply its registry entry sequentially:
 
 1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 4.5)
-2. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`
-3. Apply entries one at a time to prevent write conflicts
-4. After all entries are added, build the registry:
+2. **Naming convention**: When `REGISTRY_NAME` is NOT `shadcn`, verify each entry's `"name"` field is prefixed with `<REGISTRY_NAME>-`. If the transformer did not apply the prefix, add it: `"name": "<REGISTRY_NAME>-<COMPONENT_NAME>"`. Shadcn entries MUST NOT have a registry prefix.
+3. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`
+4. Apply entries one at a time to prevent write conflicts
+5. After all entries are added, build the registry:
    ```
    bun run r:build:{PRIMITIVE}
    ```
-5. Lint the registry file:
+6. Lint the registry file:
    ```
    bun biome check --write src/registry/{PRIMITIVE}/registry.json
    ```

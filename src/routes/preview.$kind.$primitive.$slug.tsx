@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
+import { shadcn } from "@velite";
 import {
   createEffect,
   createMemo,
@@ -11,25 +12,31 @@ import {
 } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { FONTS, RADII } from "@/lib/config";
-import { getCollectionByRegistry, type Registry } from "@/lib/registries";
+import { getRegistryForBlockSlug, type Kind } from "@/lib/registries";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
 
-export const Route = createFileRoute("/preview/$registry/$primitive/$slug")({
+export const Route = createFileRoute("/preview/$kind/$primitive/$slug")({
   loader: ({ params }) => {
-    const { slug, primitive, registry } = params;
-    const component = getCollectionByRegistry(registry as Registry).find((u) => u.slug === slug);
-    if (!component) {
-      throw notFound({
-        data: {
-          slug,
-        },
-      });
+    const { slug, primitive, kind } = params;
+
+    // Validate the slug exists in the right collection
+    if (kind === "ui") {
+      const component = shadcn.find((u) => u.slug === slug);
+      if (!component) {
+        throw notFound({ data: { slug } });
+      }
+    } else {
+      const registry = getRegistryForBlockSlug(slug);
+      if (!registry) {
+        throw notFound({ data: { slug } });
+      }
     }
 
     return {
       slug,
       primitive,
+      kind: kind as Kind,
     };
   },
   component: PreviewComponent,
@@ -41,10 +48,16 @@ function PreviewComponent() {
   const params = Route.useParams();
   const [search, setSearch] = createSignal(initialSearch());
   const [isReady, setIsReady] = createSignal(false);
+
+  const registryName = () => {
+    if (params().kind === "ui") return "shadcn";
+    return getRegistryForBlockSlug(params().slug) ?? "shadcn";
+  };
+
   const ExampleComponent = lazy(
     () =>
       import(
-        `../registry/${params().primitive}/examples/${params().registry}/${params().slug}-example.tsx`
+        `../registry/${params().primitive}/examples/${registryName()}/${params().slug}-example.tsx`
       ),
   );
 

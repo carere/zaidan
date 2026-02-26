@@ -1,5 +1,6 @@
 import { Link, useLocation, useSearch } from "@tanstack/solid-router";
 import { splitProps, type ValidComponent } from "solid-js";
+import type { Kind } from "@/lib/registries";
 import { cn } from "@/lib/utils";
 import {
   ToggleGroup,
@@ -9,13 +10,16 @@ import {
 
 type PageToggleNavProps<T extends ValidComponent = "div"> = ToggleGroupProps<T> & {
   slug: string;
-  registry: string;
+  kind: Kind;
 };
 
 export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggleNavProps<T>) {
-  const [local, others] = splitProps(props, ["slug", "registry", "class"]);
+  const [local, others] = splitProps(props, ["slug", "kind", "class"]);
   const location = useLocation();
   const search = useSearch({ strict: false });
+
+  const previewRoute = () => (local.kind === "ui" ? "/ui/{-$slug}" : "/blocks/{-$slug}");
+  const docsRoute = () => (local.kind === "ui" ? "/ui/$slug/docs" : "/blocks/$slug/docs");
 
   return (
     <ToggleGroup
@@ -30,9 +34,9 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
     >
       <ToggleGroupItem
         as={Link}
-        to="/registry/$registry/{-$slug}"
+        to={previewRoute()}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
-        params={{ registry: local.registry, slug: local.slug }}
+        params={{ slug: local.slug }}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         search={search()}
         value="preview"
@@ -42,9 +46,9 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
       </ToggleGroupItem>
       <ToggleGroupItem
         as={Link}
-        to="/registry/$registry/$slug/docs"
+        to={docsRoute()}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
-        params={{ registry: local.registry, slug: local.slug }}
+        params={{ slug: local.slug }}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         search={search()}
         value="docs"

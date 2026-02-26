@@ -40,7 +40,7 @@
       ]
     },
     {
-      "name": "animated-background",
+      "name": "motion-primitives-animated-background",
       "type": "registry:ui",
       "dependencies": [],
       "registryDependencies": [],
@@ -235,7 +235,7 @@
       ]
     },
     {
-      "name": "data-table-filter",
+      "name": "bazza-data-table-filter",
       "type": "registry:block",
       "dependencies": ["date-fns", "lucide-solid"],
       "registryDependencies": [
@@ -345,7 +345,7 @@
       ]
     },
     {
-      "name": "data-table-filter-i18n",
+      "name": "bazza-data-table-filter-i18n",
       "type": "registry:block",
       "dependencies": [],
       "registryDependencies": [],
@@ -388,7 +388,7 @@
       ]
     },
     {
-      "name": "data-table-filter-tst",
+      "name": "bazza-data-table-filter-tst",
       "type": "registry:block",
       "dependencies": ["@tanstack/solid-table"],
       "registryDependencies": [],

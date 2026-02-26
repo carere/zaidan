@@ -184,23 +184,25 @@ Generate a YAML user story file for QA validation of the transformed component.
 
 6.1 - Determine the output path: `ai_review/user_stories/<COMPONENT_NAME>.yaml` (relative to the worktree root at WORKTREE_PATH).
 
-6.2 - Determine the component URL: `http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>`.
+6.2 - Determine the component URL based on the registry:
+  - If `REGISTRY_NAME` is `shadcn`: `http://localhost:<APP_PORT>/ui/<COMPONENT_NAME>`
+  - If `REGISTRY_NAME` is NOT `shadcn` (external): `http://localhost:<APP_PORT>/blocks/<REGISTRY_NAME>-<COMPONENT_NAME>`
 
 6.3 - If `VISUAL_ANALYSIS_OUTPUT` is non-empty, derive workflow steps from the bowser-qa-agent output:
   - Each interaction the agent performed becomes an action step
   - Each observation the agent made becomes a verification/assertion step
   - Use screenshot references from the agent's output for verification context
   - Structure the stories to cover the key behaviors observed
-  - **Critical**: The first step of EVERY story workflow MUST be: `Navigate to http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>`
+  - **Critical**: The first step of EVERY story workflow MUST be: `Navigate to <component URL from 6.2>`
 
-6.4 - If `VISUAL_ANALYSIS_OUTPUT` is empty (agent failed or no meaningful interactions), use the following template-based fallback with 2 stories:
+6.4 - If `VISUAL_ANALYSIS_OUTPUT` is empty (agent failed or no meaningful interactions), use the following template-based fallback with 2 stories. Use the component URL determined in Step 6.2 (`<COMPONENT_URL>`):
 
 ```yaml
 stories:
   - name: "<ComponentTitle> renders correctly"
-    url: "http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>"
+    url: "<COMPONENT_URL>"
     workflow: |
-      1. Navigate to http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>
+      1. Navigate to <COMPONENT_URL>
       2. Verify the page loads without console errors
       3. Verify the component preview section is visible
       4. Interact with the component's primary trigger
@@ -208,9 +210,9 @@ stories:
       6. Scroll to the Examples section
       7. Verify all example variants are rendered
   - name: "<ComponentTitle> documentation is complete"
-    url: "http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>"
+    url: "<COMPONENT_URL>"
     workflow: |
-      1. Navigate to http://localhost:<APP_PORT>/registry/<REGISTRY_NAME>/<COMPONENT_NAME>
+      1. Navigate to <COMPONENT_URL>
       2. Verify the page title is "<ComponentTitle>"
       3. Verify the Installation section exists
       4. Verify the Usage section exists with code blocks
@@ -319,17 +321,21 @@ Output a structured result line that can be parsed by the orchestrating command:
 RESULT: SUCCESS | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Output: <output-path>
 ```
 
-After the RESULT line, output a JSON block with the registry entry data for the sync command to collect:
+After the RESULT line, output a JSON block with the registry entry data for the sync command to collect.
+
+**Naming convention**: When `REGISTRY_NAME` is NOT `shadcn`, prefix the `"name"` field with `<REGISTRY_NAME>-`. For example, if `REGISTRY_NAME` is `bazza` and `COMPONENT_NAME` is `data-table-filter`, the name becomes `bazza-data-table-filter`. When `REGISTRY_NAME` is `shadcn`, the name is just `<COMPONENT_NAME>` (no prefix).
 
 **Component mode**:
 ```
-REGISTRY_ENTRY: {"name": "<COMPONENT_NAME>", "type": "registry:ui", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "ui/<COMPONENT_NAME>.tsx", "type": "registry:ui"}]}
+REGISTRY_ENTRY: {"name": "<ENTRY_NAME>", "type": "registry:ui", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "ui/<COMPONENT_NAME>.tsx", "type": "registry:ui"}]}
 ```
 
 **Block mode**:
 ```
-REGISTRY_ENTRY: {"name": "<COMPONENT_NAME>", "type": "registry:block", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "blocks/<COMPONENT_NAME>/<filename>.tsx", "type": "registry:block"}]}
+REGISTRY_ENTRY: {"name": "<ENTRY_NAME>", "type": "registry:block", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "blocks/<COMPONENT_NAME>/<filename>.tsx", "type": "registry:block"}]}
 ```
+
+Where `<ENTRY_NAME>` is `<COMPONENT_NAME>` for shadcn or `<REGISTRY_NAME>-<COMPONENT_NAME>` for external registries.
 
 Populate dependency fields:
   - Add `@kobalte/core` if using Kobalte primitives (or `@corvu/<primitive>` for Corvu, or `@base-ui-solid/*` for base)

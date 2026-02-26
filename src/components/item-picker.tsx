@@ -1,5 +1,4 @@
 import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
-import { bazza, docs, motionPrimitives, shadcn } from "@velite";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -11,8 +10,8 @@ import {
   Show,
   splitProps,
 } from "solid-js";
-import { DRAFT_SLUGS } from "@/lib/config";
 import { REGISTRY_META } from "@/lib/registries";
+import { getEntries, isDraft } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/registry/kobalte/ui/badge";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -27,46 +26,6 @@ import {
   CommandSeparator,
 } from "@/registry/kobalte/ui/command";
 import { Kbd } from "@/registry/kobalte/ui/kbd";
-import type { FileRouteTypes } from "@/routeTree.gen";
-
-type Entry = {
-  title: string;
-  items: typeof docs | typeof shadcn | typeof bazza | typeof motionPrimitives;
-  registry?: "shadcn" | "bazza" | "motion-primitives";
-  route: FileRouteTypes["to"];
-};
-
-const isDraft = (slug: string) => DRAFT_SLUGS.includes(slug);
-const filterDrafts = <T extends { slug: string }>(items: T[]) =>
-  import.meta.env.DEV ? items : items.filter((item) => !isDraft(item.slug));
-
-const entries: Entry[] = [
-  {
-    title: "Getting Started",
-    items: docs
-      .filter((d) => d.parent === undefined)
-      .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
-    route: "/{-$slug}",
-  },
-  {
-    title: REGISTRY_META.bazza.label,
-    items: filterDrafts(bazza.sort((a, b) => a.title.localeCompare(b.title))),
-    registry: "bazza",
-    route: "/registry/$registry/{-$slug}",
-  },
-  {
-    title: REGISTRY_META["motion-primitives"].label,
-    items: filterDrafts(motionPrimitives.sort((a, b) => a.title.localeCompare(b.title))),
-    registry: "motion-primitives",
-    route: "/registry/$registry/{-$slug}",
-  },
-  {
-    title: REGISTRY_META.shadcn.label,
-    items: filterDrafts(shadcn.sort((a, b) => a.title.localeCompare(b.title))),
-    registry: "shadcn",
-    route: "/registry/$registry/{-$slug}",
-  },
-];
 
 export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
@@ -76,6 +35,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
+  const entries = getEntries();
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   onMount(() => {
@@ -132,13 +92,18 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           onSelect={() => {
                             navigate({
                               to: entry.route,
-                              params: { registry: entry.registry, slug: item.slug },
+                              params: { slug: item.slug },
                               search: search(),
                             });
                             setOpen(false);
                           }}
                         >
                           {item.title}
+                          <Show when={item.registry !== "shadcn"}>
+                            <span class="ml-1 text-muted-foreground">
+                              ({REGISTRY_META[item.registry].label})
+                            </span>
+                          </Show>
                           <Show when={isDraft(item.slug)}>
                             <Badge
                               variant="outline"
