@@ -246,7 +246,7 @@ export const sharedComponents = {
           <For each={tabNames}>
             {(title, i) => (
               <TabsContent
-                class="relative hidden data-selected:block [&>.steps]:mt-6 [&_h3.font-heading]:font-medium [&_h3.font-heading]:text-base [&_pre]:min-h-[450px]! *:[figure]:first:mt-0"
+                class="relative hidden data-selected:block [&>.steps]:mt-6 [&_h3.font-heading]:font-medium [&_h3.font-heading]:text-base [&_pre]:min-h-112.5! *:[figure]:first:mt-0"
                 forceMount={true}
                 value={title}
               >
@@ -287,4 +287,19 @@ export const sharedComponents = {
   CircleAlert,
   TriangleAlert,
   CliButton,
+  PlannedBadge: () => (
+    <span class="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 font-medium text-amber-600 text-xs dark:text-amber-400">
+      Planned
+    </span>
+  ),
+  InProgressBadge: () => (
+    <span class="inline-flex items-center rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 font-medium text-sky-600 text-xs dark:text-sky-400">
+      In Progress
+    </span>
+  ),
+  UpcomingBadge: () => (
+    <span class="inline-flex items-center rounded-full border border-zinc-500/30 bg-zinc-500/10 px-2.5 py-0.5 font-medium text-xs text-zinc-600 dark:text-zinc-400">
+      Upcoming
+    </span>
+  ),
 };
