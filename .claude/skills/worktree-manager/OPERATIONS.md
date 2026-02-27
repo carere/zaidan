@@ -51,21 +51,21 @@ fi
 
 ### Step 5: Set up ports with setup-dev-env
 
-Use the bundled `setup-dev-env.ts` script to allocate free ports for the worktree. The script lives at `~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts` and resolves `.env` relative to `process.cwd()`.
+Use the bundled `setup-dev-env.ts` script to allocate free ports for the worktree. The script lives at `.claude/skills/worktree-manager/scripts/setup-dev-env.ts` and resolves `.env` relative to `process.cwd()`.
 
 **Important:** Always `cd` into the worktree directory first so the script writes to the correct `.env`:
 
 ```bash
 cd trees/<branch-name>
-bun ~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
+bun .claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
 ```
 
 Run the script once per env key that requires a unique port:
 
 ```bash
 # For projects with separate frontend/backend ports:
-bun ~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key FRONTEND_PORT
-bun ~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key BACKEND_PORT
+bun .claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key FRONTEND_PORT
+bun .claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key BACKEND_PORT
 ```
 
 After port allocation, update any URL-based env vars that depend on the port. Read the `.env` to get the allocated port, then update the related URL vars:
@@ -172,7 +172,7 @@ Only re-run the bundled `setup-dev-env.ts` if the user explicitly asks to reassi
 
 ```bash
 cd trees/<branch-name>
-bun ~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
+bun .claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
 ```
 
 ### Step 5: Report results

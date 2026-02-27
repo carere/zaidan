@@ -72,7 +72,7 @@ Another worktree or process is using the same port.
 1. Re-run the bundled `setup-dev-env.ts` to allocate a new free port:
    ```bash
    cd trees/<branch>
-   bun ~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
+   bun .claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
    ```
 2. Check what's using the port: `lsof -i :<port>`
 3. Kill the conflicting process if needed
@@ -112,7 +112,7 @@ The `.env` file wasn't copied during creation.
 2. Re-run port allocation:
    ```bash
    cd trees/<branch>
-   bun ~/.claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
+   bun .claude/skills/worktree-manager/scripts/setup-dev-env.ts --env-key APP_PORT
    ```
 
 ---

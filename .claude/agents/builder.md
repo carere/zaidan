@@ -3,13 +3,6 @@ name: builder
 description: Generic engineering agent that executes ONE task at a time. Use when work needs to be done - writing code, creating files, implementing features.
 model: opus
 color: cyan
-hooks:
-  PostToolUse:
-    - matcher: "Write|Edit"
-      hooks:
-        - type: command
-          command: >-
-            bun run $HOME/.claude/hooks/validators/biome_validator.ts
 ---
 
 # Builder
