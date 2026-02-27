@@ -14,11 +14,9 @@ import {
   CollapsibleTrigger,
 } from "@/registry/kobalte/ui/collapsible";
 
-export const Route = createFileRoute("/_website/{-$slug}")({
+export const Route = createFileRoute("/_website/$slug")({
   loader: async ({ params }) => {
-    const doc = docs.find(
-      (d) => d.parent === undefined && (params.slug ? d.slug === params.slug : d.slug === "home"),
-    );
+    const doc = docs.find((d) => d.parent === undefined && d.slug === params.slug);
     if (!doc) {
       throw notFound({
         data: {
@@ -34,7 +32,7 @@ export const Route = createFileRoute("/_website/{-$slug}")({
     return createPageHead({
       title: loaderData.title,
       description: loaderData.description,
-      path: loaderData.slug === "home" ? "/" : `/${loaderData.slug}`,
+      path: `/${loaderData.slug}`,
     });
   },
   component: RouteComponent,

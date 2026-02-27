@@ -44,7 +44,7 @@ function RouteComponent() {
           )}
         >
           <div class="flex items-center lg:mr-2 xl:w-1/3">
-            <Link to="/{-$slug}" params={{ slug: "home" }} search={search()}>
+            <Link to="/" search={search()}>
               <Zaidan class="size-6" />
             </Link>
             <Separator orientation="vertical" class="mx-4" />

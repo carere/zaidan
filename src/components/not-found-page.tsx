@@ -29,7 +29,7 @@ const getOptions = (): Option[] => {
   const docsOptions = docs.map((d) => ({
     pathname: d.parent ? `/${d.parent}/${d.slug}` : `/${d.slug}`,
     slug: d.slug,
-    route: (d.parent ? `/${d.parent}/${d.slug}` : "/{-$slug}") as FileRouteTypes["to"],
+    route: (d.parent ? `/${d.parent}/${d.slug}` : "/$slug") as FileRouteTypes["to"],
   }));
 
   const shadcnOptions = shadcn

@@ -48,7 +48,7 @@ export function getEntries(): Entry[] {
         .filter((d) => d.parent === undefined)
         .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
         .map((d) => ({ ...d, registry: "shadcn" as const })),
-      route: "/{-$slug}",
+      route: "/$slug",
     },
     {
       title: "Blocks",
