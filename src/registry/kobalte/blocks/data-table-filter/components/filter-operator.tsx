@@ -42,7 +42,7 @@ export function FilterOperator<TData, TType extends ColumnDataType>(
   const close = () => setOpen(false);
 
   return (
-    <Popover open={open()} onOpenChange={setOpen}>
+    <Popover open={open()} onOpenChange={setOpen} placement="bottom-start">
       <PopoverTrigger
         as={Button}
         variant="ghost"
@@ -54,7 +54,8 @@ export function FilterOperator<TData, TType extends ColumnDataType>(
           locale={props.locale}
         />
       </PopoverTrigger>
-      <PopoverContent align="start" class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
+      <PopoverContent class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
+        {/* @ts-expect-error cmdk-solid loop prop not in ComponentProps<"div"> */}
         <Command loop>
           <CommandInput placeholder={t("search", props.locale ?? "en")} />
           <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>

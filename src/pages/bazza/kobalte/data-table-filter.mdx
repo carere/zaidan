@@ -225,7 +225,7 @@ const { columns, filters, actions, strategy } = useDataTableFilters({
   strategy: 'client',
   data: issues ?? [],
   columnsConfig,
-  filters: () => filters(),
+  filters,
   onFiltersChange: setFilters,
 })
 ```
@@ -276,7 +276,15 @@ Here are the source code of all the examples from the preview page:
 
 ```tsx
 import {
-  CircleAlertIcon,
+  type ColumnDef,
+  createColumnHelper,
+  createSolidTable,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+} from "@tanstack/solid-table";
+import {
   CircleCheckIcon,
   CircleDashedIcon,
   CircleDotDashedIcon,
@@ -289,9 +297,11 @@ import {
 } from "lucide-solid";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { cn } from "~/lib/utils";
-import { DataTableFilter, useDataTableFilters } from "~/components/blocks/data-table-filter";
+import {
+  DataTableFilter,
+  useDataTableFilters,
+} from "~/components/blocks/data-table-filter";
 import { createColumnConfigHelper } from "~/components/blocks/data-table-filter/core/filters";
-import type { FiltersState } from "~/components/blocks/data-table-filter/core/types";
 import {
   createTSTColumns,
   createTSTFilters,
@@ -307,19 +317,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-import {
-  type ColumnDef,
-  createColumnHelper,
-  createSolidTable,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from "@tanstack/solid-table";
 ```
 
-```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L371-L521
+```tsx file=../../../registry/kobalte/examples/bazza/data-table-filter-example.tsx#L355-L486
 
 ```
 

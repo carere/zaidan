@@ -65,7 +65,7 @@ export function FilterValue<TData, TType extends ColumnDataType>(
           locale={props.locale}
         />
       </PopoverTrigger>
-      <PopoverContent align="start" class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
+      <PopoverContent class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
         <FilterValueController
           filter={props.filter}
           column={props.column}
@@ -262,10 +262,7 @@ export function FilterValueTextDisplay<TData>(props: FilterValueDisplayProps<TDa
 
 export function FilterValueNumberDisplay<TData>(props: FilterValueDisplayProps<TData, "number">) {
   return (
-    <Show
-      when={props.filter && props.filter.values && props.filter.values.length > 0}
-      fallback={null}
-    >
+    <Show when={props.filter?.values && props.filter.values.length > 0} fallback={null}>
       <Show
         when={props.filter.operator === "is between" || props.filter.operator === "is not between"}
         fallback={<span class="tabular-nums tracking-tight">{props.filter.values[0]}</span>}
@@ -423,23 +420,26 @@ export function FilterValueOptionController<TData>(
   const unselectedOptions = createMemo(() => options().filter((o) => !o.initialSelected));
 
   return (
-    <Command loop>
-      <CommandInput autoFocus placeholder={t("search", props.locale ?? "en")} />
-      <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>
-      <CommandList class="max-h-fit">
-        <CommandGroup class={cn(selectedOptions().length === 0 && "hidden")}>
-          <For each={selectedOptions()}>
-            {(option) => <OptionItem option={option} onToggle={handleToggle} />}
-          </For>
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup class={cn(unselectedOptions().length === 0 && "hidden")}>
-          <For each={unselectedOptions()}>
-            {(option) => <OptionItem option={option} onToggle={handleToggle} />}
-          </For>
-        </CommandGroup>
-      </CommandList>
-    </Command>
+    <>
+      {/* @ts-expect-error cmdk-solid loop prop not in ComponentProps<"div"> */}
+      <Command loop>
+        <CommandInput autofocus placeholder={t("search", props.locale ?? "en")} />
+        <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>
+        <CommandList class="max-h-fit">
+          <CommandGroup class={cn(selectedOptions().length === 0 && "hidden")}>
+            <For each={selectedOptions()}>
+              {(option) => <OptionItem option={option} onToggle={handleToggle} />}
+            </For>
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup class={cn(unselectedOptions().length === 0 && "hidden")}>
+            <For each={unselectedOptions()}>
+              {(option) => <OptionItem option={option} onToggle={handleToggle} />}
+            </For>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </>
   );
 }
 
@@ -484,23 +484,26 @@ export function FilterValueMultiOptionController<TData>(
   const unselectedOptions = createMemo(() => options().filter((o) => !o.initialSelected));
 
   return (
-    <Command loop>
-      <CommandInput autoFocus placeholder={t("search", props.locale ?? "en")} />
-      <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>
-      <CommandList>
-        <CommandGroup class={cn(selectedOptions().length === 0 && "hidden")}>
-          <For each={selectedOptions()}>
-            {(option) => <OptionItem option={option} onToggle={handleToggle} />}
-          </For>
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup class={cn(unselectedOptions().length === 0 && "hidden")}>
-          <For each={unselectedOptions()}>
-            {(option) => <OptionItem option={option} onToggle={handleToggle} />}
-          </For>
-        </CommandGroup>
-      </CommandList>
-    </Command>
+    <>
+      {/* @ts-expect-error cmdk-solid loop prop not in ComponentProps<"div"> */}
+      <Command loop>
+        <CommandInput autofocus placeholder={t("search", props.locale ?? "en")} />
+        <CommandEmpty>{t("noresults", props.locale ?? "en")}</CommandEmpty>
+        <CommandList>
+          <CommandGroup class={cn(selectedOptions().length === 0 && "hidden")}>
+            <For each={selectedOptions()}>
+              {(option) => <OptionItem option={option} onToggle={handleToggle} />}
+            </For>
+          </CommandGroup>
+          <CommandSeparator />
+          <CommandGroup class={cn(unselectedOptions().length === 0 && "hidden")}>
+            <For each={unselectedOptions()}>
+              {(option) => <OptionItem option={option} onToggle={handleToggle} />}
+            </For>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </>
   );
 }
 
@@ -571,8 +574,8 @@ export function FilterValueNumberController<TData>(
   props: FilterValueControllerProps<TData, "number">,
 ) {
   const minMax = createMemo(() => props.column.getFacetedMinMaxValues());
-  const sliderMin = () => (minMax() ? minMax()![0] : 0);
-  const sliderMax = () => (minMax() ? minMax()![1] : 0);
+  const sliderMin = () => (minMax() ? minMax()?.[0] : 0);
+  const sliderMax = () => (minMax() ? minMax()?.[1] : 0);
 
   const [values, setValues] = createSignal(props.filter?.values ?? [0, 0]);
 

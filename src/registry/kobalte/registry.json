@@ -237,7 +237,7 @@
     {
       "name": "bazza-data-table-filter",
       "type": "registry:block",
-      "dependencies": ["date-fns", "lucide-solid"],
+      "dependencies": ["date-fns"],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/button.json",
         "https://zaidan.carere.dev/r/kobalte/calendar.json",
@@ -307,10 +307,6 @@
           "type": "registry:block"
         },
         {
-          "path": "src/registry/kobalte/blocks/data-table-filter/hooks/use-unmount.tsx",
-          "type": "registry:block"
-        },
-        {
           "path": "src/registry/kobalte/blocks/data-table-filter/lib/array.ts",
           "type": "registry:block"
         },
@@ -323,15 +319,7 @@
           "type": "registry:block"
         },
         {
-          "path": "src/registry/kobalte/blocks/data-table-filter/lib/memo.ts",
-          "type": "registry:block"
-        },
-        {
           "path": "src/registry/kobalte/blocks/data-table-filter/lib/helpers.ts",
-          "type": "registry:block"
-        },
-        {
-          "path": "src/registry/kobalte/blocks/data-table-filter/ui/debounced-input.tsx",
           "type": "registry:block"
         },
         {
@@ -339,7 +327,15 @@
           "type": "registry:block"
         },
         {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/memo.ts",
+          "type": "registry:block"
+        },
+        {
           "path": "src/registry/kobalte/blocks/data-table-filter/locales/en.json",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/ui/debounced-input.tsx",
           "type": "registry:block"
         }
       ]
