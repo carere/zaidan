@@ -1,0 +1,154 @@
+---
+title: "Zaidan Agent"
+description: "How to use the Zaidan agent system to sync components, manage registries, and automate React-to-SolidJS transformations."
+slug: "zaidan-agent"
+order: 4
+---
+
+# Zaidan Agent
+
+Zaidan includes an AI agent system that automates syncing Shadcn based React components into Zaidan. It handles the full pipeline — code transformation, documentation generation, code review, and registry management — so you can bring your favorite React components into Zaidan.
+
+<div class="flex flex-col gap-4 mt-8">
+  <Alert class="border-none bg-amber-600/10 text-amber-600 dark:bg-amber-400/10 dark:text-amber-400">
+    <TriangleAlert />
+    <AlertTitle class="text-amber-600/80 dark:text-amber-400/80">
+      Zaidan Agent is experimental. While it handles most components well, complex components may appear to work but contain subtle issues. Always review the generated code to make sure the component is properly implemented.
+    </AlertTitle>
+  </Alert>
+  <Alert class="border-none text-sky-600 dark:border-sky-400 dark:text-sky-400 bg-sky-600/10 dark:bg-sky-400/10">
+    <CircleAlert />
+    <AlertTitle class="text-sky-600/80 dark:text-sky-400/80">
+      Currently only [Claude Code](https://docs.anthropic.com/en/docs/claude-code) is supported. If you'd like to add support for other agentic coding tools, please [open an issue](https://github.com/carere/zaidan/issues) or submit a PR — in most cases, simple file references should be enough to adapt.
+    </AlertTitle>
+  </Alert>
+</div>
+
+## How to use it ?
+
+Zaidan Agent runs inside the Zaidan repository itself. You should think of Zaidan as a **playground** — a place to transform, test, and iterate on components using the built-in UI, the component previews, and the customizer before publishing them to the registry.
+
+To get started, clone or fork the repository:
+
+```bash
+git clone https://github.com/carere/zaidan.git
+cd zaidan
+bun install
+```
+
+Then you can run commands in two ways:
+
+**Inside a Claude Code session** — open the project in Claude Code and run commands interactively:
+
+```bash
+claude
+# then type /sync, /registry-audit, etc.
+```
+
+**One-shot with `claude -p`** — run a command directly from your terminal:
+
+```bash
+claude -p "/sync --filter=\"button\" --dry-run"
+```
+
+### Why clone Zaidan ?
+
+The agent generates component code, examples, and documentation that integrate with Zaidan's registry structure. By working inside the repo, you get:
+
+- **Live preview** — See your transformed components rendered in the Zaidan UI
+- **Customizer access** — Test components against different themes, colors, fonts, and radius values using the built-in customizer
+- **Iterative workflow** — Review the generated code, tweak it, re-run the agent, and see updates in real time
+- **Easy Contribution** - Zaidan create commits and PR for you, so when you're ready to publish, just push the PR and we''l review it
+
+## Commands
+
+### /sync
+
+The main command for bringing components into Zaidan. It operates in two modes:
+
+- **Shadcn mode** (default) — Sync components from shadcn registry.
+- **External mode** — Sync components from external registries (Origin-UI, Magic-UI, ...).
+
+#### Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--primitive` | `kobalte` | Target primitive system (`kobalte`, `base-ui` coming soon) |
+| `--registry` | — | External `registry.json` URL. Omit for shadcn mode |
+| `--docs` | — | External only — Raw mdx URL template |
+| `--examples` | — | External only — Raw tsx URL template |
+| `--playground` | — | External only — URL template of live preview |
+| `--filter` | — | Regex to filter which components to sync |
+| `--dry-run` | `false` | Discovery only — stops before transformation |
+| `--transform-instructions` | — | Custom instructions passed to transformer agents |
+
+<Alert class="border-none bg-sky-600/10 text-sky-600 dark:bg-sky-400/10 dark:text-sky-400">
+  <CircleAlert />
+  <AlertTitle>Modes</AlertTitle>
+  <AlertDescription>
+    In **shadcn mode**, you don't need to pass any urls, they are all built-in into Zaidan and will be ignored if you pass them.
+  </AlertDescription>
+</Alert>
+
+#### URL Templates
+
+URL templates for external mode use `{component}` as a placeholder, replaced with each component's kebab-case name at runtime. You can append an optional `|prompt` suffix to provide extraction guidance:
+
+```bash
+--docs="https://docs.example.com/{component}.mdx|Look in the API section"
+--examples="https://raw.github.com/.../examples/{component}.tsx|Focus on the usage example"
+# Glob pattern also works
+# --examples="https://raw.github.com/.../examples/{component}/*.tsx|Extract all examples, not just the first one"
+```
+
+The part before `|` is the URL, the part after are instructions to find the relevant content (if not provided, all the page is parsed by the agent).
+
+#### Usage Examples
+
+```bash
+# Sync all missing shadcn components with kobalte primitive
+/sync
+
+# Preview what would be synced (no transformation) and filter to only button and card components
+/sync --filter="^(button|card)" --dry-run
+
+# Sync from an external registry
+/sync --registry="https://raw.github.com/some-dir/registry.json" \
+      --docs="https://raw.github.com/.../docs/{component}.mdx" \
+      --examples="https://raw.github.com/.../examples/{component}.tsx" \
+      --playground="https://bazza.dev/preview/{component}"
+
+# Pass custom guidance to transformers
+/sync --filter="data-table" \
+      --transform-instructions="Use Tanstack Table for integrating tables"
+```
+
+### /registry-audit
+
+Read-only health check for the component registry. Scans `registry.json` against the filesystem and reports missing entries, orphaned items, schema violations, and broken dependency chains. If issues are found, it suggests running `/registry-update` to fix them automatically.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--primitive` | `kobalte` | Registry namespace to audit (`kobalte`, `base-ui` comning soon) |
+
+### /registry-update
+
+Does everything `/registry-audit` does, plus auto-fixes the issues it finds: adds missing entries, removes orphaned items, repairs broken dependency chains, rebuilds the registry, formats with Biome, and commits the changes.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--primitive` | `kobalte` | Registry namespace to update (`kobalte`, `base-ui` coming soon) |
+
+## Troubleshooting
+
+### BLOCKED status
+
+A component's registry dependencies are missing. The transformer validates all dependencies before starting and aborts if any are unavailable. Sync the missing dependency first, then retry.
+
+### FAIL in code review
+
+Critical issues were found — typically React remnants or convention violations. The code reviewer attempts up to 3 automatic fixes per file. If the component still fails, it's excluded from registry updates and you'll need to address the issues manually.
+
+### Use --dry-run to diagnose
+
+Run `/sync --dry-run` to see what would be synced without performing any transformation. This is useful for verifying filter patterns, checking which components are missing, and confirming dependency availability before committing to a full sync.

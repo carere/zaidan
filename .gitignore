@@ -35,3 +35,4 @@ Thumbs.db
 # UI Review
 .playwright-cli/
 screenshots/
+test-results/
