@@ -11,6 +11,7 @@ import { getStorage } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/registry/kobalte/ui/alert";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
+import { Carere } from "./icons/carere";
 
 export const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
@@ -277,6 +278,7 @@ export const sharedComponents = {
     );
   },
   Button,
+  Carere,
   SolidJS,
   SolidJsOff,
   SolidStartLogo,
