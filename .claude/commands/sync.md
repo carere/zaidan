@@ -1,7 +1,7 @@
 ---
 model: opus
 description: "Unified sync command for shadcn and external components/blocks. Auto-detects scope from filters."
-argument-hint: "[--primitive=kobalte|base] [--registry=<url>] [--docs=<template>] [--examples=<template>] [--playground=<template>] [--filter=<pattern>] [--dry-run]"
+argument-hint: "[--primitive=kobalte|base] [--registry=<url>] [--docs=<template>] [--examples=<template>] [--playground=<template>] [--filter=<pattern>] [--dry-run] [--transform-instructions=<text>]"
 ---
 
 # Purpose
@@ -23,6 +23,7 @@ Parse from `$ARGUMENTS`:
 - `PLAYGROUND_INPUT` -- `--playground` value (optional, URL template with `{component}` placeholder and optional `|prompt` suffix)
 - `FILTER` -- `--filter` value (optional, regex pattern)
 - `DRY_RUN` -- boolean, true if `--dry-run` flag present
+- `TRANSFORM_INSTRUCTIONS` -- `--transform-instructions` value (optional, free-text string passed to transformer agents)
 
 Derived variables:
 
@@ -94,6 +95,7 @@ EXAMPLES_INPUT    = value of --examples flag, or empty
 PLAYGROUND_INPUT  = value of --playground flag, or empty
 FILTER            = value of --filter flag, or empty
 DRY_RUN           = true if --dry-run flag is present
+TRANSFORM_INSTRUCTIONS = value of --transform-instructions flag, or empty
 ```
 
 0.2 - Parse URL templates (if provided):
@@ -362,6 +364,7 @@ Transform this component and report results:
 **Playground Prompt:** {PLAYGROUND_PROMPT or ""}
 **Registry Name:** {REGISTRY_NAME}
 **App Port:** {APP_PORT}
+**Transform Instructions:** {TRANSFORM_INSTRUCTIONS or "none"}
 
 Follow your full workflow: source resolution, auto-detect component vs block,
 dependency pre-flight, visual analysis, user story generation, research primitives,
@@ -369,9 +372,10 @@ transform all files, write output, and validate.
 Do NOT update registry.json — the sync command handles registry updates.
 Include a REGISTRY_ENTRY JSON line in your report for the sync command to collect.
 Use the specified primitive for all import mappings and output paths.
+If Transform Instructions are provided, incorporate them as additional context during transformation.
 
 Use this exact format for your final result line:
-  RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path}
+  RESULT: {SUCCESS|FAILURE|BLOCKED} | Component: {name} | Primitive: {primitive} | Output: {path}
 ```
 
 Configuration per teammate:
@@ -385,7 +389,7 @@ Teammates transform independently. Registry updates are handled centrally by the
 #### Step 4.5: Wait for Transforms
 
 Wait for all transformer teammates to complete. Parse `RESULT` lines and `REGISTRY_ENTRY` JSON from each teammate's report.
-The RESULT format from the transformer is: `RESULT: {SUCCESS|FAILURE} | Component: {name} | Primitive: {primitive} | Output: {path}` (no QA field -- QA comes from the UI review phase in Step 4.9).
+The RESULT format from the transformer is: `RESULT: {SUCCESS|FAILURE|BLOCKED} | Component: {name} | Primitive: {primitive} | Output: {path}` (no QA field -- QA comes from the UI review phase in Step 4.9).
 Track successes, failures, blocked, and collect registry entries for Step 4.6.
 
 If a component fails due to missing registry dependencies, log it as blocked (not failed) and note the missing deps.

@@ -24,6 +24,7 @@ You are a unified transformation agent that converts React components and blocks
 - `APP_PORT` (required) -- port where the Zaidan dev server is running in the worktree
 - `PLAYGROUND_PROMPT` (optional, default: empty) -- prompt to drive the bowser-qa-agent during visual analysis
 - `REGISTRY_NAME` (required) -- registry name for URL routing (e.g., `shadcn`, `bazza`)
+- `TRANSFORM_INSTRUCTIONS` (optional, default: empty) -- free-text instructions from the user to guide transformation decisions. Passed from the /sync command's --transform-instructions flag.
 
 ## Instructions
 
@@ -79,8 +80,11 @@ PRIMITIVE={PRIMITIVE}
 WORKTREE_PATH={WORKTREE_PATH}
 OUTPUT_PATH={full output path for the transformed file}
 PRIMITIVE_RESEARCH={summary of component-specific patterns from Step 7}
+VISUAL_ANALYSIS_OUTPUT={summary of visual analysis from Step 5}
+TRANSFORM_INSTRUCTIONS={TRANSFORM_INSTRUCTIONS}
 
-Apply the react-to-solid transformation rules (Step 8) to this single file.
+Apply the file classification + intent translation workflow (Step 8) to this single file.
+Use VISUAL_ANALYSIS_OUTPUT as behavioral context and TRANSFORM_INSTRUCTIONS as additional guidance.
 Write the transformed file to OUTPUT_PATH (Step 9).
 Report your result as: RESULT: {SUCCESS|FAILURE} | File: {FILE_PATH} | Output: {OUTPUT_PATH}
 ```
@@ -161,13 +165,13 @@ RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: 
   - If no mapping exists, flag as unmapped and search for a SolidJS equivalent via web search
   - Framework-agnostic deps (like `date-fns`) are kept as-is
 
-### Step 5: Visual Analysis
+### Step 5: Visual Analysis (HARD GATE)
 
 Spawn a `bowser-qa-agent` to interact with the live component/block at PLAYGROUND_URL before transformation.
 
 5.1 - Build the prompt for the bowser-qa-agent:
   - If `PLAYGROUND_PROMPT` is non-empty, use: `Navigate to {PLAYGROUND_URL}. {PLAYGROUND_PROMPT}`
-  - If `PLAYGROUND_PROMPT` is empty, use: `Navigate to {PLAYGROUND_URL}. Interact with all visible component triggers, buttons, and interactive elements. Document what you observe including animations, state changes, and layout behavior.`
+  - If `PLAYGROUND_PROMPT` is empty, use: `Navigate to {PLAYGROUND_URL}. Interact with all visible component triggers, buttons, and interactive elements. Capture every interactive element (buttons, inputs, toggles, dropdowns, links). Document all state transitions (open/close, enabled/disabled, loading, error, success). Record animations and transitions (duration, easing, direction). Note keyboard interactions (tab order, arrow keys, escape, enter). Observe responsive behavior if applicable. Document edge cases (empty states, overflow, maximum content).`
 
 5.2 - Spawn a `bowser-qa-agent` via the Task tool:
   - `subagent_type: "bowser-qa-agent"`
@@ -176,7 +180,13 @@ Spawn a `bowser-qa-agent` to interact with the live component/block at PLAYGROUN
 
 5.3 - Store the agent's output (interaction log + screenshot paths) as `VISUAL_ANALYSIS_OUTPUT`.
 
-5.4 - If the agent fails or times out, log a warning and set `VISUAL_ANALYSIS_OUTPUT` to empty (fallback to template stories in Step 6).
+Note: The VISUAL_ANALYSIS_OUTPUT will be used in BOTH Step 6 (user story generation) AND Step 8 (intent translation) as the behavioral reference for the component.
+
+5.4 - If the agent fails or times out, output the following and STOP. Do NOT proceed to Step 6 or any subsequent steps:
+
+```
+RESULT: BLOCKED | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: Visual analysis failed — cannot transform a component without observing its behavior
+```
 
 ### Step 6: Generate User Story
 
@@ -195,35 +205,9 @@ Generate a YAML user story file for QA validation of the transformed component.
   - Structure the stories to cover the key behaviors observed
   - **Critical**: The first step of EVERY story workflow MUST be: `Navigate to <component URL from 6.2>`
 
-6.4 - If `VISUAL_ANALYSIS_OUTPUT` is empty (agent failed or no meaningful interactions), use the following template-based fallback with 2 stories. Use the component URL determined in Step 6.2 (`<COMPONENT_URL>`):
+6.4 - Replace `<ComponentTitle>` with the PascalCase title (e.g., "Dialog", "Alert Dialog").
 
-```yaml
-stories:
-  - name: "<ComponentTitle> renders correctly"
-    url: "<COMPONENT_URL>"
-    workflow: |
-      1. Navigate to <COMPONENT_URL>
-      2. Verify the page loads without console errors
-      3. Verify the component preview section is visible
-      4. Interact with the component's primary trigger
-      5. Verify expected behavior (open/close, toggle, animation)
-      6. Scroll to the Examples section
-      7. Verify all example variants are rendered
-  - name: "<ComponentTitle> documentation is complete"
-    url: "<COMPONENT_URL>"
-    workflow: |
-      1. Navigate to <COMPONENT_URL>
-      2. Verify the page title is "<ComponentTitle>"
-      3. Verify the Installation section exists
-      4. Verify the Usage section exists with code blocks
-      5. Verify the Examples section lists all variants
-      6. Scroll to the bottom of the page
-      7. Verify no broken links or missing images
-```
-
-6.5 - Replace `<ComponentTitle>` with the PascalCase title (e.g., "Dialog", "Alert Dialog").
-
-6.6 - Write the YAML file to the output path. The file must use the `stories` root array structure.
+6.5 - Write the YAML file to the output path. The file must use the `stories` root array structure.
 
 ### Step 7: Research Primitives
 
@@ -243,20 +227,50 @@ Use WebFetch to study the target primitive library's documentation for this comp
 
 7.4 - Update your working knowledge of the mapping with any component-specific patterns discovered in the docs.
 
-### Step 8: Transform
-
-Apply all transformation rules from the `react-to-solid` skill to convert the React source to SolidJS.
+### Step 8: File Classification + Intent Translation
 
 **For blocks (N files)**: Determine transformation order:
   - Utility files first (no internal dependencies)
   - Component files second (may depend on utilities)
   - Page/layout files last (depend on components and utilities)
 
-8.1 - **Map Base UI data attributes and CSS variables** to Kobalte/Base-UI/Corvu equivalents using the mapping tables from the `react-to-solid` skill, plus any component-specific mappings discovered in Step 7.
+For each source file in the resolved manifest:
 
-8.2 - **Preserve all `data-slot` attributes** from the source exactly as they appear.
+**8.1 — Classify**: Scan the file for React markers:
+  - Imports: `"react"`, `"@base-ui/react"`, `"@radix-ui"`, `"next/image"`, `"next/link"`
+  - Patterns: `useState`, `useEffect`, `useRef`, `useCallback`, `useMemo`, `useContext`, `forwardRef`, `useImperativeHandle`, `React.FC`, `React.ReactNode`, `className` (as JSX prop), JSX return with React-specific patterns
 
-8.3 - **Preserve all CSS/Tailwind classes** -- only change `className` to `class`, do not modify class values.
+**8.2 — If PASSTHROUGH** (no React markers found): Copy the file as-is to the output path. Only fix import paths:
+  - `@/registry/bases/base/lib/utils` → `@/lib/utils`
+  - `@/registry/bases/base/ui/` → `@/registry/<PRIMITIVE>/ui/`
+  - `@/registry/bases/base/hooks/` → `@/registry/<PRIMITIVE>/hooks/`
+  - Other `@/registry/bases/base/` paths → equivalent `@/registry/<PRIMITIVE>/` paths
+  - Log: "File {filename}: PASSTHROUGH (no React markers)"
+
+**8.3 — If INTENT TRANSLATION** (React markers found):
+  a. Read the source file to understand its **intent**: what does this component do? What states does it manage? What interactions does it support? What is its behavioral contract?
+  b. Incorporate `VISUAL_ANALYSIS_OUTPUT` as the **behavioral reference** — this defines what the component looks like and how it behaves in practice
+  c. If `TRANSFORM_INSTRUCTIONS` is non-empty, incorporate them as **additional context** for guiding transformation decisions
+  d. Consult the `react-to-solid` skill for known mappings: React hooks → SolidJS primitives, React patterns → SolidJS patterns, library substitutions, Base UI → Kobalte/Corvu mappings
+  e. Consult primitive research from Step 7 for component anatomy, available props, data attributes, and CSS variables
+  f. Write **idiomatic SolidJS** that fulfills the same intent, using:
+    - SolidJS reactivity primitives (`createSignal`, `createEffect`, `createMemo`, `createStore`)
+    - Kobalte/Corvu component primitives (based on PRIMITIVE variable)
+    - SolidJS control flow (`<Show>`, `<For>`, `<Switch>/<Match>`, `<Dynamic>`)
+    - SolidJS patterns (`splitProps`, `mergeProps`, `children()` helper)
+  g. **Simplify where SolidJS allows it**:
+    - `useState` + `useEffect` combo for derived state → `createMemo`
+    - `useCallback`/`useMemo` for referential stability → remove (unnecessary in SolidJS, no re-renders)
+    - `forwardRef` + `useImperativeHandle` → remove (not needed in SolidJS)
+    - Complex `useReducer` patterns → `createStore` if appropriate
+    - `React.cloneElement` patterns → composition with context or props
+  h. Log: "File {filename}: INTENT TRANSLATION (found markers: {list of markers found})"
+
+**8.4 — Preserve all `data-slot` attributes** from the source exactly as they appear.
+
+**8.5 — Preserve all CSS/Tailwind classes** — only change `className` to `class`, do not modify class values.
+
+**8.6 — Map Base UI data attributes and CSS variables** to Kobalte/Base-UI/Corvu equivalents using mapping tables from the `react-to-solid` skill, plus component-specific mappings from Step 7.
 
 ### Step 9: Write Output
 
@@ -311,6 +325,30 @@ ls -la src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx
 # Block mode:
 ls -la src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/
 ```
+
+### Step 10.5: Auto-Install Dependencies
+
+After validation passes, install any new dependencies that the transformed code requires.
+
+10.5.1 - Collect all `import` statements from the transformed file(s):
+  - Component mode: scan `src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx`
+  - Block mode: scan all files in `src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/`
+
+10.5.2 - Extract external package names from imports:
+  - Skip relative imports (`./`, `../`)
+  - Skip path aliases (`@/`)
+  - Skip Node.js built-ins (`node:*`)
+  - For scoped packages (e.g., `@kobalte/core/dialog`), normalize to the package name (`@kobalte/core`)
+  - For unscoped packages (e.g., `lucide-solid`), use as-is
+
+10.5.3 - Read `package.json` from the worktree root to get currently installed packages (both `dependencies` and `devDependencies`)
+
+10.5.4 - For each extracted package NOT already in `package.json`:
+  - Run: `bun add <package-name>`
+  - If `bun add` succeeds: Log "Installed new dependency: <package-name>"
+  - If `bun add` fails: Log "WARNING: Failed to install <package-name> — package may not exist or may have a different name. Flag for human review."
+
+10.5.5 - Record the list of newly installed packages for Step 11.
 
 ### Step 11: Report Result
 
@@ -374,6 +412,10 @@ Then provide the full structured report:
 - Existing dependencies
 - Mapped third-party deps
 - Unmapped deps (flagged for human review)
+
+### Installed Dependencies
+- List of newly installed packages (from Step 10.5)
+- Any failed installations flagged for human review
 
 ### User Story
 - Path to generated story file: `ai_review/user_stories/<COMPONENT_NAME>.yaml`
