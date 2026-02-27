@@ -5,7 +5,7 @@ import { isColumnOption, isColumnOptionArray, isStringArray } from "../../lib/he
 import { dateFilterFn, numberFilterFn, textFilterFn } from "./filter-fns";
 
 interface CreateTSTColumns<TData> {
-  columns: ColumnDef<TData, any>[];
+  columns: ColumnDef<TData, unknown>[];
   configs: Column<TData>[];
 }
 
@@ -55,7 +55,8 @@ export function createTSTColumns<TData>({ columns, configs }: CreateTSTColumns<T
           return optionFilterFn(value.value, filterValue);
         }
 
-        const sanitizedValue = config.transformOptionFn!(value as never);
+        if (!config.transformOptionFn) return false;
+        const sanitizedValue = config.transformOptionFn(value as never);
         return optionFilterFn(sanitizedValue.value, filterValue);
       };
     }
@@ -77,7 +78,9 @@ export function createTSTColumns<TData>({ columns, configs }: CreateTSTColumns<T
           );
         }
 
-        const sanitizedValue = (value as never[]).map((v) => config.transformOptionFn!(v));
+        const { transformOptionFn } = config;
+        if (!transformOptionFn) return false;
+        const sanitizedValue = (value as never[]).map((v) => transformOptionFn(v));
 
         return multiOptionFilterFn(
           sanitizedValue.map((v) => v.value),

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
 import {
   type ColumnDef,
   createColumnHelper,
@@ -8,7 +9,6 @@ import {
   getPaginationRowModel,
 } from "@tanstack/solid-table";
 import {
-  CircleAlertIcon,
   CircleCheckIcon,
   CircleDashedIcon,
   CircleDotDashedIcon,
@@ -25,7 +25,6 @@ import { Example, ExampleWrapper } from "@/components/example";
 import { cn } from "@/lib/utils";
 import { DataTableFilter, useDataTableFilters } from "@/registry/kobalte/blocks/data-table-filter";
 import { createColumnConfigHelper } from "@/registry/kobalte/blocks/data-table-filter/core/filters";
-import type { FiltersState } from "@/registry/kobalte/blocks/data-table-filter/core/types";
 import {
   createTSTColumns,
   createTSTFilters,
@@ -41,7 +40,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/registry/kobalte/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 // --- Types ---
 
@@ -74,7 +72,6 @@ type Issue = {
   startDate?: Date;
   endDate?: Date;
   estimatedHours?: number;
-  isUrgent: boolean;
 };
 
 // --- Static Data ---
@@ -155,7 +152,6 @@ function generateIssues(count: number): Issue[] {
       labels: hasLabels ? [randomItem(ISSUE_LABELS)] : undefined,
       assignee: hasAssignee ? randomItem(USERS) : undefined,
       estimatedHours: Math.floor(Math.random() * 16) + 1,
-      isUrgent: Math.random() > 0.9,
     });
   }
   return issues;
@@ -207,19 +203,7 @@ const tstColumnDefs = [
     id: "title",
     header: "Title",
     enableColumnFilter: true,
-    cell: (ctx) => (
-      <div class="flex items-center gap-2">
-        <span>{ctx.row.getValue("title")}</span>
-        <Show when={ctx.row.original.isUrgent}>
-          <Tooltip>
-            <TooltipTrigger>
-              <CircleAlertIcon class="size-5 fill-red-600 stroke-[2.5px] stroke-white dark:stroke-black" />
-            </TooltipTrigger>
-            <TooltipContent>Urgent issue</TooltipContent>
-          </Tooltip>
-        </Show>
-      </div>
-    ),
+    cell: (ctx) => <span>{ctx.row.getValue("title")}</span>,
   }),
   columnHelper.accessor((row) => row.assignee?.id, {
     id: "assignee",
@@ -290,7 +274,7 @@ const tstColumnDefs = [
       );
     },
   }),
-] as ColumnDef<Issue, any>[];
+] as ColumnDef<Issue, unknown>[];
 
 // --- Filter Column Configurations ---
 
@@ -361,26 +345,18 @@ const columnsConfig = [
 // --- Main Example ---
 
 export default function DataTableFilterExample() {
-  const [filters, setFilters] = createSignal<FiltersState>([]);
   return (
     <ExampleWrapper class="grid-cols-1 md:grid-cols-1">
-      <Example title="Issues Table with Filters" class="w-full">
-        <IssuesTable filters={filters()} onFiltersChange={setFilters} />
-      </Example>
+      <IssuesTableExample />
     </ExampleWrapper>
   );
 }
 
-function IssuesTable(props: {
-  filters: FiltersState;
-  onFiltersChange: (fn: FiltersState | ((prev: FiltersState) => FiltersState)) => void;
-}) {
+function IssuesTableExample() {
   const { columns, filters, actions, strategy } = useDataTableFilters({
     strategy: "client",
     data: ISSUES,
     columnsConfig,
-    filters: () => props.filters,
-    onFiltersChange: props.onFiltersChange as any,
   });
 
   const tstColumns = createMemo(() =>
@@ -413,9 +389,6 @@ function IssuesTable(props: {
       get columnFilters() {
         return tstFilters();
       },
-      columnVisibility: {
-        isUrgent: false,
-      },
     },
   });
 
@@ -426,86 +399,88 @@ function IssuesTable(props: {
   const totalRows = () => new Intl.NumberFormat().format(table.getCoreRowModel().rows.length);
 
   return (
-    <div class="w-full">
-      <div class="flex items-center gap-2 pb-4">
-        <DataTableFilter
-          filters={filters()}
-          columns={columns()}
-          actions={actions}
-          strategy={strategy}
-        />
-      </div>
-      <div class="rounded-md border">
-        <Table>
-          <TableHeader>
-            <For each={table.getHeaderGroups()}>
-              {(headerGroup) => (
-                <TableRow class="bg-popover">
-                  <For each={headerGroup.headers}>
-                    {(header) => (
-                      <TableHead>
-                        <Show when={!header.isPlaceholder}>
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                        </Show>
-                      </TableHead>
-                    )}
-                  </For>
-                </TableRow>
-              )}
-            </For>
-          </TableHeader>
-          <TableBody>
-            <Show
-              when={table.getRowModel().rows.length > 0}
-              fallback={
-                <TableRow>
-                  <TableCell colSpan={table.getAllColumns().length} class="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              }
-            >
-              <For each={table.getRowModel().rows}>
-                {(row) => (
-                  <TableRow data-state={row.getIsSelected() && "selected"} class="h-12">
-                    <For each={row.getVisibleCells()}>
-                      {(cell) => (
-                        <TableCell>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
+    <Example title="Issues Table with Filters" class="w-full">
+      <div class="w-full">
+        <div class="flex items-center gap-2 pb-4">
+          <DataTableFilter
+            filters={filters()}
+            columns={columns()}
+            actions={actions}
+            strategy={strategy}
+          />
+        </div>
+        <div class="rounded-md border">
+          <Table>
+            <TableHeader>
+              <For each={table.getHeaderGroups()}>
+                {(headerGroup) => (
+                  <TableRow class="bg-popover">
+                    <For each={headerGroup.headers}>
+                      {(header) => (
+                        <TableHead>
+                          <Show when={!header.isPlaceholder}>
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                          </Show>
+                        </TableHead>
                       )}
                     </For>
                   </TableRow>
                 )}
               </For>
-            </Show>
-          </TableBody>
-        </Table>
-      </div>
-      <div class="flex items-center justify-end space-x-2 py-4">
-        <div class="flex-1 text-muted-foreground text-sm tabular-nums">
-          {selectedRows()} of {totalAvailableRows()} row(s) selected.{" "}
-          <span class="font-medium text-primary">Total row count: {totalRows()}</span>
+            </TableHeader>
+            <TableBody>
+              <Show
+                when={table.getRowModel().rows.length > 0}
+                fallback={
+                  <TableRow>
+                    <TableCell colSpan={table.getAllColumns().length} class="h-24 text-center">
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                }
+              >
+                <For each={table.getRowModel().rows}>
+                  {(row) => (
+                    <TableRow data-state={row.getIsSelected() && "selected"} class="h-12">
+                      <For each={row.getVisibleCells()}>
+                        {(cell) => (
+                          <TableCell>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        )}
+                      </For>
+                    </TableRow>
+                  )}
+                </For>
+              </Show>
+            </TableBody>
+          </Table>
         </div>
-        <div class="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+        <div class="flex items-center justify-end space-x-2 py-4">
+          <div class="flex-1 text-muted-foreground text-sm tabular-nums">
+            {selectedRows()} of {totalAvailableRows()} row(s) selected.{" "}
+            <span class="font-medium text-primary">Total row count: {totalRows()}</span>
+          </div>
+          <div class="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </Example>
   );
 }

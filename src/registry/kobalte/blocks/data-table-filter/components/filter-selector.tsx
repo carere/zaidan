@@ -79,13 +79,14 @@ export function FilterSelector<TData>(props: FilterSelectorProps<TData>) {
           <span>{t("filter", props.locale ?? "en")}</span>
         </Show>
       </PopoverTrigger>
-      <PopoverContent align="start" class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
+      <PopoverContent class="w-fit origin-(--kb-popper-content-transform-origin) p-0">
         <Show
           when={property() ? column() : undefined}
           fallback={
             <Command
+              // @ts-expect-error cmdk-solid props not in ComponentProps<"div">
               loop
-              filter={(val, search, keywords) => {
+              filter={(val: string, search: string, keywords?: string[]) => {
                 const extendValue = `${val} ${keywords?.join(" ")}`;
                 return extendValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
               }}
@@ -177,7 +178,7 @@ export function FilterableColumn<TData, TType extends ColumnDataType, TVal>(prop
     >
       <div class="flex w-full items-center justify-between">
         <div class="inline-flex items-center gap-1.5">
-          <Dynamic component={props.column.icon} strokeWidth={2.25} class="size-4" />
+          <Dynamic component={props.column.icon as any} strokeWidth={2.25} class="size-4" />
           <span>{props.column.displayName}</span>
         </div>
         <ArrowRightIcon class="size-4 opacity-0 group-aria-selected:opacity-100" />

@@ -3,7 +3,7 @@ import { dateFilterOperators } from "../core/operators";
 import type { FilterModel } from "../core/types";
 import { intersection } from "./array";
 
-export function optionFilterFn<TData>(inputData: string, filterValue: FilterModel<"option">) {
+export function optionFilterFn<_TData>(inputData: string, filterValue: FilterModel<"option">) {
   if (!inputData) return false;
   if (filterValue.values.length === 0) return true;
 
@@ -49,7 +49,7 @@ export function multiOptionFilterFn(inputData: string[], filterValue: FilterMode
   }
 }
 
-export function dateFilterFn<TData>(inputData: Date, filterValue: FilterModel<"date">) {
+export function dateFilterFn<_TData>(inputData: Date, filterValue: FilterModel<"date">) {
   if (!filterValue || filterValue.values.length === 0) return true;
 
   if (
@@ -93,7 +93,7 @@ export function dateFilterFn<TData>(inputData: Date, filterValue: FilterModel<"d
   }
 }
 
-export function textFilterFn<TData>(inputData: string, filterValue: FilterModel<"text">) {
+export function textFilterFn<_TData>(inputData: string, filterValue: FilterModel<"text">) {
   if (!filterValue || filterValue.values.length === 0) return true;
 
   const value = inputData.toLowerCase().trim();
@@ -111,7 +111,7 @@ export function textFilterFn<TData>(inputData: string, filterValue: FilterModel<
   }
 }
 
-export function numberFilterFn<TData>(inputData: number, filterValue: FilterModel<"number">) {
+export function numberFilterFn<_TData>(inputData: number, filterValue: FilterModel<"number">) {
   if (!filterValue || !filterValue.values || filterValue.values.length === 0) {
     return true;
   }
