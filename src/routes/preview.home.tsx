@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount, Show } from "solid-js";
-import { BentoGrid } from "@/components/bento-grid";
 import { BentoNotch } from "@/components/bento-notch";
+import { RootComponents } from "@/components/home";
 import { FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
@@ -188,7 +188,7 @@ function PreviewComponent() {
 
   return (
     <Show when={isReady()}>
-      <BentoGrid />
+      <RootComponents />
       <BentoNotch />
     </Show>
   );
