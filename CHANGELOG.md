@@ -1,3 +1,9 @@
+## 1.0.5 (2026-02-28)
+
+### Fixes
+
+- add missing lucide-solid dependency to bazza-data-table-filter
+
 ## 1.0.4 (2026-02-05)
 
 ### Fixes
