@@ -1,3 +1,4 @@
+import { Button } from "@/registry/kobalte/ui/button";
 import { FieldSeparator } from "@/registry/kobalte/ui/field";
 
 import AppearanceSettings from "./appearance-settings";
@@ -15,7 +16,6 @@ import InputGroupDemo from "./input-group-demo";
 import ItemDemo from "./item-demo";
 import NotionPromptForm from "./notion-prompt-form";
 import SpinnerBadge from "./spinner-badge";
-import SpinnerEmpty from "./spinner-empty";
 
 export function RootComponents() {
   return (
@@ -37,6 +37,17 @@ export function RootComponents() {
         <AppearanceSettings />
       </div>
       <div class="order-first flex flex-col gap-6 lg:hidden xl:order-last xl:flex *:[div]:w-full *:[div]:max-w-full">
+        <div class="flex flex-col items-center gap-3 rounded-lg border bg-card p-6">
+          <span class="text=2xl">Welcome to Zaidan</span>
+          <div class="flex items-center gap-2">
+            <Button as="a" href="/zaidan-agent" target="_top">
+              Zaidan Agent
+            </Button>
+            <Button as="a" href="/installation" target="_top" variant="outline">
+              Get Started
+            </Button>
+          </div>
+        </div>
         <NotionPromptForm />
         <ButtonGroupDemo />
         <FieldCheckbox />
@@ -45,7 +56,6 @@ export function RootComponents() {
           <ButtonGroupPopover />
         </div>
         <FieldHear />
-        <SpinnerEmpty />
       </div>
     </div>
   );
