@@ -12,7 +12,8 @@ import { cn } from "@/lib/utils";
 import {
   type ColorMode,
   ColorModeProvider,
-} from "@/registry/kobalte/components/color-mode-provider";
+  getClientColorMode,
+} from "@/registry/kobalte/components/color-mode";
 import styleCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext()({
@@ -61,14 +62,7 @@ export const Route = createRootRouteWithContext()({
 
 const getColorMode = createIsomorphicFn()
   .server(() => getCookie("zaidan-color-mode") ?? "light")
-  .client(
-    () =>
-      document.cookie
-        .split("; ")
-        .find((cookie) => cookie.startsWith("zaidan-color-mode="))
-        ?.split("=")[1] ??
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
-  );
+  .client(getClientColorMode);
 
 function RootComponent() {
   const colorMode = getColorMode() as ColorMode;

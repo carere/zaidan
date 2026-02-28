@@ -10,15 +10,36 @@ export default defineConfig({
         slug: s.slug("docs"),
         title: s.string(),
         description: s.string(),
+        order: s.number().optional(),
         parent: s.string().optional(),
         toc: s.toc(),
       }),
     },
-    ui: {
-      name: "ui",
-      pattern: "ui/**/*.mdx",
+    shadcn: {
+      name: "shadcn",
+      pattern: "shadcn/**/*.mdx",
       schema: s.object({
-        slug: s.slug("ui"),
+        slug: s.slug("shadcn"),
+        title: s.string(),
+        description: s.string(),
+        toc: s.toc(),
+      }),
+    },
+    bazza: {
+      name: "bazza",
+      pattern: "bazza/**/*.mdx",
+      schema: s.object({
+        slug: s.slug("bazza"),
+        title: s.string(),
+        description: s.string(),
+        toc: s.toc(),
+      }),
+    },
+    motionPrimitives: {
+      name: "motionPrimitives",
+      pattern: "motion-primitives/**/*.mdx",
+      schema: s.object({
+        slug: s.slug("motion-primitives"),
         title: s.string(),
         description: s.string(),
         toc: s.toc(),

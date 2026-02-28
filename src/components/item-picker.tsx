@@ -1,5 +1,4 @@
 import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
-import { docs, ui } from "@velite";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -11,7 +10,10 @@ import {
   Show,
   splitProps,
 } from "solid-js";
+import { REGISTRY_META } from "@/lib/registries";
+import { getEntries, isDraft } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/registry/kobalte/ui/badge";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Command,
@@ -24,26 +26,6 @@ import {
   CommandSeparator,
 } from "@/registry/kobalte/ui/command";
 import { Kbd } from "@/registry/kobalte/ui/kbd";
-import type { FileRouteTypes } from "@/routeTree.gen";
-
-type Entry = {
-  title: string;
-  items: typeof docs | typeof ui;
-  route: FileRouteTypes["to"];
-};
-
-const entries: Entry[] = [
-  {
-    title: "Getting Started",
-    items: docs.filter((d) => d.parent === undefined),
-    route: "/{-$slug}",
-  },
-  {
-    title: "UI",
-    items: ui.sort((a, b) => a.title.localeCompare(b.title)),
-    route: "/ui/{-$slug}",
-  },
-];
 
 export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
@@ -53,6 +35,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
+  const entries = getEntries();
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   onMount(() => {
@@ -99,7 +82,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
 
             <For each={entries}>
               {(entry, index) => (
-                <>
+                <Show when={entry.items.length > 0}>
                   <CommandGroup heading={entry.title}>
                     <For each={entry.items}>
                       {(item) => (
@@ -116,6 +99,19 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           }}
                         >
                           {item.title}
+                          <Show when={item.registry !== "shadcn"}>
+                            <span class="ml-1 text-muted-foreground">
+                              ({REGISTRY_META[item.registry].label})
+                            </span>
+                          </Show>
+                          <Show when={isDraft(item.slug)}>
+                            <Badge
+                              variant="outline"
+                              class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
+                            >
+                              draft
+                            </Badge>
+                          </Show>
                         </CommandItem>
                       )}
                     </For>
@@ -124,7 +120,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
                   <Show when={index() < entries.length - 1}>
                     <CommandSeparator />
                   </Show>
-                </>
+                </Show>
               )}
             </For>
           </CommandList>

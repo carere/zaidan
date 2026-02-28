@@ -40,6 +40,18 @@
       ]
     },
     {
+      "name": "motion-primitives-animated-background",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/animated-background.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "aspect-ratio",
       "type": "registry:ui",
       "dependencies": [],
@@ -219,6 +231,173 @@
         {
           "path": "src/registry/kobalte/ui/context-menu.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "bazza-data-table-filter",
+      "type": "registry:block",
+      "dependencies": ["date-fns"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/calendar.json",
+        "https://zaidan.carere.dev/r/kobalte/checkbox.json",
+        "https://zaidan.carere.dev/r/kobalte/command.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/label.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/separator.json",
+        "https://zaidan.carere.dev/r/kobalte/slider.json",
+        "https://zaidan.carere.dev/r/kobalte/table.json",
+        "https://zaidan.carere.dev/r/kobalte/tabs.json",
+        "https://zaidan.carere.dev/r/kobalte/use-mobile.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/index.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/active-filters.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/data-table-filter.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/filter-actions.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/filter-operator.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/filter-selector.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/filter-subject.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/components/filter-value.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/core/filters.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/core/operators.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/core/types.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/hooks/use-data-table-filters.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/hooks/use-debounce-callback.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/array.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/debounce.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/filter-fns.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/helpers.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/i18n.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/memo.ts",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/en.json",
+          "type": "registry:block"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/ui/debounced-input.tsx",
+          "type": "registry:block"
+        }
+      ]
+    },
+    {
+      "name": "bazza-data-table-filter-i18n",
+      "type": "registry:block",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/lib/i18n.ts",
+          "type": "registry:file",
+          "target": "components/data-table-filter/lib/i18n.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/en.json",
+          "type": "registry:file",
+          "target": "components/data-table-filter/locales/en.json"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/fr.json",
+          "type": "registry:file",
+          "target": "components/data-table-filter/locales/fr.json"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/zh-CN.json",
+          "type": "registry:file",
+          "target": "components/data-table-filter/locales/zh-CN.json"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/zh-TW.json",
+          "type": "registry:file",
+          "target": "components/data-table-filter/locales/zh-TW.json"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/nl.json",
+          "type": "registry:file",
+          "target": "components/data-table-filter/locales/nl.json"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/locales/de.json",
+          "type": "registry:file",
+          "target": "components/data-table-filter/locales/de.json"
+        }
+      ]
+    },
+    {
+      "name": "bazza-data-table-filter-tst",
+      "type": "registry:block",
+      "dependencies": ["@tanstack/solid-table"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/integrations/tanstack-table/index.tsx",
+          "type": "registry:file",
+          "target": "components/data-table-filter/integrations/tanstack-table/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-table-filter/integrations/tanstack-table/filter-fns.ts",
+          "type": "registry:file",
+          "target": "components/data-table-filter/integrations/tanstack-table/filter-fns.ts"
         }
       ]
     },
@@ -552,7 +731,7 @@
       "name": "sonner",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid", "solid-sonner"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/use-color-mode.json"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/color-mode.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/sonner.tsx",
@@ -773,17 +952,13 @@
     },
     {
       "name": "color-mode",
-      "type": "registry:item",
+      "type": "registry:component",
       "dependencies": ["solid-js"],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/kobalte/components/color-mode-provider.tsx",
+          "path": "src/registry/kobalte/components/color-mode.tsx",
           "type": "registry:component"
-        },
-        {
-          "path": "src/registry/kobalte/hooks/use-color-mode.ts",
-          "type": "registry:hook"
         }
       ]
     },

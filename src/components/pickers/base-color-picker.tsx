@@ -3,7 +3,7 @@ import { For } from "solid-js";
 import { LockButton } from "@/components/lock-button";
 import { BASE_COLORS, DEFAULT_CONFIG } from "@/lib/config";
 import type { BaseColor } from "@/lib/types";
-import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { useColorMode } from "@/registry/kobalte/components/color-mode";
 import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import {
   DropdownMenu,
@@ -28,7 +28,7 @@ export default function BaseColorPicker() {
   return (
     <div class="group/picker relative">
       <DropdownMenu gutter={6} placement={isMobile() ? "top" : "left-start"}>
-        <DropdownMenuTrigger class="relative flex w-[160px] shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
+        <DropdownMenuTrigger class="relative flex w-40 shrink-0 touch-manipulation select-none items-center justify-between rounded-xl border border-foreground/10 bg-muted/50 p-2 transition-colors hover:bg-muted disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:border-transparent md:bg-transparent">
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Base Color</div>
             <div class="font-medium text-foreground text-sm">

@@ -1,0 +1,61 @@
+---
+title: "Customization"
+description: "Learn how to customize your Zaidan-enabled SolidJS app with styles, colors, radius, and fonts."
+slug: "customization"
+order: 2
+---
+
+# Customization
+
+Zaidan uses a registry-based theming system. To change **colors**, **base colors**, **radius**, or **fonts**, you simply add the registry item you want through the shadcn CLI — no manual CSS editing needed.
+
+## Styles
+
+Styles control the visual treatment of every component — spacing, borders, padding, rounded corners. Zaidan ships with 5 styles: **Vega**, **Nova**, **Lyra**, **Maia**, and **Mira**.
+
+```package-dlx
+shadcn@latest add @zaidan/style-vega
+```
+
+When you add a style, the CLI create or override the `src/styles/base.css` file into your project.
+This file contains `.z-*` classes that style every component using Tailwind `@apply` directives.
+This file **should be automatically imported** in your main css file, if not, add it yourself:
+
+```css title="src/index.css"
+@import "tailwindcss";
+@import "./styles/base.css";
+```
+
+<Alert class="mt-4 border-none bg-amber-600/10 text-amber-600 dark:bg-amber-400/10 dark:text-amber-400">
+  <TriangleAlert />
+  <AlertTitle class="text-amber-600/80 dark:text-amber-400/80">
+    Shadcn does not handle the location for `css` files, so if you have a different structure, you'll need to adapt it to your project.
+  </AlertTitle>
+</Alert>
+
+## Colors & base colors
+
+Zaidan separates colors into two layers:
+
+- **Base colors** (neutral, stone, zinc, gray) — define backgrounds, borders, muted colors, and sidebar colors
+- **Accent themes** (amber, blue, cyan, green, etc.) — override primary, secondary, accent, and chart colors
+
+All colors use the OKLCH color space and are applied as CSS custom properties with light and dark variants. Add a theme the same way:
+
+```package-dlx
+shadcn@latest add @zaidan/blue @zaidan/gray
+```
+
+The CLI injects the corresponding CSS variables into your project. Dark mode variants are included automatically.
+
+## Radius
+
+Border radius is controlled by a single CSS variable `--radius` that all components reference via Tailwind's `rounded-[--radius]` syntax. Changing it once updates every component.
+
+## Fonts
+
+Zaidan provides 12 font families as registry items. Each includes the Google Fonts `@import` rule and sets the `--font-sans` or `--font-mono` CSS variable:
+
+```package-dlx
+shadcn@latest add @zaidan/font-inter
+```

@@ -1,15 +1,15 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
-import { ui } from "@velite";
+import { shadcn } from "@velite";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
-import { useColorMode } from "@/registry/kobalte/hooks/use-color-mode";
+import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
   loader: ({ params }) => {
-    const doc = ui.find((u) => (params.slug ? u.slug === params.slug : u.slug === "button"));
+    const doc = shadcn.find((u) => (params.slug ? u.slug === params.slug : false)) ?? shadcn[0];
     if (!doc) {
       throw notFound({
         data: {
@@ -95,15 +95,15 @@ function RouteComponent() {
         ref={iframeRef}
         src={
           router.buildLocation({
-            to: "/preview/$primitive/$slug",
-            params: { primitive: "kobalte", slug: doc().slug },
+            to: "/preview/$kind/$primitive/$slug",
+            params: { kind: "ui", primitive: "kobalte", slug: doc().slug },
             search: untrack(search),
           }).href
         }
         class="z-10 size-full rounded-lg"
         title="Preview"
       />
-      <PageToggleNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
+      <PageToggleNav kind="ui" slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }

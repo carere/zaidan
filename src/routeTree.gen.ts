@@ -10,26 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WebsiteRouteImport } from './routes/_website'
-import { Route as WebsiteChar123SlugChar125RouteImport } from './routes/_website.{-$slug}'
-import { Route as PreviewPrimitiveSlugRouteImport } from './routes/preview.$primitive.$slug'
+import { Route as WebsiteIndexRouteImport } from './routes/_website.index'
+import { Route as PreviewHomeRouteImport } from './routes/preview.home'
+import { Route as WebsiteSlugRouteImport } from './routes/_website.$slug'
 import { Route as WebsiteUiChar123SlugChar125RouteImport } from './routes/_website.ui.{-$slug}'
 import { Route as WebsiteInstallationSlugRouteImport } from './routes/_website.installation.$slug'
+import { Route as WebsiteBlocksChar123SlugChar125RouteImport } from './routes/_website.blocks.{-$slug}'
+import { Route as PreviewKindPrimitiveSlugRouteImport } from './routes/preview.$kind.$primitive.$slug'
 import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
+import { Route as WebsiteBlocksSlugDocsRouteImport } from './routes/_website.blocks.$slug.docs'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/_website',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WebsiteChar123SlugChar125Route =
-  WebsiteChar123SlugChar125RouteImport.update({
-    id: '/{-$slug}',
-    path: '/{-$slug}',
-    getParentRoute: () => WebsiteRoute,
-  } as any)
-const PreviewPrimitiveSlugRoute = PreviewPrimitiveSlugRouteImport.update({
-  id: '/preview/$primitive/$slug',
-  path: '/preview/$primitive/$slug',
+const WebsiteIndexRoute = WebsiteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const PreviewHomeRoute = PreviewHomeRouteImport.update({
+  id: '/preview/home',
+  path: '/preview/home',
   getParentRoute: () => rootRouteImport,
+} as any)
+const WebsiteSlugRoute = WebsiteSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => WebsiteRoute,
 } as any)
 const WebsiteUiChar123SlugChar125Route =
   WebsiteUiChar123SlugChar125RouteImport.update({
@@ -42,67 +50,105 @@ const WebsiteInstallationSlugRoute = WebsiteInstallationSlugRouteImport.update({
   path: '/installation/$slug',
   getParentRoute: () => WebsiteRoute,
 } as any)
+const WebsiteBlocksChar123SlugChar125Route =
+  WebsiteBlocksChar123SlugChar125RouteImport.update({
+    id: '/blocks/{-$slug}',
+    path: '/blocks/{-$slug}',
+    getParentRoute: () => WebsiteRoute,
+  } as any)
+const PreviewKindPrimitiveSlugRoute =
+  PreviewKindPrimitiveSlugRouteImport.update({
+    id: '/preview/$kind/$primitive/$slug',
+    path: '/preview/$kind/$primitive/$slug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WebsiteUiSlugDocsRoute = WebsiteUiSlugDocsRouteImport.update({
   id: '/ui/$slug/docs',
   path: '/ui/$slug/docs',
   getParentRoute: () => WebsiteRoute,
 } as any)
+const WebsiteBlocksSlugDocsRoute = WebsiteBlocksSlugDocsRouteImport.update({
+  id: '/blocks/$slug/docs',
+  path: '/blocks/$slug/docs',
+  getParentRoute: () => WebsiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof WebsiteRouteWithChildren
-  '/{-$slug}': typeof WebsiteChar123SlugChar125Route
+  '/': typeof WebsiteIndexRoute
+  '/$slug': typeof WebsiteSlugRoute
+  '/preview/home': typeof PreviewHomeRoute
+  '/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
   '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
-  '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
+  '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof WebsiteRouteWithChildren
-  '/{-$slug}': typeof WebsiteChar123SlugChar125Route
+  '/$slug': typeof WebsiteSlugRoute
+  '/preview/home': typeof PreviewHomeRoute
+  '/': typeof WebsiteIndexRoute
+  '/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
   '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
-  '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
+  '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_website': typeof WebsiteRouteWithChildren
-  '/_website/{-$slug}': typeof WebsiteChar123SlugChar125Route
+  '/_website/$slug': typeof WebsiteSlugRoute
+  '/preview/home': typeof PreviewHomeRoute
+  '/_website/': typeof WebsiteIndexRoute
+  '/_website/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
   '/_website/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
-  '/preview/$primitive/$slug': typeof PreviewPrimitiveSlugRoute
+  '/_website/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/_website/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
+  '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/{-$slug}'
+    | '/$slug'
+    | '/preview/home'
+    | '/blocks/{-$slug}'
     | '/installation/$slug'
     | '/ui/{-$slug}'
-    | '/preview/$primitive/$slug'
+    | '/blocks/$slug/docs'
     | '/ui/$slug/docs'
+    | '/preview/$kind/$primitive/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/$slug'
+    | '/preview/home'
     | '/'
-    | '/{-$slug}'
+    | '/blocks/{-$slug}'
     | '/installation/$slug'
     | '/ui/{-$slug}'
-    | '/preview/$primitive/$slug'
+    | '/blocks/$slug/docs'
     | '/ui/$slug/docs'
+    | '/preview/$kind/$primitive/$slug'
   id:
     | '__root__'
     | '/_website'
-    | '/_website/{-$slug}'
+    | '/_website/$slug'
+    | '/preview/home'
+    | '/_website/'
+    | '/_website/blocks/{-$slug}'
     | '/_website/installation/$slug'
     | '/_website/ui/{-$slug}'
-    | '/preview/$primitive/$slug'
+    | '/_website/blocks/$slug/docs'
     | '/_website/ui/$slug/docs'
+    | '/preview/$kind/$primitive/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   WebsiteRoute: typeof WebsiteRouteWithChildren
-  PreviewPrimitiveSlugRoute: typeof PreviewPrimitiveSlugRoute
+  PreviewHomeRoute: typeof PreviewHomeRoute
+  PreviewKindPrimitiveSlugRoute: typeof PreviewKindPrimitiveSlugRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -114,19 +160,26 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_website/{-$slug}': {
-      id: '/_website/{-$slug}'
-      path: '/{-$slug}'
-      fullPath: '/{-$slug}'
-      preLoaderRoute: typeof WebsiteChar123SlugChar125RouteImport
+    '/_website/': {
+      id: '/_website/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof WebsiteIndexRouteImport
       parentRoute: typeof WebsiteRoute
     }
-    '/preview/$primitive/$slug': {
-      id: '/preview/$primitive/$slug'
-      path: '/preview/$primitive/$slug'
-      fullPath: '/preview/$primitive/$slug'
-      preLoaderRoute: typeof PreviewPrimitiveSlugRouteImport
+    '/preview/home': {
+      id: '/preview/home'
+      path: '/preview/home'
+      fullPath: '/preview/home'
+      preLoaderRoute: typeof PreviewHomeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_website/$slug': {
+      id: '/_website/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof WebsiteSlugRouteImport
+      parentRoute: typeof WebsiteRoute
     }
     '/_website/ui/{-$slug}': {
       id: '/_website/ui/{-$slug}'
@@ -142,6 +195,20 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteInstallationSlugRouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_website/blocks/{-$slug}': {
+      id: '/_website/blocks/{-$slug}'
+      path: '/blocks/{-$slug}'
+      fullPath: '/blocks/{-$slug}'
+      preLoaderRoute: typeof WebsiteBlocksChar123SlugChar125RouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/preview/$kind/$primitive/$slug': {
+      id: '/preview/$kind/$primitive/$slug'
+      path: '/preview/$kind/$primitive/$slug'
+      fullPath: '/preview/$kind/$primitive/$slug'
+      preLoaderRoute: typeof PreviewKindPrimitiveSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_website/ui/$slug/docs': {
       id: '/_website/ui/$slug/docs'
       path: '/ui/$slug/docs'
@@ -149,20 +216,33 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteUiSlugDocsRouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_website/blocks/$slug/docs': {
+      id: '/_website/blocks/$slug/docs'
+      path: '/blocks/$slug/docs'
+      fullPath: '/blocks/$slug/docs'
+      preLoaderRoute: typeof WebsiteBlocksSlugDocsRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
   }
 }
 
 interface WebsiteRouteChildren {
-  WebsiteChar123SlugChar125Route: typeof WebsiteChar123SlugChar125Route
+  WebsiteSlugRoute: typeof WebsiteSlugRoute
+  WebsiteIndexRoute: typeof WebsiteIndexRoute
+  WebsiteBlocksChar123SlugChar125Route: typeof WebsiteBlocksChar123SlugChar125Route
   WebsiteInstallationSlugRoute: typeof WebsiteInstallationSlugRoute
   WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125Route
+  WebsiteBlocksSlugDocsRoute: typeof WebsiteBlocksSlugDocsRoute
   WebsiteUiSlugDocsRoute: typeof WebsiteUiSlugDocsRoute
 }
 
 const WebsiteRouteChildren: WebsiteRouteChildren = {
-  WebsiteChar123SlugChar125Route: WebsiteChar123SlugChar125Route,
+  WebsiteSlugRoute: WebsiteSlugRoute,
+  WebsiteIndexRoute: WebsiteIndexRoute,
+  WebsiteBlocksChar123SlugChar125Route: WebsiteBlocksChar123SlugChar125Route,
   WebsiteInstallationSlugRoute: WebsiteInstallationSlugRoute,
   WebsiteUiChar123SlugChar125Route: WebsiteUiChar123SlugChar125Route,
+  WebsiteBlocksSlugDocsRoute: WebsiteBlocksSlugDocsRoute,
   WebsiteUiSlugDocsRoute: WebsiteUiSlugDocsRoute,
 }
 
@@ -171,7 +251,8 @@ const WebsiteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   WebsiteRoute: WebsiteRouteWithChildren,
-  PreviewPrimitiveSlugRoute: PreviewPrimitiveSlugRoute,
+  PreviewHomeRoute: PreviewHomeRoute,
+  PreviewKindPrimitiveSlugRoute: PreviewKindPrimitiveSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

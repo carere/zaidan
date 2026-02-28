@@ -1,5 +1,6 @@
 import { Link, useLocation, useSearch } from "@tanstack/solid-router";
 import { splitProps, type ValidComponent } from "solid-js";
+import type { Kind } from "@/lib/registries";
 import { cn } from "@/lib/utils";
 import {
   ToggleGroup,
@@ -9,12 +10,16 @@ import {
 
 type PageToggleNavProps<T extends ValidComponent = "div"> = ToggleGroupProps<T> & {
   slug: string;
+  kind: Kind;
 };
 
 export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggleNavProps<T>) {
-  const [local, others] = splitProps(props, ["slug", "class"]);
+  const [local, others] = splitProps(props, ["slug", "kind", "class"]);
   const location = useLocation();
   const search = useSearch({ strict: false });
+
+  const previewRoute = () => (local.kind === "ui" ? "/ui/{-$slug}" : "/blocks/{-$slug}");
+  const docsRoute = () => (local.kind === "ui" ? "/ui/$slug/docs" : "/blocks/$slug/docs");
 
   return (
     <ToggleGroup
@@ -29,7 +34,7 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
     >
       <ToggleGroupItem
         as={Link}
-        to="/ui/{-$slug}"
+        to={previewRoute()}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         params={{ slug: local.slug }}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
@@ -41,7 +46,7 @@ export function PageToggleNav<T extends ValidComponent = "div">(props: PageToggl
       </ToggleGroupItem>
       <ToggleGroupItem
         as={Link}
-        to="/ui/$slug/docs"
+        to={docsRoute()}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>
         params={{ slug: local.slug }}
         //@ts-expect-error <Problem with kobalte typing polymorphic props>

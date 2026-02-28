@@ -1,0 +1,173 @@
+---
+title: Input OTP
+slug: input-otp
+description: Accessible one-time password component with copy paste functionality.
+---
+
+# Input OTP
+
+Accessible one-time password component with copy paste functionality.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/input-otp
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@corvu/otp-field
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/input-otp.tsx showLineNumbers
+
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Form
+
+```tsx
+import { RefreshCcw } from "lucide-solid";
+import { Example } from "~/components/example";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L205-L259
+
+```
+
+### Simple
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L38-L59
+
+```
+
+### Digits Only
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L61-L79
+
+```
+
+### With Separator
+
+```tsx
+import { createSignal } from "solid-js";
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L81-L107
+
+```
+
+### Alphanumeric
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L109-L131
+
+```
+
+### Disabled
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L133-L154
+
+```
+
+### 4 Digits
+
+```tsx
+import { Example } from "~/components/example";
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L156-L173
+
+```
+
+### Invalid State
+
+```tsx
+import { createSignal } from "solid-js";
+import { Example } from "~/components/example";
+import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "~/components/ui/input-otp";
+```
+
+```tsx file=../../../registry/kobalte/examples/shadcn/input-otp-example.tsx#L175-L203
+
+```

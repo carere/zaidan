@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
-import { ui } from "@velite";
+import { shadcn } from "@velite";
 import { Menu } from "lucide-solid";
 import { lazy, Show } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
@@ -17,7 +17,7 @@ import {
 
 export const Route = createFileRoute("/_website/ui/$slug/docs")({
   loader: ({ params }) => {
-    const doc = ui.find((u) => u.slug === params.slug);
+    const doc = shadcn.find((u) => u.slug === params.slug);
     if (!doc) {
       throw notFound({
         data: {
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_website/ui/$slug/docs")({
 function RouteComponent() {
   const doc = Route.useLoaderData();
   const search = Route.useSearch();
-  const MDXContent = lazy(() => import(`../pages/ui/${search().primitive}/${doc().slug}.mdx`));
+  const MDXContent = lazy(() => import(`../pages/shadcn/${search().primitive}/${doc().slug}.mdx`));
 
   return (
     <div
@@ -83,7 +83,7 @@ function RouteComponent() {
           toc={doc().toc}
         />
       </Show>
-      <PageToggleNav slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
+      <PageToggleNav kind="ui" slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }
