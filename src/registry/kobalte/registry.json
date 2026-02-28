@@ -237,7 +237,7 @@
     {
       "name": "bazza-data-table-filter",
       "type": "registry:block",
-      "dependencies": ["date-fns"],
+      "dependencies": ["date-fns", "lucide-solid"],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/button.json",
         "https://zaidan.carere.dev/r/kobalte/calendar.json",
