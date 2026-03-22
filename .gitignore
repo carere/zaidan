@@ -33,6 +33,4 @@ ai_review/
 Thumbs.db
 
 # UI Review
-.playwright-cli/
 screenshots/
-test-results/

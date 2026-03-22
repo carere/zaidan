@@ -41,7 +41,6 @@ src/
 ├── lib/                      # Utilities, registries config, Vite plugins
 └── styles/                   # Additional style files
 
-tests/                        # Playwright E2E tests (*.spec.ts)
 scripts/                      # Development scripts
 ```
 
@@ -79,12 +78,6 @@ bun run preview
 
 # Build registry for shadcn CLI
 bun run registry:build
-
-# Run E2E tests
-bun run playwright test
-
-# Run specific test
-bun run playwright test tests/button.spec.ts
 ```
 
 ### Bun Specificities
@@ -173,10 +166,6 @@ Components use `data-slot` attributes for E2E test selectors:
 ```
 
 ## Testing
-
-### Playwright E2E Tests
-
-Tests are in the `tests/` directory with `.spec.ts` extension.
 
 ### Test Selectors
 

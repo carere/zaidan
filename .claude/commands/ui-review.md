@@ -1,22 +1,21 @@
 ---
 model: opus
-description: Parallel user story validation — discovers YAML stories, fans out bowser-qa-agents, aggregates results
-argument-hint: [headed] [filename-filter] [vision]
+description: Parallel user story validation — discovers YAML stories, fans out `qa` instances, aggregates results
+argument-hint: [headed] [filename-filter]
 ---
 
 # Purpose
 
-Discover user stories from YAML files, fan out parallel `bowser-qa-agent` instances to validate each story, then aggregate and report pass/fail results with screenshots.
+Discover user stories from YAML files, fan out parallel `qa` instances to validate each story, then aggregate and report pass/fail results with screenshots.
 
 ## Variables
 
 HEADED: $1 (default: "false" — set to "true" or "headed" for visible browser windows)
-VISION: detected from $ARGUMENTS — if the keyword "vision" appears anywhere in the arguments, enable vision mode (screenshots returned as image responses in the agent's context for richer validation; higher token cost). Default: false.
 FILENAME_FILTER: remaining non-keyword arguments after removing "vision" (if present)
 STORIES_DIR: "ai_review/user_stories"
 STORIES_GLOB: "ai_review/user_stories/*.yaml"
 AGENT_TIMEOUT: 300000
-SCREENSHOTS_BASE: "screenshots/bowser-qa"
+SCREENSHOTS_BASE: "screenshots/qa"
 RUN_DIR: "{SCREENSHOTS_BASE}/{YYYYMMDD_HHMMSS}_{short-uuid}" (generated once at start of run)
 
 ## Codebase Structure
@@ -27,7 +26,7 @@ ai_review/
     ├── hackernews.yaml    # Sample HN stories
     └── *.yaml             # Additional story files
 screenshots/
-└── bowser-qa/
+└── qa/
     └── 20260210_143022_a1b2c3/        # Run directory (datetime + short uuid)
         ├── hackernews/                 # Source file stem
         │   ├── front-page-loads-with-posts/   # Slugified story name
@@ -39,7 +38,7 @@ screenshots/
 
 ## Instructions
 
-- Use TeamCreate to create a team, then spawn one `bowser-qa-agent` teammate per story via the Task tool with `team_name` set to the team name
+- Use TeamCreate to create a team, then spawn one `qa` teammate per story via the Task tool with `team_name` set to the team name
 - Create a TaskCreate entry for each story so teammates can claim and track their work
 - Launch ALL teammates in a single message so they run in parallel
 - Be absolutely sure you clearly prompt each agent to have one specific task so all tasks get covered and you get results for every story
@@ -47,7 +46,7 @@ screenshots/
 - If a YAML file fails to parse, log a warning and skip it — do not abort the entire run
 - If no stories are found after discovery, report that and stop
 - Be resilient: if a teammate times out or crashes, mark that story as FAIL and include whatever output was available
-- The `subagent_type` for each Task call must be `bowser-qa-agent`
+- The `subagent_type` for each Task call must be `qa`
 - After all teammates complete, send shutdown requests and call TeamDelete to clean up
 
 ## Workflow
@@ -62,9 +61,9 @@ screenshots/
 6. If no stories are found, report that and stop
 7. Generate `RUN_DIR` using Bash:
    ```bash
-   RUN_DIR="screenshots/bowser-qa/$(date +%Y%m%d_%H%M%S)_$(uuidgen | tr '[:upper:]' '[:lower:]' | head -c 6)"
+   RUN_DIR="screenshots/qa/$(date +%Y%m%d_%H%M%S)_$(uuidgen | tr '[:upper:]' '[:lower:]' | head -c 6)"
    ```
-   Example result: `screenshots/bowser-qa/20260210_143022_a1b2c3`
+   Example result: `screenshots/qa/20260210_143022_a1b2c3`
 8. For each story, build its `SCREENSHOT_PATH` by combining three parts:
    - `RUN_DIR` (from step 7)
    - Source file stem (filename without `.yaml` extension, e.g. `hackernews.yaml` → `hackernews`)
@@ -72,13 +71,13 @@ screenshots/
 
    Concatenate: `SCREENSHOT_PATH = "{RUN_DIR}/{file-stem}/{slugified-name}/"`
 
-   Example: `screenshots/bowser-qa/20260210_143022_a1b2c3/hackernews/front-page-loads-with-posts/`
+   Example: `screenshots/qa/20260210_143022_a1b2c3/hackernews/front-page-loads-with-posts/`
 
 ### Phase 2: Spawn
 
 9. Use TeamCreate to create a team named `ui-review`
 10. Use TaskCreate to create one task per story, with the story name as subject and the full workflow as description
-11. For each story, spawn a `bowser-qa-agent` teammate via the Task tool with `team_name: "ui-review"`. Launch ALL teammates in a single message so they run in parallel.
+11. For each story, spawn a `qa` teammate via the Task tool with `team_name: "ui-review"`. Launch ALL teammates in a single message so they run in parallel.
 12. For each Task call, use this prompt (note: pass the pre-computed `SCREENSHOT_PATH` for this story):
 
 ```
@@ -87,7 +86,6 @@ Execute this user story and report results:
 **Story:** {story.name}
 **URL:** {story.url}
 **Headed:** {HEADED}
-**Vision:** {VISION}
 
 **Workflow:**
 {story.workflow}

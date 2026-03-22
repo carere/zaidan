@@ -503,7 +503,7 @@ For each successfully transformed component that has a user story file:
 3. Spawn one teammate per component **in a single message** (all parallel):
    - Each teammate invokes the `/ui-review` command scoped to the component's story file
    - Prompt: `/ui-review {COMPONENT_NAME}` (the component name acts as the filename-filter argument)
-   - `subagent_type: "general-purpose"` (the /ui-review command handles bowser-qa-agent spawning internally)
+   - `subagent_type: "general-purpose"` (the /ui-review command handles qa spawning internally)
    - `team_name: "sync-{REGISTRY_NAME}"`
 4. Wait for all ui-review teammates to complete
 5. Parse results from each teammate's output (look for the UI Review Summary report)

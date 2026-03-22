@@ -22,7 +22,7 @@ You are a unified transformation agent that converts React components and blocks
 - `WORKTREE_PATH` (required) -- absolute path to the git worktree where output files should be written
 - `PLAYGROUND_URL` (required) -- resolved playground URL for this component (e.g., `https://ui.shadcn.com/create?item=dialog-example` with `{component}` already replaced)
 - `APP_PORT` (required) -- port where the Zaidan dev server is running in the worktree
-- `PLAYGROUND_PROMPT` (optional, default: empty) -- prompt to drive the bowser-qa-agent during visual analysis
+- `PLAYGROUND_PROMPT` (optional, default: empty) -- prompt to drive the qa during visual analysis
 - `REGISTRY_NAME` (required) -- registry name for URL routing (e.g., `shadcn`, `bazza`)
 - `TRANSFORM_INSTRUCTIONS` (optional, default: empty) -- free-text instructions from the user to guide transformation decisions. Passed from the /sync command's --transform-instructions flag.
 
@@ -167,14 +167,14 @@ RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: 
 
 ### Step 5: Visual Analysis (HARD GATE)
 
-Spawn a `bowser-qa-agent` to interact with the live component/block at PLAYGROUND_URL before transformation.
+Spawn a `qa` to interact with the live component/block at PLAYGROUND_URL before transformation.
 
-5.1 - Build the prompt for the bowser-qa-agent:
+5.1 - Build the prompt for the qa:
   - If `PLAYGROUND_PROMPT` is non-empty, use: `Navigate to {PLAYGROUND_URL}. {PLAYGROUND_PROMPT}`
   - If `PLAYGROUND_PROMPT` is empty, use: `Navigate to {PLAYGROUND_URL}. Interact with all visible component triggers, buttons, and interactive elements. Capture every interactive element (buttons, inputs, toggles, dropdowns, links). Document all state transitions (open/close, enabled/disabled, loading, error, success). Record animations and transitions (duration, easing, direction). Note keyboard interactions (tab order, arrow keys, escape, enter). Observe responsive behavior if applicable. Document edge cases (empty states, overflow, maximum content).`
 
-5.2 - Spawn a `bowser-qa-agent` via the Task tool:
-  - `subagent_type: "bowser-qa-agent"`
+5.2 - Spawn a `qa` via the Task tool:
+  - `subagent_type: "qa"`
   - Prompt: the prompt built in 5.1
   - Wait for the agent to complete
 
@@ -198,7 +198,7 @@ Generate a YAML user story file for QA validation of the transformed component.
   - If `REGISTRY_NAME` is `shadcn`: `http://localhost:<APP_PORT>/ui/<COMPONENT_NAME>`
   - If `REGISTRY_NAME` is NOT `shadcn` (external): `http://localhost:<APP_PORT>/blocks/<REGISTRY_NAME>-<COMPONENT_NAME>`
 
-6.3 - If `VISUAL_ANALYSIS_OUTPUT` is non-empty, derive workflow steps from the bowser-qa-agent output:
+6.3 - If `VISUAL_ANALYSIS_OUTPUT` is non-empty, derive workflow steps from the qa output:
   - Each interaction the agent performed becomes an action step
   - Each observation the agent made becomes a verification/assertion step
   - Use screenshot references from the agent's output for verification context
