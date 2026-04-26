@@ -1,0 +1,1354 @@
+/* MARK: Accordion */
+.z-accordion-item {
+  @apply not-last:border-b;
+}
+
+.z-accordion-trigger {
+  @apply focus-visible:ring-ring/30 focus-visible:border-ring **:data-[slot=accordion-trigger-icon]:text-muted-foreground rounded-none gap-6 py-4 text-left text-sm font-semibold hover:underline focus-visible:ring-2 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-3.5;
+}
+
+.z-accordion-content {
+  @apply data-expanded:animate-accordion-down data-closed:animate-accordion-up text-sm;
+}
+
+.z-accordion-content-inner {
+  @apply pt-0 pb-4;
+}
+
+/* MARK: Alert */
+.z-alert {
+  @apply grid gap-1 bg-background border px-4 py-3 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 relative after:-inset-y-px after:-left-px after:w-0.5 after:absolute;
+}
+
+.z-alert-variant-default {
+  @apply bg-card text-card-foreground after:bg-foreground;
+}
+
+.z-alert-variant-destructive {
+  @apply text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current after:bg-destructive;
+}
+
+.z-alert-title {
+  @apply font-semibold group-has-[>svg]/alert:col-start-2 text-sm;
+}
+
+.z-alert-description {
+  @apply text-muted-foreground text-sm text-balance md:text-pretty [&_p:not(:last-child)]:mb-4;
+}
+
+.z-alert-action {
+  @apply absolute top-2.5 right-3;
+}
+
+/* MARK: Alert Dialog */
+.z-alert-dialog-overlay {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 bg-black/20 duration-100 supports-backdrop-filter:backdrop-blur-sm;
+}
+
+.z-alert-dialog-content {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 bg-popover text-popover-foreground ring-foreground/10 gap-6 rounded-none p-6 shadow-md ring-1 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md;
+}
+
+.z-alert-dialog-header {
+  @apply grid grid-rows-[auto_1fr] place-items-center gap-2 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr];
+}
+
+.z-alert-dialog-media {
+  @apply bg-muted mb-2 inline-flex size-16 items-center justify-center rounded-none sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8;
+}
+
+.z-alert-dialog-title {
+  @apply text-lg font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2 uppercase tracking-wider;
+}
+
+.z-alert-dialog-description {
+  @apply text-muted-foreground *:[a]:hover:text-foreground text-sm text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3 leading-relaxed mt-0.5;
+}
+
+/* MARK: Avatar */
+.z-avatar {
+  @apply size-8 rounded-full after:rounded-full data-[size=lg]:size-10 data-[size=sm]:size-6;
+}
+
+.z-avatar-fallback {
+  @apply bg-muted text-muted-foreground rounded-full;
+}
+
+.z-avatar-image {
+  @apply rounded-full;
+}
+
+.z-avatar-badge {
+  @apply bg-primary text-primary-foreground ring-background;
+}
+
+.z-avatar-group-count {
+  @apply bg-muted text-muted-foreground size-8 rounded-full text-sm group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3;
+}
+
+/* MARK: Badge */
+.z-badge {
+  @apply gap-1.5 rounded-none border-0 bg-transparent px-0 py-0 text-[0.625rem] font-semibold uppercase tracking-widest transition-colors has-data-[icon=inline-end]:pr-0 has-data-[icon=inline-start]:pl-0 [&>svg]:size-3!;
+}
+
+.z-badge-variant-default {
+  @apply text-foreground [a]:hover:text-foreground/70;
+}
+
+.z-badge-variant-secondary {
+  @apply text-muted-foreground [a]:hover:text-foreground;
+}
+
+.z-badge-variant-outline {
+  @apply text-foreground [a]:hover:text-foreground/70;
+}
+
+.z-badge-variant-destructive {
+  @apply text-destructive [a]:hover:text-destructive/70 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40;
+}
+
+.z-badge-variant-ghost {
+  @apply text-muted-foreground hover:text-foreground;
+}
+
+.z-badge-variant-link {
+  @apply text-foreground underline-offset-4 hover:underline;
+}
+
+/* MARK: Breadcrumb */
+.z-breadcrumb-list {
+  @apply text-muted-foreground gap-1.5 text-xs uppercase tracking-wide sm:gap-2.5;
+}
+
+.z-breadcrumb-item {
+  @apply gap-1.5;
+}
+
+.z-breadcrumb-link {
+  @apply hover:text-foreground transition-colors;
+}
+
+.z-breadcrumb-page {
+  @apply text-foreground font-normal;
+}
+
+.z-breadcrumb-separator {
+  @apply [&>svg]:size-3.5;
+}
+
+.z-breadcrumb-ellipsis {
+  @apply size-5 [&>svg]:size-4;
+}
+
+/* MARK: Button */
+.z-button {
+  @apply focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-none border border-transparent bg-clip-padding text-xs font-semibold uppercase tracking-widest focus-visible:ring-2 aria-invalid:ring-2 active:not-aria-[haspopup]:translate-y-px [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-button-variant-default {
+  @apply bg-primary text-primary-foreground hover:bg-primary/80;
+}
+
+.z-button-variant-outline {
+  @apply border-border bg-transparent hover:bg-muted hover:text-foreground dark:hover:bg-input/30 aria-expanded:bg-muted aria-expanded:text-foreground;
+}
+
+.z-button-variant-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground;
+}
+
+.z-button-variant-ghost {
+  @apply hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 aria-expanded:bg-muted aria-expanded:text-foreground;
+}
+
+.z-button-variant-destructive {
+  @apply bg-destructive/10 hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/20 text-destructive focus-visible:border-destructive/40 dark:hover:bg-destructive/30;
+}
+
+.z-button-variant-link {
+  @apply text-primary underline-offset-4 hover:underline underline;
+}
+
+.z-button-size-xs {
+  @apply h-7 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3;
+}
+
+.z-button-size-sm {
+  @apply h-9 gap-1 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3;
+}
+
+.z-button-size-default {
+  @apply h-10 gap-1.5 px-6 has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4;
+}
+
+.z-button-size-lg {
+  @apply h-11 gap-1.5 px-8 has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5;
+}
+
+.z-button-size-icon-xs {
+  @apply size-7 [&_svg:not([class*='size-'])]:size-3;
+}
+
+.z-button-size-icon-sm {
+  @apply size-9;
+}
+
+.z-button-size-icon {
+  @apply size-10;
+}
+
+.z-button-size-icon-lg {
+  @apply size-11;
+}
+
+/* MARK: Button Group */
+.z-button-group {
+  @apply *:data-[slot=input]:px-4 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-none has-[>[data-variant=outline]]:[&>input]:border-border has-[>[data-variant=outline]]:[&>input:focus-visible]:border-ring has-[>[data-variant=outline]]:*:data-[slot=input-group]:border-border has-[>[data-variant=outline]]:[&>[data-slot=input-group]:has(:focus-visible)]:border-ring has-[>[data-variant=outline]]:*:data-[slot=select-trigger]:border-border has-[>[data-variant=outline]]:[&>[data-slot=select-trigger]:focus-visible]:border-ring has-[>[data-variant=outline]]:*:data-[slot=input-group]:px-2.5 has-[>[data-variant=outline]]:*:[[role=combobox]]:px-2.5;
+}
+
+.z-button-group-orientation-horizontal {
+  @apply [&>[data-slot]:not(:has(~[data-slot]))]:rounded-none!;
+}
+
+.z-button-group-orientation-vertical {
+  @apply [&>[data-slot]:not(:has(~[data-slot]))]:rounded-none!;
+}
+
+.z-button-group-text {
+  @apply gap-2 border border-transparent border-b-input bg-transparent px-2.5 text-xs font-semibold [&_svg:not([class*='size-'])]:size-3.5 group-has-[>[data-variant=outline]]/button-group:border-border uppercase;
+}
+
+.z-button-group-separator {
+  @apply bg-input;
+}
+
+/* MARK: Calendar */
+.z-calendar {
+  @apply p-3 [--cell-radius:0] [--cell-size:--spacing(8)];
+}
+
+.z-calendar-dropdown-root {
+  @apply has-focus:border-ring border-input has-focus:ring-ring/30 rounded-none border has-focus:ring-2;
+}
+
+.z-calendar-caption-label {
+  @apply h-8 pr-2 pl-3 text-xs font-semibold uppercase tracking-wide;
+}
+
+.z-calendar-caption {
+  @apply text-xs font-semibold uppercase tracking-wide;
+}
+
+/* MARK: Card */
+.z-card {
+  @apply bg-card text-card-foreground ring-foreground/5 gap-8 overflow-hidden py-8 text-sm shadow-sm ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-5 data-[size=sm]:py-5 *:[img:first-child]:rounded-none *:[img:last-child]:rounded-none;
+}
+
+.z-card-header {
+  @apply gap-1.5 rounded-none px-8 group-data-[size=sm]/card:px-5 [.border-b]:pb-8 group-data-[size=sm]/card:[.border-b]:pb-5;
+}
+
+.z-card-title {
+  @apply text-lg font-semibold tracking-wider uppercase;
+}
+
+.z-card-description {
+  @apply text-muted-foreground text-sm leading-relaxed;
+}
+
+.z-card-content {
+  @apply px-8 group-data-[size=sm]/card:px-5;
+}
+
+.z-card-footer {
+  @apply px-8 group-data-[size=sm]/card:px-5 [.border-t]:pt-8 group-data-[size=sm]/card:[.border-t]:pt-5;
+}
+
+/* MARK: Chart */
+.z-chart-tooltip {
+  @apply bg-popover text-popover-foreground ring-foreground/10 gap-1.5 px-2.5 py-1.5 text-xs shadow-sm ring-1;
+}
+
+/* MARK: Checkbox */
+.z-checkbox {
+  @apply border-input bg-transparent data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary data-checked:border-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4.5 items-center justify-center rounded-none border transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-2 aria-invalid:ring-2;
+}
+
+.z-checkbox-indicator {
+  @apply [&>svg]:size-3.5;
+}
+
+/* MARK: Combobox */
+.z-combobox-content {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 *:data-[slot=input-group]:bg-transparent *:data-[slot=input-group]:border-b-input max-h-72 min-w-36 overflow-hidden rounded-none shadow-md ring-1 duration-100 *:data-[slot=input-group]:m-1.5 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-transparent *:data-[slot=input-group]:focus-within:border-transparent *:data-[slot=input-group]:px-2.5;
+}
+
+.z-combobox-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-combobox-label {
+  @apply px-3 py-2 text-xs uppercase tracking-wider font-semibold text-muted-foreground;
+}
+
+.z-combobox-item {
+  @apply data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2.5 rounded-none py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-combobox-item-indicator {
+  @apply pointer-events-none absolute right-2 flex size-4 items-center justify-center;
+}
+
+.z-combobox-empty {
+  @apply text-muted-foreground hidden w-full justify-center py-2 text-center text-sm group-data-empty/combobox-content:flex;
+}
+
+.z-combobox-list {
+  @apply no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1.5 overflow-y-auto p-1.5 data-empty:p-0;
+}
+
+.z-combobox-item-text {
+  @apply flex flex-1 gap-2;
+}
+
+.z-combobox-separator {
+  @apply bg-border/50 -mx-1.5 my-1.5 h-px;
+}
+
+.z-combobox-trigger {
+  @apply [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-combobox-trigger-icon {
+  @apply text-muted-foreground size-3.5;
+}
+
+.z-combobox-chips {
+  @apply border-transparent border-b-input bg-transparent focus-within:border-b-ring has-aria-invalid:border-b-destructive dark:has-aria-invalid:border-b-destructive/50 flex min-h-10 flex-wrap items-center gap-1.5 rounded-none border bg-clip-padding px-0 py-1.5 text-sm transition-[color,border-color] has-data-[slot=combobox-chip]:px-0;
+}
+
+.z-combobox-chip {
+  @apply bg-muted text-foreground flex h-[calc(--spacing(5.5))] w-fit items-center justify-center gap-1 rounded-none px-2 text-xs font-medium whitespace-nowrap has-data-[slot=combobox-chip-remove]:pr-0;
+}
+
+.z-combobox-chip-remove {
+  @apply -ml-1 opacity-50 hover:opacity-100;
+}
+
+/* MARK: Command */
+.z-command {
+  @apply bg-popover text-popover-foreground;
+}
+
+.z-command-dialog {
+  @apply p-0;
+}
+
+.z-command-input-wrapper {
+  @apply p-1;
+}
+
+.z-command-input-group {
+  @apply bg-transparent border-transparent border-b-input px-3;
+}
+
+.z-command-input-icon {
+  @apply size-3.5 shrink-0 opacity-50;
+}
+
+.z-command-input {
+  @apply w-full text-sm px-2;
+}
+
+.z-command-list {
+  @apply no-scrollbar max-h-72 scroll-py-1 outline-none;
+}
+
+.z-command-empty {
+  @apply py-6 text-center text-sm;
+}
+
+.z-command-group {
+  @apply text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1.5 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:py-2 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-wider;
+}
+
+.z-command-separator {
+  @apply bg-border/50 -mx-1.5 my-1.5 h-px;
+}
+
+.z-command-item {
+  @apply data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex cursor-default items-center gap-2 rounded-none px-3 py-2 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-none [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-command-shortcut {
+  @apply text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs tracking-widest;
+}
+
+/* MARK: Context Menu */
+.z-context-menu-content {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-48 rounded-none p-1.5 shadow-md ring-1 duration-100;
+}
+
+.z-context-menu-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-context-menu-item {
+  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive focus:*:[svg]:text-accent-foreground gap-2.5 rounded-none px-3 py-2 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-context-menu-checkbox-item {
+  @apply focus:bg-accent focus:text-accent-foreground gap-2.5 rounded-none py-2 pr-8 pl-3 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-context-menu-radio-item {
+  @apply focus:bg-accent focus:text-accent-foreground gap-2.5 rounded-none py-2 pr-8 pl-3 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-context-menu-item-indicator {
+  @apply absolute right-2;
+}
+
+.z-context-menu-label {
+  @apply px-3 py-2 text-xs uppercase tracking-wider data-inset:pl-9.5 font-semibold text-muted-foreground;
+}
+
+.z-context-menu-separator {
+  @apply bg-border/50 -mx-1.5 my-1.5 h-px;
+}
+
+.z-context-menu-shortcut {
+  @apply text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-xs tracking-widest;
+}
+
+.z-context-menu-sub-trigger {
+  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground rounded-none px-3 py-2 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-context-menu-sub-content {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-32 rounded-none p-1.5 shadow-md ring-1 duration-100;
+}
+
+.z-context-menu-subcontent {
+  @apply shadow-md;
+}
+
+/* MARK: Dialog */
+.z-dialog-overlay {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 bg-black/20 duration-100 supports-backdrop-filter:backdrop-blur-sm;
+}
+
+.z-dialog-content {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 ring-foreground/10 grid max-w-[calc(100%-2rem)] gap-6 rounded-none p-6 text-sm shadow-md ring-1 duration-100 sm:max-w-md;
+}
+
+.z-dialog-close {
+  @apply absolute top-5 right-5 bg-secondary;
+}
+
+.z-dialog-header {
+  @apply gap-2;
+}
+
+.z-dialog-footer {
+  @apply gap-2;
+}
+
+.z-dialog-title {
+  @apply text-lg font-semibold leading-none uppercase tracking-wider;
+}
+
+.z-dialog-description {
+  @apply text-muted-foreground *:[a]:hover:text-foreground text-sm *:[a]:underline *:[a]:underline-offset-3 leading-relaxed mt-0.5;
+}
+
+/* MARK: Drawer */
+.z-drawer-overlay {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 bg-black/20 supports-backdrop-filter:backdrop-blur-sm;
+}
+
+.z-drawer-content {
+  @apply bg-popover text-popover-foreground flex h-auto flex-col text-sm data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-none data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-none data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-none data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-none data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm;
+}
+
+.z-drawer-handle {
+  @apply bg-muted mx-auto mt-4 hidden h-1.5 w-[100px] shrink-0 rounded-none group-data-[vaul-drawer-direction=bottom]/drawer-content:block;
+}
+
+.z-drawer-header {
+  @apply gap-1 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-2 md:text-left;
+}
+
+.z-drawer-title {
+  @apply text-foreground text-lg font-semibold uppercase tracking-wider;
+}
+
+.z-drawer-description {
+  @apply text-muted-foreground text-sm leading-relaxed mt-0.5;
+}
+
+.z-drawer-footer {
+  @apply gap-2 p-4;
+}
+
+/* MARK: Dropdown Menu */
+.z-dropdown-menu-content {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-48 rounded-none p-1.5 shadow-md ring-1 duration-100;
+}
+
+.z-dropdown-menu-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-dropdown-menu-item {
+  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-none px-3 py-2 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-dropdown-menu-checkbox-item {
+  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-2.5 rounded-none py-2 pr-8 pl-3 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-dropdown-menu-radio-item {
+  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-2.5 rounded-none py-2 pr-8 pl-3 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-dropdown-menu-item-indicator {
+  @apply absolute right-2 flex items-center justify-center;
+}
+
+.z-dropdown-menu-label {
+  @apply px-3 py-2 text-xs uppercase tracking-wider data-inset:pl-9.5 font-semibold text-muted-foreground;
+}
+
+.z-dropdown-menu-separator {
+  @apply bg-border/50 -mx-1.5 my-1.5 h-px;
+}
+
+.z-dropdown-menu-shortcut {
+  @apply text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto text-xs tracking-widest;
+}
+
+.z-dropdown-menu-sub-trigger {
+  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2 rounded-none px-3 py-2 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-dropdown-menu-sub-content {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-36 rounded-none p-1.5 shadow-md ring-1 duration-100;
+}
+
+.z-dropdown-menu-subcontent {
+  @apply shadow-md;
+}
+
+/* MARK: Empty */
+.z-empty {
+  @apply gap-4 border-dashed p-12;
+}
+
+.z-empty-header {
+  @apply gap-2;
+}
+
+.z-empty-media {
+  @apply mb-2;
+}
+
+.z-empty-media-default {
+  @apply bg-transparent;
+}
+
+.z-empty-media-icon {
+  @apply bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-none [&_svg:not([class*='size-'])]:size-5;
+}
+
+.z-empty-title {
+  @apply text-lg font-semibold tracking-wider uppercase;
+}
+
+.z-empty-description {
+  @apply text-sm/relaxed mt-0.5;
+}
+
+.z-empty-content {
+  @apply gap-4 text-sm;
+}
+
+/* MARK: Field */
+.z-field-set {
+  @apply gap-6 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3;
+}
+
+.z-field-legend {
+  @apply mb-3 font-semibold uppercase data-[variant=label]:text-xs data-[variant=legend]:text-xs;
+}
+
+.z-field-group {
+  @apply gap-10 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4;
+}
+
+.z-field {
+  @apply data-[invalid=true]:text-destructive gap-3;
+}
+
+.z-field-content {
+  @apply gap-1;
+}
+
+.z-field-label {
+  @apply has-data-checked:bg-primary/5 has-data-checked:border-primary/30 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10 gap-2 group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:rounded-none has-[>[data-slot=field]]:border *:data-[slot=field]:p-4 leading-relaxed;
+}
+
+.z-field-title {
+  @apply gap-2 group-data-[disabled=true]/field:opacity-50 leading-normal font-semibold uppercase in-data-[slot=field-label]:font-semibold text-xs;
+}
+
+.z-field-description {
+  @apply text-muted-foreground text-left text-sm [[data-variant=legend]+&]:-mt-1.5 normal-case tracking-normal;
+}
+
+.z-field-separator {
+  @apply -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2;
+}
+
+.z-field-separator-content {
+  @apply text-muted-foreground px-2;
+}
+
+.z-field-error {
+  @apply text-destructive text-sm;
+}
+
+/* MARK: Hover Card */
+.z-hover-card-content {
+  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground w-72 p-4 text-sm shadow-md ring-1 duration-100;
+}
+
+.z-hover-card-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+/* MARK: Input */
+.z-input {
+  @apply border-transparent border-b-input bg-transparent focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 h-10 border px-0 py-1 text-base transition-[color,border-color] file:h-7 file:text-sm file:font-medium md:text-sm;
+}
+
+/* MARK: Input OTP */
+.z-input-otp {
+  @apply gap-2;
+}
+
+.z-input-otp-group {
+  @apply has-aria-invalid:border-b-destructive dark:has-aria-invalid:border-b-destructive/50 rounded-none gap-1;
+}
+
+.z-input-otp-slot {
+  @apply border-transparent border-b-input bg-transparent data-[active=true]:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 size-10 border text-sm transition-[color,border-color] outline-none first:rounded-none last:rounded-none;
+}
+
+.z-input-otp-caret-line {
+  @apply animate-caret-blink bg-foreground h-4 w-px duration-1000;
+}
+
+.z-input-otp-separator {
+  @apply [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+/* MARK: Item */
+.z-item {
+  @apply [a]:hover:bg-muted rounded-none border text-sm;
+}
+
+.z-item-variant-default {
+  @apply border-transparent;
+}
+
+.z-item-variant-outline {
+  @apply border-border;
+}
+
+.z-item-variant-muted {
+  @apply bg-muted/50 border-transparent;
+}
+
+.z-item-size-default {
+  @apply gap-3.5 px-4 py-3.5;
+}
+
+.z-item-size-sm {
+  @apply gap-3.5 px-3.5 py-3;
+}
+
+.z-item-size-xs {
+  @apply gap-2.5 px-3 py-2.5 in-data-[slot=dropdown-menu-content]:p-0;
+}
+
+.z-item-media {
+  @apply gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start;
+}
+
+.z-item-media-variant-default {
+  @apply bg-transparent;
+}
+
+.z-item-media-variant-icon {
+  @apply [&_svg:not([class*='size-'])]:size-4;
+}
+
+.z-item-media-variant-image {
+  @apply size-10 overflow-hidden rounded-none group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 group-data-[size=xs]/item:rounded-none [&_img]:size-full [&_img]:object-cover;
+}
+
+.z-item-content {
+  @apply gap-1 group-data-[size=xs]/item:gap-0.5;
+}
+
+.z-item-title {
+  @apply gap-2 text-xs leading-snug font-semibold uppercase underline-offset-4;
+}
+
+.z-item-description {
+  @apply text-muted-foreground text-left text-sm leading-relaxed;
+}
+
+.z-item-actions {
+  @apply gap-2;
+}
+
+.z-item-header {
+  @apply gap-2;
+}
+
+.z-item-footer {
+  @apply gap-2;
+}
+
+.z-item-group {
+  @apply gap-4 has-data-[size=sm]:gap-2.5 has-data-[size=xs]:gap-2;
+}
+
+.z-item-separator {
+  @apply my-2;
+}
+
+/* MARK: Kbd */
+.z-kbd {
+  @apply bg-muted text-muted-foreground in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 h-5.5 w-fit min-w-5.5 gap-1 rounded-none px-1.5 font-sans text-xs font-medium [&_svg:not([class*='size-'])]:size-3 in-data-[slot=input-group]:bg-input;
+}
+
+.z-kbd-group {
+  @apply gap-1;
+}
+
+/* MARK: Label */
+.z-label {
+  @apply gap-2 font-semibold peer-data-[slot=checkbox]:text-sm peer-data-[slot=radio-group-item]:text-sm peer-data-[slot=switch]:text-sm leading-relaxed group-data-[disabled=true]:opacity-50 peer-disabled:opacity-50 peer-data-[slot=checkbox]:font-normal peer-data-[slot=radio-group-item]:font-normal peer-data-[slot=switch]:font-normal uppercase text-xs tracking-wide peer-data-[slot=checkbox]:normal-case peer-data-[slot=checkbox]:tracking-normal peer-data-[slot=radio-group-item]:normal-case peer-data-[slot=radio-group-item]:tracking-normal peer-data-[slot=switch]:normal-case peer-data-[slot=switch]:tracking-normal;
+}
+
+/* MARK: Menubar */
+.z-menubar {
+  @apply h-10 rounded-none border p-1;
+}
+
+.z-menubar-trigger {
+  @apply hover:bg-muted aria-expanded:bg-muted rounded-none px-2 py-0.75 text-sm font-medium;
+}
+
+.z-menubar-content {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-48 rounded-none p-1.5 shadow-md ring-1 duration-100;
+}
+
+.z-menubar-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-menubar-item {
+  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive! not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-none px-3 py-2 text-sm data-disabled:opacity-50 data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-menubar-checkbox-item {
+  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-2.5 rounded-none py-2 pr-3 pl-9.5 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5;
+}
+
+.z-menubar-checkbox-item-indicator {
+  @apply left-3 size-4 [&_svg:not([class*='size-'])]:size-4;
+}
+
+.z-menubar-radio-item {
+  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-2.5 rounded-none py-2 pr-3 pl-9.5 text-xs font-medium uppercase tracking-wider data-disabled:opacity-50 data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-menubar-radio-item-indicator {
+  @apply left-3 size-4 [&_svg:not([class*='size-'])]:size-4;
+}
+
+.z-menubar-label {
+  @apply px-3.5 py-2 text-xs uppercase tracking-wider data-inset:pl-9.5 font-semibold text-muted-foreground;
+}
+
+.z-menubar-separator {
+  @apply bg-border/50 -mx-1.5 my-1.5 h-px;
+}
+
+.z-menubar-shortcut {
+  @apply text-muted-foreground group-focus/menubar-item:text-accent-foreground text-xs tracking-widest;
+}
+
+.z-menubar-sub-trigger {
+  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground gap-2 rounded-none px-3 py-2 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-menubar-sub-content {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-32 rounded-none p-1.5 shadow-md ring-1 duration-100;
+}
+
+/* MARK: Navigation Menu */
+.z-navigation-menu {
+  @apply max-w-max;
+}
+
+.z-navigation-menu-list {
+  @apply gap-0;
+}
+
+.z-navigation-menu-trigger {
+  @apply hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/30 data-expanded:bg-muted/50 data-expanded:hover:bg-muted rounded-none px-4.5 py-2.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:outline-1 disabled:opacity-50;
+}
+
+.z-navigation-menu-link {
+  @apply data-[active=true]:focus:bg-muted data-[active=true]:hover:bg-muted data-[active=true]:bg-muted/50 focus-visible:ring-ring/30 hover:bg-muted focus:bg-muted flex items-center gap-1.5 rounded-none p-3 text-sm transition-all outline-none focus-visible:ring-2 focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-3.5 in-data-[slot=navigation-menu-content]:rounded-none;
+}
+
+.z-navigation-menu-trigger-icon {
+  @apply relative top-px ml-1 size-3 transition duration-300 group-data-open/navigation-menu-trigger:rotate-180 group-data-popup-open/navigation-menu-trigger:rotate-180;
+}
+
+.z-navigation-menu-content {
+  @apply data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:data-expanded:animate-in group-data-[viewport=false]/navigation-menu:data-closed:animate-out group-data-[viewport=false]/navigation-menu:data-closed:zoom-out-95 group-data-[viewport=false]/navigation-menu:data-expanded:zoom-in-95 group-data-[viewport=false]/navigation-menu:data-expanded:fade-in-0 group-data-[viewport=false]/navigation-menu:data-closed:fade-out-0 group-data-[viewport=false]/navigation-menu:ring-foreground/10 p-2.5 pr-3 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[viewport=false]/navigation-menu:rounded-none group-data-[viewport=false]/navigation-menu:shadow-md group-data-[viewport=false]/navigation-menu:ring-1 group-data-[viewport=false]/navigation-menu:duration-300;
+}
+
+.z-navigation-menu-viewport {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:zoom-out-90 data-expanded:zoom-in-90 ring-foreground/10 rounded-none shadow-md ring-1 duration-100;
+}
+
+.z-navigation-menu-indicator {
+  @apply data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in;
+}
+
+.z-navigation-menu-indicator-arrow {
+  @apply bg-border rounded-none shadow-md;
+}
+
+.z-navigation-menu-positioner {
+  @apply transition-[top,left,right,bottom] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:before:top-[-10px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0;
+}
+
+.z-navigation-menu-popup {
+  @apply bg-popover text-popover-foreground ring-foreground/10 rounded-none shadow-md ring-1 transition-all ease-[cubic-bezier(0.22,1,0.36,1)] outline-none data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:scale-90 data-starting-style:opacity-0;
+}
+
+/* MARK: Native Select */
+.z-native-select {
+  @apply border-transparent border-b-input bg-transparent placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 h-10 w-full min-w-0 appearance-none rounded-none border py-2 pr-8 pl-0 text-sm transition-[color,border-color] select-none data-[size=sm]:h-9;
+}
+
+.z-native-select-icon {
+  @apply text-muted-foreground top-1/2 right-0 size-3.5 -translate-y-1/2;
+}
+
+/* MARK: Pagination */
+.z-pagination-content {
+  @apply gap-1;
+}
+
+.z-pagination-ellipsis {
+  @apply size-9 items-center justify-center [&_svg:not([class*='size-'])]:size-4;
+}
+
+.z-pagination-previous {
+  @apply pl-2!;
+}
+
+.z-pagination-next {
+  @apply pr-2!;
+}
+
+/* MARK: Popover */
+.z-popover-content {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 flex flex-col gap-4 rounded-none p-4 text-sm shadow-md ring-1 duration-100;
+}
+
+.z-popover-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-popover-header {
+  @apply flex flex-col gap-1 text-sm;
+}
+
+.z-popover-title {
+  @apply text-xs font-semibold uppercase;
+}
+
+.z-popover-description {
+  @apply text-muted-foreground text-sm leading-relaxed mt-0.5;
+}
+
+/* MARK: Progress */
+.z-progress {
+  @apply bg-muted h-0.5 rounded-none;
+}
+
+.z-progress-track {
+  @apply bg-muted h-0.5 rounded-none;
+}
+
+.z-progress-indicator {
+  @apply bg-primary;
+}
+
+.z-progress-label {
+  @apply text-xs font-semibold tracking-wide uppercase;
+}
+
+.z-progress-value {
+  @apply text-muted-foreground ml-auto text-sm tabular-nums;
+}
+
+/* MARK: Radio */
+.z-radio-group {
+  @apply grid gap-3;
+}
+
+.z-radio-group-item {
+  @apply border-input bg-transparent data-checked:border-foreground aria-invalid:aria-checked:border-foreground aria-invalid:border-destructive focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 dark:aria-invalid:border-destructive/50 flex size-4.5 rounded-full border focus-visible:ring-2 aria-invalid:ring-2;
+}
+
+.z-radio-group-indicator {
+  @apply flex size-4.5 items-center justify-center;
+}
+
+.z-radio-group-indicator-icon {
+  @apply bg-foreground absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full;
+}
+
+/* MARK: Resizable */
+.z-resizable-handle-icon {
+  @apply bg-border h-6 w-1 rounded-none;
+}
+
+/* MARK: Scroll Area */
+.z-scroll-area-scrollbar {
+  @apply data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-l data-vertical:border-l-transparent;
+}
+
+.z-scroll-area-thumb {
+  @apply rounded-none;
+}
+
+/* MARK: Select */
+.z-select-trigger {
+  @apply border-transparent border-b-input bg-transparent data-placeholder:text-muted-foreground focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 gap-1.5 rounded-none border py-2 px-0 text-sm transition-[color,border-color] data-[size=default]:h-10 data-[size=sm]:h-9 *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-select-value {
+  @apply flex flex-1 text-left;
+}
+
+.z-select-trigger-icon {
+  @apply text-muted-foreground size-3.5;
+}
+
+.z-select-content {
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-36 rounded-none shadow-md ring-1 duration-100;
+}
+
+.z-select-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-select-label {
+  @apply px-3 py-2 text-xs uppercase tracking-wider font-semibold text-muted-foreground;
+}
+
+.z-select-item {
+  @apply focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-none py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-3.5 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2;
+}
+
+.z-select-item-indicator {
+  @apply pointer-events-none absolute right-2 flex size-4 items-center justify-center;
+}
+
+.z-select-group {
+  @apply scroll-my-1.5 p-1.5;
+}
+
+.z-select-item-text {
+  @apply flex flex-1 gap-2;
+}
+
+.z-select-separator {
+  @apply bg-border/50 -mx-1.5 my-1.5 h-px;
+}
+
+.z-select-scroll-up-button {
+  @apply bg-popover z-10 flex cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-select-scroll-down-button {
+  @apply bg-popover z-10 flex cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+/* MARK: Separator */
+.z-separator {
+  @apply bg-border shrink-0;
+}
+
+.z-separator-horizontal {
+  @apply h-px w-full;
+}
+
+.z-separator-vertical {
+  @apply h-full w-px;
+}
+
+/* MARK: Sheet */
+.z-sheet-overlay {
+  @apply bg-black/20 supports-backdrop-filter:backdrop-blur-sm;
+}
+
+.z-sheet-content {
+  @apply bg-popover text-popover-foreground fixed z-50 flex flex-col bg-clip-padding text-sm shadow-md transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:border-l data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm;
+}
+
+.z-sheet-close {
+  @apply absolute top-4 right-4 bg-secondary;
+}
+
+.z-sheet-header {
+  @apply gap-1.5 p-8;
+}
+
+.z-sheet-footer {
+  @apply gap-2 p-8;
+}
+
+.z-sheet-title {
+  @apply text-foreground text-lg font-semibold uppercase tracking-wider;
+}
+
+.z-sheet-description {
+  @apply text-muted-foreground text-sm leading-relaxed mt-0.5;
+}
+
+/* MARK: Sidebar */
+.z-sidebar-gap {
+  @apply transition-[width] duration-200 ease-linear;
+}
+
+.z-sidebar-inner {
+  @apply bg-sidebar group-data-[variant=floating]:ring-sidebar-border group-data-[variant=floating]:rounded-none group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1;
+}
+
+.z-sidebar-rail {
+  @apply hover:after:bg-sidebar-border;
+}
+
+.z-sidebar-inset {
+  @apply bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2;
+}
+
+.z-sidebar-input {
+  @apply bg-transparent border-input h-8 w-full shadow-none;
+}
+
+.z-sidebar-header {
+  @apply gap-2 p-2 [--radius:0];
+}
+
+.z-sidebar-content {
+  @apply no-scrollbar gap-2 [--radius:0];
+}
+
+.z-sidebar-footer {
+  @apply gap-2 p-2;
+}
+
+.z-sidebar-separator {
+  @apply bg-sidebar-border mx-2;
+}
+
+.z-sidebar-group {
+  @apply p-2;
+}
+
+.z-sidebar-menu {
+  @apply gap-0.5;
+}
+
+.z-sidebar-group-content {
+  @apply text-sm;
+}
+
+.z-sidebar-group-label {
+  @apply text-sidebar-foreground/70 ring-sidebar-ring h-8 rounded-none px-3 text-xs font-semibold uppercase tracking-wider transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-3.5;
+}
+
+.z-sidebar-group-action {
+  @apply text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground absolute top-3.5 right-3 w-5 rounded-none p-0 focus-visible:ring-2 [&>svg]:size-3.5;
+}
+
+.z-sidebar-menu-button {
+  @apply ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-expanded:hover:bg-sidebar-accent data-expanded:hover:text-sidebar-accent-foreground gap-2 rounded-none px-3 py-2 text-left text-sm transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 data-active:font-medium;
+}
+
+.z-sidebar-menu-button-variant-default {
+  @apply hover:bg-sidebar-accent hover:text-sidebar-accent-foreground;
+}
+
+.z-sidebar-menu-button-variant-outline {
+  @apply bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))];
+}
+
+.z-sidebar-menu-button-size-default {
+  @apply h-9 text-sm;
+}
+
+.z-sidebar-menu-button-size-sm {
+  @apply h-8 text-xs;
+}
+
+.z-sidebar-menu-button-size-lg {
+  @apply h-14 px-3 text-sm group-data-[collapsible=icon]:p-0!;
+}
+
+.z-sidebar-menu-action {
+  @apply text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 aspect-square w-5 rounded-none p-0 peer-data-[size=default]/menu-button:top-2 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 focus-visible:ring-2 [&>svg]:size-3.5;
+}
+
+.z-sidebar-menu-badge {
+  @apply text-sidebar-foreground peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground pointer-events-none absolute right-1 flex h-5 min-w-5 rounded-none px-1 text-xs font-medium peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1;
+}
+
+.z-sidebar-menu-skeleton {
+  @apply h-8 gap-2 rounded-none px-2;
+}
+
+.z-sidebar-menu-skeleton-icon {
+  @apply size-3.5 rounded-none;
+}
+
+.z-sidebar-menu-skeleton-text {
+  @apply h-4;
+}
+
+.z-sidebar-menu-sub {
+  @apply border-sidebar-border mx-3.5 translate-x-px gap-1 border-l px-2.5 py-0.5 group-data-[collapsible=icon]:hidden;
+}
+
+.z-sidebar-menu-sub-button {
+  @apply text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground h-7 gap-2 rounded-none px-3 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-3.5;
+}
+
+/* MARK: Skeleton */
+.z-skeleton {
+  @apply bg-muted;
+}
+
+/* MARK: Slider */
+.z-slider {
+  @apply data-vertical:min-h-40;
+}
+
+.z-slider-track {
+  @apply bg-input/50 data-horizontal:h-0.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-0.5;
+}
+
+.z-slider-range {
+  @apply bg-primary;
+}
+
+.z-slider-thumb {
+  @apply size-3 border-none bg-primary transition-colors hover:ring-2 hover:ring-ring/30 focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-hidden;
+}
+
+/* MARK: Sonner */
+.z-toast {
+  @apply rounded-none!;
+}
+
+/* MARK: Switch */
+.z-switch {
+  @apply data-checked:bg-primary data-unchecked:bg-input data-checked:border-primary border data-unchecked:border-input/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 shrink-0 rounded-none focus-visible:ring-2 aria-invalid:ring-2 data-[size=default]:h-4.5 data-[size=default]:w-8.25 data-[size=sm]:h-3.5 data-[size=sm]:w-6.25;
+}
+
+.z-switch-thumb {
+  @apply bg-background dark:data-unchecked:bg-foreground dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:size-3.5 group-data-[size=sm]/switch:size-2.5 data-checked:translate-x-[calc(100%+2px)] data-unchecked:translate-x-0.25;
+}
+
+/* MARK: Table */
+.z-table-container {
+  @apply relative w-full overflow-x-auto;
+}
+
+.z-table {
+  @apply w-full caption-bottom text-sm;
+}
+
+.z-table-header {
+  @apply [&_tr]:border-b;
+}
+
+.z-table-body {
+  @apply [&_tr:last-child]:border-0;
+}
+
+.z-table-footer {
+  @apply bg-muted/50 border-t font-medium [&>tr]:last:border-b-0;
+}
+
+.z-table-row {
+  @apply hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors;
+}
+
+.z-table-head {
+  @apply text-muted-foreground h-12 px-3 text-left align-middle text-xs font-medium uppercase tracking-wider whitespace-nowrap [&:has([role=checkbox])]:pr-0;
+}
+
+.z-table-cell {
+  @apply p-3 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0;
+}
+
+.z-table-caption {
+  @apply text-muted-foreground mt-4 text-sm;
+}
+
+/* MARK: Tabs */
+.z-tabs {
+  @apply gap-2;
+}
+
+.z-tabs-list {
+  @apply p-1 group-data-horizontal/tabs:h-10;
+}
+
+.z-tabs-trigger {
+  @apply gap-2 border border-transparent px-4 py-1.5 text-xs font-semibold group-data-vertical/tabs:px-4 group-data-vertical/tabs:py-2 [&_svg:not([class*='size-'])]:size-3.5 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 uppercase tracking-wider;
+}
+
+.z-tabs-content {
+  @apply text-sm;
+}
+
+/* MARK: Textarea */
+.z-textarea {
+  @apply border-transparent border-b-input bg-transparent focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 resize-none rounded-none border px-0 py-3 text-base transition-[color,border-color] md:text-sm;
+}
+
+/* MARK: Toggle */
+.z-toggle {
+  @apply hover:text-foreground aria-pressed:bg-muted focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive gap-1.5 rounded-none text-xs font-semibold uppercase tracking-widest transition-colors [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-toggle-variant-default {
+  @apply bg-transparent;
+}
+
+.z-toggle-variant-outline {
+  @apply border-input hover:bg-muted border bg-transparent;
+}
+
+.z-toggle-size-default {
+  @apply h-10 min-w-10 px-6 has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4;
+}
+
+.z-toggle-size-sm {
+  @apply h-9 min-w-9 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3;
+}
+
+.z-toggle-size-lg {
+  @apply h-11 min-w-11 px-8 has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5;
+}
+
+/* MARK: Toggle Group */
+.z-toggle-group {
+  @apply data-[spacing=0]:data-[variant=outline]:rounded-none;
+}
+
+.z-toggle-group-item {
+  @apply data-[state=on]:bg-muted data-[state=on]:text-foreground group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-6 group-data-[spacing=0]/toggle-group:shadow-none group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-none group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-none group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-none group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-none group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-4 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-4;
+}
+
+/* MARK: Tooltip */
+.z-tooltip-content {
+  @apply data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-none;
+}
+
+.z-tooltip-content-logical {
+  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
+}
+
+.z-tooltip-arrow {
+  @apply size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-none;
+}
+
+.z-tooltip-arrow-logical {
+  @apply data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:translate-x-[1.5px] data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:translate-x-[-1.5px] data-[side=inline-start]:-translate-y-1/2;
+}
+
+/* MARK: Input Group */
+.z-input-group {
+  @apply border-transparent border-b-input bg-transparent has-[[data-slot=input-group-control]:focus-visible]:border-b-ring has-[[data-slot][aria-invalid=true]]:border-b-destructive dark:has-[[data-slot][aria-invalid=true]]:border-b-destructive/50 h-10 rounded-none border transition-[color,border-color] in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-data-[align=block-end]:rounded-none has-data-[align=block-start]:rounded-none has-[textarea]:rounded-none has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3;
+}
+
+.z-input-group-addon {
+  @apply text-muted-foreground **:data-[slot=kbd]:bg-muted-foreground/10 h-auto gap-2 py-2 text-sm font-medium group-data-[disabled=true]/input-group:opacity-50 **:data-[slot=kbd]:rounded-none **:data-[slot=kbd]:px-1.5 [&>svg:not([class*='size-'])]:size-3.5;
+}
+
+/* .z-input-group-addon-align-inline-start {
+  @apply has-[>button]:-ml-1 has-[>kbd]:-ml-1;
+}
+
+.z-input-group-addon-align-inline-end {
+  @apply has-[>button]:-mr-1 has-[>kbd]:-mr-1;
+} */
+
+.z-input-group-addon-align-block-start {
+  @apply pt-3 group-has-[>input]/input-group:pt-3.5 [.border-b]:pb-3.5;
+}
+
+.z-input-group-addon-align-block-end {
+  @apply pb-3 group-has-[>input]/input-group:pb-3.5 [.border-t]:pt-3.5;
+}
+
+.z-input-group-button {
+  @apply gap-2 rounded-none text-sm;
+}
+
+.z-input-group-button-size-xs {
+  @apply h-6 gap-1 rounded-none px-1.5 [&>svg:not([class*='size-'])]:size-3.5 text-xs;
+}
+
+.z-input-group-button-size-icon-xs {
+  @apply size-6 p-0 has-[>svg]:p-0 text-xs;
+}
+
+.z-input-group-button-size-icon-sm {
+  @apply size-8 p-0 has-[>svg]:p-0;
+}
+
+.z-input-group-text {
+  @apply text-muted-foreground gap-2 text-sm [&_svg:not([class*='size-'])]:size-3.5;
+}
+
+.z-input-group-input {
+  @apply border-0 bg-transparent ring-0 focus-visible:ring-0 aria-invalid:ring-0 dark:bg-transparent group-has-[>[data-align=inline-start]]/input-group:pl-2 group-has-[>[data-align=inline-end]]/input-group:pr-2;
+}
+
+.z-input-group-textarea {
+  @apply border-0 bg-transparent py-2.5 ring-0 focus-visible:ring-0 aria-invalid:ring-0 dark:bg-transparent;
+}
+
+/* MARK: Menu Translucent */
+.z-menu-translucent {
+  @apply animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-foreground/10! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:**:text-accent-foreground!;
+}

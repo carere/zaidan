@@ -1,10 +1,12 @@
 import { useLocation, useNavigate } from "@tanstack/solid-router";
 import { For, Show } from "solid-js";
 import { match } from "ts-pattern";
+import { Luma } from "@/components/icons/luma";
 import { Lyra } from "@/components/icons/lyra";
 import { Maia } from "@/components/icons/maia";
 import { Mira } from "@/components/icons/mira";
 import { Nova } from "@/components/icons/nova";
+import { Sera } from "@/components/icons/sera";
 import { Vega } from "@/components/icons/vega";
 import { LockButton } from "@/components/lock-button";
 import { DEFAULT_CONFIG, STYLES } from "@/lib/config";
@@ -34,6 +36,8 @@ export default function StylePicker() {
       .with("lyra", () => <Lyra class="size-4" />)
       .with("maia", () => <Maia class="size-4" />)
       .with("mira", () => <Mira class="size-4" />)
+      .with("luma", () => <Luma class="size-4" />)
+      .with("sera", () => <Sera class="size-4" />)
       .exhaustive();
 
   return (
