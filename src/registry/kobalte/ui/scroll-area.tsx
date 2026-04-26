@@ -271,13 +271,15 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
     // biome-ignore lint/a11y/useKeyWithClickEvents: <track click is a pointer-only convenience; keyboard users scroll via viewport>
     <div
       class={cn(
-        "absolute flex touch-none select-none p-px transition-opacity duration-150",
-        isVertical() && "top-0 right-0 h-full w-2.5",
-        !isVertical() && "bottom-0 left-0 h-2.5 w-full",
+        "absolute z-scroll-area-scrollbar flex touch-none select-none p-px transition-opacity duration-150",
+        isVertical() && "top-0 right-0",
+        !isVertical() && "bottom-0 left-0 w-full",
         !shown() && "pointer-events-none opacity-0",
         local.class,
       )}
       data-orientation={local.orientation}
+      data-horizontal={!isVertical() ? "" : undefined}
+      data-vertical={isVertical() ? "" : undefined}
       data-slot="scroll-area-scrollbar"
       onClick={handleTrackClick}
       ref={scrollbarRef}
@@ -285,7 +287,7 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
     >
       {/* biome-ignore lint/a11y/noStaticElementInteractions: <custom scrollbar thumb — keyboard scroll is handled via the native viewport> */}
       <div
-        class="relative flex-1 cursor-grab rounded-full bg-border active:cursor-grabbing"
+        class="relative z-scroll-area-thumb flex-1 cursor-grab bg-border active:cursor-grabbing"
         data-slot="scroll-area-thumb"
         onMouseDown={handleThumbMouseDown}
         ref={thumbRef}
