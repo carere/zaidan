@@ -1,6 +1,6 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { shadcn } from "@velite";
-import { createEffect, onCleanup, onMount, untrack } from "solid-js";
+import { createEffect, createMemo, onCleanup, onMount, untrack } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import { createPageHead } from "@/lib/seo";
@@ -89,20 +89,21 @@ function RouteComponent() {
     } satisfies IframeMessage);
   });
 
+  const href = createMemo(() => {
+    const slug = doc().slug;
+    return untrack(
+      () =>
+        router.buildLocation({
+          to: "/preview/$kind/$primitive/$slug",
+          params: { kind: "ui", primitive: "kobalte", slug },
+          search: search(),
+        }).href,
+    );
+  });
+
   return (
     <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden rounded-2xl ring-1 ring-foreground/15 md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
-      <iframe
-        ref={iframeRef}
-        src={
-          router.buildLocation({
-            to: "/preview/$kind/$primitive/$slug",
-            params: { kind: "ui", primitive: "kobalte", slug: doc().slug },
-            search: untrack(search),
-          }).href
-        }
-        class="z-10 size-full rounded-lg"
-        title="Preview"
-      />
+      <iframe ref={iframeRef} src={href()} class="z-10 size-full rounded-lg" title="Preview" />
       <PageToggleNav kind="ui" slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );

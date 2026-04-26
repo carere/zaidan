@@ -101,7 +101,7 @@ export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
         size="sm"
         onClick={handleRandomize}
         class={cn(
-          "h-[calc(--spacing(13.5))] w-[140px] touch-manipulation select-none justify-between rounded-xl border border-foreground/10 bg-muted/50 focus-visible:border-transparent focus-visible:ring-1 sm:rounded-lg md:w-full md:rounded-lg md:border-transparent md:bg-transparent md:pr-3.5! md:pl-2! md:hover:bg-muted",
+          "h-[calc(--spacing(13.5))] w-35 touch-manipulation select-none justify-between rounded-xl border border-foreground/10 bg-muted/50 focus-visible:border-transparent focus-visible:ring-1 sm:rounded-lg md:w-full md:rounded-lg md:border-transparent md:bg-transparent md:pr-3.5! md:pl-2! md:hover:bg-muted",
           props.class,
         )}
       >

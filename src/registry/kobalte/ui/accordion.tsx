@@ -95,4 +95,4 @@ const AccordionContent = <T extends ValidComponent = "div">(props: AccordionCont
   );
 };
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
+export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };
