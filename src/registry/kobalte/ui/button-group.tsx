@@ -68,4 +68,4 @@ const ButtonGroupSeparator = (props: ButtonGroupSeparatorProps) => {
   );
 };
 
-export { ButtonGroup, ButtonGroupText, ButtonGroupSeparator, buttonGroupVariants };
+export { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants };

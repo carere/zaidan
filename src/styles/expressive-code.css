@@ -25,7 +25,7 @@
     @apply shadow-none bg-transparent;
 
     pre {
-      @apply max-h-[450px] overflow-y-auto rounded-xl border-0 bg-neutral-100 dark:bg-zinc-900;
+      @apply max-h-112.5 overflow-y-auto rounded-xl border-0 bg-neutral-100 dark:bg-zinc-900;
     }
 
     .header {

@@ -66,4 +66,4 @@ const ResizableHandle = <T extends ValidComponent = "button">(props: ResizableHa
   );
 };
 
-export { ResizablePanelGroup, ResizablePanel, ResizableHandle };
+export { ResizableHandle, ResizablePanel, ResizablePanelGroup };

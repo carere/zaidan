@@ -108,10 +108,10 @@ const InputOTPSeparator = (props: InputOTPSeparatorProps) => {
 export {
   InputOTP,
   InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
-  type InputOTPProps,
   type InputOTPGroupProps,
-  type InputOTPSlotProps,
+  type InputOTPProps,
+  InputOTPSeparator,
   type InputOTPSeparatorProps,
+  InputOTPSlot,
+  type InputOTPSlotProps,
 };

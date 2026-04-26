@@ -244,14 +244,14 @@ const FieldError = (props: FieldErrorProps) => {
 
 export {
   Field,
-  FieldLabel,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
+  FieldLabel,
   FieldLegend,
   FieldSeparator,
   FieldSet,
-  FieldContent,
   FieldTitle,
   fieldVariants,
 };

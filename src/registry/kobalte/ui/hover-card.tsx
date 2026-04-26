@@ -42,4 +42,4 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
   );
 };
 
-export { HoverCard, HoverCardTrigger, HoverCardContent };
+export { HoverCard, HoverCardContent, HoverCardTrigger };

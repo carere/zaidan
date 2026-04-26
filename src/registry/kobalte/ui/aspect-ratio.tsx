@@ -25,5 +25,5 @@ const AspectRatio = (props: AspectRatioProps) => {
   );
 };
 
-export { AspectRatio };
 export type { AspectRatioProps };
+export { AspectRatio };
