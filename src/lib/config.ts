@@ -1,5 +1,7 @@
+import { THEMES_VARIANTS } from "@/lib/themes";
 import type {
   BaseColor,
+  ChartColor,
   DesignSystemConfig,
   Font,
   MenuAccent,
@@ -17,6 +19,7 @@ export const DEFAULT_CONFIG: DesignSystemConfig = {
   style: "vega",
   baseColor: "neutral",
   theme: "neutral",
+  chartColor: "match-theme",
   font: "inter",
   headingFont: "inter",
   radius: "default",
@@ -65,36 +68,104 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
 ];
 
 /**
- * Available base color options with their metadata and color values
+ * Pull a theme variant's light primary color (used as the swatch in pickers).
+ */
+function getPrimaryLight(name: string): string {
+  const entry = THEMES_VARIANTS.find((t) => t.name === name);
+  const primary = (entry?.cssVars?.light as Record<string, string> | undefined)?.primary;
+  return primary ?? "oklch(0.5 0 0)";
+}
+
+/**
+ * Pull the chart-1..chart-5 light values for a theme variant. Used as the swatch
+ * in the chart-color picker.
+ */
+function getChartLight(name: string): [string, string, string, string, string] {
+  const entry = THEMES_VARIANTS.find((t) => t.name === name);
+  const light = (entry?.cssVars?.light as Record<string, string> | undefined) ?? {};
+  return [
+    light["chart-1"] ?? "oklch(0.87 0 0)",
+    light["chart-2"] ?? "oklch(0.7 0 0)",
+    light["chart-3"] ?? "oklch(0.55 0 0)",
+    light["chart-4"] ?? "oklch(0.4 0 0)",
+    light["chart-5"] ?? "oklch(0.27 0 0)",
+  ];
+}
+
+/**
+ * Available base color options with their metadata and color values.
+ * Mirrors shadcn's filter `["neutral","stone","zinc","mauve","olive","mist","taupe"]`.
  */
 export const BASE_COLORS: { name: BaseColor; label: string; color: string }[] = [
-  { name: "neutral", label: "Neutral", color: "hsl(0 0% 45%)" },
-  { name: "stone", label: "Stone", color: "hsl(25 5% 45%)" },
-  { name: "zinc", label: "Zinc", color: "hsl(240 4% 46%)" },
-  { name: "gray", label: "Gray", color: "hsl(220 9% 46%)" },
+  { name: "neutral", label: "Neutral", color: getPrimaryLight("neutral") },
+  { name: "stone", label: "Stone", color: getPrimaryLight("stone") },
+  { name: "zinc", label: "Zinc", color: getPrimaryLight("zinc") },
+  { name: "mauve", label: "Mauve", color: getPrimaryLight("mauve") },
+  { name: "olive", label: "Olive", color: getPrimaryLight("olive") },
+  { name: "mist", label: "Mist", color: getPrimaryLight("mist") },
+  { name: "taupe", label: "Taupe", color: getPrimaryLight("taupe") },
 ];
 
 /**
  * Available theme color options with their metadata and color values
  */
 export const THEMES: { name: Theme; label: string; color: string }[] = [
-  { name: "amber", label: "Amber", color: "hsl(45 93% 47%)" },
-  { name: "blue", label: "Blue", color: "hsl(221 83% 53%)" },
-  { name: "cyan", label: "Cyan", color: "hsl(189 94% 43%)" },
-  { name: "emerald", label: "Emerald", color: "hsl(160 84% 39%)" },
-  { name: "fuchsia", label: "Fuchsia", color: "hsl(293 69% 49%)" },
-  { name: "green", label: "Green", color: "hsl(142 76% 36%)" },
-  { name: "indigo", label: "Indigo", color: "hsl(239 84% 67%)" },
-  { name: "lime", label: "Lime", color: "hsl(84 81% 44%)" },
-  { name: "orange", label: "Orange", color: "hsl(25 95% 53%)" },
-  { name: "pink", label: "Pink", color: "hsl(330 81% 60%)" },
-  { name: "purple", label: "Purple", color: "hsl(271 81% 56%)" },
-  { name: "red", label: "Red", color: "hsl(0 84% 60%)" },
-  { name: "rose", label: "Rose", color: "hsl(347 77% 50%)" },
-  { name: "sky", label: "Sky", color: "hsl(199 89% 48%)" },
-  { name: "teal", label: "Teal", color: "hsl(173 80% 40%)" },
-  { name: "violet", label: "Violet", color: "hsl(263 70% 50%)" },
-  { name: "yellow", label: "Yellow", color: "hsl(48 96% 53%)" },
+  { name: "amber", label: "Amber", color: getPrimaryLight("amber") },
+  { name: "blue", label: "Blue", color: getPrimaryLight("blue") },
+  { name: "cyan", label: "Cyan", color: getPrimaryLight("cyan") },
+  { name: "emerald", label: "Emerald", color: getPrimaryLight("emerald") },
+  { name: "fuchsia", label: "Fuchsia", color: getPrimaryLight("fuchsia") },
+  { name: "green", label: "Green", color: getPrimaryLight("green") },
+  { name: "indigo", label: "Indigo", color: getPrimaryLight("indigo") },
+  { name: "lime", label: "Lime", color: getPrimaryLight("lime") },
+  { name: "orange", label: "Orange", color: getPrimaryLight("orange") },
+  { name: "pink", label: "Pink", color: getPrimaryLight("pink") },
+  { name: "purple", label: "Purple", color: getPrimaryLight("purple") },
+  { name: "red", label: "Red", color: getPrimaryLight("red") },
+  { name: "rose", label: "Rose", color: getPrimaryLight("rose") },
+  { name: "sky", label: "Sky", color: getPrimaryLight("sky") },
+  { name: "teal", label: "Teal", color: getPrimaryLight("teal") },
+  { name: "violet", label: "Violet", color: getPrimaryLight("violet") },
+  { name: "yellow", label: "Yellow", color: getPrimaryLight("yellow") },
+];
+
+/**
+ * Available chart color options. Each entry exposes the chart-1..5 light values
+ * used as a 5-segment swatch in the chart color picker. The "match-theme"
+ * sentinel keeps charts in lockstep with the picked theme.
+ */
+export const CHART_COLORS: {
+  name: ChartColor;
+  label: string;
+  chart: [string, string, string, string, string];
+}[] = [
+  { name: "match-theme", label: "Match theme", chart: ["", "", "", "", ""] },
+  // Base colors
+  { name: "neutral", label: "Neutral", chart: getChartLight("neutral") },
+  { name: "stone", label: "Stone", chart: getChartLight("stone") },
+  { name: "zinc", label: "Zinc", chart: getChartLight("zinc") },
+  { name: "mauve", label: "Mauve", chart: getChartLight("mauve") },
+  { name: "olive", label: "Olive", chart: getChartLight("olive") },
+  { name: "mist", label: "Mist", chart: getChartLight("mist") },
+  { name: "taupe", label: "Taupe", chart: getChartLight("taupe") },
+  // Theme colors
+  { name: "amber", label: "Amber", chart: getChartLight("amber") },
+  { name: "blue", label: "Blue", chart: getChartLight("blue") },
+  { name: "cyan", label: "Cyan", chart: getChartLight("cyan") },
+  { name: "emerald", label: "Emerald", chart: getChartLight("emerald") },
+  { name: "fuchsia", label: "Fuchsia", chart: getChartLight("fuchsia") },
+  { name: "green", label: "Green", chart: getChartLight("green") },
+  { name: "indigo", label: "Indigo", chart: getChartLight("indigo") },
+  { name: "lime", label: "Lime", chart: getChartLight("lime") },
+  { name: "orange", label: "Orange", chart: getChartLight("orange") },
+  { name: "pink", label: "Pink", chart: getChartLight("pink") },
+  { name: "purple", label: "Purple", chart: getChartLight("purple") },
+  { name: "red", label: "Red", chart: getChartLight("red") },
+  { name: "rose", label: "Rose", chart: getChartLight("rose") },
+  { name: "sky", label: "Sky", chart: getChartLight("sky") },
+  { name: "teal", label: "Teal", chart: getChartLight("teal") },
+  { name: "violet", label: "Violet", chart: getChartLight("violet") },
+  { name: "yellow", label: "Yellow", chart: getChartLight("yellow") },
 ];
 
 /**

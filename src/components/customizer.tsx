@@ -2,6 +2,7 @@ import { Settings2Icon } from "lucide-solid";
 import type { ComponentProps } from "solid-js";
 import BaseColorPicker from "@/components/pickers/base-color-picker";
 import BasePicker from "@/components/pickers/base-picker";
+import ChartColorPicker from "@/components/pickers/chart-color-picker";
 import FontPicker from "@/components/pickers/font-picker";
 import HeadingFontPicker from "@/components/pickers/heading-font-picker";
 import IconLibraryPicker from "@/components/pickers/icon-library-picker";
@@ -36,6 +37,7 @@ export function Customizer(props: ComponentProps<"div">) {
           <StylePicker />
           <BaseColorPicker />
           <ThemePicker />
+          <ChartColorPicker />
           <IconLibraryPicker />
           <HeadingFontPicker />
           <FontPicker />

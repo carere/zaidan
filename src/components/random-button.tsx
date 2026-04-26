@@ -10,7 +10,7 @@ import {
   STYLES,
   THEMES,
 } from "@/lib/config";
-import type { BaseColor, Font, MenuAccent, Radius, Style, Theme } from "@/lib/types";
+import type { BaseColor, ChartColor, Font, MenuAccent, Radius, Style, Theme } from "@/lib/types";
 import { useLocks } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -45,6 +45,12 @@ export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
       ? (currentSearch.theme ?? DEFAULT_CONFIG.theme)
       : randomItem(allThemes);
 
+    // Chart color: include "match-theme" sentinel + every base/theme name
+    const allChartColors = ["match-theme", ...allThemes] as ChartColor[];
+    const chartColor: ChartColor = currentLocks.has("chartColor")
+      ? (currentSearch.chartColor ?? DEFAULT_CONFIG.chartColor)
+      : randomItem(allChartColors);
+
     const font: Font = currentLocks.has("font")
       ? (currentSearch.font ?? DEFAULT_CONFIG.font)
       : randomItem(FONTS).value;
@@ -70,6 +76,7 @@ export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
         style,
         baseColor,
         theme,
+        chartColor,
         font,
         headingFont,
         radius,
