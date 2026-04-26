@@ -49,6 +49,10 @@ export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
       ? (currentSearch.font ?? DEFAULT_CONFIG.font)
       : randomItem(FONTS).value;
 
+    const headingFont: Font = currentLocks.has("headingFont")
+      ? (currentSearch.headingFont ?? DEFAULT_CONFIG.headingFont)
+      : randomItem(FONTS).value;
+
     // Include "default" radius option
     const allRadii = ["default", ...RADII.map((r) => r.name)] as Radius[];
     const radius: Radius = currentLocks.has("radius")
@@ -67,6 +71,7 @@ export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
         baseColor,
         theme,
         font,
+        headingFont,
         radius,
         menuAccent,
       }),

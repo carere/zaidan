@@ -136,7 +136,7 @@ const FieldTitle = (props: FieldTitleProps) => {
   return (
     <div
       data-slot="field-label"
-      class={cn("z-field-title flex w-fit items-center leading-snug", local.class)}
+      class={cn("z-field-title z-font-heading flex w-fit items-center leading-snug", local.class)}
       {...others}
     />
   );

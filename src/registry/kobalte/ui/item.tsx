@@ -140,7 +140,7 @@ const ItemTitle = (props: ItemTitleProps) => {
   return (
     <div
       data-slot="item-title"
-      class={cn("z-item-title line-clamp-1 flex w-fit items-center", local.class)}
+      class={cn("z-font-heading z-item-title line-clamp-1 flex w-fit items-center", local.class)}
       {...others}
     />
   );

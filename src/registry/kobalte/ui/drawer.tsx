@@ -109,7 +109,13 @@ type DrawerLabelProps<T extends ValidComponent = "h2"> = DynamicProps<T, LabelPr
 
 const DrawerLabel = <T extends ValidComponent = "h2">(props: DrawerLabelProps<T>) => {
   const [local, others] = splitProps(props as DrawerLabelProps, ["class"]);
-  return <Label data-slot="drawer-title" class={cn("z-drawer-title", local.class)} {...others} />;
+  return (
+    <Label
+      data-slot="drawer-title"
+      class={cn("z-drawer-title z-font-heading", local.class)}
+      {...others}
+    />
+  );
 };
 
 type DrawerDescriptionProps<T extends ValidComponent = "p"> = DynamicProps<T, DescriptionProps> &

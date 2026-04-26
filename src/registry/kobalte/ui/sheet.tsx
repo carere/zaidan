@@ -128,7 +128,7 @@ const SheetTitle = <T extends ValidComponent = "h2">(props: SheetTitleProps<T>) 
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      class={cn("z-sheet-title", local.class)}
+      class={cn("z-font-heading z-sheet-title", local.class)}
       {...others}
     />
   );

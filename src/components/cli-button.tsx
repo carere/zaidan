@@ -42,6 +42,7 @@ export function CliButton() {
   const commands = createMemo(() => {
     const params = search() as Record<string, string | undefined>;
     const font = params.font ?? DEFAULT_CONFIG.font;
+    const headingFont = params.headingFont ?? DEFAULT_CONFIG.headingFont;
     const theme = params.theme ?? DEFAULT_CONFIG.theme;
     const radius = params.radius ?? DEFAULT_CONFIG.radius;
     const style = params.style ?? DEFAULT_CONFIG.style;
@@ -49,6 +50,11 @@ export function CliButton() {
 
     // Build packages list, avoiding duplicates when baseColor and theme are the same
     const packagesList = [`@zaidan/font-${font}`, `@zaidan/${theme}`, `@zaidan/style-${style}`];
+
+    // Only add heading font package when it differs from the body font
+    if (headingFont !== font) {
+      packagesList.push(`@zaidan/font-${headingFont}`);
+    }
 
     // Only add radius package when it's not the default value
     if (radius !== "default") {

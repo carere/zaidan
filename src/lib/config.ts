@@ -18,6 +18,7 @@ export const DEFAULT_CONFIG: DesignSystemConfig = {
   baseColor: "neutral",
   theme: "neutral",
   font: "inter",
+  headingFont: "inter",
   radius: "default",
   menuAccent: "subtle",
 };
