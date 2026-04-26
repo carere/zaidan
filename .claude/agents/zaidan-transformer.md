@@ -23,7 +23,6 @@ You are a unified transformation agent that converts React components and blocks
 - `PLAYGROUND_URL` (required) -- resolved playground URL for this component (e.g., `https://ui.shadcn.com/create?item=dialog-example` with `{component}` already replaced)
 - `APP_PORT` (required) -- port where the Zaidan dev server is running in the worktree
 - `PLAYGROUND_PROMPT` (optional, default: empty) -- prompt to drive the qa during visual analysis
-- `REGISTRY_NAME` (required) -- registry name for URL routing (e.g., `shadcn`, `bazza`)
 - `TRANSFORM_INSTRUCTIONS` (optional, default: empty) -- free-text instructions from the user to guide transformation decisions. Passed from the /sync command's --transform-instructions flag.
 
 ## Instructions
@@ -194,9 +193,9 @@ Generate a YAML user story file for QA validation of the transformed component.
 
 6.1 - Determine the output path: `ai_review/user_stories/<COMPONENT_NAME>.yaml` (relative to the worktree root at WORKTREE_PATH).
 
-6.2 - Determine the component URL based on the registry:
-  - If `REGISTRY_NAME` is `shadcn`: `http://localhost:<APP_PORT>/ui/<COMPONENT_NAME>`
-  - If `REGISTRY_NAME` is NOT `shadcn` (external): `http://localhost:<APP_PORT>/blocks/<REGISTRY_NAME>-<COMPONENT_NAME>`
+6.2 - Determine the component URL based on the auto-detected type from Step 3:
+  - Component (`registry:ui`): `http://localhost:<APP_PORT>/ui/<COMPONENT_NAME>`
+  - Block (`registry:block`): `http://localhost:<APP_PORT>/blocks/<COMPONENT_NAME>`
 
 6.3 - If `VISUAL_ANALYSIS_OUTPUT` is non-empty, derive workflow steps from the qa output:
   - Each interaction the agent performed becomes an action step
@@ -361,19 +360,15 @@ RESULT: SUCCESS | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Output:
 
 After the RESULT line, output a JSON block with the registry entry data for the sync command to collect.
 
-**Naming convention**: When `REGISTRY_NAME` is NOT `shadcn`, prefix the `"name"` field with `<REGISTRY_NAME>-`. For example, if `REGISTRY_NAME` is `bazza` and `COMPONENT_NAME` is `data-table-filter`, the name becomes `bazza-data-table-filter`. When `REGISTRY_NAME` is `shadcn`, the name is just `<COMPONENT_NAME>` (no prefix).
-
 **Component mode**:
 ```
-REGISTRY_ENTRY: {"name": "<ENTRY_NAME>", "type": "registry:ui", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "ui/<COMPONENT_NAME>.tsx", "type": "registry:ui"}]}
+REGISTRY_ENTRY: {"name": "<COMPONENT_NAME>", "type": "registry:ui", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "ui/<COMPONENT_NAME>.tsx", "type": "registry:ui"}]}
 ```
 
 **Block mode**:
 ```
-REGISTRY_ENTRY: {"name": "<ENTRY_NAME>", "type": "registry:block", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "blocks/<COMPONENT_NAME>/<filename>.tsx", "type": "registry:block"}]}
+REGISTRY_ENTRY: {"name": "<COMPONENT_NAME>", "type": "registry:block", "dependencies": [...], "registryDependencies": [...], "files": [{"path": "blocks/<COMPONENT_NAME>/<filename>.tsx", "type": "registry:block"}]}
 ```
-
-Where `<ENTRY_NAME>` is `<COMPONENT_NAME>` for shadcn or `<REGISTRY_NAME>-<COMPONENT_NAME>` for external registries.
 
 Populate dependency fields:
   - Add `@kobalte/core` if using Kobalte primitives (or `@corvu/<primitive>` for Corvu, or `@base-ui-solid/*` for base)
