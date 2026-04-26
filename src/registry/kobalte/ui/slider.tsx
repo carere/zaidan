@@ -63,10 +63,7 @@ const SliderTrack = <T extends ValidComponent = "div">(props: SliderTrackCompone
     <SliderPrimitive.Track
       data-slot="slider-track"
       data-orientation={context.state.orientation()}
-      class={cn(
-        "relative z-slider-track grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1.5",
-        local.class,
-      )}
+      class={cn("relative z-slider-track grow select-none overflow-hidden", local.class)}
       {...others}
     >
       {local.children}

@@ -73,19 +73,18 @@ function RouteComponent() {
     } satisfies IframeMessage);
   });
 
+  const href = () =>
+    untrack(
+      () =>
+        router.buildLocation({
+          to: "/preview/home",
+          search: search(),
+        }).href,
+    );
+
   return (
     <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
-      <iframe
-        ref={iframeRef}
-        src={
-          router.buildLocation({
-            to: "/preview/home",
-            search: untrack(search),
-          }).href
-        }
-        class="z-10 size-full rounded-lg"
-        title="Home Preview"
-      />
+      <iframe ref={iframeRef} src={href()} class="z-10 size-full rounded-lg" title="Home Preview" />
     </div>
   );
 }

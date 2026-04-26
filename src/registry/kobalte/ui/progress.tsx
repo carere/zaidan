@@ -105,4 +105,4 @@ const ProgressValue = <T extends ValidComponent = "div">(props: ProgressValuePro
   );
 };
 
-export { Progress, ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue };
+export { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue };

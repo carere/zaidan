@@ -104,4 +104,4 @@ const TabsContent = <T extends ValidComponent = "div">(props: TabsContentProps<T
   );
 };
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants };
+export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants };

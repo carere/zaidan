@@ -109,7 +109,7 @@ const SelectContent = <T extends ValidComponent = "div">(props: SelectContentPro
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         class={cn(
-          "relative isolate z-50 z-menu-target z-select-content max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
+          "relative isolate z-50 z-menu-target z-select-content max-h-80 min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
         )}
         data-slot="select-content"

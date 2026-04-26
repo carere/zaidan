@@ -13,7 +13,7 @@ import {
   FieldSet,
   FieldTitle,
 } from "@/registry/kobalte/ui/field";
-import { Input } from "@/registry/kobalte/ui/input";
+import { InputGroup, InputGroupInput } from "@/registry/kobalte/ui/input-group";
 import { RadioGroup, RadioGroupItem } from "@/registry/kobalte/ui/radio-group";
 import { Switch } from "@/registry/kobalte/ui/switch";
 
@@ -69,17 +69,18 @@ export default function AppearanceSettings() {
             <FieldDescription>You can add more later.</FieldDescription>
           </FieldContent>
           <ButtonGroup>
-            <Input
-              id="number-of-gpus-f6l"
-              value={gpuCount()}
-              onInput={handleGpuInputChange}
-              size={3}
-              class="h-7 w-14! font-mono"
-              maxLength={3}
-            />
+            <InputGroup>
+              <InputGroupInput
+                id="number-of-gpus-f6l"
+                value={gpuCount()}
+                onInput={handleGpuInputChange}
+                class="w-14"
+                maxLength={3}
+              />
+            </InputGroup>
             <Button
               variant="outline"
-              size="icon-sm"
+              size="icon"
               type="button"
               aria-label="Decrement"
               onClick={() => handleGpuAdjustment(-1)}
@@ -89,7 +90,7 @@ export default function AppearanceSettings() {
             </Button>
             <Button
               variant="outline"
-              size="icon-sm"
+              size="icon"
               type="button"
               aria-label="Increment"
               onClick={() => handleGpuAdjustment(1)}

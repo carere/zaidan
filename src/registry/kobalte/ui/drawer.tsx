@@ -127,13 +127,13 @@ const DrawerDescription = <T extends ValidComponent = "p">(props: DrawerDescript
 };
 
 export {
-  DrawerRoot as Drawer,
-  DrawerOverlay,
-  DrawerTrigger,
   DrawerClose,
   DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerLabel as DrawerTitle,
   DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerLabel as DrawerTitle,
+  DrawerOverlay,
+  DrawerRoot as Drawer,
+  DrawerTrigger,
 };

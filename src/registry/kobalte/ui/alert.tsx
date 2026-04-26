@@ -75,4 +75,4 @@ const AlertAction = (props: AlertActionProps) => {
   return <div class={cn("z-alert-action", local.class)} data-slot="alert-action" {...others} />;
 };
 
-export { Alert, AlertTitle, AlertDescription, AlertAction, alertVariants };
+export { Alert, AlertAction, AlertDescription, AlertTitle, alertVariants };

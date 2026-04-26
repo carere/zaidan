@@ -1143,7 +1143,7 @@
 }
 
 .z-slider-track {
-  @apply bg-muted rounded-md data-[orientation=horizontal]:h-3 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-3;
+  @apply bg-muted rounded-md data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1;
 }
 
 .z-slider-range {
@@ -1151,7 +1151,7 @@
 }
 
 .z-slider-thumb {
-  @apply border-primary ring-ring/30 size-4 rounded-md border bg-white shadow-sm transition-colors hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden;
+  @apply border-ring ring-ring/30 relative size-3 rounded-md border bg-white transition-[color,box-shadow] after:absolute after:-inset-2 hover:ring-2 focus-visible:ring-2 focus-visible:outline-hidden active:ring-2;
 }
 
 /* MARK: Sonner */

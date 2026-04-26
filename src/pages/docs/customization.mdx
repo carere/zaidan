@@ -23,7 +23,10 @@ This file **should be automatically imported** in your main css file, if not, ad
 
 ```css title="src/index.css"
 @import "tailwindcss";
-@import "./styles/base.css";
+
+@layer base {
+  @import "./styles/base.css";
+}
 ```
 
 <Alert class="mt-4 border-none bg-amber-600/10 text-amber-600 dark:bg-amber-400/10 dark:text-amber-400">
