@@ -1,12 +1,11 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
-import { bazza, motionPrimitives } from "@velite";
+import { blocks } from "@velite";
 import { Menu } from "lucide-solid";
 import { lazy, Show } from "solid-js";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
 import { TableOfContents } from "@/components/toc";
-import { getRegistryForBlockSlug } from "@/lib/registries";
 import { createPageHead } from "@/lib/seo";
 import { flattenTocUrls } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -18,8 +17,7 @@ import {
 
 export const Route = createFileRoute("/_website/blocks/$slug/docs")({
   loader: ({ params }) => {
-    const allBlocks = [...bazza, ...motionPrimitives];
-    const doc = allBlocks.find((u) => u.slug === params.slug);
+    const doc = blocks.find((u) => u.slug === params.slug);
     if (!doc) {
       throw notFound({
         data: {
@@ -27,8 +25,7 @@ export const Route = createFileRoute("/_website/blocks/$slug/docs")({
         },
       });
     }
-    const registry = getRegistryForBlockSlug(doc.slug);
-    return { ...doc, registry };
+    return doc;
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
@@ -45,10 +42,7 @@ export const Route = createFileRoute("/_website/blocks/$slug/docs")({
 function RouteComponent() {
   const doc = Route.useLoaderData();
   const search = Route.useSearch();
-  const sourceRegistry = doc().registry;
-  const MDXContent = lazy(
-    () => import(`../pages/${sourceRegistry}/${search().primitive}/${doc().slug}.mdx`),
-  );
+  const MDXContent = lazy(() => import(`../pages/blocks/${search().primitive}/${doc().slug}.mdx`));
 
   return (
     <div

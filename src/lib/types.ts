@@ -86,6 +86,8 @@ export const PrimitiveSchema = z.enum(["kobalte", "base"]);
 
 export type Primitive = z.infer<typeof PrimitiveSchema>;
 
+export type Kind = "ui" | "blocks";
+
 export const DesignSystemConfigSchema = z.object({
   primitive: PrimitiveSchema.optional().default("kobalte"),
   style: StyleSchema.optional().default("vega"),

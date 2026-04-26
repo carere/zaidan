@@ -15,31 +15,21 @@ export default defineConfig({
         toc: s.toc(),
       }),
     },
-    shadcn: {
-      name: "shadcn",
-      pattern: "shadcn/**/*.mdx",
+    ui: {
+      name: "ui",
+      pattern: "ui/**/*.mdx",
       schema: s.object({
-        slug: s.slug("shadcn"),
+        slug: s.slug("ui"),
         title: s.string(),
         description: s.string(),
         toc: s.toc(),
       }),
     },
-    bazza: {
-      name: "bazza",
-      pattern: "bazza/**/*.mdx",
+    blocks: {
+      name: "blocks",
+      pattern: "blocks/**/*.mdx",
       schema: s.object({
-        slug: s.slug("bazza"),
-        title: s.string(),
-        description: s.string(),
-        toc: s.toc(),
-      }),
-    },
-    motionPrimitives: {
-      name: "motionPrimitives",
-      pattern: "motion-primitives/**/*.mdx",
-      schema: s.object({
-        slug: s.slug("motion-primitives"),
+        slug: s.slug("blocks"),
         title: s.string(),
         description: s.string(),
         toc: s.toc(),
