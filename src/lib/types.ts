@@ -2,7 +2,7 @@ import type { docs } from "@velite";
 import { z } from "zod";
 import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
-export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira"]);
+export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera"]);
 export type Style = z.infer<typeof StyleSchema>;
 
 export const BaseColorSchema = z.enum(["neutral", "stone", "zinc", "gray"]);

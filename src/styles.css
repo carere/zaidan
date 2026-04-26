@@ -19,6 +19,8 @@
 @custom-variant style-lyra (&:where(.style-lyra *));
 @custom-variant style-maia (&:where(.style-maia *));
 @custom-variant style-mira (&:where(.style-mira *));
+@custom-variant style-luma (&:where(.style-luma *));
+@custom-variant style-sera (&:where(.style-sera *));
 
 @custom-variant dark (&:is(.dark *));
 
@@ -215,6 +217,14 @@
 
   .style-mira {
     @import "./registry/kobalte/styles/style-mira.css";
+  }
+
+  .style-luma {
+    @import "./registry/kobalte/styles/style-luma.css";
+  }
+
+  .style-sera {
+    @import "./registry/kobalte/styles/style-sera.css";
   }
 }
 

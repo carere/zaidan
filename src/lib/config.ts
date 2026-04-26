@@ -51,6 +51,16 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
     label: "Mira",
     description: "Compact. Made for dense interfaces.",
   },
+  {
+    name: "luma",
+    label: "Luma",
+    description: "Fluid, luminous, and soft. Pillowed surfaces with a gentle glow.",
+  },
+  {
+    name: "sera",
+    label: "Sera",
+    description: "Editorial and typographic. Sharp corners with expressive type.",
+  },
 ];
 
 /**
