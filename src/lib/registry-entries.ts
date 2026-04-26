@@ -1,5 +1,5 @@
 import { bazza, docs, motionPrimitives, shadcn } from "@velite";
-import { DRAFT_SLUGS } from "@/lib/config";
+import { NEW_COMPONENTS } from "@/lib/config";
 import type { Registry } from "@/lib/registries";
 import type { FileRouteTypes } from "@/routeTree.gen";
 
@@ -18,26 +18,21 @@ export type Entry = {
   route: FileRouteTypes["to"];
 };
 
-export const isDraft = (slug: string) => DRAFT_SLUGS.includes(slug);
-
-export const filterDrafts = <T extends { slug: string }>(items: T[]) =>
-  import.meta.env.DEV ? items : items.filter((item) => !isDraft(item.slug));
+export const isNew = (slug: string) => NEW_COMPONENTS.includes(slug);
 
 function tagWithRegistry<T>(items: T[], registry: Registry): (T & { registry: Registry })[] {
   return items.map((item) => ({ ...item, registry }));
 }
 
 export function getAllBlocks(): MergedItem[] {
-  return filterDrafts([
+  return [
     ...tagWithRegistry(bazza, "bazza"),
     ...tagWithRegistry(motionPrimitives, "motion-primitives"),
-  ]).sort((a, b) => a.title.localeCompare(b.title));
+  ].sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export function getAllUI(): MergedItem[] {
-  return filterDrafts(tagWithRegistry(shadcn, "shadcn")).sort((a, b) =>
-    a.title.localeCompare(b.title),
-  );
+  return tagWithRegistry(shadcn, "shadcn").sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export function getEntries(): Entry[] {

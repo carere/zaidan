@@ -190,8 +190,7 @@ export const PRIMITIVES: { name: Primitive; label: string }[] = [
 ];
 
 /**
- * Components in draft mode.
- * Draft components are only visible in DEV and excluded from the production registry build.
- * Add the component slug (kebab-case) to this array to mark it as draft.
+ * Components flagged as new.
+ * Slugs listed here render a `new` badge in the sidebar and command palette.
  */
-export const DRAFT_SLUGS: string[] = [];
+export const NEW_COMPONENTS: string[] = [];
