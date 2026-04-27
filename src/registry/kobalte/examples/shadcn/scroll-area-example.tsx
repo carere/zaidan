@@ -6,7 +6,7 @@ import { Separator } from "@/registry/kobalte/ui/separator";
 
 const tags = Array.from({ length: 50 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`);
 
-const works = [
+const artworks = [
   {
     artist: "Ornella Binni",
     art: "https://images.unsplash.com/photo-1465869185982-5a1a7522cbcb?auto=format&fit=crop&w=300&q=80",
@@ -55,14 +55,14 @@ function ScrollAreaHorizontal() {
     <Example title="Horizontal">
       <ScrollArea class="mx-auto w-full max-w-96 rounded-md style-luma:rounded-2xl border p-4">
         <div class="flex gap-4">
-          <For each={works}>
+          <For each={artworks}>
             {(artwork) => (
               <figure class="shrink-0">
                 <div class="overflow-hidden rounded-md">
                   <img
                     src={artwork.art}
                     alt={`Photo by ${artwork.artist}`}
-                    class="aspect-[3/4] h-fit w-fit object-cover"
+                    class="aspect-3/4 h-fit w-fit object-cover"
                     width={300}
                     height={400}
                   />

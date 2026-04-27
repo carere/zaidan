@@ -49,7 +49,7 @@ const ScrollArea = (props: ScrollAreaProps) => {
     >
       {/* biome-ignore lint/a11y/noStaticElementInteractions: <hover tracking is a passive UI affordance — no keyboard equivalent needed since the inner viewport remains keyboard-scrollable> */}
       <div
-        class={cn("relative", local.class)}
+        class={cn("relative overflow-clip", local.class)}
         data-slot="scroll-area"
         onMouseEnter={(e) => {
           setHovered(true);
@@ -272,14 +272,16 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
     <div
       class={cn(
         "absolute z-scroll-area-scrollbar flex touch-none select-none p-px transition-opacity duration-150",
-        isVertical() && "top-0 right-0",
-        !isVertical() && "bottom-0 left-0 w-full",
-        !shown() && "pointer-events-none opacity-0",
+        {
+          "top-0 right-0": isVertical(),
+          "bottom-0 left-0 w-full": !isVertical(),
+          "pointer-events-none opacity-0": !shown(),
+        },
         local.class,
       )}
       data-orientation={local.orientation}
-      data-horizontal={!isVertical() ? "" : undefined}
-      data-vertical={isVertical() ? "" : undefined}
+      data-horizontal={!isVertical()}
+      data-vertical={isVertical()}
       data-slot="scroll-area-scrollbar"
       onClick={handleTrackClick}
       ref={scrollbarRef}
@@ -295,17 +297,23 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
           ...(isVertical()
             ? {
                 position: "absolute",
-                top: `${thumbPosition()}%`,
+                top:
+                  thumbPosition() === 0
+                    ? `calc(${thumbPosition()}% + 1px)`
+                    : `calc(${thumbPosition()}% - 1px)`,
                 height: `${thumbSize()}%`,
-                left: "0",
-                right: "0",
+                left: "1px",
+                right: "1px",
               }
             : {
                 position: "absolute",
-                left: `${thumbPosition()}%`,
+                left:
+                  thumbPosition() === 0
+                    ? `calc(${thumbPosition()}% + 1px)`
+                    : `calc(${thumbPosition()}% - 1px)`,
                 width: `${thumbSize()}%`,
-                top: "0",
-                bottom: "0",
+                top: "1px",
+                bottom: "1px",
               }),
         }}
       />
