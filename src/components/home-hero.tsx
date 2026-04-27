@@ -1,23 +1,20 @@
-import { Link, useSearch } from "@tanstack/solid-router";
+import { Link } from "@tanstack/solid-router";
 import { ArrowRightIcon } from "lucide-solid";
 import { BentoNotch } from "@/components/bento-notch";
-import { LATEST_ANNOUNCEMENT } from "@/lib/config";
 import { Button } from "@/registry/kobalte/ui/button";
 
 export function HomeHero() {
-  const search = useSearch({ strict: false });
-
   return (
     <section
       data-slot="home-hero"
       class="relative flex w-full flex-col items-center gap-6 px-4 pt-4 pb-16 text-center lg:pt-6 lg:pb-24"
     >
       <Link
-        to={LATEST_ANNOUNCEMENT.href}
-        search={search()}
+        to="/$slug"
+        params={{ slug: "changelog" }}
         class="group inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted/80"
       >
-        <span>{LATEST_ANNOUNCEMENT.label}</span>
+        <span>Changelog page is live</span>
         <ArrowRightIcon class="size-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
@@ -36,20 +33,11 @@ export function HomeHero() {
           to="/$slug"
           //@ts-expect-error <Problem with kobalte typing polymorphic props>
           params={{ slug: "installation" }}
-          //@ts-expect-error <Problem with kobalte typing polymorphic props>
-          search={search()}
-          size="lg"
+          size="sm"
         >
           Getting Started
         </Button>
-        <Button
-          as={Link}
-          to="/ui/{-$slug}"
-          //@ts-expect-error <Problem with kobalte typing polymorphic props>
-          search={search()}
-          variant="outline"
-          size="lg"
-        >
+        <Button as={Link} to="/ui/{-$slug}" variant="outline" size="sm">
           View Components
         </Button>
       </div>

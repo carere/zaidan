@@ -240,18 +240,3 @@ export const UPDATED_ITEMS: UpdatedItem[] = [
   { kind: "docs", slug: "changelog" },
   { kind: "ui", slug: "scroll-area" },
 ];
-
-/**
- * Announcement pill shown above the homepage hero. Update `label` + `href`
- * whenever a new announcement-worthy release ships; the rest of the homepage
- * picks it up automatically.
- */
-export type LatestAnnouncement = {
-  label: string;
-  href: string;
-};
-
-export const LATEST_ANNOUNCEMENT: LatestAnnouncement = {
-  label: "New: Changelog page is live",
-  href: "/changelog",
-};
