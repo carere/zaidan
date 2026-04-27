@@ -5,32 +5,44 @@ import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera"]);
 export type Style = z.infer<typeof StyleSchema>;
 
-export const BaseColorSchema = z.enum(["neutral", "stone", "zinc", "gray"]);
+export const BaseColorSchema = z.enum([
+  "neutral",
+  "stone",
+  "zinc",
+  "mauve",
+  "olive",
+  "mist",
+  "taupe",
+]);
 export type BaseColor = z.infer<typeof BaseColorSchema>;
 
-export const ThemeSchema = z.union([
-  BaseColorSchema,
-  z.enum([
-    "amber",
-    "blue",
-    "cyan",
-    "emerald",
-    "fuchsia",
-    "green",
-    "indigo",
-    "lime",
-    "orange",
-    "pink",
-    "purple",
-    "red",
-    "rose",
-    "sky",
-    "teal",
-    "violet",
-    "yellow",
-  ]),
+const ThemeColorSchema = z.enum([
+  "amber",
+  "blue",
+  "cyan",
+  "emerald",
+  "fuchsia",
+  "green",
+  "indigo",
+  "lime",
+  "orange",
+  "pink",
+  "purple",
+  "red",
+  "rose",
+  "sky",
+  "teal",
+  "violet",
+  "yellow",
 ]);
+
+export const ThemeSchema = z.union([BaseColorSchema, ThemeColorSchema]);
 export type Theme = z.infer<typeof ThemeSchema>;
+
+// Chart palette behaves like the theme picker: same value space, with
+// "match base color palette" expressed by setting `chartColor === baseColor`.
+export const ChartColorSchema = ThemeSchema;
+export type ChartColor = Theme;
 
 export const FontSchema = z.enum([
   "geist",
@@ -58,8 +70,9 @@ export type LockableParam =
   | "style"
   | "baseColor"
   | "theme"
-  | "font"
+  | "chartColor"
   | "headingFont"
+  | "font"
   | "radius"
   | "menuAccent";
 
@@ -98,6 +111,7 @@ export const DesignSystemConfigSchema = z.object({
   style: StyleSchema.optional().default("vega"),
   baseColor: BaseColorSchema.optional().default("neutral"),
   theme: ThemeSchema.optional().default("neutral"),
+  chartColor: ChartColorSchema.optional().default("neutral"),
   font: FontSchema.optional().default("inter"),
   headingFont: FontSchema.optional().default("inter"),
   radius: RadiusSchema.optional().default("default"),

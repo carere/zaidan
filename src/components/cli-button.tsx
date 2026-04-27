@@ -47,31 +47,35 @@ export function CliButton() {
     const radius = params.radius ?? DEFAULT_CONFIG.radius;
     const style = params.style ?? DEFAULT_CONFIG.style;
     const baseColor = params.baseColor ?? DEFAULT_CONFIG.baseColor;
+    const chartColor = params.chartColor ?? DEFAULT_CONFIG.chartColor;
 
     // Build packages list, avoiding duplicates when baseColor and theme are the same
-    const packagesList = [`@zaidan/font-${font}`, `@zaidan/${theme}`, `@zaidan/style-${style}`];
+    const registryItems = [`@zaidan/font-${font}`, `@zaidan/${theme}`, `@zaidan/style-${style}`];
 
     // Only add heading font package when it differs from the body font
     if (headingFont !== font) {
-      packagesList.push(`@zaidan/font-${headingFont}`);
+      registryItems.push(`@zaidan/font-${headingFont}`);
     }
 
     // Only add radius package when it's not the default value
     if (radius !== "default") {
-      packagesList.push(`@zaidan/radius-${radius}`);
+      registryItems.push(`@zaidan/radius-${radius}`);
     }
 
     // Only add baseColor if it's different from theme
     if (baseColor !== theme) {
-      packagesList.push(`@zaidan/${baseColor}`);
+      registryItems.push(`@zaidan/${baseColor}`);
     }
 
-    const packages = packagesList.join(" ");
+    // Only add chartColor if it's different from theme
+    if (chartColor !== theme && chartColor !== baseColor) {
+      registryItems.push(`@zaidan/chart-${chartColor}`);
+    }
 
     return Object.fromEntries(
       Object.entries(PACKAGE_MANAGER_PREFIXES).map(([pm, prefix]) => [
         pm,
-        `${prefix} shadcn@latest add ${packages}`,
+        `${prefix} shadcn@latest add ${registryItems.join(" ")}`,
       ]),
     ) as Record<PackageManager, string>;
   });
