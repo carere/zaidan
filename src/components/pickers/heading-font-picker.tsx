@@ -7,11 +7,22 @@ import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/registry/kobalte/ui/dropdown-menu";
+
+const TYPE_LABELS = { sans: "Sans Serif", serif: "Serif", mono: "Monospace" } as const;
+const TYPE_ORDER = ["sans", "serif", "mono"] as const;
+const FONTS_BY_TYPE = TYPE_ORDER.reduce(
+  (acc, type) => {
+    acc[type] = FONTS.filter((f) => f.type === type);
+    return acc;
+  },
+  {} as Record<(typeof TYPE_ORDER)[number], typeof FONTS>,
+);
 
 export default function HeadingFontPicker() {
   const location = useLocation();
@@ -49,26 +60,33 @@ export default function HeadingFontPicker() {
               navigate({ to: ".", search: (prev) => ({ ...prev, headingFont: value as Font }) })
             }
           >
-            <For each={FONTS.map((f) => f.value)}>
-              {(font, index) => (
-                <>
-                  <DropdownMenuRadioItem value={font}>
-                    <div class="flex flex-col justify-start gap-2 pointer-coarse:gap-1">
-                      <span class="font-medium text-muted-foreground text-xs">
-                        {getLabel(font)}
-                      </span>
-                      <span
-                        class="font-extralight text-sm"
-                        style={{ "font-family": getFontFamily(font) }}
-                      >
-                        Designers love packing quirky glyphs into test phrases.
-                      </span>
-                    </div>
-                  </DropdownMenuRadioItem>
-                  <Show when={index() < FONTS.length - 1}>
+            <For each={TYPE_ORDER}>
+              {(type, typeIdx) => (
+                <Show when={FONTS_BY_TYPE[type].length > 0}>
+                  <Show when={typeIdx() > 0}>
                     <DropdownMenuSeparator />
                   </Show>
-                </>
+                  <DropdownMenuLabel class="text-muted-foreground text-xs">
+                    {TYPE_LABELS[type]}
+                  </DropdownMenuLabel>
+                  <For each={FONTS_BY_TYPE[type]}>
+                    {(font) => (
+                      <DropdownMenuRadioItem value={font.value}>
+                        <div class="flex flex-col justify-start gap-2 pointer-coarse:gap-1">
+                          <span class="font-medium text-muted-foreground text-xs">
+                            {font.label}
+                          </span>
+                          <span
+                            class="font-extralight text-sm"
+                            style={{ "font-family": font.fontFamily }}
+                          >
+                            Designers love packing quirky glyphs into test phrases.
+                          </span>
+                        </div>
+                      </DropdownMenuRadioItem>
+                    )}
+                  </For>
+                </Show>
               )}
             </For>
           </DropdownMenuRadioGroup>

@@ -1,3 +1,4 @@
+import { FONT_DEFINITIONS } from "@/lib/fonts";
 import { THEMES_VARIANTS } from "@/lib/themes";
 import type {
   BaseColor,
@@ -187,62 +188,20 @@ export const MENU_ACCENTS: { name: MenuAccent; label: string }[] = [
 ];
 
 /**
- * Available font options with their metadata and font family values
+ * Available font options with their metadata and font family values.
+ * Derived from FONT_DEFINITIONS (single source of truth in src/lib/fonts.ts).
  */
-export const FONTS: { label: string; value: Font; fontFamily: string }[] = [
-  { label: "Geist", value: "geist", fontFamily: '"Geist Variable", sans-serif' },
-  { label: "Inter", value: "inter", fontFamily: '"Inter Variable", sans-serif' },
-  {
-    label: "Noto Sans",
-    value: "noto-sans",
-    fontFamily: '"Noto Sans Variable", sans-serif',
-  },
-  {
-    label: "Nunito Sans",
-    value: "nunito-sans",
-    fontFamily: '"Nunito Sans Variable", sans-serif',
-  },
-  {
-    label: "Figtree",
-    value: "figtree",
-    fontFamily: '"Figtree Variable", sans-serif',
-  },
-  {
-    label: "Roboto",
-    value: "roboto",
-    fontFamily: '"Roboto", sans-serif',
-  },
-  {
-    label: "Raleway",
-    value: "raleway",
-    fontFamily: '"Raleway", sans-serif',
-  },
-  {
-    label: "DM Sans",
-    value: "dm-sans",
-    fontFamily: '"DM Sans", sans-serif',
-  },
-  {
-    label: "Public Sans",
-    value: "public-sans",
-    fontFamily: '"Public Sans", sans-serif',
-  },
-  {
-    label: "Outfit",
-    value: "outfit",
-    fontFamily: '"Outfit", sans-serif',
-  },
-  {
-    label: "Geist Mono",
-    value: "geist-mono",
-    fontFamily: '"Geist Mono Variable", monospace',
-  },
-  {
-    label: "JetBrains Mono",
-    value: "jetbrains-mono",
-    fontFamily: '"JetBrains Mono Variable", monospace',
-  },
-];
+export const FONTS: {
+  label: string;
+  value: Font;
+  fontFamily: string;
+  type: "sans" | "serif" | "mono";
+}[] = FONT_DEFINITIONS.map((f) => ({
+  label: f.title,
+  value: f.name,
+  fontFamily: f.family,
+  type: f.type,
+}));
 
 /**
  * Menu color options for sidebar/navigation styling
