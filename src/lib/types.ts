@@ -39,12 +39,10 @@ const ThemeColorSchema = z.enum([
 export const ThemeSchema = z.union([BaseColorSchema, ThemeColorSchema]);
 export type Theme = z.infer<typeof ThemeSchema>;
 
-export const ChartColorSchema = z.union([
-  z.literal("match-theme"),
-  BaseColorSchema,
-  ThemeColorSchema,
-]);
-export type ChartColor = z.infer<typeof ChartColorSchema>;
+// Chart palette behaves like the theme picker: same value space, with
+// "match base color palette" expressed by setting `chartColor === baseColor`.
+export const ChartColorSchema = ThemeSchema;
+export type ChartColor = Theme;
 
 export const FontSchema = z.enum([
   "geist",
@@ -113,7 +111,7 @@ export const DesignSystemConfigSchema = z.object({
   style: StyleSchema.optional().default("vega"),
   baseColor: BaseColorSchema.optional().default("neutral"),
   theme: ThemeSchema.optional().default("neutral"),
-  chartColor: ChartColorSchema.optional().default("match-theme"),
+  chartColor: ChartColorSchema.optional().default("neutral"),
   font: FontSchema.optional().default("inter"),
   headingFont: FontSchema.optional().default("inter"),
   radius: RadiusSchema.optional().default("default"),

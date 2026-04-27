@@ -34,11 +34,9 @@ export function getTheme(name: Theme): ThemeVariant | undefined {
 }
 
 /**
- * Resolve a chart-color selection to its source theme variant. Returns
- * `undefined` for the `"match-theme"` sentinel (which means: don't override).
+ * Resolve a chart-color selection to its source theme variant.
  */
 export function getChartColor(name: ChartColor): ThemeVariant | undefined {
-  if (name === "match-theme") return undefined;
   return THEMES_VARIANTS.find((theme) => theme.name === name);
 }
 
@@ -51,7 +49,8 @@ export function getChartColor(name: ChartColor): ThemeVariant | undefined {
  * @param config - The design system configuration
  * @param config.baseColor - The base color (e.g. neutral, stone, zinc, mauve)
  * @param config.theme - The theme color (e.g. blue, green, amber)
- * @param config.chartColor - The chart palette ("match-theme" or any base/theme name)
+ * @param config.chartColor - The chart palette (any base/theme name; equals
+ *   `baseColor` for the "match base color palette" affordance)
  * @param config.menuAccent - The menu accent style (subtle, bold)
  * @param config.radius - The border radius setting
  * @returns The merged RegistryTheme or null if base color or theme is not found

@@ -19,7 +19,7 @@ export const DEFAULT_CONFIG: DesignSystemConfig = {
   style: "vega",
   baseColor: "neutral",
   theme: "neutral",
-  chartColor: "match-theme",
+  chartColor: "neutral",
   font: "inter",
   headingFont: "inter",
   radius: "default",
@@ -131,15 +131,15 @@ export const THEMES: { name: Theme; label: string; color: string }[] = [
 
 /**
  * Available chart color options. Each entry exposes the chart-1..5 light values
- * used as a 5-segment swatch in the chart color picker. The "match-theme"
- * sentinel keeps charts in lockstep with the picked theme.
+ * used as a 5-segment swatch in the chart color picker. The chart picker mirrors
+ * the theme picker: setting `chartColor === baseColor` is the "match base color
+ * palette" affordance, no sentinel is needed.
  */
 export const CHART_COLORS: {
   name: ChartColor;
   label: string;
   chart: [string, string, string, string, string];
 }[] = [
-  { name: "match-theme", label: "Match theme", chart: ["", "", "", "", ""] },
   // Base colors
   { name: "neutral", label: "Neutral", chart: getChartLight("neutral") },
   { name: "stone", label: "Stone", chart: getChartLight("stone") },

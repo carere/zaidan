@@ -45,11 +45,10 @@ export function RandomButton(props: Pick<ComponentProps<"button">, "class">) {
       ? (currentSearch.theme ?? DEFAULT_CONFIG.theme)
       : randomItem(allThemes);
 
-    // Chart color: include "match-theme" sentinel + every base/theme name
-    const allChartColors = ["match-theme", ...allThemes] as ChartColor[];
+    // Chart color shares the same value space as theme (base + theme colors)
     const chartColor: ChartColor = currentLocks.has("chartColor")
       ? (currentSearch.chartColor ?? DEFAULT_CONFIG.chartColor)
-      : randomItem(allChartColors);
+      : randomItem(allThemes);
 
     const font: Font = currentLocks.has("font")
       ? (currentSearch.font ?? DEFAULT_CONFIG.font)
