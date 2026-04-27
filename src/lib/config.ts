@@ -70,25 +70,24 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
 /**
  * Pull a theme variant's light primary color (used as the swatch in pickers).
  */
-function getPrimaryLight(name: string): string {
+function getPreviewColor(name: string, kind: "primary" | "muted-foreground" = "primary") {
   const entry = THEMES_VARIANTS.find((t) => t.name === name);
-  const primary = (entry?.cssVars?.light as Record<string, string> | undefined)?.primary;
-  return primary ?? "oklch(0.5 0 0)";
+  return entry?.cssVars?.light?.[kind] as string;
 }
 
 /**
  * Pull the chart-1..chart-5 light values for a theme variant. Used as the swatch
  * in the chart-color picker.
  */
-function getChartLight(name: string): [string, string, string, string, string] {
+function getChartLight(name: string) {
   const entry = THEMES_VARIANTS.find((t) => t.name === name);
-  const light = (entry?.cssVars?.light as Record<string, string> | undefined) ?? {};
+  const light = entry?.cssVars?.light as Record<string, string>;
   return [
-    light["chart-1"] ?? "oklch(0.87 0 0)",
-    light["chart-2"] ?? "oklch(0.7 0 0)",
-    light["chart-3"] ?? "oklch(0.55 0 0)",
-    light["chart-4"] ?? "oklch(0.4 0 0)",
-    light["chart-5"] ?? "oklch(0.27 0 0)",
+    light["chart-1"] as string,
+    light["chart-2"] as string,
+    light["chart-3"] as string,
+    light["chart-4"] as string,
+    light["chart-5"] as string,
   ];
 }
 
@@ -97,36 +96,36 @@ function getChartLight(name: string): [string, string, string, string, string] {
  * Mirrors shadcn's filter `["neutral","stone","zinc","mauve","olive","mist","taupe"]`.
  */
 export const BASE_COLORS: { name: BaseColor; label: string; color: string }[] = [
-  { name: "neutral", label: "Neutral", color: getPrimaryLight("neutral") },
-  { name: "stone", label: "Stone", color: getPrimaryLight("stone") },
-  { name: "zinc", label: "Zinc", color: getPrimaryLight("zinc") },
-  { name: "mauve", label: "Mauve", color: getPrimaryLight("mauve") },
-  { name: "olive", label: "Olive", color: getPrimaryLight("olive") },
-  { name: "mist", label: "Mist", color: getPrimaryLight("mist") },
-  { name: "taupe", label: "Taupe", color: getPrimaryLight("taupe") },
+  { name: "neutral", label: "Neutral", color: getPreviewColor("neutral", "muted-foreground") },
+  { name: "stone", label: "Stone", color: getPreviewColor("stone", "muted-foreground") },
+  { name: "zinc", label: "Zinc", color: getPreviewColor("zinc", "muted-foreground") },
+  { name: "mauve", label: "Mauve", color: getPreviewColor("mauve", "muted-foreground") },
+  { name: "olive", label: "Olive", color: getPreviewColor("olive", "muted-foreground") },
+  { name: "mist", label: "Mist", color: getPreviewColor("mist", "muted-foreground") },
+  { name: "taupe", label: "Taupe", color: getPreviewColor("taupe", "muted-foreground") },
 ];
 
 /**
  * Available theme color options with their metadata and color values
  */
 export const THEMES: { name: Theme; label: string; color: string }[] = [
-  { name: "amber", label: "Amber", color: getPrimaryLight("amber") },
-  { name: "blue", label: "Blue", color: getPrimaryLight("blue") },
-  { name: "cyan", label: "Cyan", color: getPrimaryLight("cyan") },
-  { name: "emerald", label: "Emerald", color: getPrimaryLight("emerald") },
-  { name: "fuchsia", label: "Fuchsia", color: getPrimaryLight("fuchsia") },
-  { name: "green", label: "Green", color: getPrimaryLight("green") },
-  { name: "indigo", label: "Indigo", color: getPrimaryLight("indigo") },
-  { name: "lime", label: "Lime", color: getPrimaryLight("lime") },
-  { name: "orange", label: "Orange", color: getPrimaryLight("orange") },
-  { name: "pink", label: "Pink", color: getPrimaryLight("pink") },
-  { name: "purple", label: "Purple", color: getPrimaryLight("purple") },
-  { name: "red", label: "Red", color: getPrimaryLight("red") },
-  { name: "rose", label: "Rose", color: getPrimaryLight("rose") },
-  { name: "sky", label: "Sky", color: getPrimaryLight("sky") },
-  { name: "teal", label: "Teal", color: getPrimaryLight("teal") },
-  { name: "violet", label: "Violet", color: getPrimaryLight("violet") },
-  { name: "yellow", label: "Yellow", color: getPrimaryLight("yellow") },
+  { name: "amber", label: "Amber", color: getPreviewColor("amber") },
+  { name: "blue", label: "Blue", color: getPreviewColor("blue") },
+  { name: "cyan", label: "Cyan", color: getPreviewColor("cyan") },
+  { name: "emerald", label: "Emerald", color: getPreviewColor("emerald") },
+  { name: "fuchsia", label: "Fuchsia", color: getPreviewColor("fuchsia") },
+  { name: "green", label: "Green", color: getPreviewColor("green") },
+  { name: "indigo", label: "Indigo", color: getPreviewColor("indigo") },
+  { name: "lime", label: "Lime", color: getPreviewColor("lime") },
+  { name: "orange", label: "Orange", color: getPreviewColor("orange") },
+  { name: "pink", label: "Pink", color: getPreviewColor("pink") },
+  { name: "purple", label: "Purple", color: getPreviewColor("purple") },
+  { name: "red", label: "Red", color: getPreviewColor("red") },
+  { name: "rose", label: "Rose", color: getPreviewColor("rose") },
+  { name: "sky", label: "Sky", color: getPreviewColor("sky") },
+  { name: "teal", label: "Teal", color: getPreviewColor("teal") },
+  { name: "violet", label: "Violet", color: getPreviewColor("violet") },
+  { name: "yellow", label: "Yellow", color: getPreviewColor("yellow") },
 ];
 
 /**
@@ -138,7 +137,7 @@ export const THEMES: { name: Theme; label: string; color: string }[] = [
 export const CHART_COLORS: {
   name: ChartColor;
   label: string;
-  chart: [string, string, string, string, string];
+  chart: string[];
 }[] = [
   // Base colors
   { name: "neutral", label: "Neutral", chart: getChartLight("neutral") },

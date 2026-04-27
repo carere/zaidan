@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/registry/kobalte/ui/dropdown-menu";
 
-const EMPTY_STRIP: [string, string, string, string, string] = ["", "", "", "", ""];
+const EMPTY_STRIP: string[] = ["", "", "", "", ""];
 
 const getLabel = (name: ChartColor) =>
   CHART_COLORS.find((c) => c.name === name)?.label ??
@@ -22,7 +22,7 @@ const getLabel = (name: ChartColor) =>
 const getChart = (name: ChartColor) =>
   CHART_COLORS.find((c) => c.name === name)?.chart ?? EMPTY_STRIP;
 
-function ChartStrip(props: { chart: [string, string, string, string, string]; class?: string }) {
+function ChartStrip(props: { chart: string[]; class?: string }) {
   return (
     <div
       class={`flex h-4 w-4 overflow-hidden rounded-full border border-foreground/10 ${props.class ?? ""}`}
@@ -46,7 +46,13 @@ export default function ChartColorPicker() {
           <div class="flex flex-col justify-start text-left">
             <div class="text-muted-foreground text-xs">Chart Color</div>
             <div class="font-medium text-foreground text-sm">
-              {getLabel(location().search.chartColor ?? DEFAULT_CONFIG.chartColor)}
+              {getLabel(
+                BASE_COLORS.map((c) => c.name).includes(
+                  location().search.chartColor ?? DEFAULT_CONFIG.chartColor,
+                )
+                  ? (location().search.baseColor ?? DEFAULT_CONFIG.baseColor)
+                  : (location().search.chartColor ?? DEFAULT_CONFIG.chartColor),
+              )}
             </div>
           </div>
           <ChartStrip chart={getChart(location().search.chartColor ?? DEFAULT_CONFIG.chartColor)} />
