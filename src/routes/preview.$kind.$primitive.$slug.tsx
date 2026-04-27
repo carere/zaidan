@@ -131,8 +131,13 @@ function PreviewComponent() {
   // Apply style/base color/font to document
   createEffect(
     on(
-      [() => search().style, () => search().baseColor, () => search().font],
-      ([style, baseColor, font]) => {
+      [
+        () => search().style,
+        () => search().baseColor,
+        () => search().font,
+        () => search().headingFont,
+      ],
+      ([style, baseColor, font, headingFont]) => {
         document.body.classList.forEach((className) => {
           if (className.startsWith("style-")) {
             document.body.classList.remove(className);
@@ -152,6 +157,14 @@ function PreviewComponent() {
         const fontConfig = FONTS.find((f) => f.value === font);
         if (fontConfig) {
           document.documentElement.style.setProperty("--font-sans", fontConfig.fontFamily);
+        }
+
+        const headingFontConfig = FONTS.find((f) => f.value === headingFont);
+        if (headingFontConfig) {
+          document.documentElement.style.setProperty(
+            "--font-heading",
+            headingFontConfig.fontFamily,
+          );
         }
 
         setIsReady(true);

@@ -3,6 +3,7 @@ import type { ComponentProps } from "solid-js";
 import BaseColorPicker from "@/components/pickers/base-color-picker";
 import BasePicker from "@/components/pickers/base-picker";
 import FontPicker from "@/components/pickers/font-picker";
+import HeadingFontPicker from "@/components/pickers/heading-font-picker";
 import IconLibraryPicker from "@/components/pickers/icon-library-picker";
 import MenuAccentPicker from "@/components/pickers/menu-accent-picker";
 import MenuColorPicker from "@/components/pickers/menu-color-picker";
@@ -36,6 +37,7 @@ export function Customizer(props: ComponentProps<"div">) {
           <BaseColorPicker />
           <ThemePicker />
           <IconLibraryPicker />
+          <HeadingFontPicker />
           <FontPicker />
           <RadiusPicker />
           <MenuColorPicker />

@@ -36,7 +36,13 @@ type CardTitleProps = ComponentProps<"div">;
 
 const CardTitle = (props: CardTitleProps) => {
   const [local, others] = splitProps(props, ["class"]);
-  return <div data-slot="card-title" class={cn("z-card-title", local.class)} {...others} />;
+  return (
+    <div
+      data-slot="card-title"
+      class={cn("z-card-title z-font-heading", local.class)}
+      {...others}
+    />
+  );
 };
 
 type CardDescriptionProps = ComponentProps<"div">;

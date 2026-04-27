@@ -93,7 +93,7 @@ const PopoverTitle = <T extends ValidComponent = "h2">(props: PopoverTitleProps<
   return (
     <PopoverPrimitive.Title
       data-slot="popover-title"
-      class={cn("z-popover-title", local.class)}
+      class={cn("z-font-heading z-popover-title", local.class)}
       {...others}
     />
   );

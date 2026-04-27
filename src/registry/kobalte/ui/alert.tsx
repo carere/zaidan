@@ -41,7 +41,7 @@ const AlertTitle = (props: AlertTitleProps) => {
   return (
     <div
       class={cn(
-        "z-alert-title [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
+        "z-alert-title z-font-heading [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
         local.class,
       )}
       data-slot="alert-title"

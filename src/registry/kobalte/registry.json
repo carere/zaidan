@@ -591,7 +591,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",
@@ -616,7 +619,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",
@@ -641,7 +647,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",
@@ -666,7 +675,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",
@@ -691,7 +703,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",
@@ -716,7 +731,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",
@@ -741,7 +759,10 @@
       "registryDependencies": [],
       "css": {
         "@layer base": {
-          "@import \"./styles/base.css\"": {}
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
         },
         "@utility no-scrollbar": {
           "-ms-overflow-style": "none",

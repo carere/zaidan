@@ -144,7 +144,7 @@ const DialogTitle = <T extends ValidComponent = "h2">(props: DialogTitleProps<T>
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      class={cn("z-dialog-title", local.class)}
+      class={cn("z-dialog-title z-font-heading", local.class)}
       {...others}
     />
   );

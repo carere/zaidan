@@ -123,7 +123,7 @@ const AlertDialogTitle = <T extends ValidComponent = "h2">(props: AlertDialogTit
   const [local, others] = splitProps(props as AlertDialogTitleProps, ["class"]);
   return (
     <AlertDialogPrimitive.Title
-      class={cn("z-alert-dialog-title", local.class)}
+      class={cn("z-alert-dialog-title z-font-heading", local.class)}
       data-slot="alert-dialog-title"
       {...others}
     />
