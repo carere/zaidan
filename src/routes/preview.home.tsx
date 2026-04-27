@@ -88,12 +88,34 @@ function PreviewComponent() {
       }
     };
 
+    // Notify the parent of the iframe document's content height so the
+    // parent can size the iframe to its content (no internal scroll).
+    const postHeight = () => {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: "iframe-height-sync",
+          data: document.documentElement.scrollHeight,
+        } satisfies IframeMessage);
+      }
+    };
+
+    // Re-measure whenever the body resizes (theme/style/font/customizer
+    // changes can grow or shrink the bento).
+    const resizeObserver = new ResizeObserver(() => postHeight());
+    resizeObserver.observe(document.body);
+
+    // Initial measurement + recompute on viewport resize.
+    postHeight();
+    window.addEventListener("resize", postHeight);
+
     window.addEventListener("message", handleMessage);
     document.addEventListener("keydown", handleKeyDown);
 
     onCleanup(() => {
       window.removeEventListener("message", handleMessage);
+      window.removeEventListener("resize", postHeight);
       document.removeEventListener("keydown", handleKeyDown);
+      resizeObserver.disconnect();
       document.getElementById("design-system-theme-vars")?.remove();
     });
   });
