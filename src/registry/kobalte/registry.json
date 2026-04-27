@@ -470,6 +470,18 @@
       ]
     },
     {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/scroll-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "select",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
