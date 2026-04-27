@@ -50,13 +50,14 @@ function PreviewComponent() {
 
   const registryTheme = createMemo(() => {
     const p = search();
-    if (!p.baseColor || !p.theme || !p.menuAccent || !p.radius) {
+    if (!p.baseColor || !p.theme || !p.chartColor || !p.menuAccent || !p.radius) {
       return null;
     }
 
     return buildRegistryTheme({
       baseColor: p.baseColor,
       theme: p.theme,
+      chartColor: p.chartColor,
       menuAccent: p.menuAccent,
       radius: p.radius,
     });

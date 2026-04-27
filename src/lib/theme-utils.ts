@@ -1,6 +1,6 @@
 import { RADII } from "@/lib/config";
 import { THEMES_VARIANTS, type ThemeVariant } from "@/lib/themes";
-import type { BaseColor, MenuAccent, Radius, Theme } from "@/lib/types";
+import type { BaseColor, ChartColor, MenuAccent, Radius, Theme } from "@/lib/types";
 
 /**
  * Represents a registry theme with CSS variables for light and dark modes
@@ -12,6 +12,8 @@ export type RegistryTheme = {
     dark: Record<string, string>;
   };
 };
+
+const CHART_KEYS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"] as const;
 
 /**
  * Find a base color theme variant by name
@@ -32,19 +34,31 @@ export function getTheme(name: Theme): ThemeVariant | undefined {
 }
 
 /**
+ * Resolve a chart-color selection to its source theme variant.
+ */
+export function getChartColor(name: ChartColor): ThemeVariant | undefined {
+  return THEMES_VARIANTS.find((theme) => theme.name === name);
+}
+
+/**
  * Build a registry theme from design system configuration.
  * Merges base color and theme CSS variables and applies transformations.
  *
+ * Merge order: base color ← theme ← chart color (chart only overrides chart-1..5).
+ *
  * @param config - The design system configuration
- * @param config.baseColor - The base color (neutral, stone, zinc, gray)
- * @param config.theme - The theme color (blue, green, etc.)
+ * @param config.baseColor - The base color (e.g. neutral, stone, zinc, mauve)
+ * @param config.theme - The theme color (e.g. blue, green, amber)
+ * @param config.chartColor - The chart palette (any base/theme name; equals
+ *   `baseColor` for the "match base color palette" affordance)
  * @param config.menuAccent - The menu accent style (subtle, bold)
- * @param config.radius - The border radius setting (default, none, small, medium, large)
+ * @param config.radius - The border radius setting
  * @returns The merged RegistryTheme or null if base color or theme is not found
  */
 export function buildRegistryTheme(config: {
   baseColor: BaseColor;
   theme: Theme;
+  chartColor: ChartColor;
   menuAccent: MenuAccent;
   radius: Radius;
 }): RegistryTheme | null {
@@ -64,6 +78,17 @@ export function buildRegistryTheme(config: {
     ...(baseColor.cssVars?.dark as Record<string, string>),
     ...(theme.cssVars?.dark as Record<string, string>),
   };
+
+  // Apply chart-color overlay (only chart-1..5)
+  const chart = getChartColor(config.chartColor);
+  if (chart) {
+    const chartLight = (chart.cssVars?.light as Record<string, string> | undefined) ?? {};
+    const chartDark = (chart.cssVars?.dark as Record<string, string> | undefined) ?? {};
+    for (const key of CHART_KEYS) {
+      if (chartLight[key]) lightVars[key] = chartLight[key];
+      if (chartDark[key]) darkVars[key] = chartDark[key];
+    }
+  }
 
   // Apply menu accent transformation
   if (config.menuAccent === "bold") {
