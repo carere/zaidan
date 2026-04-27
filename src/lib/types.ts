@@ -1,5 +1,6 @@
 import type { docs } from "@velite";
 import { z } from "zod";
+import { FONT_DEFINITIONS, type FontName } from "@/lib/fonts";
 import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera"]);
@@ -44,20 +45,8 @@ export type Theme = z.infer<typeof ThemeSchema>;
 export const ChartColorSchema = ThemeSchema;
 export type ChartColor = Theme;
 
-export const FontSchema = z.enum([
-  "geist",
-  "inter",
-  "noto-sans",
-  "nunito-sans",
-  "figtree",
-  "roboto",
-  "raleway",
-  "dm-sans",
-  "public-sans",
-  "outfit",
-  "geist-mono",
-  "jetbrains-mono",
-]);
+const FONT_NAMES = FONT_DEFINITIONS.map((f) => f.name) as [FontName, ...FontName[]];
+export const FontSchema = z.enum(FONT_NAMES);
 export type Font = z.infer<typeof FontSchema>;
 
 export const RadiusSchema = z.enum(["default", "none", "small", "medium", "large"]);
