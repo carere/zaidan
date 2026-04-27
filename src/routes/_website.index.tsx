@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/solid-router";
 import { createEffect, onCleanup, onMount, untrack } from "solid-js";
+import { HomeHero } from "@/components/home-hero";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
@@ -83,8 +84,14 @@ function RouteComponent() {
     );
 
   return (
-    <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
-      <iframe ref={iframeRef} src={href()} class="z-10 size-full rounded-lg" title="Home Preview" />
+    <div class="no-scrollbar relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-col overflow-y-auto md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
+      <HomeHero />
+      <iframe
+        ref={iframeRef}
+        src={href()}
+        class="z-10 min-h-[700px] w-full flex-1 rounded-lg"
+        title="Home Preview"
+      />
     </div>
   );
 }

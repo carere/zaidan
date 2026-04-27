@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount, Show } from "solid-js";
-import { BentoNotch } from "@/components/bento-notch";
 import { RootComponents } from "@/components/home";
 import { FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
@@ -203,7 +202,6 @@ function PreviewComponent() {
   return (
     <Show when={isReady()}>
       <RootComponents />
-      <BentoNotch />
     </Show>
   );
 }

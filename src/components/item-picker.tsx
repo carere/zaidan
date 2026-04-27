@@ -10,9 +10,8 @@ import {
   Show,
   splitProps,
 } from "solid-js";
-import { getEntries, isNew } from "@/lib/registry-entries";
+import { getEntries, hasUpdate } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/registry/kobalte/ui/badge";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Command,
@@ -98,13 +97,13 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           }}
                         >
                           {item.title}
-                          <Show when={isNew(item.slug)}>
-                            <Badge
-                              variant="default"
-                              class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
-                            >
-                              new
-                            </Badge>
+                          <Show when={hasUpdate(item.slug, entry.kind)}>
+                            <span
+                              data-slot="update-indicator"
+                              role="status"
+                              aria-label="Has updates"
+                              class="ml-1.5 size-1.5 shrink-0 rounded-full bg-sky-500"
+                            />
                           </Show>
                         </CommandItem>
                       )}

@@ -3,7 +3,10 @@ import { SolidJS } from "@/components/icons/solidjs";
 
 export function BentoNotch() {
   return (
-    <div class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded border bg-background/80 px-6 py-2 shadow-lg backdrop-blur-sm">
+    <div
+      data-slot="bento-notch"
+      class="rounded border bg-background/80 px-6 py-2 shadow-lg backdrop-blur-sm"
+    >
       <div class="flex items-center gap-2 whitespace-nowrap font-medium text-muted-foreground text-sm">
         <span>Made by</span>
         <a
