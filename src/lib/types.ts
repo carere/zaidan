@@ -54,7 +54,14 @@ export type Radius = z.infer<typeof RadiusSchema>;
 export const MenuAccentSchema = z.enum(["subtle", "bold"]);
 export type MenuAccent = z.infer<typeof MenuAccentSchema>;
 
-export type LockableParam = "style" | "baseColor" | "theme" | "font" | "radius" | "menuAccent";
+export type LockableParam =
+  | "style"
+  | "baseColor"
+  | "theme"
+  | "font"
+  | "headingFont"
+  | "radius"
+  | "menuAccent";
 
 export type TocEntry = docs["toc"];
 
@@ -92,6 +99,7 @@ export const DesignSystemConfigSchema = z.object({
   baseColor: BaseColorSchema.optional().default("neutral"),
   theme: ThemeSchema.optional().default("neutral"),
   font: FontSchema.optional().default("inter"),
+  headingFont: FontSchema.optional().default("inter"),
   radius: RadiusSchema.optional().default("default"),
   menuAccent: MenuAccentSchema.optional().default("subtle"),
 });

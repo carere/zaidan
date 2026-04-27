@@ -69,7 +69,13 @@ type EmptyTitleProps = ComponentProps<"div">;
 const EmptyTitle = (props: EmptyTitleProps) => {
   const [local, others] = splitProps(props, ["class"]);
 
-  return <div data-slot="empty-title" class={cn("z-empty-title", local.class)} {...others} />;
+  return (
+    <div
+      data-slot="empty-title"
+      class={cn("z-empty-title z-font-heading", local.class)}
+      {...others}
+    />
+  );
 };
 
 type EmptyDescriptionProps = ComponentProps<"p">;
