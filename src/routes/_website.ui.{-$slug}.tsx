@@ -1,5 +1,5 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
-import { shadcn } from "@velite";
+import { ui } from "@velite";
 import { createEffect, createMemo, onCleanup, onMount, untrack } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
@@ -9,7 +9,7 @@ import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const Route = createFileRoute("/_website/ui/{-$slug}")({
   loader: ({ params }) => {
-    const doc = shadcn.find((u) => (params.slug ? u.slug === params.slug : false)) ?? shadcn[0];
+    const doc = ui.find((u) => (params.slug ? u.slug === params.slug : false)) ?? ui[0];
     if (!doc) {
       throw notFound({
         data: {

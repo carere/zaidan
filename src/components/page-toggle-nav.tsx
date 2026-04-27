@@ -1,6 +1,6 @@
 import { Link, useLocation, useSearch } from "@tanstack/solid-router";
 import { splitProps, type ValidComponent } from "solid-js";
-import type { Kind } from "@/lib/registries";
+import type { Kind } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   ToggleGroup,

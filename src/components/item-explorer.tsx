@@ -1,7 +1,7 @@
 import { Link, useSearch } from "@tanstack/solid-router";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
-import { getEntries, isDraft } from "@/lib/registry-entries";
+import { getEntries, isNew } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/registry/kobalte/ui/badge";
 import {
@@ -58,12 +58,12 @@ export function ItemExplorer(props: SidebarProps) {
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >
                                 {item.title}
-                                <Show when={isDraft(item.slug)}>
+                                <Show when={isNew(item.slug)}>
                                   <Badge
-                                    variant="outline"
+                                    variant="default"
                                     class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
                                   >
-                                    draft
+                                    new
                                   </Badge>
                                 </Show>
                                 <span class="absolute inset-0 flex w-(--sidebar-width) bg-transparent" />

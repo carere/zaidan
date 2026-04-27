@@ -1,18 +1,15 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
-import { bazza, motionPrimitives } from "@velite";
+import { blocks } from "@velite";
 import { createEffect, createMemo, onCleanup, onMount, untrack } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { PageToggleNav } from "@/components/page-toggle-nav";
-import { getRegistryForBlockSlug } from "@/lib/registries";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const Route = createFileRoute("/_website/blocks/{-$slug}")({
   loader: ({ params }) => {
-    const allBlocks = [...bazza, ...motionPrimitives];
-    const doc =
-      allBlocks.find((u) => (params.slug ? u.slug === params.slug : false)) ?? allBlocks[0];
+    const doc = blocks.find((u) => (params.slug ? u.slug === params.slug : false)) ?? blocks[0];
     if (!doc) {
       throw notFound({
         data: {
@@ -20,8 +17,7 @@ export const Route = createFileRoute("/_website/blocks/{-$slug}")({
         },
       });
     }
-    const registry = getRegistryForBlockSlug(doc.slug);
-    return { ...doc, registry };
+    return doc;
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};

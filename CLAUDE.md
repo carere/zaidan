@@ -29,35 +29,34 @@ Zaidan is a ShadCN UI registry for SolidJS - a collection of beautifully designe
 src/
 ├── registry/
 │   └── kobalte/
-│       ├── ui/               # Shadcn-style UI components (53 components)
+│       ├── ui/                 # UI component sources (single-file components)
+│       ├── blocks/             # Block sources (multi-file compositions)
 │       ├── examples/
-│       │   └── shadcn/       # Component usage examples per registry
-│       └── hooks/            # Custom SolidJS hooks
-├── components/               # Website-specific components
-├── routes/                   # TanStack Router file-based routes
+│       │   ├── ui/             # Usage examples for UI components
+│       │   └── blocks/         # Usage examples for blocks
+│       └── hooks/              # Custom SolidJS hooks
+├── components/                 # Website-specific components
+├── routes/                     # TanStack Router file-based routes
 ├── pages/
-│   ├── docs/                 # General documentation MDX pages
-│   └── shadcn/               # Component docs MDX pages per registry
-├── lib/                      # Utilities, registries config, Vite plugins
-└── styles/                   # Additional style files
+│   ├── docs/                   # General documentation MDX pages
+│   ├── ui/<primitive>/         # MDX docs for UI components
+│   └── blocks/<primitive>/     # MDX docs for blocks
+├── lib/                        # Utilities, types, Vite plugins
+└── styles/                     # Additional style files
 
-scripts/                      # Development scripts
+scripts/                        # Development scripts
 ```
 
-### Multi-Registry URL Structure
+### URL Structure
 
-Components are served under `/registry/<registry>/<component>`:
-- Preview: `/registry/shadcn/button`
-- Docs: `/registry/shadcn/button/docs`
-- Preview iframe: `/preview/shadcn/kobalte/button`
+Components are organized by kind (`ui` or `blocks`) and served at:
+- UI preview: `/ui/<component>`
+- UI docs: `/ui/<component>/docs`
+- Block preview: `/blocks/<slug>`
+- Block docs: `/blocks/<slug>/docs`
+- Preview iframe: `/preview/<kind>/<primitive>/<component>`
 
-Registry configuration is centralized in `src/lib/registries.ts` which exports:
-- `REGISTRIES` — allowlist of registry names (`["shadcn"]`)
-- `Registry` — union type derived from the allowlist
-- `REGISTRY_META` — display labels per registry
-- `getCollectionByRegistry()` — returns the Velite collection for a given registry
-
-Velite collections are defined per registry in `velite.config.ts` (e.g., `shadcn` collection maps to `src/pages/shadcn/**/*.mdx`).
+Velite collections in `velite.config.ts`: `docs` (general docs), `ui` (`src/pages/ui/**/*.mdx`), `blocks` (`src/pages/blocks/**/*.mdx`).
 
 ## Development Commands
 
@@ -77,7 +76,7 @@ bun run build
 bun run preview
 
 # Build registry for shadcn CLI
-bun run registry:build
+bun run r:build:kobalte
 ```
 
 ### Bun Specificities

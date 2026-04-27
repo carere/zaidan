@@ -24,7 +24,8 @@ src/registry/
     blocks/               # Block composition files
     hooks/                # Custom hooks
     examples/
-      <REGISTRY>/         # Component usage examples per registry
+      ui/                 # Examples for UI components
+      blocks/             # Examples for blocks
 ```
 
 ## Instructions

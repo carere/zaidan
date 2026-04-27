@@ -21,11 +21,12 @@ You do NOT perform QA visual validation -- that is handled separately by the com
 - `COMPONENT_NAME` -- kebab-case name of the component (e.g., `dialog`, `button`, `alert-dialog`)
 - `DOC_SOURCE` (optional) -- URL or glob for documentation source. If omitted, defaults to shadcn GitHub docs URL
 - `EXAMPLE_SOURCE` (optional) -- URL for raw example code. If omitted, defaults to shadcn GitHub example URL
-- `COMPONENT_TYPE` (`component` | `block`, default: `component`) -- affects file paths and template structure
-- `PRIMITIVE` (`kobalte` | `base-ui`, default: `kobalte`) -- which registry namespace to target
-- `REGISTRY` (`shadcn`, default: `shadcn`) -- which design system registry this component belongs to. Determines the subdirectory for examples and documentation pages.
+- `COMPONENT_TYPE` (`component` | `block`, default: `component`) -- affects file paths and template structure. Maps to the `<KIND>` segment in output paths: `component` -> `ui`, `block` -> `blocks`.
+- `PRIMITIVE` (`kobalte` | `base-ui`, default: `kobalte`) -- which primitive library to target.
 
 When invoked, determine the values of these variables from the user's request. If not specified, use the defaults.
+
+The `<KIND>` segment used in output paths is derived from `COMPONENT_TYPE`: `ui` for components, `blocks` for blocks.
 
 ## Instructions
 
@@ -119,7 +120,7 @@ Where `<EXAMPLES_URL>` is either the `EXAMPLE_SOURCE` value (if provided) or the
 4.1 - Write the transformed example file to:
 
 ```
-src/registry/<PRIMITIVE>/examples/<REGISTRY>/<COMPONENT_NAME>-example.tsx
+src/registry/<PRIMITIVE>/examples/<KIND>/<COMPONENT_NAME>-example.tsx
 ```
 
 4.2 - Use existing example files as reference for the expected structure. The file should follow this pattern:
@@ -155,7 +156,7 @@ function ExampleVariant1() {
 5.1 - Lint and format the example file:
 
 ```bash
-bun biome check --write src/registry/<PRIMITIVE>/examples/<REGISTRY>/<COMPONENT_NAME>-example.tsx
+bun biome check --write src/registry/<PRIMITIVE>/examples/<KIND>/<COMPONENT_NAME>-example.tsx
 ```
 
 5.2 - If the example file has lint errors that cannot be auto-fixed, analyze and fix them manually, then re-run the lint.
@@ -201,7 +202,7 @@ curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/
 7.2 - Write the MDX documentation to:
 
 ```
-src/pages/<REGISTRY>/<PRIMITIVE>/<COMPONENT_NAME>.mdx
+src/pages/<KIND>/<PRIMITIVE>/<COMPONENT_NAME>.mdx
 ```
 
 7.3 - Use this template structure (adapt based on extracted content):
@@ -252,7 +253,7 @@ Here are the source code of all the examples from the preview page:
 <Relevant imports for this example using @/* paths>
 ```
 
-```tsx file=../../../registry/<PRIMITIVE>/examples/<REGISTRY>/<component-name>-example.tsx#LX-LY
+```tsx file=../../../registry/<PRIMITIVE>/examples/<KIND>/<component-name>-example.tsx#LX-LY
 
 ```
 
@@ -296,8 +297,8 @@ After completing the workflow, output the following report:
 
 | File | Status | Description |
 |------|--------|-------------|
-| `src/registry/<PRIMITIVE>/examples/<REGISTRY>/<COMPONENT_NAME>-example.tsx` | Created/Modified | Component examples |
-| `src/pages/<REGISTRY>/<PRIMITIVE>/<COMPONENT_NAME>.mdx` | Created/Modified | MDX documentation |
+| `src/registry/<PRIMITIVE>/examples/<KIND>/<COMPONENT_NAME>-example.tsx` | Created/Modified | Component examples |
+| `src/pages/<KIND>/<PRIMITIVE>/<COMPONENT_NAME>.mdx` | Created/Modified | MDX documentation |
 
 (Use absolute paths in the report)
 

@@ -10,8 +10,7 @@ import {
   Show,
   splitProps,
 } from "solid-js";
-import { REGISTRY_META } from "@/lib/registries";
-import { getEntries, isDraft } from "@/lib/registry-entries";
+import { getEntries, isNew } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/registry/kobalte/ui/badge";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -99,17 +98,12 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           }}
                         >
                           {item.title}
-                          <Show when={item.registry !== "shadcn"}>
-                            <span class="ml-1 text-muted-foreground">
-                              ({REGISTRY_META[item.registry].label})
-                            </span>
-                          </Show>
-                          <Show when={isDraft(item.slug)}>
+                          <Show when={isNew(item.slug)}>
                             <Badge
-                              variant="outline"
+                              variant="default"
                               class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
                             >
-                              draft
+                              new
                             </Badge>
                           </Show>
                         </CommandItem>

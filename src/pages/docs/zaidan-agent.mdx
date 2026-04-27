@@ -64,44 +64,16 @@ The agent generates component code, examples, and documentation that integrate w
 
 ### /sync
 
-The main command for bringing components into Zaidan. It operates in two modes:
-
-- **Shadcn mode** (default) — Sync components from shadcn registry.
-- **External mode** — Sync components from external registries (Origin-UI, Magic-UI, ...).
+The main command for bringing shadcn components into Zaidan. The transformer auto-detects whether each component is a single-file UI component or a multi-file block, and writes it to the matching destination (`ui/` or `blocks/`).
 
 #### Flags
 
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--primitive` | `kobalte` | Target primitive system (`kobalte`, `base-ui` coming soon) |
-| `--registry` | — | External `registry.json` URL. Omit for shadcn mode |
-| `--docs` | — | External only — Raw mdx URL template |
-| `--examples` | — | External only — Raw tsx URL template |
-| `--playground` | — | External only — URL template of live preview |
 | `--filter` | — | Regex to filter which components to sync |
 | `--dry-run` | `false` | Discovery only — stops before transformation |
 | `--transform-instructions` | — | Custom instructions passed to transformer agents |
-
-<Alert class="border-none bg-sky-600/10 text-sky-600 dark:bg-sky-400/10 dark:text-sky-400">
-  <CircleAlert />
-  <AlertTitle>Modes</AlertTitle>
-  <AlertDescription>
-    In **shadcn mode**, you don't need to pass any urls, they are all built-in into Zaidan and will be ignored if you pass them.
-  </AlertDescription>
-</Alert>
-
-#### URL Templates
-
-URL templates for external mode use `{component}` as a placeholder, replaced with each component's kebab-case name at runtime. You can append an optional `|prompt` suffix to provide extraction guidance:
-
-```bash
---docs="https://docs.example.com/{component}.mdx|Look in the API section"
---examples="https://raw.github.com/.../examples/{component}.tsx|Focus on the usage example"
-# Glob pattern also works
-# --examples="https://raw.github.com/.../examples/{component}/*.tsx|Extract all examples, not just the first one"
-```
-
-The part before `|` is the URL, the part after are instructions to find the relevant content (if not provided, all the page is parsed by the agent).
 
 #### Usage Examples
 
@@ -111,12 +83,6 @@ The part before `|` is the URL, the part after are instructions to find the rele
 
 # Preview what would be synced (no transformation) and filter to only button and card components
 /sync --filter="^(button|card)" --dry-run
-
-# Sync from an external registry
-/sync --registry="https://raw.github.com/some-dir/registry.json" \
-      --docs="https://raw.github.com/.../docs/{component}.mdx" \
-      --examples="https://raw.github.com/.../examples/{component}.tsx" \
-      --playground="https://bazza.dev/preview/{component}"
 
 # Pass custom guidance to transformers
 /sync --filter="data-table" \
