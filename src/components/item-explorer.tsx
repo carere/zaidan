@@ -1,9 +1,8 @@
 import { Link, useSearch } from "@tanstack/solid-router";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
-import { getEntries, isNew } from "@/lib/registry-entries";
+import { getEntries, hasUpdate } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/registry/kobalte/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
@@ -58,13 +57,13 @@ export function ItemExplorer(props: SidebarProps) {
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >
                                 {item.title}
-                                <Show when={isNew(item.slug)}>
-                                  <Badge
-                                    variant="default"
-                                    class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
-                                  >
-                                    new
-                                  </Badge>
+                                <Show when={hasUpdate(item.slug, entry.kind)}>
+                                  <span
+                                    data-slot="update-indicator"
+                                    role="status"
+                                    aria-label="Has updates"
+                                    class="ml-1.5 size-1.5 shrink-0 rounded-full bg-sky-500"
+                                  />
                                 </Show>
                                 <span class="absolute inset-0 flex w-(--sidebar-width) bg-transparent" />
                               </SidebarMenuButton>

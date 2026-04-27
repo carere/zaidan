@@ -87,6 +87,10 @@ export type IframeMessage =
   | {
       type: "color-mode-sync";
       data: ColorMode;
+    }
+  | {
+      type: "iframe-height-sync";
+      data: number;
     };
 
 export type IframeMessageType = IframeMessage["type"];

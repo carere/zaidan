@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/solid-router";
-import { createEffect, onCleanup, onMount, untrack } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, untrack } from "solid-js";
+import { HomeHero } from "@/components/home-hero";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
@@ -21,9 +22,13 @@ function RouteComponent() {
   const search = Route.useSearch();
   const { colorMode } = useColorMode();
 
+  // Drives the iframe's height — set from messages posted by the iframe so
+  // the iframe sizes to its content and doesn't show an internal scrollbar.
+  const [iframeHeight, setIframeHeight] = createSignal(700);
+
   let iframeRef: HTMLIFrameElement | undefined;
 
-  // Handle forwarded keyboard shortcuts from iframe
+  // Handle forwarded keyboard shortcuts + height updates from iframe
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.data.type === "dark-mode-forward") {
@@ -50,6 +55,8 @@ function RouteComponent() {
           cancelable: true,
         });
         document.dispatchEvent(syntheticEvent);
+      } else if (event.data.type === "iframe-height-sync") {
+        setIframeHeight(event.data.data);
       }
     };
 
@@ -83,8 +90,16 @@ function RouteComponent() {
     );
 
   return (
-    <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
-      <iframe ref={iframeRef} src={href()} class="z-10 size-full rounded-lg" title="Home Preview" />
+    <div class="no-scrollbar relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-col overflow-y-auto md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
+      <HomeHero />
+      <iframe
+        ref={iframeRef}
+        src={href()}
+        style={{ height: `${iframeHeight()}px` }}
+        scrolling="no"
+        class="z-10 w-full shrink-0 rounded-lg"
+        title="Home Preview"
+      />
     </div>
   );
 }
