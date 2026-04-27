@@ -236,7 +236,10 @@ export type UpdatedItem = {
  * its label in the sidebar and command palette. The list is maintained
  * manually — entries stay until the maintainer removes them.
  */
-export const UPDATED_ITEMS: UpdatedItem[] = [{ kind: "docs", slug: "changelog" }];
+export const UPDATED_ITEMS: UpdatedItem[] = [
+  { kind: "docs", slug: "changelog" },
+  { kind: "ui", slug: "scroll-area" },
+];
 
 /**
  * Announcement pill shown above the homepage hero. Update `label` + `href`

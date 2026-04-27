@@ -17,7 +17,7 @@ export const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
     return (
       <h1
-        class="relative mt-2 scroll-m-28 font-bold font-heading text-3xl tracking-tight [&>a]:no-underline"
+        class="relative mt-2 scroll-m-28 font-heading font-semibold text-4xl tracking-tight dark:text-[#D4D4D4] [&>a]:no-underline"
         {...props}
       />
     );
@@ -25,7 +25,7 @@ export const sharedComponents = {
   h2: (props: ComponentProps<"h2">) => {
     return (
       <h2
-        class="relative mt-10 scroll-m-28 font-heading font-medium text-xl tracking-tight first:mt-0 lg:mt-12 [&+.steps>h3]:mt-4! [&+.steps]:mt-0! [&+h3]:mt-6! [&+p]:mt-4! [&+]*:[code]:text-xl"
+        class="relative mt-10 mb-4 inline-flex scroll-m-28 font-heading font-semibold text-xl tracking-tight first:mt-0 lg:mt-12 dark:text-[#D4D4D4] [&+.steps>h3]:mt-4! [&+.steps]:mt-0! [&+h3]:mt-6! [&+p]:mt-4! [&+]*:[code]:text-xl"
         {...props}
       />
     );
@@ -33,7 +33,7 @@ export const sharedComponents = {
   h3: (props: ComponentProps<"h3">) => {
     return (
       <h3
-        class="relative mt-12 scroll-m-28 font-heading font-medium text-lg tracking-tight [&+p]:mt-4! *:[code]:text-xl"
+        class="relative mt-12 scroll-m-28 font-heading font-semibold text-lg tracking-tight dark:text-[#D4D4D4] [&+p]:mt-4! *:[code]:text-xl"
         {...props}
       />
     );
@@ -42,26 +42,36 @@ export const sharedComponents = {
   h4: (props: ComponentProps<"h4">) => {
     return (
       <h4
-        class="relative mt-8 scroll-m-28 font-heading font-medium text-base tracking-tight"
+        class="relative mt-8 scroll-m-28 font-heading font-semibold text-base tracking-tight dark:text-[#D4D4D4]"
         {...props}
       />
     );
   },
 
   h5: (props: ComponentProps<"h5">) => {
-    return <h5 class="relative mt-8 scroll-m-28 font-medium text-base tracking-tight" {...props} />;
+    return (
+      <h5
+        class="relative mt-8 scroll-m-28 font-semibold text-base tracking-tight dark:text-[#D4D4D4]"
+        {...props}
+      />
+    );
   },
 
   h6: (props: ComponentProps<"h6">) => {
-    return <h6 class="relative mt-8 scroll-m-28 font-medium text-base tracking-tight" {...props} />;
+    return (
+      <h6
+        class="relative mt-8 scroll-m-28 font-semibold text-base tracking-tight dark:text-[#D4D4D4]"
+        {...props}
+      />
+    );
   },
 
   a: (props: ComponentProps<"a">) => {
-    return <a class="font-medium underline-offset-4" {...props} />;
+    return <a class="underline-offset-4" {...props} />;
   },
 
   p: (props: ComponentProps<"p">) => {
-    return <p class="not-first:mt-6 text-sm leading-relaxed" {...props} />;
+    return <p class="not-first:mt-6 text-base leading-relaxed dark:text-[#D4D4D4]" {...props} />;
   },
 
   strong: (props: ComponentProps<"strong">) => {
@@ -77,7 +87,7 @@ export const sharedComponents = {
   },
 
   li: (props: ComponentProps<"li">) => {
-    return <li class="mt-2" {...props} />;
+    return <li class="mt-2 dark:text-[#D4D4D4]" {...props} />;
   },
 
   blockquote: (props: ComponentProps<"blockquote">) => {
@@ -290,7 +300,7 @@ export const sharedComponents = {
   TriangleAlert,
   CliButton,
   ChangelogEntry: (props: ParentProps) => (
-    <article data-slot="changelog-entry" class="mb-12 border-border border-b pb-12">
+    <article data-slot="changelog-entry" class="mb-12 border-border border-b pb-12 last:border-b-0">
       {props.children}
     </article>
   ),

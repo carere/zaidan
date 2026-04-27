@@ -20,7 +20,7 @@ function TocItems(props: { items: TocEntry; depth?: number }) {
           <a
             href={item.url}
             class={cn(
-              "inline-block py-1 text-muted-foreground text-sm transition-colors hover:text-foreground",
+              "inline-block py-1 text-muted-foreground text-xs transition-colors hover:text-foreground",
               {
                 "pl-0": depth() === 0,
                 "pl-4": depth() === 1,
@@ -50,7 +50,7 @@ export function TableOfContents(props: TableOfContentsProps) {
   return (
     <nav data-slot="toc" class={props.class} aria-label="Table of contents">
       <div class="pb-4">
-        <p class="mb-2 font-medium text-sm">On This Page</p>
+        <p class="mb-2 font-medium text-xs">On This Page</p>
         <ul class="space-y-1">
           <TocItems items={props.toc} />
         </ul>
