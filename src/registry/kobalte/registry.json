@@ -1969,7 +1969,7 @@
       }
     },
     {
-      "name": "chart-color-neutral",
+      "name": "chart-neutral",
       "title": "Chart Color Neutral",
       "type": "registry:theme",
       "cssVars": {
@@ -1990,7 +1990,7 @@
       }
     },
     {
-      "name": "chart-color-stone",
+      "name": "chart-stone",
       "title": "Chart Color Stone",
       "type": "registry:theme",
       "cssVars": {
@@ -2011,7 +2011,7 @@
       }
     },
     {
-      "name": "chart-color-zinc",
+      "name": "chart-zinc",
       "title": "Chart Color Zinc",
       "type": "registry:theme",
       "cssVars": {
@@ -2032,7 +2032,7 @@
       }
     },
     {
-      "name": "chart-color-mauve",
+      "name": "chart-mauve",
       "title": "Chart Color Mauve",
       "type": "registry:theme",
       "cssVars": {
@@ -2053,7 +2053,7 @@
       }
     },
     {
-      "name": "chart-color-olive",
+      "name": "chart-olive",
       "title": "Chart Color Olive",
       "type": "registry:theme",
       "cssVars": {
@@ -2074,7 +2074,7 @@
       }
     },
     {
-      "name": "chart-color-mist",
+      "name": "chart-mist",
       "title": "Chart Color Mist",
       "type": "registry:theme",
       "cssVars": {
@@ -2095,7 +2095,7 @@
       }
     },
     {
-      "name": "chart-color-taupe",
+      "name": "chart-taupe",
       "title": "Chart Color Taupe",
       "type": "registry:theme",
       "cssVars": {
@@ -2116,7 +2116,7 @@
       }
     },
     {
-      "name": "chart-color-amber",
+      "name": "chart-amber",
       "title": "Chart Color Amber",
       "type": "registry:theme",
       "cssVars": {
@@ -2137,7 +2137,7 @@
       }
     },
     {
-      "name": "chart-color-blue",
+      "name": "chart-blue",
       "title": "Chart Color Blue",
       "type": "registry:theme",
       "cssVars": {
@@ -2158,7 +2158,7 @@
       }
     },
     {
-      "name": "chart-color-cyan",
+      "name": "chart-cyan",
       "title": "Chart Color Cyan",
       "type": "registry:theme",
       "cssVars": {
@@ -2179,7 +2179,7 @@
       }
     },
     {
-      "name": "chart-color-emerald",
+      "name": "chart-emerald",
       "title": "Chart Color Emerald",
       "type": "registry:theme",
       "cssVars": {
@@ -2200,7 +2200,7 @@
       }
     },
     {
-      "name": "chart-color-fuchsia",
+      "name": "chart-fuchsia",
       "title": "Chart Color Fuchsia",
       "type": "registry:theme",
       "cssVars": {
@@ -2221,7 +2221,7 @@
       }
     },
     {
-      "name": "chart-color-green",
+      "name": "chart-green",
       "title": "Chart Color Green",
       "type": "registry:theme",
       "cssVars": {
@@ -2242,7 +2242,7 @@
       }
     },
     {
-      "name": "chart-color-indigo",
+      "name": "chart-indigo",
       "title": "Chart Color Indigo",
       "type": "registry:theme",
       "cssVars": {
@@ -2263,7 +2263,7 @@
       }
     },
     {
-      "name": "chart-color-lime",
+      "name": "chart-lime",
       "title": "Chart Color Lime",
       "type": "registry:theme",
       "cssVars": {
@@ -2284,7 +2284,7 @@
       }
     },
     {
-      "name": "chart-color-orange",
+      "name": "chart-orange",
       "title": "Chart Color Orange",
       "type": "registry:theme",
       "cssVars": {
@@ -2305,7 +2305,7 @@
       }
     },
     {
-      "name": "chart-color-pink",
+      "name": "chart-pink",
       "title": "Chart Color Pink",
       "type": "registry:theme",
       "cssVars": {
@@ -2326,7 +2326,7 @@
       }
     },
     {
-      "name": "chart-color-purple",
+      "name": "chart-purple",
       "title": "Chart Color Purple",
       "type": "registry:theme",
       "cssVars": {
@@ -2347,7 +2347,7 @@
       }
     },
     {
-      "name": "chart-color-red",
+      "name": "chart-red",
       "title": "Chart Color Red",
       "type": "registry:theme",
       "cssVars": {
@@ -2368,7 +2368,7 @@
       }
     },
     {
-      "name": "chart-color-rose",
+      "name": "chart-rose",
       "title": "Chart Color Rose",
       "type": "registry:theme",
       "cssVars": {
@@ -2389,7 +2389,7 @@
       }
     },
     {
-      "name": "chart-color-sky",
+      "name": "chart-sky",
       "title": "Chart Color Sky",
       "type": "registry:theme",
       "cssVars": {
@@ -2410,7 +2410,7 @@
       }
     },
     {
-      "name": "chart-color-teal",
+      "name": "chart-teal",
       "title": "Chart Color Teal",
       "type": "registry:theme",
       "cssVars": {
@@ -2431,7 +2431,7 @@
       }
     },
     {
-      "name": "chart-color-violet",
+      "name": "chart-violet",
       "title": "Chart Color Violet",
       "type": "registry:theme",
       "cssVars": {
@@ -2452,7 +2452,7 @@
       }
     },
     {
-      "name": "chart-color-yellow",
+      "name": "chart-yellow",
       "title": "Chart Color Yellow",
       "type": "registry:theme",
       "cssVars": {
