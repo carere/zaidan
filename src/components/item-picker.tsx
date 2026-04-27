@@ -100,7 +100,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
                           {item.title}
                           <Show when={isNew(item.slug)}>
                             <Badge
-                              variant="outline"
+                              variant="default"
                               class="ml-1 rounded-sm px-1 py-0 font-mono text-[0.6rem]"
                             >
                               new
