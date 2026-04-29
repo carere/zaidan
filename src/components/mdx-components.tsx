@@ -13,6 +13,41 @@ import { Button } from "@/registry/kobalte/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
 import { Carere } from "./icons/carere";
 
+export const ChangelogEntry = (props: ParentProps) => (
+  <article data-slot="changelog-entry" class="mb-12 border-border border-b pb-12 last:border-b-0">
+    {props.children}
+  </article>
+);
+
+export const MoreUpdates = (props: ParentProps) => (
+  <section id="more-updates" data-slot="more-updates" class="mb-24 scroll-mt-24">
+    <h2 class="mb-6 font-heading font-semibold text-xl tracking-tight">More Updates</h2>
+    <div class="grid auto-rows-fr gap-3 sm:grid-cols-2">{props.children}</div>
+  </section>
+);
+
+export const UpdateCard = (props: { date: string; title: string; href?: string }) => {
+  const baseClass =
+    "flex w-full flex-col gap-1 rounded-xl bg-card px-4 py-3 text-card-foreground transition-colors hover:bg-card/80";
+
+  return (
+    <Show
+      when={props.href}
+      fallback={
+        <div data-slot="update-card" class={baseClass}>
+          <span class="text-muted-foreground text-xs">{props.date}</span>
+          <span class="font-medium text-sm">{props.title}</span>
+        </div>
+      }
+    >
+      <a data-slot="update-card" class={cn(baseClass, "no-underline")} href={props.href}>
+        <span class="text-muted-foreground text-xs">{props.date}</span>
+        <span class="font-medium text-sm">{props.title}</span>
+      </a>
+    </Show>
+  );
+};
+
 export const sharedComponents = {
   h1: (props: ComponentProps<"h1">) => {
     return (
@@ -299,44 +334,9 @@ export const sharedComponents = {
   CircleAlert,
   TriangleAlert,
   CliButton,
-  ChangelogEntry: (props: ParentProps) => (
-    <article data-slot="changelog-entry" class="mb-12 border-border border-b pb-12 last:border-b-0">
-      {props.children}
-    </article>
-  ),
-  MoreUpdates: (props: ParentProps) => {
-    const resolved = children(() => props.children);
-
-    return (
-      <Show when={resolved.toArray().length > 5}>
-        <section id="more-updates" data-slot="more-updates" class="mb-24 scroll-mt-24">
-          <h2 class="mb-6 font-heading font-semibold text-xl tracking-tight">More Updates</h2>
-          <div class="grid auto-rows-fr gap-3 sm:grid-cols-2">{resolved()}</div>
-        </section>
-      </Show>
-    );
-  },
-  UpdateCard: (props: { date: string; title: string; href?: string }) => {
-    const baseClass =
-      "flex w-full flex-col gap-1 rounded-xl bg-card px-4 py-3 text-card-foreground transition-colors hover:bg-card/80";
-
-    return (
-      <Show
-        when={props.href}
-        fallback={
-          <div data-slot="update-card" class={baseClass}>
-            <span class="text-muted-foreground text-xs">{props.date}</span>
-            <span class="font-medium text-sm">{props.title}</span>
-          </div>
-        }
-      >
-        <a data-slot="update-card" class={cn(baseClass, "no-underline")} href={props.href}>
-          <span class="text-muted-foreground text-xs">{props.date}</span>
-          <span class="font-medium text-sm">{props.title}</span>
-        </a>
-      </Show>
-    );
-  },
+  ChangelogEntry,
+  MoreUpdates,
+  UpdateCard,
   PlannedBadge: () => (
     <span class="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 font-medium text-amber-600 text-xs dark:text-amber-400">
       Planned

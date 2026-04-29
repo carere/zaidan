@@ -13,8 +13,10 @@ import { Route as WebsiteRouteImport } from './routes/_website'
 import { Route as WebsiteIndexRouteImport } from './routes/_website.index'
 import { Route as PreviewHomeRouteImport } from './routes/preview.home'
 import { Route as WebsiteSlugRouteImport } from './routes/_website.$slug'
+import { Route as WebsiteChangelogIndexRouteImport } from './routes/_website.changelog.index'
 import { Route as WebsiteUiChar123SlugChar125RouteImport } from './routes/_website.ui.{-$slug}'
 import { Route as WebsiteInstallationSlugRouteImport } from './routes/_website.installation.$slug'
+import { Route as WebsiteChangelogSlugRouteImport } from './routes/_website.changelog.$slug'
 import { Route as WebsiteBlocksChar123SlugChar125RouteImport } from './routes/_website.blocks.{-$slug}'
 import { Route as PreviewKindPrimitiveSlugRouteImport } from './routes/preview.$kind.$primitive.$slug'
 import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
@@ -39,6 +41,11 @@ const WebsiteSlugRoute = WebsiteSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => WebsiteRoute,
 } as any)
+const WebsiteChangelogIndexRoute = WebsiteChangelogIndexRouteImport.update({
+  id: '/changelog/',
+  path: '/changelog/',
+  getParentRoute: () => WebsiteRoute,
+} as any)
 const WebsiteUiChar123SlugChar125Route =
   WebsiteUiChar123SlugChar125RouteImport.update({
     id: '/ui/{-$slug}',
@@ -48,6 +55,11 @@ const WebsiteUiChar123SlugChar125Route =
 const WebsiteInstallationSlugRoute = WebsiteInstallationSlugRouteImport.update({
   id: '/installation/$slug',
   path: '/installation/$slug',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const WebsiteChangelogSlugRoute = WebsiteChangelogSlugRouteImport.update({
+  id: '/changelog/$slug',
+  path: '/changelog/$slug',
   getParentRoute: () => WebsiteRoute,
 } as any)
 const WebsiteBlocksChar123SlugChar125Route =
@@ -78,8 +90,10 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof WebsiteSlugRoute
   '/preview/home': typeof PreviewHomeRoute
   '/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
+  '/changelog/$slug': typeof WebsiteChangelogSlugRoute
   '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/changelog/': typeof WebsiteChangelogIndexRoute
   '/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
@@ -89,8 +103,10 @@ export interface FileRoutesByTo {
   '/preview/home': typeof PreviewHomeRoute
   '/': typeof WebsiteIndexRoute
   '/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
+  '/changelog/$slug': typeof WebsiteChangelogSlugRoute
   '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/changelog': typeof WebsiteChangelogIndexRoute
   '/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
@@ -102,8 +118,10 @@ export interface FileRoutesById {
   '/preview/home': typeof PreviewHomeRoute
   '/_website/': typeof WebsiteIndexRoute
   '/_website/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
+  '/_website/changelog/$slug': typeof WebsiteChangelogSlugRoute
   '/_website/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/_website/changelog/': typeof WebsiteChangelogIndexRoute
   '/_website/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/_website/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
@@ -115,8 +133,10 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/preview/home'
     | '/blocks/{-$slug}'
+    | '/changelog/$slug'
     | '/installation/$slug'
     | '/ui/{-$slug}'
+    | '/changelog/'
     | '/blocks/$slug/docs'
     | '/ui/$slug/docs'
     | '/preview/$kind/$primitive/$slug'
@@ -126,8 +146,10 @@ export interface FileRouteTypes {
     | '/preview/home'
     | '/'
     | '/blocks/{-$slug}'
+    | '/changelog/$slug'
     | '/installation/$slug'
     | '/ui/{-$slug}'
+    | '/changelog'
     | '/blocks/$slug/docs'
     | '/ui/$slug/docs'
     | '/preview/$kind/$primitive/$slug'
@@ -138,8 +160,10 @@ export interface FileRouteTypes {
     | '/preview/home'
     | '/_website/'
     | '/_website/blocks/{-$slug}'
+    | '/_website/changelog/$slug'
     | '/_website/installation/$slug'
     | '/_website/ui/{-$slug}'
+    | '/_website/changelog/'
     | '/_website/blocks/$slug/docs'
     | '/_website/ui/$slug/docs'
     | '/preview/$kind/$primitive/$slug'
@@ -181,6 +205,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteSlugRouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_website/changelog/': {
+      id: '/_website/changelog/'
+      path: '/changelog'
+      fullPath: '/changelog/'
+      preLoaderRoute: typeof WebsiteChangelogIndexRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
     '/_website/ui/{-$slug}': {
       id: '/_website/ui/{-$slug}'
       path: '/ui/{-$slug}'
@@ -193,6 +224,13 @@ declare module '@tanstack/solid-router' {
       path: '/installation/$slug'
       fullPath: '/installation/$slug'
       preLoaderRoute: typeof WebsiteInstallationSlugRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/_website/changelog/$slug': {
+      id: '/_website/changelog/$slug'
+      path: '/changelog/$slug'
+      fullPath: '/changelog/$slug'
+      preLoaderRoute: typeof WebsiteChangelogSlugRouteImport
       parentRoute: typeof WebsiteRoute
     }
     '/_website/blocks/{-$slug}': {
@@ -230,8 +268,10 @@ interface WebsiteRouteChildren {
   WebsiteSlugRoute: typeof WebsiteSlugRoute
   WebsiteIndexRoute: typeof WebsiteIndexRoute
   WebsiteBlocksChar123SlugChar125Route: typeof WebsiteBlocksChar123SlugChar125Route
+  WebsiteChangelogSlugRoute: typeof WebsiteChangelogSlugRoute
   WebsiteInstallationSlugRoute: typeof WebsiteInstallationSlugRoute
   WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125Route
+  WebsiteChangelogIndexRoute: typeof WebsiteChangelogIndexRoute
   WebsiteBlocksSlugDocsRoute: typeof WebsiteBlocksSlugDocsRoute
   WebsiteUiSlugDocsRoute: typeof WebsiteUiSlugDocsRoute
 }
@@ -240,8 +280,10 @@ const WebsiteRouteChildren: WebsiteRouteChildren = {
   WebsiteSlugRoute: WebsiteSlugRoute,
   WebsiteIndexRoute: WebsiteIndexRoute,
   WebsiteBlocksChar123SlugChar125Route: WebsiteBlocksChar123SlugChar125Route,
+  WebsiteChangelogSlugRoute: WebsiteChangelogSlugRoute,
   WebsiteInstallationSlugRoute: WebsiteInstallationSlugRoute,
   WebsiteUiChar123SlugChar125Route: WebsiteUiChar123SlugChar125Route,
+  WebsiteChangelogIndexRoute: WebsiteChangelogIndexRoute,
   WebsiteBlocksSlugDocsRoute: WebsiteBlocksSlugDocsRoute,
   WebsiteUiSlugDocsRoute: WebsiteUiSlugDocsRoute,
 }

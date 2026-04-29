@@ -16,6 +16,13 @@ export type Entry = {
   route: FileRouteTypes["to"];
 };
 
+const CHANGELOG_ENTRY: MergedItem = {
+  slug: "changelog",
+  title: "Changelog",
+  description: "Latest updates and announcements for the Zaidan registry.",
+  toc: [],
+};
+
 export const hasUpdate = (slug: string, kind: UpdatedItem["kind"]) =>
   UPDATED_ITEMS.some((item) => item.kind === kind && item.slug === slug);
 
@@ -31,9 +38,12 @@ export function getEntries(): Entry[] {
   return [
     {
       title: "Getting Started",
-      items: docs
-        .filter((d) => d.parent === undefined)
-        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
+      items: [
+        ...docs
+          .filter((d) => d.parent === undefined)
+          .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
+        CHANGELOG_ENTRY,
+      ],
       kind: "docs",
       route: "/$slug",
     },

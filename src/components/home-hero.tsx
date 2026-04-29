@@ -10,8 +10,7 @@ export function HomeHero() {
       class="relative flex w-full flex-col items-center gap-6 px-4 pt-4 pb-16 text-center lg:pt-6 lg:pb-24"
     >
       <Link
-        to="/$slug"
-        params={{ slug: "changelog" }}
+        to="/changelog"
         class="group inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted/80"
       >
         <span>Changelog page is live</span>

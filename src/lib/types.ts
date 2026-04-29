@@ -1,5 +1,7 @@
 import type { docs } from "@velite";
+import type { Component } from "solid-js";
 import { z } from "zod";
+import type { sharedComponents } from "@/components/mdx-components";
 import { FONT_DEFINITIONS, type FontName } from "@/lib/fonts";
 import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
@@ -114,3 +116,5 @@ export const DesignSystemConfigSchema = z.object({
 });
 
 export type DesignSystemConfig = z.infer<typeof DesignSystemConfigSchema>;
+
+export type MdxModule = { default: Component<{ components?: typeof sharedComponents }> };
