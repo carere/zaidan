@@ -36,3 +36,12 @@ export const flattenTocUrls = (entries: TocEntry): string[] => {
   }
   return urls;
 };
+
+const monthYearFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  timeZone: "UTC",
+});
+
+/** Formats a date in the format "Month Year" */
+export const fmtDate = (iso: string) => monthYearFormatter.format(new Date(iso));

@@ -35,5 +35,20 @@ export default defineConfig({
         toc: s.toc(),
       }),
     },
+    changelog: {
+      name: "changelog",
+      pattern: "changelog/**/*.mdx",
+      schema: s.object({
+        slug: s
+          .slug("changelog")
+          .refine((v) => !["index", "new", "latest", "feed", "rss"].includes(v), {
+            message: "reserved slug",
+          }),
+        title: s.string(),
+        description: s.string(),
+        date: s.isodate(),
+        toc: s.toc(),
+      }),
+    },
   },
 });
