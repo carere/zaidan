@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
     },
     server: {
-      port: env.APP_PORT ? Number(env.APP_PORT) : undefined,
+      port: env.CONDUCTOR_PORT ? Number(env.CONDUCTOR_PORT) : undefined,
     },
     plugins: [
       lucide(),

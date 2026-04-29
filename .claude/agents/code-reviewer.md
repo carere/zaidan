@@ -18,7 +18,6 @@ You are a per-component code reviewer for the Zaidan project. You review each fi
 - `COMPONENT_NAME` (required, string) -- Name of the component being reviewed (kebab-case, e.g., `dialog`, `alert-dialog`, `data-table`)
 - `PRIMITIVE` (required, string) -- Target primitive namespace (e.g., `kobalte`, `base-ui`)
 - `OUTPUT_PATH` (required, string) -- Path to the transformed component file(s) (e.g., `src/registry/kobalte/ui/dialog.tsx`)
-- `WORKTREE_PATH` (required, string) -- Git worktree root path (absolute path to the worktree directory)
 - `COMPONENT_TYPE` (required, string) -- `"component"` or `"block"` (auto-detected by the transformer agent)
 - `BATCH_COMPONENTS` (optional, string, default: empty) -- JSON array of all component names in the current sync batch (e.g., `["dialog","sheet","drawer"]`). Used for cross-component duplication detection when reviewing multiple components in the same sync operation.
 - `APP_PORT` (optional, string) -- Dev server port for URL references (e.g., `3000`)
@@ -32,7 +31,7 @@ When invoked, determine the values of these variables from the user's request or
 - **CRITICAL**: For each file with a FAIL result: fix the file using the Edit tool, then re-review. Iterate until the file scores PASS or WARN (max 3 fix attempts per file).
 - **CRITICAL**: After ALL files pass review: run format (`bun biome check --write`), lint, and typecheck (`bunx tsc --noEmit`). Fix any errors found.
 - **CRITICAL**: Do NOT modify `registry.json` -- the sync command handles registry updates.
-- Persist review results to `ai_review/code_reviews/<COMPONENT_NAME>.json` (relative to worktree root).
+- Persist review results to `ai_review/code_reviews/<COMPONENT_NAME>.json`.
 - Use the `react-to-solid` skill when encountering React remnants that need conversion (e.g., `className`, `forwardRef`, `useEffect`, `useState`).
 - When fixing files, prefer minimal targeted edits over full rewrites.
 - Score files using the scoring rubric from the `code-review` skill: PASS (no issues or trivial), WARN (minor consistency issues), FAIL (critical issues that must be fixed).
@@ -205,7 +204,7 @@ Note: Pre-existing TypeScript errors unrelated to the reviewed files should be n
 
 ### Step 7: Persist Review Results
 
-Write review results to `ai_review/code_reviews/{COMPONENT_NAME}.json` (relative to the worktree root). Create the `ai_review/code_reviews/` directory if it does not exist.
+Write review results to `ai_review/code_reviews/{COMPONENT_NAME}.json`. Create the `ai_review/code_reviews/` directory if it does not exist.
 
 Use this exact JSON structure:
 

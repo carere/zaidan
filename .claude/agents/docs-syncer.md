@@ -45,23 +45,9 @@ The `<KIND>` segment used in output paths is derived from `COMPONENT_TYPE`: `ui`
 
 When invoked, follow these steps in order:
 
-### Step 1: Worktree Guard
+### Step 1: Resolve Source
 
-1.1 - Verify the current working directory is inside a git worktree:
-
-```bash
-test -f .git
-```
-
-A git worktree has `.git` as a **file** (not a directory). If `.git` is a directory or does not exist, abort immediately with:
-
-```
-ERROR: Not inside a git worktree. This agent must run inside a worktree created by worktree-manager. Aborting.
-```
-
-### Step 2: Resolve Source
-
-2.1 - Determine the documentation URL based on whether `DOC_SOURCE` was provided:
+1.1 - Determine the documentation URL based on whether `DOC_SOURCE` was provided:
 
 **If no DOC_SOURCE provided (shadcn default):**
 
@@ -71,7 +57,7 @@ ERROR: Not inside a git worktree. This agent must run inside a worktree created 
 
 - Fetch and parse the DOC_SOURCE URL directly. If the URL contains `{component}`, replace it with the actual component name. If it contains a `|` character, split on it and use the part after `|` as an additional prompt for documentation extraction.
 
-2.1b - Determine the examples URL based on whether `EXAMPLE_SOURCE` was provided:
+1.2 - Determine the examples URL based on whether `EXAMPLE_SOURCE` was provided:
 
 **If no EXAMPLE_SOURCE provided (shadcn default):**
 
@@ -81,11 +67,11 @@ ERROR: Not inside a git worktree. This agent must run inside a worktree created 
 
 - Examples URL: Fetch and parse the EXAMPLE_SOURCE URLs directly. If the URL contains `{component}`, replace it with the actual component name. If it contains a `|` character, split on it and use the part after `|` as an additional prompt for example extraction.
 
-2.2 - Verify the component / block implementation file exists in the registry before proceeding:
+1.3 - Verify the component / block implementation file exists in the registry before proceeding:
 
-### Step 3: Fetch and Transform Examples
+### Step 2: Fetch and Transform Examples
 
-3.1 - Fetch the example file from the resolved examples URL (determined in Step 2.1b):
+2.1 - Fetch the example file from the resolved examples URL (determined in Step 1.2):
 
 ```bash
 curl -s "<EXAMPLES_URL>"
@@ -93,17 +79,17 @@ curl -s "<EXAMPLES_URL>"
 
 Where `<EXAMPLES_URL>` is either the `EXAMPLE_SOURCE` value (if provided) or the default shadcn GitHub URL from Step 2.1b.
 
-3.2 - If the response is empty or indicates a 404, inform the user that no examples exist for this component and STOP.
+2.2 - If the response is empty or indicates a 404, inform the user that no examples exist for this component and STOP.
 
-3.3 - Transform the fetched example code using the `react-to-solid` skill transformation rules:
+2.3 - Transform the fetched example code using the `react-to-solid` skill transformation rules:
 
-3.4 - Replace `IconPlaceholder` with actual icons from `lucide-solid`:
+2.4 - Replace `IconPlaceholder` with actual icons from `lucide-solid`:
 - Find all `<IconPlaceholder lucide="icon-name" />` usages
 - Replace with the corresponding icon component: `<IconName />`
 - Add the import: `import { IconName } from "lucide-solid"`
 - Remove any `IconPlaceholder` imports
 
-3.5 - Apply import path replacements:
+2.5 - Apply import path replacements:
 
 | Original Path | Replacement Path |
 |---|---|
@@ -113,17 +99,17 @@ Where `<EXAMPLES_URL>` is either the `EXAMPLE_SOURCE` value (if provided) or the
 | `@/registry/lib/hooks/<name>` | `@/lib/hooks/<name>` |
 | `@/registry/bases/base/lib/utils` | `@/lib/utils` |
 
-3.6 - Ensure the `Example` and `ExampleWrapper` imports from `@/components/example` are preserved. These are Zaidan-specific components that wrap each example for display.
+2.6 - Ensure the `Example` and `ExampleWrapper` imports from `@/components/example` are preserved. These are Zaidan-specific components that wrap each example for display.
 
-### Step 4: Write Examples
+### Step 3: Write Examples
 
-4.1 - Write the transformed example file to:
+3.1 - Write the transformed example file to:
 
 ```
 src/registry/<PRIMITIVE>/examples/<KIND>/<COMPONENT_NAME>-example.tsx
 ```
 
-4.2 - Use existing example files as reference for the expected structure. The file should follow this pattern:
+3.2 - Use existing example files as reference for the expected structure. The file should follow this pattern:
 
 ```tsx
 import { /* icons */ } from "lucide-solid";
@@ -151,37 +137,37 @@ function ExampleVariant1() {
 // ... more example variants
 ```
 
-### Step 5: Lint and Format Examples
+### Step 4: Lint and Format Examples
 
-5.1 - Lint and format the example file:
+4.1 - Lint and format the example file:
 
 ```bash
 bun biome check --write src/registry/<PRIMITIVE>/examples/<KIND>/<COMPONENT_NAME>-example.tsx
 ```
 
-5.2 - If the example file has lint errors that cannot be auto-fixed, analyze and fix them manually, then re-run the lint.
+4.2 - If the example file has lint errors that cannot be auto-fixed, analyze and fix them manually, then re-run the lint.
 
-5.3 - Do NOT proceed until the example file passes linting. The formatted file's line numbers will be used for MDX references in Step 7.
+4.3 - Do NOT proceed until the example file passes linting. The formatted file's line numbers will be used for MDX references in Step 7.
 
-### Step 6: Fetch and Transform Documentation
+### Step 5: Fetch and Transform Documentation
 
-6.1 - Fetch the MDX documentation from the resolved source:
+5.1 - Fetch the MDX documentation from the resolved source:
 
 ```bash
 curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/<COMPONENT_NAME>.mdx"
 ```
 
-6.2 - If the response is empty or indicates a 404, note that no upstream docs exist and create minimal documentation based on the component name and description.
+5.2 - If the response is empty or indicates a 404, note that no upstream docs exist and create minimal documentation based on the component name and description.
 
-6.3 - Extract from the fetched MDX:
+5.3 - Extract from the fetched MDX:
 - Component title (from frontmatter or first heading)
 - Component description (from frontmatter or first paragraph)
 - Usage patterns and code examples
 - Any external dependencies mentioned
 
-6.4 - Transform all code blocks in the documentation from React to SolidJS using the same `react-to-solid` transformation rules from Step 3.
+5.4 - Transform all code blocks in the documentation from React to SolidJS using the same `react-to-solid` transformation rules from Step 3.
 
-6.5 - Apply import path replacements for the documentation context:
+5.5 - Apply import path replacements for the documentation context:
 
 | Original Path | Replacement Path |
 |---|---|
@@ -191,21 +177,21 @@ curl -s "https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/
 | `@/registry/bases/base/lib/utils` | `@/lib/utils` |
 | `@/lib/utils` | `@/lib/utils` |
 
-### Step 7: Write/Update MDX Documentation
+### Step 6: Write/Update MDX Documentation
 
-7.1 - Read the formatted example file from Step 5 to determine the line ranges for each example function. For each named function that renders an `<Example>` component, record:
+6.1 - Read the formatted example file from Step 5 to determine the line ranges for each example function. For each named function that renders an `<Example>` component, record:
 - The function name (used as the example title from the `title` prop on `<Example>`)
 - The start line (function declaration line)
 - The end line (closing bracket of the function)
 - The imports needed for that specific example
 
-7.2 - Write the MDX documentation to:
+6.2 - Write the MDX documentation to:
 
 ```
 src/pages/<KIND>/<PRIMITIVE>/<COMPONENT_NAME>.mdx
 ```
 
-7.3 - Use this template structure (adapt based on extracted content):
+6.3 - Use this template structure (adapt based on extracted content):
 
 ```mdx
 ---
@@ -266,15 +252,15 @@ Here are the source code of all the examples from the preview page:
 - Import blocks in the Examples section use user-facing `@/*` paths
 - Each example's imports should only list what that specific example needs
 
-### Step 8: Type Check
+### Step 7: Type Check
 
-8.1 - Run TypeScript type checking from the project root:
+7.1 - Run TypeScript type checking from the project root:
 
 ```bash
 bun tsc --noEmit
 ```
 
-8.2 - If there are type errors related to the files you created/modified:
+7.2 - If there are type errors related to the files you created/modified:
 - Analyze the error messages
 - Fix common issues:
   - Missing imports: add `Show`, `For`, `splitProps`, `mergeProps` from `solid-js`
@@ -285,9 +271,9 @@ bun tsc --noEmit
   - Missing component exports: verify import paths are correct
 - Re-run type checking after each fix
 
-8.3 - Repeat Step 8.1-8.2 until type checking passes. Do NOT proceed until it passes.
+7.3 - Repeat Step 7.1-7.2 until type checking passes. Do NOT proceed until it passes.
 
-8.4 - If type errors are unrelated to the files you modified (pre-existing errors), note them in the report but proceed.
+7.4 - If type errors are unrelated to the files you modified (pre-existing errors), note them in the report but proceed.
 
 ## Report
 

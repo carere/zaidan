@@ -6,7 +6,7 @@ argument-hint: "[--primitive=kobalte|base] [--filter=<pattern>] [--dry-run] [--t
 
 # Purpose
 
-Orchestrates the `zaidan-transformer` and `docs-syncer` agents, the `worktree-manager` and `git-github-ops` skills, and generates QA user stories to transform shadcn React components/blocks into Zaidan SolidJS equivalents. UI components are written under `ui/`; blocks are written under `blocks/`.
+Transform shadcn React components/blocks into Zaidan SolidJS equivalents.
 
 ## Variables
 
@@ -52,17 +52,6 @@ src/pages/
 ai_review/
   user_stories/           # YAML user stories for QA validation
   code_reviews/           # JSON code review results per component
-
-.claude/
-  agents/
-    zaidan-transformer.md # Unified transformer agent
-    docs-syncer.md        # Documentation syncing agent
-    code-reviewer.md      # Per-component code reviewer agent
-  skills/
-    react-to-solid/       # Transformation rules (single source of truth)
-    code-review/          # Code review rules, anti-patterns, scoring rubric
-    worktree-manager/     # Git worktree lifecycle
-    git-github-ops/       # Conventional commits, push, PR creation
 ```
 
 ## Instructions
@@ -70,9 +59,7 @@ ai_review/
 - Parse `$ARGUMENTS` to extract flags and options
 - Always uses Agent Teams for execution, regardless of component count
 - Git operations (commit, push, PR) are handled at this command level, NOT by agents
-- Use the `worktree-manager` skill for worktree creation
 - Use the `git-github-ops` skill for git and GitHub operations
-- The `$APP_PORT` environment variable is available from `.env`
 - The dependency pre-flight gate in the transformer is a **HARD GATE** -- if deps are missing, transformation aborts. Do NOT proceed with transformation when registry dependencies are unsatisfied
 - The transformer auto-detects component vs block from the resolved source file count. Components write to `ui/`, blocks write to `blocks/`. Examples and MDX docs follow the same `ui/` vs `blocks/` split.
 
@@ -146,54 +133,33 @@ Dry run complete. Re-run without --dry-run to proceed with transformation.
 
 ---
 
-### Phase 2: Worktree Setup
+### Phase 2: Execution
 
-2.1 - Create worktree using `worktree-manager` skill:
-
-- Branch: `feat/sync-shadcn` (append `-{FILTER}` if `FILTER` is set)
-- Path: `trees/{branch-name}`
-
-2.2 - `cd` into the worktree and run `bun install`.
-
-**All the following phases should operate inside the worktree directory.** The agents will receive the worktree path as part of their input and should perform all file operations within that path.
-
----
-
-### Phase 3: Execution
-
-#### Step 3.1: Create Team
+#### Step 2.1: Create Team
 
 Use `TeamCreate` to create team `sync-shadcn`.
 
-#### Step 3.2: Start Dev Server
+#### Step 2.2: Start Dev Server
 
-Read `APP_PORT` from `.env` in the worktree directory (fallback to `3000` if not found).
+Run the dev server `bun run dev` in the background and save the port number, you will pass it to the teammates later
 
-Start the dev server in the background:
+#### Step 2.3: Wait for Dev Server Ready
 
-```
-cd {WORKTREE_PATH} && bun run dev &
-```
-
-Store the PID of the dev server process for later cleanup.
-
-#### Step 3.3: Wait for Dev Server Ready
-
-Poll `http://localhost:{APP_PORT}` until it responds with a successful status code.
+Poll the dev server until it responds with a successful status code.
 
 - Poll interval: 2 seconds
 - Timeout: 60 seconds
 - If timeout is reached, log a warning but continue (transforms can still run without the dev server)
 
-Log: `Dev server ready on port {APP_PORT}`
+Log: `Dev server ready on port`
 
-#### Step 3.4: Create Transform Tasks and Spawn Transformer Teammates
+#### Step 2.4: Create Transform Tasks and Spawn Transformer Teammates
 
 For each component in `COMPONENTS_TO_SYNC`:
 
 1. `TaskCreate` one task per component:
    - Subject: component name
-   - Description: source manifest JSON + primitive + worktree path
+   - Description: source manifest JSON + primitive
 
 2. Spawn `zaidan-transformer` teammates **in a single message** (all parallel). Each teammate receives:
 
@@ -205,11 +171,9 @@ Transform this component and report results:
 **Source URLs:**
   - Registry: {REGISTRY_DISCOVERY}
   - Raw Source: {SOURCE_TEMPLATE with {component} replaced by component-name}
-
-**Worktree:** {worktree-path}
+**App Port:** {APP_PORT is the port of the dev server started in Step 2.2}
 **Playground URL:** {PLAYGROUND_URL_TEMPLATE with {component} replaced}
 **Playground Prompt:** {PLAYGROUND_PROMPT}
-**App Port:** {APP_PORT}
 **Transform Instructions:** {TRANSFORM_INSTRUCTIONS or "none"}
 
 Follow your full workflow: source resolution, auto-detect component vs block,
@@ -230,7 +194,7 @@ Configuration per teammate:
 
 Teammates transform independently. Registry updates are handled centrally by the sync command after all transforms complete.
 
-#### Step 3.5: Wait for Transforms
+#### Step 2.5: Wait for Transforms
 
 Wait for all transformer teammates to complete. Parse `RESULT` lines and `REGISTRY_ENTRY` JSON from each teammate's report.
 The RESULT format is: `RESULT: {SUCCESS|FAILURE|BLOCKED} | Component: {name} | Primitive: {primitive} | Output: {path}`.
@@ -238,11 +202,11 @@ Track successes, failures, blocked, and collect registry entries for Step 3.7.
 
 If a component fails due to missing registry dependencies, log it as blocked (not failed) and note the missing deps.
 
-#### Step 3.6: Code Review
+#### Step 2.6: Code Review
 
 For each successfully transformed component, spawn a code-reviewer teammate:
 
-1. Build the `BATCH_COMPONENTS` list: JSON array of all component names that succeeded in Step 3.5
+1. Build the `BATCH_COMPONENTS` list: JSON array of all component names that succeeded in Step 2.5
 2. Ensure the review output directory exists:
 ```
 mkdir -p ai_review/code_reviews
@@ -256,9 +220,8 @@ Review the transformed component and fix any issues:
 **Primitive:** {PRIMITIVE}
 **Output Path:** {output-path from RESULT line}
 **Component Type:** {auto-detected from transformer: "component" or "block"}
-**Worktree:** {worktree-path}
 **Batch Components:** {JSON array of all component names in this sync}
-**App Port:** {APP_PORT}
+**App Port:** {APP_PORT is the port of the dev server started in Step 2.2}
 
 Follow your full workflow: load context, discover files, review each file,
 fix FAIL files, cross-component analysis, format/lint/typecheck, persist results, and report.
@@ -278,14 +241,14 @@ Configuration per teammate:
    - **FAIL**: Component is excluded from registry updates. Log as review-failed with details.
 7. Track review results for Phase 4 report
 
-#### Step 3.7: Apply Registry Updates
+#### Step 2.7: Apply Registry Updates
 
-Only process components that passed code review (PASS or WARN in Step 3.6).
+Only process components that passed code review (PASS or WARN in Step 2.6).
 Components that FAIL code review are excluded from registry updates.
 
 For each successfully transformed component that passed code review, apply its registry entry sequentially:
 
-1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 3.5)
+1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 2.5)
 2. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`
 3. Apply entries one at a time to prevent write conflicts
 4. After all entries are added, build the registry:
@@ -299,7 +262,7 @@ For each successfully transformed component that passed code review, apply its r
 
 Log: `Registry updated with {N} entries, build successful`
 
-#### Step 3.8: Create Docs Tasks and Spawn Docs Teammates
+#### Step 2.8: Create Docs Tasks and Spawn Docs Teammates
 
 For each successfully transformed component:
 
@@ -315,7 +278,7 @@ COMPONENT_NAME={component-name}
 PRIMITIVE={PRIMITIVE}
 COMPONENT_TYPE={auto-detected from transformer: "component" or "block"}
 
-Follow your full workflow: worktree guard, resolve source (uses default shadcn
+Follow your full workflow: resolve source (uses default shadcn
 GitHub source), fetch and transform examples, write examples,
 fetch and transform documentation, write/update MDX documentation, lint and
 format, type check. Generate the complete report.
@@ -325,11 +288,11 @@ Configuration per teammate:
 - `subagent_type: "docs-syncer"`
 - `team_name: "sync-shadcn"`
 
-#### Step 3.9: Wait for Docs
+#### Step 2.9: Wait for Docs
 
 Wait for all docs teammates to complete. Parse reports from each teammate.
 
-#### Step 3.10: UI Review
+#### Step 2.10: UI Review
 
 For each successfully transformed component that has a user story file:
 
@@ -345,21 +308,17 @@ For each successfully transformed component that has a user story file:
 6. Track per-component QA results: PASS, FAIL, or SKIPPED (if no story file exists)
 7. Store results for inclusion in the report and PR body
 
-#### Step 3.11: Stop Dev Server
+#### Step 2.11: Stop Dev Server
 
-Kill the dev server process using the stored PID from Step 3.2:
+Stop the background task running the dev server process you started in Step 2.2:
 
-```
-kill {DEV_SERVER_PID}
-```
+Log: `Dev server stopped`
 
-Log: `Dev server stopped (PID {DEV_SERVER_PID})`
-
-#### Step 3.12: Verify
+#### Step 2.12: Verify
 
 Run automated verification checks before shipping.
 
-**3.12.1: Registry Validation**
+**2.12.1: Registry Validation**
 
 Spawn a `registry-manager` teammate to audit the registry.json:
 
@@ -369,21 +328,21 @@ Spawn a `registry-manager` teammate to audit the registry.json:
 
 Wait for completion and parse the report summary.
 
-**3.12.2: Component File Check**
+**2.12.2: Component File Check**
 
 For each successfully transformed component, verify the output file exists:
 
 - Component: `ls src/registry/{PRIMITIVE}/ui/{COMPONENT_NAME}.tsx`
 - Block: `ls src/registry/{PRIMITIVE}/blocks/{COMPONENT_NAME}/`
 
-**3.12.3: Documentation File Check**
+**2.12.3: Documentation File Check**
 
 For each component with successful docs sync, verify:
 
 - Component MDX: `ls src/pages/ui/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
 - Block MDX: `ls src/pages/blocks/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
 
-**3.12.4: Example File Check**
+**2.12.4: Example File Check**
 
 For each component with successful docs sync, verify:
 
@@ -392,9 +351,9 @@ For each component with successful docs sync, verify:
 
 Collect results: for each component, record PASS/FAIL for each check. Store verification results for inclusion in PR body and report.
 
-#### Step 3.13: Ship
+#### Step 2.13: Ship
 
-Use the `git-github-ops` skill to perform the following operations inside the worktree:
+Use the `git-github-ops` skill to perform the following operations:
 
 - Stage all changed files
 - Create a conventional commit: `feat: sync {component-list} from shadcn`
@@ -437,7 +396,7 @@ QA column is populated from UI review results (Step 3.10).
 If any verification check failed, a warning is included noting which checks failed.
 ```
 
-#### Step 3.14: Cleanup
+#### Step 2.14: Cleanup
 
 1. `SendMessage` with `type: "shutdown_request"` to all teammates
 2. Wait for shutdown acknowledgments
@@ -445,7 +404,7 @@ If any verification check failed, a warning is included noting which checks fail
 
 ---
 
-### Phase 4: Report
+### Phase 3: Report
 
 Use the Report Format below.
 
