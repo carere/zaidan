@@ -573,6 +573,18 @@
       ]
     },
     {
+      "name": "sortable",
+      "type": "registry:ui",
+      "dependencies": ["@dnd-kit/solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/sortable.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "spinner",
       "type": "registry:ui",
       "dependencies": ["lucide-solid"],

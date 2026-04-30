@@ -27,6 +27,7 @@
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.33.2",
     "@corvu/otp-field": "^0.1.4",
+    "@dnd-kit/solid": "^0.4.0",
     "@fontsource-variable/eb-garamond": "^5.2.7",
     "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/ibm-plex-sans": "^5.2.8",
