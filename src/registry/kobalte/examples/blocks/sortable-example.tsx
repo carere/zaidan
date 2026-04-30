@@ -318,15 +318,6 @@ function SortableNested() {
     });
   };
 
-  const handleChildReorder = (groupId: string, newValues: OptionValue[]) => {
-    setOptionGroups((prev) =>
-      prev.map((group) => (group.id === groupId ? { ...group, values: newValues } : group)),
-    );
-    toast.success("Values reordered successfully!", {
-      description: newValues.map((value, index) => `${index + 1}. ${value.value}`).join(", "),
-    });
-  };
-
   return (
     <Example title="Nested">
       <Sortable
@@ -338,36 +329,25 @@ function SortableNested() {
         <For each={optionGroups()}>
           {(group) => (
             <SortableItem value={group.id}>
-              <Card class="p-2">
-                <CardContent class="p-0">
-                  <div class="mb-2 flex items-center gap-2">
-                    <SortableItemHandle class="text-muted-foreground hover:text-foreground">
-                      <GripVertical class="h-4 w-4" />
-                    </SortableItemHandle>
-                    <h3 class="font-semibold text-sm">{group.name}</h3>
-                  </div>
+              <div class="rounded-xl border border-border bg-card p-3 text-card-foreground shadow-xs">
+                <div class="mb-2 flex items-center gap-2">
+                  <SortableItemHandle class="text-muted-foreground hover:text-foreground">
+                    <GripVertical class="h-4 w-4" />
+                  </SortableItemHandle>
+                  <h3 class="font-semibold text-sm">{group.name}</h3>
+                </div>
 
-                  <Sortable
-                    value={group.values}
-                    onValueChange={(newValues) => handleChildReorder(group.id, newValues)}
-                    getItemValue={(value) => value.id}
-                    class="space-y-2"
-                  >
-                    <For each={group.values}>
-                      {(value) => (
-                        <SortableItem value={value.id}>
-                          <div class="flex items-center gap-2 rounded-md border border-border p-1.5">
-                            <SortableItemHandle class="text-muted-foreground hover:text-foreground">
-                              <GripVertical class="h-4 w-4" />
-                            </SortableItemHandle>
-                            <span class="flex-1 text-sm">{value.value}</span>
-                          </div>
-                        </SortableItem>
-                      )}
-                    </For>
-                  </Sortable>
-                </CardContent>
-              </Card>
+                <ul class="space-y-1.5 ps-6">
+                  <For each={group.values}>
+                    {(value) => (
+                      <li class="flex items-center gap-2 rounded-md border border-border bg-background/50 px-2 py-1">
+                        <span class="text-muted-foreground text-xs">•</span>
+                        <span class="flex-1 text-sm">{value.value}</span>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </div>
             </SortableItem>
           )}
         </For>

@@ -94,15 +94,21 @@ import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/
 
 ### Nested
 
+Reorder category cards that contain a list of values. The values inside each
+card are read-only and rendered as a static list — `@dnd-kit/solid` v0.4.0 does
+not currently support nesting one `Sortable` inside another (the parent's drag
+state stops propagating once an inner `<Sortable>` mounts as a descendant). If
+you need both axes draggable, render the inner list as a sibling of the outer
+sortable instead of a child.
+
 ```tsx
 import { GripVertical } from "lucide-solid";
 import { createSignal, For } from "solid-js";
 import { toast } from "solid-sonner";
-import { Card, CardContent } from "~/components/ui/card";
 import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/sortable";
 ```
 
-```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L311-L377
+```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L311-L357
 
 ```
 
@@ -122,7 +128,7 @@ import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/
 import { Switch } from "~/components/ui/switch";
 ```
 
-```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L419-L463
+```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L399-L443
 
 ```
 
