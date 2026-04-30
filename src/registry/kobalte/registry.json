@@ -574,13 +574,16 @@
     },
     {
       "name": "sortable",
-      "type": "registry:ui",
+      "type": "registry:block",
+      "title": "Sortable",
+      "description": "A drag-and-drop sortable component for reordering items in vertical, grid, and nested layouts. Built on @dnd-kit/solid.",
       "dependencies": ["@dnd-kit/solid"],
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/kobalte/ui/sortable.tsx",
-          "type": "registry:ui"
+          "path": "src/registry/kobalte/blocks/sortable.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/sortable.tsx"
         }
       ]
     },

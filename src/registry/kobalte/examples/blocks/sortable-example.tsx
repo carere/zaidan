@@ -2,6 +2,7 @@ import { FileText, GripVertical, Image as ImageIcon, Music, Video } from "lucide
 import { createSignal, For } from "solid-js";
 import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Sortable, SortableItem, SortableItemHandle } from "@/registry/kobalte/blocks/sortable";
 import { Badge } from "@/registry/kobalte/ui/badge";
 import {
   Card,
@@ -11,7 +12,6 @@ import {
   CardTitle,
 } from "@/registry/kobalte/ui/card";
 import { Toaster } from "@/registry/kobalte/ui/sonner";
-import { Sortable, SortableItem, SortableItemHandle } from "@/registry/kobalte/ui/sortable";
 import { Switch } from "@/registry/kobalte/ui/switch";
 
 export default function SortableExample() {
