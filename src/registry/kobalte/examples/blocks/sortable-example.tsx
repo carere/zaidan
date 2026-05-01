@@ -21,7 +21,6 @@ export default function SortableExample() {
       <ExampleWrapper class="lg:grid-cols-1 2xl:grid-cols-1">
         <SortableBasic />
         <SortableGrid />
-        <SortableNested />
         <SortableWithSwitch />
       </ExampleWrapper>
     </>
@@ -105,20 +104,18 @@ function getTypeVariant(
 function SortableBasic() {
   const [items, setItems] = createSignal<FileItem[]>(defaultFileItems);
 
-  const handleValueChange = (newItems: FileItem[]) => {
-    setItems(newItems);
-    toast.success("Items reordered successfully!", {
-      description: newItems.map((item, index) => `${index + 1}. ${item.title}`).join(", "),
-    });
-  };
-
   return (
     <Example title="Basic">
       <Sortable
         value={items()}
-        onValueChange={handleValueChange}
         getItemValue={(item) => item.id}
         class="mx-auto w-full max-w-xl space-y-2"
+        onValueChange={(newItems) => {
+          setItems(newItems);
+          toast.success("Items reordered successfully!", {
+            description: newItems.map((item, index) => `${index + 1}. ${item.title}`).join(", "),
+          });
+        }}
       >
         <For each={items()}>
           {(item) => (
@@ -150,13 +147,14 @@ function SortableBasic() {
   );
 }
 
-type GridItem = {
+interface GridItem {
   id: string;
   title: string;
   description: string;
   type: "image" | "document" | "audio" | "video" | "featured";
   size: string;
-};
+  priority: "high" | "medium" | "low";
+}
 
 const defaultGridItems: GridItem[] = [
   {
@@ -165,6 +163,7 @@ const defaultGridItems: GridItem[] = [
     description: "Main banner image",
     type: "image",
     size: "2.4 MB",
+    priority: "high",
   },
   {
     id: "2",
@@ -172,6 +171,7 @@ const defaultGridItems: GridItem[] = [
     description: "Technical documentation",
     type: "document",
     size: "1.2 MB",
+    priority: "medium",
   },
   {
     id: "3",
@@ -179,6 +179,7 @@ const defaultGridItems: GridItem[] = [
     description: "Product demonstration",
     type: "video",
     size: "15.7 MB",
+    priority: "high",
   },
   {
     id: "4",
@@ -186,20 +187,47 @@ const defaultGridItems: GridItem[] = [
     description: "Voice instructions",
     type: "audio",
     size: "8.3 MB",
+    priority: "low",
   },
   {
     id: "5",
-    title: "Gallery Photo",
-    description: "Product view",
+    title: "Gallery Photo 1",
+    description: "Product view 1",
     type: "image",
     size: "3.1 MB",
+    priority: "medium",
   },
   {
     id: "6",
+    title: "Gallery Photo 2",
+    description: "Product view 2",
+    type: "image",
+    size: "2.8 MB",
+    priority: "medium",
+  },
+  {
+    id: "7",
     title: "User Manual",
     description: "Installation guide",
     type: "document",
     size: "4.2 MB",
+    priority: "high",
+  },
+  {
+    id: "8",
+    title: "Background Music",
+    description: "Ambient soundtrack",
+    type: "audio",
+    size: "12.1 MB",
+    priority: "low",
+  },
+  {
+    id: "9",
+    title: "Feature Highlight",
+    description: "Key product features",
+    type: "featured",
+    size: "N/A",
+    priority: "high",
   },
 ];
 
@@ -223,28 +251,26 @@ function getGridVariant(
 function SortableGrid() {
   const [items, setItems] = createSignal<GridItem[]>(defaultGridItems);
 
-  const handleValueChange = (newItems: GridItem[]) => {
-    setItems(newItems);
-    toast.success("Grid items reordered successfully!", {
-      description: `New order: ${newItems
-        .map((item, index) => `${index + 1}. ${item.title}`)
-        .join(", ")}`,
-    });
-  };
-
   return (
     <Example title="Grid">
       <Sortable
         value={items()}
-        onValueChange={handleValueChange}
+        onValueChange={(newItems) => {
+          setItems(newItems);
+          toast.success("Grid items reordered successfully!", {
+            description: `New order: ${newItems
+              .map((item, index) => `${index + 1}. ${item.title}`)
+              .join(", ")}`,
+          });
+        }}
         getItemValue={(item) => item.id}
         class="mx-auto grid w-full max-w-2xl auto-rows-fr grid-cols-3 gap-3"
       >
         <For each={items()}>
           {(item) => (
             <SortableItem value={item.id}>
-              <div class="group relative flex min-h-[100px] flex-col rounded-md border border-border bg-background p-3 transition-colors hover:bg-accent/50">
-                <SortableItemHandle class="absolute end-1.5 top-2.5 z-10 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100">
+              <div class="group relative flex min-h-25 flex-col rounded-md border border-border bg-background p-3 transition-colors hover:bg-accent/50">
+                <SortableItemHandle class="absolute inset-e-1.5 top-2.5 z-10 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100">
                   <GripVertical class="h-3.5 w-3.5" />
                 </SortableItemHandle>
 
@@ -257,96 +283,6 @@ function SortableGrid() {
                   <Badge variant={getGridVariant(item.type)}>{item.type}</Badge>
                   <span class="text-muted-foreground text-xs">{item.size}</span>
                 </div>
-              </div>
-            </SortableItem>
-          )}
-        </For>
-      </Sortable>
-    </Example>
-  );
-}
-
-type OptionValue = {
-  id: string;
-  value: string;
-};
-
-type OptionGroup = {
-  id: string;
-  name: string;
-  values: OptionValue[];
-};
-
-const defaultOptionGroups: OptionGroup[] = [
-  {
-    id: "1",
-    name: "Colors",
-    values: [
-      { id: "1-1", value: "White" },
-      { id: "1-2", value: "Black" },
-      { id: "1-3", value: "Grey" },
-      { id: "1-4", value: "Green" },
-    ],
-  },
-  {
-    id: "2",
-    name: "Sizes",
-    values: [
-      { id: "2-1", value: "Small" },
-      { id: "2-2", value: "Medium" },
-      { id: "2-3", value: "Large" },
-    ],
-  },
-  {
-    id: "3",
-    name: "Materials",
-    values: [
-      { id: "3-1", value: "Cotton" },
-      { id: "3-2", value: "Polyester" },
-      { id: "3-3", value: "Wool" },
-    ],
-  },
-];
-
-function SortableNested() {
-  const [optionGroups, setOptionGroups] = createSignal<OptionGroup[]>(defaultOptionGroups);
-
-  const handleParentReorder = (newGroups: OptionGroup[]) => {
-    setOptionGroups(newGroups);
-    toast.success("Option groups reordered successfully!", {
-      description: newGroups.map((group, index) => `${index + 1}. ${group.name}`).join(", "),
-    });
-  };
-
-  return (
-    <Example title="Nested">
-      <Sortable
-        value={optionGroups()}
-        onValueChange={handleParentReorder}
-        getItemValue={(group) => group.id}
-        class="mx-auto w-full max-w-sm space-y-4"
-      >
-        <For each={optionGroups()}>
-          {(group) => (
-            <SortableItem value={group.id}>
-              <div class="rounded-xl border border-border bg-card p-3 text-card-foreground shadow-xs">
-                <div class="mb-2 flex items-center gap-2">
-                  <SortableItemHandle class="text-muted-foreground hover:text-foreground">
-                    <GripVertical class="h-4 w-4" />
-                  </SortableItemHandle>
-                  <h3 class="font-semibold text-sm">{group.name}</h3>
-                </div>
-
-                <ul class="space-y-1.5 ps-6">
-                  <For each={group.values}>
-                    {(value) => (
-                      <li class="flex items-center gap-2 rounded-md border border-border bg-background/50 px-2 py-1">
-                        <span class="text-muted-foreground text-xs">•</span>
-                        <span class="flex-1 text-sm">{value.value}</span>
-                      </li>
-                    )}
-                  </For>
-                </ul>
               </div>
             </SortableItem>
           )}
