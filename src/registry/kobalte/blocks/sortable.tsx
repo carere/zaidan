@@ -1,6 +1,6 @@
 import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from "@dnd-kit/solid";
 import { isSortable, useSortable } from "@dnd-kit/solid/sortable";
-import type { JSX, ValidComponent } from "solid-js";
+import type { ComponentProps, JSX, ParentProps, ValidComponent } from "solid-js";
 import { createContext, createSignal, mergeProps, Show, splitProps, useContext } from "solid-js";
 import { Dynamic } from "solid-js/web";
 
@@ -87,7 +87,7 @@ export type SortableRootProps<T> = Omit<
   as?: ValidComponent;
 };
 
-export type SortableItemProps = JSX.HTMLAttributes<HTMLDivElement> & {
+export type SortableItemProps = ComponentProps<"div"> & {
   value: string;
   disabled?: boolean;
   as?: ValidComponent;
@@ -98,11 +98,12 @@ export type SortableItemHandleProps = JSX.HTMLAttributes<HTMLDivElement> & {
   as?: ValidComponent;
 };
 
-export type SortableOverlayProps = Omit<JSX.HTMLAttributes<HTMLDivElement>, "children"> & {
-  children?: JSX.Element | ((params: { value: string }) => JSX.Element);
-  dropAnimation?: DropAnimationConfig | null;
-  modifiers?: unknown[];
-};
+export type SortableOverlayProps = ParentProps<
+  {
+    dropAnimation?: DropAnimationConfig | null;
+    style?: JSX.CSSProperties;
+  } & Omit<ComponentProps<"div">, "style">
+>;
 
 // ---------- Sortable root ----------
 
@@ -233,7 +234,14 @@ function SortableItem(props: SortableItemProps) {
   const isOverlay = useContext(IsOverlayContext);
   const internal = useContext(SortableInternalContext);
 
-  const [local, others] = splitProps(props, ["value", "class", "disabled", "as", "children"]);
+  const [local, others] = splitProps(props, [
+    "value",
+    "class",
+    "disabled",
+    "as",
+    "children",
+    "ref",
+  ]);
 
   if (isOverlay) {
     return (
@@ -249,7 +257,7 @@ function SortableItem(props: SortableItemProps) {
           data-slot="sortable-item"
           data-value={local.value}
           data-dragging=""
-          class={cn(local.class)}
+          class={local.class}
           {...others}
         >
           {local.children}
@@ -286,11 +294,10 @@ function SortableItem(props: SortableItemProps) {
         data-value={local.value}
         data-dragging={sortable.isDragging() ? "" : undefined}
         data-disabled={local.disabled ? "" : undefined}
-        class={cn(
-          sortable.isDragging() && "z-50 opacity-50",
-          local.disabled && "opacity-50",
-          local.class,
-        )}
+        class={cn(local.class, {
+          "z-50 opacity-50": sortable.isDragging(),
+          "opacity-50": local.disabled,
+        })}
         {...others}
       >
         {local.children}
@@ -340,28 +347,17 @@ function SortableItemHandle(props: SortableItemHandleProps) {
  */
 function SortableOverlay(props: SortableOverlayProps) {
   const internal = useContext(SortableInternalContext);
-  const [local] = splitProps(props, ["children", "class", "dropAnimation", "modifiers", "style"]);
-
-  const overlayStyle = () => {
-    const s = local.style;
-    return typeof s === "string" || s == null ? undefined : s;
-  };
+  const [local] = splitProps(props, ["children", "class", "dropAnimation", "style"]);
 
   return (
     <DragOverlay
       dropAnimation={local.dropAnimation === undefined ? defaultDropAnimation : local.dropAnimation}
       class={cn("z-50", internal.activeId() && "cursor-grabbing", local.class)}
-      style={overlayStyle()}
+      style={local.style}
     >
-      {(source) => (
+      {() => (
         <IsOverlayContext.Provider value={true}>
-          <Show when={internal.activeId() && local.children}>
-            {typeof local.children === "function"
-              ? (local.children as (params: { value: string }) => JSX.Element)({
-                  value: source ? String(source.id) : (internal.activeId() ?? ""),
-                })
-              : (local.children as JSX.Element)}
-          </Show>
+          <Show when={internal.activeId() && local.children}>{local.children}</Show>
         </IsOverlayContext.Provider>
       )}
     </DragOverlay>
