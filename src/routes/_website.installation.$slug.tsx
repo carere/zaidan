@@ -1,7 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { docs } from "@velite";
 import { Menu } from "lucide-solid";
-import { lazy, Show } from "solid-js";
+import { lazy, Show, Suspense } from "solid-js";
+import { DocsSkeleton } from "@/components/docs-skeleton";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
 import { TableOfContents } from "@/components/toc";
@@ -35,7 +36,11 @@ export const Route = createFileRoute("/_website/installation/$slug")({
       path: `/installation/${loaderData.slug}`,
     });
   },
-  component: RouteComponent,
+  component: () => (
+    <Suspense fallback={<DocsSkeleton />}>
+      <RouteComponent />
+    </Suspense>
+  ),
   notFoundComponent: () => <NotFoundPage />,
 });
 

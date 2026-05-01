@@ -1,0 +1,170 @@
+---
+title: Sortable
+slug: sortable
+description: A drag-and-drop sortable component designed for seamless item reordering with vertical and grid layouts.
+---
+
+# Sortable
+
+A drag-and-drop sortable component designed for seamless item reordering with vertical and grid layouts.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/sortable
+```
+
+### Manual
+
+Install the following dependencies:
+
+```package-install
+@dnd-kit/solid
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/blocks/sortable.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Sortable,
+  SortableItem,
+  SortableItemHandle,
+  SortableOverlay,
+} from "~/components/blocks/sortable";
+```
+
+```tsx
+<Sortable
+  value={items()}
+  onValueChange={setItems}
+  getItemValue={(item) => item.id}
+>
+  <For each={items()}>
+    {(item) => (
+      <SortableItem value={item.id}>
+        <SortableItemHandle>
+          <GripVertical />
+        </SortableItemHandle>
+        {item.content}
+      </SortableItem>
+    )}
+  </For>
+</Sortable>
+```
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Basic
+
+```tsx
+import { FileText, GripVertical, Image as ImageIcon, Music, Video } from "lucide-solid";
+import { createSignal, For } from "solid-js";
+import { toast } from "solid-sonner";
+import { Badge } from "~/components/ui/badge";
+import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/sortable";
+```
+
+```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L104-L148
+
+```
+
+### Grid
+
+```tsx
+import { GripVertical } from "lucide-solid";
+import { createSignal, For } from "solid-js";
+import { toast } from "solid-sonner";
+import { Badge } from "~/components/ui/badge";
+import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/sortable";
+```
+
+```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L251-L293
+
+```
+
+### Settings Priority
+
+```tsx
+import { GripVertical } from "lucide-solid";
+import { createSignal, For } from "solid-js";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/sortable";
+import { Switch } from "~/components/ui/switch";
+```
+
+```tsx file=../../../registry/kobalte/examples/blocks/sortable-example.tsx#L335-L379
+
+```
+
+## API Reference
+
+### Sortable
+
+The root component that manages the sortable state and the drag-and-drop context. Wraps a list of `<SortableItem />` children inside a `DragDropProvider` from `@dnd-kit/solid`.
+
+| Prop            | Type                                                                                                  | Default | Description                                                                                                       |
+| :-------------- | :---------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------- |
+| `value`         | `T[]`                                                                                                 | -       | **Required**. The array of items to sort.                                                                         |
+| `onValueChange` | `(value: T[]) => void`                                                                                | -       | **Required**. Callback fired with the reordered array. Not called when `onMove` is provided.                      |
+| `getItemValue`  | `(item: T) => string`                                                                                 | -       | **Required**. Function to extract a unique string id from an item.                                                |
+| `onMove`        | `(event: { activeIndex: number; overIndex: number; activeId: string; overId: string }) => void`       | -       | Optional handler for custom reorder logic. When provided, `onValueChange` is not called automatically.            |
+| `onDragStart`   | `(event: { activeId: string }) => void`                                                               | -       | Callback fired when a drag operation begins.                                                                      |
+| `onDragEnd`     | `(event: { activeId: string; overId: string \| null; canceled: boolean }) => void`                    | -       | Callback fired when a drag operation ends.                                                                        |
+| `modifiers`     | `unknown[]`                                                                                           | -       | Modifiers forwarded to `DragDropProvider` (and `DragOverlay` via internal context).                               |
+| `strategy`      | `"horizontal" \| "vertical" \| "grid"`                                                                | -       | (deprecated, no-op) `@dnd-kit/solid` v7 auto-detects layout. Kept for forward compatibility only.                 |
+| `as`            | `ValidComponent`                                                                                      | `"div"` | The element or component to render as.                                                                            |
+| `class`         | `string`                                                                                              | -       | Additional CSS classes for the container.                                                                         |
+
+---
+
+### SortableItem
+
+An individual draggable item within the sortable list. Registers itself with the sortable manager via `useSortable`. When rendered inside `<SortableOverlay />`, registration is skipped and only presentational markup is rendered.
+
+| Prop       | Type             | Default | Description                                       |
+| :--------- | :--------------- | :------ | :------------------------------------------------ |
+| `value`    | `string`         | -       | **Required**. The unique identifier for the item. |
+| `disabled` | `boolean`        | `false` | Whether the item is disabled (not draggable).     |
+| `as`       | `ValidComponent` | `"div"` | The element or component to render as.            |
+| `class`    | `string`         | -       | Additional CSS classes for the item.              |
+
+---
+
+### SortableItemHandle
+
+The optional drag handle for an individual sortable item. When present, only the handle triggers a drag (instead of the whole item).
+
+| Prop     | Type             | Default | Description                                                                           |
+| :------- | :--------------- | :------ | :------------------------------------------------------------------------------------ |
+| `cursor` | `boolean`        | `true`  | Whether to apply `cursor-grab` / `cursor-grabbing` styles to the handle automatically. |
+| `as`     | `ValidComponent` | `"div"` | The element or component to render as.                                                |
+| `class`  | `string`         | -       | Additional CSS classes for the handle.                                                |
+
+---
+
+### SortableOverlay
+
+Renders the floating preview that follows the cursor while dragging. Pass either static JSX (rendered whenever a drag is active) or a render function `({ value }) => JSX` to render content based on the active item id. `DragOverlay` self-portals — no `<Portal>` wrapper is needed.
+
+| Prop            | Type                                                                       | Default                                                              | Description                                                                                                              |
+| :-------------- | :------------------------------------------------------------------------- | :------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| `children`      | `JSX.Element \| ((params: { value: string }) => JSX.Element)`              | -                                                                    | Static JSX or a render function that receives the active item id.                                                        |
+| `dropAnimation` | `{ duration: number; easing: string } \| null`                             | `{ duration: 250, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }`   | Drop animation config. Pass `null` to disable.                                                                           |
+| `modifiers`     | `unknown[]`                                                                | -                                                                    | Modifiers forwarded to the overlay.                                                                                      |
+| `class`         | `string`                                                                   | -                                                                    | Additional CSS classes for the overlay container.                                                                        |
