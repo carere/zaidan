@@ -15,6 +15,7 @@
     "build": "vite build",
     "check": "biome check",
     "compile": "tsc --noEmit",
+    "deploy": "wrangler deploy",
     "dev": "vite dev",
     "preview": "vite preview",
     "r:build:kobalte": "shadcn build src/registry/kobalte/registry.json --output public/r/kobalte"
@@ -118,6 +119,7 @@
     "vfile": "^6.0.3",
     "vite": "^8.0.10",
     "vite-plugin-lucide-preprocess": "^1.4.10",
-    "vite-plugin-solid": "^2.11.12"
+    "vite-plugin-solid": "^2.11.12",
+    "wrangler": "^4.87.0"
   }
 }
