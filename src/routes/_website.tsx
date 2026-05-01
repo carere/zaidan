@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
 import { CircleAlert } from "lucide-solid";
-import { createSignal, ErrorBoundary, Suspense } from "solid-js";
+import { createSignal, ErrorBoundary } from "solid-js";
 import { CliButton } from "@/components/cli-button";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
@@ -74,16 +74,7 @@ function RouteComponent() {
         <SidebarProvider class="overflow-x-hidden px-4 pt-15 pb-18 md:pb-4">
           <ItemExplorer class="w-56 shrink-0" />
           <div data-slot="main-content" class="flex basis-full flex-col gap-2 md:flex-row">
-            <Suspense
-              fallback={
-                <div
-                  data-slot="outlet-fallback"
-                  class="relative flex w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden md:w-[calc(100svw-var(--spacing)*56)] lg:w-full"
-                />
-              }
-            >
-              <Outlet />
-            </Suspense>
+            <Outlet />
             <Customizer class="shrink-0 md:w-48" />
           </div>
         </SidebarProvider>
