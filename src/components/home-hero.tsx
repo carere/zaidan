@@ -13,12 +13,12 @@ export function HomeHero() {
         to="/changelog"
         class="group inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted/80"
       >
-        <span>Changelog page is live</span>
+        <span>New: Sortable, Scroll Area, and shadcn-aligned fonts &amp; colors</span>
         <ArrowRightIcon class="size-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
       <h1 class="max-w-3xl text-balance font-heading font-semibold text-3xl tracking-tight lg:text-5xl lg:leading-[1.1] lg:tracking-tighter">
-        A SolidJS Registry Inspired by Shadcn UI
+        The best foundation for your next SolidJS project
       </h1>
 
       <p class="max-w-2xl text-balance text-base text-muted-foreground lg:text-lg">
