@@ -45,10 +45,10 @@
     "@fontsource/instrument-serif": "^5.2.8",
     "@kobalte/core": "^0.13.11",
     "@solid-primitives/storage": "^4.3.4",
-    "@tanstack/router-plugin": "^1.167.31",
+    "@tanstack/router-plugin": "^1.167.32",
     "@tanstack/solid-router": "^1.169.1",
     "@tanstack/solid-router-ssr-query": "^1.166.12",
-    "@tanstack/solid-start": "^1.167.55",
+    "@tanstack/solid-start": "^1.167.56",
     "@tanstack/solid-table": "^8.21.3",
     "@tanstack/zod-adapter": "^1.166.9",
     "class-variance-authority": "^0.7.1",
@@ -68,7 +68,7 @@
     "zod": "^4.4.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.13",
+    "@biomejs/biome": "^2.4.14",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@expressive-code/core": "^0.41.7",

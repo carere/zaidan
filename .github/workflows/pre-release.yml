@@ -17,17 +17,17 @@ jobs:
       contents: write
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version: latest
 
       - name: Install Knope
-        uses: knope-dev/action@v2.1.0
+        uses: knope-dev/action@v2.1.2
         with:
-          version: 0.21.0
+          version: 0.22.4
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -38,6 +38,7 @@ jobs:
           git config user.email "knope-bot@users.noreply.github.com"
 
       - name: Run Knope Pre-Release
-        run: knope pre-release ${{ inputs.override_version != '' && format('--override-version={0}', inputs.override_version) || '' }}
+        run: knope pre-release ${{ inputs.override_version != '' &&
+          format('--override-version={0}', inputs.override_version) || '' }}
         env:
           GH_TOKEN: ${{ secrets.CI_WORKER_PAT }}
