@@ -2,19 +2,23 @@ name: Release
 
 on:
   pull_request:
-    types: [closed]
-    branches: [main]
+    types: [ closed ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   get-tag:
-    if: (github.head_ref == 'knope/pre-release' && github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    if: (github.head_ref == 'knope/pre-release' && github.event.pull_request.merged
+      == true) || (github.event_name == 'workflow_dispatch' && github.ref ==
+      'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: "Get tag of latest draft release"
-        run: echo "tag_name=$(gh release list --repo ${{ github.repository }} --json 'isDraft,tagName' --jq '.[] | select(.isDraft) | .tagName')" >> $GITHUB_OUTPUT
+        run: echo "tag_name=$(gh release list --repo ${{ github.repository }} --json
+          'isDraft,tagName' --jq '.[] | select(.isDraft) | .tagName')" >>
+          $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.CI_WORKER_PAT }}
         id: get-tag
@@ -37,7 +41,7 @@ jobs:
       contents: write
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Git user
         run: |
@@ -45,7 +49,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@v2.2.0
         with:
           bun-version: latest
 
@@ -68,7 +72,7 @@ jobs:
           git push origin ${{ needs.get-tag.outputs.tag_name }}
 
       - name: Deploy
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v3.15.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
