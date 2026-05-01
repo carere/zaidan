@@ -1,13 +1,13 @@
 ---
-title: "March 2026 — Zaidan Agent"
-description: "First stable release (1.0.0) plus a flurry of small fixes through 1.0.5."
+title: "March 2026 — Zaidan Agent & Updated Docs"
+description: "Sync any component from any registry into your SolidJS project with a single command, plus a refreshed documentation experience."
 date: "2026-03-15"
 slug: "zaidan-agent"
 ---
 
-The first stable release of Zaidan ([1.0.0](https://github.com/carere/zaidan/releases/tag/1.0.0)) shipped in February, followed by a flurry of small fixes (1.0.1 → 1.0.5):
+The first stable release of **Zaidan Agent** is out — a Claude Code agent that extends Zaidan beyond the components we ship.
 
-- Proper SEO metadata on every route (Open Graph image, Twitter cards, page-specific titles and descriptions).
-- Fixed a first-render hydration bug that occasionally prevented JavaScript from booting on the first paint.
-- Restored dynamic page titles when navigating between component pages.
-- Patched the missing `lucide-solid` dependency on the `bazza-data-table-filter` block.
+- **Sync any component from any registry through one command.** Point the agent at a shadcn React component (from shadcn/ui, ReUI, OriginUI, or any other compatible registry) and it converts and ports it into your SolidJS project — Kobalte/Corvu primitives, Solid signals, the Zaidan conventions — without you writing the bridge by hand.
+- **Works against the same registries shadcn does.** If a registry follows the shadcn schema, Zaidan Agent can read it.
+- **Refreshed documentation.** Every component page now ships with installation snippets, copy-pasteable usage examples, and a live preview iframe wired to the customizer.
+- **Better discoverability.** Cmd+K command palette across components, blocks, and docs, plus a GitHub star counter in the header.
