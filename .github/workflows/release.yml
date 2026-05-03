@@ -72,4 +72,7 @@ jobs:
           git push origin ${{ needs.get-tag.outputs.tag_name }}
 
       - name: Deploy
-        run: bun run deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: "4"
