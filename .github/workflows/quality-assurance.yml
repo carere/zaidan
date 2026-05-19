@@ -12,6 +12,12 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v6.0.2
 
+      - name: Set up Cargo Binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install commitlint
+        run: cargo-binstall commitlint-rs
+
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2.2.0
         with:
@@ -30,8 +36,9 @@ jobs:
           path: |
             dist
             .velite
-          key: ${{ runner.os }}-${{ hashFiles('vite.config.ts', 'velite.config.ts',
-            'src/**', 'public/**', 'bun.lockb') }}
+          key:
+            ${{ runner.os }}-${{ hashFiles('vite.config.ts', 'velite.config.ts',
+            'src/**', 'public/**', 'bun.lock') }}
 
       - name: Assuring build is working
         if: steps.cache.outputs.cache-hit != 'true'
@@ -46,4 +53,4 @@ jobs:
 
       - name: Validate current commit (last commit)
         if: github.event_name == 'push'
-        run: bun commitlint --last --verbose
+        run: commitlint --last --verbose
