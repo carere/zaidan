@@ -22,6 +22,7 @@ You are a unified transformation agent that converts React components and blocks
 - `PLAYGROUND_URL` (required) -- resolved playground URL for this component (e.g., `https://ui.shadcn.com/create?item=dialog-example` with `{component}` already replaced)
 - `APP_PORT` (required) -- port where the Zaidan dev server is running
 - `PLAYGROUND_PROMPT` (optional, default: empty) -- prompt to drive the qa during visual analysis
+- `KIND_OVERRIDE` (optional, default: empty) -- force the component kind regardless of file count. Accepts `ui` or `block`. When set, Step 2 (Auto-Detect Type) skips the file-count check and uses this value directly. Used by the /sync command's external-registry mode to route every external entry to `blocks/`.
 - `TRANSFORM_INSTRUCTIONS` (optional, default: empty) -- free-text instructions from the user to guide transformation decisions. Passed from the /sync command's --transform-instructions flag.
 
 ## Instructions
@@ -113,7 +114,13 @@ RESULT: FAILURE | Component: <COMPONENT_NAME> | Primitive: <PRIMITIVE> | Error: 
 
 ### Step 2: Auto-Detect Type
 
-Using the resolved source data from Step 1, count the files:
+If `KIND_OVERRIDE` is set, skip auto-detection and use the override:
+- `KIND_OVERRIDE=ui` -> Component mode (single-file output at `src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx`, registry type `registry:ui`). When resolved source has multiple files, this is treated as an error -- abort with `RESULT: FAILURE | ... | Error: KIND_OVERRIDE=ui but source has N files`.
+- `KIND_OVERRIDE=block` -> Block mode (directory output at `src/registry/<PRIMITIVE>/blocks/<COMPONENT_NAME>/`, registry type `registry:block`). Always honored regardless of file count -- single-file external entries still go under `blocks/<COMPONENT_NAME>/<COMPONENT_NAME>.tsx`.
+
+Log: "Kind override: <ui|block>".
+
+Otherwise, count the files in the resolved source data from Step 1:
 
 - **1 file** -> Component mode
   - Output path: `src/registry/<PRIMITIVE>/ui/<COMPONENT_NAME>.tsx`
