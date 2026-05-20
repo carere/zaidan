@@ -194,8 +194,10 @@ export default function Pattern() {
       return data();
     },
     getRowId: (row: IData) => row.id,
-    get state() {
-      return { sorting: sorting() };
+    state: {
+      get sorting() {
+        return sorting();
+      },
     },
     columnResizeMode: "onChange",
     onSortingChange: setSorting,

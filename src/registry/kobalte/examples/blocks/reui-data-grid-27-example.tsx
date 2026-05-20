@@ -153,8 +153,10 @@ export default function Pattern() {
     columns,
     data: allData,
     getRowId: (row: IData) => row.id,
-    get state() {
-      return { sorting: sorting() };
+    state: {
+      get sorting() {
+        return sorting();
+      },
     },
     columnResizeMode: "onChange",
     onSortingChange: setSorting,

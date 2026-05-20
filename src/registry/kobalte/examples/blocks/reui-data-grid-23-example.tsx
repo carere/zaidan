@@ -270,12 +270,12 @@ export default function Pattern() {
   const filteredData = createMemo(() => {
     return demoData.filter((item) => {
       // Filter by status
-      const matchesStatus = !selectedStatuses?.length || selectedStatuses().includes(item.status);
+      const matchesStatus = !selectedStatuses().length || selectedStatuses().includes(item.status);
 
       // Filter by search query (case-insensitive)
       const searchLower = searchQuery().toLowerCase();
       const matchesSearch =
-        !searchQuery ||
+        !searchLower ||
         Object.values(item)
           .join(" ") // Combine all fields into a single string
           .toLowerCase()
@@ -448,12 +448,16 @@ export default function Pattern() {
       return Math.ceil((filteredData()?.length || 0) / pagination().pageSize);
     },
     getRowId: (row: IData) => row.id,
-    get state() {
-      return {
-        pagination: pagination(),
-        sorting: sorting(),
-        columnOrder: columnOrder(),
-      };
+    state: {
+      get pagination() {
+        return pagination();
+      },
+      get sorting() {
+        return sorting();
+      },
+      get columnOrder() {
+        return columnOrder();
+      },
     },
     columnResizeMode: "onChange",
     onColumnOrderChange: setColumnOrder,

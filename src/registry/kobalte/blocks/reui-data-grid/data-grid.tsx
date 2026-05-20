@@ -118,11 +118,26 @@ const DataGridContext = createContext<
 >(() => undefined);
 
 function useDataGrid<TData extends object = object>(): DataGridContextProps<TData> {
-  const context = useContext(DataGridContext)();
-  if (!context) {
-    throw new Error("useDataGrid must be used within a DataGridProvider");
-  }
-  return context as DataGridContextProps<TData>;
+  const accessor = useContext(DataGridContext);
+  const read = () => {
+    const ctx = accessor();
+    if (!ctx) throw new Error("useDataGrid must be used within a DataGridProvider");
+    return ctx as DataGridContextProps<TData>;
+  };
+  return {
+    get props() {
+      return read().props;
+    },
+    get table() {
+      return read().table;
+    },
+    get recordCount() {
+      return read().recordCount;
+    },
+    get isLoading() {
+      return read().isLoading;
+    },
+  };
 }
 
 function DataGridProvider<TData extends object>(

@@ -334,11 +334,13 @@ export default function Pattern() {
     pageCount: Math.ceil((demoData?.length || 0) / pagination().pageSize),
     getRowId: (row: IData) => row.id,
     getRowCanExpand: (row) => Boolean(row.original.details),
-    get state() {
-      return {
-        pagination: pagination(),
-        sorting: sorting(),
-      };
+    state: {
+      get pagination() {
+        return pagination();
+      },
+      get sorting() {
+        return sorting();
+      },
     },
     onPaginationChange: setPagination,
     onSortingChange: setSorting,

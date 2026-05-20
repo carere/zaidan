@@ -286,12 +286,16 @@ export default function Pattern() {
     data: demoData,
     pageCount: Math.ceil((demoData?.length || 0) / pagination().pageSize),
     getRowId: (row: IData) => row.id,
-    get state() {
-      return {
-        pagination: pagination(),
-        sorting: sorting(),
-        columnOrder: columnOrder(),
-      };
+    state: {
+      get pagination() {
+        return pagination();
+      },
+      get sorting() {
+        return sorting();
+      },
+      get columnOrder() {
+        return columnOrder();
+      },
     },
     onColumnOrderChange: setColumnOrder,
     onPaginationChange: setPagination,

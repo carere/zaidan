@@ -295,8 +295,16 @@ export default function Pattern() {
     getRowId: (row: IData) => row.id,
     enableRowPinning: true,
     keepPinnedRows: true,
-    get state() {
-      return { pagination: pagination(), sorting: sorting(), rowPinning: rowPinning() };
+    state: {
+      get pagination() {
+        return pagination();
+      },
+      get sorting() {
+        return sorting();
+      },
+      get rowPinning() {
+        return rowPinning();
+      },
     },
     columnResizeMode: "onChange",
     onPaginationChange: setPagination,

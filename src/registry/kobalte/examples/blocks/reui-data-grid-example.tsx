@@ -3,6 +3,7 @@ import DataGridPaginationExample from "@/registry/kobalte/examples/blocks/reui-d
 import DataGridSortableExample from "@/registry/kobalte/examples/blocks/reui-data-grid-11-example";
 import DataGridColumnControlsExample from "@/registry/kobalte/examples/blocks/reui-data-grid-18-example";
 import DataGridColumnVisibilityExample from "@/registry/kobalte/examples/blocks/reui-data-grid-20-example";
+import DataGridCrudExample from "@/registry/kobalte/examples/blocks/reui-data-grid-22-example";
 
 export default function ReuiDataGridExample() {
   return (
@@ -18,6 +19,9 @@ export default function ReuiDataGridExample() {
       </Example>
       <Example title="Column visibility">
         <DataGridColumnVisibilityExample />
+      </Example>
+      <Example title="Search and filter">
+        <DataGridCrudExample />
       </Example>
     </ExampleWrapper>
   );

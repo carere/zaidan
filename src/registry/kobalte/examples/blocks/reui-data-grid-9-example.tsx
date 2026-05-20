@@ -1760,11 +1760,13 @@ function OrderItemsSubTable({ items }: { items: OrderItemData[] }) {
     data: items,
     columns,
     pageCount: Math.ceil(items.length / pagination().pageSize),
-    get state() {
-      return {
-        sorting: sorting(),
-        pagination: pagination(),
-      };
+    state: {
+      get sorting() {
+        return sorting();
+      },
+      get pagination() {
+        return pagination();
+      },
     },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
@@ -1929,13 +1931,19 @@ export default function Pattern() {
     pageCount: Math.ceil((demoData?.length || 0) / pagination().pageSize),
     getRowId: (row: Data) => row.id,
     getRowCanExpand: (row) => Boolean(row.original.items && row.original.items.length > 0),
-    get state() {
-      return {
-        pagination: pagination(),
-        sorting: sorting(),
-        expanded: expandedRows(),
-        columnOrder: columnOrder(),
-      };
+    state: {
+      get pagination() {
+        return pagination();
+      },
+      get sorting() {
+        return sorting();
+      },
+      get expanded() {
+        return expandedRows();
+      },
+      get columnOrder() {
+        return columnOrder();
+      },
     },
     columnResizeMode: "onChange",
     onPaginationChange: setPagination,
