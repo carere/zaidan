@@ -28,7 +28,8 @@ const Switch = <T extends ValidComponent = "div">(props: SwitchProps<T>) => {
       <SwitchPrimitive.Input data-slot="switch-input" class="peer sr-only" id={local.id} />
       <SwitchPrimitive.Control
         data-slot="switch-control"
-        class="relative z-switch-control inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors data-disabled:cursor-not-allowed"
+        class="absolute inset-0 flex cursor-pointer items-center rounded-full transition-colors data-disabled:cursor-not-allowed"
+        onClick={(e) => e.preventDefault()}
       >
         <SwitchPrimitive.Thumb
           data-slot="switch-thumb"
