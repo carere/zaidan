@@ -53,4 +53,6 @@ jobs:
 
       - name: Validate current commit (last commit)
         if: github.event_name == 'push'
-        run: commitlint --edit .git/COMMIT_EDITMSG
+        run: |
+          git --no-pager log -1 --format="%s" > last_commit_msg.txt
+          commitlint --edit last_commit_msg.txt
