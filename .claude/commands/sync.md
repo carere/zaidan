@@ -28,7 +28,7 @@ Parse from `$ARGUMENTS`:
 Derived variables:
 
 - `MODE` -- `shadcn` if no `--registry`, `external` if `--registry` is provided
-- `REGISTRY_NAME` -- `shadcn` in shadcn mode; derived from the `--registry` URL host in external mode (e.g., `bazza` from `bazzalabs.com`, `magicui` from `magicui.design`). Strip TLD and any `-ui` / `-registry` suffix. Used **only** for team name, branch name, commit message, and report labels -- never prefixed onto component names or output paths.
+- `REGISTRY_NAME` -- `shadcn` in shadcn mode; derived from the `--registry` URL host in external mode (e.g., `bazza` from `bazzalabs.com`, `magicui` from `magicui.design`). Strip TLD and any `-ui` / `-registry` suffix. Used as a prefix for external component names (e.g., `bazza-data-table`), plus team name, branch name, commit message, and report labels. In shadcn mode the prefix is NOT applied -- shadcn components keep their raw names.
 - `DOCS_URL_TEMPLATE` / `DOCS_PROMPT` -- URL template and optional extraction prompt parsed from `--docs` (split on `|`)
 - `EXAMPLES_URL_TEMPLATE` / `EXAMPLES_PROMPT` -- same for `--examples`
 - `PLAYGROUND_URL_TEMPLATE` / `PLAYGROUND_PROMPT` -- same for `--playground`
@@ -66,7 +66,7 @@ ai_review/
   code_reviews/           # JSON code review results per component
 ```
 
-**External placement rule**: every external-registry entry is treated as a block regardless of its source file count. Component names are NOT prefixed with the registry name -- if you sync from registries that share base names with shadcn or with each other, the second sync will overwrite the first. Pick non-overlapping registries, or sync them into different primitives.
+**External placement rule**: every external-registry entry is treated as a block regardless of its source file count. Component names ARE prefixed with `{REGISTRY_NAME}-` to avoid collisions across registries -- e.g., a `data-table` entry from `bazzalabs.com` lands as `bazza-data-table`. The upstream `sourceName` is still used for fetching files, docs, and examples; only the on-disk name, registry entry name, and output paths use the prefixed `targetName`.
 
 ## Instructions
 
@@ -80,6 +80,8 @@ ai_review/
 - Use the `git-github-ops` skill for git and GitHub operations
 - The dependency pre-flight gate in the transformer is a **HARD GATE** -- if deps are missing, transformation aborts. Do NOT proceed with transformation when registry dependencies are unsatisfied
 - In shadcn mode, the transformer auto-detects ui vs block from source file count. In external mode, every entry is forced to `blocks/` via `KIND_OVERRIDE=block` -- the transformer skips auto-detection.
+- The `--registry` URL may point to either a `.json` file or a `.ts` file. Both share the same shape (`items[]` with each item carrying `name`, optional `url`, optional inline `files[]`). TS registries are loaded by writing the fetched source to a temp file and dynamically importing it with Bun.
+- In external mode, components are prefixed: `targetName = "{REGISTRY_NAME}-{sourceName}"`. Use `sourceName` for any URL substitution (raw files, docs, examples, playground) and `targetName` for output paths, registry entries, and reports. When checking `registryDependencies` against the existing registry, prefixed names must be used so the dependency pre-flight gate matches correctly.
 
 ## Workflow
 
@@ -140,11 +142,13 @@ ERROR: Invalid arguments. Usage:
   /sync --dry-run                                                           # discovery report only, no transforms
   /sync --registry=<url> --docs=<tpl> --examples=<tpl> --playground=<tpl>   # sync from external registry
 
+`--registry` accepts either a `.json` or a `.ts` URL with the same shape (top-level `items[]`, each item with `name`, optional `url`, and optional inline `files[]`). External components are prefixed with the registry name to avoid collisions (e.g., a `data-table` from bazzalabs lands as `bazza-data-table`).
+
 Optional flags:
   --primitive=kobalte|base
   --transform-instructions=<text>
 
-URL templates use {component} placeholder; append `|prompt` to attach an extraction/interaction prompt:
+URL templates use {component} placeholder (replaced with the upstream `sourceName`, not the prefixed name); append `|prompt` to attach an extraction/interaction prompt:
   --docs="https://example.com/docs/{component}|Optional extraction prompt"
   --examples="https://example.com/examples/{component}|Optional extraction prompt"
   --playground="https://example.com/{component}|Optional interaction prompt for visual analysis"
@@ -154,22 +158,38 @@ URL templates use {component} placeholder; append `|prompt` to attach an extract
 
 ### Phase 1: Discovery
 
-**1.1** - Fetch the source registry:
+**1.1** - Fetch the source registry. The loader handles both JSON and TS files with the same shape (`items[]`, each item carrying `name`, optional `url`, and optional inline `files[]`):
 
-- **shadcn mode**: Fetch `SHADCN_REGISTRY_DISCOVERY`. Extract all component names from the `_registry.ts` export.
-- **external mode**: Fetch `REGISTRY_URL` JSON.
-  - If it has `items[]`, extract every `item.name` and remember each `item.url` (the per-component manifest URL) for use in Step 2.4.
-  - Otherwise, treat the document as a single-item manifest: use its top-level `name` and use `REGISTRY_URL` itself as the manifest URL for that item.
+- Determine the file type from the URL extension (`.json` vs `.ts`).
+- **JSON**: `curl -s <url>` and `JSON.parse`.
+- **TS**: `curl -s <url>` to a temp file (e.g., `/tmp/sync-registry-{REGISTRY_NAME}.ts`), then materialize with Bun:
+  ```bash
+  bun --print 'JSON.stringify((await import("/tmp/sync-registry-{REGISTRY_NAME}.ts")).default ?? (await import("/tmp/sync-registry-{REGISTRY_NAME}.ts")).registry)'
+  ```
+  Parse the JSON output.
+- After loading, normalize to a single shape:
+  - If the document has `items[]`, use it as-is.
+  - Otherwise, treat the document as a single-item manifest and wrap it: `{ items: [document] }`.
+- For each item, record:
+  - `sourceName` -- `item.name` (the raw upstream name)
+  - `files` -- `item.files` if present inline (array of `{ path, content?, type? }` or file URLs), else empty
+  - `manifestUrl` -- `item.url` if present, else `REGISTRY_URL` itself for a single-item document; empty if `files` was already inline
 
-**1.2** - Read Zaidan's registry at `src/registry/{PRIMITIVE}/registry.json`. Find names from the source list that are NOT already present in Zaidan's `items[]` by `name`.
+In **shadcn mode**, the loader is invoked against `SHADCN_REGISTRY_DISCOVERY` (a TS file) and extracts component names from the `_registry.ts` export. No prefix is applied.
 
-**1.3** - If `FILTER` is set, apply the regex to the missing list. Keep only matches.
+**1.2** - Compute `targetName` per item:
+- shadcn mode: `targetName = sourceName`
+- external mode: `targetName = "{REGISTRY_NAME}-{sourceName}"`
+
+Read Zaidan's registry at `src/registry/{PRIMITIVE}/registry.json`. Find items whose `targetName` is NOT already present in Zaidan's `items[]` by `name`.
+
+**1.3** - If `FILTER` is set, apply the regex to the `targetName` of each missing item. Keep only matches.
 
 **1.4** - If no components are missing, report `Registry is fully synced ({MODE})` and STOP.
 
 **1.5** - Set `COMPONENTS_TO_SYNC`:
-- shadcn mode: list of component names.
-- external mode: list of `{ name, manifestUrl }` pairs.
+- shadcn mode: list of `{ sourceName, targetName }` (where `targetName === sourceName`).
+- external mode: list of `{ sourceName, targetName, files, manifestUrl }`. Either `files` (inline) or `manifestUrl` will be populated, never neither.
 
 **1.6** - Report discovery:
 
@@ -184,10 +204,12 @@ Total components in source registry: {count}
 Components already in Zaidan: {count}
 Components to sync: {count}
 
-Missing components:
-  - {component-name-1}
-  - {component-name-2}
+Missing components (shown as targetName -- sourceName):
+  - {targetName-1} -- {sourceName-1}
+  - {targetName-2} -- {sourceName-2}
   - ...
+
+In shadcn mode, targetName and sourceName are identical. In external mode, targetName is `{REGISTRY_NAME}-{sourceName}`.
 ```
 
 ---
@@ -226,24 +248,33 @@ Log: `Dev server ready on port {APP_PORT}`
 
 For each component in `COMPONENTS_TO_SYNC`:
 
-1. Resolve per-component URLs based on `MODE`:
+1. Resolve per-component URLs based on `MODE`. Use `sourceName` (raw upstream name) wherever a URL has a `{component}` placeholder; use `targetName` for output paths and the registry entry name:
 
-   - **shadcn mode**:
-     - `SOURCE_URL`              = `SHADCN_SOURCE_TEMPLATE` with `{component}` replaced
+   - **shadcn mode** (`targetName === sourceName`):
+     - `SOURCE_URL`              = `SHADCN_SOURCE_TEMPLATE` with `{component}` replaced by `sourceName`
      - `REGISTRY_URL_FOR_AGENT`  = `SHADCN_REGISTRY_DISCOVERY`
-     - `PLAYGROUND_URL`          = `SHADCN_PLAYGROUND_URL_TEMPLATE` with `{component}` replaced
+     - `INLINE_FILES`            = empty (transformer fetches `SOURCE_URL` directly)
+     - `PLAYGROUND_URL`          = `SHADCN_PLAYGROUND_URL_TEMPLATE` with `{component}` replaced by `sourceName`
      - `PLAYGROUND_PROMPT_FINAL` = `SHADCN_PLAYGROUND_PROMPT`
      - `KIND_OVERRIDE`           = empty (let transformer auto-detect from file count)
+     - `NAME_PREFIX`              = empty
 
-   - **external mode**:
-     - `SOURCE_URL`              = `item.manifestUrl` (per-component manifest URL from Phase 1.1; transformer fetches this and reads `files[]` for raw code)
-     - `REGISTRY_URL_FOR_AGENT`  = `item.manifestUrl` (same -- the per-component manifest carries the metadata, including `dependencies`, `registryDependencies`, `cssVars`)
-     - `PLAYGROUND_URL`          = `PLAYGROUND_URL_TEMPLATE` with `{component}` replaced
+   - **external mode** (`targetName === "{REGISTRY_NAME}-{sourceName}"`):
+     - If `item.files` is populated (inline from a TS or JSON registry):
+       - `INLINE_FILES`           = JSON-stringified `item.files` array
+       - `SOURCE_URL`             = empty (transformer reads from `INLINE_FILES`)
+       - `REGISTRY_URL_FOR_AGENT` = `REGISTRY_URL` (the top-level registry doc carries item metadata)
+     - Else (only `item.manifestUrl` is set):
+       - `INLINE_FILES`           = empty
+       - `SOURCE_URL`             = `item.manifestUrl` (transformer fetches and reads `files[]`)
+       - `REGISTRY_URL_FOR_AGENT` = `item.manifestUrl`
+     - `PLAYGROUND_URL`          = `PLAYGROUND_URL_TEMPLATE` with `{component}` replaced by `sourceName`
      - `PLAYGROUND_PROMPT_FINAL` = `PLAYGROUND_PROMPT` (may be empty)
      - `KIND_OVERRIDE`           = `"block"`
+     - `NAME_PREFIX`              = `"{REGISTRY_NAME}-"`
 
 2. `TaskCreate` one task per component:
-   - Subject: component name
+   - Subject: `targetName`
    - Description: mode + primitive + resolved URLs
 
 3. Spawn `zaidan-transformer` teammates **in a single message** (all parallel). Each teammate receives:
@@ -251,27 +282,32 @@ For each component in `COMPONENTS_TO_SYNC`:
 ```
 Transform this component and report results:
 
-**Component:** {component-name}
+**Source Name:** {sourceName}              # raw upstream name -- use for URL substitution and dep lookups
+**Target Name:** {targetName}              # on-disk name -- use for output paths and the REGISTRY_ENTRY `name` field
+**Name Prefix:** {NAME_PREFIX or "none"}    # if set, prefix every entry in `registryDependencies` with this before checking the existing registry
 **Primitive:** {PRIMITIVE}
 **Source URLs:**
   - Registry: {REGISTRY_URL_FOR_AGENT}
-  - Raw Source: {SOURCE_URL}
+  - Raw Source: {SOURCE_URL or "none -- use Inline Files"}
+**Inline Files:** {INLINE_FILES or "none"}  # JSON array of file objects from the registry; if present, use these instead of fetching Raw Source
 **App Port:** {APP_PORT}
 **Playground URL:** {PLAYGROUND_URL}
 **Playground Prompt:** {PLAYGROUND_PROMPT_FINAL or "none"}
 **Kind Override:** {KIND_OVERRIDE or "none"}
 **Transform Instructions:** {TRANSFORM_INSTRUCTIONS or "none"}
 
-Follow your full workflow: source resolution, kind detection (honor Kind Override if set, otherwise auto-detect from file count),
-dependency pre-flight, visual analysis, user story generation, research primitives,
-transform all files, write output, and validate.
+Follow your full workflow: source resolution (prefer Inline Files when provided; otherwise fetch Raw Source),
+kind detection (honor Kind Override if set, otherwise auto-detect from file count),
+dependency pre-flight (when Name Prefix is set, prefix every `registryDependencies` entry with it before checking against the existing registry),
+visual analysis, user story generation, research primitives,
+transform all files, write output to paths derived from Target Name, and validate.
 Do NOT update registry.json — the sync command handles registry updates.
-Include a REGISTRY_ENTRY JSON line in your report for the sync command to collect.
+Include a REGISTRY_ENTRY JSON line in your report for the sync command to collect. The `name` field MUST be Target Name, and any `registryDependencies` MUST be prefixed (when Name Prefix is set).
 Use the specified primitive for all import mappings and output paths.
 If Transform Instructions are provided, incorporate them as additional context during transformation.
 
 Use this exact format for your final result line:
-  RESULT: {SUCCESS|FAILURE|BLOCKED} | Component: {name} | Primitive: {primitive} | Output: {path}
+  RESULT: {SUCCESS|FAILURE|BLOCKED} | Component: {targetName} | Primitive: {primitive} | Output: {path}
 ```
 
 Configuration per teammate:
@@ -333,8 +369,8 @@ Only process components that passed code review (PASS or WARN in Step 2.6). Comp
 
 For each component that passed code review, apply its registry entry sequentially:
 
-1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 2.5)
-2. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`. **Do NOT prefix names with the registry name** -- external entries are stored under their raw name.
+1. Collect all `REGISTRY_ENTRY` JSON blocks from transformer reports (Step 2.5). The `name` field in each entry is already the `targetName` (prefixed in external mode); use it as-is.
+2. For each entry, use the `shadcn-registry` skill to add or update the entry in `src/registry/{PRIMITIVE}/registry.json`. External entries are stored under their prefixed `targetName` (e.g., `bazza-data-table`) so they cannot collide with shadcn or other external registries.
 3. Apply entries one at a time to prevent write conflicts
 4. After all entries are added, build the registry:
    ```
@@ -351,26 +387,27 @@ Log: `Registry updated with {N} entries, build successful`
 
 For each successfully transformed component:
 
-1. Resolve per-component docs sources based on `MODE`:
+1. Resolve per-component docs sources based on `MODE`. URL substitution uses `sourceName`; the docs-syncer writes output files under `targetName`:
 
-   - **shadcn mode**:
+   - **shadcn mode** (`targetName === sourceName`):
      - `DOC_SOURCE`     = empty (docs-syncer falls back to built-in shadcn defaults)
      - `EXAMPLE_SOURCE` = empty (docs-syncer falls back to built-in shadcn defaults)
      - `COMPONENT_TYPE` = `component` or `block` (from transformer's auto-detect)
 
    - **external mode**:
-     - `DOC_SOURCE`     = `DOCS_URL_TEMPLATE` with `{component}` replaced; if `DOCS_PROMPT` is non-empty, append `|{DOCS_PROMPT}`
-     - `EXAMPLE_SOURCE` = `EXAMPLES_URL_TEMPLATE` with `{component}` replaced; if `EXAMPLES_PROMPT` is non-empty, append `|{EXAMPLES_PROMPT}`
+     - `DOC_SOURCE`     = `DOCS_URL_TEMPLATE` with `{component}` replaced by `sourceName`; if `DOCS_PROMPT` is non-empty, append `|{DOCS_PROMPT}`
+     - `EXAMPLE_SOURCE` = `EXAMPLES_URL_TEMPLATE` with `{component}` replaced by `sourceName`; if `EXAMPLES_PROMPT` is non-empty, append `|{EXAMPLES_PROMPT}`
      - `COMPONENT_TYPE` = `block` (forced -- mirrors `KIND_OVERRIDE=block` from Step 2.4)
 
-2. `TaskCreate` one docs task per component.
+2. `TaskCreate` one docs task per component (subject: `targetName`).
 
 3. Spawn `docs-syncer` teammates **in a single message** (all parallel). Each teammate receives:
 
 ```
 Sync documentation and examples for the following component:
 
-COMPONENT_NAME={component-name}
+COMPONENT_NAME={targetName}            # on-disk name -- used for output MDX/example paths
+SOURCE_NAME={sourceName}                # raw upstream name -- only for reference; DOC_SOURCE/EXAMPLE_SOURCE are already resolved
 PRIMITIVE={PRIMITIVE}
 COMPONENT_TYPE={component or block}
 DOC_SOURCE={resolved DOC_SOURCE or empty}
@@ -378,8 +415,9 @@ EXAMPLE_SOURCE={resolved EXAMPLE_SOURCE or empty}
 
 Follow your full workflow: resolve source (uses the default shadcn GitHub source
 when DOC_SOURCE/EXAMPLE_SOURCE are empty), fetch and transform examples, write
-examples, fetch and transform documentation, write/update MDX documentation,
-lint and format, type check. Generate the complete report.
+examples under COMPONENT_NAME, fetch and transform documentation, write/update
+MDX documentation under COMPONENT_NAME, lint and format, type check. Generate
+the complete report.
 ```
 
 Configuration per teammate:
@@ -428,24 +466,24 @@ Wait for completion and parse the report summary.
 
 **2.12.2: Component File Check**
 
-For each successfully transformed component, verify the output file/directory exists. The expected location depends on the resolved kind (auto-detected for shadcn, forced to `block` for external):
+For each successfully transformed component, verify the output file/directory exists. Use `targetName` for all paths (in shadcn mode `targetName === sourceName`; in external mode it is the prefixed name). The expected location depends on the resolved kind (auto-detected for shadcn, forced to `block` for external):
 
-- Component (kind=`ui`):  `ls src/registry/{PRIMITIVE}/ui/{COMPONENT_NAME}.tsx`
-- Block (kind=`block`):   `ls src/registry/{PRIMITIVE}/blocks/{COMPONENT_NAME}/`
+- Component (kind=`ui`):  `ls src/registry/{PRIMITIVE}/ui/{targetName}.tsx`
+- Block (kind=`block`):   `ls src/registry/{PRIMITIVE}/blocks/{targetName}/`
 
 **2.12.3: Documentation File Check**
 
-For each component with successful docs sync, verify based on resolved kind:
+For each component with successful docs sync, verify based on resolved kind (paths use `targetName`):
 
-- Component MDX: `ls src/pages/ui/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
-- Block MDX:     `ls src/pages/blocks/{PRIMITIVE}/{COMPONENT_NAME}.mdx`
+- Component MDX: `ls src/pages/ui/{PRIMITIVE}/{targetName}.mdx`
+- Block MDX:     `ls src/pages/blocks/{PRIMITIVE}/{targetName}.mdx`
 
 **2.12.4: Example File Check**
 
-For each component with successful docs sync, verify based on resolved kind:
+For each component with successful docs sync, verify based on resolved kind (paths use `targetName`):
 
-- Component example: `ls src/registry/{PRIMITIVE}/examples/ui/{COMPONENT_NAME}-example.tsx`
-- Block example:     `ls src/registry/{PRIMITIVE}/examples/blocks/{COMPONENT_NAME}-example.tsx`
+- Component example: `ls src/registry/{PRIMITIVE}/examples/ui/{targetName}-example.tsx`
+- Block example:     `ls src/registry/{PRIMITIVE}/examples/blocks/{targetName}-example.tsx`
 
 Collect results: for each component, record PASS/FAIL for each check. Store verification results for inclusion in PR body and report.
 
@@ -457,7 +495,7 @@ Use the `git-github-ops` skill to perform the following operations:
 - Create a conventional commit:
   - **shadcn mode**:   `feat: sync {component-list} from shadcn`
   - **external mode**: `feat: sync {component-list} from {REGISTRY_NAME}`
-  - Where `{component-list}` is the component name if 1 component, or `{N} components` if 2+
+  - Where `{component-list}` is the `targetName` if 1 component, or `{N} components` if 2+ (in external mode the targetName is already prefixed, e.g., `bazza-data-table`)
 - Push the branch to the remote
 - Create a pull request using `gh pr create` with:
   - Title matching the commit message
@@ -466,19 +504,21 @@ Use the `git-github-ops` skill to perform the following operations:
 ```markdown
 ## Summary
 - Synced {component-list} from {REGISTRY_NAME} into Zaidan registry (primitive: {PRIMITIVE}, mode: {MODE})
-- Components synced: {comma-separated list}
-- Components failed: {comma-separated list or "none"}
-- Components blocked: {comma-separated list with missing deps or "none"}
+- Components synced: {comma-separated list of targetNames}
+- Components failed: {comma-separated list of targetNames or "none"}
+- Components blocked: {comma-separated list of targetNames with missing deps or "none"}
 
 ## Components
 
+All names in this table are `targetName` (in external mode, prefixed with `{REGISTRY_NAME}-`).
+
 | Component | Kind | Transform | Review | Docs | Visual | QA | Notes |
 |-----------|------|-----------|--------|------|--------|-----|-------|
-| {name} | ui | SUCCESS | PASS | SUCCESS | PASS | PASS | {brief note} |
-| {name} | blocks | SUCCESS | WARN | SUCCESS | PASS | PASS | 2 warnings |
-| {name} | ui | SUCCESS | FAIL | SKIPPED | SKIPPED | SKIPPED | Review failed |
-| {name} | ui | FAILURE | SKIPPED | SKIPPED | SKIPPED | SKIPPED | {error summary} |
-| {name} | ui | BLOCKED | SKIPPED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
+| {targetName} | ui | SUCCESS | PASS | SUCCESS | PASS | PASS | {brief note} |
+| {targetName} | blocks | SUCCESS | WARN | SUCCESS | PASS | PASS | 2 warnings |
+| {targetName} | ui | SUCCESS | FAIL | SKIPPED | SKIPPED | SKIPPED | Review failed |
+| {targetName} | ui | FAILURE | SKIPPED | SKIPPED | SKIPPED | SKIPPED | {error summary} |
+| {targetName} | ui | BLOCKED | SKIPPED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
 Visual column is populated from transformer visual analysis.
 Review column is populated from code review results (Step 2.6).
@@ -529,24 +569,26 @@ Use the Report Format below.
 | Missing (to sync) | {count} |
 
 ### Results
+All names in this table are `targetName` (in external mode, prefixed with `{REGISTRY_NAME}-`).
+
 | Component | Kind | Transform | Review | Docs | Visual | QA | Notes |
 |-----------|------|-----------|--------|------|--------|-----|-------|
-| {name} | ui | SUCCESS | PASS | SUCCESS | PASS | PASS | {brief note} |
-| {name} | blocks | SUCCESS | WARN | SUCCESS | PASS | PASS | 2 warnings |
-| {name} | ui | SUCCESS | FAIL | SKIPPED | SKIPPED | SKIPPED | Review failed |
-| {name} | ui | FAILURE | SKIPPED | SKIPPED | SKIPPED | SKIPPED | {error summary} |
-| {name} | ui | BLOCKED | SKIPPED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
+| {targetName} | ui | SUCCESS | PASS | SUCCESS | PASS | PASS | {brief note} |
+| {targetName} | blocks | SUCCESS | WARN | SUCCESS | PASS | PASS | 2 warnings |
+| {targetName} | ui | SUCCESS | FAIL | SKIPPED | SKIPPED | SKIPPED | Review failed |
+| {targetName} | ui | FAILURE | SKIPPED | SKIPPED | SKIPPED | SKIPPED | {error summary} |
+| {targetName} | ui | BLOCKED | SKIPPED | SKIPPED | SKIPPED | SKIPPED | Missing dep: {dep} |
 
 ### User Stories
 | Component | Story File | QA Result |
 |-----------|-----------|-----------|
-| {name} | ai_review/user_stories/{name}.yaml | PASS/FAIL |
+| {targetName} | ai_review/user_stories/{targetName}.yaml | PASS/FAIL |
 
 ### Code Review
 | Component | Score | Files | Issues | Fixed | Details |
 |-----------|-------|-------|--------|-------|---------|
-| {name} | PASS | 1/1 | 0 | 0 | Clean |
-| {name} | WARN | 3/3 | 2 | 1 | Cross-component similarity with {other} |
+| {targetName} | PASS | 1/1 | 0 | 0 | Clean |
+| {targetName} | WARN | 3/3 | 2 | 1 | Cross-component similarity with {other} |
 
 ### Verification
 | Check | Status | Details |
