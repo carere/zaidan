@@ -1,0 +1,35 @@
+rules:
+  body-leading-blank:
+    level: warning
+  body-max-line-length:
+    level: error
+    length: 100
+  footer-leading-blank:
+    level: warning
+  footer-max-line-length:
+    level: error
+    length: 100
+  header-max-length:
+    level: error
+    length: 100
+  subject-empty:
+    level: error
+  type-empty:
+    level: error
+  type-format:
+    level: error
+    format: ^[a-z].*$
+  type:
+    level: error
+    options:
+      - build
+      - chore
+      - ci
+      - docs
+      - feat
+      - fix
+      - perf
+      - refactor
+      - revert
+      - style
+      - test

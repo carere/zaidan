@@ -53,4 +53,4 @@ jobs:
 
       - name: Validate current commit (last commit)
         if: github.event_name == 'push'
-        run: commitlint --last --verbose
+        run: commitlint --edit .git/COMMIT_EDITMSG
