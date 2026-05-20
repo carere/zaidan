@@ -29,6 +29,7 @@ const Switch = <T extends ValidComponent = "div">(props: SwitchProps<T>) => {
       <SwitchPrimitive.Control
         data-slot="switch-control"
         class="absolute inset-0 flex cursor-pointer items-center rounded-full transition-colors data-disabled:cursor-not-allowed"
+        onClick={(e) => e.preventDefault()}
       >
         <SwitchPrimitive.Thumb
           data-slot="switch-thumb"
