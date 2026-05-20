@@ -470,6 +470,84 @@
       ]
     },
     {
+      "name": "reui-data-grid",
+      "type": "registry:block",
+      "title": "Data Grid",
+      "description": "A feature-rich data grid built on @tanstack/solid-table with sorting, filtering, pagination, column visibility, virtualization, and row/column drag-and-drop. Ported from ReUI.",
+      "dependencies": [
+        "@dnd-kit/solid",
+        "@kobalte/core",
+        "@tanstack/solid-table",
+        "@tanstack/solid-virtual",
+        "class-variance-authority",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "badge",
+        "button",
+        "checkbox",
+        "dropdown-menu",
+        "input",
+        "popover",
+        "select",
+        "separator",
+        "skeleton",
+        "spinner"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-table.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-table.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-column-filter.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-column-filter.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-column-header.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-column-header.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-column-visibility.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-column-visibility.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-pagination.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-pagination.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-scroll-area.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-scroll-area.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-table-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-table-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-table-dnd-rows.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-table-dnd-rows.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/reui-data-grid/data-grid-table-virtual.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/reui-data-grid/data-grid-table-virtual.tsx"
+        }
+      ]
+    },
+    {
       "name": "scroll-area",
       "type": "registry:ui",
       "dependencies": [],
