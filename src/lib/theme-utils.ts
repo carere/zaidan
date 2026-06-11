@@ -47,7 +47,7 @@ export function getChartColor(name: ChartColor): ThemeVariant | undefined {
  * Merge order: base color ← theme ← chart color (chart only overrides chart-1..5).
  *
  * @param config - The design system configuration
- * @param config.baseColor - The base color (e.g. neutral, stone, zinc, mauve)
+ * @param config.baseColor - The base color (e.g. neutral, stone, zinc, gray)
  * @param config.theme - The theme color (e.g. blue, green, amber)
  * @param config.chartColor - The chart palette (any base/theme name; equals
  *   `baseColor` for the "match base color palette" affordance)

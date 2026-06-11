@@ -94,12 +94,12 @@ function getChartLight(name: string) {
 
 /**
  * Available base color options with their metadata and color values.
- * Mirrors shadcn's filter `["neutral","stone","zinc","mauve","olive","mist","taupe"]`.
  */
 export const BASE_COLORS: { name: BaseColor; label: string; color: string }[] = [
   { name: "neutral", label: "Neutral", color: getPreviewColor("neutral", "muted-foreground") },
   { name: "stone", label: "Stone", color: getPreviewColor("stone", "muted-foreground") },
   { name: "zinc", label: "Zinc", color: getPreviewColor("zinc", "muted-foreground") },
+  { name: "gray", label: "Gray", color: getPreviewColor("gray", "muted-foreground") },
   { name: "mauve", label: "Mauve", color: getPreviewColor("mauve", "muted-foreground") },
   { name: "olive", label: "Olive", color: getPreviewColor("olive", "muted-foreground") },
   { name: "mist", label: "Mist", color: getPreviewColor("mist", "muted-foreground") },
@@ -144,6 +144,7 @@ export const CHART_COLORS: {
   { name: "neutral", label: "Neutral", chart: getChartLight("neutral") },
   { name: "stone", label: "Stone", chart: getChartLight("stone") },
   { name: "zinc", label: "Zinc", chart: getChartLight("zinc") },
+  { name: "gray", label: "Gray", chart: getChartLight("gray") },
   { name: "mauve", label: "Mauve", chart: getChartLight("mauve") },
   { name: "olive", label: "Olive", chart: getChartLight("olive") },
   { name: "mist", label: "Mist", chart: getChartLight("mist") },

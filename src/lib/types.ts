@@ -12,6 +12,7 @@ export const BaseColorSchema = z.enum([
   "neutral",
   "stone",
   "zinc",
+  "gray",
   "mauve",
   "olive",
   "mist",
