@@ -105,9 +105,11 @@ type SelectContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
 
 const SelectContent = <T extends ValidComponent = "div">(props: SelectContentProps<T>) => {
   const [local, others] = splitProps(props as SelectContentProps, ["class"]);
+  let contentRef: HTMLElement | undefined;
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
+        ref={(el) => (contentRef = el)}
         class={cn(
           "relative isolate z-50 z-menu-target z-select-content max-h-80 min-w-32 origin-(--kb-select-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
@@ -115,7 +117,7 @@ const SelectContent = <T extends ValidComponent = "div">(props: SelectContentPro
         data-slot="select-content"
         {...others}
       >
-        <SelectPrimitive.Listbox class="m-0 p-1" />
+        <SelectPrimitive.Listbox class="m-0 p-1" scrollRef={() => contentRef} />
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
   );
