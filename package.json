@@ -18,7 +18,8 @@
     "deploy": "wrangler deploy",
     "dev": "vite dev",
     "preview": "vite preview",
-    "r:build:kobalte": "shadcn build src/registry/kobalte/registry.json --output public/r/kobalte"
+    "r:build:kobalte": "shadcn build src/registry/kobalte/registry.json --output public/r/kobalte",
+    "r:validate:kobalte": "shadcn registry validate src/registry/kobalte/registry.json"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.37.2",
@@ -101,7 +102,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
     "resolve": "^1.22.12",
-    "shadcn": "^3.8.5",
+    "shadcn": "^4.11.0",
     "sort-package-json": "^3.6.1",
     "strip-indent": "^4.1.1",
     "tailwindcss": "^4.3.0",
