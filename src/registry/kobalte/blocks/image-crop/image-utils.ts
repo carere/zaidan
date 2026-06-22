@@ -24,15 +24,21 @@ function loadCanvasImage(src: string) {
 
 async function createImageFromFile(file: File): Promise<ImageCropImage> {
   const src = URL.createObjectURL(file);
-  const dimensions = await getImageDimensions(src);
 
-  return {
-    ...dimensions,
-    name: file.name || "image",
-    revoke: () => URL.revokeObjectURL(src),
-    src,
-    type: file.type || "image/png",
-  };
+  try {
+    const dimensions = await getImageDimensions(src);
+
+    return {
+      ...dimensions,
+      name: file.name || "image",
+      revoke: () => URL.revokeObjectURL(src),
+      src,
+      type: file.type || "image/png",
+    };
+  } catch (error) {
+    URL.revokeObjectURL(src);
+    throw error;
+  }
 }
 
 async function createImageFromSource(source: ImageCropInitialImage): Promise<ImageCropImage> {
