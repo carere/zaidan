@@ -44,8 +44,10 @@ When asked to port a component:
    `src/registry/kobalte/registry.json`.
 8. Validate with focused checks and broader checks when appropriate.
 
-Use judgment for the details. Split independent work across subagents with
-clear prompts when that helps.
+Use judgment for the details. This workflow also covers meaningful refinements
+to existing registry items, especially when the change touches docs, examples,
+registry metadata, or browser behavior. Split independent work across subagents
+with clear prompts when that helps.
 
 ## Shadcn Sources
 
@@ -92,6 +94,19 @@ The active registry namespace is `kobalte`.
 
 Read nearby files before writing and match local conventions.
 
+## Block Composition
+
+For blocks, keep the installable surface as small as the public primitive
+requires. If a block grows beyond a single file, split it into
+`src/registry/kobalte/blocks/<name>/` and export from `index.tsx`.
+
+- Put only reusable primitives, context, helpers, and types inside the block.
+- Put dialogs, upload controls, previews, actions, and product-specific layout
+  in `src/registry/kobalte/examples/blocks/<name>-example.tsx`.
+- Keep docs snippets aligned with the exported primitive API, not incidental
+  example composition.
+- When changing interaction behavior, verify the real preview in a browser.
+
 ## Registry Updates
 
 When updating `src/registry/kobalte/registry.json`, infer fields from the files:
@@ -101,7 +116,9 @@ When updating `src/registry/kobalte/registry.json`, infer fields from the files:
   the URL style already present in the registry.
 - `files`: real paths under `src/registry/kobalte/`.
 
-Keep entries ordered consistently with the existing manifest.
+For folder-based blocks, list every internal file the block imports. Do not add
+example-only files to the installable registry item unless the example is meant
+to be installed. Keep entries ordered consistently with the existing manifest.
 
 ## Validation
 

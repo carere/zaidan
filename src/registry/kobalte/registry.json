@@ -298,6 +298,56 @@
       ]
     },
     {
+      "name": "image-crop",
+      "type": "registry:block",
+      "title": "Image Crop",
+      "description": "Composable image crop primitives with a provider, canvas, drag handles, and canvas export.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/canvas.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/canvas.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/constants.ts",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/constants.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/context.ts",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/context.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/geometry.ts",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/geometry.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/image-utils.ts",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/image-utils.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/provider.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/provider.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/image-crop/types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/image-crop/types.ts"
+        }
+      ]
+    },
+    {
       "name": "input",
       "type": "registry:ui",
       "dependencies": [],
