@@ -1,0 +1,17 @@
+---
+title: "June 2026 — Image Crop & Simpler Zaidan Agent"
+description: "A new image-crop component plus a simpler Zaidan Agent workflow."
+date: "2026-06-22"
+slug: "image-crop-and-agent-docs"
+---
+
+This update is focused on two things:
+
+- **Image Crop** — a new composable block for image cropping. It ships the
+  provider, canvas, hook, and crop helpers as the installable primitive surface,
+  with avatar and full-cropper examples composed in userland.
+- **Simpler Zaidan Agent** — the agent is now composed from only two skills:
+  `zaidan-agent` for the Zaidan workflow and `react-to-solid` for the
+  transformation rules. This makes it easier to understand what the agent does,
+  and adds clearer rules for blocks composed of several files, including keeping
+  the installable API focused and listing every dependent file in the registry.

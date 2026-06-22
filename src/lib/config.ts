@@ -239,6 +239,6 @@ export type UpdatedItem = {
  */
 export const UPDATED_ITEMS: UpdatedItem[] = [
   { kind: "docs", slug: "changelog" },
-  { kind: "ui", slug: "scroll-area" },
-  { kind: "blocks", slug: "sortable" },
+  { kind: "docs", slug: "zaidan-agent" },
+  { kind: "blocks", slug: "image-crop" },
 ];

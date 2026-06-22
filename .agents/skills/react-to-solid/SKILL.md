@@ -1,133 +1,137 @@
 ---
 name: react-to-solid
-description: Core transformation engine for React-to-SolidJS conversion. Contains React-to-SolidJS mapping tables, Base UI to Kobalte/Corvu mapping, and third-party dependency mapping. Provides transformation rules as reusable context.
+description: React-to-SolidJS transformation patterns for porting shadcn-style React components, examples, docs snippets, and blocks into Zaidan. Use when converting React TSX, React hooks, Radix/Base UI/shadcn patterns, Next-style code, or React-specific dependencies to idiomatic SolidJS.
 ---
 
-# React-to-SolidJS Transformation Rules
+# React to SolidJS
 
-Single source of truth for all React-to-SolidJS transformations in the Zaidan project. This is a KNOWLEDGE skill -- it provides transformation rules as reusable context. Agents reference these tables when converting React components to SolidJS equivalents.
+Use this skill for the translation itself. Use
+`.agents/skills/zaidan-agent/SKILL.md` for the workflow, source URLs, target
+paths, registry updates, browser testing, and command choices.
 
-**IMPORTANT**: This skill is a **knowledge resource**. It does NOT perform transformations itself. Instead, it provides the necessary rules and mappings that other transformation agents will reference when executing conversions. If user call it manually, explain what this skill covers and redirect user to the agents that will use this skill, then stop. 
+## Load References Only When Needed
 
-## React-to-SolidJS Transformation Rules
+- Read `docs/base-ui-mapping.md` for `@base-ui/react-*`, `@radix-ui/*`, Base UI
+  data attributes, or Base UI CSS variables.
+- Read `docs/kobalte-patterns.md` when typing or composing Kobalte primitive
+  parts.
+- Read `docs/corvu-patterns.md` when using Corvu primitives.
+- Read `docs/third-party-deps.md` when replacing React-specific third-party
+  packages.
 
-| Aspect | React (shadcn) | SolidJS (Zaidan) |
-|---|---|---|
-| Class attribute | `className` | `class` |
-| Class prop type | `className?: string` | `class?: string` |
-| Props destructuring | `{ className, ...props }` | `splitProps(props, ["class"])` |
-| Spread props | `{...props}` | `{...others}` after splitProps |
-| Default props | Destructure defaults `{ x = 5 }` | `mergeProps({ x: 5 }, props)` |
-| Conditional rendering | `{condition && <El />}` | `<Show when={condition}><El /></Show>` |
-| List rendering | `{items.map(x => ...)}` | `<For each={items}>{x => ...}</For>` |
-| Primitive library | `@base-ui/react-*` | `@kobalte/core/*` |
-| Polymorphic | `asChild` prop | `as` prop with `PolymorphicProps` |
-| Refs | `forwardRef` wrapper | Remove (not needed in SolidJS) |
-| Children type | `React.ReactNode` | `JSX.Element` |
-| Component type | `React.ComponentProps<"div">` | `ComponentProps<"div">` |
-| Event target | `e.target.value` | `e.currentTarget.value` |
-| Utils import | `@/registry/bases/base/lib/utils` | `@/lib/utils` |
+## Core Mappings
 
-### Import Transformations
+| React | SolidJS |
+| --- | --- |
+| `className` | `class` |
+| `className?: string` | `class?: string` |
+| Destructured props | `splitProps(props, [...])` |
+| Destructured default props | `mergeProps(defaults, props)` before `splitProps` |
+| `{condition && <El />}` | `<Show when={condition}><El /></Show>` |
+| `items.map(...)` in JSX | `<For each={items}>{(item) => ...}</For>` |
+| `useState` | `createSignal` or `createStore` |
+| `useEffect` | `createEffect`, `onMount`, or `onCleanup` |
+| `useMemo` | `createMemo` only for reactive derived values |
+| `useCallback` | Usually remove |
+| `forwardRef` | Usually remove |
+| `React.ReactNode` | `JSX.Element` |
+| `React.ComponentProps<"div">` | `ComponentProps<"div">` |
+| `lucide-react` | `lucide-solid` |
+| `next/image` | Native `<img>` unless local code has a wrapper |
+| `next/link` | TanStack Router `Link` or native `<a>` based on local usage |
+
+Use `e.currentTarget` for typed form events. Use signal calls such as `value()`;
+do not treat signals like React state variables.
+
+## Import Rewrites
 
 ```tsx
-// REMOVE (React):
-import * as React from "react"
-import { Slot } from "base-ui"
-import * as DialogPrimitive from "@base-ui/react/dialog"
-import { cn } from "@/registry/bases/base/lib/utils"
+// Remove React imports:
+import * as React from "react";
 
-// ADD (SolidJS):
-import type { ComponentProps, JSX, ValidComponent } from "solid-js"
-import { splitProps, mergeProps, Show, For } from "solid-js"
-import * as DialogPrimitive from "@kobalte/core/dialog"
-import type { PolymorphicProps } from "@kobalte/core/polymorphic"
-import { cn } from "@/lib/utils"
+// Add Solid imports only when used:
+import type { ComponentProps, JSX, ValidComponent } from "solid-js";
+import { For, Show, createMemo, createSignal, mergeProps, splitProps } from "solid-js";
+import type { PolymorphicProps } from "@kobalte/core/polymorphic";
+import { cn } from "@/lib/utils";
 ```
 
-## Advanced Transformation Patterns
+Common path rewrites:
 
-### Component Part Patterns WITHOUT Kobalte/Corvu Primitive
+| React source path | Zaidan path |
+| --- | --- |
+| `@/registry/bases/base/lib/utils` | `@/lib/utils` |
+| `@/registry/bases/base/ui/*` | `@/registry/kobalte/ui/*` |
+| `@/registry/bases/base/hooks/*` | `@/registry/kobalte/hooks/*` |
+| `@/registry/bases/base/blocks/*` | `@/registry/kobalte/blocks/*` |
 
-When a component part does NOT use a Kobalte or Corvu primitive, use this pattern:
+## Props Pattern
+
+Use `splitProps`; do not destructure props directly when values are used in JSX.
 
 ```tsx
-type ComponentPartProps = ComponentProps<"<html_element>">
+import type { ComponentProps } from "solid-js";
+import { splitProps } from "solid-js";
+import { cn } from "@/lib/utils";
 
-const ComponentPart = (props: ComponentPartProps) => {
-  const mergedProps = mergeProps({ aProp: "default" } as ComponentPartProps, props);
-  const [local, others] = splitProps(mergedProps, ["aProp"]);
-  return <html_element aProp={local.aProp} {...others} />;
-}
+type CardProps = ComponentProps<"div">;
+
+const Card = (props: CardProps) => {
+  const [local, others] = splitProps(props, ["class"]);
+
+  return <div data-slot="card" class={cn("z-card", local.class)} {...others} />;
+};
 ```
 
-### Component Part Patterns WITH Kobalte/Corvu Primitive
-
-When a component part uses a Kobalte or Corvu primitive, use polymorphic typing:
+Use `mergeProps` first when defaults are needed:
 
 ```tsx
-import * as Primitive from "@kobalte/core/primitive";
+const mergedProps = mergeProps({ side: "top" } as TooltipProps, props);
+const [local, others] = splitProps(mergedProps, ["class", "side"]);
+```
 
-type ComponentPartProps<T extends ValidComponent = "<html_element>"> =
-  PolymorphicProps<T, Primitive.PrimitivePartProps<T>> &
-  Pick<ComponentProps<"<html_element>">, "aProp">;
+Use Solid's `children()` helper when children must be inspected, normalized, or
+reused.
 
-const ComponentPart = <T extends ValidComponent = "<html_element>">(
-  props: ComponentPartProps<T>
-) => {
-  const mergedProps = mergeProps(
-    { aProp: "default" } as ComponentPartProps<T>,
-    props as ComponentPartProps<T>
+## Primitive Pattern
+
+Prefer Kobalte for accessible shadcn-style primitives. Use Corvu when the repo
+already uses it for that component family, when Kobalte does not provide the
+primitive, or when Corvu matches the source behavior better.
+
+```tsx
+import * as ButtonPrimitive from "@kobalte/core/button";
+import type { PolymorphicProps } from "@kobalte/core/polymorphic";
+import type { ComponentProps, ValidComponent } from "solid-js";
+import { splitProps } from "solid-js";
+import { cn } from "@/lib/utils";
+
+type ButtonProps<T extends ValidComponent = "button"> = PolymorphicProps<
+  T,
+  ButtonPrimitive.ButtonRootProps<T>
+> &
+  Pick<ComponentProps<T>, "class" | "children">;
+
+const Button = <T extends ValidComponent = "button">(props: ButtonProps<T>) => {
+  const [local, others] = splitProps(props as ButtonProps, ["class"]);
+
+  return (
+    <ButtonPrimitive.Root
+      data-slot="button"
+      class={cn("z-button", local.class)}
+      {...others}
+    />
   );
-  const [local, others] = splitProps(mergedProps, ["aProp"]);
-  return <Primitive.Root aProp={local.aProp} {...others} />;
-}
+};
 ```
 
-### Reading Kobalte Documentation
+Keep primitive imports inside wrapper components. In examples, docs, and blocks,
+prefer existing Zaidan wrappers when they exist.
 
-When consulting Kobalte docs at `https://kobalte.dev/docs/core/components/<component-name>`:
+## Preservation Rules
 
-- **Anatomy Section**: Lists all `ComponentPart` elements and how to combine them
-- **Rendered Elements Section**: Check the "Default rendered element" column:
-  - If starts with a capital letter -> no primitive used (e.g., a Kobalte sub-component)
-  - If `none` -> no primitive used (wrapper/context provider)
-  - Otherwise -> native HTML element (e.g., `div`, `button`, `h3`)
-- **API Reference**: Props, data attributes, CSS variables for each part
-- **CSS Variables**: Kobalte prefixes with `--kb-` (e.g., `--kb-accordion-content-height`)
-
-### Reading Corvu Documentation
-
-When consulting Corvu docs at `https://corvu.dev/docs/primitives/<component-name>`:
-
-- **Anatomy Section**: Lists all `ComponentPart` elements with combination patterns
-- **API Reference Section**: Rendered elements are specified in the Props table, under the `as` row
-- **DynamicProps**: Corvu uses `DynamicProps` instead of Kobalte's `PolymorphicProps`
-- **CSS Variables**: Corvu prefixes with `--corvu-` (e.g., `--corvu-disclosure-content-height`)
-- **Data Attributes**: Corvu prefixes with `data-corvu-` (e.g., `data-corvu-accordion-trigger`)
-- **Context Hooks**: `useContext()` and `useItemContext()` for accessing component state
-
-## Documentation Resources
-
-### Kobalte Core Components
-- **URL Pattern**: `https://kobalte.dev/docs/core/components/<component-name>`
-- **Content**: Anatomy, Rendered elements, API Reference, Props, Data Attributes, CSS Variables
-- For detailed patterns, see [docs/kobalte-patterns.md](docs/kobalte-patterns.md)
-
-### Corvu Primitives
-- **URL Pattern**: `https://corvu.dev/docs/primitives/<component-name>`
-- **Content**: Anatomy, API Reference with rendered elements in Props table
-- For detailed patterns, see [docs/corvu-patterns.md](docs/corvu-patterns.md)
-
-### Shadcn Registry
-- **Components**: `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/ui/<component-name>.tsx`
-- **Examples**: `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/registry/bases/base/examples/<component-name>-example.tsx`
-- **Docs**: `https://raw.githubusercontent.com/shadcn-ui/ui/refs/heads/main/apps/v4/content/docs/components/<component-name>.mdx`
-- **Schema**: `https://ui.shadcn.com/schema/registry.json`
-
-## Supporting Documentation
-
-- [docs/kobalte-patterns.md](docs/kobalte-patterns.md) -- Kobalte anatomy, rendered elements, props, data attributes, CSS variables
-- [docs/corvu-patterns.md](docs/corvu-patterns.md) -- Corvu anatomy, API patterns, DynamicProps, context hooks
-- [docs/base-ui-mapping.md](docs/base-ui-mapping.md) -- Complete Base UI to Kobalte/Corvu mapping reference
-- [docs/third-party-deps.md](docs/third-party-deps.md) -- Detailed third-party React-to-SolidJS dependency mapping
+- Preserve behavior, accessibility, public API, Tailwind classes, CSS variables,
+  and `data-slot` attributes unless the Solid primitive requires an adaptation.
+- Match nearby Zaidan files for naming, exports, data attributes, and types.
+- Keep imports minimal.
+- Prefer `cn()` from `@/lib/utils` for class merging.

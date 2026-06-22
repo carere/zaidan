@@ -10,10 +10,11 @@ export function HomeHero() {
       class="relative flex w-full flex-col items-center gap-6 px-4 pt-4 pb-16 text-center lg:pt-6 lg:pb-24"
     >
       <Link
-        to="/changelog"
+        to="/changelog/$slug"
+        params={{ slug: "image-crop-and-agent-docs" }}
         class="group inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted/80"
       >
-        <span>New: Sortable, Scroll Area, and shadcn-aligned fonts &amp; colors</span>
+        <span>New: Image Crop and simpler Zaidan Agent</span>
         <ArrowRightIcon class="size-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
