@@ -41,8 +41,12 @@ The dedicated Product Surface where users configure a design system, preview it,
 _Avoid_: Customizer rail, theme page
 
 **Design Configuration**:
-The user's selected design-system choices that remain consistent while navigating between Product Surfaces and determine Create previews and setup output.
+The normalized design-system choices owned by the Create Workspace. The default is implicit; a modified selection is represented by a Preset Token inside Create and its Preview, determines preview and setup output, and is discarded when the user leaves Create.
 _Avoid_: Theme state, query options
+
+**Preset Token**:
+The compact, versioned representation of one normalized Design Configuration. It is URL state only inside Create and its Preview, and it also identifies the generated virtual registry item used by setup output; it is never navigation state shared by other Product Surfaces.
+_Avoid_: Global configuration, cross-surface state
 
 **Primitive**:
 The accessible behavior foundation beneath registry Components. Kobalte is Zaidan's only supported Primitive; Component identity remains independent of that choice so another Primitive can be introduced later without changing the Component Catalog.
