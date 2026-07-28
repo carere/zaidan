@@ -28,6 +28,10 @@ _Avoid_: UI list, registry browser
 The first-class visual collection of chart examples and their usage guidance.
 _Avoid_: Chart component page
 
+**Chart Catalog Entry**:
+An individually installable chart example presented in the Chart Catalog. It is distributed through the registry as a block-shaped artifact but does not belong to the Component Catalog's Blocks collection.
+_Avoid_: Chart block, Component block
+
 **Create Workspace**:
 The dedicated Product Surface where users configure a design system, preview it, and obtain project setup instructions.
 _Avoid_: Customizer rail, theme page
