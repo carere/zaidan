@@ -150,7 +150,7 @@
     {
       "name": "chart",
       "type": "registry:ui",
-      "dependencies": ["echarts"],
+      "dependencies": ["solid-recharts@1.0.0"],
       "registryDependencies": [],
       "files": [
         {

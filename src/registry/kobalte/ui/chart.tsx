@@ -1,429 +1,376 @@
-import { BarChart, LineChart, PieChart, RadarChart, ScatterChart } from "echarts/charts";
-import {
-  GridComponent,
-  LegendComponent,
-  TitleComponent,
-  TooltipComponent,
-} from "echarts/components";
-import { type ECharts, type EChartsCoreOption, init, type SetOptionOpts, use } from "echarts/core";
-import { SVGRenderer } from "echarts/renderers";
 import type { Component, ComponentProps, JSX } from "solid-js";
 import {
   createContext,
-  createEffect,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
+  createMemo,
+  createUniqueId,
+  For,
+  Show,
   splitProps,
   useContext,
 } from "solid-js";
+import { Dynamic } from "solid-js/web";
+import {
+  type LegendPayload,
+  type LegendProps,
+  ResponsiveContainer,
+  Legend as SolidRechartsLegend,
+  Tooltip as SolidRechartsTooltip,
+  type TooltipContentProps,
+  type TooltipPayloadEntry,
+  type TooltipProps,
+} from "solid-recharts";
 import { cn } from "@/lib/utils";
 
-// Register ECharts components - using SVG renderer for CSS variable support
-// Note: SVG is required because Canvas cannot parse CSS variables like var(--chart-1)
-// To prevent flickering on hover, set emphasis.disabled: true or explicit emphasis colors in your chart options
-use([
-  SVGRenderer,
-  GridComponent,
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  BarChart,
-  LineChart,
-  PieChart,
-  RadarChart,
-  ScatterChart,
-]);
+const THEMES = {
+  light: "",
+  dark: '[data-kb-theme="dark"]',
+} as const;
 
-// ============================================================================
-// Types
-// ============================================================================
+const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 
-/**
- * Configuration for chart series styling and labeling.
- * Similar to shadcn's ChartConfig for familiarity.
- */
-export type ChartConfig = {
-  [key: string]: {
-    /** Human-readable label for the series */
-    label?: JSX.Element | string;
-    /** Icon component to show in legends/tooltips */
+export type ChartConfig = Record<
+  string,
+  {
+    label?: JSX.Element;
     icon?: Component;
-    /** Static color value (hex, hsl, oklch, or CSS variable) */
-    color?: string;
-    /** Theme-aware colors for light/dark mode */
-    theme?: {
-      light: string;
-      dark: string;
-    };
-  };
-};
-
-export type ChartContainerProps = ComponentProps<"div"> & {
-  /** ECharts option configuration */
-  option: EChartsCoreOption;
-  /** Chart configuration for series styling */
-  config?: ChartConfig;
-  /** Whether to show loading animation */
-  loading?: boolean;
-  /** Loading options for ECharts */
-  loadingOptions?: object;
-  /** Options for setOption call */
-  setOptionOpts?: SetOptionOpts;
-  /** ECharts theme name (not used, we use CSS variables) */
-  theme?: string;
-  /** Callback when chart instance is initialized */
-  onInit?: (chart: ECharts) => void;
-  /** Event handlers for chart events */
-  eventHandlers?: Record<string, (params: unknown) => void>;
-};
-
-// ============================================================================
-// Context
-// ============================================================================
+  } & (
+    | { color?: string; theme?: never }
+    | { color?: never; theme: Record<keyof typeof THEMES, string> }
+  )
+>;
 
 type ChartContextValue = {
   config: ChartConfig;
 };
 
-const ChartContext = createContext<ChartContextValue>({ config: {} });
+const ChartContext = createContext<ChartContextValue>();
 
-export function useChart() {
+function useChart() {
   const context = useContext(ChartContext);
+
   if (!context) {
-    throw new Error("useChart must be used within a ChartContainer");
+    throw new Error("useChart must be used within a <ChartContainer />");
   }
+
   return context;
 }
 
-// ============================================================================
-// Utilities
-// ============================================================================
+type ChartContainerProps = ComponentProps<"div"> & {
+  config: ChartConfig;
+  initialDimension?: {
+    width: number;
+    height: number;
+  };
+};
 
-/**
- * Get the computed color from a config entry.
- * Handles CSS variables, theme colors, and static colors.
- */
-function getConfigColor(
-  configEntry: ChartConfig[string] | undefined,
-  isDark: boolean,
-): string | undefined {
-  if (!configEntry) return undefined;
-
-  if (configEntry.theme) {
-    return isDark ? configEntry.theme.dark : configEntry.theme.light;
-  }
-
-  return configEntry.color;
-}
-
-/**
- * Build CSS custom properties for chart colors from config.
- * This mimics shadcn's approach of injecting --color-{key} variables.
- */
-function buildChartStyles(config: ChartConfig, isDark: boolean): Record<string, string> {
-  const styles: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(config)) {
-    const color = getConfigColor(value, isDark);
-    if (color) {
-      styles[`--color-${key}`] = color;
-    }
-  }
-
-  return styles;
-}
-
-/**
- * Check if dark mode is active by looking for the data-kb-theme attribute.
- */
-function useIsDarkMode() {
-  const [isDark, setIsDark] = createSignal(false);
-
-  onMount(() => {
-    // Initial check
-    const html = document.documentElement;
-    setIsDark(html.getAttribute("data-kb-theme") === "dark");
-
-    // Watch for theme changes
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type === "attributes" && mutation.attributeName === "data-kb-theme") {
-          setIsDark(html.getAttribute("data-kb-theme") === "dark");
-        }
-      }
-    });
-
-    observer.observe(html, { attributes: true });
-    onCleanup(() => observer.disconnect());
-  });
-
-  return isDark;
-}
-
-// ============================================================================
-// ChartContainer Component
-// ============================================================================
-
-/**
- * ChartContainer is the main wrapper component for ECharts.
- * It handles:
- * - SVG rendering for CSS variable support (Canvas cannot parse CSS variables)
- * - Automatic resizing
- * - Theme integration via CSS variables
- * - Loading states
- * - Proper cleanup on unmount
- *
- * Note: To prevent flickering on hover when using CSS variables, either:
- * 1. Set `emphasis: { disabled: true }` in your series to disable hover effects
- * 2. Or explicitly set `emphasis: { itemStyle: { color: 'same-as-normal' } }` in your series
- * This is because ECharts calculates emphasis colors from normal colors, but can't parse CSS variables.
- */
 function ChartContainer(props: ChartContainerProps) {
-  const mergedProps = mergeProps(
-    {
-      config: {} as ChartConfig,
-      loading: false,
-      loadingOptions: {},
-      setOptionOpts: { notMerge: true } as SetOptionOpts,
-    },
-    props,
-  );
-
-  const [local, others] = splitProps(mergedProps, [
+  const [local, others] = splitProps(props, [
+    "id",
     "class",
     "children",
-    "option",
     "config",
-    "loading",
-    "loadingOptions",
-    "setOptionOpts",
-    "theme",
-    "onInit",
-    "eventHandlers",
-    "style",
+    "initialDimension",
   ]);
-
-  let containerRef: HTMLDivElement | undefined;
-  let chartInstance: ECharts | undefined;
-
-  const isDark = useIsDarkMode();
-
-  // Initialize chart
-  onMount(() => {
-    if (!containerRef) return;
-
-    // Initialize with SVG renderer - required for CSS variable support
-    // Canvas renderer cannot parse CSS variables like var(--chart-1)
-    chartInstance = init(containerRef as HTMLElement, undefined, {
-      renderer: "svg",
-    });
-
-    // Set initial option
-    chartInstance?.setOption(local.option, local.setOptionOpts);
-
-    // Register event handlers
-    if (local.eventHandlers) {
-      for (const [event, handler] of Object.entries(local.eventHandlers)) {
-        chartInstance?.on(event, handler);
-      }
-    }
-
-    // Call onInit callback
-    local.onInit?.(chartInstance as ECharts);
-
-    // Setup resize observer
-    const resizeObserver = new ResizeObserver(() => {
-      chartInstance?.resize();
-    });
-    resizeObserver.observe(containerRef);
-
-    onCleanup(() => {
-      resizeObserver.disconnect();
-      chartInstance?.dispose();
-    });
-  });
-
-  // Update option when it changes
-  createEffect(
-    on(
-      () => local.option,
-      (newOption) => {
-        chartInstance?.setOption(newOption, local.setOptionOpts);
-      },
-      { defer: true },
-    ),
-  );
-
-  // Handle loading state
-  createEffect(
-    on(
-      () => local.loading,
-      (isLoading) => {
-        if (isLoading) {
-          chartInstance?.showLoading("default", local.loadingOptions);
-        } else {
-          chartInstance?.hideLoading();
-        }
-      },
-    ),
-  );
-
-  // Compute styles with chart color variables
-  const chartStyles = () => {
-    const configStyles = buildChartStyles(local.config, isDark());
-    const userStyles = typeof local.style === "object" ? (local.style as object) : {};
-    return { ...configStyles, ...userStyles };
-  };
+  const uniqueId = createUniqueId();
+  const chartId = () => `chart-${local.id ?? uniqueId.replace(/:/g, "")}`;
 
   return (
     <ChartContext.Provider value={{ config: local.config }}>
       <div
-        ref={containerRef}
         data-slot="chart"
-        data-chart
+        data-chart={chartId()}
         class={cn(
-          "flex aspect-video justify-center text-xs",
-          "[&_.echarts-tooltip]:rounded-lg [&_.echarts-tooltip]:border [&_.echarts-tooltip]:border-border/50 [&_.echarts-tooltip]:bg-background [&_.echarts-tooltip]:text-foreground [&_.echarts-tooltip]:shadow-xl",
+          "cn-chart flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden",
           local.class,
         )}
-        style={chartStyles()}
         {...others}
       >
-        {local.children}
+        <ChartStyle id={chartId()} config={local.config} />
+        <ResponsiveContainer initialDimension={local.initialDimension ?? INITIAL_DIMENSION}>
+          {local.children}
+        </ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   );
 }
 
-/**
- * Default ECharts tooltip options that match shadcn styling.
- * Merge this with your tooltip configuration.
- */
-export const chartTooltipDefaults = {
-  trigger: "axis" as const,
-  backgroundColor: "var(--background)",
-  borderColor: "var(--border)",
-  borderWidth: 1,
-  padding: [8, 12],
-  textStyle: {
-    color: "var(--foreground)",
-    fontSize: 12,
-  },
-  axisPointer: {
-    type: "shadow" as const,
-    shadowStyle: {
-      color: "rgba(0, 0, 0, 0.06)",
-    },
-  },
-};
+function ChartStyle(props: { id: string; config: ChartConfig }) {
+  const colorConfig = createMemo(() =>
+    Object.entries(props.config).filter(([, config]) => config.theme ?? config.color),
+  );
 
-// ============================================================================
-// Chart Legend Styling
-// ============================================================================
+  const css = createMemo(() =>
+    Object.entries(THEMES)
+      .map(([theme, prefix]) => {
+        const variables = colorConfig()
+          .map(([key, itemConfig]) => {
+            const color =
+              itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ?? itemConfig.color;
+            return color ? `  --color-${key}: ${color};` : null;
+          })
+          .filter(Boolean)
+          .join("\n");
 
-/**
- * Default ECharts legend options that match shadcn styling.
- */
-export const chartLegendDefaults = {
-  textStyle: {
-    color: "var(--foreground)",
-    fontSize: 12,
-  },
-  itemGap: 16,
-  itemWidth: 12,
-  itemHeight: 12,
-  icon: "circle",
-};
+        return `${prefix} [data-chart="${props.id}"] {\n${variables}\n}`;
+      })
+      .join("\n"),
+  );
 
-// ============================================================================
-// Chart Grid Styling
-// ============================================================================
-
-/**
- * Default ECharts grid options.
- */
-export const chartGridDefaults = {
-  left: "3%",
-  right: "4%",
-  bottom: "3%",
-  containLabel: true,
-};
-
-// ============================================================================
-// Chart Axis Styling
-// ============================================================================
-
-/**
- * Default x-axis options that match shadcn styling.
- */
-export const chartXAxisDefaults = {
-  axisLine: {
-    lineStyle: {
-      color: "var(--border)",
-    },
-  },
-  axisTick: {
-    show: false,
-  },
-  axisLabel: {
-    color: "var(--muted-foreground)",
-    fontSize: 12,
-  },
-  splitLine: {
-    show: false,
-  },
-};
-
-/**
- * Default y-axis options that match shadcn styling.
- */
-export const chartYAxisDefaults = {
-  axisLine: {
-    show: false,
-  },
-  axisTick: {
-    show: false,
-  },
-  axisLabel: {
-    color: "var(--muted-foreground)",
-    fontSize: 12,
-  },
-  splitLine: {
-    lineStyle: {
-      color: "var(--border)",
-      type: "dashed" as const,
-    },
-  },
-};
-
-// ============================================================================
-// Preset Color Palettes
-// ============================================================================
-
-/**
- * Default chart color palette using CSS variables.
- * These correspond to --chart-1 through --chart-5.
- */
-export const chartColors = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-];
-
-/**
- * Create an ECharts color configuration using the theme's chart colors.
- */
-export function createChartColorConfig(): { color: string[] } {
-  return { color: chartColors };
+  return <Show when={colorConfig().length}>{<style>{css()}</style>}</Show>;
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
+const ChartTooltip = SolidRechartsTooltip;
 
-export { ChartContainer };
+type ChartTooltipContentProps = ComponentProps<"div"> & {
+  active?: TooltipContentProps["active"];
+  payload?: ReadonlyArray<TooltipPayloadEntry>;
+  label?: TooltipContentProps["label"];
+  labelFormatter?: TooltipProps["labelFormatter"];
+  formatter?: TooltipProps["formatter"];
+  indicator?: "line" | "dot" | "dashed";
+  hideLabel?: boolean;
+  hideIndicator?: boolean;
+  color?: string;
+  nameKey?: string;
+  labelKey?: string;
+  labelClass?: string;
+};
+
+function ChartTooltipContent(props: ChartTooltipContentProps) {
+  const [local, others] = splitProps(props, [
+    "active",
+    "payload",
+    "class",
+    "indicator",
+    "hideLabel",
+    "hideIndicator",
+    "label",
+    "labelFormatter",
+    "formatter",
+    "color",
+    "nameKey",
+    "labelKey",
+    "labelClass",
+  ]);
+  const { config } = useChart();
+
+  const tooltipLabel = createMemo(() => {
+    if (local.hideLabel || !local.payload?.length) {
+      return null;
+    }
+
+    const [item] = local.payload;
+    const key = `${local.labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
+    const itemConfig = getPayloadConfigFromPayload(config, item, key);
+    const value =
+      !local.labelKey && typeof local.label === "string"
+        ? (config[local.label]?.label ?? local.label)
+        : itemConfig?.label;
+
+    if (local.labelFormatter) {
+      return (
+        <div class={cn("font-medium", local.labelClass)}>
+          {local.labelFormatter(value, local.payload)}
+        </div>
+      );
+    }
+
+    if (value == null) {
+      return null;
+    }
+
+    return <div class={cn("font-medium", local.labelClass)}>{value}</div>;
+  });
+
+  const visiblePayload = createMemo(() =>
+    (local.payload ?? []).filter((item) => item?.type !== "none"),
+  );
+
+  return (
+    <Show when={local.active && visiblePayload().length}>
+      <div
+        class={cn(
+          "cn-chart-tooltip grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+          local.class,
+        )}
+        {...others}
+      >
+        <Show when={visiblePayload().length !== 1 || (local.indicator ?? "dot") === "dot"}>
+          {tooltipLabel()}
+        </Show>
+        <div class="grid gap-1.5">
+          <For each={visiblePayload()}>
+            {(item, index) => {
+              const key = () => `${local.nameKey ?? item.name ?? item.dataKey ?? "value"}`;
+              const itemConfig = () => getPayloadConfigFromPayload(config, item, key());
+              const indicator = () => local.indicator ?? "dot";
+              const nestLabel = () => visiblePayload().length === 1 && indicator() !== "dot";
+              const indicatorColor = () =>
+                local.color ?? getStringProperty(item.payload, "fill") ?? item.color;
+
+              return (
+                <div
+                  class={cn(
+                    "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                    indicator() === "dot" && "items-center",
+                  )}
+                >
+                  {local.formatter && item.value !== undefined && item.name !== undefined ? (
+                    local.formatter(item.value, item.name, item, index(), local.payload ?? [])
+                  ) : (
+                    <>
+                      <Show
+                        when={itemConfig()?.icon}
+                        fallback={
+                          <Show when={!local.hideIndicator}>
+                            <div
+                              class={cn(
+                                "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
+                                indicator() === "dot" && "h-2.5 w-2.5",
+                                indicator() === "line" && "w-1",
+                                indicator() === "dashed" &&
+                                  "w-0 border-[1.5px] border-dashed bg-transparent",
+                                nestLabel() && indicator() === "dashed" && "my-0.5",
+                              )}
+                              style={
+                                {
+                                  "--color-bg": indicatorColor(),
+                                  "--color-border": indicatorColor(),
+                                } as JSX.CSSProperties
+                              }
+                            />
+                          </Show>
+                        }
+                      >
+                        {(icon) => <Dynamic component={icon()} />}
+                      </Show>
+                      <div
+                        class={cn(
+                          "flex flex-1 justify-between leading-none",
+                          nestLabel() ? "items-end" : "items-center",
+                        )}
+                      >
+                        <div class="grid gap-1.5">
+                          <Show when={nestLabel()}>{tooltipLabel()}</Show>
+                          <span class="text-muted-foreground">
+                            {itemConfig()?.label ?? item.name}
+                          </span>
+                        </div>
+                        <Show when={item.value != null}>
+                          <span class="font-medium font-mono text-foreground tabular-nums">
+                            {typeof item.value === "number"
+                              ? item.value.toLocaleString()
+                              : String(item.value)}
+                          </span>
+                        </Show>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            }}
+          </For>
+        </div>
+      </div>
+    </Show>
+  );
+}
+
+const ChartLegend = SolidRechartsLegend;
+
+type ChartLegendContentProps = ComponentProps<"div"> & {
+  payload?: ReadonlyArray<LegendPayload>;
+  verticalAlign?: LegendProps["verticalAlign"];
+  hideIcon?: boolean;
+  nameKey?: string;
+};
+
+function ChartLegendContent(props: ChartLegendContentProps) {
+  const [local, others] = splitProps(props, [
+    "class",
+    "payload",
+    "verticalAlign",
+    "hideIcon",
+    "nameKey",
+  ]);
+  const { config } = useChart();
+  const visiblePayload = createMemo(() =>
+    (local.payload ?? []).filter((item) => item.type !== "none"),
+  );
+
+  return (
+    <Show when={visiblePayload().length}>
+      <div
+        class={cn(
+          "flex items-center justify-center gap-4",
+          local.verticalAlign === "top" ? "pb-3" : "pt-3",
+          local.class,
+        )}
+        {...others}
+      >
+        <For each={visiblePayload()}>
+          {(item) => {
+            const key = () => `${local.nameKey ?? item.dataKey ?? "value"}`;
+            const itemConfig = () => getPayloadConfigFromPayload(config, item, key());
+
+            return (
+              <div class="flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground">
+                <Show
+                  when={itemConfig()?.icon && !local.hideIcon ? itemConfig()?.icon : undefined}
+                  fallback={
+                    <div
+                      class="h-2 w-2 shrink-0 rounded-[2px]"
+                      style={{ "background-color": item.color }}
+                    />
+                  }
+                >
+                  {(icon) => <Dynamic component={icon()} />}
+                </Show>
+                {itemConfig()?.label}
+              </div>
+            );
+          }}
+        </For>
+      </div>
+    </Show>
+  );
+}
+
+function getPayloadConfigFromPayload(
+  config: ChartConfig,
+  payload: unknown,
+  key: string,
+): ChartConfig[string] | undefined {
+  if (typeof payload !== "object" || payload === null) {
+    return undefined;
+  }
+
+  const payloadPayload =
+    "payload" in payload && typeof payload.payload === "object" && payload.payload !== null
+      ? payload.payload
+      : undefined;
+
+  const payloadValue = getStringProperty(payload, key);
+  const nestedPayloadValue = getStringProperty(payloadPayload, key);
+  const configLabelKey = payloadValue ?? nestedPayloadValue ?? key;
+
+  return config[configLabelKey] ?? config[key];
+}
+
+function getStringProperty(value: unknown, key: string): string | undefined {
+  if (typeof value !== "object" || value === null || !(key in value)) {
+    return undefined;
+  }
+
+  const property = value[key as keyof typeof value];
+  return typeof property === "string" ? property : undefined;
+}
+
+export {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
+};
