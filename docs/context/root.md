@@ -12,6 +12,10 @@ _Avoid_: Section, tab
 The shared navigation and global controls that connect every Product Surface across desktop and mobile layouts.
 _Avoid_: Universal shell, docs header
 
+**Command Search**:
+The Product Header's global navigation search across Product Surfaces and published authored or catalog content. It finds destinations and stable section anchors without running actions or changing the active Design Configuration.
+_Avoid_: Item Picker, command palette
+
 **Home Showcase**:
 The live card composition on Home that demonstrates the component system directly in the page.
 _Avoid_: Preview iframe, embedded website
