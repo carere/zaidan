@@ -62,11 +62,39 @@ export default defineConfig({
 
                 await heading.waitFor({ state: "visible" });
 
-                await routeFrame.locator(".theme-container").waitFor({ state: "visible" });
+                const previewFrame = routeFrame.frameLocator('iframe[title="Home Preview"]');
+                await previewFrame.locator(".theme-container").waitFor({ state: "visible" });
 
                 return {
                   heading: await heading.textContent(),
-                  previewPath: null,
+                  previewPath: await routeFrame
+                    .locator('iframe[title="Home Preview"]')
+                    .getAttribute("src"),
+                };
+              },
+              async inspectCanonicalPreview(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const previewFrame = testFrame.frameLocator(
+                  'iframe[title="Canonical Preview route"]',
+                );
+                const examples = previewFrame.locator('[data-slot="example"]');
+
+                await testFrame.waitForTimeout(500);
+
+                return {
+                  activeId: await previewFrame
+                    .locator("body")
+                    .evaluate(() => document.activeElement?.id ?? null),
+                  iframeCount: await testFrame
+                    .locator('iframe[title="Canonical Preview route"]')
+                    .count(),
+                  hash: await previewFrame.locator("body").evaluate(() => window.location.hash),
+                  exampleIds: await examples.evaluateAll((elements) =>
+                    elements.map((element) => element.id),
+                  ),
                 };
               },
               async inspectBuiltChart(context) {

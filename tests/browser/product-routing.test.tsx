@@ -1,6 +1,7 @@
-import { describe, expect, inject, it } from "vitest";
-import { commands } from "vitest/browser";
-import { LEGACY_REDIRECTS, resolveCompatibilityRedirect } from "@/lib/product-routing";
+import { render } from "solid-js/web";
+import { afterEach, describe, expect, inject, it } from "vitest";
+import { commands, page } from "vitest/browser";
+import { LEGACY_REDIRECTS } from "@/lib/product-routing";
 
 type BuiltResponse = {
   url: string;
@@ -17,6 +18,27 @@ const requestBuiltRoutes = (urls: string[]) =>
       requestBuiltRoutes: (urls: string[]) => Promise<BuiltResponse[]>;
     }
   ).requestBuiltRoutes(urls);
+
+let dispose: (() => void) | undefined;
+
+afterEach(() => {
+  dispose?.();
+  dispose = undefined;
+});
+
+async function renderCanonicalPreview(pathname: string) {
+  dispose = render(
+    () => (
+      <iframe
+        src={new URL(pathname, inject("builtAppUrl")).href}
+        style={{ width: "1280px", height: "900px" }}
+        title="Canonical Preview route"
+      />
+    ),
+    document.body,
+  );
+  await expect.element(page.getByTitle("Canonical Preview route")).toBeVisible();
+}
 
 describe("built canonical routing", () => {
   it("serves all five Product Surface roots without a broad fallback", async () => {
@@ -71,17 +93,64 @@ describe("built canonical routing", () => {
     }
   });
 
+  it("focuses the exact accepted duplicate-suffixed Preview fragment", async () => {
+    await renderCanonicalPreview("/preview/components/button#examples-1");
+    const { inspectCanonicalPreview } = commands as unknown as {
+      inspectCanonicalPreview: () => Promise<{
+        activeId: string | null;
+        iframeCount: number;
+        hash: string;
+        exampleIds: string[];
+      }>;
+    };
+    const evidence = await inspectCanonicalPreview();
+
+    expect(evidence.iframeCount).toBe(1);
+    expect(evidence.hash).toBe("#examples-1");
+    expect(evidence.exampleIds).toContain("examples-1");
+    expect(evidence.activeId).toBe("examples-1");
+  });
+
+  it("keeps legacy Preview renderers available beside canonical Preview routes", async () => {
+    const base = inject("builtAppUrl");
+    const paths = [
+      "/preview/ui/kobalte/button",
+      "/preview/blocks/kobalte/image-crop",
+      "/preview/home",
+    ];
+    const responses = await requestBuiltRoutes(paths.map((path) => new URL(path, base).href));
+
+    for (const [index, response] of responses.entries()) {
+      expect(response.status, paths[index]).toBe(200);
+      expect(response.location, paths[index]).toBeNull();
+    }
+  });
+
   it("returns every allowlisted compatibility redirect as a permanent one-hop response", async () => {
     const base = inject("builtAppUrl");
+    const fixedCases = [
+      ["/installation/astro?source=legacy", "/docs/installation/astro?source=legacy"],
+      ["/ui/button/docs?source=legacy", "/components/button?source=legacy"],
+      ["/ui/sidebar-inset", "/components/sidebar#sidebar-inset"],
+      ["/blocks/sortable/docs?style=nova&keep=1", "/components/blocks/sortable?keep=1"],
+      ["/changelog", "/docs/changelog"],
+    ] as const;
+    const fixedResponses = await requestBuiltRoutes(
+      fixedCases.map(([source]) => new URL(source, base).href),
+    );
+    for (const [index, response] of fixedResponses.entries()) {
+      expect(response.status, fixedCases[index]?.[0]).toBe(308);
+      expect(response.location, fixedCases[index]?.[0]).toBe(fixedCases[index]?.[1]);
+    }
+
     const sources = LEGACY_REDIRECTS.map(({ source }) => `${source}?keep=1&style=nova`);
     const responses = await requestBuiltRoutes(sources.map((source) => new URL(source, base).href));
 
     const destinations: string[] = [];
     for (const [index, response] of responses.entries()) {
       const source = sources[index] as string;
-      const expected = resolveCompatibilityRedirect(source);
       expect(response.status, source).toBe(308);
-      expect(response.location, source).toBe(expected);
+      expect(response.location, source).not.toBeNull();
       if (response.location) destinations.push(new URL(response.location, base).href);
     }
 

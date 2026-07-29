@@ -51,7 +51,7 @@ describe("built application", () => {
     const capture = await route.screenshot({ save: false });
 
     expect(evidence.heading).toBe("The best foundation for your next SolidJS project");
-    expect(evidence.previewPath).toBeNull();
+    expect(evidence.previewPath).toMatch(/^\/preview\/home(?:\?|$)/);
     expect(capture.length).toBeGreaterThan(1_000);
   });
 

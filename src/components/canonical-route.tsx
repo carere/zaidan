@@ -1,5 +1,5 @@
-import { lazy, onMount, Suspense } from "solid-js";
-import type { CanonicalNode } from "@/lib/product-routing";
+import { For, lazy, onCleanup, onMount, Suspense } from "solid-js";
+import { type CanonicalNode, getCanonicalNode, resolvePreviewRequest } from "@/lib/product-routing";
 
 export function CanonicalPage(props: { node: CanonicalNode }) {
   return (
@@ -12,9 +12,9 @@ export function CanonicalPage(props: { node: CanonicalNode }) {
       {props.node.description ? (
         <p class="max-w-2xl text-muted-foreground">{props.node.description}</p>
       ) : null}
-      {props.node.anchors?.map((anchor) => (
-        <span id={anchor} class="sr-only" aria-hidden="true" />
-      ))}
+      <For each={props.node.anchors}>
+        {(anchor) => <span id={anchor} class="sr-only" aria-hidden="true" />}
+      </For>
     </main>
   );
 }
@@ -29,14 +29,45 @@ export function CanonicalPreview(props: { kind: PreviewKind; slug: string; fragm
   );
 
   onMount(() => {
-    if (!props.fragment) return;
-    requestAnimationFrame(() => {
-      const target = document.getElementById(props.fragment as string);
-      if (!target) return;
+    let fragment = props.fragment;
+    if (!fragment) {
+      const resolution = resolvePreviewRequest(
+        `${window.location.pathname}${window.location.search}${window.location.hash}`,
+      );
+      if (resolution.accepted) fragment = resolution.fragment;
+    }
+    let observer: MutationObserver | undefined;
+    const normalizeExampleAnchors = () => {
+      const canonicalPath =
+        props.kind === "components"
+          ? `/components/${props.slug}`
+          : `/components/blocks/${props.slug}`;
+      const anchors = getCanonicalNode(canonicalPath)?.previewAnchors ?? [];
+      for (const [index, example] of document
+        .querySelectorAll<HTMLElement>('[data-slot="example"]')
+        .entries()) {
+        const anchor = anchors[index];
+        if (anchor) example.id = anchor;
+      }
+    };
+    const focusTarget = () => {
+      normalizeExampleAnchors();
+      if (!fragment) return false;
+      const target = document.getElementById(fragment);
+      if (!target) return false;
+      observer?.disconnect();
       target.tabIndex = -1;
       target.focus({ preventScroll: true });
       target.scrollIntoView({ block: "start" });
+      return true;
+    };
+
+    requestAnimationFrame(() => {
+      observer = new MutationObserver(() => focusTarget());
+      observer.observe(document.body, { childList: true, subtree: true });
+      focusTarget();
     });
+    onCleanup(() => observer?.disconnect());
   });
 
   return (

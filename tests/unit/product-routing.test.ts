@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { compatibilityResponse } from "@/lib/compatibility-response";
 import {
   CANONICAL_BLOCK_SLUGS,
   CANONICAL_CHANGELOG_SLUGS,
@@ -12,6 +13,7 @@ import {
   resolvePreviewRequest,
   validateCanonicalRoutingModel,
 } from "@/lib/product-routing";
+import { extractRoutePatterns } from "../../scripts/route-file-discovery";
 
 const componentOrder = [
   "accordion",
@@ -69,6 +71,17 @@ const componentOrder = [
   "toggle-group",
   "tooltip",
 ];
+
+const installationSlugs = [
+  "vite",
+  "astro",
+  "tanstack-start",
+  "tanstack-router",
+  "solid-start",
+  "manual",
+];
+const docsSlugs = ["customization", "dark-mode", "faq", "installation", "roadmap", "zaidan-agent"];
+const sidebarVariants = ["sidebar-floating", "sidebar-icon", "sidebar-inset"];
 
 describe("canonical Product Surface routing", () => {
   it("owns the exact five Product Surfaces in canonical order", () => {
@@ -150,20 +163,52 @@ describe("canonical Product Surface routing", () => {
     expect(resolveCompatibilityRedirect("/blocks/sortable/docs?style=nova&keep=1")).toBe(
       "/components/blocks/sortable?keep=1",
     );
-    expect(resolveCompatibilityRedirect("/preview/ui/kobalte/button?style=nova#examples")).toBe(
-      "/preview/components/button#examples",
-    );
-    expect(resolveCompatibilityRedirect("/preview/blocks/kobalte/sortable?radius=large")).toBe(
-      "/preview/blocks/sortable",
-    );
-    expect(resolveCompatibilityRedirect("/preview/home?style=nova#anything")).toBe("/");
+    expect(resolveCompatibilityRedirect("/preview/ui/kobalte/button")).toBeUndefined();
+    expect(resolveCompatibilityRedirect("/preview/blocks/kobalte/sortable")).toBeUndefined();
+    expect(resolveCompatibilityRedirect("/preview/home")).toBeUndefined();
     expect(resolveCompatibilityRedirect("/not-allowlisted")).toBeUndefined();
+
+    const expected = [
+      ...docsSlugs.map((slug) => [`/${slug}`, `/docs/${slug}`]),
+      ...installationSlugs.map((slug) => [`/installation/${slug}`, `/docs/installation/${slug}`]),
+      ["/changelog", "/docs/changelog"],
+      ...CANONICAL_CHANGELOG_SLUGS.map((slug) => [`/changelog/${slug}`, `/docs/changelog/${slug}`]),
+      ["/ui", "/components"],
+      ...[...componentOrder, ...sidebarVariants].flatMap((slug) => {
+        const destination = sidebarVariants.includes(slug)
+          ? `/components/sidebar#${slug}`
+          : `/components/${slug}`;
+        return [
+          [`/ui/${slug}`, destination],
+          [`/ui/${slug}/docs`, destination],
+        ];
+      }),
+      ["/blocks", "/components/blocks"],
+      ...["image-crop", "sortable"].flatMap((slug) => [
+        [`/blocks/${slug}`, `/components/blocks/${slug}`],
+        [`/blocks/${slug}/docs`, `/components/blocks/${slug}`],
+      ]),
+    ].toSorted(([left], [right]) => (left as string).localeCompare(right as string));
+    const actual = LEGACY_REDIRECTS.map(({ source, destination }) => [
+      source,
+      destination,
+    ]).toSorted(([left], [right]) => left.localeCompare(right));
+    expect(actual).toEqual(expected);
 
     const sources = new Set(LEGACY_REDIRECTS.map(({ source }) => source));
     expect(sources.size).toBe(LEGACY_REDIRECTS.length);
     for (const { destination } of LEGACY_REDIRECTS) {
       expect(resolveCompatibilityRedirect(destination)).toBeUndefined();
     }
+  });
+
+  it("passes an incoming fragment through the server compatibility adapter", () => {
+    const response = compatibilityResponse(
+      new Request("https://zaidan.test/ui/sidebar-inset?keep=1#props"),
+    );
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("/components/sidebar?keep=1#props");
   });
 
   it("accepts only the canonical Preview configuration and fragment boundaries", () => {
@@ -197,6 +242,7 @@ describe("canonical Product Surface routing", () => {
       "/preview/components/button#not-a-stable-example",
       "/preview/components/button#%E0%A4%A",
       "/preview/components/sidebar-floating",
+      "/preview/components/sidebar#sidebar-floating",
       "/preview/blocks/unknown",
       "/preview/charts/unknown",
       "/preview/create?preset=v1-0",
@@ -248,5 +294,20 @@ describe("canonical Product Surface routing", () => {
         ],
       }),
     ).toContainEqual(expect.stringContaining("invalid fragment"));
+  });
+
+  it("derives build validation routes from real createFileRoute declarations", () => {
+    expect(
+      extractRoutePatterns(`
+        createFileRoute("/_product/docs/$slug")({})
+        createFileRoute("/_website/")({})
+      `),
+    ).toEqual(["/docs/$slug", "/"]);
+
+    expect(
+      validateCanonicalRoutingModel({
+        availableRoutePatterns: extractRoutePatterns(`createFileRoute("/_product/docs")({})`),
+      }),
+    ).toContainEqual(expect.stringContaining("missing route for canonical target"));
   });
 });

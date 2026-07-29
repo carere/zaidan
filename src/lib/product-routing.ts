@@ -98,19 +98,10 @@ const componentNodes = sortedComponents.map((entry) => {
   if (entry.slug !== "sidebar") return node;
 
   const variantAnchors = sidebarVariants.flatMap((variant) => anchorsFromToc(variant.toc));
-  const variantPreviewAnchors = sidebarVariants.flatMap((variant) =>
-    previewAnchorsFromToc(variant.toc),
-  );
   return {
     ...node,
     anchors: [...new Set([...(node.anchors ?? []), ...SIDEBAR_VARIANT_SLUGS, ...variantAnchors])],
-    previewAnchors: [
-      ...new Set([
-        ...(node.previewAnchors ?? []),
-        ...SIDEBAR_VARIANT_SLUGS,
-        ...variantPreviewAnchors,
-      ]),
-    ],
+    previewAnchors: node.previewAnchors,
   };
 });
 
@@ -339,36 +330,7 @@ const legacyContentRedirects: CompatibilityRedirect[] = [
   ]),
 ];
 
-const legacyPreviewRedirects: CompatibilityRedirect[] = [
-  ...ui.map((entry) => {
-    const variant = SIDEBAR_VARIANT_SLUGS.includes(
-      entry.slug as (typeof SIDEBAR_VARIANT_SLUGS)[number],
-    );
-    return {
-      source: `/preview/ui/kobalte/${entry.slug}`,
-      destination: variant
-        ? `/preview/components/sidebar#${entry.slug}`
-        : `/preview/components/${entry.slug}`,
-      queryPolicy: "drop" as const,
-    };
-  }),
-  ...blocks.map((entry) => ({
-    source: `/preview/blocks/kobalte/${entry.slug}`,
-    destination: `/preview/blocks/${entry.slug}`,
-    queryPolicy: "drop" as const,
-  })),
-  {
-    source: "/preview/home",
-    destination: "/",
-    queryPolicy: "drop",
-    dropFragment: true,
-  },
-];
-
-export const LEGACY_REDIRECTS: readonly CompatibilityRedirect[] = [
-  ...legacyContentRedirects,
-  ...legacyPreviewRedirects,
-];
+export const LEGACY_REDIRECTS: readonly CompatibilityRedirect[] = legacyContentRedirects;
 
 const redirectBySource = new Map(LEGACY_REDIRECTS.map((entry) => [entry.source, entry]));
 const LEGACY_DESIGN_CONFIGURATION_KEYS = new Set([
@@ -486,20 +448,6 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
   };
 }
 
-export const AVAILABLE_CANONICAL_ROUTE_PATTERNS = [
-  "/",
-  "/docs",
-  "/docs/:slug",
-  "/docs/installation/:slug",
-  "/docs/changelog/:entry",
-  "/components",
-  "/components/:slug",
-  "/components/blocks",
-  "/components/blocks/:slug",
-  "/charts",
-  "/create",
-] as const;
-
 type ValidationNode = Omit<CanonicalNode, "surface" | "children"> & {
   surface: string;
   children?: readonly ValidationNode[];
@@ -516,7 +464,13 @@ const routePatternMatches = (pattern: string, path: string) => {
   const pathParts = path.split("/").filter(Boolean);
   return (
     patternParts.length === pathParts.length &&
-    patternParts.every((part, index) => part.startsWith(":") || part === pathParts[index])
+    patternParts.every(
+      (part, index) =>
+        part.startsWith(":") ||
+        part.startsWith("$") ||
+        part.startsWith("{-$") ||
+        part === pathParts[index],
+    )
   );
 };
 
@@ -532,7 +486,7 @@ export function validateCanonicalRoutingModel(options: ValidationOptions = {}) {
     ...(options.additionalNodes ? flattenNodes(options.additionalNodes as CanonicalNode[]) : []),
   ];
   const redirects = [...LEGACY_REDIRECTS, ...(options.additionalRedirects ?? [])];
-  const patterns = options.availableRoutePatterns ?? AVAILABLE_CANONICAL_ROUTE_PATTERNS;
+  const patterns = options.availableRoutePatterns;
   const surfaceIds = new Set(PRODUCT_SURFACES.map(({ id }) => id));
   const identities = new Set<string>();
   const targets = new Set<string>();
@@ -547,7 +501,7 @@ export function validateCanonicalRoutingModel(options: ValidationOptions = {}) {
     }
     if (isRetiredCanonicalPath(node.path))
       errors.push(`retired URL used canonically: ${node.path}`);
-    if (!patterns.some((pattern) => routePatternMatches(pattern, node.path))) {
+    if (patterns && !patterns.some((pattern) => routePatternMatches(pattern, node.path))) {
       errors.push(`missing route for canonical target: ${node.path}`);
     }
   }
@@ -580,8 +534,8 @@ export function validateCanonicalRoutingModel(options: ValidationOptions = {}) {
   return errors;
 }
 
-export function assertCanonicalRoutingModel() {
-  const errors = validateCanonicalRoutingModel();
+export function assertCanonicalRoutingModel(options: ValidationOptions = {}) {
+  const errors = validateCanonicalRoutingModel(options);
   if (errors.length > 0) {
     throw new TypeError(`Canonical routing validation failed:\n- ${errors.join("\n- ")}`);
   }

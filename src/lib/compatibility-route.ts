@@ -1,4 +1,5 @@
 import { notFound, redirect } from "@tanstack/solid-router";
+import { compatibilityResponse } from "@/lib/compatibility-response";
 import { resolveCompatibilityRedirect } from "@/lib/product-routing";
 
 type RouteLocation = {
@@ -15,12 +16,13 @@ export function throwCompatibilityRedirect(location: RouteLocation): never {
   throw redirect({ href: destination, statusCode: 308 });
 }
 
-export function compatibilityResponse(request: Request) {
-  const url = new URL(request.url);
-  const destination = resolveCompatibilityRedirect(`${url.pathname}${url.search}`);
-  if (!destination) return new Response(null, { status: 404 });
-  return new Response(null, {
-    status: 308,
-    headers: { Location: destination },
-  });
+export function compatibilityRouteOptions() {
+  return {
+    server: {
+      handlers: {
+        GET: ({ request }: { request: Request }) => compatibilityResponse(request),
+      },
+    },
+    beforeLoad: ({ location }: { location: RouteLocation }) => throwCompatibilityRedirect(location),
+  };
 }
