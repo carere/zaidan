@@ -276,6 +276,11 @@ export type CompatibilityRedirect = {
 };
 
 const legacyContentRedirects: CompatibilityRedirect[] = [
+  {
+    source: "/preview/home",
+    destination: "/",
+    queryPolicy: "strip-design-configuration",
+  },
   ...["customization", "dark-mode", "faq", "installation", "roadmap", "zaidan-agent"].map(
     (slug) => ({
       source: `/${slug}`,

@@ -3,7 +3,7 @@ import type { Frame } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
-async function getProductHeaderTestFrame(context: unknown) {
+async function getProductRouteTestFrame(context: unknown) {
   const commandContext = context as {
     provider: {
       getCommandsContext: (sessionId: string) => {
@@ -90,7 +90,7 @@ export default defineConfig({
                 };
               },
               async inspectHomeShowcase(context, colorMode: "light" | "dark") {
-                const { testFrame, routeFrame } = await getProductHeaderTestFrame(context);
+                const { testFrame, routeFrame } = await getProductRouteTestFrame(context);
                 await routeFrame.locator("html").evaluate((element, mode) => {
                   element.classList.remove("light", "dark");
                   element.classList.add(mode);
@@ -133,7 +133,7 @@ export default defineConfig({
                 };
               },
               async exerciseHomeInstallCopy(context) {
-                const { testFrame, routeFrame } = await getProductHeaderTestFrame(context);
+                const { testFrame, routeFrame } = await getProductRouteTestFrame(context);
                 const copied: string[] = [];
                 await routeFrame.locator("body").evaluate(() => {
                   Object.defineProperty(navigator, "clipboard", {
@@ -259,7 +259,7 @@ export default defineConfig({
                 };
               },
               async inspectDesktopProductHeader(context) {
-                const { header } = await getProductHeaderTestFrame(context);
+                const { header } = await getProductRouteTestFrame(context);
 
                 const productNavigation = header.getByRole("navigation", {
                   name: "Product Surfaces",
@@ -292,7 +292,7 @@ export default defineConfig({
                 };
               },
               async exerciseMobileProductHeader(context) {
-                const { testFrame, routeFrame, header } = await getProductHeaderTestFrame(context);
+                const { testFrame, routeFrame, header } = await getProductRouteTestFrame(context);
                 await testFrame.page().emulateMedia({ reducedMotion: "reduce" });
 
                 const search = header.getByRole("button", { name: "Open Command Search" });

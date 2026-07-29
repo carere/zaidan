@@ -49,7 +49,7 @@ async function renderCanonicalPreview(pathname: string) {
   await expect.element(page.getByTitle("Canonical Preview route")).toBeVisible();
 }
 
-async function renderProductHeaderRoute(pathname: string, width: number, height: number) {
+async function renderProductRoute(pathname: string, width: number, height: number) {
   let resolveLoaded: (() => void) | undefined;
   const loaded = new Promise<void>((resolve) => {
     resolveLoaded = resolve;
@@ -70,7 +70,7 @@ async function renderProductHeaderRoute(pathname: string, width: number, height:
 }
 
 async function inspectHomeShowcase(width: number, colorMode: "light" | "dark" = "light") {
-  await renderProductHeaderRoute("/", width, 900);
+  await renderProductRoute("/", width, 900);
   const { inspectHomeShowcase: inspect } = commands as unknown as {
     inspectHomeShowcase: (colorMode: "light" | "dark") => Promise<{
       columnCount: number;
@@ -159,7 +159,7 @@ describe("built canonical routing", () => {
   });
 
   it("copies the Home install command with keyboard focus and preserves the URL", async () => {
-    await renderProductHeaderRoute("/", 1440, 900);
+    await renderProductRoute("/", 1440, 900);
     const { exerciseHomeInstallCopy } = commands as unknown as {
       exerciseHomeInstallCopy: () => Promise<{
         copiedText: string;
@@ -181,7 +181,7 @@ describe("built canonical routing", () => {
   });
 
   it("renders the complete desktop Product Header and measures its sticky offset", async () => {
-    await renderProductHeaderRoute("/components/button", 1440, 900);
+    await renderProductRoute("/components/button", 1440, 900);
     const { inspectDesktopProductHeader } = commands as unknown as {
       inspectDesktopProductHeader: () => Promise<{
         surfaces: string[];
@@ -207,7 +207,7 @@ describe("built canonical routing", () => {
   });
 
   it("keeps compact controls available and traps, restores, and moves mobile focus", async () => {
-    await renderProductHeaderRoute("/components/button#examples", 390, 844);
+    await renderProductRoute("/components/button#examples", 390, 844);
     const { exerciseMobileProductHeader } = commands as unknown as {
       exerciseMobileProductHeader: () => Promise<{
         compactSearchVisible: boolean;
@@ -414,13 +414,9 @@ describe("built canonical routing", () => {
     });
   });
 
-  it("keeps legacy Preview renderers available beside canonical Preview routes", async () => {
+  it("keeps legacy Component and Block Preview renderers available until contraction", async () => {
     const base = inject("builtAppUrl");
-    const paths = [
-      "/preview/ui/kobalte/button",
-      "/preview/blocks/kobalte/image-crop",
-      "/preview/home",
-    ];
+    const paths = ["/preview/ui/kobalte/button", "/preview/blocks/kobalte/image-crop"];
     const responses = await requestBuiltRoutes(paths.map((path) => new URL(path, base).href));
 
     for (const [index, response] of responses.entries()) {
@@ -437,6 +433,7 @@ describe("built canonical routing", () => {
       ["/ui/sidebar-inset", "/components/sidebar?_zaidan_legacy_anchor=sidebar-inset"],
       ["/blocks/sortable/docs?style=nova&keep=1", "/components/blocks/sortable?keep=1"],
       ["/changelog", "/docs/changelog"],
+      ["/preview/home?style=nova&keep=1", "/?keep=1"],
     ] as const;
     const fixedResponses = await requestBuiltRoutes(
       fixedCases.map(([source]) => new URL(source, base).href),

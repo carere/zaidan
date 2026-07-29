@@ -199,7 +199,9 @@ describe("canonical Product Surface routing", () => {
     );
     expect(resolveCompatibilityRedirect("/preview/ui/kobalte/button")).toBeUndefined();
     expect(resolveCompatibilityRedirect("/preview/blocks/kobalte/sortable")).toBeUndefined();
-    expect(resolveCompatibilityRedirect("/preview/home")).toBeUndefined();
+    expect(resolveCompatibilityRedirect("/preview/home?style=nova&keep=1#legacy")).toBe(
+      "/?keep=1#legacy",
+    );
     expect(resolveCompatibilityRedirect("/not-allowlisted")).toBeUndefined();
 
     const expected = [
@@ -218,6 +220,7 @@ describe("canonical Product Surface routing", () => {
         ];
       }),
       ["/blocks", "/components/blocks"],
+      ["/preview/home", "/"],
       ...["image-crop", "sortable"].flatMap((slug) => [
         [`/blocks/${slug}`, `/components/blocks/${slug}`],
         [`/blocks/${slug}/docs`, `/components/blocks/${slug}`],
