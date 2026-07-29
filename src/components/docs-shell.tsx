@@ -16,6 +16,10 @@ import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
 import type { CanonicalDocsRouteData } from "@/lib/canonical-docs-route";
 import {
+  focusStoredProductNavigationDestination,
+  prepareProductNavigationFocus,
+} from "@/lib/product-navigation-focus";
+import {
   getCanonicalOverviewChildren,
   getCanonicalReadingEntry,
   getCanonicalTraversal,
@@ -23,8 +27,6 @@ import {
 } from "@/lib/product-routing";
 import type { MdxModule } from "@/lib/types";
 import { cn, fmtDate } from "@/lib/utils";
-
-const FOCUS_DESTINATION_KEY = "zaidan:product-navigation-focus";
 
 const authoredModules = import.meta.glob<MdxModule>([
   "../pages/docs/**/*.mdx",
@@ -35,31 +37,7 @@ for (const [path, loadModule] of Object.entries(authoredModules)) {
   authoredComponents[path] = lazy(loadModule);
 }
 
-const prepareNavigation = (event: MouseEvent) => {
-  if (
-    event.defaultPrevented ||
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey
-  ) {
-    return;
-  }
-  sessionStorage.setItem(FOCUS_DESTINATION_KEY, "heading");
-};
-
-const focusPageHeading = () => {
-  const destination = sessionStorage.getItem(FOCUS_DESTINATION_KEY);
-  if (!destination) return;
-  sessionStorage.removeItem(FOCUS_DESTINATION_KEY);
-  requestAnimationFrame(() => {
-    const heading = document.getElementById("docs-page-heading");
-    if (!heading) return;
-    heading.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: "auto" });
-  });
-};
+const prepareNavigation = (event: MouseEvent) => prepareProductNavigationFocus(event);
 
 function DocsNavigationRail(props: { pathname: string }) {
   return (
@@ -236,7 +214,7 @@ export function CanonicalDocsPage(props: { data: CanonicalDocsRouteData }) {
     on(
       () => props.data.node.path,
       () => {
-        focusPageHeading();
+        focusStoredProductNavigationDestination();
         setActiveTocUrl(window.location.hash);
       },
     ),

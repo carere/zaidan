@@ -7,6 +7,13 @@ import { Zaidan } from "@/components/icons/zaidan";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
+  clearProductNavigationFocus,
+  focusProductNavigationDestination,
+  focusStoredProductNavigationDestination,
+  isPrimaryProductNavigation,
+  storeProductNavigationFocus,
+} from "@/lib/product-navigation-focus";
+import {
   CANONICAL_CONTENT_TREE,
   type CanonicalNode,
   getProductSurfaceForPath,
@@ -25,36 +32,11 @@ import { Separator } from "@/registry/kobalte/ui/separator";
 
 export const OPEN_COMMAND_SEARCH_EVENT = "zaidan:open-command-search";
 
-const FOCUS_DESTINATION_KEY = "zaidan:product-navigation-focus";
-
 const isEditable = (target: EventTarget | null) =>
   (target instanceof HTMLElement && target.isContentEditable) ||
   target instanceof HTMLInputElement ||
   target instanceof HTMLTextAreaElement ||
   target instanceof HTMLSelectElement;
-
-const focusDestination = (destination: string) => {
-  requestAnimationFrame(() => {
-    const scrollTarget = destination.startsWith("#")
-      ? document.getElementById(destination.slice(1))
-      : document.querySelector<HTMLElement>("main h1");
-    if (!scrollTarget) return;
-    const focusTarget =
-      scrollTarget.getAttribute("aria-hidden") === "true"
-        ? (scrollTarget.closest("main")?.querySelector<HTMLElement>("h1, h2, h3") ?? scrollTarget)
-        : scrollTarget;
-    focusTarget.tabIndex = -1;
-    focusTarget.focus({ preventScroll: true });
-    if (destination.startsWith("#")) scrollTarget.scrollIntoView({ block: "start" });
-  });
-};
-
-const focusStoredDestination = () => {
-  const destination = sessionStorage.getItem(FOCUS_DESTINATION_KEY);
-  if (!destination) return;
-  sessionStorage.removeItem(FOCUS_DESTINATION_KEY);
-  focusDestination(destination);
-};
 
 function ProductNavigationLink(props: {
   href: string;
@@ -69,22 +51,13 @@ function ProductNavigationLink(props: {
       : resolveProductNavigationHref(props.href, window.location.href);
 
   const prepareFocus = (event: MouseEvent) => {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
+    if (!isPrimaryProductNavigation(event)) return;
     const destination = new URL(resolvedHref(), window.location.origin);
     const staysOnPage =
       destination.pathname === window.location.pathname &&
       destination.search === window.location.search;
     const destinationFocus = destination.hash || "heading";
-    sessionStorage.setItem(FOCUS_DESTINATION_KEY, destination.hash || "heading");
+    storeProductNavigationFocus(destinationFocus);
     props.onSelect?.(staysOnPage ? destinationFocus : undefined);
     if (staysOnPage) {
       event.preventDefault();
@@ -95,9 +68,9 @@ function ProductNavigationLink(props: {
           `${destination.pathname}${destination.search}${destination.hash}`,
         );
       }
-      sessionStorage.removeItem(FOCUS_DESTINATION_KEY);
+      clearProductNavigationFocus();
       if (!props.onSelect) {
-        window.setTimeout(() => focusDestination(destinationFocus), 100);
+        window.setTimeout(() => focusProductNavigationDestination(destinationFocus), 100);
       }
     }
   };
@@ -182,7 +155,7 @@ export function ProductHeader() {
     const destination = pendingSelectionFocus;
     pendingSelectionFocus = undefined;
     if (destination) {
-      window.setTimeout(() => focusDestination(destination), 0);
+      window.setTimeout(() => focusProductNavigationDestination(destination), 0);
     }
   };
 
@@ -194,7 +167,7 @@ export function ProductHeader() {
   };
 
   onMount(() => {
-    focusStoredDestination();
+    focusStoredProductNavigationDestination();
 
     const updateHeaderHeight = () => {
       if (!header) return;

@@ -168,21 +168,25 @@ const canonicalDocsDescriptors: readonly CanonicalDocsDescriptor[] = [
 const descriptorNode = (descriptor: CanonicalDocsDescriptor) =>
   authoredNode(descriptor.entry, "docs", descriptor.path, descriptor.kind);
 
-const changelogNodes = changelogDescriptors.map(descriptorNode);
-const installationNode = descriptorNode(installationDescriptor);
-
-const docsNodes: readonly CanonicalNode[] = [
-  descriptorNode(introductionDescriptor),
-  {
-    ...installationNode,
-    children: installationDescriptors.map(descriptorNode),
-  },
-  ...guideDescriptors.map(descriptorNode),
-  {
-    ...descriptorNode(changelogOverviewDescriptor),
-    children: changelogNodes,
-  },
+const introductionNode = descriptorNode(introductionDescriptor);
+const installationChildren = installationDescriptors.map(descriptorNode);
+const installationNode: CanonicalNode = {
+  ...descriptorNode(installationDescriptor),
+  children: installationChildren,
+};
+const guideNodes = guideDescriptors.map(descriptorNode);
+const changelogChildren = changelogDescriptors.map(descriptorNode);
+const changelogNode: CanonicalNode = {
+  ...descriptorNode(changelogOverviewDescriptor),
+  children: changelogChildren,
+};
+const docsOverviewNodes: readonly CanonicalNode[] = [
+  installationNode,
+  ...guideNodes,
+  changelogNode,
 ];
+
+const docsNodes: readonly CanonicalNode[] = [introductionNode, ...docsOverviewNodes];
 
 export type CanonicalNavigationGroup = {
   id: "getting-started" | "installation" | "guides" | "changelog";
@@ -191,10 +195,10 @@ export type CanonicalNavigationGroup = {
 };
 
 export const DOCS_NAVIGATION_GROUPS: readonly CanonicalNavigationGroup[] = [
-  { id: "getting-started", label: "Getting Started", nodes: [docsNodes[0] as CanonicalNode] },
-  { id: "installation", label: "Installation", nodes: [docsNodes[1] as CanonicalNode] },
-  { id: "guides", label: "Guides", nodes: docsNodes.slice(2, 7) },
-  { id: "changelog", label: "Changelog", nodes: [docsNodes[7] as CanonicalNode] },
+  { id: "getting-started", label: "Getting Started", nodes: [introductionNode] },
+  { id: "installation", label: "Installation", nodes: [installationNode] },
+  { id: "guides", label: "Guides", nodes: guideNodes },
+  { id: "changelog", label: "Changelog", nodes: [changelogNode] },
 ];
 
 export type CanonicalSurfaceTree = {
@@ -339,7 +343,7 @@ export function getCanonicalTraversal(path: string) {
 }
 
 export function getCanonicalOverviewChildren(path: string) {
-  if (path === "/docs") return docsNodes.slice(1);
+  if (path === introductionNode.path) return docsOverviewNodes;
   const node = nodeByPath.get(path);
   return node?.children?.length ? node.children : undefined;
 }
