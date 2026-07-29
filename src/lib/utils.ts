@@ -1,13 +1,10 @@
 import { cookieStorage } from "@solid-primitives/storage";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getRequestHeaders, getResponseHeaders } from "@tanstack/solid-start/server";
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { cn } from "@/lib/cn";
 import type { TocEntry } from "@/lib/types";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cn };
 
 export const getStorage = createIsomorphicFn()
   .server(() =>

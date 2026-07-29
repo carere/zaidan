@@ -1,5 +1,5 @@
-import { type ComponentProps, splitProps } from "solid-js";
-import { cn } from "@/lib/utils";
+import { type ComponentProps, createMemo, splitProps } from "solid-js";
+import { cn } from "@/lib/cn";
 
 function stableExampleAnchor(title: string) {
   return title
@@ -39,11 +39,11 @@ function Example(
     "title",
     "anchor",
   ]);
-  const anchor = local.anchor ?? stableExampleAnchor(local.title);
+  const anchor = createMemo(() => local.anchor ?? stableExampleAnchor(local.title));
   return (
     <div
-      id={anchor}
-      data-preview-anchor={anchor}
+      id={anchor()}
+      data-preview-anchor={anchor()}
       data-slot="example"
       class={cn(
         "mx-auto flex w-full min-w-0 max-w-lg flex-col gap-1 self-stretch lg:max-w-none",

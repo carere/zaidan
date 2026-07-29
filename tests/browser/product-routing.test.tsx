@@ -1,6 +1,8 @@
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, inject, it } from "vitest";
 import { commands, page } from "vitest/browser";
+import { Example } from "@/components/example";
 import { LEGACY_REDIRECTS } from "@/lib/product-routing";
 
 type BuiltResponse = {
@@ -66,6 +68,35 @@ async function renderSidebarCompatibilityNavigations() {
 }
 
 describe("built canonical routing", () => {
+  it("keeps derived Preview anchor identities reactive", async () => {
+    const [title, setTitle] = createSignal("First title");
+    const [anchor, setAnchor] = createSignal<string>();
+    dispose = render(
+      () => (
+        <Example title={title()} anchor={anchor()} data-testid="reactive-preview-anchor">
+          Preview
+        </Example>
+      ),
+      document.body,
+    );
+    const example = page.getByTestId("reactive-preview-anchor");
+
+    await expect.element(example).toHaveAttribute("id", "first-title");
+    await expect.element(example).toHaveAttribute("data-preview-anchor", "first-title");
+
+    setTitle("Updated title");
+    await expect.element(example).toHaveAttribute("id", "updated-title");
+    await expect.element(example).toHaveAttribute("data-preview-anchor", "updated-title");
+
+    setAnchor("authored-anchor");
+    await expect.element(example).toHaveAttribute("id", "authored-anchor");
+    await expect.element(example).toHaveAttribute("data-preview-anchor", "authored-anchor");
+
+    setAnchor(undefined);
+    await expect.element(example).toHaveAttribute("id", "updated-title");
+    await expect.element(example).toHaveAttribute("data-preview-anchor", "updated-title");
+  });
+
   it("serves all five Product Surface roots without a broad fallback", async () => {
     const base = inject("builtAppUrl");
     const paths = ["/", "/docs", "/components", "/charts", "/create"];
