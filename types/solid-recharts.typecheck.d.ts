@@ -26,6 +26,20 @@ type AreaChartProps = {
   stackOffset?: "expand";
 };
 
+type BarProps = {
+  dataKey: DataKey;
+  fill?: string;
+  radius?: number | readonly [number, number, number, number];
+  stackId?: DataKey;
+};
+
+type BarChartProps = {
+  accessibilityLayer?: boolean;
+  children?: JSX.Element;
+  data: ReadonlyArray<unknown>;
+  margin?: ChartMargin;
+};
+
 type CartesianGridProps = {
   vertical?: boolean;
 };
@@ -99,6 +113,7 @@ export type TooltipContentProps = {
 export type TooltipProps = {
   content?: (props: TooltipContentProps) => JSX.Element;
   cursor?: boolean;
+  defaultIndex?: number | string;
   formatter?: (
     value: TooltipPayloadEntry["value"],
     name: TooltipPayloadEntry["name"],
@@ -138,6 +153,8 @@ type AxisProps = {
 
 export const Area: Component<AreaProps>;
 export const AreaChart: Component<AreaChartProps>;
+export const Bar: Component<BarProps>;
+export const BarChart: Component<BarChartProps>;
 export const CartesianGrid: Component<CartesianGridProps>;
 export const Legend: Component<LegendProps>;
 export const PolarAngleAxis: Component<PolarAngleAxisProps>;

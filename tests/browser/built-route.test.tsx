@@ -14,7 +14,7 @@ async function renderBuiltRoute(pathname = "/", viewport = { width: "1280px", he
   const title =
     pathname === "/preview/ui/kobalte/chart"
       ? "Built chart route"
-      : pathname === "/charts"
+      : pathname === "/charts" || pathname === "/charts/tooltip"
         ? "Chart Catalog route"
         : pathname === "/charts/radar"
           ? "Radar Chart Catalog route"
@@ -308,4 +308,105 @@ describe("built application", () => {
     expect(evidence.darkBytes).toBeGreaterThan(1_000);
     expect(evidence.darkStable).toBe(true);
   }, 15_000);
+
+  it("renders the Tooltip catalog with deterministic functional renderers", async () => {
+    await renderBuiltRoute("/charts/tooltip");
+    const { inspectTooltipChartCatalog } = commands as unknown as {
+      inspectTooltipChartCatalog: () => Promise<{
+        canonicalRoute: string | null;
+        activeFamily: string | null;
+        labels: string[];
+        slugs: Array<string | null>;
+        actionCounts: number[];
+        previewHeight: number;
+        lazyPreviewCount: number;
+        renderedBarCounts: number[];
+        applicationRoles: Array<string | null>;
+        defaultTooltipText: string | null;
+        keyboardTooltipText: string | null;
+        pointerTooltipText: string | null;
+        customLabelText: string | null;
+        labelFormatterText: string | null;
+        formatterText: string | null;
+        iconCount: number;
+        advancedText: string | null;
+        advancedCaptureBytes: number;
+        accessibilityViolations: {
+          id: string;
+          impact: string | null;
+          targets: string[][];
+        }[];
+        installCommand: string | null;
+        sourceContainsExport: boolean;
+        consoleErrors: string[];
+      }>;
+    };
+
+    const evidence = await inspectTooltipChartCatalog();
+    expect(evidence.canonicalRoute).toBe("/charts/tooltip");
+    expect(evidence.activeFamily).toBe("Tooltips");
+    expect(evidence.labels).toEqual([
+      "Tooltip — Default",
+      "Tooltip — Line Indicator",
+      "Tooltip — No Indicator",
+      "Tooltip — No Label",
+      "Tooltip — Custom Label",
+      "Tooltip — Label Formatter",
+      "Tooltip — Formatter",
+      "Tooltip — Icons",
+      "Tooltip — Advanced",
+    ]);
+    expect(evidence.slugs).toEqual([
+      "chart-tooltip-default",
+      "chart-tooltip-indicator-line",
+      "chart-tooltip-indicator-none",
+      "chart-tooltip-label-none",
+      "chart-tooltip-label-custom",
+      "chart-tooltip-label-formatter",
+      "chart-tooltip-formatter",
+      "chart-tooltip-icons",
+      "chart-tooltip-advanced",
+    ]);
+    expect(evidence.actionCounts).toEqual(Array.from({ length: 9 }, () => 4));
+    expect(evidence.previewHeight).toBe(460);
+    expect(evidence.lazyPreviewCount).toBe(9);
+    expect(evidence.renderedBarCounts.every((count) => count > 0)).toBe(true);
+    expect(evidence.applicationRoles.every((role) => role === "application")).toBe(true);
+    expect(evidence.defaultTooltipText).toMatch(/Tue|Running|Swimming|380|420/);
+    expect(evidence.keyboardTooltipText).toMatch(/Wed|Running|Swimming|520|120/);
+    expect(evidence.pointerTooltipText).toMatch(/Running|Swimming/);
+    expect(evidence.customLabelText).toContain("Activities");
+    expect(evidence.labelFormatterText).toContain("July 16, 2024");
+    expect(evidence.formatterText).toMatch(/Running|Swimming|kcal/);
+    expect(evidence.iconCount).toBe(2);
+    expect(evidence.advancedText).toMatch(/Total|800|kcal/);
+    expect(evidence.advancedCaptureBytes).toBeGreaterThan(1_000);
+    expect(evidence.accessibilityViolations).toEqual([]);
+    expect(evidence.installCommand).toBe("bunx shadcn@latest add @zaidan/chart-tooltip-default");
+    expect(evidence.sourceContainsExport).toBe(true);
+    expect(evidence.consoleErrors).toEqual([]);
+  }, 60_000);
+
+  it("shows Tooltip loading and failure states, then recovers the isolated Preview", async () => {
+    await renderBuiltRoute("/charts/tooltip");
+    const { exerciseTooltipPreviewRecovery } = commands as unknown as {
+      exerciseTooltipPreviewRecovery: () => Promise<{
+        loadingText: string;
+        alertText: string;
+        retryVisible: boolean;
+        openPreviewVisible: boolean;
+        recovered: boolean;
+        pageErrors: string[];
+      }>;
+    };
+
+    const evidence = await exerciseTooltipPreviewRecovery();
+    expect(evidence.loadingText).toContain("Loading Tooltip — Default Preview");
+    expect(evidence.alertText).toContain("Preview could not be loaded");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.openPreviewVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
+    expect(evidence.pageErrors).toEqual([]);
+  }, 20_000);
 });
+

@@ -1,7 +1,10 @@
 const FILE_ROUTE_LITERAL = /createFileRoute\("([^"]+)"\)/g;
 
 export function routePatternFromId(routeId: string) {
-  const segments = routeId.split("/").filter((segment) => segment && !segment.startsWith("_"));
+  const segments = routeId
+    .split("/")
+    .filter((segment) => segment && !segment.startsWith("_"))
+    .map((segment) => segment.replace(/_$/, ""));
   return segments.length === 0 ? "/" : `/${segments.join("/")}`;
 }
 

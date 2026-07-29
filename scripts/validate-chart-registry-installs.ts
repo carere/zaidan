@@ -16,12 +16,16 @@ const registry = JSON.parse(
 const chartItems = registry.items.filter((item) => item.categories?.includes("charts"));
 const areaItems = chartItems.filter((item) => item.categories?.includes("charts-area"));
 const radarItems = chartItems.filter((item) => item.categories?.includes("charts-radar"));
+const tooltipItems = chartItems.filter((item) => item.categories?.includes("charts-tooltip"));
 
 if (areaItems.length !== 10) {
   throw new Error(`Expected ten Area registry entries, found ${areaItems.length}.`);
 }
 if (radarItems.length !== 14) {
   throw new Error(`Expected fourteen Radar registry entries, found ${radarItems.length}.`);
+}
+if (tooltipItems.length !== 9) {
+  throw new Error(`Expected nine Tooltip registry entries, found ${tooltipItems.length}.`);
 }
 
 const rootPackage = JSON.parse(await readFile(join(repositoryRoot, "package.json"), "utf8")) as {
@@ -161,5 +165,6 @@ try {
 }
 
 console.log(
-  `Installed ${areaItems.length} Area and ${radarItems.length} Radar registry entries in independent consumers.`,
+  `Installed ${areaItems.length} Area, ${radarItems.length} Radar, and ${tooltipItems.length} Tooltip registry entries in independent consumers.`,
 );
+

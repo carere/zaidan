@@ -259,6 +259,13 @@ export const CANONICAL_CONTENT_TREE: readonly CanonicalSurfaceTree[] = [
         surface: "charts",
         anchors: [],
       },
+      {
+        id: "charts:tooltip",
+        label: "Tooltip Charts",
+        path: "/charts/tooltip",
+        surface: "charts",
+        anchors: [],
+      },
     ],
   },
   {
@@ -542,10 +549,7 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
     accepted: true,
     kind: kind as "components" | "blocks" | "charts",
     slug,
-    canonicalPath:
-      kind === "charts" && chartEntry?.categories[1] === "charts-radar"
-        ? "/charts/radar"
-        : node.path,
+    canonicalPath: kind === "charts" ? (chartEntry?.canonicalPath ?? node.path) : node.path,
     ...(fragment ? { fragment } : {}),
   };
 }
@@ -642,3 +646,4 @@ export function assertCanonicalRoutingModel(options: ValidationOptions = {}) {
     throw new TypeError(`Canonical routing validation failed:\n- ${errors.join("\n- ")}`);
   }
 }
+

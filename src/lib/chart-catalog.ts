@@ -38,12 +38,24 @@ type RadarChartSlug =
   | "chart-radar-multiple"
   | "chart-radar-radius";
 
+export type TooltipChartSlug =
+  | "chart-tooltip-default"
+  | "chart-tooltip-indicator-line"
+  | "chart-tooltip-indicator-none"
+  | "chart-tooltip-label-none"
+  | "chart-tooltip-label-custom"
+  | "chart-tooltip-label-formatter"
+  | "chart-tooltip-formatter"
+  | "chart-tooltip-icons"
+  | "chart-tooltip-advanced";
+
 export type ChartCatalogEntry = {
-  slug: AreaChartSlug | RadarChartSlug;
+  slug: AreaChartSlug | RadarChartSlug | TooltipChartSlug;
   label: string;
   exportName: string;
   description: string;
-  categories: readonly ["charts", "charts-area" | "charts-radar"];
+  categories: readonly ["charts", "charts-area" | "charts-radar" | "charts-tooltip"];
+  canonicalPath: "/charts" | "/charts/radar" | "/charts/tooltip";
   interactive: boolean;
   sourceUrl: string;
   installCommand: string;
@@ -52,11 +64,19 @@ export type ChartCatalogEntry = {
 type AreaChartEntry = ChartCatalogEntry & {
   slug: AreaChartSlug;
   categories: readonly ["charts", "charts-area"];
+  canonicalPath: "/charts";
 };
 
 type RadarChartEntry = ChartCatalogEntry & {
   slug: RadarChartSlug;
   categories: readonly ["charts", "charts-radar"];
+  canonicalPath: "/charts/radar";
+};
+
+type TooltipChartEntry = ChartCatalogEntry & {
+  slug: TooltipChartSlug;
+  categories: readonly ["charts", "charts-tooltip"];
+  canonicalPath: "/charts/tooltip";
 };
 
 const sourceRoot = `https://github.com/shadcn-ui/ui/blob/${CHART_SOURCE_REVISION}/apps/v4/registry/new-york-v4/charts`;
@@ -77,20 +97,37 @@ function chartEntry(
   exportName: string,
 ): RadarChartEntry;
 function chartEntry(
-  family: "area" | "radar",
-  slug: AreaChartSlug | RadarChartSlug,
+  family: "tooltip",
+  slug: TooltipChartSlug,
+  label: string,
+  description: string,
+  exportName: string,
+): TooltipChartEntry;
+function chartEntry(
+  family: "area" | "radar" | "tooltip",
+  slug: AreaChartSlug | RadarChartSlug | TooltipChartSlug,
   label: string,
   description: string,
   exportName: string,
   interactive = false,
 ): ChartCatalogEntry {
-  const category = family === "area" ? "charts-area" : "charts-radar";
+  const category = {
+    area: "charts-area",
+    radar: "charts-radar",
+    tooltip: "charts-tooltip",
+  }[family] as "charts-area" | "charts-radar" | "charts-tooltip";
+  const canonicalPath = {
+    area: "/charts",
+    radar: "/charts/radar",
+    tooltip: "/charts/tooltip",
+  }[family] as "/charts" | "/charts/radar" | "/charts/tooltip";
   return {
     slug,
     label,
     exportName,
     description,
     categories: ["charts", category],
+    canonicalPath,
     interactive,
     sourceUrl: `${sourceRoot}/${slug}.tsx`,
     installCommand: `bunx shadcn@latest add @zaidan/${slug}`,
@@ -264,6 +301,74 @@ export const RADAR_CHARTS = [
 
 export const RADAR_CHART_SLUGS = RADAR_CHARTS.map(({ slug }) => slug);
 
+export const TOOLTIP_CHARTS = [
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-default",
+    "Tooltip — Default",
+    "Default tooltip with ChartTooltipContent.",
+    "ChartTooltipDefault",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-indicator-line",
+    "Tooltip — Line Indicator",
+    "A tooltip with a line indicator.",
+    "ChartTooltipIndicatorLine",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-indicator-none",
+    "Tooltip — No Indicator",
+    "A tooltip with no indicator.",
+    "ChartTooltipIndicatorNone",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-label-none",
+    "Tooltip — No Label",
+    "A tooltip with no label.",
+    "ChartTooltipLabelNone",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-label-custom",
+    "Tooltip — Custom Label",
+    "A tooltip with a custom label from ChartConfig.",
+    "ChartTooltipLabelCustom",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-label-formatter",
+    "Tooltip — Label Formatter",
+    "A tooltip with a formatted date label.",
+    "ChartTooltipLabelFormatter",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-formatter",
+    "Tooltip — Formatter",
+    "A tooltip with a custom value formatter.",
+    "ChartTooltipFormatter",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-icons",
+    "Tooltip — Icons",
+    "A tooltip with activity icons.",
+    "ChartTooltipIcons",
+  ),
+  chartEntry(
+    "tooltip",
+    "chart-tooltip-advanced",
+    "Tooltip — Advanced",
+    "A tooltip with custom formatting and a total.",
+    "ChartTooltipAdvanced",
+  ),
+] as const satisfies readonly TooltipChartEntry[];
+
+export const TOOLTIP_CHART_SLUGS = TOOLTIP_CHARTS.map(({ slug }) => slug);
+
 export function getAreaChart(slug: string) {
   return AREA_CHARTS.find((candidate) => candidate.slug === slug);
 }
@@ -272,6 +377,11 @@ export function getRadarChart(slug: string) {
   return RADAR_CHARTS.find((candidate) => candidate.slug === slug);
 }
 
-export function getChartCatalogEntry(slug: string) {
-  return getAreaChart(slug) ?? getRadarChart(slug);
+export function getTooltipChart(slug: string) {
+  return TOOLTIP_CHARTS.find((candidate) => candidate.slug === slug);
 }
+
+export function getChartCatalogEntry(slug: string) {
+  return getAreaChart(slug) ?? getRadarChart(slug) ?? getTooltipChart(slug);
+}
+

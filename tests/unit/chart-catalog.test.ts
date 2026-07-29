@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AREA_CHARTS, CHART_SOURCE_REVISION, RADAR_CHARTS } from "@/lib/chart-catalog";
+import {
+  AREA_CHARTS,
+  CHART_SOURCE_REVISION,
+  RADAR_CHARTS,
+  TOOLTIP_CHARTS,
+} from "@/lib/chart-catalog";
 import { resolvePreviewRequest } from "@/lib/product-routing";
 import registry from "@/registry/kobalte/registry.json";
 
@@ -32,6 +37,19 @@ const pinnedRadarOrder = [
   "chart-radar-multiple",
   "chart-radar-radius",
 ] as const;
+
+const pinnedTooltipOrder = [
+  "chart-tooltip-default",
+  "chart-tooltip-indicator-line",
+  "chart-tooltip-indicator-none",
+  "chart-tooltip-label-none",
+  "chart-tooltip-label-custom",
+  "chart-tooltip-label-formatter",
+  "chart-tooltip-formatter",
+  "chart-tooltip-icons",
+  "chart-tooltip-advanced",
+] as const;
+
 
 describe("Area Chart Catalog contract", () => {
   it("publishes the ten pinned entries in upstream source order", () => {
@@ -132,3 +150,55 @@ describe("Radar Chart Catalog contract", () => {
     }
   });
 });
+
+describe("Tooltip Chart Catalog contract", () => {
+  it("publishes the nine pinned entries in upstream source order", () => {
+    expect(CHART_SOURCE_REVISION).toBe("47c7f92dbc4dd22a29982986458787000c4e7bc1");
+    expect(TOOLTIP_CHARTS.map(({ slug }) => slug)).toEqual(pinnedTooltipOrder);
+    expect(
+      TOOLTIP_CHARTS.every(({ categories }) => categories.join(",") === "charts,charts-tooltip"),
+    ).toBe(true);
+  });
+
+  it("gives every Tooltip entry a canonical source, install command, and isolated Preview", () => {
+    for (const entry of TOOLTIP_CHARTS) {
+      expect(entry.sourceUrl).toContain(CHART_SOURCE_REVISION);
+      expect(entry.sourceUrl.endsWith(`/${entry.slug}.tsx`)).toBe(true);
+      expect(entry.installCommand).toBe(`bunx shadcn@latest add @zaidan/${entry.slug}`);
+      expect(resolvePreviewRequest(`/preview/charts/${entry.slug}`)).toEqual({
+        accepted: true,
+        kind: "charts",
+        slug: entry.slug,
+        canonicalPath: "/charts/tooltip",
+      });
+    }
+  });
+
+  it("keeps every Tooltip entry independently installable with exact registry metadata", () => {
+    const tooltipItems = registry.items.filter(({ name }) =>
+      pinnedTooltipOrder.includes(name as (typeof pinnedTooltipOrder)[number]),
+    );
+
+    expect(tooltipItems.map(({ name }) => name)).toEqual(pinnedTooltipOrder);
+    for (const item of tooltipItems) {
+      expect(item.type).toBe("registry:block");
+      expect(item.categories).toEqual(["charts", "charts-tooltip"]);
+      expect(item.registryDependencies).toEqual(
+        ["card", "chart"].map(
+          (dependency) => `https://zaidan.carere.dev/r/kobalte/${dependency}.json`,
+        ),
+      );
+      expect(item.dependencies).toContain("solid-recharts@1.0.0");
+      expect(item.dependencies?.some((dependency) => /^echarts(?:@|$)/.test(dependency))).toBe(
+        false,
+      );
+      expect(item.files).toEqual([
+        {
+          path: `src/registry/kobalte/charts/${item.name}.tsx`,
+          type: "registry:block",
+        },
+      ]);
+    }
+  });
+});
+

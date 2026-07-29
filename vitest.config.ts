@@ -1,4 +1,5 @@
 import { playwright } from "@vitest/browser-playwright";
+import axeCore from "axe-core";
 import type { Frame } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
@@ -736,6 +737,238 @@ export default defineConfig({
                   darkBytes: darkCapture.length,
                   darkStable: darkCapture.equals(repeatedDarkCapture),
                 };
+              },
+              async inspectTooltipChartCatalog(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const page = testFrame.page();
+                const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
+                const consoleErrors: string[] = [];
+                const recordConsole = (message: { type: () => string; text: () => string }) => {
+                  if (message.type() === "error") consoleErrors.push(message.text());
+                };
+                const recordPageError = (error: Error) => consoleErrors.push(error.message);
+                page.on("console", recordConsole);
+                page.on("pageerror", recordPageError);
+
+                try {
+                  await routeFrame.locator("body").evaluate(() => window.location.reload());
+                  await testFrame.waitForTimeout(500);
+
+                  const entries = routeFrame.locator("[data-chart-entry]");
+                  await entries.first().waitFor({ state: "visible" });
+                  const slugs: Array<string | null> = [];
+                  const labels: string[] = [];
+                  const actionCounts: number[] = [];
+                  const renderedBarCounts: number[] = [];
+                  const applicationRoles: Array<string | null> = [];
+                  let defaultTooltipText: string | null = null;
+                  let keyboardTooltipText: string | null = null;
+                  let pointerTooltipText: string | null = null;
+                  let customLabelText: string | null = null;
+                  let labelFormatterText: string | null = null;
+                  let formatterText: string | null = null;
+                  let iconCount = 0;
+                  let advancedText: string | null = null;
+                  let advancedCaptureBytes = 0;
+
+                  for (let index = 0; index < (await entries.count()); index += 1) {
+                    const entry = entries.nth(index);
+                    await entry.scrollIntoViewIfNeeded();
+                    const preview = entry.frameLocator("iframe");
+                    const chart = preview.locator('[data-slot="chart"]');
+                    await chart.waitFor({ state: "visible", timeout: 8_000 });
+                    await chart.locator(".recharts-surface").waitFor({ state: "visible" });
+                    const slug = await entry.getAttribute("data-chart-entry");
+                    slugs.push(slug);
+                    labels.push(
+                      (await entry.getByRole("heading", { level: 3 }).textContent())?.trim() ?? "",
+                    );
+                    actionCounts.push(
+                      await entry.locator("[data-chart-actions]").locator("button, a").count(),
+                    );
+                    renderedBarCounts.push(await chart.locator(".recharts-bar-rectangle").count());
+                    applicationRoles.push(
+                      await preview.getByRole("application").getAttribute("role"),
+                    );
+                    const tooltip = preview.locator(".cn-chart-tooltip");
+                    await tooltip.waitFor({ state: "visible", timeout: 8_000 });
+                    if (slug === "chart-tooltip-default") {
+                      defaultTooltipText = await tooltip.textContent();
+                      const application = preview.getByRole("application");
+                      await application.focus();
+                      await page.keyboard.press("ArrowRight");
+                      await testFrame.waitForTimeout(150);
+                      keyboardTooltipText = await tooltip.textContent();
+                      await chart
+                        .locator(".recharts-surface")
+                        .hover({ position: { x: 220, y: 150 } });
+                      await tooltip.waitFor({ state: "visible" });
+                      pointerTooltipText = await tooltip.textContent();
+                    } else if (slug === "chart-tooltip-label-custom") {
+                      customLabelText = await tooltip.textContent();
+                    } else if (slug === "chart-tooltip-label-formatter") {
+                      labelFormatterText = await tooltip.textContent();
+                    } else if (slug === "chart-tooltip-formatter") {
+                      formatterText = await tooltip.textContent();
+                    } else if (slug === "chart-tooltip-icons") {
+                      iconCount = await tooltip.locator("svg").count();
+                    } else if (slug === "chart-tooltip-advanced") {
+                      advancedText = await tooltip.textContent();
+                      advancedCaptureBytes = (await preview.locator("body").screenshot()).length;
+                    }
+                  }
+
+                  const firstEntry = entries.first();
+                  const activeFamily = await routeFrame
+                    .getByRole("navigation", { name: "Chart families" })
+                    .locator('[aria-current="page"]')
+                    .textContent();
+                  const viewCode = firstEntry.getByRole("button", { name: "View Code" });
+                  await viewCode.focus();
+                  await page.keyboard.press("Enter");
+                  const installCommand = routeFrame.getByText(
+                    "bunx shadcn@latest add @zaidan/chart-tooltip-default",
+                    { exact: true },
+                  );
+                  await installCommand.waitFor({ state: "visible" });
+                  const source = routeFrame.locator("pre code");
+                  await source
+                    .getByText("export function ChartTooltipDefault", { exact: false })
+                    .waitFor({ state: "visible", timeout: 7_000 });
+
+                  const advancedFrameElement = await routeFrame
+                    .locator('[data-chart-entry="chart-tooltip-advanced"] iframe')
+                    .elementHandle();
+                  const advancedFrame = await advancedFrameElement?.contentFrame();
+                  if (!advancedFrame) throw new TypeError("Advanced Tooltip frame is unavailable");
+                  await advancedFrame.addScriptTag({ content: axeCore.source });
+                  const accessibilityViolations = await advancedFrame.evaluate(async () => {
+                    const axe = (
+                      window as typeof window & {
+                        axe: {
+                          run: (
+                            root: Document,
+                            options: { runOnly: { type: "tag"; values: string[] } },
+                          ) => Promise<{
+                            violations: {
+                              id: string;
+                              impact: string | null;
+                              nodes: { target: string[] }[];
+                            }[];
+                          }>;
+                        };
+                      }
+                    ).axe;
+                    const results = await axe.run(document, {
+                      runOnly: {
+                        type: "tag",
+                        values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+                      },
+                    });
+                    return results.violations.map((violation) => ({
+                      id: violation.id,
+                      impact: violation.impact,
+                      targets: violation.nodes.map(({ target }) => target),
+                    }));
+                  });
+
+                  return {
+                    canonicalRoute: await routeFrame
+                      .locator("main")
+                      .getAttribute("data-canonical-route"),
+                    activeFamily,
+                    labels,
+                    slugs,
+                    actionCounts,
+                    previewHeight: await firstEntry
+                      .locator("[data-chart-preview]")
+                      .evaluate((element) => element.getBoundingClientRect().height),
+                    lazyPreviewCount: await entries.locator('iframe[loading="lazy"]').count(),
+                    renderedBarCounts,
+                    applicationRoles,
+                    defaultTooltipText,
+                    keyboardTooltipText,
+                    pointerTooltipText,
+                    customLabelText,
+                    labelFormatterText,
+                    formatterText,
+                    iconCount,
+                    advancedText,
+                    advancedCaptureBytes,
+                    accessibilityViolations,
+                    installCommand: await installCommand.textContent(),
+                    sourceContainsExport: ((await source.textContent()) ?? "").includes(
+                      "export function ChartTooltipDefault",
+                    ),
+                    consoleErrors,
+                  };
+                } finally {
+                  page.off("console", recordConsole);
+                  page.off("pageerror", recordPageError);
+                }
+              },
+              async exerciseTooltipPreviewRecovery(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const page = testFrame.page();
+                const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
+                const blockedPreview = "**/preview/charts/chart-tooltip-default";
+                const pageErrors: string[] = [];
+                const recordPageError = (error: Error) => pageErrors.push(error.message);
+                page.on("pageerror", recordPageError);
+
+                try {
+                  const firstEntry = routeFrame.locator(
+                    '[data-chart-entry="chart-tooltip-default"]',
+                  );
+                  await firstEntry.waitFor({ state: "visible" });
+                  await firstEntry.scrollIntoViewIfNeeded();
+                  await firstEntry
+                    .frameLocator("iframe")
+                    .locator('[data-slot="chart"]')
+                    .waitFor({ state: "visible" });
+                  await firstEntry.locator("iframe").dispatchEvent("error");
+
+                  const alert = firstEntry.getByRole("alert");
+                  await alert.waitFor({ state: "visible", timeout: 8_000 });
+                  const retry = alert.getByRole("button", { name: /Retry/ });
+                  const openPreview = alert.getByRole("link", { name: /Open Preview/ });
+                  const evidence = {
+                    alertText: (await alert.textContent()) ?? "",
+                    retryVisible: await retry.isVisible(),
+                    openPreviewVisible: await openPreview.isVisible(),
+                  };
+
+                  await page.route(
+                    blockedPreview,
+                    async (route) => {
+                      await testFrame.waitForTimeout(500);
+                      await route.abort();
+                    },
+                    { times: 1 },
+                  );
+                  await retry.click();
+                  const loading = firstEntry.getByRole("status");
+                  await loading.waitFor({ state: "visible" });
+                  const loadingText = (await loading.textContent()) ?? "";
+                  await alert.waitFor({ state: "visible", timeout: 8_000 });
+
+                  await page.unroute(blockedPreview);
+                  await retry.click();
+                  await firstEntry
+                    .frameLocator('iframe[title="Tooltip — Default Preview"]')
+                    .locator('[data-slot="chart"]')
+                    .waitFor({ state: "visible", timeout: 8_000 });
+                  return { ...evidence, loadingText, recovered: true, pageErrors };
+                } finally {
+                  page.off("pageerror", recordPageError);
+                  await page.unroute(blockedPreview);
+                }
               },
               async inspectDesktopProductHeader(context) {
                 const { header } = await getProductRouteTestFrame(context);

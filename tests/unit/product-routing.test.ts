@@ -476,9 +476,10 @@ describe("canonical Product Surface routing", () => {
     expect(
       extractRoutePatterns(`
         createFileRoute("/_product/docs/$slug")({})
+        createFileRoute("/_product/charts_/tooltip")({})
         createFileRoute("/_website/")({})
       `),
-    ).toEqual(["/docs/$slug", "/"]);
+    ).toEqual(["/docs/$slug", "/charts/tooltip", "/"]);
 
     expect(
       validateCanonicalRoutingModel({

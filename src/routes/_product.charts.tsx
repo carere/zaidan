@@ -16,3 +16,4 @@ function RouteComponent() {
   const location = useLocation();
   return location().pathname === "/charts" ? <ChartCatalog /> : <Outlet />;
 }
+

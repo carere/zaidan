@@ -5,6 +5,7 @@ import {
   CHART_FAMILIES,
   type ChartCatalogEntry,
   RADAR_CHARTS,
+  TOOLTIP_CHARTS,
 } from "@/lib/chart-catalog";
 import { cn } from "@/lib/utils";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
@@ -207,7 +208,7 @@ function ChartSourceActions(props: { entry: ChartCatalogEntry }) {
   });
 
   return (
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2" data-chart-actions>
       <Button size="sm" variant="outline" onClick={() => void copy("code")}>
         <FileCode2 /> {copied() === "code" ? "Copied" : "Copy Code"}
       </Button>
@@ -277,7 +278,7 @@ function ChartSourceActions(props: { entry: ChartCatalogEntry }) {
   );
 }
 
-type ChartFamily = "area" | "radar";
+type ChartFamily = "area" | "radar" | "tooltip";
 
 const familyCatalog = {
   area: {
@@ -291,6 +292,12 @@ const familyCatalog = {
     heading: "Radar Charts",
     path: "/charts/radar",
     entries: RADAR_CHARTS,
+  },
+  tooltip: {
+    label: "Tooltips",
+    heading: "Tooltip Charts",
+    path: "/charts/tooltip",
+    entries: TOOLTIP_CHARTS,
   },
 } as const;
 
@@ -371,7 +378,7 @@ export function ChartCatalog(props: { family?: ChartFamily }) {
                   <div class="flex flex-col gap-4 p-5">
                     <div>
                       <p class="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                        {catalog().label}
+                        {catalog().label === "Tooltips" ? "Tooltip" : catalog().label}
                       </p>
                       <h3 class="mt-1 font-heading font-semibold text-xl">{entry.label}</h3>
                       <p class="mt-1 text-muted-foreground text-sm">{entry.description}</p>
@@ -388,3 +395,4 @@ export function ChartCatalog(props: { family?: ChartFamily }) {
     </main>
   );
 }
+

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/preview/charts/$slug")({
     return createPreviewHead({
       title: `${entry?.label ?? "Chart"} Preview`,
       description: entry?.description ?? "Isolated Chart Catalog Preview.",
-      canonicalPath: entry?.categories[1] === "charts-radar" ? "/charts/radar" : "/charts",
+      canonicalPath: entry?.canonicalPath ?? "/charts",
     });
   },
   component: ChartPreview,
@@ -108,3 +108,4 @@ function PreviewReady() {
   });
   return null;
 }
+
