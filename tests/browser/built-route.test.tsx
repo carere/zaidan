@@ -409,4 +409,3 @@ describe("built application", () => {
     expect(evidence.pageErrors).toEqual([]);
   }, 20_000);
 });
-

@@ -50,7 +50,6 @@ const pinnedTooltipOrder = [
   "chart-tooltip-advanced",
 ] as const;
 
-
 describe("Area Chart Catalog contract", () => {
   it("publishes the ten pinned entries in upstream source order", () => {
     expect(CHART_SOURCE_REVISION).toBe("47c7f92dbc4dd22a29982986458787000c4e7bc1");
@@ -201,4 +200,3 @@ describe("Tooltip Chart Catalog contract", () => {
     }
   });
 });
-

@@ -384,4 +384,3 @@ export function getTooltipChart(slug: string) {
 export function getChartCatalogEntry(slug: string) {
   return getAreaChart(slug) ?? getRadarChart(slug) ?? getTooltipChart(slug);
 }
-

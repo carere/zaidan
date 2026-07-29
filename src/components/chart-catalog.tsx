@@ -395,4 +395,3 @@ export function ChartCatalog(props: { family?: ChartFamily }) {
     </main>
   );
 }
-

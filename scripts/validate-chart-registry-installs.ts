@@ -167,4 +167,3 @@ try {
 console.log(
   `Installed ${areaItems.length} Area, ${radarItems.length} Radar, and ${tooltipItems.length} Tooltip registry entries in independent consumers.`,
 );
-

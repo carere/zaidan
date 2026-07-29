@@ -646,4 +646,3 @@ export function assertCanonicalRoutingModel(options: ValidationOptions = {}) {
     throw new TypeError(`Canonical routing validation failed:\n- ${errors.join("\n- ")}`);
   }
 }
-
