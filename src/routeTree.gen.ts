@@ -36,6 +36,7 @@ import { Route as WebsiteBlocksChar123SlugChar125RouteImport } from './routes/_w
 import { Route as ProductDocsSlugRouteImport } from './routes/_product.docs.$slug'
 import { Route as ProductComponentsBlocksRouteImport } from './routes/_product.components.blocks'
 import { Route as ProductComponentsSlugRouteImport } from './routes/_product.components.$slug'
+import { Route as ProductChartsRadarRouteImport } from './routes/_product.charts.radar'
 import { Route as PreviewKindPrimitiveSlugRouteImport } from './routes/preview.$kind.$primitive.$slug'
 import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
 import { Route as WebsiteBlocksSlugDocsRouteImport } from './routes/_website.blocks.$slug.docs'
@@ -179,6 +180,11 @@ const ProductComponentsSlugRoute = ProductComponentsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ProductComponentsRoute,
 } as any)
+const ProductChartsRadarRoute = ProductChartsRadarRouteImport.update({
+  id: '/radar',
+  path: '/radar',
+  getParentRoute: () => ProductChartsRoute,
+} as any)
 const PreviewKindPrimitiveSlugRoute =
   PreviewKindPrimitiveSlugRouteImport.update({
     id: '/preview/$kind/$primitive/$slug',
@@ -216,7 +222,7 @@ const ProductComponentsBlocksSlugRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteIndexRoute
-  '/charts': typeof ProductChartsRoute
+  '/charts': typeof ProductChartsRouteWithChildren
   '/components': typeof ProductComponentsRouteWithChildren
   '/create': typeof ProductCreateRoute
   '/docs': typeof ProductDocsRouteWithChildren
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/zaidan-agent': typeof WebsiteZaidanAgentRoute
   '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
+  '/charts/radar': typeof ProductChartsRadarRoute
   '/components/$slug': typeof ProductComponentsSlugRoute
   '/components/blocks': typeof ProductComponentsBlocksRouteWithChildren
   '/docs/$slug': typeof ProductDocsSlugRoute
@@ -249,7 +256,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof WebsiteIndexRoute
-  '/charts': typeof ProductChartsRoute
+  '/charts': typeof ProductChartsRouteWithChildren
   '/components': typeof ProductComponentsRouteWithChildren
   '/create': typeof ProductCreateRoute
   '/docs': typeof ProductDocsRouteWithChildren
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/zaidan-agent': typeof WebsiteZaidanAgentRoute
   '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
+  '/charts/radar': typeof ProductChartsRadarRoute
   '/components/$slug': typeof ProductComponentsSlugRoute
   '/components/blocks': typeof ProductComponentsBlocksRouteWithChildren
   '/docs/$slug': typeof ProductDocsSlugRoute
@@ -284,7 +292,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_product': typeof ProductRouteWithChildren
   '/_website': typeof WebsiteRouteWithChildren
-  '/_product/charts': typeof ProductChartsRoute
+  '/_product/charts': typeof ProductChartsRouteWithChildren
   '/_product/components': typeof ProductComponentsRouteWithChildren
   '/_product/create': typeof ProductCreateRoute
   '/_product/docs': typeof ProductDocsRouteWithChildren
@@ -297,6 +305,7 @@ export interface FileRoutesById {
   '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
   '/_website/': typeof WebsiteIndexRoute
+  '/_product/charts/radar': typeof ProductChartsRadarRoute
   '/_product/components/$slug': typeof ProductComponentsSlugRoute
   '/_product/components/blocks': typeof ProductComponentsBlocksRouteWithChildren
   '/_product/docs/$slug': typeof ProductDocsSlugRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/zaidan-agent'
     | '/preview/create'
     | '/preview/home'
+    | '/charts/radar'
     | '/components/$slug'
     | '/components/blocks'
     | '/docs/$slug'
@@ -365,6 +375,7 @@ export interface FileRouteTypes {
     | '/zaidan-agent'
     | '/preview/create'
     | '/preview/home'
+    | '/charts/radar'
     | '/components/$slug'
     | '/components/blocks'
     | '/docs/$slug'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/preview/create'
     | '/preview/home'
     | '/_website/'
+    | '/_product/charts/radar'
     | '/_product/components/$slug'
     | '/_product/components/blocks'
     | '/_product/docs/$slug'
@@ -623,6 +635,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ProductComponentsSlugRouteImport
       parentRoute: typeof ProductComponentsRoute
     }
+    '/_product/charts/radar': {
+      id: '/_product/charts/radar'
+      path: '/radar'
+      fullPath: '/charts/radar'
+      preLoaderRoute: typeof ProductChartsRadarRouteImport
+      parentRoute: typeof ProductChartsRoute
+    }
     '/preview/$kind/$primitive/$slug': {
       id: '/preview/$kind/$primitive/$slug'
       path: '/preview/$kind/$primitive/$slug'
@@ -668,6 +687,18 @@ declare module '@tanstack/solid-router' {
   }
 }
 
+interface ProductChartsRouteChildren {
+  ProductChartsRadarRoute: typeof ProductChartsRadarRoute
+}
+
+const ProductChartsRouteChildren: ProductChartsRouteChildren = {
+  ProductChartsRadarRoute: ProductChartsRadarRoute,
+}
+
+const ProductChartsRouteWithChildren = ProductChartsRoute._addFileChildren(
+  ProductChartsRouteChildren,
+)
+
 interface ProductComponentsBlocksRouteChildren {
   ProductComponentsBlocksSlugRoute: typeof ProductComponentsBlocksSlugRoute
 }
@@ -712,14 +743,14 @@ const ProductDocsRouteWithChildren = ProductDocsRoute._addFileChildren(
 )
 
 interface ProductRouteChildren {
-  ProductChartsRoute: typeof ProductChartsRoute
+  ProductChartsRoute: typeof ProductChartsRouteWithChildren
   ProductComponentsRoute: typeof ProductComponentsRouteWithChildren
   ProductCreateRoute: typeof ProductCreateRoute
   ProductDocsRoute: typeof ProductDocsRouteWithChildren
 }
 
 const ProductRouteChildren: ProductRouteChildren = {
-  ProductChartsRoute: ProductChartsRoute,
+  ProductChartsRoute: ProductChartsRouteWithChildren,
   ProductComponentsRoute: ProductComponentsRouteWithChildren,
   ProductCreateRoute: ProductCreateRoute,
   ProductDocsRoute: ProductDocsRouteWithChildren,

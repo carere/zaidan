@@ -13,10 +13,15 @@ const builtRegistryRoot = join(repositoryRoot, "public/r/kobalte");
 const registry = JSON.parse(
   await readFile(join(repositoryRoot, "src/registry/kobalte/registry.json"), "utf8"),
 ) as { items: RegistryItem[] };
-const areaItems = registry.items.filter((item) => item.categories?.includes("charts-area"));
+const chartItems = registry.items.filter((item) => item.categories?.includes("charts"));
+const areaItems = chartItems.filter((item) => item.categories?.includes("charts-area"));
+const radarItems = chartItems.filter((item) => item.categories?.includes("charts-radar"));
 
 if (areaItems.length !== 10) {
   throw new Error(`Expected ten Area registry entries, found ${areaItems.length}.`);
+}
+if (radarItems.length !== 14) {
+  throw new Error(`Expected fourteen Radar registry entries, found ${radarItems.length}.`);
 }
 
 const rootPackage = JSON.parse(await readFile(join(repositoryRoot, "package.json"), "utf8")) as {
@@ -43,7 +48,7 @@ const server = Bun.serve({
 const cli = join(repositoryRoot, "node_modules/shadcn/dist/index.js");
 
 try {
-  for (const item of areaItems) {
+  for (const item of chartItems) {
     const consumer = await mkdtemp(join(tmpdir(), `zaidan-${item.name}-`));
     try {
       await mkdir(join(consumer, "src"), { recursive: true });
@@ -155,4 +160,6 @@ try {
   server.stop(true);
 }
 
-console.log(`Installed ${areaItems.length} Area registry entries in independent consumers.`);
+console.log(
+  `Installed ${areaItems.length} Area and ${radarItems.length} Radar registry entries in independent consumers.`,
+);

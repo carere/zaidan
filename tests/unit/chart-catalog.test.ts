@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AREA_CHARTS, CHART_SOURCE_REVISION } from "@/lib/chart-catalog";
+import { AREA_CHARTS, CHART_SOURCE_REVISION, RADAR_CHARTS } from "@/lib/chart-catalog";
 import { resolvePreviewRequest } from "@/lib/product-routing";
 import registry from "@/registry/kobalte/registry.json";
 
@@ -14,6 +14,23 @@ const pinnedAreaOrder = [
   "chart-area-stacked-expand",
   "chart-area-stacked",
   "chart-area-step",
+] as const;
+
+const pinnedRadarOrder = [
+  "chart-radar-default",
+  "chart-radar-dots",
+  "chart-radar-grid-circle-fill",
+  "chart-radar-grid-circle-no-lines",
+  "chart-radar-grid-circle",
+  "chart-radar-grid-custom",
+  "chart-radar-grid-fill",
+  "chart-radar-grid-none",
+  "chart-radar-icons",
+  "chart-radar-label-custom",
+  "chart-radar-legend",
+  "chart-radar-lines-only",
+  "chart-radar-multiple",
+  "chart-radar-radius",
 ] as const;
 
 describe("Area Chart Catalog contract", () => {
@@ -64,6 +81,54 @@ describe("Area Chart Catalog contract", () => {
         path: `src/registry/kobalte/charts/${item.name}.tsx`,
         type: item.name === "chart-area-interactive" ? "registry:component" : "registry:block",
       });
+    }
+  });
+});
+
+describe("Radar Chart Catalog contract", () => {
+  it("publishes the fourteen pinned entries in upstream source order", () => {
+    expect(CHART_SOURCE_REVISION).toBe("47c7f92dbc4dd22a29982986458787000c4e7bc1");
+    expect(RADAR_CHARTS.map(({ slug }) => slug)).toEqual(pinnedRadarOrder);
+    expect(
+      RADAR_CHARTS.every(({ categories }) => categories.join(",") === "charts,charts-radar"),
+    ).toBe(true);
+  });
+
+  it("gives every Radar entry shared source, install, and isolated Preview behavior", () => {
+    for (const entry of RADAR_CHARTS) {
+      expect(entry.sourceUrl).toContain(CHART_SOURCE_REVISION);
+      expect(entry.sourceUrl.endsWith(`/${entry.slug}.tsx`)).toBe(true);
+      expect(entry.installCommand).toBe(`bunx shadcn@latest add @zaidan/${entry.slug}`);
+      expect(resolvePreviewRequest(`/preview/charts/${entry.slug}`)).toEqual({
+        accepted: true,
+        kind: "charts",
+        slug: entry.slug,
+        canonicalPath: "/charts/radar",
+      });
+    }
+  });
+
+  it("keeps every Radar entry independently installable with exact registry metadata", () => {
+    const radarItems = registry.items.filter(({ name }) =>
+      pinnedRadarOrder.includes(name as (typeof pinnedRadarOrder)[number]),
+    );
+
+    expect(radarItems.map(({ name }) => name)).toEqual(pinnedRadarOrder);
+    for (const item of radarItems) {
+      expect(item.type).toBe("registry:block");
+      expect(item.categories).toEqual(["charts", "charts-radar"]);
+      expect(item.registryDependencies).toEqual(
+        ["card", "chart"].map(
+          (dependency) => `https://zaidan.carere.dev/r/kobalte/${dependency}.json`,
+        ),
+      );
+      expect(item.dependencies).toEqual(["lucide-solid", "solid-recharts@1.0.0"]);
+      expect(item.files).toEqual([
+        {
+          path: `src/registry/kobalte/charts/${item.name}.tsx`,
+          type: "registry:block",
+        },
+      ]);
     }
   });
 });

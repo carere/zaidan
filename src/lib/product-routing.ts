@@ -1,5 +1,5 @@
 import { blocks, changelog, docs, ui } from "@velite";
-import { getAreaChart } from "@/lib/chart-catalog";
+import { getChartCatalogEntry } from "@/lib/chart-catalog";
 import { DEFAULT_PRESET_TOKEN, decodePresetToken } from "@/lib/preset-token";
 
 export type ProductSurfaceId = "home" | "docs" | "components" | "charts" | "create";
@@ -249,6 +249,13 @@ export const CANONICAL_CONTENT_TREE: readonly CanonicalSurfaceTree[] = [
         id: "surface:charts",
         label: "Charts",
         path: "/charts",
+        surface: "charts",
+        anchors: [],
+      },
+      {
+        id: "charts:radar",
+        label: "Radar Charts",
+        path: "/charts/radar",
         surface: "charts",
         anchors: [],
       },
@@ -516,7 +523,8 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
       : kind === "blocks"
         ? nodeByPath.get(`/components/blocks/${slug}`)
         : nodeByPath.get("/charts");
-  if (!node || (kind === "charts" && !getAreaChart(slug))) return { accepted: false };
+  const chartEntry = kind === "charts" ? getChartCatalogEntry(slug) : undefined;
+  if (!node || (kind === "charts" && !chartEntry)) return { accepted: false };
 
   let fragment: string | undefined;
   if (url.hash) {
@@ -534,7 +542,10 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
     accepted: true,
     kind: kind as "components" | "blocks" | "charts",
     slug,
-    canonicalPath: node.path,
+    canonicalPath:
+      kind === "charts" && chartEntry?.categories[1] === "charts-radar"
+        ? "/charts/radar"
+        : node.path,
     ...(fragment ? { fragment } : {}),
   };
 }

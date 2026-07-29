@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import type { Component } from "solid-js";
 import { createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
-import { getAreaChart } from "@/lib/chart-catalog";
+import { getChartCatalogEntry } from "@/lib/chart-catalog";
 import { resolvePreviewRequest } from "@/lib/product-routing";
 import { createPreviewHead } from "@/lib/seo";
 
@@ -18,19 +18,21 @@ export const Route = createFileRoute("/preview/charts/$slug")({
     if (!resolution.accepted || resolution.kind !== "charts") throw notFound();
     return resolution;
   },
-  head: () =>
-    createPreviewHead({
-      title: "Chart Preview",
-      description: "Isolated Chart Catalog Preview.",
-      canonicalPath: "/charts",
-    }),
+  head: ({ params }) => {
+    const entry = getChartCatalogEntry(params.slug);
+    return createPreviewHead({
+      title: `${entry?.label ?? "Chart"} Preview`,
+      description: entry?.description ?? "Isolated Chart Catalog Preview.",
+      canonicalPath: entry?.categories[1] === "charts-radar" ? "/charts/radar" : "/charts",
+    });
+  },
   component: ChartPreview,
 });
 
 function ChartPreview() {
   const [mounted, setMounted] = createSignal(false);
   const params = Route.useParams();
-  const entry = getAreaChart(params().slug);
+  const entry = getChartCatalogEntry(params().slug);
   if (!entry) throw notFound();
 
   const loader = chartLoaders[`../registry/kobalte/charts/${entry.slug}.tsx`];

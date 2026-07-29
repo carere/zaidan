@@ -30,6 +30,49 @@ type CartesianGridProps = {
   vertical?: boolean;
 };
 
+type RadarProps = {
+  dataKey: DataKey;
+  dot?: { fillOpacity?: number; r?: number };
+  fill?: string;
+  fillOpacity?: number;
+  stroke?: string;
+  strokeWidth?: number;
+};
+
+type RadarChartProps = {
+  accessibilityLayer?: boolean;
+  children?: JSX.Element;
+  data: ReadonlyArray<unknown>;
+  margin?: ChartMargin;
+};
+
+export type PolarAngleTickContentProps = {
+  index: number;
+  textAnchor?: "start" | "middle" | "end" | "inherit";
+  x: number;
+  y: number;
+};
+
+type PolarAngleAxisProps = {
+  dataKey?: DataKey;
+  tick?: (props: PolarAngleTickContentProps) => JSX.Element;
+};
+
+type PolarGridProps = {
+  class?: string;
+  gridType?: "polygon" | "circle";
+  polarRadius?: ReadonlyArray<number>;
+  radialLines?: boolean;
+  strokeWidth?: number;
+};
+
+type PolarRadiusAxisProps = {
+  angle?: number;
+  axisLine?: boolean;
+  orientation?: "left" | "right" | "middle";
+  stroke?: string;
+};
+
 type ResponsiveContainerProps = {
   children?: JSX.Element;
   initialDimension?: {
@@ -97,6 +140,11 @@ export const Area: Component<AreaProps>;
 export const AreaChart: Component<AreaChartProps>;
 export const CartesianGrid: Component<CartesianGridProps>;
 export const Legend: Component<LegendProps>;
+export const PolarAngleAxis: Component<PolarAngleAxisProps>;
+export const PolarGrid: Component<PolarGridProps>;
+export const PolarRadiusAxis: Component<PolarRadiusAxisProps>;
+export const Radar: Component<RadarProps>;
+export const RadarChart: Component<RadarChartProps>;
 export const ResponsiveContainer: Component<ResponsiveContainerProps>;
 export const Tooltip: Component<TooltipProps>;
 export const XAxis: Component<AxisProps>;

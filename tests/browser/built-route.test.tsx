@@ -16,7 +16,11 @@ async function renderBuiltRoute(pathname = "/", viewport = { width: "1280px", he
       ? "Built chart route"
       : pathname === "/charts"
         ? "Chart Catalog route"
-        : "Built Zaidan route";
+        : pathname === "/charts/radar"
+          ? "Radar Chart Catalog route"
+          : pathname === "/preview/charts/chart-radar-icons"
+            ? "Radar representative Preview"
+            : "Built Zaidan route";
   let resolveLoaded: (() => void) | undefined;
   const loaded = new Promise<void>((resolve) => {
     resolveLoaded = resolve;
@@ -187,4 +191,121 @@ describe("built application", () => {
     expect(evidence.openPreviewVisible).toBe(true);
     expect(evidence.recovered).toBe(true);
   });
+
+  it("renders the Radar catalog with polar, legend, accessibility, and interaction parity", async () => {
+    await renderBuiltRoute("/charts/radar", { width: "1440px", height: "900px" });
+    const { inspectRadarChartCatalog } = commands as unknown as {
+      inspectRadarChartCatalog: () => Promise<{
+        activeFamily: string | null;
+        canonicalPath: string | null;
+        consoleErrors: string[];
+        customLabels: string;
+        entryCount: number;
+        iconLegendLabels: string[];
+        iconLegendSvgCount: number;
+        installCommand: string | null;
+        keyboardTooltipText: string | null;
+        pointerTooltipText: string | null;
+        previewHeight: number;
+        previewLoading: string | null;
+        previews: Array<{
+          chartRole: string | null;
+          circleGridCount: number;
+          polygonCount: number;
+          polarGridCount: number;
+          radialLineCount: number;
+          slug: string | null;
+        }>;
+        representativeDeterministic: boolean;
+        representativeScreenshotBytes: number;
+        sharedActionCount: number;
+        sourceLoaded: boolean;
+      }>;
+    };
+
+    const evidence = await inspectRadarChartCatalog();
+    expect(evidence.canonicalPath).toBe("/charts/radar");
+    expect(evidence.activeFamily).toBe("Radar");
+    expect(evidence.entryCount).toBe(14);
+    expect(evidence.previewHeight).toBe(460);
+    expect(evidence.previewLoading).toBe("lazy");
+    expect(evidence.previews.map(({ slug }) => slug)).toEqual([
+      "chart-radar-default",
+      "chart-radar-dots",
+      "chart-radar-grid-circle-fill",
+      "chart-radar-grid-circle-no-lines",
+      "chart-radar-grid-circle",
+      "chart-radar-grid-custom",
+      "chart-radar-grid-fill",
+      "chart-radar-grid-none",
+      "chart-radar-icons",
+      "chart-radar-label-custom",
+      "chart-radar-legend",
+      "chart-radar-lines-only",
+      "chart-radar-multiple",
+      "chart-radar-radius",
+    ]);
+    expect(evidence.previews.every(({ polygonCount }) => polygonCount > 0)).toBe(true);
+    expect(evidence.previews.every(({ chartRole }) => chartRole === "application")).toBe(true);
+    expect(evidence.previews[2]?.circleGridCount).toBeGreaterThan(0);
+    expect(evidence.previews[3]?.radialLineCount).toBe(0);
+    expect(evidence.previews[5]?.polarGridCount).toBe(1);
+    expect(evidence.previews[7]?.polarGridCount).toBe(0);
+    expect(evidence.iconLegendLabels).toEqual(["Desktop", "Mobile"]);
+    expect(evidence.iconLegendSvgCount).toBe(2);
+    expect(evidence.sharedActionCount).toBe(14);
+    expect(evidence.installCommand).toBe("bunx shadcn@latest add @zaidan/chart-radar-icons");
+    expect(evidence.sourceLoaded).toBe(true);
+    expect(evidence.customLabels).toMatch(/186\/80.*January/s);
+    expect(evidence.keyboardTooltipText).toMatch(/January|Desktop|186/);
+    expect(evidence.pointerTooltipText).toMatch(/Desktop|186/);
+    expect(evidence.representativeScreenshotBytes).toBeGreaterThan(1_000);
+    expect(evidence.representativeDeterministic).toBe(true);
+    expect(evidence.consoleErrors).toEqual([]);
+  }, 40_000);
+
+  it("retains failure actions and recovers a Radar Preview", async () => {
+    await renderBuiltRoute("/charts/radar");
+    const { exerciseRadarChartFailure } = commands as unknown as {
+      exerciseRadarChartFailure: () => Promise<{
+        alertText: string;
+        openPreviewVisible: boolean;
+        recovered: boolean;
+        retryVisible: boolean;
+      }>;
+    };
+
+    const evidence = await exerciseRadarChartFailure();
+    expect(evidence.alertText).toContain("Preview could not be loaded");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.openPreviewVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
+  });
+
+  it("keeps the approved Radar representative deterministic at matrix viewports", async () => {
+    await renderBuiltRoute("/preview/charts/chart-radar-icons", {
+      width: "390px",
+      height: "844px",
+    });
+    const { inspectRadarRepresentative } = commands as unknown as {
+      inspectRadarRepresentative: () => Promise<{
+        darkBytes: number;
+        darkStable: boolean;
+        darkViewport: { height: number; width: number };
+        legendLabels: string[];
+        lightBytes: number;
+        lightViewport: { height: number; width: number };
+        slug: string | null;
+      }>;
+    };
+
+    const evidence = await inspectRadarRepresentative();
+    expect(evidence.slug).toBe("chart-radar-icons");
+    expect(evidence.legendLabels).toEqual(["Desktop", "Mobile"]);
+    expect(evidence.lightViewport).toEqual({ width: 390, height: 844 });
+    expect(evidence.darkViewport).toEqual({ width: 1440, height: 900 });
+    expect(evidence.lightBytes).toBeGreaterThan(1_000);
+    expect(evidence.darkBytes).toBeGreaterThan(1_000);
+    expect(evidence.darkStable).toBe(true);
+  }, 15_000);
 });

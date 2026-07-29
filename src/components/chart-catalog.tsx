@@ -1,6 +1,11 @@
 import { ExternalLink, FileCode2, LoaderCircle, RefreshCcw, Terminal } from "lucide-solid";
 import { createEffect, createSignal, For, onCleanup, onMount, Show, splitProps } from "solid-js";
-import { AREA_CHARTS, CHART_FAMILIES } from "@/lib/chart-catalog";
+import {
+  AREA_CHARTS,
+  CHART_FAMILIES,
+  type ChartCatalogEntry,
+  RADAR_CHARTS,
+} from "@/lib/chart-catalog";
 import { cn } from "@/lib/utils";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -12,8 +17,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/registry/kobalte/ui/sheet";
-
-type AreaChartEntry = (typeof AREA_CHARTS)[number];
 
 const sourceUrls = import.meta.glob<string>("../registry/kobalte/charts/*.tsx", {
   query: "?url&no-inline",
@@ -31,7 +34,7 @@ async function loadChartSource(slug: string, attempt: number) {
   return response.text();
 }
 
-function ChartPreview(props: { entry: AreaChartEntry }) {
+function ChartPreview(props: { entry: ChartCatalogEntry }) {
   const [local] = splitProps(props, ["entry"]);
   const { colorMode } = useColorMode();
   const [state, setState] = createSignal<"loading" | "ready" | "failed">("loading");
@@ -149,7 +152,7 @@ function ChartPreview(props: { entry: AreaChartEntry }) {
   );
 }
 
-function ChartSourceActions(props: { entry: AreaChartEntry }) {
+function ChartSourceActions(props: { entry: ChartCatalogEntry }) {
   const [source, setSource] = createSignal<string>();
   const [sourceError, setSourceError] = createSignal(false);
   const [copied, setCopied] = createSignal<"code" | "install">();
@@ -274,9 +277,28 @@ function ChartSourceActions(props: { entry: AreaChartEntry }) {
   );
 }
 
-export function ChartCatalog() {
+type ChartFamily = "area" | "radar";
+
+const familyCatalog = {
+  area: {
+    label: "Area",
+    heading: "Area Charts",
+    path: "/charts",
+    entries: AREA_CHARTS,
+  },
+  radar: {
+    label: "Radar",
+    heading: "Radar Charts",
+    path: "/charts/radar",
+    entries: RADAR_CHARTS,
+  },
+} as const;
+
+export function ChartCatalog(props: { family?: ChartFamily }) {
+  const catalog = () => familyCatalog[props.family ?? "area"];
+
   return (
-    <main data-product-surface="charts" data-canonical-route="/charts">
+    <main data-product-surface="charts" data-canonical-route={catalog().path}>
       <header class="mx-auto flex max-w-3xl flex-col items-center gap-5 px-6 py-16 text-center md:py-24">
         <p class="font-medium text-muted-foreground text-sm">Chart Catalog</p>
         <h1 class="text-balance font-heading font-semibold text-4xl tracking-tight md:text-5xl">
@@ -305,10 +327,10 @@ export function ChartCatalog() {
             {(family) => (
               <a
                 href={`${family.path}#charts`}
-                aria-current={family.label === "Area" ? "page" : undefined}
+                aria-current={family.label === catalog().label ? "page" : undefined}
                 class={cn(
                   "shrink-0 border-transparent border-b-2 px-4 py-3 font-medium text-muted-foreground text-sm hover:text-foreground",
-                  family.label === "Area" && "border-foreground text-foreground",
+                  family.label === catalog().label && "border-foreground text-foreground",
                 )}
               >
                 {family.label}
@@ -320,18 +342,23 @@ export function ChartCatalog() {
 
       <section
         id="charts"
-        aria-labelledby="area-charts-heading"
+        aria-labelledby={`${props.family ?? "area"}-charts-heading`}
         class="scroll-mt-28 px-4 py-10 md:px-6"
       >
         <div class="mx-auto max-w-7xl">
           <div class="mb-8">
-            <h2 id="area-charts-heading" class="font-heading font-semibold text-3xl tracking-tight">
-              Area Charts
+            <h2
+              id={`${props.family ?? "area"}-charts-heading`}
+              class="font-heading font-semibold text-3xl tracking-tight"
+            >
+              {catalog().heading}
             </h2>
-            <p class="mt-2 text-muted-foreground">Ten source-pinned Area Chart Catalog Entries.</p>
+            <p class="mt-2 text-muted-foreground">
+              {catalog().entries.length} source-pinned {catalog().label} Chart Catalog Entries.
+            </p>
           </div>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <For each={AREA_CHARTS}>
+            <For each={catalog().entries}>
               {(entry) => (
                 <article
                   id={entry.slug}
@@ -344,7 +371,7 @@ export function ChartCatalog() {
                   <div class="flex flex-col gap-4 p-5">
                     <div>
                       <p class="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                        Area
+                        {catalog().label}
                       </p>
                       <h3 class="mt-1 font-heading font-semibold text-xl">{entry.label}</h3>
                       <p class="mt-1 text-muted-foreground text-sm">{entry.description}</p>
