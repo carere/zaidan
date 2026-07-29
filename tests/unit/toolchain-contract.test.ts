@@ -48,4 +48,19 @@ describe("contributor validation", () => {
     });
     expect(project.tasks.build?.outputs).toEqual([{ glob: ".output/**/*" }]);
   });
+
+  it("keeps the retained quality gate aligned with Moon artifacts", () => {
+    const workflow = readFileSync(
+      new URL("../../.github/workflows/quality-assurance.yml", import.meta.url),
+      "utf8",
+    );
+
+    expect(workflow).toContain(".moon/cache");
+    expect(workflow).toContain(".output");
+    expect(workflow).toContain("public/r/kobalte");
+    expect(workflow).toContain("'.moon/**'");
+    expect(workflow).toContain("'moon.yml'");
+    expect(workflow).not.toContain("if: steps.cache.outputs.cache-hit != 'true'");
+    expect(workflow).not.toMatch(/^\s+dist$/m);
+  });
 });

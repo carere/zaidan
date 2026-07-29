@@ -33,23 +33,22 @@ jobs:
       - name: Biome Lint + Format
         run: bun run check
 
-      - name: Cache dist
-        id: cache
+      - name: Cache Moon validation artifacts
         uses: actions/cache@v5.0.5
         with:
           path: |
-            dist
+            .moon/cache
+            .output
             .velite
-          key:
-            ${{ runner.os }}-${{ hashFiles('vite.config.ts', 'velite.config.ts',
-            'src/**', 'public/**', 'bun.lock') }}
+            public/r/kobalte
+          key: ${{ runner.os }}-moon-${{ hashFiles('.moon/**', 'moon.yml',
+            'vite.config.ts', 'vitest.config.ts', 'velite.config.ts', 'tests/**',
+            'src/**', 'public/**', 'package.json', 'bun.lock') }}
 
       - name: Assuring build is working
-        if: steps.cache.outputs.cache-hit != 'true'
         run: bun run build
 
       - name: Assuring registry build is working
-        if: steps.cache.outputs.cache-hit != 'true'
         run: bun run r:build:kobalte
 
       - name: TypeScript Compiler
