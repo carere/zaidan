@@ -53,6 +53,25 @@ export default defineConfig({
                     .getAttribute("src"),
                 };
               },
+              async inspectBuiltChart(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routeFrame = testFrame.frameLocator('iframe[title="Built chart route"]');
+                const chart = routeFrame.locator('[data-slot="chart"]');
+
+                await chart.waitFor({ state: "visible" });
+                await chart.locator(".recharts-surface").waitFor({ state: "visible" });
+
+                return {
+                  chartSlot: await chart.getAttribute("data-chart"),
+                  description: await routeFrame
+                    .getByText("Showing total visitors for the last 6 months")
+                    .textContent(),
+                  renderedAreaCount: await chart.locator(".recharts-area-area").count(),
+                };
+              },
             },
           },
         },

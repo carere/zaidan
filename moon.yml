@@ -111,7 +111,7 @@ tasks:
       - "@group(sources)"
       - "@group(workspace)"
     outputs:
-      - "dist/**/*"
+      - ".output/**/*"
 
   dev:
     command: "bun vite dev"

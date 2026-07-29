@@ -32,12 +32,20 @@ describe("contributor validation", () => {
     expect(result.status, result.stderr).toBe(0);
 
     const project = JSON.parse(result.stdout) as {
-      tasks: Record<string, { command: string; deps: Array<{ target: string }> }>;
+      tasks: Record<
+        string,
+        {
+          command: string;
+          deps: Array<{ target: string }>;
+          outputs?: Array<{ glob: string }>;
+        }
+      >;
     };
 
     expect(project.tasks["integration-test"]).toMatchObject({
       command: "noop",
       deps: [{ target: "zaidan:test" }, { target: "zaidan:browser-test" }],
     });
+    expect(project.tasks.build?.outputs).toEqual([{ glob: ".output/**/*" }]);
   });
 });

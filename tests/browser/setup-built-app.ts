@@ -21,14 +21,14 @@ export default async function setup(project: TestProject) {
 
   const server = new Miniflare({
     modules: true,
-    modulesRoot: "dist/server",
+    modulesRoot: ".output/server",
     modulesRules: [{ type: "ESModule", include: ["**/*.js", "**/*.mjs"] }],
-    scriptPath: "dist/server/index.js",
+    scriptPath: ".output/server/index.js",
     compatibilityDate: "2026-05-01",
     compatibilityFlags: ["nodejs_compat"],
     assets: {
       binding: "ASSETS",
-      directory: "dist/client",
+      directory: ".output/client",
       routerConfig: {
         has_user_worker: true,
       },

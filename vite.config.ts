@@ -9,6 +9,9 @@ import solid from "vite-plugin-solid";
 import mdx from "./src/lib/vite-plugins/mdx";
 
 export default defineConfig({
+  build: {
+    outDir: ".output",
+  },
   optimizeDeps: {
     exclude: ["solid-recharts"],
   },
