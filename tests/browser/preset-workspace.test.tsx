@@ -76,6 +76,11 @@ describe("built Create Workspace Preset Token behavior", () => {
       inspectCreateActions: () => Promise<{
         invalidError: string;
         command: string;
+        openFocusTrapped: boolean;
+        openFocusRestored: boolean;
+        keyboardSelectedManager: string | null;
+        keyboardSelectedCommand: string;
+        getCodeFocusRestored: boolean;
         pathBefore: string;
         pathAfter: string;
         validOpenPath: string;
@@ -91,6 +96,11 @@ describe("built Create Workspace Preset Token behavior", () => {
 
     expect(evidence.invalidError).toContain("valid v1 Preset Token");
     expect(evidence.command).toBe("bunx --bun shadcn@latest add @zaidan/preset-v1-0");
+    expect(evidence.openFocusTrapped).toBe(true);
+    expect(evidence.openFocusRestored).toBe(true);
+    expect(evidence.keyboardSelectedManager).toBe("true");
+    expect(evidence.keyboardSelectedCommand).toBe("yarn dlx shadcn@latest add @zaidan/preset-v1-0");
+    expect(evidence.getCodeFocusRestored).toBe(true);
     expect(evidence.pathAfter).toBe(evidence.pathBefore);
     expect(evidence.validOpenPath).toBe("/create?preset=v1-gWzAn");
     expect(evidence.shuffledToken).toMatch(/^v1-[0-9A-Za-z]{1,6}$/);
@@ -100,12 +110,18 @@ describe("built Create Workspace Preset Token behavior", () => {
     expect(evidence.resetPath).toBe("/create");
     expect(evidence.lockCleared).toBe(true);
     expect(evidence.undoResetPath).toBe(evidence.shuffledPath);
-  });
+  }, 30_000);
 
-  it("forwards Shuffle and Undo/Redo shortcuts from inside Preview", async () => {
+  it("forwards global and editor shortcuts from Preview while excluding editable controls", async () => {
     await renderCreate();
     const { exerciseCreatePreviewShortcuts } = commands as unknown as {
       exerciseCreatePreviewShortcuts: () => Promise<{
+        commandSearchForwarded: boolean;
+        initialDarkMode: boolean;
+        toggledDarkMode: boolean;
+        previewDarkMode: boolean;
+        tokenBeforeEditableShortcut: string;
+        editableShortcutToken: string;
         shuffledToken: string;
         undoToken: string;
         redoToken: string;
@@ -113,6 +129,10 @@ describe("built Create Workspace Preset Token behavior", () => {
     };
     const evidence = await exerciseCreatePreviewShortcuts();
 
+    expect(evidence.commandSearchForwarded).toBe(true);
+    expect(evidence.toggledDarkMode).toBe(!evidence.initialDarkMode);
+    expect(evidence.previewDarkMode).toBe(evidence.toggledDarkMode);
+    expect(evidence.editableShortcutToken).toBe(evidence.tokenBeforeEditableShortcut);
     expect(evidence.shuffledToken).not.toBe("v1-0");
     expect(evidence.undoToken).toBe("v1-0");
     expect(evidence.redoToken).toBe(evidence.shuffledToken);

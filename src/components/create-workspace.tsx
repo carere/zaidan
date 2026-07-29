@@ -9,7 +9,6 @@ import {
   RotateCw,
   Share2,
   Shuffle,
-  X,
 } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { BASE_COLORS, FONTS, MENU_ACCENTS, RADII, STYLES, THEMES } from "@/lib/config";
@@ -17,6 +16,7 @@ import {
   type CreateShortcut,
   createPresetSyncMessage,
   isCurrentPresetAcknowledgement,
+  isEditableShortcutTarget,
   parsePreviewMessage,
   resolveCreateShortcut,
 } from "@/lib/preset-protocol";
@@ -38,6 +38,14 @@ import {
 import type { DesignSystemConfig, LockableParam } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
 import { Button } from "@/registry/kobalte/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/registry/kobalte/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
 
 const FIELD_OPTIONS = {
   style: STYLES.map(({ name, label }) => ({ value: name, label })),
@@ -67,12 +75,8 @@ const writeClipboard = async (value: string) => {
   await navigator.clipboard.writeText(value);
 };
 
-const isEditableTarget = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  (target.isContentEditable || target.matches("input, textarea, select"));
-
 export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
-  const { colorMode } = useColorMode();
+  const { colorMode, toggleColorMode } = useColorMode();
   const navigate = useNavigate();
   const [configuration, setConfiguration] = createSignal(props.initial.config);
   const [locks, setLocks] = createSignal<ReadonlySet<LockableParam>>(new Set<LockableParam>());
@@ -159,7 +163,12 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
   const shuffle = () => commit(shufflePreset(configuration(), locks()));
 
   const performShortcut = (action: CreateShortcut) => {
-    if (action === "shuffle") shuffle();
+    if (action === "command-search") {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "k", metaKey: true, cancelable: true }),
+      );
+    } else if (action === "toggle-color-mode") toggleColorMode();
+    else if (action === "shuffle") shuffle();
     else if (action === "undo") undo();
     else redo();
   };
@@ -236,9 +245,12 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isEditableTarget(event.target)) return;
+      if (event.defaultPrevented || isEditableShortcutTarget(event.target)) return;
       const action = resolveCreateShortcut(event);
       if (!action) return;
+      // Command Search owns the parent document shortcut. Only redispatch it
+      // when it originates inside Preview and arrives through postMessage.
+      if (action === "command-search") return;
       event.preventDefault();
       performShortcut(action);
     };
@@ -327,9 +339,39 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
             --preset {token()}
           </Button>
           <div class="grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm" onClick={() => setOpenPreset(true)}>
-              Open Preset
-            </Button>
+            <Dialog open={openPreset()} onOpenChange={setOpenPreset}>
+              <DialogTrigger as={Button} variant="outline" size="sm">
+                Open Preset
+              </DialogTrigger>
+              <DialogContent class="w-[calc(100%-2rem)] max-w-lg rounded-xl border bg-background p-4 shadow-2xl">
+                <DialogHeader class="mb-4">
+                  <DialogTitle class="font-heading font-semibold text-lg">Open Preset</DialogTitle>
+                </DialogHeader>
+                <form class="grid gap-3" onSubmit={submitOpenPreset}>
+                  <label class="grid gap-1 text-sm">
+                    Preset Token
+                    <input
+                      autofocus
+                      value={openValue()}
+                      aria-invalid={Boolean(openError())}
+                      aria-describedby="open-preset-error"
+                      placeholder="v1-… or --preset v1-…"
+                      class="rounded-md border bg-background px-3 py-2 font-mono"
+                      onInput={(event) => {
+                        setOpenValue(event.currentTarget.value);
+                        setOpenError("");
+                      }}
+                    />
+                  </label>
+                  <Show when={openError()}>
+                    <p id="open-preset-error" class="text-destructive text-sm">
+                      {openError()}
+                    </p>
+                  </Show>
+                  <Button type="submit">Open Preset</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
             <Button
               variant="outline"
               size="sm"
@@ -359,9 +401,51 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
               Reset
             </Button>
           </div>
-          <Button size="sm" onClick={() => setGetCode(true)}>
-            <Code2 /> Get Code
-          </Button>
+          <Dialog open={getCode()} onOpenChange={setGetCode}>
+            <DialogTrigger as={Button} size="sm">
+              <Code2 /> Get Code
+            </DialogTrigger>
+            <DialogContent class="w-[calc(100%-2rem)] max-w-lg rounded-xl border bg-background p-4 shadow-2xl">
+              <DialogHeader class="mb-4">
+                <DialogTitle class="font-heading font-semibold text-lg">Get Code</DialogTitle>
+              </DialogHeader>
+              <div class="grid gap-3">
+                <Tabs
+                  value={packageManager()}
+                  onChange={(value) => setPackageManager(value as PackageManager)}
+                >
+                  <TabsList aria-label="Package manager" class="grid w-full grid-cols-4 gap-1">
+                    <For each={["pnpm", "npm", "yarn", "bun"] as const}>
+                      {(manager) => (
+                        <TabsTrigger value={manager} class="h-8 rounded-sm px-2 text-xs">
+                          {manager === "bun" ? "Bun" : manager}
+                        </TabsTrigger>
+                      )}
+                    </For>
+                  </TabsList>
+                  <For each={["pnpm", "npm", "yarn", "bun"] as const}>
+                    {(manager) => (
+                      <TabsContent value={manager} class="mt-3">
+                        <code class="block overflow-x-auto rounded-md border bg-muted p-3 text-xs">
+                          {getPresetInstallCommand(manager, token())}
+                        </code>
+                      </TabsContent>
+                    )}
+                  </For>
+                </Tabs>
+                <Button
+                  onClick={() =>
+                    copyWithFeedback("command", getPresetInstallCommand(packageManager(), token()))
+                  }
+                >
+                  <Show when={copied() === "command"} fallback={<Clipboard />}>
+                    <Check />
+                  </Show>
+                  Copy command
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </aside>
 
@@ -387,95 +471,6 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
           }}
         />
       </section>
-
-      <Show when={openPreset()}>
-        <Modal title="Open Preset" onClose={() => setOpenPreset(false)}>
-          <form class="grid gap-3" onSubmit={submitOpenPreset}>
-            <label class="grid gap-1 text-sm">
-              Preset Token
-              <input
-                autofocus
-                value={openValue()}
-                aria-invalid={Boolean(openError())}
-                aria-describedby="open-preset-error"
-                placeholder="v1-… or --preset v1-…"
-                class="rounded-md border bg-background px-3 py-2 font-mono"
-                onInput={(event) => {
-                  setOpenValue(event.currentTarget.value);
-                  setOpenError("");
-                }}
-              />
-            </label>
-            <Show when={openError()}>
-              <p id="open-preset-error" class="text-destructive text-sm">
-                {openError()}
-              </p>
-            </Show>
-            <Button type="submit">Open Preset</Button>
-          </form>
-        </Modal>
-      </Show>
-
-      <Show when={getCode()}>
-        <Modal title="Get Code" onClose={() => setGetCode(false)}>
-          <div class="grid gap-3">
-            <div role="tablist" aria-label="Package manager" class="grid grid-cols-4 gap-1">
-              <For each={["pnpm", "npm", "yarn", "bun"] as const}>
-                {(manager) => (
-                  <Button
-                    role="tab"
-                    aria-selected={packageManager() === manager}
-                    variant={packageManager() === manager ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => setPackageManager(manager)}
-                  >
-                    {manager === "bun" ? "Bun" : manager}
-                  </Button>
-                )}
-              </For>
-            </div>
-            <code class="overflow-x-auto rounded-md border bg-muted p-3 text-xs">
-              {getPresetInstallCommand(packageManager(), token())}
-            </code>
-            <Button
-              onClick={() =>
-                copyWithFeedback("command", getPresetInstallCommand(packageManager(), token()))
-              }
-            >
-              <Show when={copied() === "command"} fallback={<Clipboard />}>
-                <Check />
-              </Show>
-              Copy command
-            </Button>
-          </div>
-        </Modal>
-      </Show>
     </main>
-  );
-}
-
-function Modal(props: { title: string; onClose: () => void; children: unknown }) {
-  return (
-    <div class="fixed inset-0 z-80 grid place-items-center bg-foreground/25 p-4 backdrop-blur-sm">
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-label={props.title}
-        class="w-full max-w-lg rounded-xl border bg-background p-4 shadow-2xl"
-      >
-        <header class="mb-4 flex items-center justify-between">
-          <h2 class="font-heading font-semibold text-lg">{props.title}</h2>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Close ${props.title}`}
-            onClick={props.onClose}
-          >
-            <X />
-          </Button>
-        </header>
-        {props.children as never}
-      </section>
-    </div>
   );
 }

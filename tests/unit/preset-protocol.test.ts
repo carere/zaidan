@@ -41,6 +41,14 @@ describe("Create Preview message protocol", () => {
       type: "preview-shortcut",
       action: "shuffle",
     });
+    expect(parsePreviewMessage(createPreviewShortcutMessage("command-search"))).toMatchObject({
+      type: "preview-shortcut",
+      action: "command-search",
+    });
+    expect(parsePreviewMessage(createPreviewShortcutMessage("toggle-color-mode"))).toMatchObject({
+      type: "preview-shortcut",
+      action: "toggle-color-mode",
+    });
   });
 
   it.each([
@@ -96,6 +104,11 @@ describe("Create Preview message protocol", () => {
   });
 
   it("maps Preview and parent keyboard events to the preserved Create shortcuts", () => {
+    expect(resolveCreateShortcut({ key: "k", metaKey: true })).toBe("command-search");
+    expect(resolveCreateShortcut({ key: "K", ctrlKey: true })).toBe("command-search");
+    expect(resolveCreateShortcut({ key: "k", metaKey: true, shiftKey: true })).toBeNull();
+    expect(resolveCreateShortcut({ key: "d" })).toBe("toggle-color-mode");
+    expect(resolveCreateShortcut({ key: "D", ctrlKey: true })).toBeNull();
     expect(resolveCreateShortcut({ key: "r" })).toBe("shuffle");
     expect(resolveCreateShortcut({ key: "R", shiftKey: true })).toBeNull();
     expect(resolveCreateShortcut({ key: "z", metaKey: true })).toBe("undo");

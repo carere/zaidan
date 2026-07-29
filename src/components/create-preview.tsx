@@ -4,6 +4,7 @@ import {
   CREATE_PREVIEW_CHANNEL,
   CREATE_PREVIEW_PROTOCOL_VERSION,
   createPreviewShortcutMessage,
+  isEditableShortcutTarget,
   parsePreviewMessage,
   resolveCreateShortcut,
 } from "@/lib/preset-protocol";
@@ -12,10 +13,6 @@ import { DEFAULT_PRESET_TOKEN, decodePresetToken, encodePresetToken } from "@/li
 import type { DesignSystemConfig } from "@/lib/types";
 
 const STYLE_ELEMENT_ID = "create-preview-preset-vars";
-
-const isEditableTarget = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  (target.isContentEditable || target.matches("input, textarea, select"));
 
 export function applyPreviewConfiguration(config: DesignSystemConfig, mode?: "light" | "dark") {
   const projection = projectPresetTheme(config);
@@ -90,7 +87,7 @@ export function CreatePreviewSurface(props: { preset?: string }) {
       );
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isEditableTarget(event.target)) return;
+      if (isEditableShortcutTarget(event.target)) return;
       const action = resolveCreateShortcut(event);
       if (!action) return;
       event.preventDefault();

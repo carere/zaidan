@@ -346,33 +346,53 @@ export default defineConfig({
                     .locator("body")
                     .evaluate(() => `${window.location.pathname}${window.location.search}`);
                 const pathBefore = await currentPath();
-                await routeFrame
-                  .getByRole("button", { name: "Open Preset" })
-                  .evaluate((button) => (button as HTMLButtonElement).click());
+                const openPresetTrigger = routeFrame.locator(
+                  '[data-slot="dialog-trigger"]:has-text("Open Preset")',
+                );
+                await openPresetTrigger.click();
                 await routeFrame.getByLabel("Preset Token").fill("v2-0");
                 await routeFrame
                   .locator("form")
                   .evaluate((form) => (form as HTMLFormElement).requestSubmit());
                 await routeFrame.locator("#open-preset-error").waitFor({ state: "visible" });
                 const invalidError = await routeFrame.locator("#open-preset-error").textContent();
-                await routeFrame
-                  .getByRole("button", { name: "Close Open Preset" })
-                  .evaluate((button) => (button as HTMLButtonElement).click());
-                await routeFrame
-                  .getByRole("button", { name: "Get Code" })
-                  .evaluate((button) => (button as HTMLButtonElement).click());
+                await routeFrame.getByLabel("Preset Token").press("Shift+Tab");
+                const openFocusTrapped = await routeFrame
+                  .getByRole("dialog")
+                  .evaluate((dialog) => dialog.contains(document.activeElement));
+                await routeFrame.locator("body").press("Escape");
+                await routeFrame.getByRole("dialog").waitFor({ state: "hidden" });
+                const openFocusRestored = await openPresetTrigger.evaluate(
+                  (trigger) => document.activeElement === trigger,
+                );
+
+                const getCodeTrigger = routeFrame.locator(
+                  '[data-slot="dialog-trigger"]:has-text("Get Code")',
+                );
+                await getCodeTrigger.click();
                 await routeFrame.locator("[role=dialog] code").waitFor({ state: "visible" });
                 const command = await routeFrame.locator("[role=dialog] code").textContent();
+                const yarnTab = routeFrame.getByRole("tab", { name: "yarn" });
+                await routeFrame.getByRole("tab", { name: "Bun" }).press("ArrowLeft");
+                await yarnTab.waitFor({ state: "visible" });
+                const keyboardSelectedManager = await yarnTab.getAttribute("aria-selected");
+                const keyboardSelectedCommand = await routeFrame
+                  .locator("[role=dialog] code")
+                  .textContent();
                 const pathAfter = await currentPath();
                 await routeFrame
-                  .getByRole("button", { name: "Close Get Code" })
+                  .getByRole("dialog")
+                  .locator('[data-slot="dialog-close"]')
                   .evaluate((button) => (button as HTMLButtonElement).click());
+                await routeFrame.getByRole("dialog").waitFor({ state: "hidden" });
+                const getCodeFocusRestored = await getCodeTrigger.evaluate(
+                  (trigger) => document.activeElement === trigger,
+                );
 
-                await routeFrame
-                  .getByRole("button", { name: "Open Preset" })
-                  .evaluate((button) => (button as HTMLButtonElement).click());
+                await openPresetTrigger.click();
                 await routeFrame.getByLabel("Preset Token").fill("--preset v1-gWzAn");
                 await routeFrame
+                  .getByRole("dialog")
                   .locator("form")
                   .evaluate((form) => (form as HTMLFormElement).requestSubmit());
                 await routeFrame
@@ -411,6 +431,11 @@ export default defineConfig({
                 return {
                   invalidError: invalidError ?? "",
                   command: command ?? "",
+                  openFocusTrapped,
+                  openFocusRestored,
+                  keyboardSelectedManager,
+                  keyboardSelectedCommand: keyboardSelectedCommand ?? "",
+                  getCodeFocusRestored,
                   pathBefore,
                   pathAfter,
                   validOpenPath,
@@ -434,6 +459,47 @@ export default defineConfig({
                 const previewSurface = preview.locator('[data-preview-kind="create"]');
                 await previewSurface.waitFor({ state: "visible" });
 
+                await routeFrame.locator("body").evaluate((body) => {
+                  document.addEventListener(
+                    "keydown",
+                    (event) => {
+                      if (
+                        !event.isTrusted &&
+                        (event.metaKey || event.ctrlKey) &&
+                        event.key.toLowerCase() === "k"
+                      ) {
+                        body.dataset.previewCommandSearch = "received";
+                      }
+                    },
+                    { once: true },
+                  );
+                });
+                await previewSurface.press("Meta+k");
+                await routeFrame.locator('body[data-preview-command-search="received"]').waitFor();
+                const commandSearchForwarded = true;
+
+                const initialDarkMode = await routeFrame
+                  .locator("html")
+                  .evaluate((html) => html.classList.contains("dark"));
+                await previewSurface.press("d");
+                await routeFrame.locator(initialDarkMode ? "html.light" : "html.dark").waitFor();
+                await preview.locator(initialDarkMode ? "html.light" : "html.dark").waitFor();
+                const toggledDarkMode = await routeFrame
+                  .locator("html")
+                  .evaluate((html) => html.classList.contains("dark"));
+                const previewDarkMode = await preview
+                  .locator("html")
+                  .evaluate((html) => html.classList.contains("dark"));
+
+                const tokenBeforeEditableShortcut = (await routeFrame
+                  .locator("[data-create-workspace]")
+                  .getAttribute("data-preset")) as string;
+                await preview.locator("input").first().press("r");
+                await testFrame.waitForTimeout(100);
+                const editableShortcutToken = (await routeFrame
+                  .locator("[data-create-workspace]")
+                  .getAttribute("data-preset")) as string;
+
                 await previewSurface.press("r");
                 const shuffledWorkspace = routeFrame.locator(
                   '[data-create-workspace][data-preset]:not([data-preset="v1-0"])',
@@ -454,6 +520,12 @@ export default defineConfig({
                   .locator(`[data-create-workspace][data-preset="${shuffledToken}"]`)
                   .waitFor();
                 return {
+                  commandSearchForwarded,
+                  initialDarkMode,
+                  toggledDarkMode,
+                  previewDarkMode,
+                  tokenBeforeEditableShortcut,
+                  editableShortcutToken,
                   shuffledToken,
                   undoToken,
                   redoToken: (await routeFrame

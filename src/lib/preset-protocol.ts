@@ -27,7 +27,7 @@ export type PresetAppliedMessage = {
   token: string | null;
 };
 
-export type CreateShortcut = "shuffle" | "undo" | "redo";
+export type CreateShortcut = "command-search" | "toggle-color-mode" | "shuffle" | "undo" | "redo";
 
 export type PreviewShortcutMessage = {
   channel: typeof CREATE_PREVIEW_CHANNEL;
@@ -58,7 +58,11 @@ export function parsePreviewMessage(input: unknown): CreatePreviewMessage | null
   }
   if (value.type === "preview-ready") return value as PreviewReadyMessage;
   if (value.type === "preview-shortcut") {
-    return value.action === "shuffle" || value.action === "undo" || value.action === "redo"
+    return value.action === "command-search" ||
+      value.action === "toggle-color-mode" ||
+      value.action === "shuffle" ||
+      value.action === "undo" ||
+      value.action === "redo"
       ? (value as PreviewShortcutMessage)
       : null;
   }
@@ -107,9 +111,19 @@ export function resolveCreateShortcut(input: {
   if (input.repeat || input.altKey) return null;
   const key = input.key.toLowerCase();
   const command = Boolean(input.ctrlKey || input.metaKey);
+  if (key === "k" && command && !input.shiftKey) return "command-search";
+  if (key === "d" && !command && !input.shiftKey) return "toggle-color-mode";
   if (key === "r" && !command && !input.shiftKey) return "shuffle";
   if (key === "z" && command) return input.shiftKey ? "redo" : "undo";
   return null;
+}
+
+export function isEditableShortcutTarget(target: EventTarget | null) {
+  return (
+    typeof HTMLElement !== "undefined" &&
+    target instanceof HTMLElement &&
+    (target.isContentEditable || target.matches("input, textarea, select"))
+  );
 }
 
 export const createPreviewShortcutMessage = (action: CreateShortcut): PreviewShortcutMessage => ({
