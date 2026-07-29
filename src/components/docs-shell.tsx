@@ -10,11 +10,20 @@ import {
   onMount,
   Show,
 } from "solid-js";
-import { Dynamic, isServer } from "solid-js/web";
+import { Dynamic } from "solid-js/web";
 import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
+import type { CanonicalDocsRouteData } from "@/lib/canonical-docs-route";
 import {
-  type CanonicalNavigationGroup,
+  type DocsGroupId,
+  ensureActiveDocsGroupOpen,
+  getActiveDocsNavigationGroup,
+  getDefaultDocsOpenGroups,
+  readDocsOpenGroups,
+  updateDocsGroupOpen,
+  writeDocsOpenGroups,
+} from "@/lib/docs-navigation";
+import {
   type CanonicalNode,
   type CanonicalReadingEntry,
   DOCS_NAVIGATION_GROUPS,
@@ -26,10 +35,7 @@ import {
 import type { MdxModule } from "@/lib/types";
 import { cn, fmtDate } from "@/lib/utils";
 
-const GROUP_STATE_KEY = "zaidan:docs-navigation-groups";
 const FOCUS_DESTINATION_KEY = "zaidan:product-navigation-focus";
-type DocsGroupId = CanonicalNavigationGroup["id"];
-const DOCS_GROUP_IDS = new Set<DocsGroupId>(DOCS_NAVIGATION_GROUPS.map(({ id }) => id));
 
 const authoredModules = import.meta.glob<MdxModule>([
   "../pages/docs/**/*.mdx",
@@ -39,9 +45,6 @@ const authoredComponents: Record<string, MdxModule["default"]> = {};
 for (const [path, loadModule] of Object.entries(authoredModules)) {
   authoredComponents[path] = lazy(loadModule);
 }
-
-const containsPath = (node: CanonicalNode, pathname: string): boolean =>
-  node.path === pathname || Boolean(node.children?.some((child) => containsPath(child, pathname)));
 
 const prepareNavigation = (event: MouseEvent) => {
   if (
@@ -102,60 +105,37 @@ function NavigationNode(props: { node: CanonicalNode; pathname: string; depth?: 
 }
 
 function DocsNavigationRail(props: { pathname: string }) {
-  const [openGroups, setOpenGroups] = createSignal(
-    new Set(DOCS_NAVIGATION_GROUPS.map(({ id }) => id)),
-  );
+  const [openGroups, setOpenGroups] = createSignal(getDefaultDocsOpenGroups());
   let navigation: HTMLElement | undefined;
 
-  const activeGroup = () =>
-    DOCS_NAVIGATION_GROUPS.find((group) =>
-      group.nodes.some((node) => containsPath(node, props.pathname)),
-    );
+  const activeGroup = () => getActiveDocsNavigationGroup(props.pathname);
 
-  const persist = (groups: Set<DocsGroupId>) => {
-    if (!isServer) sessionStorage.setItem(GROUP_STATE_KEY, JSON.stringify([...groups]));
-  };
+  const revealActiveItem = () =>
+    navigation
+      ?.querySelector<HTMLElement>("[data-active-docs-item]")
+      ?.scrollIntoView({ block: "nearest" });
 
   const setGroupOpen = (id: DocsGroupId, open: boolean) => {
-    const next = new Set(openGroups());
-    if (open) next.add(id);
-    else next.delete(id);
+    const next = updateDocsGroupOpen(openGroups(), id, open, props.pathname);
     setOpenGroups(next);
-    persist(next);
+    writeDocsOpenGroups(sessionStorage, next);
   };
 
   onMount(() => {
-    const stored = sessionStorage.getItem(GROUP_STATE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as unknown;
-        if (Array.isArray(parsed)) {
-          setOpenGroups(
-            new Set(
-              parsed.filter(
-                (value): value is DocsGroupId =>
-                  typeof value === "string" && DOCS_GROUP_IDS.has(value as DocsGroupId),
-              ),
-            ),
-          );
-        }
-      } catch {
-        sessionStorage.removeItem(GROUP_STATE_KEY);
-      }
-    }
+    setOpenGroups(readDocsOpenGroups(sessionStorage, props.pathname));
+    requestAnimationFrame(revealActiveItem);
   });
 
   createEffect(
     on(
       () => props.pathname,
       () => {
-        const group = activeGroup();
-        if (group && !openGroups().has(group.id)) setGroupOpen(group.id, true);
-        requestAnimationFrame(() =>
-          navigation
-            ?.querySelector<HTMLElement>("[data-active-docs-item]")
-            ?.scrollIntoView({ block: "nearest" }),
-        );
+        const next = ensureActiveDocsGroupOpen(openGroups(), props.pathname);
+        if (next !== openGroups()) {
+          setOpenGroups(next);
+          writeDocsOpenGroups(sessionStorage, next);
+        }
+        requestAnimationFrame(revealActiveItem);
       },
       { defer: true },
     ),
@@ -440,9 +420,13 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
             </details>
           </Show>
 
-          <div data-authored-docs-content>
-            <Dynamic component={mdxComponent()} components={sharedComponents} />
-          </div>
+          <Show when={mdxComponent()}>
+            {(AuthoredContent) => (
+              <div data-authored-docs-content data-authored-source={props.entry.source}>
+                <Dynamic component={AuthoredContent()} components={sharedComponents} />
+              </div>
+            )}
+          </Show>
           <OverviewCards pathname={props.node.path} />
           <PagePager pathname={props.node.path} position="footer" />
         </article>
@@ -459,4 +443,8 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
       </div>
     </main>
   );
+}
+
+export function CanonicalDocsRouteView(props: { data: CanonicalDocsRouteData }) {
+  return <CanonicalDocsPage node={props.data.node} entry={props.data.entry} />;
 }

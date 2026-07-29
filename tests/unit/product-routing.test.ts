@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { compatibilityResponse } from "@/lib/compatibility-response";
 import { DEFAULT_CONFIG } from "@/lib/config";
 import { encodePresetToken } from "@/lib/preset-token";
+import {
+  getActiveDocsNavigationGroup,
+  parseDocsOpenGroups,
+  serializeDocsOpenGroups,
+} from "@/lib/docs-navigation";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_BLOCK_SLUGS,
@@ -92,6 +97,18 @@ const docsSlugs = ["customization", "dark-mode", "faq", "installation", "roadmap
 const sidebarVariants = ["sidebar-floating", "sidebar-icon", "sidebar-inset"];
 
 describe("canonical Product Surface routing", () => {
+  it("shares validated Docs group state and deep-route group resolution", () => {
+    expect([...(parseDocsOpenGroups('["guides","changelog","guides","unknown"]') ?? [])]).toEqual([
+      "guides",
+      "changelog",
+    ]);
+    expect(parseDocsOpenGroups("not-json")).toBeUndefined();
+    expect(serializeDocsOpenGroups(new Set(["installation", "getting-started"]))).toBe(
+      '["getting-started","installation"]',
+    );
+    expect(getActiveDocsNavigationGroup("/docs/changelog/launch")?.id).toBe("changelog");
+  });
+
   it("keeps Product Header navigation canonical and Create-local", () => {
     expect(
       resolveProductNavigationHref(

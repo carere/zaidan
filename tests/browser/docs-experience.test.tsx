@@ -7,26 +7,48 @@ type BuiltResponse = {
   body: string;
 };
 
-const CANONICAL_DOCS_PATHS = [
-  "/docs",
-  "/docs/installation",
-  "/docs/installation/vite",
-  "/docs/installation/astro",
-  "/docs/installation/tanstack-start",
-  "/docs/installation/tanstack-router",
-  "/docs/installation/solid-start",
-  "/docs/installation/manual",
-  "/docs/customization",
-  "/docs/dark-mode",
-  "/docs/zaidan-agent",
-  "/docs/faq",
-  "/docs/roadmap",
-  "/docs/changelog",
-  "/docs/changelog/image-crop-and-agent-docs",
-  "/docs/changelog/sortable-and-design-refresh",
-  "/docs/changelog/zaidan-agent",
-  "/docs/changelog/launch",
+const CANONICAL_DOCS_CASES = [
+  ["/docs", "docs/introduction", "Build from a shared foundation"],
+  ["/docs/installation", "docs/installation", "Pick Your Framework"],
+  ["/docs/installation/vite", "docs/installation/vite", "Set up Vite"],
+  ["/docs/installation/astro", "docs/installation/astro", "Set up Astro"],
+  [
+    "/docs/installation/tanstack-start",
+    "docs/installation/tanstack-start",
+    "Set up TanStack Start",
+  ],
+  [
+    "/docs/installation/tanstack-router",
+    "docs/installation/tanstack-router",
+    "Set up TanStack Router",
+  ],
+  ["/docs/installation/solid-start", "docs/installation/solid-start", "Set up Solid Start"],
+  ["/docs/installation/manual", "docs/installation/manual", "Install manually"],
+  ["/docs/customization", "docs/customization", "Colors & base colors"],
+  ["/docs/dark-mode", "docs/dark-mode", "Automatic Detection & SSR"],
+  ["/docs/zaidan-agent", "docs/zaidan-agent", "Port From a shadcn-Compatible Registry"],
+  ["/docs/faq", "docs/faq", "Why does this project exist ?"],
+  ["/docs/roadmap", "docs/roadmap", "Enrich the Registry with More Blocks and Components"],
+  ["/docs/changelog", "docs/changelog", "Follow what changed"],
+  [
+    "/docs/changelog/image-crop-and-agent-docs",
+    "changelog/image-crop-and-agent-docs",
+    "This update is focused on two things:",
+  ],
+  [
+    "/docs/changelog/sortable-and-design-refresh",
+    "changelog/sortable-and-design-refresh",
+    "Three updates land together this month",
+  ],
+  ["/docs/changelog/zaidan-agent", "changelog/zaidan-agent", "The first stable release of"],
+  [
+    "/docs/changelog/launch",
+    "changelog/launch",
+    "Zaidan is now live: a SolidJS component registry",
+  ],
 ] as const;
+
+const CANONICAL_DOCS_PATHS = CANONICAL_DOCS_CASES.map(([path]) => path);
 
 let dispose: (() => void) | undefined;
 
@@ -90,6 +112,22 @@ describe("canonical Docs experience", () => {
     );
   });
 
+  it("reveals the active item on an initial deep Changelog load", async () => {
+    await renderDocsRoute("/docs/changelog/launch", 1024, 320);
+    const { inspectInitialDeepDocs } = commands as unknown as {
+      inspectInitialDeepDocs: () => Promise<{
+        activeNavigation: string | null;
+        activeItemVisible: boolean;
+        railScrollTop: number;
+      }>;
+    };
+    const evidence = await inspectInitialDeepDocs();
+
+    expect(evidence.activeNavigation).toBe("February 2026 — Zaidan Launch");
+    expect(evidence.activeItemVisible).toBe(true);
+    expect(evidence.railScrollTop).toBeGreaterThan(0);
+  });
+
   it("focuses TOC fragments and route headings while traversing boundaries", async () => {
     await renderDocsRoute("/docs/installation/vite", 1440, 900);
     const { exerciseDocsNavigation } = commands as unknown as {
@@ -142,6 +180,24 @@ describe("canonical Docs experience", () => {
     expect(evidence.activeMenuItem).toBe("Dark Mode");
   });
 
+  it("passes automated WCAG accessibility validation on desktop and mobile", async () => {
+    const { auditDocsAccessibility } = commands as unknown as {
+      auditDocsAccessibility: () => Promise<
+        { id: string; impact: string | null; targets: string[][] }[]
+      >;
+    };
+
+    await renderDocsRoute("/docs", 1440, 900);
+    const desktopViolations = await auditDocsAccessibility();
+    expect(desktopViolations).toEqual([]);
+
+    dispose?.();
+    dispose = undefined;
+    await renderDocsRoute("/docs/changelog", 390, 844);
+    const mobileViolations = await auditDocsAccessibility();
+    expect(mobileViolations).toEqual([]);
+  });
+
   it("server-renders every canonical Docs source exactly once", async () => {
     const requestBuiltRoutes = (
       commands as unknown as {
@@ -159,6 +215,35 @@ describe("canonical Docs experience", () => {
       expect(response.body.match(/data-authored-docs-content/g)?.length, path).toBe(1);
       expect(response.body, path).toContain(`data-canonical-route="${path}"`);
     }
+  });
+
+  it("renders each route's authored source and sentinel exactly once", async () => {
+    const { inspectCanonicalDocsSources } = commands as unknown as {
+      inspectCanonicalDocsSources: (routes: { url: string; sentinel: string }[]) => Promise<
+        {
+          path: string;
+          authoredCount: number;
+          source: string | null;
+          sentinelCount: number;
+        }[]
+      >;
+    };
+    const base = inject("builtAppUrl");
+    const evidence = await inspectCanonicalDocsSources(
+      CANONICAL_DOCS_CASES.map(([path, , sentinel]) => ({
+        url: new URL(path, base).href,
+        sentinel,
+      })),
+    );
+
+    expect(evidence).toEqual(
+      CANONICAL_DOCS_CASES.map(([path, source]) => ({
+        path,
+        authoredCount: 1,
+        source,
+        sentinelCount: 1,
+      })),
+    );
   });
 
   it("combines the authored Installation introduction with canonical child cards", async () => {

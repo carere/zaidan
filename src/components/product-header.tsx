@@ -4,10 +4,17 @@ import { createMemo, createSignal, For, type JSX, onCleanup, onMount, Show } fro
 import { Github } from "@/components/icons/github";
 import { Zaidan } from "@/components/icons/zaidan";
 import { ModeSwitcher } from "@/components/mode-switcher";
+import {
+  type DocsGroupId,
+  getActiveDocsNavigationGroup,
+  getDefaultDocsOpenGroups,
+  readDocsOpenGroups,
+  updateDocsGroupOpen,
+  writeDocsOpenGroups,
+} from "@/lib/docs-navigation";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_CONTENT_TREE,
-  type CanonicalNavigationGroup,
   type CanonicalNode,
   DOCS_NAVIGATION_GROUPS,
   getProductSurfaceForPath,
@@ -27,12 +34,6 @@ import { Separator } from "@/registry/kobalte/ui/separator";
 export const OPEN_COMMAND_SEARCH_EVENT = "zaidan:open-command-search";
 
 const FOCUS_DESTINATION_KEY = "zaidan:product-navigation-focus";
-const DOCS_GROUP_STATE_KEY = "zaidan:docs-navigation-groups";
-type DocsGroupId = CanonicalNavigationGroup["id"];
-const DOCS_GROUP_IDS = new Set<DocsGroupId>(DOCS_NAVIGATION_GROUPS.map(({ id }) => id));
-
-const containsPath = (node: CanonicalNode, pathname: string): boolean =>
-  node.path === pathname || Boolean(node.children?.some((child) => containsPath(child, pathname)));
 
 const isEditable = (target: EventTarget | null) =>
   (target instanceof HTMLElement && target.isContentEditable) ||
@@ -161,9 +162,7 @@ function HierarchyNode(props: {
 export function ProductHeader() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = createSignal(false);
-  const [openDocsGroups, setOpenDocsGroups] = createSignal(
-    new Set(DOCS_NAVIGATION_GROUPS.map(({ id }) => id)),
-  );
+  const [openDocsGroups, setOpenDocsGroups] = createSignal(getDefaultDocsOpenGroups());
   let header: HTMLElement | undefined;
   let mobileTrigger: HTMLButtonElement | undefined;
   let selectionInProgress = false;
@@ -173,39 +172,21 @@ export function ProductHeader() {
   const activeHierarchy = createMemo(() =>
     CANONICAL_CONTENT_TREE.find(({ surface }) => surface === activeSurface()?.id),
   );
-  const activeDocsGroup = createMemo(() =>
-    DOCS_NAVIGATION_GROUPS.find((group) =>
-      group.nodes.some((node) => containsPath(node, location().pathname)),
-    ),
-  );
+  const activeDocsGroup = createMemo(() => getActiveDocsNavigationGroup(location().pathname));
 
   const loadDocsGroupState = () => {
-    const stored = sessionStorage.getItem(DOCS_GROUP_STATE_KEY);
-    if (!stored) return;
-    try {
-      const parsed = JSON.parse(stored) as unknown;
-      if (!Array.isArray(parsed)) return;
-      const next = new Set(
-        parsed.filter(
-          (value): value is DocsGroupId =>
-            typeof value === "string" && DOCS_GROUP_IDS.has(value as DocsGroupId),
-        ),
-      );
-      const active = activeDocsGroup();
-      if (active) next.add(active.id);
-      setOpenDocsGroups(next);
-    } catch {
-      sessionStorage.removeItem(DOCS_GROUP_STATE_KEY);
-    }
+    setOpenDocsGroups(readDocsOpenGroups(sessionStorage, location().pathname));
   };
 
   const toggleDocsGroup = (id: DocsGroupId) => {
-    if (activeDocsGroup()?.id === id) return;
-    const next = new Set(openDocsGroups());
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    const next = updateDocsGroupOpen(
+      openDocsGroups(),
+      id,
+      !openDocsGroups().has(id),
+      location().pathname,
+    );
     setOpenDocsGroups(next);
-    sessionStorage.setItem(DOCS_GROUP_STATE_KEY, JSON.stringify([...next]));
+    writeDocsOpenGroups(sessionStorage, next);
   };
 
   const setMenuOpen = (open: boolean) => {

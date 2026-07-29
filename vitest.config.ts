@@ -1,4 +1,5 @@
 import { playwright } from "@vitest/browser-playwright";
+import axeCore from "axe-core";
 import type { Frame } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
@@ -85,6 +86,74 @@ export default defineConfig({
                     };
                   }),
                 );
+              },
+              async inspectCanonicalDocsSources(
+                context,
+                routes: { url: string; sentinel: string }[],
+              ) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routePage = await testFrame.page().context().newPage();
+                try {
+                  const evidence = [];
+                  for (const route of routes) {
+                    await routePage.goto(route.url, { waitUntil: "domcontentloaded" });
+                    const shell = routePage.locator("[data-docs-shell]");
+                    await shell.waitFor({ state: "visible" });
+                    const authored = shell.locator("[data-authored-docs-content]");
+                    await authored.waitFor({ state: "visible" });
+                    const text = (await authored.textContent()) ?? "";
+                    evidence.push({
+                      path: new URL(route.url).pathname,
+                      authoredCount: await authored.count(),
+                      source: await authored.getAttribute("data-authored-source"),
+                      sentinelCount: text.split(route.sentinel).length - 1,
+                    });
+                  }
+                  return evidence;
+                } finally {
+                  await routePage.close();
+                }
+              },
+              async auditDocsAccessibility(context) {
+                const { testFrame } = await getCanonicalDocsTestFrame(context);
+                const iframe = await testFrame
+                  .locator('iframe[title="Canonical Docs route"]')
+                  .elementHandle();
+                const applicationFrame = await iframe?.contentFrame();
+                if (!applicationFrame) throw new TypeError("Canonical Docs frame is unavailable");
+                await applicationFrame.addScriptTag({ content: axeCore.source });
+                return applicationFrame.evaluate(async () => {
+                  const axe = (
+                    window as typeof window & {
+                      axe: {
+                        run: (
+                          root: Document,
+                          options: { runOnly: { type: "tag"; values: string[] } },
+                        ) => Promise<{
+                          violations: {
+                            id: string;
+                            impact: string | null;
+                            nodes: { target: string[] }[];
+                          }[];
+                        }>;
+                      };
+                    }
+                  ).axe;
+                  const results = await axe.run(document, {
+                    runOnly: {
+                      type: "tag",
+                      values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"],
+                    },
+                  });
+                  return results.violations.map((violation) => ({
+                    id: violation.id,
+                    impact: violation.impact,
+                    targets: violation.nodes.map(({ target }) => target),
+                  }));
+                });
               },
               async inspectBuiltRoute(context) {
                 const providerContext = context.provider.getCommandsContext(context.sessionId) as {
@@ -633,6 +702,28 @@ export default defineConfig({
                     .evaluateAll((elements) =>
                       elements.map((element) => element.getAttribute("aria-label") ?? ""),
                     ),
+                };
+              },
+              async inspectInitialDeepDocs(context) {
+                const { shell } = await getCanonicalDocsTestFrame(context);
+                const rail = shell.locator(
+                  '[data-docs-left-rail] nav[aria-label="Docs hierarchy"]',
+                );
+                const activeItem = rail.locator('[aria-current="page"]');
+                await activeItem.waitFor({ state: "visible" });
+                await activeItem.evaluate(
+                  () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+                );
+                return {
+                  activeNavigation: await activeItem.textContent(),
+                  activeItemVisible: await activeItem.evaluate((element) => {
+                    const item = element.getBoundingClientRect();
+                    const navigation = element.closest("nav")?.getBoundingClientRect();
+                    return Boolean(
+                      navigation && item.top >= navigation.top && item.bottom <= navigation.bottom,
+                    );
+                  }),
+                  railScrollTop: await rail.evaluate((element) => element.scrollTop),
                 };
               },
               async exerciseDocsNavigation(context) {

@@ -1,16 +1,10 @@
-import { createFileRoute, notFound } from "@tanstack/solid-router";
-import { CanonicalDocsPage } from "@/components/docs-shell";
-import { getCanonicalNode, getCanonicalReadingEntry } from "@/lib/product-routing";
+import { createFileRoute } from "@tanstack/solid-router";
+import { CanonicalDocsRouteView } from "@/components/docs-shell";
+import { resolveCanonicalDocsRoute } from "@/lib/canonical-docs-route";
 import { createPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/_product/docs/installation/$slug")({
-  loader: ({ params }) => {
-    const node = getCanonicalNode(`/docs/installation/${params.slug}`);
-    if (!node) throw notFound();
-    const entry = getCanonicalReadingEntry(node.path);
-    if (!entry) throw notFound();
-    return { node, entry };
-  },
+  loader: ({ params }) => resolveCanonicalDocsRoute(`/docs/installation/${params.slug}`),
   head: ({ loaderData }) =>
     loaderData
       ? createPageHead({
@@ -24,5 +18,5 @@ export const Route = createFileRoute("/_product/docs/installation/$slug")({
 
 function RouteComponent() {
   const data = Route.useLoaderData();
-  return <CanonicalDocsPage node={data().node} entry={data().entry} />;
+  return <CanonicalDocsRouteView data={data()} />;
 }
