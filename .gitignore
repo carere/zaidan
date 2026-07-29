@@ -24,6 +24,7 @@ public/r
 tests/browser/__screenshots__/
 
 # Coudflare
+.cloudflare/
 .wrangler/
 
 # Claude Code
