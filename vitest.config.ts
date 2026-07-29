@@ -28,6 +28,10 @@ export default defineConfig({
           name: "browser",
           include: ["tests/browser/**/*.test.tsx"],
           globalSetup: ["tests/browser/setup-built-app.ts"],
+          // Cloudflare Workers Builds share CPU while the built fixture and
+          // Chromium run together, so route hydration can exceed Vitest's
+          // 15-second default without indicating a failed assertion.
+          testTimeout: 60_000,
           browser: {
             enabled: true,
             headless: true,
