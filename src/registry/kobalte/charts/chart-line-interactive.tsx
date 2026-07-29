@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { CartesianGrid, Line, LineChart, XAxis } from "solid-recharts";
 
 import {
@@ -111,6 +111,11 @@ const chartData = [
   { date: "2024-06-30", desktop: 446, mobile: 400 },
 ];
 
+const totals = {
+  desktop: chartData.reduce((total, item) => total + item.desktop, 0),
+  mobile: chartData.reduce((total, item) => total + item.mobile, 0),
+};
+
 const chartConfig = {
   views: { label: "Page Views" },
   desktop: { label: "Desktop", color: "var(--chart-1)" },
@@ -121,10 +126,6 @@ type ChartKey = "desktop" | "mobile";
 
 export function ChartLineInteractive() {
   const [activeChart, setActiveChart] = createSignal<ChartKey>("desktop");
-  const totals = createMemo(() => ({
-    desktop: chartData.reduce((total, item) => total + item.desktop, 0),
-    mobile: chartData.reduce((total, item) => total + item.mobile, 0),
-  }));
 
   return (
     <Card class="w-full py-4 sm:py-0">
@@ -145,7 +146,7 @@ export function ChartLineInteractive() {
               >
                 <span class="text-muted-foreground text-xs">{chartConfig[chart].label}</span>
                 <span class="font-bold text-lg leading-none sm:text-3xl">
-                  {totals()[chart].toLocaleString("en-US")}
+                  {totals[chart].toLocaleString("en-US")}
                 </span>
               </button>
             )}
