@@ -22,6 +22,22 @@ async function getProductRouteTestFrame(context: unknown) {
   return { testFrame, routeFrame, header };
 }
 
+async function getCreateRouteTestFrame(context: unknown) {
+  const commandContext = context as {
+    provider: {
+      getCommandsContext: (sessionId: string) => {
+        frame: () => Promise<Frame>;
+      };
+    };
+    sessionId: string;
+  };
+  const testFrame = await commandContext.provider
+    .getCommandsContext(commandContext.sessionId)
+    .frame();
+  const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+  return { testFrame, routeFrame };
+}
+
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [solid()],
@@ -242,11 +258,7 @@ export default defineConfig({
                 };
               },
               async exerciseCreateHistory(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { routeFrame } = await getCreateRouteTestFrame(context);
                 const workspace = routeFrame.locator("[data-create-workspace]");
                 await workspace.waitFor({ state: "visible" });
                 await routeFrame.locator('[data-preview-status="ready"]').waitFor();
@@ -336,11 +348,7 @@ export default defineConfig({
                 };
               },
               async inspectCreateActions(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { routeFrame } = await getCreateRouteTestFrame(context);
                 await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
                 await routeFrame.locator('[data-preview-status="ready"]').waitFor();
                 const currentPath = () =>
@@ -450,11 +458,7 @@ export default defineConfig({
                 };
               },
               async exerciseCreatePreviewShortcuts(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { testFrame, routeFrame } = await getCreateRouteTestFrame(context);
                 await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
                 await routeFrame.locator('[data-preview-status="ready"]').waitFor();
                 const preview = routeFrame.frameLocator('iframe[title="Create Preview"]');
@@ -569,11 +573,7 @@ export default defineConfig({
                 return results;
               },
               async inspectCreateLayout(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { routeFrame } = await getCreateRouteTestFrame(context);
                 const workspace = routeFrame.locator("[data-create-workspace]");
                 const controls = routeFrame.locator("[data-configuration-rail]");
                 const horizontalControls = routeFrame.locator("[data-horizontal-controls]");
@@ -628,11 +628,7 @@ export default defineConfig({
                 };
               },
               async exerciseAllCreatePickers(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { routeFrame } = await getCreateRouteTestFrame(context);
                 const workspace = routeFrame.locator("[data-create-workspace]");
                 await workspace.waitFor({ state: "visible" });
                 await routeFrame.locator('[data-preview-status="ready"]').waitFor();
@@ -673,11 +669,7 @@ export default defineConfig({
                 };
               },
               async inspectCreateCopyActions(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { routeFrame } = await getCreateRouteTestFrame(context);
                 await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
                 await routeFrame.locator('[data-preview-status="ready"]').waitFor();
                 await routeFrame.locator("body").evaluate(() => {
@@ -724,11 +716,7 @@ export default defineConfig({
                 };
               },
               async exerciseCreatePreviewRecovery(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { testFrame, routeFrame } = await getCreateRouteTestFrame(context);
                 const workspace = routeFrame.locator("[data-create-workspace]");
                 const previewElement = routeFrame.locator('iframe[title="Create Preview"]');
                 const preview = routeFrame.frameLocator('iframe[title="Create Preview"]');
@@ -955,11 +943,7 @@ export default defineConfig({
                 };
               },
               async exerciseCreateReturnHandoff(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const { routeFrame } = await getCreateRouteTestFrame(context);
                 const currentPath = () =>
                   routeFrame
                     .locator("body")
