@@ -48,6 +48,7 @@ describe("contributor validation", () => {
         { target: "zaidan:test" },
         { target: "zaidan:browser-test" },
         { target: "zaidan:preset-consumer-test" },
+        { target: "zaidan:chart-registry-install-test" },
       ],
     });
     expect(project.tasks.build?.outputs).toEqual([{ glob: ".output/**/*" }]);

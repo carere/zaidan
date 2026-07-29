@@ -32,6 +32,7 @@ function ChartPreview(props: { entry: AreaChartEntry }) {
   const [state, setState] = createSignal<"loading" | "ready" | "failed">("loading");
   let frame: HTMLIFrameElement | undefined;
   let failureTimer: ReturnType<typeof setTimeout> | undefined;
+  let visibilityObserver: IntersectionObserver | undefined;
 
   const sendColorMode = () => {
     frame?.contentWindow?.postMessage(
@@ -55,7 +56,13 @@ function ChartPreview(props: { entry: AreaChartEntry }) {
   };
 
   onMount(() => {
-    armFailureTimer();
+    visibilityObserver = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting) || state() !== "loading") return;
+      armFailureTimer();
+      visibilityObserver?.disconnect();
+    });
+    if (frame) visibilityObserver.observe(frame);
+
     const receiveMessage = (event: MessageEvent) => {
       if (
         event.origin !== window.location.origin ||
@@ -71,6 +78,7 @@ function ChartPreview(props: { entry: AreaChartEntry }) {
     window.addEventListener("message", receiveMessage);
     onCleanup(() => {
       window.removeEventListener("message", receiveMessage);
+      visibilityObserver?.disconnect();
       if (failureTimer) clearTimeout(failureTimer);
     });
   });

@@ -87,7 +87,14 @@ export function ChartAreaIcons() {
               stroke="var(--color-desktop)"
               stackId="a"
             />
-            <ChartLegend content={(legendProps) => <ChartLegendContent {...legendProps} />} />
+            <ChartLegend
+              content={(legendProps) => (
+                <ChartLegendContent
+                  payload={legendProps.payload}
+                  verticalAlign={legendProps.verticalAlign}
+                />
+              )}
+            />
           </AreaChart>
         </ChartContainer>
       </CardContent>

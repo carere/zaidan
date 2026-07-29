@@ -134,23 +134,28 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const timeRanges = [
+type TimeRange = {
+  label: string;
+  value: "90d" | "30d" | "7d";
+};
+
+const timeRanges: TimeRange[] = [
   { label: "Last 3 months", value: "90d" },
   { label: "Last 30 days", value: "30d" },
   { label: "Last 7 days", value: "7d" },
-] as const;
+];
 
 export function ChartAreaInteractive() {
-  const [timeRange, setTimeRange] = createSignal("90d");
+  const [timeRange, setTimeRange] = createSignal<TimeRange>(timeRanges[0]);
 
   const filteredData = createMemo(() =>
     chartData.filter((item) => {
       const date = new Date(item.date);
       const referenceDate = new Date("2024-06-30");
       let daysToSubtract = 90;
-      if (timeRange() === "30d") {
+      if (timeRange().value === "30d") {
         daysToSubtract = 30;
-      } else if (timeRange() === "7d") {
+      } else if (timeRange().value === "7d") {
         daysToSubtract = 7;
       }
       const startDate = new Date(referenceDate);
@@ -170,8 +175,8 @@ export function ChartAreaInteractive() {
           options={timeRanges}
           optionValue="value"
           optionTextValue="label"
-          value={timeRanges.find((range) => range.value === timeRange())}
-          onChange={(range) => setTimeRange(range?.value ?? "90d")}
+          value={timeRange()}
+          onChange={(range) => range && setTimeRange(range)}
           itemComponent={(props) => (
             <SelectItem item={props.item} class="rounded-lg">
               {props.item.rawValue.label}
@@ -182,9 +187,7 @@ export function ChartAreaInteractive() {
             class="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
             aria-label="Select a value"
           >
-            <SelectValue<(typeof timeRanges)[number]>>
-              {(state) => state.selectedOption().label}
-            </SelectValue>
+            <SelectValue<TimeRange>>{() => timeRange().label}</SelectValue>
           </SelectTrigger>
           <SelectContent class="rounded-xl" />
         </Select>
@@ -194,12 +197,12 @@ export function ChartAreaInteractive() {
           <AreaChart accessibilityLayer data={filteredData()}>
             <defs>
               <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
+                <stop offset="5%" stop-color="var(--color-desktop)" stop-opacity={0.8} />
+                <stop offset="95%" stop-color="var(--color-desktop)" stop-opacity={0.1} />
               </linearGradient>
               <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
+                <stop offset="5%" stop-color="var(--color-mobile)" stop-opacity={0.8} />
+                <stop offset="95%" stop-color="var(--color-mobile)" stop-opacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
@@ -210,7 +213,7 @@ export function ChartAreaInteractive() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
+                const date = new Date(String(value));
                 return date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -223,7 +226,7 @@ export function ChartAreaInteractive() {
                 <ChartTooltipContent
                   {...tooltipProps}
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(String(value)).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                     });
@@ -246,7 +249,14 @@ export function ChartAreaInteractive() {
               stroke="var(--color-desktop)"
               stackId="a"
             />
-            <ChartLegend content={(legendProps) => <ChartLegendContent {...legendProps} />} />
+            <ChartLegend
+              content={(legendProps) => (
+                <ChartLegendContent
+                  payload={legendProps.payload}
+                  verticalAlign={legendProps.verticalAlign}
+                />
+              )}
+            />
           </AreaChart>
         </ChartContainer>
       </CardContent>

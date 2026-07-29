@@ -1,8 +1,15 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@velite": ["./.velite"],
+      "solid-recharts": ["./types/solid-recharts.typecheck.d.ts"]
+    }
+  },
   "exclude": [
     "node_modules",
     "src/registry/kobalte/ui/chart.tsx",
-    "src/registry/kobalte/charts/**/*.tsx"
+    "src/registry/kobalte/examples/ui/chart-example.tsx"
   ]
 }

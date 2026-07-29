@@ -99,11 +99,21 @@ tasks:
       - "@group(sources)"
       - "@group(tests)"
 
+  chart-registry-install-test:
+    command: "bun scripts/validate-chart-registry-installs.ts"
+    deps:
+      - "registry-build"
+    inputs:
+      - "@group(configs)"
+      - "@group(registry)"
+      - "scripts/validate-chart-registry-installs.ts"
+
   integration-test:
     deps:
       - "test"
       - "browser-test"
       - "preset-consumer-test"
+      - "chart-registry-install-test"
 
   preset-consumer-test:
     command: "bun tests/integration/preset-consumer.ts"

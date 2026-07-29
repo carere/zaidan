@@ -277,17 +277,40 @@ export default defineConfig({
                 page.on("console", recordConsole);
                 page.on("pageerror", recordPageError);
 
+                // The command attaches listeners before a fresh navigation so the
+                // evidence includes initial hydration and every lazy child frame.
+                await routeFrame.locator("body").evaluate(() => window.location.reload());
+                await testFrame.waitForTimeout(500);
+
                 const heading = routeFrame.getByRole("heading", {
                   name: "Beautiful Charts & Graphs",
                 });
                 await heading.waitFor({ state: "visible" });
                 const entries = routeFrame.locator("[data-chart-entry]");
                 const firstEntry = entries.first();
-                await firstEntry.scrollIntoViewIfNeeded();
+                const previews: Array<{
+                  slug: string | null;
+                  renderedAreaCount: number;
+                  chartRole: string | null;
+                }> = [];
 
-                const previewFrame = routeFrame.frameLocator(
-                  'iframe[title="Area Chart — Axes Preview"]',
-                );
+                for (let index = 0; index < (await entries.count()); index += 1) {
+                  const catalogEntry = entries.nth(index);
+                  await catalogEntry.scrollIntoViewIfNeeded();
+                  const preview = catalogEntry.frameLocator("iframe");
+                  const chart = preview.locator('[data-slot="chart"]');
+                  await chart.waitFor({ state: "visible", timeout: 8_000 });
+                  await chart.locator(".recharts-surface").waitFor({ state: "visible" });
+                  const application = preview.getByRole("application");
+                  previews.push({
+                    slug: await catalogEntry.getAttribute("data-chart-entry"),
+                    renderedAreaCount: await chart.locator(".recharts-area-area").count(),
+                    chartRole: await application.getAttribute("role"),
+                  });
+                }
+
+                await firstEntry.scrollIntoViewIfNeeded();
+                const previewFrame = firstEntry.frameLocator("iframe");
                 const chart = previewFrame.locator('[data-slot="chart"]');
                 await chart.waitFor({ state: "visible" });
                 const rtlHasNoOverflow = await previewFrame.locator("html").evaluate((element) => {
@@ -300,6 +323,31 @@ export default defineConfig({
                 await application.focus();
                 await page.keyboard.press("ArrowRight");
                 await testFrame.waitForTimeout(250);
+                const keyboardTooltipText = await previewFrame
+                  .locator(".cn-chart-tooltip")
+                  .textContent();
+
+                await chart.locator(".recharts-surface").hover({ position: { x: 220, y: 150 } });
+                await previewFrame.locator(".cn-chart-tooltip").waitFor({ state: "visible" });
+                const pointerTooltipText = await previewFrame
+                  .locator(".cn-chart-tooltip")
+                  .textContent();
+
+                const interactiveEntry = routeFrame.locator(
+                  '[data-chart-entry="chart-area-interactive"]',
+                );
+                await interactiveEntry.scrollIntoViewIfNeeded();
+                const interactiveFrame = interactiveEntry.frameLocator("iframe");
+                const rangeTrigger = interactiveFrame.getByRole("button", {
+                  name: "Select a value",
+                });
+                await rangeTrigger.click();
+                await interactiveFrame.getByRole("option", { name: "Last 7 days" }).waitFor({
+                  state: "visible",
+                });
+                await rangeTrigger.press("End");
+                await rangeTrigger.press("Enter");
+                const interactiveSelection = await rangeTrigger.textContent();
 
                 const beforeMode = await previewFrame.locator("html").getAttribute("class");
                 await routeFrame.getByRole("button", { name: "Toggle color mode" }).click();
@@ -331,13 +379,39 @@ export default defineConfig({
                   previewHeight,
                   previewLoading: await firstEntry.locator("iframe").getAttribute("loading"),
                   interactiveIsFullWidth: interactiveWidth > firstWidth * 2,
-                  chartRole: await application.getAttribute("role"),
-                  tooltipText: await previewFrame.locator(".cn-chart-tooltip").textContent(),
+                  previews,
+                  keyboardTooltipText,
+                  pointerTooltipText,
+                  interactiveSelection: interactiveSelection?.trim() ?? null,
                   colorModeSynchronized: beforeMode !== afterMode,
                   configThemeSynchronized:
                     configTheme === (afterMode?.includes("dark") ? "dark" : "light"),
                   rtlHasNoOverflow,
                   consoleErrors,
+                };
+              },
+              async inspectDeferredAreaPreviews(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
+                const entries = routeFrame.locator("[data-chart-entry]");
+                await entries.first().waitFor({ state: "visible" });
+
+                // The catalog's failure threshold is five seconds. Native-lazy
+                // frames below the fold must not enter a failed state before the
+                // browser has brought them near the viewport.
+                await testFrame.waitForTimeout(6_500);
+
+                let deferredAlertCount = 0;
+                for (let index = 6; index < (await entries.count()); index += 1) {
+                  deferredAlertCount += await entries.nth(index).getByRole("alert").count();
+                }
+
+                return {
+                  alertCount: await routeFrame.getByRole("alert").count(),
+                  deferredAlertCount,
                 };
               },
               async exerciseAreaChartFailure(context) {

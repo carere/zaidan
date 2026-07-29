@@ -9,7 +9,7 @@ afterEach(() => {
   dispose = undefined;
 });
 
-async function renderBuiltRoute(pathname = "/") {
+async function renderBuiltRoute(pathname = "/", viewport = { width: "1280px", height: "900px" }) {
   const builtAppUrl = new URL(pathname, inject("builtAppUrl")).href;
   const title =
     pathname === "/preview/ui/kobalte/chart"
@@ -24,12 +24,7 @@ async function renderBuiltRoute(pathname = "/") {
 
   dispose = render(
     () => (
-      <iframe
-        src={builtAppUrl}
-        style={{ width: "1280px", height: "900px" }}
-        title={title}
-        onLoad={() => resolveLoaded?.()}
-      />
+      <iframe src={builtAppUrl} style={viewport} title={title} onLoad={() => resolveLoaded?.()} />
     ),
     document.body,
   );
@@ -90,8 +85,14 @@ describe("built application", () => {
         previewHeight: number;
         previewLoading: string | null;
         interactiveIsFullWidth: boolean;
-        chartRole: string | null;
-        tooltipText: string | null;
+        previews: Array<{
+          slug: string | null;
+          renderedAreaCount: number;
+          chartRole: string | null;
+        }>;
+        keyboardTooltipText: string | null;
+        pointerTooltipText: string | null;
+        interactiveSelection: string | null;
         colorModeSynchronized: boolean;
         configThemeSynchronized: boolean;
         rtlHasNoOverflow: boolean;
@@ -114,13 +115,42 @@ describe("built application", () => {
     expect(evidence.previewHeight).toBe(460);
     expect(evidence.previewLoading).toBe("lazy");
     expect(evidence.interactiveIsFullWidth).toBe(true);
-    expect(evidence.chartRole).toBe("application");
-    expect(evidence.tooltipText).toMatch(/January|Desktop|186/);
+    expect(evidence.previews.map((preview) => preview.slug)).toEqual([
+      "chart-area-axes",
+      "chart-area-default",
+      "chart-area-gradient",
+      "chart-area-icons",
+      "chart-area-interactive",
+      "chart-area-legend",
+      "chart-area-linear",
+      "chart-area-stacked-expand",
+      "chart-area-stacked",
+      "chart-area-step",
+    ]);
+    expect(evidence.previews.every((preview) => preview.renderedAreaCount > 0)).toBe(true);
+    expect(evidence.previews.every((preview) => preview.chartRole === "application")).toBe(true);
+    expect(evidence.keyboardTooltipText).toMatch(/January|Desktop|186/);
+    expect(evidence.pointerTooltipText).toMatch(/Desktop|Mobile|186|80/);
+    expect(evidence.interactiveSelection).toBe("Last 7 days");
     expect(evidence.colorModeSynchronized).toBe(true);
     expect(evidence.configThemeSynchronized).toBe(true);
     expect(evidence.rtlHasNoOverflow).toBe(true);
     expect(evidence.consoleErrors).toEqual([]);
-  });
+  }, 30_000);
+
+  it("does not time out native-lazy Previews before they approach the viewport", async () => {
+    await renderBuiltRoute("/charts", { width: "390px", height: "700px" });
+    const { inspectDeferredAreaPreviews } = commands as unknown as {
+      inspectDeferredAreaPreviews: () => Promise<{
+        alertCount: number;
+        deferredAlertCount: number;
+      }>;
+    };
+
+    const evidence = await inspectDeferredAreaPreviews();
+    expect(evidence.alertCount).toBe(0);
+    expect(evidence.deferredAlertCount).toBe(0);
+  }, 12_000);
 
   it("retains failure actions and recovers an Area Preview", async () => {
     await renderBuiltRoute("/charts");
