@@ -120,13 +120,17 @@ describe("built canonical routing", () => {
       exerciseMobileProductHeader: () => Promise<{
         compactSearchVisible: boolean;
         modeVisible: boolean;
+        mobileCreateVisible: boolean;
         hierarchyVisible: boolean;
         focusTrapped: boolean;
         restoredLabel: string | null;
         shortcutLabel: string | null;
         commandShortcutLabel: string | null;
         selectedFocusId: string | null;
+        selectedFocusTag: string | null;
+        selectedFocusText: string | null;
         selectedHash: string;
+        postSelectionRestoredLabel: string | null;
         reducedMotionDuration: string;
       }>;
     };
@@ -134,13 +138,17 @@ describe("built canonical routing", () => {
 
     expect(evidence.compactSearchVisible).toBe(true);
     expect(evidence.modeVisible).toBe(true);
+    expect(evidence.mobileCreateVisible).toBe(true);
     expect(evidence.hierarchyVisible).toBe(true);
     expect(evidence.focusTrapped).toBe(true);
     expect(evidence.restoredLabel).toBe("Open Product menu");
     expect(evidence.shortcutLabel).toBe("Open Command Search");
     expect(evidence.commandShortcutLabel).toBe("Open Command Search");
-    expect(evidence.selectedFocusId).toBe("examples");
+    expect(evidence.selectedFocusId).toBe("");
+    expect(evidence.selectedFocusTag).toBe("H1");
+    expect(evidence.selectedFocusText).toBe("Button");
     expect(evidence.selectedHash).toBe("#examples");
+    expect(evidence.postSelectionRestoredLabel).toBe("Open Product menu");
     expect(evidence.reducedMotionDuration).toBe("0s");
   });
 

@@ -34,13 +34,17 @@ const isEditable = (target: EventTarget | null) =>
 
 const focusDestination = (destination: string) => {
   requestAnimationFrame(() => {
-    const target = destination.startsWith("#")
+    const scrollTarget = destination.startsWith("#")
       ? document.getElementById(destination.slice(1))
       : document.querySelector<HTMLElement>("main h1");
-    if (!target) return;
-    target.tabIndex = -1;
-    target.focus({ preventScroll: true });
-    if (destination.startsWith("#")) target.scrollIntoView({ block: "start" });
+    if (!scrollTarget) return;
+    const focusTarget =
+      scrollTarget.getAttribute("aria-hidden") === "true"
+        ? (scrollTarget.closest("main")?.querySelector<HTMLElement>("h1, h2, h3") ?? scrollTarget)
+        : scrollTarget;
+    focusTarget.tabIndex = -1;
+    focusTarget.focus({ preventScroll: true });
+    if (destination.startsWith("#")) scrollTarget.scrollIntoView({ block: "start" });
   });
 };
 
@@ -55,7 +59,7 @@ function ProductNavigationLink(props: {
   href: string;
   class?: string;
   current?: "page" | "location";
-  onSelect?: () => void;
+  onSelect?: (focusDestination?: string) => void;
   children: JSX.Element;
 }) {
   const resolvedHref = () =>
@@ -75,12 +79,13 @@ function ProductNavigationLink(props: {
       return;
     }
     const destination = new URL(resolvedHref(), window.location.origin);
-    sessionStorage.setItem(FOCUS_DESTINATION_KEY, destination.hash || "heading");
-    props.onSelect?.();
-    if (
+    const staysOnPage =
       destination.pathname === window.location.pathname &&
-      destination.search === window.location.search
-    ) {
+      destination.search === window.location.search;
+    const destinationFocus = destination.hash || "heading";
+    sessionStorage.setItem(FOCUS_DESTINATION_KEY, destination.hash || "heading");
+    props.onSelect?.(staysOnPage ? destinationFocus : undefined);
+    if (staysOnPage) {
       event.preventDefault();
       if (destination.hash !== window.location.hash) {
         window.history.pushState(
@@ -90,7 +95,9 @@ function ProductNavigationLink(props: {
         );
       }
       sessionStorage.removeItem(FOCUS_DESTINATION_KEY);
-      window.setTimeout(() => focusDestination(destination.hash || "heading"), 100);
+      if (!props.onSelect) {
+        window.setTimeout(() => focusDestination(destinationFocus), 100);
+      }
     }
   };
 
@@ -109,7 +116,7 @@ function ProductNavigationLink(props: {
 function HierarchyNode(props: {
   node: CanonicalNode;
   pathname: string;
-  onSelect: () => void;
+  onSelect: (focusDestination?: string) => void;
   depth?: number;
 }) {
   return (
@@ -149,6 +156,7 @@ export function ProductHeader() {
   let header: HTMLElement | undefined;
   let mobileTrigger: HTMLButtonElement | undefined;
   let selectionInProgress = false;
+  let pendingSelectionFocus: string | undefined;
 
   const activeSurface = createMemo(() => getProductSurfaceForPath(location().pathname));
   const activeHierarchy = createMemo(() =>
@@ -164,9 +172,18 @@ export function ProductHeader() {
     if (!open) selectionInProgress = false;
   };
 
-  const closeForSelection = () => {
+  const closeForSelection = (destination?: string) => {
     selectionInProgress = true;
-    setMobileOpen(false);
+    pendingSelectionFocus = destination;
+    setMenuOpen(false);
+  };
+
+  const finishDialogClose = () => {
+    const destination = pendingSelectionFocus;
+    pendingSelectionFocus = undefined;
+    if (destination) {
+      window.setTimeout(() => focusDestination(destination), 0);
+    }
   };
 
   const openCommandSearch = () => {
@@ -227,6 +244,7 @@ export function ProductHeader() {
           </DialogTrigger>
           <DialogContent
             showCloseButton={false}
+            onCloseAutoFocus={finishDialogClose}
             class="top-0 left-0 flex h-svh w-full translate-x-0 translate-y-0 flex-col overflow-hidden bg-background p-0 motion-reduce:animate-none lg:hidden"
           >
             <div class="flex h-14 shrink-0 items-center gap-3 border-b px-4">
@@ -371,6 +389,7 @@ export function ProductHeader() {
             }
             size="sm"
             class="ml-1 gap-1.5"
+            aria-label={activeSurface()?.id === "create" ? "Create" : "New"}
             aria-current={activeSurface()?.id === "create" ? "location" : undefined}
           >
             <Plus />

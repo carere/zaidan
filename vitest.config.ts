@@ -3,6 +3,24 @@ import type { Frame } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
+async function getProductHeaderTestFrame(context: unknown) {
+  const commandContext = context as {
+    provider: {
+      getCommandsContext: (sessionId: string) => {
+        frame: () => Promise<Frame>;
+      };
+    };
+    sessionId: string;
+  };
+  const testFrame = await commandContext.provider
+    .getCommandsContext(commandContext.sessionId)
+    .frame();
+  const routeFrame = testFrame.frameLocator('iframe[title="Product Header route"]');
+  const header = routeFrame.locator("[data-product-header]");
+  await header.waitFor({ state: "visible" });
+  return { testFrame, routeFrame, header };
+}
+
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [solid()],
@@ -161,13 +179,7 @@ export default defineConfig({
                 };
               },
               async inspectDesktopProductHeader(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const routeFrame = testFrame.frameLocator('iframe[title="Product Header route"]');
-                const header = routeFrame.locator("[data-product-header]");
-                await header.waitFor({ state: "visible" });
+                const { header } = await getProductHeaderTestFrame(context);
 
                 const productNavigation = header.getByRole("navigation", {
                   name: "Product Surfaces",
@@ -200,20 +212,16 @@ export default defineConfig({
                 };
               },
               async exerciseMobileProductHeader(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
+                const { testFrame, routeFrame, header } = await getProductHeaderTestFrame(context);
                 await testFrame.page().emulateMedia({ reducedMotion: "reduce" });
-                const routeFrame = testFrame.frameLocator('iframe[title="Product Header route"]');
-                const header = routeFrame.locator("[data-product-header]");
-                await header.waitFor({ state: "visible" });
 
                 const search = header.getByRole("button", { name: "Open Command Search" });
                 const mode = header.getByRole("button", { name: "Toggle color mode" });
+                const mobileCreate = header.getByRole("link", { name: "New", exact: true });
                 const menuTrigger = header.getByRole("button", { name: "Open Product menu" });
                 const compactSearchVisible = await search.isVisible();
                 const modeVisible = await mode.isVisible();
+                const mobileCreateVisible = await mobileCreate.isVisible();
 
                 await menuTrigger.click();
                 const dialog = routeFrame.getByRole("dialog");
@@ -252,22 +260,39 @@ export default defineConfig({
                 await routeFrame
                   .locator('[data-canonical-route="/components/button"]')
                   .waitFor({ state: "visible" });
-                await testFrame.waitForTimeout(100);
+                await testFrame.waitForTimeout(250);
+                const selectedFocus = await routeFrame.locator("body").evaluate(() => ({
+                  id: (document.activeElement as HTMLElement | null)?.id ?? null,
+                  tag: document.activeElement?.tagName ?? null,
+                  text: document.activeElement?.textContent?.trim() ?? null,
+                }));
+                const selectedHash = await routeFrame
+                  .locator("body")
+                  .evaluate(() => window.location.hash);
+
+                await menuTrigger.click();
+                await dialog.waitFor({ state: "visible" });
+                await testFrame.page().keyboard.press("Escape");
+                await dialog.waitFor({ state: "hidden" });
+                await testFrame.waitForTimeout(250);
+                const postSelectionRestoredLabel = await routeFrame
+                  .locator("body")
+                  .evaluate(() => document.activeElement?.getAttribute("aria-label"));
 
                 return {
                   compactSearchVisible,
                   modeVisible,
+                  mobileCreateVisible,
                   hierarchyVisible,
                   focusTrapped,
                   restoredLabel,
                   shortcutLabel,
                   commandShortcutLabel,
-                  selectedFocusId: await routeFrame
-                    .locator("body")
-                    .evaluate(() => (document.activeElement as HTMLElement | null)?.id ?? null),
-                  selectedHash: await routeFrame
-                    .locator("body")
-                    .evaluate(() => window.location.hash),
+                  selectedFocusId: selectedFocus.id,
+                  selectedFocusTag: selectedFocus.tag,
+                  selectedFocusText: selectedFocus.text,
+                  selectedHash,
+                  postSelectionRestoredLabel,
                   reducedMotionDuration,
                 };
               },
