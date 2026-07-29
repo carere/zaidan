@@ -1,0 +1,141 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+fileGroups:
+  configs:
+    - "*.config.ts"
+    - "*.json"
+    - "*.jsonc"
+    - "biome.json"
+    - "lefthook.yml"
+  content:
+    - "src/pages/**/*"
+    - "velite.config.ts"
+    - "package.json"
+    - "tsconfig.json"
+  registry:
+    - "src/registry/**/*"
+    - "package.json"
+    - "tsconfig.json"
+  sources:
+    - "src/**/*"
+    - "package.json"
+    - "tsconfig.json"
+  tests:
+    - "tests/**/*"
+    - "vitest.config.ts"
+  workspace:
+    - ".moon/**/*"
+    - "moon.yml"
+    - "package.json"
+    - "bun.lock"
+
+tasks:
+  content-build:
+    command: "bun velite"
+    inputs:
+      - "@group(configs)"
+      - "@group(content)"
+    outputs:
+      - ".velite/**/*"
+
+  registry-validate:
+    command: "bun shadcn registry validate src/registry/kobalte/registry.json"
+    inputs:
+      - "@group(configs)"
+      - "@group(registry)"
+
+  registry-build:
+    command: "bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte"
+    deps:
+      - "registry-validate"
+    inputs:
+      - "@group(configs)"
+      - "@group(registry)"
+    outputs:
+      - "public/r/kobalte/**/*"
+
+  check:
+    command: "bun --bun biome check --no-errors-on-unmatched ."
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(tests)"
+      - "@group(workspace)"
+
+  fix:
+    command: "bun --bun biome check --write --no-errors-on-unmatched ."
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(tests)"
+      - "@group(workspace)"
+    preset: utility
+
+  tsc:
+    command: "bun --bun tsc --project tsconfig.typecheck.json --noEmit"
+    deps:
+      - "content-build"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(tests)"
+
+  test:
+    command: "bun --bun vitest run --project unit"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(tests)"
+
+  browser-test:
+    command: "bun --bun vitest run --project browser"
+    deps:
+      - "content-build"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(tests)"
+
+  integration-test:
+    deps:
+      - "test"
+      - "browser-test"
+
+  build:
+    command: "bun vite build"
+    deps:
+      - "content-build"
+      - "registry-build"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(workspace)"
+    outputs:
+      - "dist/**/*"
+
+  dev:
+    command: "bun vite dev"
+    deps:
+      - "registry-build"
+    preset: server
+
+  preview:
+    command: "bun vite preview"
+    deps:
+      - "build"
+    preset: server
+
+  validate:
+    deps:
+      - "check"
+      - "tsc"
+      - "test"
+      - "browser-test"
+      - "build"
+
+  deploy:
+    command: "bun wrangler deploy"
+    deps:
+      - "validate"
+    options:
+      cache: false

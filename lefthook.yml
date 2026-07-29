@@ -1,15 +1,4 @@
 commit-msg:
   commands:
-    commitlint:
+    conventional-commit:
       run: cog verify --file {1}
-
-pre-commit:
-  commands:
-    sort-package-json:
-      glob: "package.json"
-      run: bun sort-package-json {staged_files}
-      stage_fixed: true
-    check:
-      glob: "*.{js,ts,tsx,json,jsonc,html,css}"
-      run: bun biome check --write {staged_files}
-      stage_fixed: true

@@ -41,8 +41,7 @@
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
   },
-  "js/ts.experimental.useTsgo": true,
-  "js/ts.tsdk.path": "node_modules/@typescript/native-preview-darwin-arm64/lib",
+  "typescript.tsdk": "node_modules/typescript/lib",
   "tailwindCSS.classAttributes": ["class"],
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
@@ -54,12 +53,11 @@
     "Abatan",
     "adws",
     "bento",
-    "Binstall",
     "biomejs",
     "bunx",
     "carere",
     "cmdk",
-    "commitlint",
+    "cocogitto",
     "Corvu",
     "Cpath",
     "CRDT",
@@ -77,8 +75,6 @@
     "hovercard",
     "isodate",
     "jsxs",
-    "knope",
-    "Knope",
     "kobalte",
     "lefthook",
     "linecap",
@@ -87,6 +83,7 @@
     "luma",
     "mdxjs",
     "merriweather",
+    "moonrepo",
     "networkidle",
     "noto",
     "nowrap",
@@ -94,6 +91,7 @@
     "nunito",
     "oklch",
     "oxanium",
+    "playwright",
     "playfair",
     "raleway",
     "rehype",
@@ -108,7 +106,6 @@
     "syncer",
     "tablist",
     "tanstack",
-    "tsgo",
     "tsrouter",
     "twoslash",
     "UNGH",
@@ -116,6 +113,7 @@
     "velite",
     "vinxi",
     "vite",
+    "vitest",
     "zaidan"
   ]
 }

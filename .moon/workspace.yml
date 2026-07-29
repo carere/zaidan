@@ -1,0 +1,10 @@
+$schema: "https://moonrepo.dev/schemas/workspace.json"
+
+projects:
+  zaidan: "."
+
+defaultProject: zaidan
+
+vcs:
+  defaultBranch: main
+  provider: github
