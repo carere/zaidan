@@ -103,6 +103,17 @@ tasks:
     deps:
       - "test"
       - "browser-test"
+      - "preset-consumer-test"
+
+  preset-consumer-test:
+    command: "bun tests/integration/preset-consumer.ts"
+    deps:
+      - "registry-build"
+    inputs:
+      - "@group(configs)"
+      - "@group(registry)"
+      - "@group(sources)"
+      - "tests/integration/**/*"
 
   routing-validate:
     command: "bun scripts/validate-product-routing.ts"

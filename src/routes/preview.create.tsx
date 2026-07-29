@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
-import { CreatePreview } from "@/components/canonical-route";
+import { CreatePreviewSurface } from "@/components/create-workspace";
 import { resolvePreviewRequest } from "@/lib/product-routing";
 import { createPreviewHead } from "@/lib/seo";
 
@@ -23,5 +23,5 @@ export const Route = createFileRoute("/preview/create")({
 
 function RouteComponent() {
   const preview = Route.useLoaderData();
-  return <CreatePreview preset={preview().preset} />;
+  return <CreatePreviewSurface preset={preview().preset} />;
 }

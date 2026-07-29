@@ -1,4 +1,5 @@
 import { blocks, changelog, docs, ui } from "@velite";
+import { DEFAULT_PRESET_TOKEN, decodePresetToken } from "@/lib/preset-token";
 
 export type ProductSurfaceId = "home" | "docs" | "components" | "charts" | "create";
 
@@ -398,8 +399,6 @@ export type PreviewResolution =
       preset?: string;
     };
 
-const PRESET_SHAPE = /^v1-[0-9A-Za-z]{1,6}$/;
-
 export function resolvePreviewRequest(input: string): PreviewResolution {
   const url = new URL(input, "https://zaidan.invalid");
   const parts = url.pathname.split("/").filter(Boolean);
@@ -412,7 +411,9 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
       return { accepted: false };
     }
     const preset = url.searchParams.get("preset") ?? undefined;
-    if (preset && (!PRESET_SHAPE.test(preset) || preset === "v1-0")) return { accepted: false };
+    if (preset && (!decodePresetToken(preset) || preset === DEFAULT_PRESET_TOKEN)) {
+      return { accepted: false };
+    }
     return {
       accepted: true,
       kind: "create",

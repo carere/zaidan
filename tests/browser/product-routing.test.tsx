@@ -3,6 +3,8 @@ import { render } from "solid-js/web";
 import { afterEach, describe, expect, inject, it } from "vitest";
 import { commands, page } from "vitest/browser";
 import { Example } from "@/components/example";
+import { DEFAULT_CONFIG } from "@/lib/config";
+import { encodePresetToken } from "@/lib/preset-token";
 import { LEGACY_REDIRECTS } from "@/lib/product-routing";
 
 type BuiltResponse = {
@@ -294,11 +296,12 @@ describe("built canonical routing", () => {
 
   it("serves or rejects canonical Preview requests at the route boundary", async () => {
     const base = inject("builtAppUrl");
+    const validPreset = encodePresetToken({ ...DEFAULT_CONFIG, style: "nova" });
     const cases = [
       ["/preview/components/button#variants--sizes", 200],
       ["/preview/blocks/image-crop#avatar-crop", 200],
       ["/preview/create", 200],
-      ["/preview/create?preset=v1-A", 200],
+      [`/preview/create?preset=${validPreset}`, 200],
       ["/preview/components/button?style=nova", 404],
       ["/preview/components/unknown", 404],
       ["/preview/blocks/unknown", 404],
@@ -324,6 +327,18 @@ describe("built canonical routing", () => {
         new URL(canonicalPaths[index] as string, "https://zaidan.carere.dev").href,
       );
     }
+  });
+
+  it("serves immutable virtual preset registry items and rejects invalid tokens", async () => {
+    const base = inject("builtAppUrl");
+    const token = encodePresetToken({ ...DEFAULT_CONFIG, style: "nova" });
+    const responses = await requestBuiltRoutes([
+      new URL(`/r/kobalte/preset-${token}.json`, base).href,
+      new URL("/r/kobalte/preset-v2-0.json", base).href,
+    ]);
+    expect(responses[0]?.status).toBe(200);
+    expect(responses[0]?.body).toContain(`"name":"preset-${token}"`);
+    expect(responses[1]?.status).toBe(404);
   });
 
   it("focuses the exact accepted duplicate-suffixed Preview fragment", async () => {

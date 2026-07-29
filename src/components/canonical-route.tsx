@@ -129,20 +129,3 @@ export function CanonicalPreview(props: { kind: PreviewKind; slug: string; fragm
     </main>
   );
 }
-
-export function CreatePreview(props: { preset?: string }) {
-  return (
-    <main
-      data-preview-kind="create"
-      data-preset={props.preset ?? "default"}
-      class="grid min-h-svh place-items-center p-8"
-    >
-      <div class="text-center">
-        <h1 class="font-heading font-semibold text-3xl">Create Preview</h1>
-        <p class="mt-2 text-muted-foreground">
-          {props.preset ? `Preset ${props.preset}` : "Default Design Configuration"}
-        </p>
-      </div>
-    </main>
-  );
-}

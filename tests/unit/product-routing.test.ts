@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compatibilityResponse } from "@/lib/compatibility-response";
+import { DEFAULT_CONFIG } from "@/lib/config";
+import { encodePresetToken } from "@/lib/preset-token";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_BLOCK_SLUGS,
@@ -251,6 +253,7 @@ describe("canonical Product Surface routing", () => {
   });
 
   it("accepts only the canonical Preview configuration and fragment boundaries", () => {
+    const validPreset = encodePresetToken({ ...DEFAULT_CONFIG, style: "nova" });
     expect(resolvePreviewRequest("/preview/components/button#variants--sizes")).toMatchObject({
       accepted: true,
       kind: "components",
@@ -268,16 +271,16 @@ describe("canonical Product Surface routing", () => {
       kind: "create",
       canonicalPath: "/create",
     });
-    expect(resolvePreviewRequest("/preview/create?preset=v1-A")).toEqual({
+    expect(resolvePreviewRequest(`/preview/create?preset=${validPreset}`)).toEqual({
       accepted: true,
       kind: "create",
       canonicalPath: "/create",
-      preset: "v1-A",
+      preset: validPreset,
     });
 
     for (const rejected of [
       "/preview/components/button?style=nova",
-      "/preview/components/button?preset=v1-A",
+      `/preview/components/button?preset=${validPreset}`,
       "/preview/components/button#not-a-stable-example",
       "/preview/components/button#%E0%A4%A",
       "/preview/components/sidebar-floating",

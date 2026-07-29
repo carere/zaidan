@@ -239,6 +239,125 @@ export default defineConfig({
                   fragmentNavigation: await inspect("Sidebar fragment navigation"),
                 };
               },
+              async exerciseCreateHistory(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                const workspace = routeFrame.locator("[data-create-workspace]");
+                await workspace.waitFor({ state: "visible" });
+                const currentPath = () =>
+                  routeFrame
+                    .locator("body")
+                    .evaluate(() => `${window.location.pathname}${window.location.search}`);
+                const defaultPath = await currentPath();
+                const initialHistory = await routeFrame
+                  .locator("body")
+                  .evaluate(() => history.length);
+
+                await routeFrame.getByLabel("Style", { exact: true }).selectOption("nova");
+                await routeFrame
+                  .locator('[data-create-workspace][data-preset]:not([data-preset="v1-0"])')
+                  .waitFor();
+                const selectedPath = await currentPath();
+                const selectedHistory = await routeFrame
+                  .locator("body")
+                  .evaluate(() => history.length);
+
+                await routeFrame.getByRole("button", { name: "Undo" }).click();
+                await routeFrame.locator('[data-create-workspace][data-preset="v1-0"]').waitFor();
+                const undoPath = await currentPath();
+
+                await routeFrame.getByRole("button", { name: "Redo" }).click();
+                await routeFrame
+                  .locator('[data-create-workspace][data-preset]:not([data-preset="v1-0"])')
+                  .waitFor();
+                const redoPath = await currentPath();
+
+                await routeFrame.locator("body").evaluate(() => history.back());
+                await routeFrame.locator('[data-create-workspace][data-preset="v1-0"]').waitFor();
+                const backPath = await currentPath();
+                const preview = routeFrame.frameLocator('iframe[title="Create Preview"]');
+                await preview.locator('[data-preview-kind="create"][data-preset="v1-0"]').waitFor();
+
+                return {
+                  defaultPath,
+                  selectedPath,
+                  undoPath,
+                  redoPath,
+                  backPath,
+                  historyDelta: selectedHistory - initialHistory,
+                  previewPreset: (await preview
+                    .locator('[data-preview-kind="create"]')
+                    .getAttribute("data-preset")) as string,
+                };
+              },
+              async inspectCreateActions(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
+                const currentPath = () =>
+                  routeFrame
+                    .locator("body")
+                    .evaluate(() => `${window.location.pathname}${window.location.search}`);
+                const pathBefore = await currentPath();
+                await routeFrame
+                  .getByRole("button", { name: "Open Preset" })
+                  .evaluate((button) => (button as HTMLButtonElement).click());
+                await routeFrame.getByLabel("Preset Token").fill("v2-0");
+                await routeFrame
+                  .locator("form")
+                  .evaluate((form) => (form as HTMLFormElement).requestSubmit());
+                await routeFrame.locator("#open-preset-error").waitFor({ state: "visible" });
+                const invalidError = await routeFrame.locator("#open-preset-error").textContent();
+                await routeFrame
+                  .getByRole("button", { name: "Close Open Preset" })
+                  .evaluate((button) => (button as HTMLButtonElement).click());
+                await routeFrame
+                  .getByRole("button", { name: "Get Code" })
+                  .evaluate((button) => (button as HTMLButtonElement).click());
+                await routeFrame.locator("[role=dialog] code").waitFor({ state: "visible" });
+                const command = await routeFrame.locator("[role=dialog] code").textContent();
+                const pathAfter = await currentPath();
+                return {
+                  invalidError: invalidError ?? "",
+                  command: command ?? "",
+                  pathBefore,
+                  pathAfter,
+                };
+              },
+              async inspectCreateCanonicalization(context, urls: string[]) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const results: string[] = [];
+                for (const [index, url] of urls.entries()) {
+                  await testFrame.locator("body").evaluate(
+                    (_body, { target, title }) => {
+                      const iframe = document.createElement("iframe");
+                      iframe.src = target;
+                      iframe.title = title;
+                      document.body.append(iframe);
+                    },
+                    { target: url, title: `Canonical Create ${index}` },
+                  );
+                  const routeFrame = testFrame.frameLocator(
+                    `iframe[title="Canonical Create ${index}"]`,
+                  );
+                  await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
+                  results.push(
+                    await routeFrame
+                      .locator("body")
+                      .evaluate(() => `${window.location.pathname}${window.location.search}`),
+                  );
+                }
+                return results;
+              },
               async inspectBuiltChart(context) {
                 const providerContext = context.provider.getCommandsContext(context.sessionId) as {
                   frame: () => Promise<Frame>;

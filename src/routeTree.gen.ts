@@ -25,6 +25,7 @@ import { Route as ProductCreateRouteImport } from './routes/_product.create'
 import { Route as ProductComponentsRouteImport } from './routes/_product.components'
 import { Route as ProductChartsRouteImport } from './routes/_product.charts'
 import { Route as WebsiteChangelogIndexRouteImport } from './routes/_website.changelog.index'
+import { Route as RKobaltePresetChar123tokenChar125DotjsonRouteImport } from './routes/r.kobalte.preset-{$token}[.]json'
 import { Route as PreviewComponentsSlugRouteImport } from './routes/preview.components.$slug'
 import { Route as PreviewChartsSlugRouteImport } from './routes/preview.charts.$slug'
 import { Route as PreviewBlocksSlugRouteImport } from './routes/preview.blocks.$slug'
@@ -120,6 +121,12 @@ const WebsiteChangelogIndexRoute = WebsiteChangelogIndexRouteImport.update({
   path: '/changelog/',
   getParentRoute: () => WebsiteRoute,
 } as any)
+const RKobaltePresetChar123tokenChar125DotjsonRoute =
+  RKobaltePresetChar123tokenChar125DotjsonRouteImport.update({
+    id: '/r/kobalte/preset-{$token}.json',
+    path: '/r/kobalte/preset-{$token}.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PreviewComponentsSlugRoute = PreviewComponentsSlugRouteImport.update({
   id: '/preview/components/$slug',
   path: '/preview/components/$slug',
@@ -231,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/preview/blocks/$slug': typeof PreviewBlocksSlugRoute
   '/preview/charts/$slug': typeof PreviewChartsSlugRoute
   '/preview/components/$slug': typeof PreviewComponentsSlugRoute
+  '/r/kobalte/preset-{$token}.json': typeof RKobaltePresetChar123tokenChar125DotjsonRoute
   '/changelog/': typeof WebsiteChangelogIndexRoute
   '/components/blocks/$slug': typeof ProductComponentsBlocksSlugRoute
   '/docs/changelog/$entry': typeof ProductDocsChangelogEntryRoute
@@ -263,6 +271,7 @@ export interface FileRoutesByTo {
   '/preview/blocks/$slug': typeof PreviewBlocksSlugRoute
   '/preview/charts/$slug': typeof PreviewChartsSlugRoute
   '/preview/components/$slug': typeof PreviewComponentsSlugRoute
+  '/r/kobalte/preset-{$token}.json': typeof RKobaltePresetChar123tokenChar125DotjsonRoute
   '/changelog': typeof WebsiteChangelogIndexRoute
   '/components/blocks/$slug': typeof ProductComponentsBlocksSlugRoute
   '/docs/changelog/$entry': typeof ProductDocsChangelogEntryRoute
@@ -298,6 +307,7 @@ export interface FileRoutesById {
   '/preview/blocks/$slug': typeof PreviewBlocksSlugRoute
   '/preview/charts/$slug': typeof PreviewChartsSlugRoute
   '/preview/components/$slug': typeof PreviewComponentsSlugRoute
+  '/r/kobalte/preset-{$token}.json': typeof RKobaltePresetChar123tokenChar125DotjsonRoute
   '/_website/changelog/': typeof WebsiteChangelogIndexRoute
   '/_product/components/blocks/$slug': typeof ProductComponentsBlocksSlugRoute
   '/_product/docs/changelog/$entry': typeof ProductDocsChangelogEntryRoute
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/preview/blocks/$slug'
     | '/preview/charts/$slug'
     | '/preview/components/$slug'
+    | '/r/kobalte/preset-{$token}.json'
     | '/changelog/'
     | '/components/blocks/$slug'
     | '/docs/changelog/$entry'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/preview/blocks/$slug'
     | '/preview/charts/$slug'
     | '/preview/components/$slug'
+    | '/r/kobalte/preset-{$token}.json'
     | '/changelog'
     | '/components/blocks/$slug'
     | '/docs/changelog/$entry'
@@ -398,6 +410,7 @@ export interface FileRouteTypes {
     | '/preview/blocks/$slug'
     | '/preview/charts/$slug'
     | '/preview/components/$slug'
+    | '/r/kobalte/preset-{$token}.json'
     | '/_website/changelog/'
     | '/_product/components/blocks/$slug'
     | '/_product/docs/changelog/$entry'
@@ -415,6 +428,7 @@ export interface RootRouteChildren {
   PreviewBlocksSlugRoute: typeof PreviewBlocksSlugRoute
   PreviewChartsSlugRoute: typeof PreviewChartsSlugRoute
   PreviewComponentsSlugRoute: typeof PreviewComponentsSlugRoute
+  RKobaltePresetChar123tokenChar125DotjsonRoute: typeof RKobaltePresetChar123tokenChar125DotjsonRoute
   PreviewKindPrimitiveSlugRoute: typeof PreviewKindPrimitiveSlugRoute
 }
 
@@ -531,6 +545,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/changelog/'
       preLoaderRoute: typeof WebsiteChangelogIndexRouteImport
       parentRoute: typeof WebsiteRoute
+    }
+    '/r/kobalte/preset-{$token}.json': {
+      id: '/r/kobalte/preset-{$token}.json'
+      path: '/r/kobalte/preset-{$token}.json'
+      fullPath: '/r/kobalte/preset-{$token}.json'
+      preLoaderRoute: typeof RKobaltePresetChar123tokenChar125DotjsonRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/preview/components/$slug': {
       id: '/preview/components/$slug'
@@ -761,6 +782,8 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewBlocksSlugRoute: PreviewBlocksSlugRoute,
   PreviewChartsSlugRoute: PreviewChartsSlugRoute,
   PreviewComponentsSlugRoute: PreviewComponentsSlugRoute,
+  RKobaltePresetChar123tokenChar125DotjsonRoute:
+    RKobaltePresetChar123tokenChar125DotjsonRoute,
   PreviewKindPrimitiveSlugRoute: PreviewKindPrimitiveSlugRoute,
 }
 export const routeTree = rootRouteImport
