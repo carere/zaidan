@@ -140,11 +140,3 @@ export function CreatePreview(props: { preset?: string }) {
     </main>
   );
 }
-
-export function stableExampleAnchor(title: string) {
-  return title
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replaceAll(" ", "-");
-}

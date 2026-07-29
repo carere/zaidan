@@ -1,6 +1,13 @@
 import { type ComponentProps, splitProps } from "solid-js";
-import { stableExampleAnchor } from "@/components/canonical-route";
 import { cn } from "@/lib/utils";
+
+function stableExampleAnchor(title: string) {
+  return title
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replaceAll(" ", "-");
+}
 
 function ExampleWrapper(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
