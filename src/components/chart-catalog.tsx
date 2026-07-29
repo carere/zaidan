@@ -2,6 +2,7 @@ import { ExternalLink, FileCode2, LoaderCircle, RefreshCcw, Terminal } from "luc
 import { createEffect, createSignal, For, onCleanup, onMount, Show, splitProps } from "solid-js";
 import {
   AREA_CHARTS,
+  BAR_CHARTS,
   CHART_FAMILIES,
   type ChartCatalogEntry,
   LINE_CHARTS,
@@ -279,7 +280,7 @@ function ChartSourceActions(props: { entry: ChartCatalogEntry }) {
   );
 }
 
-type ChartFamily = "area" | "line" | "radar" | "tooltip";
+type ChartFamily = "area" | "bar" | "line" | "radar" | "tooltip";
 
 const familyCatalog = {
   area: {
@@ -287,6 +288,12 @@ const familyCatalog = {
     heading: "Area Charts",
     path: "/charts",
     entries: AREA_CHARTS,
+  },
+  bar: {
+    label: "Bar",
+    heading: "Bar Charts",
+    path: "/charts/bar",
+    entries: BAR_CHARTS,
   },
   line: {
     label: "Line",

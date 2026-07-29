@@ -34,6 +34,18 @@ export type LineChartSlug =
   | "chart-line-multiple"
   | "chart-line-step";
 
+type BarChartSlug =
+  | "chart-bar-active"
+  | "chart-bar-default"
+  | "chart-bar-horizontal"
+  | "chart-bar-interactive"
+  | "chart-bar-label-custom"
+  | "chart-bar-label"
+  | "chart-bar-mixed"
+  | "chart-bar-multiple"
+  | "chart-bar-negative"
+  | "chart-bar-stacked";
+
 type RadarChartSlug =
   | "chart-radar-default"
   | "chart-radar-dots"
@@ -62,15 +74,15 @@ export type TooltipChartSlug =
   | "chart-tooltip-advanced";
 
 export type ChartCatalogEntry = {
-  slug: AreaChartSlug | LineChartSlug | RadarChartSlug | TooltipChartSlug;
+  slug: AreaChartSlug | BarChartSlug | LineChartSlug | RadarChartSlug | TooltipChartSlug;
   label: string;
   exportName: string;
   description: string;
   categories: readonly [
     "charts",
-    "charts-area" | "charts-line" | "charts-radar" | "charts-tooltip",
+    "charts-area" | "charts-bar" | "charts-line" | "charts-radar" | "charts-tooltip",
   ];
-  canonicalPath: "/charts" | "/charts/line" | "/charts/radar" | "/charts/tooltip";
+  canonicalPath: "/charts" | "/charts/bar" | "/charts/line" | "/charts/radar" | "/charts/tooltip";
   interactive: boolean;
   visualRepresentative: boolean;
   sourceUrl: string;
@@ -81,6 +93,12 @@ type AreaChartEntry = ChartCatalogEntry & {
   slug: AreaChartSlug;
   categories: readonly ["charts", "charts-area"];
   canonicalPath: "/charts";
+};
+
+type BarChartEntry = ChartCatalogEntry & {
+  slug: BarChartSlug;
+  categories: readonly ["charts", "charts-bar"];
+  canonicalPath: "/charts/bar";
 };
 
 type LineChartEntry = ChartCatalogEntry & {
@@ -112,6 +130,14 @@ function chartEntry(
   interactive?: boolean,
 ): AreaChartEntry;
 function chartEntry(
+  family: "bar",
+  slug: BarChartSlug,
+  label: string,
+  description: string,
+  exportName: string,
+  interactive?: boolean,
+): BarChartEntry;
+function chartEntry(
   family: "line",
   slug: LineChartSlug,
   label: string,
@@ -135,8 +161,8 @@ function chartEntry(
   exportName: string,
 ): TooltipChartEntry;
 function chartEntry(
-  family: "area" | "line" | "radar" | "tooltip",
-  slug: AreaChartSlug | LineChartSlug | RadarChartSlug | TooltipChartSlug,
+  family: "area" | "bar" | "line" | "radar" | "tooltip",
+  slug: AreaChartSlug | BarChartSlug | LineChartSlug | RadarChartSlug | TooltipChartSlug,
   label: string,
   description: string,
   exportName: string,
@@ -145,16 +171,18 @@ function chartEntry(
 ): ChartCatalogEntry {
   const category = {
     area: "charts-area",
+    bar: "charts-bar",
     line: "charts-line",
     radar: "charts-radar",
     tooltip: "charts-tooltip",
-  }[family] as "charts-area" | "charts-line" | "charts-radar" | "charts-tooltip";
+  }[family] as "charts-area" | "charts-bar" | "charts-line" | "charts-radar" | "charts-tooltip";
   const canonicalPath = {
     area: "/charts",
+    bar: "/charts/bar",
     line: "/charts/line",
     radar: "/charts/radar",
     tooltip: "/charts/tooltip",
-  }[family] as "/charts" | "/charts/line" | "/charts/radar" | "/charts/tooltip";
+  }[family] as "/charts" | "/charts/bar" | "/charts/line" | "/charts/radar" | "/charts/tooltip";
   return {
     slug,
     label,
@@ -304,6 +332,71 @@ export const LINE_CHARTS = [
 ] as const satisfies readonly LineChartEntry[];
 
 export const LINE_CHART_SLUGS = LINE_CHARTS.map(({ slug }) => slug);
+
+export const BAR_CHARTS = [
+  chartEntry(
+    "bar",
+    "chart-bar-active",
+    "Bar Chart — Active",
+    "A bar chart with an active bar.",
+    "ChartBarActive",
+  ),
+  chartEntry("bar", "chart-bar-default", "Bar Chart", "A simple bar chart.", "ChartBarDefault"),
+  chartEntry(
+    "bar",
+    "chart-bar-horizontal",
+    "Bar Chart — Horizontal",
+    "A horizontal bar chart.",
+    "ChartBarHorizontal",
+  ),
+  chartEntry(
+    "bar",
+    "chart-bar-interactive",
+    "Bar Chart — Interactive",
+    "An interactive bar chart with selectable visitor series.",
+    "ChartBarInteractive",
+    true,
+  ),
+  chartEntry(
+    "bar",
+    "chart-bar-label-custom",
+    "Bar Chart — Custom Label",
+    "A bar chart with a custom label.",
+    "ChartBarLabelCustom",
+  ),
+  chartEntry(
+    "bar",
+    "chart-bar-label",
+    "Bar Chart — Label",
+    "A bar chart with a label.",
+    "ChartBarLabel",
+  ),
+  chartEntry("bar", "chart-bar-mixed", "Bar Chart — Mixed", "A mixed bar chart.", "ChartBarMixed"),
+  chartEntry(
+    "bar",
+    "chart-bar-multiple",
+    "Bar Chart — Multiple",
+    "A multiple bar chart.",
+    "ChartBarMultiple",
+  ),
+  chartEntry(
+    "bar",
+    "chart-bar-negative",
+    "Bar Chart — Negative",
+    "A bar chart with positive and negative values.",
+    "ChartBarNegative",
+  ),
+  chartEntry(
+    "bar",
+    "chart-bar-stacked",
+    "Bar Chart — Stacked",
+    "A stacked bar chart with a legend.",
+    "ChartBarStacked",
+  ),
+] as const satisfies readonly BarChartEntry[];
+
+export const BAR_CHART_SLUGS = BAR_CHARTS.map(({ slug }) => slug);
+export const BAR_VISUAL_REPRESENTATIVE = "chart-bar-negative" satisfies BarChartSlug;
 
 export const RADAR_CHARTS = [
   chartEntry("radar", "chart-radar-default", "Radar Chart", "A radar chart.", "ChartRadarDefault"),
@@ -470,8 +563,32 @@ export const TOOLTIP_CHARTS = [
 
 export const TOOLTIP_CHART_SLUGS = TOOLTIP_CHARTS.map(({ slug }) => slug);
 
+export function getAreaChart(slug: string) {
+  return AREA_CHARTS.find((candidate) => candidate.slug === slug);
+}
+
+export function getBarChart(slug: string) {
+  return BAR_CHARTS.find((candidate) => candidate.slug === slug);
+}
+
+export function getLineChart(slug: string) {
+  return LINE_CHARTS.find((candidate) => candidate.slug === slug);
+}
+
+export function getRadarChart(slug: string) {
+  return RADAR_CHARTS.find((candidate) => candidate.slug === slug);
+}
+
+export function getTooltipChart(slug: string) {
+  return TOOLTIP_CHARTS.find((candidate) => candidate.slug === slug);
+}
+
 export function getChartCatalogEntry(slug: string) {
-  return [...AREA_CHARTS, ...LINE_CHARTS, ...RADAR_CHARTS, ...TOOLTIP_CHARTS].find(
-    (candidate) => candidate.slug === slug,
+  return (
+    getAreaChart(slug) ??
+    getBarChart(slug) ??
+    getLineChart(slug) ??
+    getRadarChart(slug) ??
+    getTooltipChart(slug)
   );
 }

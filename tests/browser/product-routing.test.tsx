@@ -300,6 +300,7 @@ describe("built canonical routing", () => {
     const cases = [
       ["/preview/components/button#variants--sizes", 200],
       ["/preview/blocks/image-crop#avatar-crop", 200],
+      ["/preview/charts/chart-bar-negative", 200],
       ["/preview/create", 200],
       [`/preview/create?preset=${validPreset}`, 200],
       ["/preview/charts/chart-area-axes", 200],
@@ -323,6 +324,7 @@ describe("built canonical routing", () => {
     const canonicalPaths = [
       "/components/button",
       "/components/blocks/image-crop",
+      "/charts/bar",
       "/create",
       "/create",
       "/charts",
