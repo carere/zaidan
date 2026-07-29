@@ -5,6 +5,7 @@ import {
   Code2,
   Lock,
   LockOpen,
+  RefreshCw,
   RotateCcw,
   RotateCw,
   Share2,
@@ -29,7 +30,6 @@ import {
   getPresetInstallCommand,
   normalizeOpenPresetInput,
   type PackageManager,
-  PRESET_TABLES_V1,
   previewPathForPreset,
   resolveCreateLocation,
   sharePathForPreset,
@@ -69,7 +69,15 @@ const FIELD_LABELS: Record<LockableParam, string> = {
   menuAccent: "Menu Accent",
 };
 
-const CONFIG_FIELDS = Object.keys(PRESET_TABLES_V1) as LockableParam[];
+const CONFIG_GROUPS: readonly {
+  label: string;
+  fields: readonly LockableParam[];
+}[] = [
+  { label: "Style", fields: ["style"] },
+  { label: "Colors", fields: ["baseColor", "theme", "chartColor"] },
+  { label: "Typography", fields: ["headingFont", "font"] },
+  { label: "Shape and navigation", fields: ["radius", "menuAccent"] },
+];
 
 const writeClipboard = async (value: string) => {
   await navigator.clipboard.writeText(value);
@@ -88,7 +96,10 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
   const [copied, setCopied] = createSignal<string>();
   const [canUndo, setCanUndo] = createSignal(false);
   const [canRedo, setCanRedo] = createSignal(false);
-  const [frameStatus, setFrameStatus] = createSignal<"booting" | "ready" | "degraded">("booting");
+  const [frameStatus, setFrameStatus] = createSignal<"booting" | "syncing" | "ready" | "degraded">(
+    "booting",
+  );
+  const [sentRevision, setSentRevision] = createSignal(0);
   const [appliedRevision, setAppliedRevision] = createSignal(0);
   const token = createMemo(() => encodePresetToken(configuration()));
   const initialPreviewPath = previewPathForPreset(props.initial.token);
@@ -195,11 +206,22 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
 
   const sendLatestSnapshot = () => {
     if (!iframe?.contentWindow) return;
+    setSentRevision(latestMessage.revision);
+    setFrameStatus("syncing");
     iframe.contentWindow.postMessage(latestMessage, window.location.origin);
     clearTimeout(degradedTimer);
+    const expectedRevision = latestMessage.revision;
     degradedTimer = setTimeout(() => {
-      if (appliedRevision() < latestMessage.revision) setFrameStatus("degraded");
+      if (appliedRevision() < expectedRevision && latestMessage.revision === expectedRevision) {
+        setFrameStatus("degraded");
+      }
     }, 2_000);
+  };
+
+  const reloadPreview = () => {
+    clearTimeout(degradedTimer);
+    setFrameStatus("booting");
+    if (iframe) iframe.src = initialPreviewPath;
   };
 
   createEffect(() => {
@@ -233,7 +255,6 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
       const message = parsePreviewMessage(event.data);
       if (!message) return;
       if (message.type === "preview-ready") {
-        setFrameStatus("ready");
         sendLatestSnapshot();
       } else if (message.type === "preset-applied") {
         if (!isCurrentPresetAcknowledgement(message, latestMessage)) return;
@@ -276,52 +297,88 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
       data-create-workspace=""
       data-product-surface="create"
       data-preset={token()}
-      class="flex min-h-[calc(100svh-4rem)] flex-col gap-3 bg-background p-3 md:flex-row md:gap-5 md:p-5"
+      data-sent-revision={sentRevision()}
+      data-applied-revision={appliedRevision()}
+      class="flex min-h-[calc(100svh-var(--product-header-height))] flex-col gap-3 overflow-hidden bg-background p-3 md:h-[calc(100svh-var(--product-header-height))] md:min-h-0 md:flex-row md:gap-5 md:p-5"
     >
-      <aside class="order-2 flex shrink-0 flex-col overflow-hidden rounded-xl border bg-card md:order-1 md:w-56">
-        <div class="no-scrollbar flex flex-row overflow-x-auto md:flex-col md:overflow-y-auto">
-          <div class="shrink-0 border-r p-3 md:border-r-0 md:border-b">
-            <label class="block min-w-44 rounded-lg border bg-background px-3 py-2 md:min-w-0">
-              <span class="block text-muted-foreground text-xs">Primitive</span>
-              <select class="w-full bg-transparent font-medium text-sm" disabled>
-                <option>Kobalte</option>
-              </select>
-            </label>
-          </div>
-          <For each={CONFIG_FIELDS}>
-            {(field) => (
-              <div class="shrink-0 border-r p-3 md:border-r-0 md:border-b">
+      <aside
+        data-configuration-rail=""
+        class="order-2 flex shrink-0 flex-col overflow-hidden rounded-xl border bg-card md:order-1 md:h-full md:w-48"
+      >
+        <div
+          data-horizontal-controls=""
+          class="no-scrollbar flex min-h-0 flex-row overflow-x-auto md:flex-1 md:flex-col md:overflow-y-auto"
+        >
+          <div
+            data-control-group="Fixed foundation"
+            class="flex shrink-0 gap-2 border-r p-3 md:flex-col md:border-r-0 md:border-b"
+          >
+            <For
+              each={
+                [
+                  ["Primitive", "Kobalte"],
+                  ["Icon Library", "Lucide"],
+                  ["Menu Color", "Default"],
+                ] as const
+              }
+            >
+              {([label, value]) => (
                 <label class="block min-w-44 rounded-lg border bg-background px-3 py-2 md:min-w-0">
-                  <span class="block text-muted-foreground text-xs">{FIELD_LABELS[field]}</span>
-                  <span class="flex items-center gap-1">
-                    <select
-                      aria-label={FIELD_LABELS[field]}
-                      class="min-w-0 flex-1 bg-transparent font-medium text-sm"
-                      value={configuration()[field]}
-                      onChange={(event) =>
-                        commit({
-                          ...configuration(),
-                          [field]: event.currentTarget.value,
-                        } as DesignSystemConfig)
-                      }
-                    >
-                      <For each={FIELD_OPTIONS[field]}>
-                        {(option) => <option value={option.value}>{option.label}</option>}
-                      </For>
-                    </select>
-                    <button
-                      type="button"
-                      aria-label={`${locks().has(field) ? "Unlock" : "Lock"} ${FIELD_LABELS[field]}`}
-                      aria-pressed={locks().has(field)}
-                      class="rounded p-1 text-muted-foreground hover:text-foreground"
-                      onClick={() => toggleLock(field)}
-                    >
-                      <Show when={locks().has(field)} fallback={<LockOpen class="size-3.5" />}>
-                        <Lock class="size-3.5" />
-                      </Show>
-                    </button>
-                  </span>
+                  <span class="block text-[10px] text-muted-foreground">{label}</span>
+                  <select
+                    aria-label={label}
+                    class="w-full appearance-none bg-transparent font-medium text-sm disabled:cursor-not-allowed disabled:opacity-100"
+                    disabled
+                  >
+                    <option>{value}</option>
+                  </select>
                 </label>
+              )}
+            </For>
+          </div>
+          <For each={CONFIG_GROUPS}>
+            {(group) => (
+              <div
+                data-control-group={group.label}
+                class="flex shrink-0 gap-2 border-r p-3 md:flex-col md:border-r-0 md:border-b"
+              >
+                <For each={group.fields}>
+                  {(field) => (
+                    <label class="block min-w-44 rounded-lg border bg-background px-3 py-2 md:min-w-0">
+                      <span class="block text-[10px] text-muted-foreground">
+                        {FIELD_LABELS[field]}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <select
+                          aria-label={FIELD_LABELS[field]}
+                          class="min-w-0 flex-1 bg-transparent font-medium text-sm"
+                          value={configuration()[field]}
+                          onChange={(event) =>
+                            commit({
+                              ...configuration(),
+                              [field]: event.currentTarget.value,
+                            } as DesignSystemConfig)
+                          }
+                        >
+                          <For each={FIELD_OPTIONS[field]}>
+                            {(option) => <option value={option.value}>{option.label}</option>}
+                          </For>
+                        </select>
+                        <button
+                          type="button"
+                          aria-label={`${locks().has(field) ? "Unlock" : "Lock"} ${FIELD_LABELS[field]}`}
+                          aria-pressed={locks().has(field)}
+                          class="rounded p-1 text-muted-foreground hover:text-foreground"
+                          onClick={() => toggleLock(field)}
+                        >
+                          <Show when={locks().has(field)} fallback={<LockOpen class="size-3.5" />}>
+                            <Lock class="size-3.5" />
+                          </Show>
+                        </button>
+                      </span>
+                    </label>
+                  )}
+                </For>
               </div>
             )}
           </For>
@@ -449,16 +506,26 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
         </div>
       </aside>
 
-      <section class="relative order-1 min-h-[28rem] flex-1 overflow-hidden rounded-xl border bg-muted/30 md:order-2">
+      <section
+        data-create-preview-canvas=""
+        class="relative order-1 min-h-[28rem] flex-1 overflow-hidden rounded-xl border bg-muted/30 md:order-2 md:min-h-0"
+      >
         <div class="absolute inset-x-0 top-0 z-10 flex items-center justify-between border-b bg-background/90 px-3 py-2 text-xs backdrop-blur">
           <span>Live Create Preview</span>
           <span role="status" data-preview-status={frameStatus()}>
             {frameStatus() === "ready"
               ? `Applied revision ${appliedRevision()}`
               : frameStatus() === "degraded"
-                ? "Preview degraded — reload to retry"
-                : "Connecting…"}
+                ? "Preview degraded"
+                : frameStatus() === "syncing"
+                  ? "Synchronizing…"
+                  : "Connecting…"}
           </span>
+          <Show when={frameStatus() === "degraded"}>
+            <Button variant="outline" size="xs" aria-label="Retry Preview" onClick={reloadPreview}>
+              <RefreshCw /> Retry
+            </Button>
+          </Show>
         </div>
         <iframe
           ref={iframe}

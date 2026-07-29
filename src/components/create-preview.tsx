@@ -1,10 +1,12 @@
 import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { RootComponents } from "@/components/home";
 import {
-  CREATE_PREVIEW_CHANNEL,
-  CREATE_PREVIEW_PROTOCOL_VERSION,
+  canApplyPresetSync,
+  createPresetAppliedMessage,
+  createPreviewReadyMessage,
   createPreviewShortcutMessage,
   isEditableShortcutTarget,
+  type PresetSyncMessage,
   parsePreviewMessage,
   resolveCreateShortcut,
 } from "@/lib/preset-protocol";
@@ -46,43 +48,29 @@ export function CreatePreviewSurface(props: { preset?: string }) {
     ? decodePresetToken(props.preset)
     : decodePresetToken(DEFAULT_PRESET_TOKEN);
   const [configuration, setConfiguration] = createSignal(initial as DesignSystemConfig);
-  let lastRevision = -1;
+  let lastApplied: PresetSyncMessage | undefined;
 
   createEffect(() => {
     if (typeof document !== "undefined") applyPreviewConfiguration(configuration());
   });
 
   onMount(() => {
-    const parentOrigin = document.referrer
-      ? new URL(document.referrer).origin
-      : window.location.origin;
-    const postReady = () =>
-      window.parent.postMessage(
-        {
-          channel: CREATE_PREVIEW_CHANNEL,
-          protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
-          type: "preview-ready",
-        },
-        parentOrigin,
-      );
+    const parentOrigin = window.location.origin;
+    const postReady = () => window.parent.postMessage(createPreviewReadyMessage(), parentOrigin);
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== parentOrigin || event.source !== window.parent) return;
       const message = parsePreviewMessage(event.data);
-      if (!message || message.type !== "preset-sync" || message.revision < lastRevision) return;
+      if (!message || message.type !== "preset-sync" || !canApplyPresetSync(message, lastApplied)) {
+        return;
+      }
       const next = message.token
         ? decodePresetToken(message.token)
         : decodePresetToken(DEFAULT_PRESET_TOKEN);
       if (!next || !applyPreviewConfiguration(next, message.colorMode)) return;
-      lastRevision = message.revision;
+      lastApplied = message;
       setConfiguration(next);
       window.parent.postMessage(
-        {
-          channel: CREATE_PREVIEW_CHANNEL,
-          protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
-          type: "preset-applied",
-          revision: message.revision,
-          token: message.token,
-        },
+        createPresetAppliedMessage(message.revision, message.token),
         parentOrigin,
       );
     };

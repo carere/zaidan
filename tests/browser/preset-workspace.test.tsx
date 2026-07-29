@@ -11,13 +11,13 @@ afterEach(() => {
   dispose = undefined;
 });
 
-const renderCreate = async (path = "/create") => {
+const renderCreate = async (path = "/create", width = 1440, height = 900) => {
   dispose = render(
     () => (
       <iframe
         src={new URL(path, inject("builtAppUrl")).href}
         title="Built Create workspace"
-        style={{ width: "1440px", height: "900px" }}
+        style={{ width: `${width}px`, height: `${height}px` }}
       />
     ),
     document.body,
@@ -26,6 +26,102 @@ const renderCreate = async (path = "/create") => {
 };
 
 describe("built Create Workspace Preset Token behavior", () => {
+  it("renders the approved desktop rail/canvas and mobile Preview-first flow", async () => {
+    const { inspectCreateLayout } = commands as unknown as {
+      inspectCreateLayout: () => Promise<{
+        headerVisible: boolean;
+        previewBeforeControls: boolean;
+        controlsHorizontal: boolean;
+        controlsPosition: string;
+        configurablePickers: string[];
+        fixedPickers: { label: string; disabled: boolean; value: string }[];
+        controlGroups: string[];
+        previewSrc: string | null;
+        comingSoonVisible: boolean;
+      }>;
+    };
+
+    await renderCreate("/create?preset=v1-gWzAn", 1440, 900);
+    const desktop = await inspectCreateLayout();
+    expect(desktop.headerVisible).toBe(true);
+    expect(desktop.previewBeforeControls).toBe(false);
+    expect(desktop.controlsHorizontal).toBe(false);
+    expect(desktop.controlGroups).toEqual([
+      "Fixed foundation",
+      "Style",
+      "Colors",
+      "Typography",
+      "Shape and navigation",
+    ]);
+    expect(desktop.configurablePickers).toEqual([
+      "Style",
+      "Base Color",
+      "Theme",
+      "Chart Color",
+      "Heading Font",
+      "Font",
+      "Radius",
+      "Menu Accent",
+    ]);
+    expect(desktop.fixedPickers).toEqual([
+      { label: "Primitive", disabled: true, value: "Kobalte" },
+      { label: "Icon Library", disabled: true, value: "Lucide" },
+      { label: "Menu Color", disabled: true, value: "Default" },
+    ]);
+    expect(desktop.previewSrc).toContain("/preview/create?preset=v1-gWzAn");
+    expect(desktop.comingSoonVisible).toBe(false);
+
+    dispose?.();
+    dispose = undefined;
+    await renderCreate("/create", 390, 844);
+    const mobile = await inspectCreateLayout();
+    expect(mobile.headerVisible).toBe(true);
+    expect(mobile.previewBeforeControls).toBe(true);
+    expect(mobile.controlsHorizontal).toBe(true);
+    expect(mobile.controlsPosition).toBe("static");
+    expect(mobile.previewSrc).toBe("/preview/create");
+  });
+
+  it("commits every approved picker through canonical history and Preview state", async () => {
+    await renderCreate();
+    const { exerciseAllCreatePickers } = commands as unknown as {
+      exerciseAllCreatePickers: () => Promise<{
+        historyDelta: number;
+        path: string;
+        token: string;
+        previewToken: string;
+      }>;
+    };
+    const evidence = await exerciseAllCreatePickers();
+    expect(evidence).toEqual({
+      historyDelta: 8,
+      path: "/create?preset=v1-gWzAn",
+      token: "v1-gWzAn",
+      previewToken: "v1-gWzAn",
+    });
+  }, 30_000);
+
+  it("exposes canonical Preset, Share, and Get Code output without changing history", async () => {
+    await renderCreate("/create?preset=v1-gWzAn");
+    const { inspectCreateCopyActions } = commands as unknown as {
+      inspectCreateCopyActions: () => Promise<{
+        copied: string[];
+        command: string;
+        historyDelta: number;
+        pathBefore: string;
+        pathAfter: string;
+      }>;
+    };
+    const evidence = await inspectCreateCopyActions();
+    expect(evidence.copied).toEqual([
+      "--preset v1-gWzAn",
+      expect.stringMatching(/\/create\?preset=v1-gWzAn$/),
+    ]);
+    expect(evidence.command).toBe("bunx --bun shadcn@latest add @zaidan/preset-v1-gWzAn");
+    expect(evidence.historyDelta).toBe(0);
+    expect(evidence.pathAfter).toBe(evidence.pathBefore);
+  });
+
   it("keeps Undo/Redo coherent across Back/Forward interleavings and syncs Preview", async () => {
     await renderCreate();
     const { exerciseCreateHistory } = commands as unknown as {
@@ -120,6 +216,7 @@ describe("built Create Workspace Preset Token behavior", () => {
         initialDarkMode: boolean;
         toggledDarkMode: boolean;
         previewDarkMode: boolean;
+        tokenAfterColorMode: string;
         tokenBeforeEditableShortcut: string;
         editableShortcutToken: string;
         shuffledToken: string;
@@ -132,6 +229,7 @@ describe("built Create Workspace Preset Token behavior", () => {
     expect(evidence.commandSearchForwarded).toBe(true);
     expect(evidence.toggledDarkMode).toBe(!evidence.initialDarkMode);
     expect(evidence.previewDarkMode).toBe(evidence.toggledDarkMode);
+    expect(evidence.tokenAfterColorMode).toBe("v1-0");
     expect(evidence.editableShortcutToken).toBe(evidence.tokenBeforeEditableShortcut);
     expect(evidence.shuffledToken).not.toBe("v1-0");
     expect(evidence.undoToken).toBe("v1-0");
@@ -150,4 +248,71 @@ describe("built Create Workspace Preset Token behavior", () => {
     ]);
     expect(paths).toEqual(["/create", `/create?preset=${novaToken}`]);
   });
+
+  it("rejects forged messages, ignores stale acknowledgements, and recovers latest state", async () => {
+    await renderCreate();
+    const { exerciseCreatePreviewRecovery } = commands as unknown as {
+      exerciseCreatePreviewRecovery: () => Promise<{
+        tokenAfterForgery: string;
+        appliedAfterStale: number;
+        sentAfterStale: number;
+        degraded: boolean;
+        recoveredToken: string;
+        recoveredPath: string;
+        previewSrcBefore: string | null;
+        previewSrcAfter: string | null;
+        syncKeys: string[];
+        readyKeys: string[];
+        appliedKeys: string[];
+      }>;
+    };
+    const evidence = await exerciseCreatePreviewRecovery();
+    expect(evidence.tokenAfterForgery).toBe("v1-0");
+    expect(evidence.appliedAfterStale).toBeLessThan(evidence.sentAfterStale);
+    expect(evidence.degraded).toBe(true);
+    expect(evidence.recoveredToken).toBe("v1-fVpmi");
+    expect(evidence.recoveredPath).toBe("/create?preset=v1-fVpmi");
+    expect(evidence.previewSrcAfter).toBe(evidence.previewSrcBefore);
+    expect(evidence.syncKeys).toEqual([
+      "channel",
+      "colorMode",
+      "protocolVersion",
+      "revision",
+      "token",
+      "tokenVersion",
+      "type",
+    ]);
+    expect(evidence.readyKeys).toEqual(["channel", "protocolVersion", "tokenVersion", "type"]);
+    expect(evidence.appliedKeys).toEqual([
+      "channel",
+      "protocolVersion",
+      "revision",
+      "token",
+      "tokenVersion",
+      "type",
+    ]);
+  }, 30_000);
+
+  it("hands off to Create and returns through exact browser locations without leaking state", async () => {
+    await renderCreate("/components/button#examples");
+    const { exerciseCreateReturnHandoff } = commands as unknown as {
+      exerciseCreateReturnHandoff: () => Promise<{
+        entryPath: string;
+        configuredPath: string;
+        destinationPath: string;
+        configuredReturnPath: string;
+        defaultReturnPath: string;
+        sourceReturnPath: string;
+      }>;
+    };
+    const evidence = await exerciseCreateReturnHandoff();
+    expect(evidence).toEqual({
+      entryPath: "/create",
+      configuredPath: expect.stringMatching(/^\/create\?preset=v1-/),
+      destinationPath: "/docs",
+      configuredReturnPath: evidence.configuredPath,
+      defaultReturnPath: "/create",
+      sourceReturnPath: "/components/button#examples",
+    });
+  }, 30_000);
 });

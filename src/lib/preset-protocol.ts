@@ -3,16 +3,19 @@ import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const CREATE_PREVIEW_CHANNEL = "zaidan-create-preview";
 export const CREATE_PREVIEW_PROTOCOL_VERSION = 1;
+export const CREATE_PREVIEW_TOKEN_VERSION = 1;
 
 export type PreviewReadyMessage = {
   channel: typeof CREATE_PREVIEW_CHANNEL;
   protocolVersion: typeof CREATE_PREVIEW_PROTOCOL_VERSION;
+  tokenVersion: typeof CREATE_PREVIEW_TOKEN_VERSION;
   type: "preview-ready";
 };
 
 export type PresetSyncMessage = {
   channel: typeof CREATE_PREVIEW_CHANNEL;
   protocolVersion: typeof CREATE_PREVIEW_PROTOCOL_VERSION;
+  tokenVersion: typeof CREATE_PREVIEW_TOKEN_VERSION;
   type: "preset-sync";
   revision: number;
   token: string | null;
@@ -22,6 +25,7 @@ export type PresetSyncMessage = {
 export type PresetAppliedMessage = {
   channel: typeof CREATE_PREVIEW_CHANNEL;
   protocolVersion: typeof CREATE_PREVIEW_PROTOCOL_VERSION;
+  tokenVersion: typeof CREATE_PREVIEW_TOKEN_VERSION;
   type: "preset-applied";
   revision: number;
   token: string | null;
@@ -32,6 +36,7 @@ export type CreateShortcut = "command-search" | "toggle-color-mode" | "shuffle" 
 export type PreviewShortcutMessage = {
   channel: typeof CREATE_PREVIEW_CHANNEL;
   protocolVersion: typeof CREATE_PREVIEW_PROTOCOL_VERSION;
+  tokenVersion: typeof CREATE_PREVIEW_TOKEN_VERSION;
   type: "preview-shortcut";
   action: CreateShortcut;
 };
@@ -46,33 +51,46 @@ const validToken = (value: unknown) =>
   value === null || (typeof value === "string" && decodePresetToken(value) !== null);
 const validRevision = (value: unknown) =>
   typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+const hasExactFields = (value: Record<string, unknown>, fields: readonly string[]) => {
+  const keys = Object.keys(value);
+  return keys.length === fields.length && keys.every((key) => fields.includes(key));
+};
+
+const ENVELOPE_FIELDS = ["channel", "protocolVersion", "tokenVersion", "type"] as const;
 
 export function parsePreviewMessage(input: unknown): CreatePreviewMessage | null {
-  if (!input || typeof input !== "object") return null;
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const value = input as Record<string, unknown>;
   if (
     value.channel !== CREATE_PREVIEW_CHANNEL ||
-    value.protocolVersion !== CREATE_PREVIEW_PROTOCOL_VERSION
+    value.protocolVersion !== CREATE_PREVIEW_PROTOCOL_VERSION ||
+    value.tokenVersion !== CREATE_PREVIEW_TOKEN_VERSION
   ) {
     return null;
   }
-  if (value.type === "preview-ready") return value as PreviewReadyMessage;
+  if (value.type === "preview-ready") {
+    return hasExactFields(value, ENVELOPE_FIELDS) ? (value as PreviewReadyMessage) : null;
+  }
   if (value.type === "preview-shortcut") {
-    return value.action === "command-search" ||
-      value.action === "toggle-color-mode" ||
-      value.action === "shuffle" ||
-      value.action === "undo" ||
-      value.action === "redo"
+    return hasExactFields(value, [...ENVELOPE_FIELDS, "action"]) &&
+      (value.action === "command-search" ||
+        value.action === "toggle-color-mode" ||
+        value.action === "shuffle" ||
+        value.action === "undo" ||
+        value.action === "redo")
       ? (value as PreviewShortcutMessage)
       : null;
   }
   if (value.type === "preset-applied") {
-    return validRevision(value.revision) && validToken(value.token)
+    return hasExactFields(value, [...ENVELOPE_FIELDS, "revision", "token"]) &&
+      validRevision(value.revision) &&
+      validToken(value.token)
       ? (value as PresetAppliedMessage)
       : null;
   }
   if (value.type === "preset-sync") {
-    return validRevision(value.revision) &&
+    return hasExactFields(value, [...ENVELOPE_FIELDS, "revision", "token", "colorMode"]) &&
+      validRevision(value.revision) &&
       validToken(value.token) &&
       (value.colorMode === "light" || value.colorMode === "dark")
       ? (value as PresetSyncMessage)
@@ -88,10 +106,30 @@ export const createPresetSyncMessage = (
 ): PresetSyncMessage => ({
   channel: CREATE_PREVIEW_CHANNEL,
   protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+  tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
   type: "preset-sync",
   revision,
   token,
   colorMode,
+});
+
+export const createPreviewReadyMessage = (): PreviewReadyMessage => ({
+  channel: CREATE_PREVIEW_CHANNEL,
+  protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+  tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
+  type: "preview-ready",
+});
+
+export const createPresetAppliedMessage = (
+  revision: number,
+  token: string | null,
+): PresetAppliedMessage => ({
+  channel: CREATE_PREVIEW_CHANNEL,
+  protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+  tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
+  type: "preset-applied",
+  revision,
+  token,
 });
 
 /** Prevents a delayed iframe acknowledgement from marking a newer preset as applied. */
@@ -99,6 +137,14 @@ export const isCurrentPresetAcknowledgement = (
   acknowledgement: PresetAppliedMessage,
   latest: PresetSyncMessage,
 ) => acknowledgement.revision === latest.revision && acknowledgement.token === latest.token;
+
+/** Accepts monotonic snapshots while restricting duplicate revisions to idempotent resends. */
+export const canApplyPresetSync = (candidate: PresetSyncMessage, applied?: PresetSyncMessage) =>
+  !applied ||
+  candidate.revision > applied.revision ||
+  (candidate.revision === applied.revision &&
+    candidate.token === applied.token &&
+    candidate.colorMode === applied.colorMode);
 
 export function resolveCreateShortcut(input: {
   key: string;
@@ -129,6 +175,7 @@ export function isEditableShortcutTarget(target: EventTarget | null) {
 export const createPreviewShortcutMessage = (action: CreateShortcut): PreviewShortcutMessage => ({
   channel: CREATE_PREVIEW_CHANNEL,
   protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+  tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
   type: "preview-shortcut",
   action,
 });

@@ -3,6 +3,8 @@ import { DEFAULT_CONFIG } from "@/lib/config";
 import {
   CREATE_PREVIEW_CHANNEL,
   CREATE_PREVIEW_PROTOCOL_VERSION,
+  CREATE_PREVIEW_TOKEN_VERSION,
+  canApplyPresetSync,
   createPresetSyncMessage,
   createPreviewShortcutMessage,
   isCurrentPresetAcknowledgement,
@@ -19,6 +21,7 @@ describe("Create Preview message protocol", () => {
       parsePreviewMessage({
         channel: CREATE_PREVIEW_CHANNEL,
         protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+        tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
         type: "preview-ready",
       }),
     ).toMatchObject({ type: "preview-ready" });
@@ -32,6 +35,7 @@ describe("Create Preview message protocol", () => {
       parsePreviewMessage({
         channel: CREATE_PREVIEW_CHANNEL,
         protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+        tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
         type: "preset-applied",
         revision: 3,
         token,
@@ -59,6 +63,25 @@ describe("Create Preview message protocol", () => {
     {
       channel: CREATE_PREVIEW_CHANNEL,
       protocolVersion: 1,
+      type: "preview-ready",
+    },
+    {
+      channel: CREATE_PREVIEW_CHANNEL,
+      protocolVersion: 1,
+      tokenVersion: 2,
+      type: "preview-ready",
+    },
+    {
+      channel: CREATE_PREVIEW_CHANNEL,
+      protocolVersion: 1,
+      tokenVersion: 1,
+      type: "preview-ready",
+      unexpected: true,
+    },
+    {
+      channel: CREATE_PREVIEW_CHANNEL,
+      protocolVersion: 1,
+      tokenVersion: 1,
       type: "preset-sync",
       revision: -1,
       token: null,
@@ -67,6 +90,7 @@ describe("Create Preview message protocol", () => {
     {
       channel: CREATE_PREVIEW_CHANNEL,
       protocolVersion: 1,
+      tokenVersion: 1,
       type: "preset-sync",
       revision: 1,
       token: "v2-0",
@@ -75,6 +99,7 @@ describe("Create Preview message protocol", () => {
     {
       channel: CREATE_PREVIEW_CHANNEL,
       protocolVersion: 1,
+      tokenVersion: 1,
       type: "preset-sync",
       revision: 1,
       token: null,
@@ -83,11 +108,38 @@ describe("Create Preview message protocol", () => {
     {
       channel: CREATE_PREVIEW_CHANNEL,
       protocolVersion: 1,
+      tokenVersion: 1,
       type: "preview-shortcut",
       action: "reset",
     },
   ])("rejects malformed message payloads %#", (message) => {
     expect(parsePreviewMessage(message)).toBeNull();
+  });
+
+  it("requires the exact payload fields for each message type", () => {
+    expect(
+      parsePreviewMessage({
+        ...createPresetSyncMessage(2, token, "light"),
+        unexpected: "field",
+      }),
+    ).toBeNull();
+    expect(
+      parsePreviewMessage({
+        channel: CREATE_PREVIEW_CHANNEL,
+        protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+        tokenVersion: CREATE_PREVIEW_TOKEN_VERSION,
+        type: "preset-applied",
+        revision: 2,
+        token,
+        colorMode: "light",
+      }),
+    ).toBeNull();
+    expect(
+      parsePreviewMessage({
+        ...createPreviewShortcutMessage("shuffle"),
+        revision: 2,
+      }),
+    ).toBeNull();
   });
 
   it("re-sends the latest snapshot after readiness and ignores stale acknowledgements", () => {
@@ -101,6 +153,15 @@ describe("Create Preview message protocol", () => {
     expect(isCurrentPresetAcknowledgement({ ...latest, type: "preset-applied" }, latest)).toBe(
       true,
     );
+  });
+
+  it("applies newer snapshots and only idempotent duplicate revisions", () => {
+    const applied = createPresetSyncMessage(4, token, "dark");
+    expect(canApplyPresetSync(createPresetSyncMessage(5, null, "light"), applied)).toBe(true);
+    expect(canApplyPresetSync({ ...applied }, applied)).toBe(true);
+    expect(canApplyPresetSync({ ...applied, token: null }, applied)).toBe(false);
+    expect(canApplyPresetSync({ ...applied, colorMode: "light" }, applied)).toBe(false);
+    expect(canApplyPresetSync(createPresetSyncMessage(3, token, "dark"), applied)).toBe(false);
   });
 
   it("maps Preview and parent keyboard events to the preserved Create shortcuts", () => {
