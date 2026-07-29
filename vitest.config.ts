@@ -1,7 +1,10 @@
+import { resolve } from "node:path";
 import { playwright } from "@vitest/browser-playwright";
 import type { Frame } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
+
+const playwrightLibraryPath = resolve(".cloudflare/playwright-deps/usr/lib/x86_64-linux-gnu");
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
@@ -28,7 +31,16 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright(),
+            provider: playwright({
+              launchOptions: {
+                env: {
+                  ...process.env,
+                  LD_LIBRARY_PATH: [playwrightLibraryPath, process.env.LD_LIBRARY_PATH]
+                    .filter(Boolean)
+                    .join(":"),
+                },
+              },
+            }),
             instances: [{ browser: "chromium" }],
             commands: {
               async inspectBuiltRoute(context) {
