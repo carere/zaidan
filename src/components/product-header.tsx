@@ -1,22 +1,14 @@
 import { useLocation } from "@tanstack/solid-router";
-import { ChevronDown, Menu, Plus, Search, X } from "lucide-solid";
+import { Menu, Plus, Search, X } from "lucide-solid";
 import { createMemo, createSignal, For, type JSX, onCleanup, onMount, Show } from "solid-js";
+import { DocsNavigationGroups } from "@/components/docs-navigation-groups";
 import { Github } from "@/components/icons/github";
 import { Zaidan } from "@/components/icons/zaidan";
 import { ModeSwitcher } from "@/components/mode-switcher";
-import {
-  type DocsGroupId,
-  getActiveDocsNavigationGroup,
-  getDefaultDocsOpenGroups,
-  readDocsOpenGroups,
-  updateDocsGroupOpen,
-  writeDocsOpenGroups,
-} from "@/lib/docs-navigation";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_CONTENT_TREE,
   type CanonicalNode,
-  DOCS_NAVIGATION_GROUPS,
   getProductSurfaceForPath,
   PRODUCT_SURFACES,
 } from "@/lib/product-routing";
@@ -162,7 +154,6 @@ function HierarchyNode(props: {
 export function ProductHeader() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = createSignal(false);
-  const [openDocsGroups, setOpenDocsGroups] = createSignal(getDefaultDocsOpenGroups());
   let header: HTMLElement | undefined;
   let mobileTrigger: HTMLButtonElement | undefined;
   let selectionInProgress = false;
@@ -172,26 +163,8 @@ export function ProductHeader() {
   const activeHierarchy = createMemo(() =>
     CANONICAL_CONTENT_TREE.find(({ surface }) => surface === activeSurface()?.id),
   );
-  const activeDocsGroup = createMemo(() => getActiveDocsNavigationGroup(location().pathname));
-
-  const loadDocsGroupState = () => {
-    setOpenDocsGroups(readDocsOpenGroups(sessionStorage, location().pathname));
-  };
-
-  const toggleDocsGroup = (id: DocsGroupId) => {
-    const next = updateDocsGroupOpen(
-      openDocsGroups(),
-      id,
-      !openDocsGroups().has(id),
-      location().pathname,
-    );
-    setOpenDocsGroups(next);
-    writeDocsOpenGroups(sessionStorage, next);
-  };
-
   const setMenuOpen = (open: boolean) => {
     const wasOpen = mobileOpen();
-    if (open && activeSurface()?.id === "docs") loadDocsGroupState();
     setMobileOpen(open);
     if (!open && wasOpen && !selectionInProgress) {
       requestAnimationFrame(() => mobileTrigger?.focus());
@@ -342,55 +315,29 @@ export function ProductHeader() {
                         </ul>
                       }
                     >
-                      <ul class="mt-4 space-y-5">
-                        <For each={DOCS_NAVIGATION_GROUPS}>
-                          {(group) => (
-                            <li>
-                              <button
-                                type="button"
-                                data-docs-mobile-group
-                                aria-expanded={
-                                  activeDocsGroup()?.id === group.id ||
-                                  openDocsGroups().has(group.id)
-                                }
-                                aria-controls={`mobile-docs-group-${group.id}`}
-                                class="flex w-full items-center justify-between rounded-sm px-3 py-1 font-medium text-muted-foreground text-xs uppercase tracking-wider outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                onClick={() => toggleDocsGroup(group.id)}
-                              >
-                                {group.label}
-                                <ChevronDown
-                                  class={cn(
-                                    "size-3.5 transition-transform motion-reduce:transition-none",
-                                    {
-                                      "rotate-180":
-                                        activeDocsGroup()?.id === group.id ||
-                                        openDocsGroups().has(group.id),
-                                    },
-                                  )}
-                                />
-                              </button>
-                              <Show
-                                when={
-                                  activeDocsGroup()?.id === group.id ||
-                                  openDocsGroups().has(group.id)
-                                }
-                              >
-                                <ul id={`mobile-docs-group-${group.id}`} class="mt-1 space-y-1">
-                                  <For each={group.nodes}>
-                                    {(node) => (
-                                      <HierarchyNode
-                                        node={node}
-                                        pathname={location().pathname}
-                                        onSelect={closeForSelection}
-                                      />
-                                    )}
-                                  </For>
-                                </ul>
-                              </Show>
-                            </li>
-                          )}
-                        </For>
-                      </ul>
+                      <DocsNavigationGroups
+                        pathname={location().pathname}
+                        active={mobileOpen()}
+                        variant="mobile"
+                        idPrefix="mobile-docs-group"
+                        class="mt-4 space-y-5"
+                        triggerClass="flex w-full items-center justify-between rounded-sm px-3 py-1 font-medium text-muted-foreground text-xs uppercase tracking-wider outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        nodesClass="mt-1 space-y-1"
+                        nestedNodesClass="mt-1 space-y-1 border-l pl-2"
+                        renderLink={(node, depth) => (
+                          <ProductNavigationLink
+                            href={node.path}
+                            current={location().pathname === node.path ? "page" : undefined}
+                            onSelect={closeForSelection}
+                            class={cn(
+                              "block rounded-md py-1.5 pr-3 text-muted-foreground text-sm outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-muted aria-[current=page]:font-medium aria-[current=page]:text-foreground motion-reduce:transition-none",
+                              depth > 0 ? "pl-6" : "pl-3",
+                            )}
+                          >
+                            {node.label}
+                          </ProductNavigationLink>
+                        )}
+                      />
                     </Show>
                   </>
                 )}

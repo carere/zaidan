@@ -5,6 +5,7 @@ import { createPageHead } from "@/lib/seo";
 
 const node = requireCanonicalNode("/docs");
 const entry = requireCanonicalReadingEntry("/docs");
+const data = { node, entry };
 
 export const Route = createFileRoute("/_product/docs")({
   head: () =>
@@ -14,9 +15,5 @@ export const Route = createFileRoute("/_product/docs")({
 
 function RouteComponent() {
   const location = useLocation();
-  return location().pathname === "/docs" ? (
-    <CanonicalDocsPage node={node} entry={entry} />
-  ) : (
-    <Outlet />
-  );
+  return location().pathname === "/docs" ? <CanonicalDocsPage data={data} /> : <Outlet />;
 }

@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-solid";
+import { ChevronLeft, ChevronRight } from "lucide-solid";
 import {
   createEffect,
   createMemo,
@@ -11,22 +11,11 @@ import {
   Show,
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
+import { DocsNavigationGroups } from "@/components/docs-navigation-groups";
 import { sharedComponents } from "@/components/mdx-components";
 import { TableOfContents } from "@/components/toc";
 import type { CanonicalDocsRouteData } from "@/lib/canonical-docs-route";
 import {
-  type DocsGroupId,
-  ensureActiveDocsGroupOpen,
-  getActiveDocsNavigationGroup,
-  getDefaultDocsOpenGroups,
-  readDocsOpenGroups,
-  updateDocsGroupOpen,
-  writeDocsOpenGroups,
-} from "@/lib/docs-navigation";
-import {
-  type CanonicalNode,
-  type CanonicalReadingEntry,
-  DOCS_NAVIGATION_GROUPS,
   getCanonicalOverviewChildren,
   getCanonicalReadingEntry,
   getCanonicalTraversal,
@@ -72,75 +61,7 @@ const focusPageHeading = () => {
   });
 };
 
-function NavigationNode(props: { node: CanonicalNode; pathname: string; depth?: number }) {
-  return (
-    <li>
-      <a
-        data-active-docs-item={props.node.path === props.pathname ? "" : undefined}
-        href={props.node.path}
-        aria-current={props.node.path === props.pathname ? "page" : undefined}
-        onClick={prepareNavigation}
-        class={cn(
-          "block rounded-md py-1.5 pr-2 text-muted-foreground text-sm outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-muted aria-[current=page]:font-medium aria-[current=page]:text-foreground motion-reduce:transition-none",
-          (props.depth ?? 0) > 0 ? "pl-6" : "pl-2",
-        )}
-      >
-        {props.node.label}
-      </a>
-      <Show when={props.node.children?.length}>
-        <ul class="mt-1 space-y-1 border-l pl-2">
-          <For each={props.node.children}>
-            {(child) => (
-              <NavigationNode
-                node={child}
-                pathname={props.pathname}
-                depth={(props.depth ?? 0) + 1}
-              />
-            )}
-          </For>
-        </ul>
-      </Show>
-    </li>
-  );
-}
-
 function DocsNavigationRail(props: { pathname: string }) {
-  const [openGroups, setOpenGroups] = createSignal(getDefaultDocsOpenGroups());
-  let navigation: HTMLElement | undefined;
-
-  const activeGroup = () => getActiveDocsNavigationGroup(props.pathname);
-
-  const revealActiveItem = () =>
-    navigation
-      ?.querySelector<HTMLElement>("[data-active-docs-item]")
-      ?.scrollIntoView({ block: "nearest" });
-
-  const setGroupOpen = (id: DocsGroupId, open: boolean) => {
-    const next = updateDocsGroupOpen(openGroups(), id, open, props.pathname);
-    setOpenGroups(next);
-    writeDocsOpenGroups(sessionStorage, next);
-  };
-
-  onMount(() => {
-    setOpenGroups(readDocsOpenGroups(sessionStorage, props.pathname));
-    requestAnimationFrame(revealActiveItem);
-  });
-
-  createEffect(
-    on(
-      () => props.pathname,
-      () => {
-        const next = ensureActiveDocsGroupOpen(openGroups(), props.pathname);
-        if (next !== openGroups()) {
-          setOpenGroups(next);
-          writeDocsOpenGroups(sessionStorage, next);
-        }
-        requestAnimationFrame(revealActiveItem);
-      },
-      { defer: true },
-    ),
-  );
-
   return (
     <aside
       data-docs-left-rail
@@ -150,45 +71,30 @@ function DocsNavigationRail(props: { pathname: string }) {
         height: "calc(100svh - var(--product-header-height))",
       }}
     >
-      <nav
-        ref={navigation}
-        aria-label="Docs hierarchy"
-        class="no-scrollbar h-full overflow-y-auto px-4 py-8"
-      >
-        <For each={DOCS_NAVIGATION_GROUPS}>
-          {(group) => {
-            const isActive = () => activeGroup()?.id === group.id;
-            const isOpen = () => isActive() || openGroups().has(group.id);
-            const contentId = `docs-group-${group.id}`;
-            return (
-              <section class="mb-5 last:mb-0">
-                <button
-                  type="button"
-                  aria-expanded={isOpen()}
-                  aria-controls={contentId}
-                  class="flex w-full items-center justify-between rounded-sm py-1 text-left font-medium text-xs uppercase tracking-wider outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => {
-                    if (!isActive()) setGroupOpen(group.id, !isOpen());
-                  }}
-                >
-                  {group.label}
-                  <ChevronDown
-                    class={cn("size-3.5 transition-transform motion-reduce:transition-none", {
-                      "rotate-180": isOpen(),
-                    })}
-                  />
-                </button>
-                <Show when={isOpen()}>
-                  <ul id={contentId} class="mt-2 space-y-1">
-                    <For each={group.nodes}>
-                      {(node) => <NavigationNode node={node} pathname={props.pathname} />}
-                    </For>
-                  </ul>
-                </Show>
-              </section>
-            );
-          }}
-        </For>
+      <nav aria-label="Docs hierarchy" class="no-scrollbar h-full overflow-y-auto px-4 py-8">
+        <DocsNavigationGroups
+          pathname={props.pathname}
+          variant="rail"
+          idPrefix="docs-group"
+          groupClass="mb-5 last:mb-0"
+          triggerClass="flex w-full items-center justify-between rounded-sm py-1 text-left font-medium text-xs uppercase tracking-wider outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          nodesClass="mt-2 space-y-1"
+          nestedNodesClass="mt-1 space-y-1 border-l pl-2"
+          renderLink={(node, depth) => (
+            <a
+              data-active-docs-item={node.path === props.pathname ? "" : undefined}
+              href={node.path}
+              aria-current={node.path === props.pathname ? "page" : undefined}
+              onClick={prepareNavigation}
+              class={cn(
+                "block rounded-md py-1.5 pr-2 text-muted-foreground text-sm outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-muted aria-[current=page]:font-medium aria-[current=page]:text-foreground motion-reduce:transition-none",
+                depth > 0 ? "pl-6" : "pl-2",
+              )}
+            >
+              {node.label}
+            </a>
+          )}
+        />
       </nav>
     </aside>
   );
@@ -306,9 +212,11 @@ function PagePager(props: { pathname: string; position: "heading" | "footer" }) 
   );
 }
 
-export function CanonicalDocsPage(props: { node: CanonicalNode; entry: CanonicalReadingEntry }) {
-  const readingToc = createMemo(() => getReadingToc(props.entry.toc));
-  const mdxComponent = createMemo(() => authoredComponents[`../pages/${props.entry.source}.mdx`]);
+export function CanonicalDocsPage(props: { data: CanonicalDocsRouteData }) {
+  const readingToc = createMemo(() => getReadingToc(props.data.entry.toc));
+  const mdxComponent = createMemo(
+    () => authoredComponents[`../pages/${props.data.entry.source}.mdx`],
+  );
   const [activeTocUrl, setActiveTocUrl] = createSignal("");
   let mobileToc: HTMLDetailsElement | undefined;
 
@@ -326,7 +234,7 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
 
   createEffect(
     on(
-      () => props.node.path,
+      () => props.data.node.path,
       () => {
         focusPageHeading();
         setActiveTocUrl(window.location.hash);
@@ -356,7 +264,7 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
     };
     createEffect(
       on(
-        () => props.node.path,
+        () => props.data.node.path,
         () => {
           mutationObserver?.disconnect();
           requestAnimationFrame(() => {
@@ -379,11 +287,11 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
   return (
     <main
       data-product-surface="docs"
-      data-canonical-route={props.node.path}
+      data-canonical-route={props.data.node.path}
       data-docs-shell
       class="mx-auto grid min-h-[calc(100svh-var(--product-header-height))] w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)]"
     >
-      <DocsNavigationRail pathname={props.node.path} />
+      <DocsNavigationRail pathname={props.data.node.path} />
       <div class="grid min-w-0 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_15rem]">
         <article class="mx-auto w-full max-w-[40rem] px-5 py-10 sm:px-8 lg:px-10 lg:py-12">
           <header class="mb-8">
@@ -393,15 +301,15 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
                 tabIndex={-1}
                 class="scroll-mt-[calc(var(--product-header-height)+1rem)] font-heading font-semibold text-4xl tracking-tight outline-none"
               >
-                {props.node.label}
+                {props.data.node.label}
               </h1>
-              <PagePager pathname={props.node.path} position="heading" />
+              <PagePager pathname={props.data.node.path} position="heading" />
             </div>
-            <Show when={props.entry.date}>
+            <Show when={props.data.entry.date}>
               {(date) => <p class="mt-2 text-muted-foreground text-sm">{fmtDate(date())}</p>}
             </Show>
             <p class="mt-4 text-lg text-muted-foreground leading-relaxed">
-              {props.node.description}
+              {props.data.node.description}
             </p>
           </header>
 
@@ -422,13 +330,13 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
 
           <Show when={mdxComponent()}>
             {(AuthoredContent) => (
-              <div data-authored-docs-content data-authored-source={props.entry.source}>
+              <div data-authored-docs-content data-authored-source={props.data.entry.source}>
                 <Dynamic component={AuthoredContent()} components={sharedComponents} />
               </div>
             )}
           </Show>
-          <OverviewCards pathname={props.node.path} />
-          <PagePager pathname={props.node.path} position="footer" />
+          <OverviewCards pathname={props.data.node.path} />
+          <PagePager pathname={props.data.node.path} position="footer" />
         </article>
 
         <Show when={readingToc().length > 0}>
@@ -443,8 +351,4 @@ export function CanonicalDocsPage(props: { node: CanonicalNode; entry: Canonical
       </div>
     </main>
   );
-}
-
-export function CanonicalDocsRouteView(props: { data: CanonicalDocsRouteData }) {
-  return <CanonicalDocsPage node={props.data.node} entry={props.data.entry} />;
 }

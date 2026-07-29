@@ -116,35 +116,70 @@ const blockNodes = sortedBlocks.map((entry) =>
   authoredNode(entry, "components", `/components/blocks/${entry.slug}`, "block"),
 );
 
-const changelogNodes = sortedChangelog.map((entry) =>
-  authoredNode(entry, "docs", `/docs/changelog/${entry.slug}`, "changelog"),
-);
+type CanonicalDocsDescriptor = {
+  entry: { slug: string; title: string; description: string; toc: readonly TocNode[] };
+  path: string;
+  source: string;
+  kind: "docs" | "changelog";
+  date?: string;
+};
 
-const installationNode = authoredNode(
-  requireDoc("installation"),
-  "docs",
-  "/docs/installation",
-  "docs",
+const describeDoc = (slug: string, path: string, source = `docs/${slug}`) => ({
+  entry: requireDoc(slug),
+  path,
+  source,
+  kind: "docs" as const,
+});
+
+const introductionDescriptor = describeDoc("introduction", "/docs");
+const installationDescriptor = describeDoc("installation", "/docs/installation");
+const installationDescriptors = INSTALLATION_SLUGS.map((slug) => {
+  const entry = docs.find(
+    (candidate) => candidate.parent === "installation" && candidate.slug === slug,
+  );
+  if (!entry) throw new TypeError(`Canonical installation entry "${slug}" has no authored source`);
+  return {
+    entry,
+    path: `/docs/installation/${slug}`,
+    source: `docs/installation/${slug}`,
+    kind: "docs" as const,
+  };
+});
+const guideDescriptors = ["customization", "dark-mode", "zaidan-agent", "faq", "roadmap"].map(
+  (slug) => describeDoc(slug, `/docs/${slug}`),
 );
+const changelogOverviewDescriptor = describeDoc("changelog", "/docs/changelog");
+const changelogDescriptors = sortedChangelog.map((entry) => ({
+  entry,
+  path: `/docs/changelog/${entry.slug}`,
+  source: `changelog/${entry.slug}`,
+  kind: "changelog" as const,
+  date: entry.date,
+}));
+const canonicalDocsDescriptors: readonly CanonicalDocsDescriptor[] = [
+  introductionDescriptor,
+  installationDescriptor,
+  ...installationDescriptors,
+  ...guideDescriptors,
+  changelogOverviewDescriptor,
+  ...changelogDescriptors,
+];
+
+const descriptorNode = (descriptor: CanonicalDocsDescriptor) =>
+  authoredNode(descriptor.entry, "docs", descriptor.path, descriptor.kind);
+
+const changelogNodes = changelogDescriptors.map(descriptorNode);
+const installationNode = descriptorNode(installationDescriptor);
 
 const docsNodes: readonly CanonicalNode[] = [
-  authoredNode(requireDoc("introduction"), "docs", "/docs", "docs"),
+  descriptorNode(introductionDescriptor),
   {
     ...installationNode,
-    children: INSTALLATION_SLUGS.map((slug) => {
-      const entry = docs.find(
-        (candidate) => candidate.parent === "installation" && candidate.slug === slug,
-      );
-      if (!entry)
-        throw new TypeError(`Canonical installation entry "${slug}" has no authored source`);
-      return authoredNode(entry, "docs", `/docs/installation/${slug}`, "docs");
-    }),
+    children: installationDescriptors.map(descriptorNode),
   },
-  ...["customization", "dark-mode", "zaidan-agent", "faq", "roadmap"].map((slug) =>
-    authoredNode(requireDoc(slug), "docs", `/docs/${slug}`, "docs"),
-  ),
+  ...guideDescriptors.map(descriptorNode),
   {
-    ...authoredNode(requireDoc("changelog"), "docs", "/docs/changelog", "docs"),
+    ...descriptorNode(changelogOverviewDescriptor),
     children: changelogNodes,
   },
 ];
@@ -244,30 +279,18 @@ export type CanonicalReadingEntry = {
   date?: string;
 };
 
-const readingEntryByPath = new Map<string, CanonicalReadingEntry>();
-for (const entry of docs) {
-  const path =
-    entry.slug === "introduction"
-      ? "/docs"
-      : entry.parent === "installation"
-        ? `/docs/installation/${entry.slug}`
-        : `/docs/${entry.slug}`;
-  readingEntryByPath.set(path, {
-    source: entry.parent ? `docs/${entry.parent}/${entry.slug}` : `docs/${entry.slug}`,
-    title: entry.title,
-    description: entry.description,
-    toc: entry.toc,
-  });
-}
-for (const entry of sortedChangelog) {
-  readingEntryByPath.set(`/docs/changelog/${entry.slug}`, {
-    source: `changelog/${entry.slug}`,
-    title: entry.title,
-    description: entry.description,
-    toc: entry.toc,
-    date: entry.date,
-  });
-}
+const readingEntryByPath = new Map<string, CanonicalReadingEntry>(
+  canonicalDocsDescriptors.map((descriptor): [string, CanonicalReadingEntry] => [
+    descriptor.path,
+    {
+      source: descriptor.source,
+      title: descriptor.entry.title,
+      description: descriptor.entry.description,
+      toc: descriptor.entry.toc,
+      ...(descriptor.date ? { date: descriptor.date } : {}),
+    },
+  ]),
+);
 
 const nodeByPath = new Map(CANONICAL_NODES.map((node) => [node.path, node]));
 

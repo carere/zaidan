@@ -117,8 +117,19 @@ export default defineConfig({
                   await routePage.close();
                 }
               },
-              async auditDocsAccessibility(context) {
-                const { testFrame } = await getCanonicalDocsTestFrame(context);
+              async auditDocsAccessibility(context, state?: "product-menu" | "on-this-page") {
+                const { testFrame, routeFrame, shell } = await getCanonicalDocsTestFrame(context);
+                if (state === "product-menu") {
+                  await routeFrame
+                    .locator("[data-product-header]")
+                    .getByRole("button", { name: "Open Product menu" })
+                    .click();
+                  await routeFrame.getByRole("dialog").waitFor({ state: "visible" });
+                } else if (state === "on-this-page") {
+                  const mobileToc = shell.locator("[data-mobile-toc]");
+                  await mobileToc.locator("summary").click();
+                  await mobileToc.getByRole("link").first().waitFor({ state: "visible" });
+                }
                 const iframe = await testFrame
                   .locator('iframe[title="Canonical Docs route"]')
                   .elementHandle();
@@ -833,6 +844,36 @@ export default defineConfig({
                   focusedSection,
                   menuGroups,
                   activeMenuItem,
+                };
+              },
+              async inspectInitialDeepMobileDocs(context) {
+                const { routeFrame } = await getCanonicalDocsTestFrame(context);
+                await routeFrame
+                  .locator("[data-product-header]")
+                  .getByRole("button", { name: "Open Product menu" })
+                  .click();
+                const dialog = routeFrame.getByRole("dialog");
+                await dialog.waitFor({ state: "visible" });
+                const navigation = dialog.getByRole("navigation", {
+                  name: "Mobile Product navigation",
+                });
+                const activeItem = navigation.locator('[aria-current="page"]');
+                await activeItem.waitFor({ state: "visible" });
+                await activeItem.evaluate(
+                  () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+                );
+                return {
+                  activeNavigation: await activeItem.textContent(),
+                  activeItemVisible: await activeItem.evaluate((element) => {
+                    const item = element.getBoundingClientRect();
+                    const scrollport = element
+                      .closest('nav[aria-label="Mobile Product navigation"]')
+                      ?.getBoundingClientRect();
+                    return Boolean(
+                      scrollport && item.top >= scrollport.top && item.bottom <= scrollport.bottom,
+                    );
+                  }),
+                  menuScrollTop: await navigation.evaluate((element) => element.scrollTop),
                 };
               },
               async inspectDocsOverview(context) {

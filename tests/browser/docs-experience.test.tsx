@@ -52,10 +52,12 @@ const CANONICAL_DOCS_PATHS = CANONICAL_DOCS_CASES.map(([path]) => path);
 
 let dispose: (() => void) | undefined;
 
-afterEach(() => {
+const disposeDocsRoute = () => {
   dispose?.();
   dispose = undefined;
-});
+};
+
+afterEach(disposeDocsRoute);
 
 async function renderDocsRoute(pathname: string, width: number, height: number) {
   let resolveLoaded: (() => void) | undefined;
@@ -180,22 +182,42 @@ describe("canonical Docs experience", () => {
     expect(evidence.activeMenuItem).toBe("Dark Mode");
   });
 
+  it("reveals the active item in a short deep-route Product Header menu", async () => {
+    await renderDocsRoute("/docs/changelog/launch", 390, 320);
+    const { inspectInitialDeepMobileDocs } = commands as unknown as {
+      inspectInitialDeepMobileDocs: () => Promise<{
+        activeNavigation: string | null;
+        activeItemVisible: boolean;
+        menuScrollTop: number;
+      }>;
+    };
+    const evidence = await inspectInitialDeepMobileDocs();
+
+    expect(evidence.activeNavigation).toBe("February 2026 — Zaidan Launch");
+    expect(evidence.activeItemVisible).toBe(true);
+    expect(evidence.menuScrollTop).toBeGreaterThan(0);
+  });
+
   it("passes automated WCAG accessibility validation on desktop and mobile", async () => {
     const { auditDocsAccessibility } = commands as unknown as {
-      auditDocsAccessibility: () => Promise<
-        { id: string; impact: string | null; targets: string[][] }[]
-      >;
+      auditDocsAccessibility: (
+        state?: "product-menu" | "on-this-page",
+      ) => Promise<{ id: string; impact: string | null; targets: string[][] }[]>;
     };
 
     await renderDocsRoute("/docs", 1440, 900);
     const desktopViolations = await auditDocsAccessibility();
     expect(desktopViolations).toEqual([]);
 
-    dispose?.();
-    dispose = undefined;
+    disposeDocsRoute();
     await renderDocsRoute("/docs/changelog", 390, 844);
-    const mobileViolations = await auditDocsAccessibility();
-    expect(mobileViolations).toEqual([]);
+    const productMenuViolations = await auditDocsAccessibility("product-menu");
+    expect(productMenuViolations).toEqual([]);
+
+    disposeDocsRoute();
+    await renderDocsRoute("/docs/changelog", 390, 844);
+    const mobileTocViolations = await auditDocsAccessibility("on-this-page");
+    expect(mobileTocViolations).toEqual([]);
   });
 
   it("server-renders every canonical Docs source exactly once", async () => {
