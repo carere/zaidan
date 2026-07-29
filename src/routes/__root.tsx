@@ -2,12 +2,10 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanst
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
-import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { NotFoundPage } from "@/components/not-found-page";
 import { siteConfig } from "@/lib/site";
-import { DesignSystemConfigSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   type ColorMode,
@@ -21,18 +19,12 @@ export const Route = createRootRouteWithContext()({
     links: [
       { rel: "stylesheet", href: styleCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "canonical", href: siteConfig.url },
     ],
     meta: [
       { charset: "utf-8" },
       { title: siteConfig.name },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
       { name: "description", content: siteConfig.description },
-      {
-        name: "robots",
-        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-      },
-
       // Open Graph
       { property: "og:locale", content: "en_US" },
       { property: "og:type", content: "website" },
@@ -55,7 +47,6 @@ export const Route = createRootRouteWithContext()({
       { name: "twitter:image:alt", content: siteConfig.description },
     ],
   }),
-  validateSearch: zodValidator(DesignSystemConfigSchema),
   shellComponent: RootComponent,
   notFoundComponent: () => <NotFoundPage />,
 });

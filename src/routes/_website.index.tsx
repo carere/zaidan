@@ -1,9 +1,7 @@
-import { createFileRoute, useRouter } from "@tanstack/solid-router";
-import { createEffect, createSignal, onCleanup, onMount, untrack } from "solid-js";
+import { createFileRoute } from "@tanstack/solid-router";
+import { RootComponents } from "@/components/home";
 import { HomeHero } from "@/components/home-hero";
 import { createPageHead } from "@/lib/seo";
-import type { IframeMessage } from "@/lib/types";
-import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
 export const Route = createFileRoute("/_website/")({
   head: () => {
@@ -18,88 +16,10 @@ export const Route = createFileRoute("/_website/")({
 });
 
 function RouteComponent() {
-  const router = useRouter();
-  const search = Route.useSearch();
-  const { colorMode } = useColorMode();
-
-  // Drives the iframe's height — set from messages posted by the iframe so
-  // the iframe sizes to its content and doesn't show an internal scrollbar.
-  const [iframeHeight, setIframeHeight] = createSignal(700);
-
-  let iframeRef: HTMLIFrameElement | undefined;
-
-  // Handle forwarded keyboard shortcuts + height updates from iframe
-  onMount(() => {
-    const handleMessage = (event: MessageEvent<IframeMessage>) => {
-      if (event.data.type === "dark-mode-forward") {
-        const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key,
-          bubbles: true,
-          cancelable: true,
-        });
-        document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === "randomize-forward") {
-        const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key,
-          bubbles: true,
-          cancelable: true,
-        });
-        document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === "cmd-k-forward") {
-        const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
-        const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key,
-          metaKey: isMac,
-          ctrlKey: !isMac,
-          bubbles: true,
-          cancelable: true,
-        });
-        document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === "iframe-height-sync") {
-        setIframeHeight(event.data.data);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    onCleanup(() => window.removeEventListener("message", handleMessage));
-  });
-
-  // Send design system params to iframe when they change
-  createEffect(() => {
-    iframeRef?.contentWindow?.postMessage({
-      type: "design-system-params-sync",
-      data: search(),
-    } satisfies IframeMessage);
-  });
-
-  // Send color mode to iframe when it changes
-  createEffect(() => {
-    iframeRef?.contentWindow?.postMessage({
-      type: "color-mode-sync",
-      data: colorMode(),
-    } satisfies IframeMessage);
-  });
-
-  const href = () =>
-    untrack(
-      () =>
-        router.buildLocation({
-          to: "/preview/home",
-          search: search(),
-        }).href,
-    );
-
   return (
     <div class="no-scrollbar relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-col overflow-y-auto md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
       <HomeHero />
-      <iframe
-        ref={iframeRef}
-        src={href()}
-        style={{ height: `${iframeHeight()}px` }}
-        scrolling="no"
-        class="z-10 w-full shrink-0 rounded-lg"
-        title="Home Preview"
-      />
+      <RootComponents />
     </div>
   );
 }

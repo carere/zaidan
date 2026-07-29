@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
+import { useLocation, useNavigate, useParams } from "@tanstack/solid-router";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -29,7 +29,6 @@ export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   const [open, setOpen] = createSignal(false);
   const location = useLocation();
-  const search = useSearch({ strict: false });
   const navigate = useNavigate();
   const params = useParams({ strict: false });
   const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
@@ -91,7 +90,6 @@ export function ItemPicker(props: ComponentProps<"div">) {
                             navigate({
                               to: entry.route,
                               params: { slug: item.slug },
-                              search: search(),
                             });
                             setOpen(false);
                           }}

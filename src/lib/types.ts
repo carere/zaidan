@@ -104,6 +104,18 @@ export type Primitive = z.infer<typeof PrimitiveSchema>;
 
 export type Kind = "ui" | "blocks";
 
+export const DesignSystemSearchSchema = z.object({
+  primitive: PrimitiveSchema.optional(),
+  style: StyleSchema.optional(),
+  baseColor: BaseColorSchema.optional(),
+  theme: ThemeSchema.optional(),
+  chartColor: ChartColorSchema.optional(),
+  font: FontSchema.optional(),
+  headingFont: FontSchema.optional(),
+  radius: RadiusSchema.optional(),
+  menuAccent: MenuAccentSchema.optional(),
+});
+
 export const DesignSystemConfigSchema = z.object({
   primitive: PrimitiveSchema.optional().default("kobalte"),
   style: StyleSchema.optional().default("vega"),

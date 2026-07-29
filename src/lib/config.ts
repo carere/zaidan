@@ -217,7 +217,6 @@ export const MENU_COLORS: { name: string; label: string }[] = [
  */
 export const PRIMITIVES: { name: Primitive; label: string }[] = [
   { name: "kobalte", label: "Kobalte" },
-  { name: "base", label: "Base" },
 ];
 
 /**

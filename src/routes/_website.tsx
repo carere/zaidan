@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { CircleAlert } from "lucide-solid";
 import { createSignal, ErrorBoundary } from "solid-js";
 import { CliButton } from "@/components/cli-button";
@@ -12,6 +13,7 @@ import { NotFoundPage } from "@/components/not-found-page";
 import { RandomButton } from "@/components/random-button";
 import { ShareButton } from "@/components/share-button";
 import { SiteConfig } from "@/components/site-config";
+import { DesignSystemSearchSchema } from "@/lib/types";
 import { LocksProvider } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/kobalte/ui/separator";
@@ -19,6 +21,7 @@ import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
 import { Toaster } from "@/registry/kobalte/ui/sonner";
 
 export const Route = createFileRoute("/_website")({
+  validateSearch: zodValidator(DesignSystemSearchSchema),
   component: RouteComponent,
   notFoundComponent: () => <NotFoundPage />,
 });

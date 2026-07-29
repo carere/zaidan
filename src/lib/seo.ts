@@ -37,3 +37,18 @@ export function createPageHead(page: PageMetadata) {
     links: [{ rel: "canonical", href: url }],
   };
 }
+
+export function createPreviewHead(page: Omit<PageMetadata, "path"> & { canonicalPath: string }) {
+  const head = createPageHead({
+    title: page.title,
+    description: page.description,
+    path: page.canonicalPath,
+    type: page.type,
+    image: page.image,
+  });
+
+  return {
+    ...head,
+    meta: [...head.meta, { name: "robots", content: "noindex, follow" }],
+  };
+}

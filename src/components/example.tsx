@@ -1,4 +1,5 @@
 import { type ComponentProps, splitProps } from "solid-js";
+import { stableExampleAnchor } from "@/components/canonical-route";
 import { cn } from "@/lib/utils";
 
 function ExampleWrapper(props: ComponentProps<"div">) {
@@ -26,6 +27,7 @@ function Example(
   const [local, others] = splitProps(props, ["class", "containerClass", "children", "title"]);
   return (
     <div
+      id={stableExampleAnchor(local.title)}
       data-slot="example"
       class={cn(
         "mx-auto flex w-full min-w-0 max-w-lg flex-col gap-1 self-stretch lg:max-w-none",

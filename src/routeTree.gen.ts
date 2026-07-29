@@ -10,20 +10,44 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WebsiteRouteImport } from './routes/_website'
+import { Route as ProductRouteImport } from './routes/_product'
 import { Route as WebsiteIndexRouteImport } from './routes/_website.index'
 import { Route as PreviewHomeRouteImport } from './routes/preview.home'
-import { Route as WebsiteSlugRouteImport } from './routes/_website.$slug'
+import { Route as PreviewCreateRouteImport } from './routes/preview.create'
+import { Route as WebsiteZaidanAgentRouteImport } from './routes/_website.zaidan-agent'
+import { Route as WebsiteRoadmapRouteImport } from './routes/_website.roadmap'
+import { Route as WebsiteInstallationRouteImport } from './routes/_website.installation'
+import { Route as WebsiteFaqRouteImport } from './routes/_website.faq'
+import { Route as WebsiteDarkModeRouteImport } from './routes/_website.dark-mode'
+import { Route as WebsiteCustomizationRouteImport } from './routes/_website.customization'
+import { Route as ProductDocsRouteImport } from './routes/_product.docs'
+import { Route as ProductCreateRouteImport } from './routes/_product.create'
+import { Route as ProductComponentsRouteImport } from './routes/_product.components'
+import { Route as ProductChartsRouteImport } from './routes/_product.charts'
 import { Route as WebsiteChangelogIndexRouteImport } from './routes/_website.changelog.index'
+import { Route as PreviewComponentsSlugRouteImport } from './routes/preview.components.$slug'
+import { Route as PreviewChartsSlugRouteImport } from './routes/preview.charts.$slug'
+import { Route as PreviewBlocksSlugRouteImport } from './routes/preview.blocks.$slug'
 import { Route as WebsiteUiChar123SlugChar125RouteImport } from './routes/_website.ui.{-$slug}'
 import { Route as WebsiteInstallationSlugRouteImport } from './routes/_website.installation.$slug'
 import { Route as WebsiteChangelogSlugRouteImport } from './routes/_website.changelog.$slug'
 import { Route as WebsiteBlocksChar123SlugChar125RouteImport } from './routes/_website.blocks.{-$slug}'
+import { Route as ProductDocsSlugRouteImport } from './routes/_product.docs.$slug'
+import { Route as ProductComponentsBlocksRouteImport } from './routes/_product.components.blocks'
+import { Route as ProductComponentsSlugRouteImport } from './routes/_product.components.$slug'
 import { Route as PreviewKindPrimitiveSlugRouteImport } from './routes/preview.$kind.$primitive.$slug'
 import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
 import { Route as WebsiteBlocksSlugDocsRouteImport } from './routes/_website.blocks.$slug.docs'
+import { Route as ProductDocsInstallationSlugRouteImport } from './routes/_product.docs.installation.$slug'
+import { Route as ProductDocsChangelogEntryRouteImport } from './routes/_product.docs.changelog.$entry'
+import { Route as ProductComponentsBlocksSlugRouteImport } from './routes/_product.components.blocks.$slug'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/_website',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductRoute = ProductRouteImport.update({
+  id: '/_product',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WebsiteIndexRoute = WebsiteIndexRouteImport.update({
@@ -36,15 +60,80 @@ const PreviewHomeRoute = PreviewHomeRouteImport.update({
   path: '/preview/home',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WebsiteSlugRoute = WebsiteSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
+const PreviewCreateRoute = PreviewCreateRouteImport.update({
+  id: '/preview/create',
+  path: '/preview/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebsiteZaidanAgentRoute = WebsiteZaidanAgentRouteImport.update({
+  id: '/zaidan-agent',
+  path: '/zaidan-agent',
   getParentRoute: () => WebsiteRoute,
+} as any)
+const WebsiteRoadmapRoute = WebsiteRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const WebsiteInstallationRoute = WebsiteInstallationRouteImport.update({
+  id: '/installation',
+  path: '/installation',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const WebsiteFaqRoute = WebsiteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const WebsiteDarkModeRoute = WebsiteDarkModeRouteImport.update({
+  id: '/dark-mode',
+  path: '/dark-mode',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const WebsiteCustomizationRoute = WebsiteCustomizationRouteImport.update({
+  id: '/customization',
+  path: '/customization',
+  getParentRoute: () => WebsiteRoute,
+} as any)
+const ProductDocsRoute = ProductDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ProductRoute,
+} as any)
+const ProductCreateRoute = ProductCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => ProductRoute,
+} as any)
+const ProductComponentsRoute = ProductComponentsRouteImport.update({
+  id: '/components',
+  path: '/components',
+  getParentRoute: () => ProductRoute,
+} as any)
+const ProductChartsRoute = ProductChartsRouteImport.update({
+  id: '/charts',
+  path: '/charts',
+  getParentRoute: () => ProductRoute,
 } as any)
 const WebsiteChangelogIndexRoute = WebsiteChangelogIndexRouteImport.update({
   id: '/changelog/',
   path: '/changelog/',
   getParentRoute: () => WebsiteRoute,
+} as any)
+const PreviewComponentsSlugRoute = PreviewComponentsSlugRouteImport.update({
+  id: '/preview/components/$slug',
+  path: '/preview/components/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewChartsSlugRoute = PreviewChartsSlugRouteImport.update({
+  id: '/preview/charts/$slug',
+  path: '/preview/charts/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewBlocksSlugRoute = PreviewBlocksSlugRouteImport.update({
+  id: '/preview/blocks/$slug',
+  path: '/preview/blocks/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const WebsiteUiChar123SlugChar125Route =
   WebsiteUiChar123SlugChar125RouteImport.update({
@@ -53,9 +142,9 @@ const WebsiteUiChar123SlugChar125Route =
     getParentRoute: () => WebsiteRoute,
   } as any)
 const WebsiteInstallationSlugRoute = WebsiteInstallationSlugRouteImport.update({
-  id: '/installation/$slug',
-  path: '/installation/$slug',
-  getParentRoute: () => WebsiteRoute,
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => WebsiteInstallationRoute,
 } as any)
 const WebsiteChangelogSlugRoute = WebsiteChangelogSlugRouteImport.update({
   id: '/changelog/$slug',
@@ -68,6 +157,21 @@ const WebsiteBlocksChar123SlugChar125Route =
     path: '/blocks/{-$slug}',
     getParentRoute: () => WebsiteRoute,
   } as any)
+const ProductDocsSlugRoute = ProductDocsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ProductDocsRoute,
+} as any)
+const ProductComponentsBlocksRoute = ProductComponentsBlocksRouteImport.update({
+  id: '/blocks',
+  path: '/blocks',
+  getParentRoute: () => ProductComponentsRoute,
+} as any)
+const ProductComponentsSlugRoute = ProductComponentsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ProductComponentsRoute,
+} as any)
 const PreviewKindPrimitiveSlugRoute =
   PreviewKindPrimitiveSlugRouteImport.update({
     id: '/preview/$kind/$primitive/$slug',
@@ -84,44 +188,120 @@ const WebsiteBlocksSlugDocsRoute = WebsiteBlocksSlugDocsRouteImport.update({
   path: '/blocks/$slug/docs',
   getParentRoute: () => WebsiteRoute,
 } as any)
+const ProductDocsInstallationSlugRoute =
+  ProductDocsInstallationSlugRouteImport.update({
+    id: '/installation/$slug',
+    path: '/installation/$slug',
+    getParentRoute: () => ProductDocsRoute,
+  } as any)
+const ProductDocsChangelogEntryRoute =
+  ProductDocsChangelogEntryRouteImport.update({
+    id: '/changelog/$entry',
+    path: '/changelog/$entry',
+    getParentRoute: () => ProductDocsRoute,
+  } as any)
+const ProductComponentsBlocksSlugRoute =
+  ProductComponentsBlocksSlugRouteImport.update({
+    id: '/$slug',
+    path: '/$slug',
+    getParentRoute: () => ProductComponentsBlocksRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteIndexRoute
-  '/$slug': typeof WebsiteSlugRoute
+  '/charts': typeof ProductChartsRoute
+  '/components': typeof ProductComponentsRouteWithChildren
+  '/create': typeof ProductCreateRoute
+  '/docs': typeof ProductDocsRouteWithChildren
+  '/customization': typeof WebsiteCustomizationRoute
+  '/dark-mode': typeof WebsiteDarkModeRoute
+  '/faq': typeof WebsiteFaqRoute
+  '/installation': typeof WebsiteInstallationRouteWithChildren
+  '/roadmap': typeof WebsiteRoadmapRoute
+  '/zaidan-agent': typeof WebsiteZaidanAgentRoute
+  '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
+  '/components/$slug': typeof ProductComponentsSlugRoute
+  '/components/blocks': typeof ProductComponentsBlocksRouteWithChildren
+  '/docs/$slug': typeof ProductDocsSlugRoute
   '/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
   '/changelog/$slug': typeof WebsiteChangelogSlugRoute
   '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/preview/blocks/$slug': typeof PreviewBlocksSlugRoute
+  '/preview/charts/$slug': typeof PreviewChartsSlugRoute
+  '/preview/components/$slug': typeof PreviewComponentsSlugRoute
   '/changelog/': typeof WebsiteChangelogIndexRoute
+  '/components/blocks/$slug': typeof ProductComponentsBlocksSlugRoute
+  '/docs/changelog/$entry': typeof ProductDocsChangelogEntryRoute
+  '/docs/installation/$slug': typeof ProductDocsInstallationSlugRoute
   '/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
 }
 export interface FileRoutesByTo {
-  '/$slug': typeof WebsiteSlugRoute
-  '/preview/home': typeof PreviewHomeRoute
   '/': typeof WebsiteIndexRoute
+  '/charts': typeof ProductChartsRoute
+  '/components': typeof ProductComponentsRouteWithChildren
+  '/create': typeof ProductCreateRoute
+  '/docs': typeof ProductDocsRouteWithChildren
+  '/customization': typeof WebsiteCustomizationRoute
+  '/dark-mode': typeof WebsiteDarkModeRoute
+  '/faq': typeof WebsiteFaqRoute
+  '/installation': typeof WebsiteInstallationRouteWithChildren
+  '/roadmap': typeof WebsiteRoadmapRoute
+  '/zaidan-agent': typeof WebsiteZaidanAgentRoute
+  '/preview/create': typeof PreviewCreateRoute
+  '/preview/home': typeof PreviewHomeRoute
+  '/components/$slug': typeof ProductComponentsSlugRoute
+  '/components/blocks': typeof ProductComponentsBlocksRouteWithChildren
+  '/docs/$slug': typeof ProductDocsSlugRoute
   '/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
   '/changelog/$slug': typeof WebsiteChangelogSlugRoute
   '/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/preview/blocks/$slug': typeof PreviewBlocksSlugRoute
+  '/preview/charts/$slug': typeof PreviewChartsSlugRoute
+  '/preview/components/$slug': typeof PreviewComponentsSlugRoute
   '/changelog': typeof WebsiteChangelogIndexRoute
+  '/components/blocks/$slug': typeof ProductComponentsBlocksSlugRoute
+  '/docs/changelog/$entry': typeof ProductDocsChangelogEntryRoute
+  '/docs/installation/$slug': typeof ProductDocsInstallationSlugRoute
   '/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_product': typeof ProductRouteWithChildren
   '/_website': typeof WebsiteRouteWithChildren
-  '/_website/$slug': typeof WebsiteSlugRoute
+  '/_product/charts': typeof ProductChartsRoute
+  '/_product/components': typeof ProductComponentsRouteWithChildren
+  '/_product/create': typeof ProductCreateRoute
+  '/_product/docs': typeof ProductDocsRouteWithChildren
+  '/_website/customization': typeof WebsiteCustomizationRoute
+  '/_website/dark-mode': typeof WebsiteDarkModeRoute
+  '/_website/faq': typeof WebsiteFaqRoute
+  '/_website/installation': typeof WebsiteInstallationRouteWithChildren
+  '/_website/roadmap': typeof WebsiteRoadmapRoute
+  '/_website/zaidan-agent': typeof WebsiteZaidanAgentRoute
+  '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
   '/_website/': typeof WebsiteIndexRoute
+  '/_product/components/$slug': typeof ProductComponentsSlugRoute
+  '/_product/components/blocks': typeof ProductComponentsBlocksRouteWithChildren
+  '/_product/docs/$slug': typeof ProductDocsSlugRoute
   '/_website/blocks/{-$slug}': typeof WebsiteBlocksChar123SlugChar125Route
   '/_website/changelog/$slug': typeof WebsiteChangelogSlugRoute
   '/_website/installation/$slug': typeof WebsiteInstallationSlugRoute
   '/_website/ui/{-$slug}': typeof WebsiteUiChar123SlugChar125Route
+  '/preview/blocks/$slug': typeof PreviewBlocksSlugRoute
+  '/preview/charts/$slug': typeof PreviewChartsSlugRoute
+  '/preview/components/$slug': typeof PreviewComponentsSlugRoute
   '/_website/changelog/': typeof WebsiteChangelogIndexRoute
+  '/_product/components/blocks/$slug': typeof ProductComponentsBlocksSlugRoute
+  '/_product/docs/changelog/$entry': typeof ProductDocsChangelogEntryRoute
+  '/_product/docs/installation/$slug': typeof ProductDocsInstallationSlugRoute
   '/_website/blocks/$slug/docs': typeof WebsiteBlocksSlugDocsRoute
   '/_website/ui/$slug/docs': typeof WebsiteUiSlugDocsRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
@@ -130,48 +310,111 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$slug'
+    | '/charts'
+    | '/components'
+    | '/create'
+    | '/docs'
+    | '/customization'
+    | '/dark-mode'
+    | '/faq'
+    | '/installation'
+    | '/roadmap'
+    | '/zaidan-agent'
+    | '/preview/create'
     | '/preview/home'
+    | '/components/$slug'
+    | '/components/blocks'
+    | '/docs/$slug'
     | '/blocks/{-$slug}'
     | '/changelog/$slug'
     | '/installation/$slug'
     | '/ui/{-$slug}'
+    | '/preview/blocks/$slug'
+    | '/preview/charts/$slug'
+    | '/preview/components/$slug'
     | '/changelog/'
+    | '/components/blocks/$slug'
+    | '/docs/changelog/$entry'
+    | '/docs/installation/$slug'
     | '/blocks/$slug/docs'
     | '/ui/$slug/docs'
     | '/preview/$kind/$primitive/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/$slug'
-    | '/preview/home'
     | '/'
+    | '/charts'
+    | '/components'
+    | '/create'
+    | '/docs'
+    | '/customization'
+    | '/dark-mode'
+    | '/faq'
+    | '/installation'
+    | '/roadmap'
+    | '/zaidan-agent'
+    | '/preview/create'
+    | '/preview/home'
+    | '/components/$slug'
+    | '/components/blocks'
+    | '/docs/$slug'
     | '/blocks/{-$slug}'
     | '/changelog/$slug'
     | '/installation/$slug'
     | '/ui/{-$slug}'
+    | '/preview/blocks/$slug'
+    | '/preview/charts/$slug'
+    | '/preview/components/$slug'
     | '/changelog'
+    | '/components/blocks/$slug'
+    | '/docs/changelog/$entry'
+    | '/docs/installation/$slug'
     | '/blocks/$slug/docs'
     | '/ui/$slug/docs'
     | '/preview/$kind/$primitive/$slug'
   id:
     | '__root__'
+    | '/_product'
     | '/_website'
-    | '/_website/$slug'
+    | '/_product/charts'
+    | '/_product/components'
+    | '/_product/create'
+    | '/_product/docs'
+    | '/_website/customization'
+    | '/_website/dark-mode'
+    | '/_website/faq'
+    | '/_website/installation'
+    | '/_website/roadmap'
+    | '/_website/zaidan-agent'
+    | '/preview/create'
     | '/preview/home'
     | '/_website/'
+    | '/_product/components/$slug'
+    | '/_product/components/blocks'
+    | '/_product/docs/$slug'
     | '/_website/blocks/{-$slug}'
     | '/_website/changelog/$slug'
     | '/_website/installation/$slug'
     | '/_website/ui/{-$slug}'
+    | '/preview/blocks/$slug'
+    | '/preview/charts/$slug'
+    | '/preview/components/$slug'
     | '/_website/changelog/'
+    | '/_product/components/blocks/$slug'
+    | '/_product/docs/changelog/$entry'
+    | '/_product/docs/installation/$slug'
     | '/_website/blocks/$slug/docs'
     | '/_website/ui/$slug/docs'
     | '/preview/$kind/$primitive/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  ProductRoute: typeof ProductRouteWithChildren
   WebsiteRoute: typeof WebsiteRouteWithChildren
+  PreviewCreateRoute: typeof PreviewCreateRoute
   PreviewHomeRoute: typeof PreviewHomeRoute
+  PreviewBlocksSlugRoute: typeof PreviewBlocksSlugRoute
+  PreviewChartsSlugRoute: typeof PreviewChartsSlugRoute
+  PreviewComponentsSlugRoute: typeof PreviewComponentsSlugRoute
   PreviewKindPrimitiveSlugRoute: typeof PreviewKindPrimitiveSlugRoute
 }
 
@@ -182,6 +425,13 @@ declare module '@tanstack/solid-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof WebsiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_product': {
+      id: '/_product'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ProductRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_website/': {
@@ -198,12 +448,82 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof PreviewHomeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_website/$slug': {
-      id: '/_website/$slug'
-      path: '/$slug'
-      fullPath: '/$slug'
-      preLoaderRoute: typeof WebsiteSlugRouteImport
+    '/preview/create': {
+      id: '/preview/create'
+      path: '/preview/create'
+      fullPath: '/preview/create'
+      preLoaderRoute: typeof PreviewCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_website/zaidan-agent': {
+      id: '/_website/zaidan-agent'
+      path: '/zaidan-agent'
+      fullPath: '/zaidan-agent'
+      preLoaderRoute: typeof WebsiteZaidanAgentRouteImport
       parentRoute: typeof WebsiteRoute
+    }
+    '/_website/roadmap': {
+      id: '/_website/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof WebsiteRoadmapRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/_website/installation': {
+      id: '/_website/installation'
+      path: '/installation'
+      fullPath: '/installation'
+      preLoaderRoute: typeof WebsiteInstallationRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/_website/faq': {
+      id: '/_website/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof WebsiteFaqRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/_website/dark-mode': {
+      id: '/_website/dark-mode'
+      path: '/dark-mode'
+      fullPath: '/dark-mode'
+      preLoaderRoute: typeof WebsiteDarkModeRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/_website/customization': {
+      id: '/_website/customization'
+      path: '/customization'
+      fullPath: '/customization'
+      preLoaderRoute: typeof WebsiteCustomizationRouteImport
+      parentRoute: typeof WebsiteRoute
+    }
+    '/_product/docs': {
+      id: '/_product/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof ProductDocsRouteImport
+      parentRoute: typeof ProductRoute
+    }
+    '/_product/create': {
+      id: '/_product/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof ProductCreateRouteImport
+      parentRoute: typeof ProductRoute
+    }
+    '/_product/components': {
+      id: '/_product/components'
+      path: '/components'
+      fullPath: '/components'
+      preLoaderRoute: typeof ProductComponentsRouteImport
+      parentRoute: typeof ProductRoute
+    }
+    '/_product/charts': {
+      id: '/_product/charts'
+      path: '/charts'
+      fullPath: '/charts'
+      preLoaderRoute: typeof ProductChartsRouteImport
+      parentRoute: typeof ProductRoute
     }
     '/_website/changelog/': {
       id: '/_website/changelog/'
@@ -211,6 +531,27 @@ declare module '@tanstack/solid-router' {
       fullPath: '/changelog/'
       preLoaderRoute: typeof WebsiteChangelogIndexRouteImport
       parentRoute: typeof WebsiteRoute
+    }
+    '/preview/components/$slug': {
+      id: '/preview/components/$slug'
+      path: '/preview/components/$slug'
+      fullPath: '/preview/components/$slug'
+      preLoaderRoute: typeof PreviewComponentsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/charts/$slug': {
+      id: '/preview/charts/$slug'
+      path: '/preview/charts/$slug'
+      fullPath: '/preview/charts/$slug'
+      preLoaderRoute: typeof PreviewChartsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/blocks/$slug': {
+      id: '/preview/blocks/$slug'
+      path: '/preview/blocks/$slug'
+      fullPath: '/preview/blocks/$slug'
+      preLoaderRoute: typeof PreviewBlocksSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_website/ui/{-$slug}': {
       id: '/_website/ui/{-$slug}'
@@ -221,10 +562,10 @@ declare module '@tanstack/solid-router' {
     }
     '/_website/installation/$slug': {
       id: '/_website/installation/$slug'
-      path: '/installation/$slug'
+      path: '/$slug'
       fullPath: '/installation/$slug'
       preLoaderRoute: typeof WebsiteInstallationSlugRouteImport
-      parentRoute: typeof WebsiteRoute
+      parentRoute: typeof WebsiteInstallationRoute
     }
     '/_website/changelog/$slug': {
       id: '/_website/changelog/$slug'
@@ -239,6 +580,27 @@ declare module '@tanstack/solid-router' {
       fullPath: '/blocks/{-$slug}'
       preLoaderRoute: typeof WebsiteBlocksChar123SlugChar125RouteImport
       parentRoute: typeof WebsiteRoute
+    }
+    '/_product/docs/$slug': {
+      id: '/_product/docs/$slug'
+      path: '/$slug'
+      fullPath: '/docs/$slug'
+      preLoaderRoute: typeof ProductDocsSlugRouteImport
+      parentRoute: typeof ProductDocsRoute
+    }
+    '/_product/components/blocks': {
+      id: '/_product/components/blocks'
+      path: '/blocks'
+      fullPath: '/components/blocks'
+      preLoaderRoute: typeof ProductComponentsBlocksRouteImport
+      parentRoute: typeof ProductComponentsRoute
+    }
+    '/_product/components/$slug': {
+      id: '/_product/components/$slug'
+      path: '/$slug'
+      fullPath: '/components/$slug'
+      preLoaderRoute: typeof ProductComponentsSlugRouteImport
+      parentRoute: typeof ProductComponentsRoute
     }
     '/preview/$kind/$primitive/$slug': {
       id: '/preview/$kind/$primitive/$slug'
@@ -261,15 +623,111 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteBlocksSlugDocsRouteImport
       parentRoute: typeof WebsiteRoute
     }
+    '/_product/docs/installation/$slug': {
+      id: '/_product/docs/installation/$slug'
+      path: '/installation/$slug'
+      fullPath: '/docs/installation/$slug'
+      preLoaderRoute: typeof ProductDocsInstallationSlugRouteImport
+      parentRoute: typeof ProductDocsRoute
+    }
+    '/_product/docs/changelog/$entry': {
+      id: '/_product/docs/changelog/$entry'
+      path: '/changelog/$entry'
+      fullPath: '/docs/changelog/$entry'
+      preLoaderRoute: typeof ProductDocsChangelogEntryRouteImport
+      parentRoute: typeof ProductDocsRoute
+    }
+    '/_product/components/blocks/$slug': {
+      id: '/_product/components/blocks/$slug'
+      path: '/$slug'
+      fullPath: '/components/blocks/$slug'
+      preLoaderRoute: typeof ProductComponentsBlocksSlugRouteImport
+      parentRoute: typeof ProductComponentsBlocksRoute
+    }
   }
 }
 
+interface ProductComponentsBlocksRouteChildren {
+  ProductComponentsBlocksSlugRoute: typeof ProductComponentsBlocksSlugRoute
+}
+
+const ProductComponentsBlocksRouteChildren: ProductComponentsBlocksRouteChildren =
+  {
+    ProductComponentsBlocksSlugRoute: ProductComponentsBlocksSlugRoute,
+  }
+
+const ProductComponentsBlocksRouteWithChildren =
+  ProductComponentsBlocksRoute._addFileChildren(
+    ProductComponentsBlocksRouteChildren,
+  )
+
+interface ProductComponentsRouteChildren {
+  ProductComponentsSlugRoute: typeof ProductComponentsSlugRoute
+  ProductComponentsBlocksRoute: typeof ProductComponentsBlocksRouteWithChildren
+}
+
+const ProductComponentsRouteChildren: ProductComponentsRouteChildren = {
+  ProductComponentsSlugRoute: ProductComponentsSlugRoute,
+  ProductComponentsBlocksRoute: ProductComponentsBlocksRouteWithChildren,
+}
+
+const ProductComponentsRouteWithChildren =
+  ProductComponentsRoute._addFileChildren(ProductComponentsRouteChildren)
+
+interface ProductDocsRouteChildren {
+  ProductDocsSlugRoute: typeof ProductDocsSlugRoute
+  ProductDocsChangelogEntryRoute: typeof ProductDocsChangelogEntryRoute
+  ProductDocsInstallationSlugRoute: typeof ProductDocsInstallationSlugRoute
+}
+
+const ProductDocsRouteChildren: ProductDocsRouteChildren = {
+  ProductDocsSlugRoute: ProductDocsSlugRoute,
+  ProductDocsChangelogEntryRoute: ProductDocsChangelogEntryRoute,
+  ProductDocsInstallationSlugRoute: ProductDocsInstallationSlugRoute,
+}
+
+const ProductDocsRouteWithChildren = ProductDocsRoute._addFileChildren(
+  ProductDocsRouteChildren,
+)
+
+interface ProductRouteChildren {
+  ProductChartsRoute: typeof ProductChartsRoute
+  ProductComponentsRoute: typeof ProductComponentsRouteWithChildren
+  ProductCreateRoute: typeof ProductCreateRoute
+  ProductDocsRoute: typeof ProductDocsRouteWithChildren
+}
+
+const ProductRouteChildren: ProductRouteChildren = {
+  ProductChartsRoute: ProductChartsRoute,
+  ProductComponentsRoute: ProductComponentsRouteWithChildren,
+  ProductCreateRoute: ProductCreateRoute,
+  ProductDocsRoute: ProductDocsRouteWithChildren,
+}
+
+const ProductRouteWithChildren =
+  ProductRoute._addFileChildren(ProductRouteChildren)
+
+interface WebsiteInstallationRouteChildren {
+  WebsiteInstallationSlugRoute: typeof WebsiteInstallationSlugRoute
+}
+
+const WebsiteInstallationRouteChildren: WebsiteInstallationRouteChildren = {
+  WebsiteInstallationSlugRoute: WebsiteInstallationSlugRoute,
+}
+
+const WebsiteInstallationRouteWithChildren =
+  WebsiteInstallationRoute._addFileChildren(WebsiteInstallationRouteChildren)
+
 interface WebsiteRouteChildren {
-  WebsiteSlugRoute: typeof WebsiteSlugRoute
+  WebsiteCustomizationRoute: typeof WebsiteCustomizationRoute
+  WebsiteDarkModeRoute: typeof WebsiteDarkModeRoute
+  WebsiteFaqRoute: typeof WebsiteFaqRoute
+  WebsiteInstallationRoute: typeof WebsiteInstallationRouteWithChildren
+  WebsiteRoadmapRoute: typeof WebsiteRoadmapRoute
+  WebsiteZaidanAgentRoute: typeof WebsiteZaidanAgentRoute
   WebsiteIndexRoute: typeof WebsiteIndexRoute
   WebsiteBlocksChar123SlugChar125Route: typeof WebsiteBlocksChar123SlugChar125Route
   WebsiteChangelogSlugRoute: typeof WebsiteChangelogSlugRoute
-  WebsiteInstallationSlugRoute: typeof WebsiteInstallationSlugRoute
   WebsiteUiChar123SlugChar125Route: typeof WebsiteUiChar123SlugChar125Route
   WebsiteChangelogIndexRoute: typeof WebsiteChangelogIndexRoute
   WebsiteBlocksSlugDocsRoute: typeof WebsiteBlocksSlugDocsRoute
@@ -277,11 +735,15 @@ interface WebsiteRouteChildren {
 }
 
 const WebsiteRouteChildren: WebsiteRouteChildren = {
-  WebsiteSlugRoute: WebsiteSlugRoute,
+  WebsiteCustomizationRoute: WebsiteCustomizationRoute,
+  WebsiteDarkModeRoute: WebsiteDarkModeRoute,
+  WebsiteFaqRoute: WebsiteFaqRoute,
+  WebsiteInstallationRoute: WebsiteInstallationRouteWithChildren,
+  WebsiteRoadmapRoute: WebsiteRoadmapRoute,
+  WebsiteZaidanAgentRoute: WebsiteZaidanAgentRoute,
   WebsiteIndexRoute: WebsiteIndexRoute,
   WebsiteBlocksChar123SlugChar125Route: WebsiteBlocksChar123SlugChar125Route,
   WebsiteChangelogSlugRoute: WebsiteChangelogSlugRoute,
-  WebsiteInstallationSlugRoute: WebsiteInstallationSlugRoute,
   WebsiteUiChar123SlugChar125Route: WebsiteUiChar123SlugChar125Route,
   WebsiteChangelogIndexRoute: WebsiteChangelogIndexRoute,
   WebsiteBlocksSlugDocsRoute: WebsiteBlocksSlugDocsRoute,
@@ -292,8 +754,13 @@ const WebsiteRouteWithChildren =
   WebsiteRoute._addFileChildren(WebsiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  ProductRoute: ProductRouteWithChildren,
   WebsiteRoute: WebsiteRouteWithChildren,
+  PreviewCreateRoute: PreviewCreateRoute,
   PreviewHomeRoute: PreviewHomeRoute,
+  PreviewBlocksSlugRoute: PreviewBlocksSlugRoute,
+  PreviewChartsSlugRoute: PreviewChartsSlugRoute,
+  PreviewComponentsSlugRoute: PreviewComponentsSlugRoute,
   PreviewKindPrimitiveSlugRoute: PreviewKindPrimitiveSlugRoute,
 }
 export const routeTree = rootRouteImport

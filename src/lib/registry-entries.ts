@@ -31,7 +31,9 @@ export function getAllBlocks(): MergedItem[] {
 }
 
 export function getAllUI(): MergedItem[] {
-  return [...ui].sort((a, b) => a.title.localeCompare(b.title));
+  return ui
+    .filter((entry) => !["sidebar-floating", "sidebar-icon", "sidebar-inset"].includes(entry.slug))
+    .toSorted((a, b) => a.title.localeCompare(b.title));
 }
 
 export function getEntries(): Entry[] {
@@ -45,19 +47,19 @@ export function getEntries(): Entry[] {
         CHANGELOG_ENTRY,
       ],
       kind: "docs",
-      route: "/$slug",
+      route: "/docs/$slug",
     },
     {
       title: "Blocks",
       items: getAllBlocks(),
       kind: "blocks",
-      route: "/blocks/{-$slug}",
+      route: "/components/blocks/$slug",
     },
     {
       title: "UI",
       items: getAllUI(),
       kind: "ui",
-      route: "/ui/{-$slug}",
+      route: "/components/$slug",
     },
   ];
 }

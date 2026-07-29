@@ -31,6 +31,25 @@ export default defineConfig({
             provider: playwright(),
             instances: [{ browser: "chromium" }],
             commands: {
+              async requestBuiltRoutes(_context, urls: string[]) {
+                return Promise.all(
+                  urls.map(async (url) => {
+                    const response = await fetch(url, { redirect: "manual" });
+                    const body = await response.text();
+                    return {
+                      url,
+                      status: response.status,
+                      location: response.headers.get("location"),
+                      xRobotsTag: response.headers.get("x-robots-tag"),
+                      canonicalLinks: Array.from(
+                        body.matchAll(/rel="canonical" href="([^"]+)"/g),
+                        (match) => match[1],
+                      ),
+                      body: body.slice(0, 5_000),
+                    };
+                  }),
+                );
+              },
               async inspectBuiltRoute(context) {
                 const providerContext = context.provider.getCommandsContext(context.sessionId) as {
                   frame: () => Promise<Frame>;
@@ -43,14 +62,11 @@ export default defineConfig({
 
                 await heading.waitFor({ state: "visible" });
 
-                const previewFrame = routeFrame.frameLocator('iframe[title="Home Preview"]');
-                await previewFrame.locator(".theme-container").waitFor({ state: "visible" });
+                await routeFrame.locator(".theme-container").waitFor({ state: "visible" });
 
                 return {
                   heading: await heading.textContent(),
-                  previewPath: await routeFrame
-                    .locator('iframe[title="Home Preview"]')
-                    .getAttribute("src"),
+                  previewPath: null,
                 };
               },
               async inspectBuiltChart(context) {
