@@ -1,9 +1,10 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/solid-router";
-import { CanonicalPage } from "@/components/canonical-route";
-import { requireCanonicalNode } from "@/lib/product-routing";
+import { CanonicalDocsPage } from "@/components/docs-shell";
+import { requireCanonicalNode, requireCanonicalReadingEntry } from "@/lib/product-routing";
 import { createPageHead } from "@/lib/seo";
 
 const node = requireCanonicalNode("/docs");
+const entry = requireCanonicalReadingEntry("/docs");
 
 export const Route = createFileRoute("/_product/docs")({
   head: () =>
@@ -13,5 +14,9 @@ export const Route = createFileRoute("/_product/docs")({
 
 function RouteComponent() {
   const location = useLocation();
-  return location().pathname === "/docs" ? <CanonicalPage node={node} /> : <Outlet />;
+  return location().pathname === "/docs" ? (
+    <CanonicalDocsPage node={node} entry={entry} />
+  ) : (
+    <Outlet />
+  );
 }

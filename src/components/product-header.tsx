@@ -1,5 +1,5 @@
 import { useLocation } from "@tanstack/solid-router";
-import { Menu, Plus, Search, X } from "lucide-solid";
+import { ChevronDown, Menu, Plus, Search, X } from "lucide-solid";
 import { createMemo, createSignal, For, type JSX, onCleanup, onMount, Show } from "solid-js";
 import { Github } from "@/components/icons/github";
 import { Zaidan } from "@/components/icons/zaidan";
@@ -7,7 +7,9 @@ import { ModeSwitcher } from "@/components/mode-switcher";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_CONTENT_TREE,
+  type CanonicalNavigationGroup,
   type CanonicalNode,
+  DOCS_NAVIGATION_GROUPS,
   getProductSurfaceForPath,
   PRODUCT_SURFACES,
 } from "@/lib/product-routing";
@@ -25,6 +27,12 @@ import { Separator } from "@/registry/kobalte/ui/separator";
 export const OPEN_COMMAND_SEARCH_EVENT = "zaidan:open-command-search";
 
 const FOCUS_DESTINATION_KEY = "zaidan:product-navigation-focus";
+const DOCS_GROUP_STATE_KEY = "zaidan:docs-navigation-groups";
+type DocsGroupId = CanonicalNavigationGroup["id"];
+const DOCS_GROUP_IDS = new Set<DocsGroupId>(DOCS_NAVIGATION_GROUPS.map(({ id }) => id));
+
+const containsPath = (node: CanonicalNode, pathname: string): boolean =>
+  node.path === pathname || Boolean(node.children?.some((child) => containsPath(child, pathname)));
 
 const isEditable = (target: EventTarget | null) =>
   (target instanceof HTMLElement && target.isContentEditable) ||
@@ -153,6 +161,9 @@ function HierarchyNode(props: {
 export function ProductHeader() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = createSignal(false);
+  const [openDocsGroups, setOpenDocsGroups] = createSignal(
+    new Set(DOCS_NAVIGATION_GROUPS.map(({ id }) => id)),
+  );
   let header: HTMLElement | undefined;
   let mobileTrigger: HTMLButtonElement | undefined;
   let selectionInProgress = false;
@@ -162,9 +173,44 @@ export function ProductHeader() {
   const activeHierarchy = createMemo(() =>
     CANONICAL_CONTENT_TREE.find(({ surface }) => surface === activeSurface()?.id),
   );
+  const activeDocsGroup = createMemo(() =>
+    DOCS_NAVIGATION_GROUPS.find((group) =>
+      group.nodes.some((node) => containsPath(node, location().pathname)),
+    ),
+  );
+
+  const loadDocsGroupState = () => {
+    const stored = sessionStorage.getItem(DOCS_GROUP_STATE_KEY);
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored) as unknown;
+      if (!Array.isArray(parsed)) return;
+      const next = new Set(
+        parsed.filter(
+          (value): value is DocsGroupId =>
+            typeof value === "string" && DOCS_GROUP_IDS.has(value as DocsGroupId),
+        ),
+      );
+      const active = activeDocsGroup();
+      if (active) next.add(active.id);
+      setOpenDocsGroups(next);
+    } catch {
+      sessionStorage.removeItem(DOCS_GROUP_STATE_KEY);
+    }
+  };
+
+  const toggleDocsGroup = (id: DocsGroupId) => {
+    if (activeDocsGroup()?.id === id) return;
+    const next = new Set(openDocsGroups());
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setOpenDocsGroups(next);
+    sessionStorage.setItem(DOCS_GROUP_STATE_KEY, JSON.stringify([...next]));
+  };
 
   const setMenuOpen = (open: boolean) => {
     const wasOpen = mobileOpen();
+    if (open && activeSurface()?.id === "docs") loadDocsGroupState();
     setMobileOpen(open);
     if (!open && wasOpen && !selectionInProgress) {
       requestAnimationFrame(() => mobileTrigger?.focus());
@@ -299,17 +345,72 @@ export function ProductHeader() {
                     <p class="font-medium text-muted-foreground text-xs uppercase tracking-wider">
                       {activeSurface()?.id === "docs" ? "Docs hierarchy" : "Component Catalog"}
                     </p>
-                    <ul class="mt-4 space-y-1">
-                      <For each={hierarchy().children}>
-                        {(node) => (
-                          <HierarchyNode
-                            node={node}
-                            pathname={location().pathname}
-                            onSelect={closeForSelection}
-                          />
-                        )}
-                      </For>
-                    </ul>
+                    <Show
+                      when={activeSurface()?.id === "docs"}
+                      fallback={
+                        <ul class="mt-4 space-y-1">
+                          <For each={hierarchy().children}>
+                            {(node) => (
+                              <HierarchyNode
+                                node={node}
+                                pathname={location().pathname}
+                                onSelect={closeForSelection}
+                              />
+                            )}
+                          </For>
+                        </ul>
+                      }
+                    >
+                      <ul class="mt-4 space-y-5">
+                        <For each={DOCS_NAVIGATION_GROUPS}>
+                          {(group) => (
+                            <li>
+                              <button
+                                type="button"
+                                data-docs-mobile-group
+                                aria-expanded={
+                                  activeDocsGroup()?.id === group.id ||
+                                  openDocsGroups().has(group.id)
+                                }
+                                aria-controls={`mobile-docs-group-${group.id}`}
+                                class="flex w-full items-center justify-between rounded-sm px-3 py-1 font-medium text-muted-foreground text-xs uppercase tracking-wider outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                onClick={() => toggleDocsGroup(group.id)}
+                              >
+                                {group.label}
+                                <ChevronDown
+                                  class={cn(
+                                    "size-3.5 transition-transform motion-reduce:transition-none",
+                                    {
+                                      "rotate-180":
+                                        activeDocsGroup()?.id === group.id ||
+                                        openDocsGroups().has(group.id),
+                                    },
+                                  )}
+                                />
+                              </button>
+                              <Show
+                                when={
+                                  activeDocsGroup()?.id === group.id ||
+                                  openDocsGroups().has(group.id)
+                                }
+                              >
+                                <ul id={`mobile-docs-group-${group.id}`} class="mt-1 space-y-1">
+                                  <For each={group.nodes}>
+                                    {(node) => (
+                                      <HierarchyNode
+                                        node={node}
+                                        pathname={location().pathname}
+                                        onSelect={closeForSelection}
+                                      />
+                                    )}
+                                  </For>
+                                </ul>
+                              </Show>
+                            </li>
+                          )}
+                        </For>
+                      </ul>
+                    </Show>
                   </>
                 )}
               </Show>

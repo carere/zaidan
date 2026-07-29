@@ -60,7 +60,7 @@ export const sharedComponents = {
   h2: (props: ComponentProps<"h2">) => {
     return (
       <h2
-        class="relative mt-10 mb-4 inline-flex scroll-m-28 font-heading font-semibold text-xl tracking-tight first:mt-0 lg:mt-12 dark:text-[#D4D4D4] [&+.steps>h3]:mt-4! [&+.steps]:mt-0! [&+h3]:mt-6! [&+p]:mt-4! [&+]*:[code]:text-xl"
+        class="relative mt-10 mb-4 inline-flex scroll-mt-[calc(var(--product-header-height)+1rem)] font-heading font-semibold text-xl tracking-tight first:mt-0 lg:mt-12 dark:text-[#D4D4D4] [&+.steps>h3]:mt-4! [&+.steps]:mt-0! [&+h3]:mt-6! [&+p]:mt-4! [&+]*:[code]:text-xl"
         {...props}
       />
     );
@@ -68,7 +68,7 @@ export const sharedComponents = {
   h3: (props: ComponentProps<"h3">) => {
     return (
       <h3
-        class="relative mt-12 scroll-m-28 font-heading font-semibold text-lg tracking-tight dark:text-[#D4D4D4] [&+p]:mt-4! *:[code]:text-xl"
+        class="relative mt-12 scroll-mt-[calc(var(--product-header-height)+1rem)] font-heading font-semibold text-lg tracking-tight dark:text-[#D4D4D4] [&+p]:mt-4! *:[code]:text-xl"
         {...props}
       />
     );

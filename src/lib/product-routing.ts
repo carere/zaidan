@@ -26,11 +26,17 @@ export type CanonicalNode = {
   children?: readonly CanonicalNode[];
 };
 
-type TocNode = {
+export type TocNode = {
   title: string;
   url: string;
   items: readonly TocNode[];
 };
+
+export const getReadingToc = (toc: readonly TocNode[]): TocNode[] =>
+  toc.map((item) => ({
+    ...item,
+    items: item.items.map((child) => ({ ...child, items: [] })),
+  }));
 
 const anchorsFromToc = (toc: readonly TocNode[]): string[] =>
   toc.flatMap((item) => [item.url.replace(/^#/, ""), ...anchorsFromToc(item.items)]);
@@ -122,14 +128,7 @@ const installationNode = authoredNode(
 );
 
 const docsNodes: readonly CanonicalNode[] = [
-  {
-    id: "docs:introduction",
-    label: "Introduction",
-    description: "Learn how Zaidan brings SolidJS guidance and authored registry content together.",
-    path: "/docs",
-    surface: "docs",
-    anchors: [],
-  },
+  authoredNode(requireDoc("introduction"), "docs", "/docs", "docs"),
   {
     ...installationNode,
     children: INSTALLATION_SLUGS.map((slug) => {
@@ -145,14 +144,22 @@ const docsNodes: readonly CanonicalNode[] = [
     authoredNode(requireDoc(slug), "docs", `/docs/${slug}`, "docs"),
   ),
   {
-    id: "docs:changelog",
-    label: "Changelog",
-    description: "Latest updates and announcements for the Zaidan registry.",
-    path: "/docs/changelog",
-    surface: "docs",
-    anchors: [],
+    ...authoredNode(requireDoc("changelog"), "docs", "/docs/changelog", "docs"),
     children: changelogNodes,
   },
+];
+
+export type CanonicalNavigationGroup = {
+  id: "getting-started" | "installation" | "guides" | "changelog";
+  label: string;
+  nodes: readonly CanonicalNode[];
+};
+
+export const DOCS_NAVIGATION_GROUPS: readonly CanonicalNavigationGroup[] = [
+  { id: "getting-started", label: "Getting Started", nodes: [docsNodes[0] as CanonicalNode] },
+  { id: "installation", label: "Installation", nodes: [docsNodes[1] as CanonicalNode] },
+  { id: "guides", label: "Guides", nodes: docsNodes.slice(2, 7) },
+  { id: "changelog", label: "Changelog", nodes: [docsNodes[7] as CanonicalNode] },
 ];
 
 export type CanonicalSurfaceTree = {
@@ -229,6 +236,39 @@ export const CANONICAL_NODES = CANONICAL_CONTENT_TREE.flatMap(({ children }) =>
 );
 export const CANONICAL_ROUTE_PATHS = CANONICAL_NODES.map(({ path }) => path);
 
+export type CanonicalReadingEntry = {
+  source: string;
+  title: string;
+  description: string;
+  toc: readonly TocNode[];
+  date?: string;
+};
+
+const readingEntryByPath = new Map<string, CanonicalReadingEntry>();
+for (const entry of docs) {
+  const path =
+    entry.slug === "introduction"
+      ? "/docs"
+      : entry.parent === "installation"
+        ? `/docs/installation/${entry.slug}`
+        : `/docs/${entry.slug}`;
+  readingEntryByPath.set(path, {
+    source: entry.parent ? `docs/${entry.parent}/${entry.slug}` : `docs/${entry.slug}`,
+    title: entry.title,
+    description: entry.description,
+    toc: entry.toc,
+  });
+}
+for (const entry of sortedChangelog) {
+  readingEntryByPath.set(`/docs/changelog/${entry.slug}`, {
+    source: `changelog/${entry.slug}`,
+    title: entry.title,
+    description: entry.description,
+    toc: entry.toc,
+    date: entry.date,
+  });
+}
+
 const nodeByPath = new Map(CANONICAL_NODES.map((node) => [node.path, node]));
 
 export function getCanonicalNode(path: string) {
@@ -239,6 +279,16 @@ export function requireCanonicalNode(path: string) {
   const node = getCanonicalNode(path);
   if (!node) throw new TypeError(`Canonical route "${path}" is missing`);
   return node;
+}
+
+export function getCanonicalReadingEntry(path: string) {
+  return readingEntryByPath.get(path);
+}
+
+export function requireCanonicalReadingEntry(path: string) {
+  const entry = getCanonicalReadingEntry(path);
+  if (!entry) throw new TypeError(`Canonical route "${path}" has no authored source`);
+  return entry;
 }
 
 export function getProductSurfaceForPath(pathname: string) {
@@ -263,6 +313,12 @@ export function getCanonicalTraversal(path: string) {
     previous: previous ? { label: previous.label, path: previous.path } : undefined,
     next: next ? { label: next.label, path: next.path } : undefined,
   };
+}
+
+export function getCanonicalOverviewChildren(path: string) {
+  if (path === "/docs") return docsNodes.slice(1);
+  const node = nodeByPath.get(path);
+  return node?.children?.length ? node.children : undefined;
 }
 
 type RedirectQueryPolicy = "preserve" | "strip-design-configuration" | "drop";

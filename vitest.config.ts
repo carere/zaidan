@@ -21,6 +21,24 @@ async function getProductRouteTestFrame(context: unknown) {
   return { testFrame, routeFrame, header };
 }
 
+async function getCanonicalDocsTestFrame(context: unknown) {
+  const commandContext = context as {
+    provider: {
+      getCommandsContext: (sessionId: string) => {
+        frame: () => Promise<Frame>;
+      };
+    };
+    sessionId: string;
+  };
+  const testFrame = await commandContext.provider
+    .getCommandsContext(commandContext.sessionId)
+    .frame();
+  const routeFrame = testFrame.frameLocator('iframe[title="Canonical Docs route"]');
+  const shell = routeFrame.locator("[data-docs-shell]");
+  await shell.waitFor({ state: "visible" });
+  return { testFrame, routeFrame, shell };
+}
+
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [solid()],
@@ -579,6 +597,170 @@ export default defineConfig({
                     .getByText("Showing total visitors for the last 6 months")
                     .textContent(),
                   renderedAreaCount: await chart.locator(".recharts-area-area").count(),
+                };
+              },
+              async inspectDesktopDocs(context) {
+                const { shell } = await getCanonicalDocsTestFrame(context);
+                const article = shell.locator("article");
+                const rightToc = shell.locator("[data-docs-right-toc]");
+                return {
+                  canonicalPath: await shell.getAttribute("data-canonical-route"),
+                  h1: await shell.getByRole("heading", { level: 1 }).allTextContents(),
+                  authoredCount: await shell.locator("[data-authored-docs-content]").count(),
+                  authoredHeading: await shell
+                    .locator("[data-authored-docs-content]")
+                    .getByRole("heading", { level: 2 })
+                    .first()
+                    .textContent(),
+                  leftRailVisible: await shell.locator("[data-docs-left-rail]").isVisible(),
+                  rightTocVisible: await rightToc.isVisible(),
+                  readingWidth: await article.evaluate(
+                    (element) => element.getBoundingClientRect().width,
+                  ),
+                  activeNavigation: await shell
+                    .locator('[data-docs-left-rail] [aria-current="page"]')
+                    .textContent(),
+                  activeItemVisible: await shell
+                    .locator('[data-docs-left-rail] [aria-current="page"]')
+                    .evaluate((element) => {
+                      const item = element.getBoundingClientRect();
+                      const rail = element.closest("nav")?.getBoundingClientRect();
+                      return Boolean(rail && item.top >= rail.top && item.bottom <= rail.bottom);
+                    }),
+                  tocItems: await rightToc.getByRole("link").allTextContents(),
+                  landmarkLabels: await shell
+                    .getByRole("navigation")
+                    .evaluateAll((elements) =>
+                      elements.map((element) => element.getAttribute("aria-label") ?? ""),
+                    ),
+                };
+              },
+              async exerciseDocsNavigation(context) {
+                const { testFrame, routeFrame, shell } = await getCanonicalDocsTestFrame(context);
+                await testFrame.page().emulateMedia({ reducedMotion: "reduce" });
+                await routeFrame.locator("body").evaluate(() => {
+                  const original = Element.prototype.scrollIntoView;
+                  Element.prototype.scrollIntoView = function scrollIntoView(options) {
+                    document.documentElement.dataset.lastScrollBehavior =
+                      typeof options === "object" ? (options.behavior ?? "auto") : "auto";
+                    original.call(this, options);
+                  };
+                });
+
+                await shell
+                  .locator("[data-docs-right-toc]")
+                  .getByRole("link", { name: "Run the CLI", exact: true })
+                  .click();
+                const tocHash = await routeFrame
+                  .locator("body")
+                  .evaluate(() => window.location.hash);
+                const tocFocus = await routeFrame
+                  .locator("body")
+                  .evaluate(() => (document.activeElement as HTMLElement | null)?.id ?? null);
+                const motionBehavior = await routeFrame
+                  .locator("html")
+                  .getAttribute("data-last-scroll-behavior");
+
+                await shell.getByRole("link", { name: "Next: Astro", exact: true }).click();
+                await routeFrame
+                  .locator('[data-canonical-route="/docs/installation/astro"]')
+                  .waitFor({ state: "visible" });
+                await testFrame.waitForTimeout(100);
+                const nextPath = await routeFrame
+                  .locator("body")
+                  .evaluate(() => window.location.pathname);
+                const nextFocus = await routeFrame
+                  .locator("body")
+                  .evaluate(() => document.activeElement?.textContent?.trim() ?? null);
+
+                const guides = routeFrame
+                  .locator("[data-docs-left-rail]")
+                  .getByRole("button", { name: "Guides", exact: true });
+                await guides.click();
+                const collapsed = await guides.getAttribute("aria-expanded");
+                const persistedGroups = await routeFrame
+                  .locator("body")
+                  .evaluate(() =>
+                    JSON.parse(sessionStorage.getItem("zaidan:docs-navigation-groups") ?? "[]"),
+                  );
+                await routeFrame.locator("body").evaluate(() => window.location.reload());
+                await routeFrame
+                  .locator('[data-canonical-route="/docs/installation/astro"]')
+                  .waitFor({ state: "visible" });
+                const restoredCollapsed = await routeFrame
+                  .locator("[data-docs-left-rail]")
+                  .getByRole("button", { name: "Guides", exact: true })
+                  .getAttribute("aria-expanded");
+
+                return {
+                  tocHash,
+                  tocFocus,
+                  nextPath,
+                  nextFocus,
+                  collapsed,
+                  persistedGroups,
+                  restoredCollapsed,
+                  motionBehavior,
+                };
+              },
+              async exerciseMobileDocs(context) {
+                const { routeFrame, shell } = await getCanonicalDocsTestFrame(context);
+                const leftRailVisible = await shell.locator("[data-docs-left-rail]").isVisible();
+                const rightTocVisible = await shell.locator("[data-docs-right-toc]").isVisible();
+                const horizontalOverflow = await routeFrame
+                  .locator("body")
+                  .evaluate(
+                    () =>
+                      document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                  );
+                const mobileToc = shell.locator("[data-mobile-toc]");
+                const mobileTocVisible = await mobileToc.isVisible();
+                await mobileToc.locator("summary").click();
+                await mobileToc.getByRole("link", { name: "Quick Start", exact: true }).click();
+                const tocClosedAfterSelection = !(await mobileToc.getAttribute("open"));
+                const focusedSection = await routeFrame
+                  .locator("body")
+                  .evaluate(() => (document.activeElement as HTMLElement | null)?.id ?? null);
+
+                await routeFrame
+                  .locator("[data-product-header]")
+                  .getByRole("button", { name: "Open Product menu" })
+                  .click();
+                const dialog = routeFrame.getByRole("dialog");
+                await dialog.waitFor({ state: "visible" });
+                const menuGroups = await dialog
+                  .locator("[data-docs-mobile-group]")
+                  .allTextContents();
+                const activeMenuItem = await dialog.locator('[aria-current="page"]').textContent();
+
+                return {
+                  leftRailVisible,
+                  rightTocVisible,
+                  horizontalOverflow,
+                  mobileTocVisible,
+                  tocClosedAfterSelection,
+                  focusedSection,
+                  menuGroups,
+                  activeMenuItem,
+                };
+              },
+              async inspectDocsOverview(context) {
+                const { shell } = await getCanonicalDocsTestFrame(context);
+                const overview = shell.getByRole("region", { name: "Browse this category" });
+                return {
+                  authoredIntroduction: await shell
+                    .locator("[data-authored-docs-content]")
+                    .textContent(),
+                  cardPaths: await overview
+                    .getByRole("link")
+                    .evaluateAll((elements) =>
+                      elements.map(
+                        (element) => new URL((element as HTMLAnchorElement).href).pathname,
+                      ),
+                    ),
+                  newHeadingCount: await shell
+                    .getByRole("heading", { name: "New", exact: true })
+                    .count(),
                 };
               },
               async inspectDesktopProductHeader(context) {

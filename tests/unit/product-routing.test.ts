@@ -8,8 +8,13 @@ import {
   CANONICAL_CHANGELOG_SLUGS,
   CANONICAL_COMPONENT_SLUGS,
   CANONICAL_CONTENT_TREE,
+  CANONICAL_NODES,
+  DOCS_NAVIGATION_GROUPS,
+  getCanonicalOverviewChildren,
+  getCanonicalReadingEntry,
   getCanonicalTraversal,
   getProductSurfaceForPath,
+  getReadingToc,
   LEGACY_REDIRECTS,
   PRODUCT_SURFACES,
   resolveCompatibilityRedirect,
@@ -181,6 +186,116 @@ describe("canonical Product Surface routing", () => {
       label: "Skeleton",
       path: "/components/skeleton",
     });
+  });
+
+  it("derives the approved Docs groups and overview cards from the canonical tree", () => {
+    expect(
+      DOCS_NAVIGATION_GROUPS.map((group) => ({
+        id: group.id,
+        label: group.label,
+        paths: group.nodes.map(({ path }) => path),
+      })),
+    ).toEqual([
+      { id: "getting-started", label: "Getting Started", paths: ["/docs"] },
+      { id: "installation", label: "Installation", paths: ["/docs/installation"] },
+      {
+        id: "guides",
+        label: "Guides",
+        paths: [
+          "/docs/customization",
+          "/docs/dark-mode",
+          "/docs/zaidan-agent",
+          "/docs/faq",
+          "/docs/roadmap",
+        ],
+      },
+      { id: "changelog", label: "Changelog", paths: ["/docs/changelog"] },
+    ]);
+
+    expect(getCanonicalOverviewChildren("/docs")?.map(({ path }) => path)).toEqual([
+      "/docs/installation",
+      "/docs/customization",
+      "/docs/dark-mode",
+      "/docs/zaidan-agent",
+      "/docs/faq",
+      "/docs/roadmap",
+      "/docs/changelog",
+    ]);
+    expect(getCanonicalOverviewChildren("/docs/installation")?.map(({ path }) => path)).toEqual([
+      "/docs/installation/vite",
+      "/docs/installation/astro",
+      "/docs/installation/tanstack-start",
+      "/docs/installation/tanstack-router",
+      "/docs/installation/solid-start",
+      "/docs/installation/manual",
+    ]);
+    expect(getCanonicalOverviewChildren("/docs/customization")).toBeUndefined();
+  });
+
+  it("keeps only h2 and h3 fragments in the reading table of contents", () => {
+    expect(
+      getReadingToc([
+        {
+          title: "Install",
+          url: "#install",
+          items: [
+            {
+              title: "CLI",
+              url: "#cli",
+              items: [{ title: "Flags", url: "#flags", items: [] }],
+            },
+          ],
+        },
+      ]),
+    ).toEqual([
+      {
+        title: "Install",
+        url: "#install",
+        items: [{ title: "CLI", url: "#cli", items: [] }],
+      },
+    ]);
+
+    expect(getCanonicalTraversal("/docs")).toEqual({
+      previous: undefined,
+      next: { label: "Installation", path: "/docs/installation" },
+    });
+    expect(getCanonicalTraversal("/docs/changelog/launch")).toEqual({
+      previous: {
+        label: "March 2026 — Zaidan Agent & Updated Docs",
+        path: "/docs/changelog/zaidan-agent",
+      },
+      next: undefined,
+    });
+  });
+
+  it("maps every canonical Docs route to one authored source", () => {
+    const docsPaths = CANONICAL_NODES.filter(({ surface }) => surface === "docs").map(
+      ({ path }) => path,
+    );
+    const entries = docsPaths.map((path) => getCanonicalReadingEntry(path));
+
+    expect(entries.every(Boolean)).toBe(true);
+    expect(entries.map((entry) => entry?.source)).toEqual([
+      "docs/introduction",
+      "docs/installation",
+      "docs/installation/vite",
+      "docs/installation/astro",
+      "docs/installation/tanstack-start",
+      "docs/installation/tanstack-router",
+      "docs/installation/solid-start",
+      "docs/installation/manual",
+      "docs/customization",
+      "docs/dark-mode",
+      "docs/zaidan-agent",
+      "docs/faq",
+      "docs/roadmap",
+      "docs/changelog",
+      "changelog/image-crop-and-agent-docs",
+      "changelog/sortable-and-design-refresh",
+      "changelog/zaidan-agent",
+      "changelog/launch",
+    ]);
+    expect(new Set(entries.map((entry) => entry?.source)).size).toBe(entries.length);
   });
 
   it("resolves every allowlisted compatibility route to a one-hop canonical target", () => {
