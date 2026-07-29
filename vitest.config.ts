@@ -432,19 +432,20 @@ export default defineConfig({
                 const recordPageError = (error: Error) => pageErrors.push(error.message);
                 page.on("pageerror", recordPageError);
 
-                await firstEntry.waitFor({ state: "visible" });
-                await firstEntry.scrollIntoViewIfNeeded();
-                await firstEntry
-                  .frameLocator("iframe")
-                  .locator('[data-slot="chart"]')
-                  .waitFor({ state: "visible" });
-                await page.route(
-                  sourceChunk,
-                  (route) => route.fulfill({ status: 503, body: "Source temporarily unavailable" }),
-                  { times: 1 },
-                );
-
                 try {
+                  await firstEntry.waitFor({ state: "visible" });
+                  await firstEntry.scrollIntoViewIfNeeded();
+                  await firstEntry
+                    .frameLocator("iframe")
+                    .locator('[data-slot="chart"]')
+                    .waitFor({ state: "visible" });
+                  await page.route(
+                    sourceChunk,
+                    (route) =>
+                      route.fulfill({ status: 503, body: "Source temporarily unavailable" }),
+                    { times: 1 },
+                  );
+
                   await firstEntry.getByRole("button", { name: "View Code" }).click();
                   const alert = routeFrame.getByRole("alert").filter({
                     hasText: "Source failed to load",
