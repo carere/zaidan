@@ -150,6 +150,38 @@ describe("built canonical routing", () => {
     expect(evidence.activeTitle).toBe("As Link");
   });
 
+  it.each([
+    {
+      path: "/preview/components/aspect-ratio#16--9",
+      anchor: "16--9",
+      title: "16:9",
+    },
+    {
+      path: "/preview/components/item#itemmedia-with-image",
+      anchor: "itemmedia-with-image",
+      title: "Default - ItemMedia image",
+    },
+    {
+      path: "/preview/components/sidebar#basic",
+      anchor: "basic",
+      title: null,
+    },
+  ])("focuses the explicit $anchor Preview anchor contract", async ({ path, anchor, title }) => {
+    await renderCanonicalPreview(path);
+    const { inspectCanonicalPreview } = commands as unknown as {
+      inspectCanonicalPreview: () => Promise<{
+        activeId: string | null;
+        activeIdentity: string | null;
+        activeTitle: string | null;
+      }>;
+    };
+    const evidence = await inspectCanonicalPreview();
+
+    expect(evidence.activeId).toBe(anchor);
+    expect(evidence.activeIdentity).toBe(anchor);
+    if (title) expect(evidence.activeTitle).toBe(title);
+  });
+
   it("preserves real Sidebar navigation fragments ahead of the default anchor", async () => {
     await renderSidebarCompatibilityNavigations();
     const { inspectSidebarCompatibilityNavigations } = commands as unknown as {

@@ -85,9 +85,9 @@ export function CanonicalPreview(props: { kind: PreviewKind; slug: string; fragm
           ? `/components/${props.slug}`
           : `/components/blocks/${props.slug}`;
       const anchors = getCanonicalNode(canonicalPath)?.previewAnchors ?? [];
-      const examples = [...document.querySelectorAll<HTMLElement>('[data-slot="example"]')];
+      const examples = [...document.querySelectorAll<HTMLElement>("[data-preview-anchor]")];
       const matchedAnchors = matchCanonicalExampleAnchors(
-        examples.map((example) => example.dataset.exampleIdentity ?? example.id),
+        examples.map((example) => example.dataset.previewAnchor ?? example.id),
         anchors,
       );
       for (const [index, example] of examples.entries()) {

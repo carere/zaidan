@@ -168,7 +168,7 @@ export default function SidebarExample() {
   const [selectedVersion, setSelectedVersion] = createSignal(data.versions[0]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider id="basic" data-preview-anchor="basic">
       <Sidebar>
         <SidebarHeader>
           <SidebarMenu>

@@ -88,6 +88,13 @@ export default defineConfig({
                   activeId: await previewFrame
                     .locator("body")
                     .evaluate(() => document.activeElement?.id ?? null),
+                  activeIdentity: await previewFrame
+                    .locator("body")
+                    .evaluate(
+                      () =>
+                        (document.activeElement as HTMLElement | null)?.dataset.previewAnchor ??
+                        null,
+                    ),
                   activeTitle: await previewFrame
                     .locator("body")
                     .evaluate(

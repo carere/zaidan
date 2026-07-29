@@ -15,7 +15,7 @@ export default function AspectRatioExample() {
 
 function AspectRatio16x9() {
   return (
-    <Example title="16:9" class="items-center justify-center">
+    <Example title="16:9" anchor="16--9" class="items-center justify-center">
       <AspectRatio ratio={16 / 9} class="w-full rounded-lg bg-muted">
         <img
           src="https://avatar.vercel.sh/shadcn1"
@@ -29,7 +29,7 @@ function AspectRatio16x9() {
 
 function AspectRatio1x1() {
   return (
-    <Example title="1:1" class="items-start">
+    <Example title="1:1" anchor="1--1" class="items-start">
       <AspectRatio ratio={1 / 1} class="w-full rounded-lg bg-muted">
         <img
           src="https://avatar.vercel.sh/shadcn1"
@@ -43,7 +43,7 @@ function AspectRatio1x1() {
 
 function AspectRatio9x16() {
   return (
-    <Example title="9:16" class="items-center justify-center">
+    <Example title="9:16" anchor="9--16" class="items-center justify-center">
       <AspectRatio ratio={9 / 16} class="w-full rounded-lg bg-muted">
         <img
           src="https://avatar.vercel.sh/shadcn1"
@@ -57,7 +57,7 @@ function AspectRatio9x16() {
 
 function AspectRatio21x9() {
   return (
-    <Example title="21:9" class="items-center justify-center">
+    <Example title="21:9" anchor="21--9" class="items-center justify-center">
       <AspectRatio ratio={21 / 9} class="w-full rounded-lg bg-muted">
         <img
           src="https://avatar.vercel.sh/shadcn1"

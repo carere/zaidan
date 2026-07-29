@@ -1327,7 +1327,7 @@ function ItemHeaderAndFooterExamples() {
 
 function DefaultVariantItemsWithImage() {
   return (
-    <Example title="Default - ItemMedia image">
+    <Example title="Default - ItemMedia image" anchor="itemmedia-with-image">
       <Item>
         <ItemMedia variant="image">
           <img
