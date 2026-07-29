@@ -1,10 +1,18 @@
-import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+  useLocation,
+} from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
-import { Suspense } from "solid-js";
+import { Show, Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { NotFoundPage } from "@/components/not-found-page";
+import { ProductHeader } from "@/components/product-header";
+import { getProductSurfaceForPath } from "@/lib/product-routing";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import {
@@ -57,6 +65,7 @@ const getColorMode = createIsomorphicFn()
 
 function RootComponent() {
   const colorMode = getColorMode() as ColorMode;
+  const location = useLocation();
   return (
     <html
       lang="en"
@@ -72,7 +81,12 @@ function RootComponent() {
         <HeadContent />
         <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
-            <Outlet />
+            <Show when={getProductSurfaceForPath(location().pathname)} fallback={<Outlet />}>
+              <div class="min-h-svh">
+                <ProductHeader />
+                <Outlet />
+              </div>
+            </Show>
             <TanStackRouterDevtools />
           </Suspense>
         </ColorModeProvider>

@@ -30,14 +30,20 @@ export function CanonicalPage(props: { node: CanonicalNode }) {
     <main
       data-product-surface={props.node.surface}
       data-canonical-route={props.node.path}
-      class="mx-auto flex min-h-svh w-full max-w-5xl flex-col justify-center gap-3 p-8"
+      class="mx-auto flex min-h-[calc(100svh-var(--product-header-height))] w-full max-w-5xl flex-col justify-center gap-3 p-8"
     >
       <h1 class="font-heading font-semibold text-4xl tracking-tight">{props.node.label}</h1>
       {props.node.description ? (
         <p class="max-w-2xl text-muted-foreground">{props.node.description}</p>
       ) : null}
       <For each={props.node.anchors}>
-        {(anchor) => <span id={anchor} class="sr-only" aria-hidden="true" />}
+        {(anchor) => (
+          <span
+            id={anchor}
+            class="sr-only scroll-mt-[calc(var(--product-header-height)+1rem)]"
+            aria-hidden="true"
+          />
+        )}
       </For>
     </main>
   );

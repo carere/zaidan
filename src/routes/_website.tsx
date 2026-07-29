@@ -1,7 +1,7 @@
-import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
+import { createFileRoute, Link, Outlet, useLocation, useSearch } from "@tanstack/solid-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { CircleAlert } from "lucide-solid";
-import { createSignal, ErrorBoundary } from "solid-js";
+import { createSignal, ErrorBoundary, Show } from "solid-js";
 import { CliButton } from "@/components/cli-button";
 import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
@@ -27,11 +27,23 @@ export const Route = createFileRoute("/_website")({
 });
 
 function RouteComponent() {
+  const location = useLocation();
+
+  return (
+    <LocksProvider>
+      <Show when={location().pathname === "/"} fallback={<LegacyWebsiteLayout />}>
+        <Outlet />
+      </Show>
+    </LocksProvider>
+  );
+}
+
+function LegacyWebsiteLayout() {
   const [isFullLayout, switchLayout] = createSignal(false);
   const search = useSearch({ strict: false });
 
   return (
-    <LocksProvider>
+    <>
       <Toaster position="top-center" />
       <div
         data-slot="layout"
@@ -82,6 +94,6 @@ function RouteComponent() {
           </div>
         </SidebarProvider>
       </div>
-    </LocksProvider>
+    </>
   );
 }

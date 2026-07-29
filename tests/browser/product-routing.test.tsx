@@ -49,6 +49,26 @@ async function renderCanonicalPreview(pathname: string) {
   await expect.element(page.getByTitle("Canonical Preview route")).toBeVisible();
 }
 
+async function renderProductHeaderRoute(pathname: string, width: number, height: number) {
+  let resolveLoaded: (() => void) | undefined;
+  const loaded = new Promise<void>((resolve) => {
+    resolveLoaded = resolve;
+  });
+  dispose = render(
+    () => (
+      <iframe
+        src={new URL(pathname, inject("builtAppUrl")).href}
+        style={{ width: `${width}px`, height: `${height}px` }}
+        title="Product Header route"
+        onLoad={() => resolveLoaded?.()}
+      />
+    ),
+    document.body,
+  );
+  await expect.element(page.getByTitle("Product Header route")).toBeVisible();
+  await loaded;
+}
+
 async function renderSidebarCompatibilityNavigations() {
   const base = inject("builtAppUrl");
   dispose = render(
@@ -68,6 +88,62 @@ async function renderSidebarCompatibilityNavigations() {
 }
 
 describe("built canonical routing", () => {
+  it("renders the complete desktop Product Header and measures its sticky offset", async () => {
+    await renderProductHeaderRoute("/components/button", 1440, 900);
+    const { inspectDesktopProductHeader } = commands as unknown as {
+      inspectDesktopProductHeader: () => Promise<{
+        surfaces: string[];
+        activeSurface: string | null;
+        searchVisible: boolean;
+        githubVisible: boolean;
+        modeVisible: boolean;
+        createVisible: boolean;
+        headerHeight: number;
+        offset: number;
+      }>;
+    };
+    const evidence = await inspectDesktopProductHeader();
+
+    expect(evidence.surfaces).toEqual(["Home", "Docs", "Components", "Charts", "Create"]);
+    expect(evidence.activeSurface).toBe("Components");
+    expect(evidence.searchVisible).toBe(true);
+    expect(evidence.githubVisible).toBe(true);
+    expect(evidence.modeVisible).toBe(true);
+    expect(evidence.createVisible).toBe(true);
+    expect(evidence.headerHeight).toBeGreaterThan(0);
+    expect(evidence.offset).toBe(evidence.headerHeight);
+  });
+
+  it("keeps compact controls available and traps, restores, and moves mobile focus", async () => {
+    await renderProductHeaderRoute("/components/button#examples", 390, 844);
+    const { exerciseMobileProductHeader } = commands as unknown as {
+      exerciseMobileProductHeader: () => Promise<{
+        compactSearchVisible: boolean;
+        modeVisible: boolean;
+        hierarchyVisible: boolean;
+        focusTrapped: boolean;
+        restoredLabel: string | null;
+        shortcutLabel: string | null;
+        commandShortcutLabel: string | null;
+        selectedFocusId: string | null;
+        selectedHash: string;
+        reducedMotionDuration: string;
+      }>;
+    };
+    const evidence = await exerciseMobileProductHeader();
+
+    expect(evidence.compactSearchVisible).toBe(true);
+    expect(evidence.modeVisible).toBe(true);
+    expect(evidence.hierarchyVisible).toBe(true);
+    expect(evidence.focusTrapped).toBe(true);
+    expect(evidence.restoredLabel).toBe("Open Product menu");
+    expect(evidence.shortcutLabel).toBe("Open Command Search");
+    expect(evidence.commandShortcutLabel).toBe("Open Command Search");
+    expect(evidence.selectedFocusId).toBe("examples");
+    expect(evidence.selectedHash).toBe("#examples");
+    expect(evidence.reducedMotionDuration).toBe("0s");
+  });
+
   it("keeps derived Preview anchor identities reactive", async () => {
     const [title, setTitle] = createSignal("First title");
     const [anchor, setAnchor] = createSignal<string>();

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { compatibilityResponse } from "@/lib/compatibility-response";
+import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_BLOCK_SLUGS,
   CANONICAL_CHANGELOG_SLUGS,
@@ -84,6 +85,39 @@ const docsSlugs = ["customization", "dark-mode", "faq", "installation", "roadmap
 const sidebarVariants = ["sidebar-floating", "sidebar-icon", "sidebar-inset"];
 
 describe("canonical Product Surface routing", () => {
+  it("keeps Product Header navigation canonical and Create-local", () => {
+    expect(
+      resolveProductNavigationHref(
+        "/docs#installation",
+        "https://zaidan.carere.dev/create?preset=v1-A",
+      ),
+    ).toBe("/docs#installation");
+    expect(
+      resolveProductNavigationHref(
+        "/create",
+        "https://zaidan.carere.dev/create?preset=v1-A#preview",
+      ),
+    ).toBe("/create?preset=v1-A#preview");
+    expect(
+      resolveProductNavigationHref(
+        "/components/button",
+        "https://zaidan.carere.dev/components/button?style=nova#examples",
+      ),
+    ).toBe("/components/button#examples");
+    expect(
+      resolveProductNavigationHref(
+        "/components/button#variants--sizes",
+        "https://zaidan.carere.dev/create?preset=v1-A",
+      ),
+    ).toBe("/components/button#variants--sizes");
+    expect(
+      resolveProductNavigationHref(
+        "https://github.com/carere/zaidan?tab=readme#readme",
+        "https://zaidan.carere.dev/create?preset=v1-A",
+      ),
+    ).toBe("https://github.com/carere/zaidan?tab=readme#readme");
+  });
+
   it("owns the exact five Product Surfaces in canonical order", () => {
     expect(PRODUCT_SURFACES).toEqual([
       { id: "home", label: "Home", path: "/" },

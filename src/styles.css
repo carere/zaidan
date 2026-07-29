@@ -46,6 +46,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --product-header-height: 3.5rem;
   --radius: 0.625rem;
   --font-sans: "Inter Variable", sans-serif;
   --font-mono: "Roboto Mono Variable", monospace;

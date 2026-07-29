@@ -45,7 +45,7 @@ export default defineConfig({
                         body.matchAll(/rel="canonical" href="([^"]+)"/g),
                         (match) => match[1],
                       ),
-                      body: body.slice(0, 5_000),
+                      body: body.slice(0, 50_000),
                     };
                   }),
                 );
@@ -158,6 +158,117 @@ export default defineConfig({
                     .getByText("Showing total visitors for the last 6 months")
                     .textContent(),
                   renderedAreaCount: await chart.locator(".recharts-area-area").count(),
+                };
+              },
+              async inspectDesktopProductHeader(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routeFrame = testFrame.frameLocator('iframe[title="Product Header route"]');
+                const header = routeFrame.locator("[data-product-header]");
+                await header.waitFor({ state: "visible" });
+
+                const productNavigation = header.getByRole("navigation", {
+                  name: "Product Surfaces",
+                });
+                return {
+                  surfaces: await productNavigation.getByRole("link").allTextContents(),
+                  activeSurface: await productNavigation
+                    .locator('[aria-current="location"]')
+                    .textContent(),
+                  searchVisible: await header
+                    .getByRole("button", { name: "Open Command Search" })
+                    .isVisible(),
+                  githubVisible: await header.getByRole("link", { name: /GitHub/i }).isVisible(),
+                  modeVisible: await header
+                    .getByRole("button", { name: "Toggle color mode" })
+                    .isVisible(),
+                  createVisible: await header
+                    .getByRole("link", { name: "New", exact: true })
+                    .isVisible(),
+                  headerHeight: await header.evaluate(
+                    (element) => element.getBoundingClientRect().height,
+                  ),
+                  offset: await header.evaluate(() =>
+                    Number.parseFloat(
+                      getComputedStyle(document.documentElement).getPropertyValue(
+                        "--product-header-height",
+                      ),
+                    ),
+                  ),
+                };
+              },
+              async exerciseMobileProductHeader(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                await testFrame.page().emulateMedia({ reducedMotion: "reduce" });
+                const routeFrame = testFrame.frameLocator('iframe[title="Product Header route"]');
+                const header = routeFrame.locator("[data-product-header]");
+                await header.waitFor({ state: "visible" });
+
+                const search = header.getByRole("button", { name: "Open Command Search" });
+                const mode = header.getByRole("button", { name: "Toggle color mode" });
+                const menuTrigger = header.getByRole("button", { name: "Open Product menu" });
+                const compactSearchVisible = await search.isVisible();
+                const modeVisible = await mode.isVisible();
+
+                await menuTrigger.click();
+                const dialog = routeFrame.getByRole("dialog");
+                await dialog.waitFor({ state: "visible" });
+                const hierarchyVisible = await dialog.getByText("Component Catalog").isVisible();
+                await testFrame.page().keyboard.press("Tab");
+                const focusTrapped = await dialog.evaluate((element) =>
+                  element.contains(document.activeElement),
+                );
+                const reducedMotionDuration = await dialog.evaluate(
+                  (element) => getComputedStyle(element).animationDuration,
+                );
+
+                await testFrame.page().keyboard.press("Escape");
+                await dialog.waitFor({ state: "hidden" });
+                await testFrame.waitForTimeout(250);
+                const restoredLabel = await routeFrame
+                  .locator("body")
+                  .evaluate(() => document.activeElement?.getAttribute("aria-label"));
+
+                await testFrame.page().keyboard.press("/");
+                const shortcutLabel = await routeFrame
+                  .locator("body")
+                  .evaluate(() => document.activeElement?.getAttribute("aria-label"));
+                await routeFrame
+                  .locator("body")
+                  .evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+                await testFrame.page().keyboard.press("Control+K");
+                const commandShortcutLabel = await routeFrame
+                  .locator("body")
+                  .evaluate(() => document.activeElement?.getAttribute("aria-label"));
+
+                await menuTrigger.click();
+                await dialog.waitFor({ state: "visible" });
+                await dialog.getByRole("link", { name: "Button", exact: true }).click();
+                await routeFrame
+                  .locator('[data-canonical-route="/components/button"]')
+                  .waitFor({ state: "visible" });
+                await testFrame.waitForTimeout(100);
+
+                return {
+                  compactSearchVisible,
+                  modeVisible,
+                  hierarchyVisible,
+                  focusTrapped,
+                  restoredLabel,
+                  shortcutLabel,
+                  commandShortcutLabel,
+                  selectedFocusId: await routeFrame
+                    .locator("body")
+                    .evaluate(() => (document.activeElement as HTMLElement | null)?.id ?? null),
+                  selectedHash: await routeFrame
+                    .locator("body")
+                    .evaluate(() => window.location.hash),
+                  reducedMotionDuration,
                 };
               },
             },
