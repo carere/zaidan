@@ -124,52 +124,19 @@ async function inspectChartCatalog<Evidence>(
   }
 }
 
-async function exerciseChartPreviewRecovery(context: unknown, slug: string) {
-  const testFrame = await getChartTestFrame(context);
-  const page = testFrame.page();
-  const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
-  const blockedPreview = `**/preview/charts/${slug}`;
-  await page.route(blockedPreview, (route) => route.abort());
-  try {
-    await routeFrame.locator("body").evaluate(() => window.location.reload());
-    await testFrame.waitForTimeout(750);
-
-    const entry = routeFrame.locator(`[data-chart-entry="${slug}"]`);
-    await entry.waitFor({ state: "visible" });
-    await entry.scrollIntoViewIfNeeded();
-    const alert = entry.getByRole("alert");
-    await alert.waitFor({ state: "visible", timeout: 8_000 });
-    const retry = alert.getByRole("button", { name: /Retry/ });
-    const openPreview = alert.getByRole("link", { name: /Open Preview/ });
-    const evidence = {
-      alertText: (await alert.textContent()) ?? "",
-      retryVisible: await retry.isVisible(),
-      openPreviewVisible: await openPreview.isVisible(),
-    };
-
-    await page.unroute(blockedPreview);
-    await retry.click();
-    await entry
-      .frameLocator("iframe")
-      .locator('[data-slot="chart"]')
-      .waitFor({ state: "visible", timeout: 8_000 });
-    return { ...evidence, recovered: true };
-  } finally {
-    await page.unroute(blockedPreview);
-  }
-}
-
-async function exerciseChartPreviewFailure(
+async function exerciseChartPreviewRecovery(
   context: unknown,
   options: {
     entrySlug: string;
-    recoveredFrameTitle: string;
-    routeFrameTitle: string;
+    recoveredFrameTitle?: string;
+    routeFrameTitle?: string;
   },
 ) {
   const testFrame = await getChartTestFrame(context);
   const page = testFrame.page();
-  const routeFrame = testFrame.frameLocator(`iframe[title="${options.routeFrameTitle}"]`);
+  const routeFrame = testFrame.frameLocator(
+    `iframe[title="${options.routeFrameTitle ?? "Chart Catalog route"}"]`,
+  );
   const blockedPreview = `**/preview/charts/${options.entrySlug}`;
   await page.route(blockedPreview, (route) => route.abort());
 
@@ -192,9 +159,9 @@ async function exerciseChartPreviewFailure(
 
     await page.unroute(blockedPreview);
     await retry.click();
-    const recoveredFrame = routeFrame.frameLocator(
-      `iframe[title="${options.recoveredFrameTitle}"]`,
-    );
+    const recoveredFrame = options.recoveredFrameTitle
+      ? routeFrame.frameLocator(`iframe[title="${options.recoveredFrameTitle}"]`)
+      : entry.frameLocator("iframe");
     await recoveredFrame.locator('[data-slot="chart"]').waitFor({
       state: "visible",
       timeout: 8_000,
@@ -398,7 +365,7 @@ export const chartBrowserCommands = {
     return {
       sourceContainsExport,
       installCommand,
-      ...(await exerciseChartPreviewRecovery(context, "chart-bar-active")),
+      ...(await exerciseChartPreviewRecovery(context, { entrySlug: "chart-bar-active" })),
     };
   },
   async inspectDeferredAreaPreviews(context: unknown) {
@@ -471,7 +438,7 @@ export const chartBrowserCommands = {
     }
   },
   async exerciseAreaChartFailure(context: unknown) {
-    return exerciseChartPreviewRecovery(context, "chart-area-axes");
+    return exerciseChartPreviewRecovery(context, { entrySlug: "chart-area-axes" });
   },
   async inspectRadarChartCatalog(context: unknown) {
     const testFrame = await getChartTestFrame(context);
@@ -596,7 +563,7 @@ export const chartBrowserCommands = {
     }
   },
   async exerciseRadarChartFailure(context: unknown) {
-    return exerciseChartPreviewFailure(context, {
+    return exerciseChartPreviewRecovery(context, {
       routeFrameTitle: "Radar Chart Catalog route",
       entrySlug: "chart-radar-default",
       recoveredFrameTitle: "Radar Chart Preview",
