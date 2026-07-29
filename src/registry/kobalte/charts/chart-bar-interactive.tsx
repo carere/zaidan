@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { Bar, BarChart, CartesianGrid, XAxis } from "solid-recharts";
 
 import {
@@ -127,13 +127,13 @@ const chartConfig = {
 
 type VisitorSeries = "desktop" | "mobile";
 const series = ["desktop", "mobile"] as const;
+const totals = {
+  desktop: chartData.reduce((total, item) => total + item.desktop, 0),
+  mobile: chartData.reduce((total, item) => total + item.mobile, 0),
+};
 
 export function ChartBarInteractive() {
   const [activeChart, setActiveChart] = createSignal<VisitorSeries>("desktop");
-  const totals = createMemo(() => ({
-    desktop: chartData.reduce((total, item) => total + item.desktop, 0),
-    mobile: chartData.reduce((total, item) => total + item.mobile, 0),
-  }));
 
   return (
     <Card class="py-0">
@@ -154,7 +154,7 @@ export function ChartBarInteractive() {
               >
                 <span class="text-muted-foreground text-xs">{chartConfig[chart].label}</span>
                 <span class="font-bold text-lg leading-none sm:text-3xl">
-                  {totals()[chart].toLocaleString()}
+                  {totals[chart].toLocaleString()}
                 </span>
               </button>
             )}
