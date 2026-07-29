@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   AREA_CHARTS,
   BAR_CHARTS,
+  BAR_VISUAL_REPRESENTATIVE,
   CHART_CATALOG_FAMILIES,
   CHART_SOURCE_REVISION,
   LINE_CHARTS,
@@ -250,6 +251,13 @@ describe("Bar Chart Catalog contract", () => {
         type: "registry:block",
       });
     }
+  });
+
+  it("marks exactly the approved deterministic visual representative", () => {
+    expect(BAR_VISUAL_REPRESENTATIVE).toBe("chart-bar-negative");
+    expect(
+      BAR_CHARTS.filter(({ visualRepresentative }) => visualRepresentative).map(({ slug }) => slug),
+    ).toEqual([BAR_VISUAL_REPRESENTATIVE]);
   });
 });
 

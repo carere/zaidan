@@ -136,6 +136,7 @@ function chartEntry(
   description: string,
   exportName: string,
   interactive?: boolean,
+  visualRepresentative?: boolean,
 ): BarChartEntry;
 function chartEntry(
   family: "line",
@@ -385,6 +386,8 @@ export const BAR_CHARTS = [
     "Bar Chart — Negative",
     "A bar chart with positive and negative values.",
     "ChartBarNegative",
+    false,
+    true,
   ),
   chartEntry(
     "bar",

@@ -390,7 +390,15 @@ export const chartBrowserCommands = {
         await negativeBars.nth(2).hover();
         await negativeFrame.locator(".cn-chart-tooltip").waitFor({ state: "visible" });
         const pointerTooltipText = await negativeFrame.locator(".cn-chart-tooltip").textContent();
-        const representativeCapture = await negativeEntry.screenshot();
+        await negativeFrame.getByText("Bar Chart - Negative", { exact: true }).hover();
+        await negativeFrame
+          .locator(".cn-chart-tooltip")
+          .waitFor({ state: "hidden", timeout: 2_000 });
+        await testFrame.waitForTimeout(500);
+        const representative = negativeFrame.locator('[data-visual-representative="bar"]');
+        const representativeCapture = await representative.screenshot();
+        await testFrame.waitForTimeout(250);
+        const repeatedRepresentativeCapture = await representative.screenshot();
 
         return {
           activeFamily: await routeFrame
@@ -410,6 +418,7 @@ export const chartBrowserCommands = {
             Math.abs(positiveBaseline - negativeBaseline) < 1,
           negativeUsesBothChartColors: new Set(barGeometry.map(({ fill }) => fill)).size === 2,
           representativeCaptureSize: representativeCapture.length,
+          representativeDeterministic: representativeCapture.equals(repeatedRepresentativeCapture),
         };
       },
     );

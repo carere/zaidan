@@ -340,6 +340,7 @@ describe("built application", () => {
         negativeSharesZeroBaseline: boolean;
         negativeUsesBothChartColors: boolean;
         representativeCaptureSize: number;
+        representativeDeterministic: boolean;
         consoleErrors: string[];
       }>;
     };
@@ -373,6 +374,7 @@ describe("built application", () => {
     expect(evidence.negativeSharesZeroBaseline).toBe(true);
     expect(evidence.negativeUsesBothChartColors).toBe(true);
     expect(evidence.representativeCaptureSize).toBeGreaterThan(1_000);
+    expect(evidence.representativeDeterministic).toBe(true);
     expect(evidence.consoleErrors).toEqual([]);
   }, 30_000);
 
