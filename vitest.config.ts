@@ -88,6 +88,14 @@ export default defineConfig({
                   activeId: await previewFrame
                     .locator("body")
                     .evaluate(() => document.activeElement?.id ?? null),
+                  activeTitle: await previewFrame
+                    .locator("body")
+                    .evaluate(
+                      () =>
+                        document.activeElement
+                          ?.querySelector(":scope > div")
+                          ?.textContent?.trim() ?? null,
+                    ),
                   iframeCount: await testFrame
                     .locator('iframe[title="Canonical Preview route"]')
                     .count(),
@@ -95,6 +103,35 @@ export default defineConfig({
                   exampleIds: await examples.evaluateAll((elements) =>
                     elements.map((element) => element.id),
                   ),
+                };
+              },
+              async inspectSidebarCompatibilityNavigations(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const inspect = async (title: string) => {
+                  const routeFrame = testFrame.frameLocator(`iframe[title="${title}"]`);
+                  await routeFrame
+                    .locator('[data-canonical-route="/components/sidebar"]')
+                    .waitFor({ state: "visible" });
+                  return routeFrame.locator("body").evaluate(() => {
+                    const navigation = performance.getEntriesByType(
+                      "navigation",
+                    )[0] as PerformanceNavigationTiming;
+                    return {
+                      pathname: window.location.pathname,
+                      search: window.location.search,
+                      hash: window.location.hash,
+                      redirectCount: navigation.redirectCount,
+                    };
+                  });
+                };
+
+                await testFrame.waitForTimeout(500);
+                return {
+                  defaultNavigation: await inspect("Sidebar default navigation"),
+                  fragmentNavigation: await inspect("Sidebar fragment navigation"),
                 };
               },
               async inspectBuiltChart(context) {

@@ -1,7 +1,31 @@
 import { For, lazy, onCleanup, onMount, Suspense } from "solid-js";
-import { type CanonicalNode, getCanonicalNode, resolvePreviewRequest } from "@/lib/product-routing";
+import {
+  type CanonicalNode,
+  getCanonicalNode,
+  LEGACY_ANCHOR_QUERY_KEY,
+  resolvePreviewRequest,
+} from "@/lib/product-routing";
 
 export function CanonicalPage(props: { node: CanonicalNode }) {
+  onMount(() => {
+    const url = new URL(window.location.href);
+    const fallback = url.searchParams.get(LEGACY_ANCHOR_QUERY_KEY);
+    if (!fallback) return;
+
+    url.searchParams.delete(LEGACY_ANCHOR_QUERY_KEY);
+    if (!url.hash && props.node.anchors?.includes(fallback)) url.hash = fallback;
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+
+    requestAnimationFrame(() => {
+      const target = document.getElementById(url.hash.slice(1));
+      target?.scrollIntoView({ block: "start" });
+    });
+  });
+
   return (
     <main
       data-product-surface={props.node.surface}
@@ -20,6 +44,24 @@ export function CanonicalPage(props: { node: CanonicalNode }) {
 }
 
 type PreviewKind = "components" | "blocks";
+
+export function matchCanonicalExampleAnchors(
+  exampleIdentities: readonly string[],
+  canonicalAnchors: readonly string[],
+) {
+  const available = new Set(canonicalAnchors);
+  return exampleIdentities.map((identity) => {
+    const anchor = canonicalAnchors.find(
+      (candidate) =>
+        available.has(candidate) &&
+        (candidate === identity ||
+          (candidate.startsWith(`${identity}-`) &&
+            /^\d+$/.test(candidate.slice(identity.length + 1)))),
+    );
+    if (anchor) available.delete(anchor);
+    return anchor;
+  });
+}
 
 export function CanonicalPreview(props: { kind: PreviewKind; slug: string; fragment?: string }) {
   const ExampleComponent = lazy(() =>
@@ -43,10 +85,13 @@ export function CanonicalPreview(props: { kind: PreviewKind; slug: string; fragm
           ? `/components/${props.slug}`
           : `/components/blocks/${props.slug}`;
       const anchors = getCanonicalNode(canonicalPath)?.previewAnchors ?? [];
-      for (const [index, example] of document
-        .querySelectorAll<HTMLElement>('[data-slot="example"]')
-        .entries()) {
-        const anchor = anchors[index];
+      const examples = [...document.querySelectorAll<HTMLElement>('[data-slot="example"]')];
+      const matchedAnchors = matchCanonicalExampleAnchors(
+        examples.map((example) => example.dataset.exampleIdentity ?? example.id),
+        anchors,
+      );
+      for (const [index, example] of examples.entries()) {
+        const anchor = matchedAnchors[index];
         if (anchor) example.id = anchor;
       }
     };

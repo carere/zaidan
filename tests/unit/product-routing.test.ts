@@ -202,13 +202,15 @@ describe("canonical Product Surface routing", () => {
     }
   });
 
-  it("passes an incoming fragment through the server compatibility adapter", () => {
+  it("leaves Sidebar fragments to browser redirect inheritance with a fallback marker", () => {
     const response = compatibilityResponse(
-      new Request("https://zaidan.test/ui/sidebar-inset?keep=1#props"),
+      new Request("https://zaidan.test/ui/sidebar-inset?keep=1"),
     );
 
     expect(response.status).toBe(308);
-    expect(response.headers.get("location")).toBe("/components/sidebar?keep=1#props");
+    expect(response.headers.get("location")).toBe(
+      "/components/sidebar?keep=1&_zaidan_legacy_anchor=sidebar-inset",
+    );
   });
 
   it("accepts only the canonical Preview configuration and fragment boundaries", () => {

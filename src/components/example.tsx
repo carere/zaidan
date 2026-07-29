@@ -25,9 +25,11 @@ function Example(
   },
 ) {
   const [local, others] = splitProps(props, ["class", "containerClass", "children", "title"]);
+  const anchor = stableExampleAnchor(local.title);
   return (
     <div
-      id={stableExampleAnchor(local.title)}
+      id={anchor}
+      data-example-identity={anchor}
       data-slot="example"
       class={cn(
         "mx-auto flex w-full min-w-0 max-w-lg flex-col gap-1 self-stretch lg:max-w-none",

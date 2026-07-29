@@ -266,6 +266,8 @@ export function getCanonicalTraversal(path: string) {
 
 type RedirectQueryPolicy = "preserve" | "strip-design-configuration" | "drop";
 
+export const LEGACY_ANCHOR_QUERY_KEY = "_zaidan_legacy_anchor";
+
 export type CompatibilityRedirect = {
   source: string;
   destination: string;

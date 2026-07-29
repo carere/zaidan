@@ -12,6 +12,13 @@ type BuiltResponse = {
   body: string;
 };
 
+type NavigationEvidence = {
+  pathname: string;
+  search: string;
+  hash: string;
+  redirectCount: number;
+};
+
 const requestBuiltRoutes = (urls: string[]) =>
   (
     commands as unknown as {
@@ -38,6 +45,24 @@ async function renderCanonicalPreview(pathname: string) {
     document.body,
   );
   await expect.element(page.getByTitle("Canonical Preview route")).toBeVisible();
+}
+
+async function renderSidebarCompatibilityNavigations() {
+  const base = inject("builtAppUrl");
+  dispose = render(
+    () => (
+      <>
+        <iframe src={new URL("/ui/sidebar-inset", base).href} title="Sidebar default navigation" />
+        <iframe
+          src={new URL("/ui/sidebar-inset?keep=1#props", base).href}
+          title="Sidebar fragment navigation"
+        />
+      </>
+    ),
+    document.body,
+  );
+  await expect.element(page.getByTitle("Sidebar default navigation")).toBeVisible();
+  await expect.element(page.getByTitle("Sidebar fragment navigation")).toBeVisible();
 }
 
 describe("built canonical routing", () => {
@@ -111,6 +136,44 @@ describe("built canonical routing", () => {
     expect(evidence.activeId).toBe("examples-1");
   });
 
+  it("maps a reordered Preview catalog by example identity", async () => {
+    await renderCanonicalPreview("/preview/components/item#as-link");
+    const { inspectCanonicalPreview } = commands as unknown as {
+      inspectCanonicalPreview: () => Promise<{
+        activeId: string | null;
+        activeTitle: string | null;
+      }>;
+    };
+    const evidence = await inspectCanonicalPreview();
+
+    expect(evidence.activeId).toBe("as-link");
+    expect(evidence.activeTitle).toBe("As Link");
+  });
+
+  it("preserves real Sidebar navigation fragments ahead of the default anchor", async () => {
+    await renderSidebarCompatibilityNavigations();
+    const { inspectSidebarCompatibilityNavigations } = commands as unknown as {
+      inspectSidebarCompatibilityNavigations: () => Promise<{
+        defaultNavigation: NavigationEvidence;
+        fragmentNavigation: NavigationEvidence;
+      }>;
+    };
+    const evidence = await inspectSidebarCompatibilityNavigations();
+
+    expect(evidence.defaultNavigation).toEqual({
+      pathname: "/components/sidebar",
+      search: "",
+      hash: "#sidebar-inset",
+      redirectCount: 1,
+    });
+    expect(evidence.fragmentNavigation).toEqual({
+      pathname: "/components/sidebar",
+      search: "?keep=1",
+      hash: "#props",
+      redirectCount: 1,
+    });
+  });
+
   it("keeps legacy Preview renderers available beside canonical Preview routes", async () => {
     const base = inject("builtAppUrl");
     const paths = [
@@ -131,7 +194,7 @@ describe("built canonical routing", () => {
     const fixedCases = [
       ["/installation/astro?source=legacy", "/docs/installation/astro?source=legacy"],
       ["/ui/button/docs?source=legacy", "/components/button?source=legacy"],
-      ["/ui/sidebar-inset", "/components/sidebar#sidebar-inset"],
+      ["/ui/sidebar-inset", "/components/sidebar?_zaidan_legacy_anchor=sidebar-inset"],
       ["/blocks/sortable/docs?style=nova&keep=1", "/components/blocks/sortable?keep=1"],
       ["/changelog", "/docs/changelog"],
     ] as const;
