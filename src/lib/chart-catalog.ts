@@ -563,6 +563,60 @@ export const TOOLTIP_CHARTS = [
 
 export const TOOLTIP_CHART_SLUGS = TOOLTIP_CHARTS.map(({ slug }) => slug);
 
+export type ChartCatalogFamily = "area" | "bar" | "line" | "radar" | "tooltip";
+
+type ChartCatalogFamilyDescriptor = {
+  key: ChartCatalogFamily;
+  label: string;
+  itemLabel: string;
+  heading: string;
+  path: ChartCatalogEntry["canonicalPath"];
+  entries: readonly ChartCatalogEntry[];
+};
+
+export const CHART_CATALOG_FAMILIES = {
+  area: {
+    key: "area",
+    label: "Area",
+    itemLabel: "Area",
+    heading: "Area Charts",
+    path: "/charts",
+    entries: AREA_CHARTS,
+  },
+  bar: {
+    key: "bar",
+    label: "Bar",
+    itemLabel: "Bar",
+    heading: "Bar Charts",
+    path: "/charts/bar",
+    entries: BAR_CHARTS,
+  },
+  line: {
+    key: "line",
+    label: "Line",
+    itemLabel: "Line",
+    heading: "Line Charts",
+    path: "/charts/line",
+    entries: LINE_CHARTS,
+  },
+  radar: {
+    key: "radar",
+    label: "Radar",
+    itemLabel: "Radar",
+    heading: "Radar Charts",
+    path: "/charts/radar",
+    entries: RADAR_CHARTS,
+  },
+  tooltip: {
+    key: "tooltip",
+    label: "Tooltips",
+    itemLabel: "Tooltip",
+    heading: "Tooltip Charts",
+    path: "/charts/tooltip",
+    entries: TOOLTIP_CHARTS,
+  },
+} as const satisfies Record<ChartCatalogFamily, ChartCatalogFamilyDescriptor>;
+
 export function getAreaChart(slug: string) {
   return AREA_CHARTS.find((candidate) => candidate.slug === slug);
 }

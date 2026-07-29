@@ -1,13 +1,10 @@
 import { ExternalLink, FileCode2, LoaderCircle, RefreshCcw, Terminal } from "lucide-solid";
 import { createEffect, createSignal, For, onCleanup, onMount, Show, splitProps } from "solid-js";
 import {
-  AREA_CHARTS,
-  BAR_CHARTS,
+  CHART_CATALOG_FAMILIES,
   CHART_FAMILIES,
   type ChartCatalogEntry,
-  LINE_CHARTS,
-  RADAR_CHARTS,
-  TOOLTIP_CHARTS,
+  type ChartCatalogFamily,
 } from "@/lib/chart-catalog";
 import { cn } from "@/lib/utils";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
@@ -280,43 +277,8 @@ function ChartSourceActions(props: { entry: ChartCatalogEntry }) {
   );
 }
 
-type ChartFamily = "area" | "bar" | "line" | "radar" | "tooltip";
-
-const familyCatalog = {
-  area: {
-    label: "Area",
-    heading: "Area Charts",
-    path: "/charts",
-    entries: AREA_CHARTS,
-  },
-  bar: {
-    label: "Bar",
-    heading: "Bar Charts",
-    path: "/charts/bar",
-    entries: BAR_CHARTS,
-  },
-  line: {
-    label: "Line",
-    heading: "Line Charts",
-    path: "/charts/line",
-    entries: LINE_CHARTS,
-  },
-  radar: {
-    label: "Radar",
-    heading: "Radar Charts",
-    path: "/charts/radar",
-    entries: RADAR_CHARTS,
-  },
-  tooltip: {
-    label: "Tooltips",
-    heading: "Tooltip Charts",
-    path: "/charts/tooltip",
-    entries: TOOLTIP_CHARTS,
-  },
-} as const;
-
-export function ChartCatalog(props: { family?: ChartFamily }) {
-  const catalog = () => familyCatalog[props.family ?? "area"];
+export function ChartCatalog(props: { family?: ChartCatalogFamily }) {
+  const catalog = () => CHART_CATALOG_FAMILIES[props.family ?? "area"];
 
   return (
     <main data-product-surface="charts" data-canonical-route={catalog().path}>
@@ -392,7 +354,7 @@ export function ChartCatalog(props: { family?: ChartFamily }) {
                   <div class="flex flex-col gap-4 p-5">
                     <div>
                       <p class="font-medium text-muted-foreground text-xs uppercase tracking-wider">
-                        {catalog().label === "Tooltips" ? "Tooltip" : catalog().label}
+                        {catalog().itemLabel}
                       </p>
                       <h3 class="mt-1 font-heading font-semibold text-xl">{entry.label}</h3>
                       <p class="mt-1 text-muted-foreground text-sm">{entry.description}</p>

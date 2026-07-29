@@ -3,8 +3,11 @@ import axeCore from "axe-core";
 import type { Frame, FrameLocator, Locator } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
+import { chartBrowserCommands } from "./tests/browser/support/chart-commands";
 import { createBrowserCommands } from "./tests/browser/support/create-commands";
 import { docsBrowserCommands } from "./tests/browser/support/docs-commands";
+
+const browserApiPort = 49_152 + (process.pid % 16_383);
 
 async function getProductRouteTestFrame(context: unknown) {
   const commandContext = context as {
@@ -319,9 +322,11 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
+            api: browserApiPort,
             provider: playwright(),
             instances: [{ browser: "chromium" }],
             commands: {
+              ...chartBrowserCommands,
               async requestBuiltRoutes(_context, urls: string[]) {
                 return Promise.all(
                   urls.map(async (url) => {
