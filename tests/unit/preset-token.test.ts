@@ -14,6 +14,7 @@ import {
   sharePathForPreset,
   shufflePreset,
 } from "@/lib/preset-token";
+import type { LockableParam } from "@/lib/types";
 
 describe("immutable v1 Preset Token codec", () => {
   it("encodes the approved all-zero default canonically", () => {
@@ -180,6 +181,19 @@ describe("immutable v1 Preset Token codec", () => {
     expect(decodePresetToken(token)).toBeNull();
   });
 
+  it("rejects an in-range payload that encodes an unused style slot", () => {
+    const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const packed = [..."46KaXo"].reduce(
+      (value, character) => value * 62n + BigInt(alphabet.indexOf(character)),
+      0n,
+    );
+
+    expect(packed).toBeLessThanOrEqual((1n << 33n) - 1n);
+    expect(Number(packed >> 29n)).toBe(7);
+    expect(PRESET_TABLES_V1.style).toHaveLength(7);
+    expect(decodePresetToken("v1-46KaXo")).toBeNull();
+  });
+
   it("freezes the semantic visual fixture only after encoding its approved values", () => {
     expect(Object.isFrozen(SEMANTIC_PRESET_CONFIG)).toBe(true);
     expect(SEMANTIC_PRESET_TOKEN).toBe("v1-gWzAn");
@@ -272,12 +286,25 @@ describe("Create URL and action contract", () => {
     const current = decodePresetToken(CURATED_PRESET_TOKENS[0] as string);
     expect(current).not.toBeNull();
     if (!current) return;
-    const shuffled = shufflePreset(current, new Set(["style", "font"]), () => 0);
+    const shuffled = shufflePreset(current, new Set<LockableParam>(["style", "font"]), () => 0);
     expect(shuffled).not.toEqual(current);
     expect(shuffled.style).toBe(current.style);
     expect(shuffled.font).toBe(current.font);
-    expect(shufflePreset(current, new Set(Object.keys(PRESET_TABLES_V1)), () => 0)).toEqual(
-      current,
-    );
+    expect(
+      shufflePreset(
+        current,
+        new Set<LockableParam>([
+          "style",
+          "baseColor",
+          "theme",
+          "chartColor",
+          "headingFont",
+          "font",
+          "radius",
+          "menuAccent",
+        ]),
+        () => 0,
+      ),
+    ).toEqual(current);
   });
 });

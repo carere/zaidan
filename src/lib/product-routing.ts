@@ -410,8 +410,9 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
     if (keys.some((key) => key !== "preset") || url.searchParams.getAll("preset").length > 1) {
       return { accepted: false };
     }
+    const hasPreset = url.searchParams.has("preset");
     const preset = url.searchParams.get("preset") ?? undefined;
-    if (preset && (!decodePresetToken(preset) || preset === DEFAULT_PRESET_TOKEN)) {
+    if (hasPreset && (!preset || !decodePresetToken(preset) || preset === DEFAULT_PRESET_TOKEN)) {
       return { accepted: false };
     }
     return {

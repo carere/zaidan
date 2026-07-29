@@ -287,6 +287,8 @@ describe("canonical Product Surface routing", () => {
       "/preview/components/sidebar#sidebar-floating",
       "/preview/blocks/unknown",
       "/preview/charts/unknown",
+      "/preview/create?preset=",
+      "/preview/create?preset",
       "/preview/create?preset=v1-0",
       "/preview/create?preset=not-a-token",
       "/preview/create?style=nova",

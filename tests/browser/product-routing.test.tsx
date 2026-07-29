@@ -306,6 +306,8 @@ describe("built canonical routing", () => {
       ["/preview/components/unknown", 404],
       ["/preview/blocks/unknown", 404],
       ["/preview/charts/unknown", 404],
+      ["/preview/create?preset=", 404],
+      ["/preview/create?preset", 404],
       ["/preview/create?preset=v1-0", 404],
       ["/preview/create?style=nova", 404],
     ] as const;

@@ -341,7 +341,7 @@ export const CURATED_PRESET_TOKENS = Object.freeze(curatedConfigs.map(encodePres
 
 export function shufflePreset(
   current: DesignSystemConfig,
-  locks: ReadonlySet<string>,
+  locks: ReadonlySet<LockableParam>,
   random: () => number = Math.random,
 ) {
   const fields = Object.keys(PRESET_TABLES_V1) as PresetField[];
@@ -350,7 +350,7 @@ export function shufflePreset(
     .map((candidate) => {
       const next = { ...candidate };
       for (const field of fields) {
-        if (locks.has(field as LockableParam)) Object.assign(next, { [field]: current[field] });
+        if (locks.has(field)) Object.assign(next, { [field]: current[field] });
       }
       return next;
     })
