@@ -37,6 +37,7 @@ packages=(
   libxdamage1
   libxext6
   libxfixes3
+  libxi6
   libxkbcommon0
   libxrandr2
 )
@@ -49,3 +50,15 @@ apt-get "${apt_options[@]}" download "${packages[@]}"
 for archive in ./*.deb; do
   dpkg-deb --extract "${archive}" .
 done
+
+browser_binary="$(find "${PLAYWRIGHT_BROWSERS_PATH:-${HOME}/.cache/ms-playwright}" -type f -name chrome-headless-shell -print -quit)"
+
+if [[ -n "${browser_binary}" ]]; then
+  library_path="${library_root}/usr/lib/x86_64-linux-gnu"
+  missing_libraries="$(LD_LIBRARY_PATH="${library_path}:${LD_LIBRARY_PATH:-}" ldd "${browser_binary}" | awk '/not found/ { print $1 }')"
+
+  if [[ -n "${missing_libraries}" ]]; then
+    printf 'Missing Chromium libraries after provisioning:\n%s\n' "${missing_libraries}" >&2
+    exit 1
+  fi
+fi
