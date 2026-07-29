@@ -152,6 +152,24 @@ describe("built application", () => {
     expect(evidence.deferredAlertCount).toBe(0);
   }, 12_000);
 
+  it("handles a source-chunk failure and clears the error after Retry", async () => {
+    await renderBuiltRoute("/charts");
+    const { exerciseAreaSourceFailure } = commands as unknown as {
+      exerciseAreaSourceFailure: () => Promise<{
+        alertText: string;
+        retryVisible: boolean;
+        recovered: boolean;
+        pageErrors: string[];
+      }>;
+    };
+
+    const evidence = await exerciseAreaSourceFailure();
+    expect(evidence.alertText).toContain("Source failed to load");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
+    expect(evidence.pageErrors).toEqual([]);
+  }, 20_000);
+
   it("retains failure actions and recovers an Area Preview", async () => {
     await renderBuiltRoute("/charts");
     const { exerciseAreaChartFailure } = commands as unknown as {

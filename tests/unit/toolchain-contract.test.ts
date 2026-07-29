@@ -32,6 +32,7 @@ describe("contributor validation", () => {
     expect(result.status, result.stderr).toBe(0);
 
     const project = JSON.parse(result.stdout) as {
+      fileGroups: Record<string, { globs: string[] }>;
       tasks: Record<
         string,
         {
@@ -51,6 +52,7 @@ describe("contributor validation", () => {
         { target: "zaidan:chart-registry-install-test" },
       ],
     });
+    expect(project.fileGroups.sources?.globs).toContain("types/**/*");
     expect(project.tasks.build?.outputs).toEqual([{ glob: ".output/**/*" }]);
   });
 

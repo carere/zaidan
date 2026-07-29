@@ -15,15 +15,20 @@ import {
 
 type AreaChartEntry = (typeof AREA_CHARTS)[number];
 
-const sourceLoaders = import.meta.glob<string>("../registry/kobalte/charts/*.tsx", {
-  query: "?raw",
+const sourceUrls = import.meta.glob<string>("../registry/kobalte/charts/*.tsx", {
+  query: "?url&no-inline",
   import: "default",
+  eager: true,
 });
 
-async function loadChartSource(slug: string) {
-  const loader = sourceLoaders[`../registry/kobalte/charts/${slug}.tsx`];
-  if (!loader) throw new TypeError(`Chart source not found: ${slug}`);
-  return loader();
+async function loadChartSource(slug: string, attempt: number) {
+  const sourceUrl = sourceUrls[`../registry/kobalte/charts/${slug}.tsx`];
+  if (!sourceUrl) throw new TypeError(`Chart source not found: ${slug}`);
+  const requestUrl = new URL(sourceUrl, window.location.origin);
+  requestUrl.searchParams.set("attempt", String(attempt));
+  const response = await fetch(requestUrl, { cache: "no-store" });
+  if (!response.ok) throw new TypeError(`Unable to load ${slug} source`);
+  return response.text();
 }
 
 function ChartPreview(props: { entry: AreaChartEntry }) {
@@ -149,24 +154,45 @@ function ChartSourceActions(props: { entry: AreaChartEntry }) {
   const [sourceError, setSourceError] = createSignal(false);
   const [copied, setCopied] = createSignal<"code" | "install">();
   const [isMobile, setIsMobile] = createSignal(false);
+  let sourceAttempt = 0;
+  let sourceRequest: Promise<string | undefined> | undefined;
 
-  const ensureSource = async () => {
-    if (source()) return source() as string;
-    try {
-      const loaded = await loadChartSource(props.entry.slug);
-      setSource(loaded);
-      return loaded;
-    } catch {
-      setSourceError(true);
-      throw new TypeError(`Unable to load ${props.entry.slug} source`);
+  const ensureSource = () => {
+    const cachedSource = source();
+    if (cachedSource) {
+      setSourceError(false);
+      return Promise.resolve(cachedSource);
     }
+    if (sourceRequest) return sourceRequest;
+    setSourceError(false);
+    sourceRequest = (async () => {
+      sourceAttempt += 1;
+      try {
+        const loaded = await loadChartSource(props.entry.slug, sourceAttempt);
+        setSource(loaded);
+        setSourceError(false);
+        return loaded;
+      } catch {
+        setSourceError(true);
+        return undefined;
+      } finally {
+        sourceRequest = undefined;
+      }
+    })();
+    return sourceRequest;
   };
 
   const copy = async (kind: "code" | "install") => {
     const value = kind === "code" ? await ensureSource() : props.entry.installCommand;
-    await navigator.clipboard.writeText(value);
-    setCopied(kind);
-    setTimeout(() => setCopied(), 1_500);
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(kind);
+      setTimeout(() => setCopied(), 1_500);
+    } catch {
+      // Clipboard access can be denied without turning the handled action into
+      // an unhandled rejection.
+    }
   };
 
   onMount(() => {
@@ -179,7 +205,7 @@ function ChartSourceActions(props: { entry: AreaChartEntry }) {
 
   return (
     <div class="flex flex-wrap items-center gap-2">
-      <Button size="sm" variant="outline" onClick={() => copy("code")}>
+      <Button size="sm" variant="outline" onClick={() => void copy("code")}>
         <FileCode2 /> {copied() === "code" ? "Copied" : "Copy Code"}
       </Button>
       <Sheet onOpenChange={(open) => open && void ensureSource()}>
@@ -197,10 +223,10 @@ function ChartSourceActions(props: { entry: AreaChartEntry }) {
             </SheetDescription>
           </SheetHeader>
           <div class="flex flex-wrap gap-2 px-4">
-            <Button size="sm" onClick={() => copy("code")} disabled={!source()}>
+            <Button size="sm" onClick={() => void copy("code")} disabled={!source()}>
               <FileCode2 /> {copied() === "code" ? "Copied" : "Copy source"}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => copy("install")}>
+            <Button size="sm" variant="outline" onClick={() => void copy("install")}>
               <Terminal /> {copied() === "install" ? "Copied" : "Copy install command"}
             </Button>
           </div>
@@ -210,9 +236,12 @@ function ChartSourceActions(props: { entry: AreaChartEntry }) {
           <Show
             when={!sourceError()}
             fallback={
-              <p class="m-4 text-destructive text-sm" role="alert">
-                Source failed to load.
-              </p>
+              <div class="m-4 space-y-3 text-destructive text-sm" role="alert">
+                <p>Source failed to load.</p>
+                <Button size="sm" variant="outline" onClick={() => void ensureSource()}>
+                  <RefreshCcw /> Retry source
+                </Button>
+              </div>
             }
           >
             <pre class="m-4 mt-0 min-h-0 flex-1 overflow-auto rounded-lg border bg-muted/40 p-4 text-xs leading-relaxed">

@@ -19,6 +19,7 @@ fileGroups:
   sources:
     - "src/**/*"
     - "scripts/**/*"
+    - "types/**/*"
     - "package.json"
     - "tsconfig.json"
   tests:

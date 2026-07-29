@@ -1,7 +1,41 @@
 import type { Component, JSX } from "solid-js";
 
-type ChartPrimitiveProps = Record<string, unknown> & {
+type DataKey = string | number;
+
+type ChartMargin = {
+  bottom?: number;
+  left?: number;
+  right?: number;
+  top?: number;
+};
+
+type AreaProps = {
+  dataKey: DataKey;
+  fill?: string;
+  fillOpacity?: number;
+  stackId?: DataKey;
+  stroke?: string;
+  type?: "linear" | "natural" | "step";
+};
+
+type AreaChartProps = {
+  accessibilityLayer?: boolean;
   children?: JSX.Element;
+  data: ReadonlyArray<unknown>;
+  margin?: ChartMargin;
+  stackOffset?: "expand";
+};
+
+type CartesianGridProps = {
+  vertical?: boolean;
+};
+
+type ResponsiveContainerProps = {
+  children?: JSX.Element;
+  initialDimension?: {
+    height: number;
+    width: number;
+  };
 };
 
 export type TooltipPayloadEntry = {
@@ -19,8 +53,9 @@ export type TooltipContentProps = {
   payload?: ReadonlyArray<TooltipPayloadEntry>;
 };
 
-export type TooltipProps = ChartPrimitiveProps & {
+export type TooltipProps = {
   content?: (props: TooltipContentProps) => JSX.Element;
+  cursor?: boolean;
   formatter?: (
     value: TooltipPayloadEntry["value"],
     name: TooltipPayloadEntry["name"],
@@ -40,7 +75,7 @@ export type LegendPayload = {
   value?: string | number;
 };
 
-export type LegendProps = ChartPrimitiveProps & {
+export type LegendProps = {
   content?: (props: {
     payload?: ReadonlyArray<LegendPayload>;
     verticalAlign?: "top" | "middle" | "bottom";
@@ -48,15 +83,21 @@ export type LegendProps = ChartPrimitiveProps & {
   verticalAlign?: "top" | "middle" | "bottom";
 };
 
-type AxisProps = ChartPrimitiveProps & {
+type AxisProps = {
+  axisLine?: boolean;
+  dataKey?: DataKey;
+  minTickGap?: number;
+  tickCount?: number;
   tickFormatter?: (value: unknown) => string;
+  tickLine?: boolean;
+  tickMargin?: number;
 };
 
-export const Area: Component<ChartPrimitiveProps>;
-export const AreaChart: Component<ChartPrimitiveProps>;
-export const CartesianGrid: Component<ChartPrimitiveProps>;
+export const Area: Component<AreaProps>;
+export const AreaChart: Component<AreaChartProps>;
+export const CartesianGrid: Component<CartesianGridProps>;
 export const Legend: Component<LegendProps>;
-export const ResponsiveContainer: Component<ChartPrimitiveProps>;
+export const ResponsiveContainer: Component<ResponsiveContainerProps>;
 export const Tooltip: Component<TooltipProps>;
 export const XAxis: Component<AxisProps>;
 export const YAxis: Component<AxisProps>;
