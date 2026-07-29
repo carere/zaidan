@@ -300,13 +300,7 @@ export const LINE_CHARTS = [
     "A multiple line chart.",
     "ChartLineMultiple",
   ),
-  chartEntry(
-    "line",
-    "chart-line-step",
-    "Line Chart — Step",
-    "A step line chart.",
-    "ChartLineStep",
-  ),
+  chartEntry("line", "chart-line-step", "Line Chart — Step", "A step line chart.", "ChartLineStep"),
 ] as const satisfies readonly LineChartEntry[];
 
 export const LINE_CHART_SLUGS = LINE_CHARTS.map(({ slug }) => slug);

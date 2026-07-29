@@ -17,12 +17,12 @@ async function renderBuiltRoute(pathname = "/", viewport = { width: "1280px", he
       : pathname === "/charts/line"
         ? "Line Chart Catalog route"
         : pathname === "/charts" || pathname === "/charts/tooltip"
-        ? "Chart Catalog route"
-        : pathname === "/charts/radar"
-          ? "Radar Chart Catalog route"
-          : pathname === "/preview/charts/chart-radar-icons"
-            ? "Radar representative Preview"
-            : "Built Zaidan route";
+          ? "Chart Catalog route"
+          : pathname === "/charts/radar"
+            ? "Radar Chart Catalog route"
+            : pathname === "/preview/charts/chart-radar-icons"
+              ? "Radar representative Preview"
+              : "Built Zaidan route";
   let resolveLoaded: (() => void) | undefined;
   const loaded = new Promise<void>((resolve) => {
     resolveLoaded = resolve;
@@ -86,6 +86,7 @@ describe("built application", () => {
     const { inspectAreaChartCatalog } = commands as unknown as {
       inspectAreaChartCatalog: () => Promise<{
         heading: string | null;
+        routeCanonicalPath: string | null;
         families: string[];
         entryCount: number;
         previewHeight: number;
@@ -93,8 +94,9 @@ describe("built application", () => {
         interactiveIsFullWidth: boolean;
         previews: Array<{
           slug: string | null;
-          renderedAreaCount: number;
+          renderedSeriesCount: number;
           chartRole: string | null;
+          canonicalPath: string | null;
         }>;
         keyboardTooltipText: string | null;
         pointerTooltipText: string | null;
@@ -108,6 +110,7 @@ describe("built application", () => {
     const evidence = await inspectAreaChartCatalog();
 
     expect(evidence.heading).toBe("Beautiful Charts & Graphs");
+    expect(evidence.routeCanonicalPath).toBe("/charts");
     expect(evidence.families).toEqual([
       "Area",
       "Bar",
@@ -133,8 +136,9 @@ describe("built application", () => {
       "chart-area-stacked",
       "chart-area-step",
     ]);
-    expect(evidence.previews.every((preview) => preview.renderedAreaCount > 0)).toBe(true);
+    expect(evidence.previews.every((preview) => preview.renderedSeriesCount > 0)).toBe(true);
     expect(evidence.previews.every((preview) => preview.chartRole === "application")).toBe(true);
+    expect(evidence.previews.every((preview) => preview.canonicalPath === "/charts")).toBe(true);
     expect(evidence.keyboardTooltipText).toMatch(/January|Desktop|186/);
     expect(evidence.pointerTooltipText).toMatch(/Desktop|Mobile|186|80/);
     expect(evidence.interactiveSelection).toBe("Last 7 days");

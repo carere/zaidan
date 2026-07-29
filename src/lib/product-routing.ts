@@ -531,14 +531,16 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
     return { accepted: false };
   }
 
+  const chartEntry = kind === "charts" ? getChartCatalogEntry(slug) : undefined;
   const node =
     kind === "components"
       ? nodeByPath.get(`/components/${slug}`)
       : kind === "blocks"
         ? nodeByPath.get(`/components/blocks/${slug}`)
-        : nodeByPath.get("/charts");
-  const chartEntry = kind === "charts" ? getChartCatalogEntry(slug) : undefined;
-  if (!node || (kind === "charts" && !chartEntry)) return { accepted: false };
+        : chartEntry
+          ? nodeByPath.get(chartEntry.canonicalPath)
+          : undefined;
+  if (!node) return { accepted: false };
 
   let fragment: string | undefined;
   if (url.hash) {

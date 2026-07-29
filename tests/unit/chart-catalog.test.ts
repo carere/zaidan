@@ -77,6 +77,7 @@ describe("Area Chart Catalog contract", () => {
     for (const entry of AREA_CHARTS) {
       expect(entry.sourceUrl).toContain(CHART_SOURCE_REVISION);
       expect(entry.sourceUrl.endsWith(`/${entry.slug}.tsx`)).toBe(true);
+      expect(entry.canonicalPath).toBe("/charts");
       expect(entry.installCommand).toBe(`bunx shadcn@latest add @zaidan/${entry.slug}`);
       expect(resolvePreviewRequest(`/preview/charts/${entry.slug}`)).toEqual({
         accepted: true,

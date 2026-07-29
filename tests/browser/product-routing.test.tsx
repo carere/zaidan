@@ -302,6 +302,8 @@ describe("built canonical routing", () => {
       ["/preview/blocks/image-crop#avatar-crop", 200],
       ["/preview/create", 200],
       [`/preview/create?preset=${validPreset}`, 200],
+      ["/preview/charts/chart-area-axes", 200],
+      ["/preview/charts/chart-line-default", 200],
       ["/preview/charts/chart-tooltip-advanced", 200],
       ["/preview/components/button?style=nova", 404],
       ["/preview/components/unknown", 404],
@@ -323,6 +325,8 @@ describe("built canonical routing", () => {
       "/components/blocks/image-crop",
       "/create",
       "/create",
+      "/charts",
+      "/charts/line",
       "/charts/tooltip",
     ];
     for (const [index, response] of responses.slice(0, canonicalPaths.length).entries()) {
