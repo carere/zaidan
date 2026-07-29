@@ -11,6 +11,8 @@ import {
   focusProductNavigationDestination,
   focusStoredProductNavigationDestination,
   isPrimaryProductNavigation,
+  isProductNavigationFocusDestination,
+  type ProductNavigationFocusDestination,
   storeProductNavigationFocus,
 } from "@/lib/product-navigation-focus";
 import {
@@ -42,7 +44,7 @@ function ProductNavigationLink(props: {
   href: string;
   class?: string;
   current?: "page" | "location";
-  onSelect?: (focusDestination?: string) => void;
+  onSelect?: (focusDestination?: ProductNavigationFocusDestination) => void;
   children: JSX.Element;
 }) {
   const resolvedHref = () =>
@@ -56,7 +58,9 @@ function ProductNavigationLink(props: {
     const staysOnPage =
       destination.pathname === window.location.pathname &&
       destination.search === window.location.search;
-    const destinationFocus = destination.hash || "heading";
+    const destinationFocus = isProductNavigationFocusDestination(destination.hash)
+      ? destination.hash
+      : "heading";
     storeProductNavigationFocus(destinationFocus);
     props.onSelect?.(staysOnPage ? destinationFocus : undefined);
     if (staysOnPage) {
@@ -90,7 +94,7 @@ function ProductNavigationLink(props: {
 function HierarchyNode(props: {
   node: CanonicalNode;
   pathname: string;
-  onSelect: (focusDestination?: string) => void;
+  onSelect: (focusDestination?: ProductNavigationFocusDestination) => void;
   depth?: number;
 }) {
   return (
@@ -130,7 +134,7 @@ export function ProductHeader() {
   let header: HTMLElement | undefined;
   let mobileTrigger: HTMLButtonElement | undefined;
   let selectionInProgress = false;
-  let pendingSelectionFocus: string | undefined;
+  let pendingSelectionFocus: ProductNavigationFocusDestination | undefined;
 
   const activeSurface = createMemo(() => getProductSurfaceForPath(location().pathname));
   const activeHierarchy = createMemo(() =>
@@ -145,7 +149,7 @@ export function ProductHeader() {
     if (!open) selectionInProgress = false;
   };
 
-  const closeForSelection = (destination?: string) => {
+  const closeForSelection = (destination?: ProductNavigationFocusDestination) => {
     selectionInProgress = true;
     pendingSelectionFocus = destination;
     setMenuOpen(false);
@@ -290,7 +294,7 @@ export function ProductHeader() {
                     >
                       <DocsNavigationGroups
                         pathname={location().pathname}
-                        active={mobileOpen()}
+                        revealWhenVisible={mobileOpen()}
                         variant="mobile"
                         idPrefix="mobile-docs-group"
                         class="mt-4 space-y-5"

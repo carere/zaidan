@@ -277,8 +277,6 @@ export const CANONICAL_ROUTE_PATHS = CANONICAL_NODES.map(({ path }) => path);
 
 export type CanonicalReadingEntry = {
   source: string;
-  title: string;
-  description: string;
   toc: readonly TocNode[];
   date?: string;
 };
@@ -288,8 +286,6 @@ const readingEntryByPath = new Map<string, CanonicalReadingEntry>(
     descriptor.path,
     {
       source: descriptor.source,
-      title: descriptor.entry.title,
-      description: descriptor.entry.description,
       toc: descriptor.entry.toc,
       ...(descriptor.date ? { date: descriptor.date } : {}),
     },

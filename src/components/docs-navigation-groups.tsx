@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 type DocsNavigationGroupsProps = {
   pathname: string;
-  active?: boolean;
+  revealWhenVisible?: boolean;
   variant: "rail" | "mobile";
   idPrefix: string;
   class?: string;
@@ -55,7 +55,7 @@ export function DocsNavigationGroups(props: DocsNavigationGroupsProps) {
   const [openGroups, setOpenGroups] = createSignal(getDefaultDocsOpenGroups());
   let root: HTMLUListElement | undefined;
 
-  const enabled = () => props.active ?? true;
+  const isVisible = () => props.revealWhenVisible ?? true;
   const activeGroup = () => getActiveDocsNavigationGroup(props.pathname);
   const revealActiveItem = () =>
     root?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest" });
@@ -74,14 +74,14 @@ export function DocsNavigationGroups(props: DocsNavigationGroupsProps) {
   };
 
   onMount(() => {
-    if (enabled()) restoreAndReveal();
+    if (isVisible()) restoreAndReveal();
   });
 
   createEffect(
     on(
-      [() => props.pathname, enabled],
-      ([, active]) => {
-        if (active) restoreAndReveal();
+      [() => props.pathname, isVisible],
+      ([, visible]) => {
+        if (visible) restoreAndReveal();
       },
       { defer: true },
     ),

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { compatibilityResponse } from "@/lib/compatibility-response";
 import { DEFAULT_CONFIG } from "@/lib/config";
-import { encodePresetToken } from "@/lib/preset-token";
 import {
   getActiveDocsNavigationGroup,
   parseDocsOpenGroups,
   serializeDocsOpenGroups,
 } from "@/lib/docs-navigation";
+import { encodePresetToken } from "@/lib/preset-token";
 import { resolveProductNavigationHref } from "@/lib/product-navigation";
 import {
   CANONICAL_BLOCK_SLUGS,

@@ -1,5 +1,5 @@
 import axeCore from "axe-core";
-import type { Frame } from "playwright";
+import type { Frame, Locator } from "playwright";
 
 type DocsCommandContext = {
   provider: {
@@ -21,6 +21,27 @@ const getCanonicalDocsTestFrame = async (context: unknown) => {
   const shell = routeFrame.locator("[data-docs-shell]");
   await shell.waitFor({ state: "visible" });
   return { testFrame, routeFrame, shell };
+};
+
+const inspectActiveNavigation = async (activeItem: Locator, scrollport: Locator) => {
+  await activeItem.waitFor({ state: "visible" });
+  await activeItem.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+  );
+  const [itemBounds, scrollportBounds] = await Promise.all([
+    activeItem.boundingBox(),
+    scrollport.boundingBox(),
+  ]);
+  return {
+    activeNavigation: await activeItem.textContent(),
+    activeItemVisible: Boolean(
+      itemBounds &&
+        scrollportBounds &&
+        itemBounds.y >= scrollportBounds.y &&
+        itemBounds.y + itemBounds.height <= scrollportBounds.y + scrollportBounds.height,
+    ),
+    scrollTop: await scrollport.evaluate((element) => element.scrollTop),
+  };
 };
 
 export const docsBrowserCommands = {
@@ -101,6 +122,11 @@ export const docsBrowserCommands = {
     const { shell } = await getCanonicalDocsTestFrame(context);
     const article = shell.locator("article");
     const rightToc = shell.locator("[data-docs-right-toc]");
+    const leftRail = shell.locator('[data-docs-left-rail] nav[aria-label="Docs hierarchy"]');
+    const activeEvidence = await inspectActiveNavigation(
+      leftRail.locator('[aria-current="page"]'),
+      leftRail,
+    );
     return {
       canonicalPath: await shell.getAttribute("data-canonical-route"),
       h1: await shell.getByRole("heading", { level: 1 }).allTextContents(),
@@ -113,16 +139,8 @@ export const docsBrowserCommands = {
       leftRailVisible: await shell.locator("[data-docs-left-rail]").isVisible(),
       rightTocVisible: await rightToc.isVisible(),
       readingWidth: await article.evaluate((element) => element.getBoundingClientRect().width),
-      activeNavigation: await shell
-        .locator('[data-docs-left-rail] [aria-current="page"]')
-        .textContent(),
-      activeItemVisible: await shell
-        .locator('[data-docs-left-rail] [aria-current="page"]')
-        .evaluate((element) => {
-          const item = element.getBoundingClientRect();
-          const rail = element.closest("nav")?.getBoundingClientRect();
-          return Boolean(rail && item.top >= rail.top && item.bottom <= rail.bottom);
-        }),
+      activeNavigation: activeEvidence.activeNavigation,
+      activeItemVisible: activeEvidence.activeItemVisible,
       tocItems: await rightToc.getByRole("link").allTextContents(),
       landmarkLabels: await shell
         .getByRole("navigation")
@@ -135,21 +153,11 @@ export const docsBrowserCommands = {
   async inspectInitialDeepDocs(context: unknown) {
     const { shell } = await getCanonicalDocsTestFrame(context);
     const rail = shell.locator('[data-docs-left-rail] nav[aria-label="Docs hierarchy"]');
-    const activeItem = rail.locator('[aria-current="page"]');
-    await activeItem.waitFor({ state: "visible" });
-    await activeItem.evaluate(
-      () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
-    );
+    const evidence = await inspectActiveNavigation(rail.locator('[aria-current="page"]'), rail);
     return {
-      activeNavigation: await activeItem.textContent(),
-      activeItemVisible: await activeItem.evaluate((element) => {
-        const item = element.getBoundingClientRect();
-        const navigation = element.closest("nav")?.getBoundingClientRect();
-        return Boolean(
-          navigation && item.top >= navigation.top && item.bottom <= navigation.bottom,
-        );
-      }),
-      railScrollTop: await rail.evaluate((element) => element.scrollTop),
+      activeNavigation: evidence.activeNavigation,
+      activeItemVisible: evidence.activeItemVisible,
+      railScrollTop: evidence.scrollTop,
     };
   },
 
@@ -264,23 +272,14 @@ export const docsBrowserCommands = {
     const navigation = dialog.getByRole("navigation", {
       name: "Mobile Product navigation",
     });
-    const activeItem = navigation.locator('[aria-current="page"]');
-    await activeItem.waitFor({ state: "visible" });
-    await activeItem.evaluate(
-      () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+    const evidence = await inspectActiveNavigation(
+      navigation.locator('[aria-current="page"]'),
+      navigation,
     );
     return {
-      activeNavigation: await activeItem.textContent(),
-      activeItemVisible: await activeItem.evaluate((element) => {
-        const item = element.getBoundingClientRect();
-        const scrollport = element
-          .closest('nav[aria-label="Mobile Product navigation"]')
-          ?.getBoundingClientRect();
-        return Boolean(
-          scrollport && item.top >= scrollport.top && item.bottom <= scrollport.bottom,
-        );
-      }),
-      menuScrollTop: await navigation.evaluate((element) => element.scrollTop),
+      activeNavigation: evidence.activeNavigation,
+      activeItemVisible: evidence.activeItemVisible,
+      menuScrollTop: evidence.scrollTop,
     };
   },
 

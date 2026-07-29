@@ -1,5 +1,14 @@
 const PRODUCT_NAVIGATION_FOCUS_KEY = "zaidan:product-navigation-focus";
 
+export type ProductNavigationFocusDestination = "heading" | `#${string}`;
+
+type ProductNavigationFocusStorage = Pick<Storage, "getItem" | "removeItem">;
+
+export const isProductNavigationFocusDestination = (
+  value: string,
+): value is ProductNavigationFocusDestination =>
+  value === "heading" || (value.startsWith("#") && value.length > 1);
+
 export const isPrimaryProductNavigation = (event: MouseEvent) =>
   !event.defaultPrevented &&
   event.button === 0 &&
@@ -8,7 +17,9 @@ export const isPrimaryProductNavigation = (event: MouseEvent) =>
   !event.shiftKey &&
   !event.altKey;
 
-export const storeProductNavigationFocus = (destination = "heading") => {
+export const storeProductNavigationFocus = (
+  destination: ProductNavigationFocusDestination = "heading",
+) => {
   sessionStorage.setItem(PRODUCT_NAVIGATION_FOCUS_KEY, destination);
 };
 
@@ -16,13 +27,25 @@ export const clearProductNavigationFocus = () => {
   sessionStorage.removeItem(PRODUCT_NAVIGATION_FOCUS_KEY);
 };
 
-export const prepareProductNavigationFocus = (event: MouseEvent, destination = "heading") => {
+export const consumeProductNavigationFocus = (storage: ProductNavigationFocusStorage) => {
+  const destination = storage.getItem(PRODUCT_NAVIGATION_FOCUS_KEY);
+  if (destination === null) return undefined;
+  storage.removeItem(PRODUCT_NAVIGATION_FOCUS_KEY);
+  return isProductNavigationFocusDestination(destination) ? destination : undefined;
+};
+
+export const prepareProductNavigationFocus = (
+  event: MouseEvent,
+  destination: ProductNavigationFocusDestination = "heading",
+) => {
   if (!isPrimaryProductNavigation(event)) return false;
   storeProductNavigationFocus(destination);
   return true;
 };
 
-export const focusProductNavigationDestination = (destination: string) => {
+export const focusProductNavigationDestination = (
+  destination: ProductNavigationFocusDestination,
+) => {
   requestAnimationFrame(() => {
     const scrollTarget = destination.startsWith("#")
       ? document.getElementById(destination.slice(1))
@@ -43,8 +66,7 @@ export const focusProductNavigationDestination = (destination: string) => {
 };
 
 export const focusStoredProductNavigationDestination = () => {
-  const destination = sessionStorage.getItem(PRODUCT_NAVIGATION_FOCUS_KEY);
+  const destination = consumeProductNavigationFocus(sessionStorage);
   if (!destination) return;
-  clearProductNavigationFocus();
   focusProductNavigationDestination(destination);
 };

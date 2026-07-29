@@ -37,8 +37,6 @@ for (const [path, loadModule] of Object.entries(authoredModules)) {
   authoredComponents[path] = lazy(loadModule);
 }
 
-const prepareNavigation = (event: MouseEvent) => prepareProductNavigationFocus(event);
-
 function DocsNavigationRail(props: { pathname: string }) {
   return (
     <aside
@@ -63,7 +61,7 @@ function DocsNavigationRail(props: { pathname: string }) {
               data-active-docs-item={node.path === props.pathname ? "" : undefined}
               href={node.path}
               aria-current={node.path === props.pathname ? "page" : undefined}
-              onClick={prepareNavigation}
+              onClick={prepareProductNavigationFocus}
               class={cn(
                 "block rounded-md py-1.5 pr-2 text-muted-foreground text-sm outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-[current=page]:bg-muted aria-[current=page]:font-medium aria-[current=page]:text-foreground motion-reduce:transition-none",
                 depth > 0 ? "pl-6" : "pl-2",
@@ -91,7 +89,7 @@ function OverviewCards(props: { pathname: string }) {
               return (
                 <a
                   href={item.path}
-                  onClick={prepareNavigation}
+                  onClick={prepareProductNavigationFocus}
                   class="group rounded-xl border p-5 no-underline outline-none transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
                 >
                   <span class="flex items-center justify-between gap-3 font-medium">
@@ -136,7 +134,7 @@ function PagePager(props: { pathname: string; position: "heading" | "footer" }) 
         {(previous) => (
           <a
             href={previous().path}
-            onClick={prepareNavigation}
+            onClick={prepareProductNavigationFocus}
             aria-label={compact() ? `Previous: ${previous().label}` : undefined}
             class={cn(
               "rounded-md border text-sm no-underline outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
@@ -163,7 +161,7 @@ function PagePager(props: { pathname: string; position: "heading" | "footer" }) 
         {(next) => (
           <a
             href={next().path}
-            onClick={prepareNavigation}
+            onClick={prepareProductNavigationFocus}
             aria-label={compact() ? `Next: ${next().label}` : undefined}
             class={cn(
               "rounded-md border text-sm no-underline outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
