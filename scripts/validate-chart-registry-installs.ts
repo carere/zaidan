@@ -15,11 +15,15 @@ const registry = JSON.parse(
 ) as { items: RegistryItem[] };
 const chartItems = registry.items.filter((item) => item.categories?.includes("charts"));
 const areaItems = chartItems.filter((item) => item.categories?.includes("charts-area"));
+const lineItems = chartItems.filter((item) => item.categories?.includes("charts-line"));
 const radarItems = chartItems.filter((item) => item.categories?.includes("charts-radar"));
 const tooltipItems = chartItems.filter((item) => item.categories?.includes("charts-tooltip"));
 
 if (areaItems.length !== 10) {
   throw new Error(`Expected ten Area registry entries, found ${areaItems.length}.`);
+}
+if (lineItems.length !== 10) {
+  throw new Error(`Expected ten Line registry entries, found ${lineItems.length}.`);
 }
 if (radarItems.length !== 14) {
   throw new Error(`Expected fourteen Radar registry entries, found ${radarItems.length}.`);
@@ -165,5 +169,5 @@ try {
 }
 
 console.log(
-  `Installed ${areaItems.length} Area, ${radarItems.length} Radar, and ${tooltipItems.length} Tooltip registry entries in independent consumers.`,
+  `Installed ${areaItems.length} Area, ${lineItems.length} Line, ${radarItems.length} Radar, and ${tooltipItems.length} Tooltip registry entries in independent consumers.`,
 );

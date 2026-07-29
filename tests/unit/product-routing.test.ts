@@ -159,6 +159,12 @@ describe("canonical Product Surface routing", () => {
     expect(getProductSurfaceForPath("/preview/components/button")).toBeUndefined();
   });
 
+  it("discovers escaped sibling routes at their public path", () => {
+    expect(extractRoutePatterns('createFileRoute("/_product/charts_/line")({})')).toEqual([
+      "/charts/line",
+    ]);
+  });
+
   it("defines exact Docs, catalog, Changelog, anchor, and traversal order", () => {
     const docs = CANONICAL_CONTENT_TREE.find(({ surface }) => surface === "docs");
     expect(docs?.children.map(({ path }) => path)).toEqual([

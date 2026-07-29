@@ -253,6 +253,13 @@ export const CANONICAL_CONTENT_TREE: readonly CanonicalSurfaceTree[] = [
         anchors: [],
       },
       {
+        id: "charts:line",
+        label: "Line Charts",
+        path: "/charts/line",
+        surface: "charts",
+        anchors: [],
+      },
+      {
         id: "charts:radar",
         label: "Radar Charts",
         path: "/charts/radar",

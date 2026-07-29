@@ -14,7 +14,9 @@ async function renderBuiltRoute(pathname = "/", viewport = { width: "1280px", he
   const title =
     pathname === "/preview/ui/kobalte/chart"
       ? "Built chart route"
-      : pathname === "/charts" || pathname === "/charts/tooltip"
+      : pathname === "/charts/line"
+        ? "Line Chart Catalog route"
+        : pathname === "/charts" || pathname === "/charts/tooltip"
         ? "Chart Catalog route"
         : pathname === "/charts/radar"
           ? "Radar Chart Catalog route"
@@ -185,6 +187,127 @@ describe("built application", () => {
       }>;
     };
     const evidence = await exerciseAreaChartFailure();
+
+    expect(evidence.alertText).toContain("Preview could not be loaded");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.openPreviewVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
+  });
+
+  it("renders the Line catalog with its source-pinned Solid adaptations", async () => {
+    await renderBuiltRoute("/charts/line");
+    const { inspectLineChartCatalog } = commands as unknown as {
+      inspectLineChartCatalog: () => Promise<{
+        heading: string | null;
+        routeCanonicalPath: string | null;
+        activeFamily: string | null;
+        entryCount: number;
+        previewHeight: number;
+        previewLoading: string | null;
+        interactiveIsFullWidth: boolean;
+        previews: Array<{
+          slug: string | null;
+          renderedSeriesCount: number;
+          chartRole: string | null;
+          canonicalPath: string | null;
+        }>;
+        keyboardTooltipText: string | null;
+        pointerTooltipText: string | null;
+        interactiveSelection: string | null;
+        customDotCount: number;
+        labelCount: number;
+        customLabels: string[];
+        colorModeSynchronized: boolean;
+        configThemeSynchronized: boolean;
+        rtlHasNoOverflow: boolean;
+        consoleErrors: string[];
+      }>;
+    };
+    const evidence = await inspectLineChartCatalog();
+
+    expect(evidence.heading).toBe("Beautiful Charts & Graphs");
+    expect(evidence.routeCanonicalPath).toBe("/charts/line");
+    expect(evidence.activeFamily).toBe("Line");
+    expect(evidence.entryCount).toBe(10);
+    expect(evidence.previewHeight).toBe(460);
+    expect(evidence.previewLoading).toBe("lazy");
+    expect(evidence.interactiveIsFullWidth).toBe(true);
+    expect(evidence.previews.map(({ slug }) => slug)).toEqual([
+      "chart-line-default",
+      "chart-line-dots-colors",
+      "chart-line-dots-custom",
+      "chart-line-dots",
+      "chart-line-interactive",
+      "chart-line-label-custom",
+      "chart-line-label",
+      "chart-line-linear",
+      "chart-line-multiple",
+      "chart-line-step",
+    ]);
+    expect(evidence.previews.every(({ renderedSeriesCount }) => renderedSeriesCount > 0)).toBe(
+      true,
+    );
+    expect(evidence.previews.every(({ chartRole }) => chartRole === "application")).toBe(true);
+    expect(evidence.previews.every(({ canonicalPath }) => canonicalPath === "/charts/line")).toBe(
+      true,
+    );
+    expect(evidence.keyboardTooltipText).toMatch(/January|Desktop|186/);
+    expect(evidence.pointerTooltipText).toMatch(/Desktop|186/);
+    expect(evidence.interactiveSelection).toMatch(/Mobile/);
+    expect(evidence.customDotCount).toBe(6);
+    expect(evidence.labelCount).toBe(6);
+    expect(evidence.customLabels).toEqual(["Chrome", "Safari", "Firefox", "Edge", "Other"]);
+    expect(evidence.colorModeSynchronized).toBe(true);
+    expect(evidence.configThemeSynchronized).toBe(true);
+    expect(evidence.rtlHasNoOverflow).toBe(true);
+    expect(evidence.consoleErrors).toEqual([]);
+  }, 45_000);
+
+  it("defers offscreen Line Previews without mobile overflow or false failure", async () => {
+    await renderBuiltRoute("/charts/line", { width: "390px", height: "700px" });
+    const { inspectDeferredLinePreviews } = commands as unknown as {
+      inspectDeferredLinePreviews: () => Promise<{
+        alertCount: number;
+        deferredAlertCount: number;
+        hasNoOverflow: boolean;
+      }>;
+    };
+
+    const evidence = await inspectDeferredLinePreviews();
+    expect(evidence.alertCount).toBe(0);
+    expect(evidence.deferredAlertCount).toBe(0);
+    expect(evidence.hasNoOverflow).toBe(true);
+  }, 12_000);
+
+  it("handles a Line source-chunk failure and clears the error after Retry", async () => {
+    await renderBuiltRoute("/charts/line");
+    const { exerciseLineSourceFailure } = commands as unknown as {
+      exerciseLineSourceFailure: () => Promise<{
+        alertText: string;
+        retryVisible: boolean;
+        recovered: boolean;
+        pageErrors: string[];
+      }>;
+    };
+
+    const evidence = await exerciseLineSourceFailure();
+    expect(evidence.alertText).toContain("Source failed to load");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
+    expect(evidence.pageErrors).toEqual([]);
+  }, 20_000);
+
+  it("retains failure actions and recovers a Line Preview", async () => {
+    await renderBuiltRoute("/charts/line");
+    const { exerciseLineChartFailure } = commands as unknown as {
+      exerciseLineChartFailure: () => Promise<{
+        alertText: string;
+        retryVisible: boolean;
+        openPreviewVisible: boolean;
+        recovered: boolean;
+      }>;
+    };
+    const evidence = await exerciseLineChartFailure();
 
     expect(evidence.alertText).toContain("Preview could not be loaded");
     expect(evidence.retryVisible).toBe(true);

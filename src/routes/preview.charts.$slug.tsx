@@ -73,6 +73,7 @@ function ChartPreview() {
     <main
       data-preview-kind="charts"
       data-preview-slug={entry.slug}
+      data-canonical-route={entry.canonicalPath}
       class="grid min-h-svh place-items-center p-4 md:p-8"
     >
       <Show

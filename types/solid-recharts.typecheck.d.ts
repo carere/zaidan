@@ -26,6 +26,35 @@ type AreaChartProps = {
   stackOffset?: "expand";
 };
 
+type DotProps = {
+  cx?: number;
+  cy?: number;
+  fill?: string;
+  r?: number;
+  stroke?: string;
+};
+
+type DotItemDotProps = DotProps & {
+  payload: unknown;
+  value: unknown;
+};
+
+type LineProps = {
+  activeDot?: { r?: number };
+  dataKey: DataKey;
+  dot?: boolean | Partial<DotProps> | ((props: DotItemDotProps) => JSX.Element);
+  stroke?: string;
+  strokeWidth?: number;
+  type?: "linear" | "monotone" | "natural" | "step";
+};
+
+type LineChartProps = {
+  accessibilityLayer?: boolean;
+  children?: JSX.Element;
+  data: ReadonlyArray<unknown>;
+  margin?: ChartMargin;
+};
+
 type BarProps = {
   dataKey: DataKey;
   fill?: string;
@@ -156,7 +185,10 @@ export const AreaChart: Component<AreaChartProps>;
 export const Bar: Component<BarProps>;
 export const BarChart: Component<BarChartProps>;
 export const CartesianGrid: Component<CartesianGridProps>;
+export const Dot: Component<DotProps>;
 export const Legend: Component<LegendProps>;
+export const Line: Component<LineProps>;
+export const LineChart: Component<LineChartProps>;
 export const PolarAngleAxis: Component<PolarAngleAxisProps>;
 export const PolarGrid: Component<PolarGridProps>;
 export const PolarRadiusAxis: Component<PolarRadiusAxisProps>;

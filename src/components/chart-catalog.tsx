@@ -4,6 +4,7 @@ import {
   AREA_CHARTS,
   CHART_FAMILIES,
   type ChartCatalogEntry,
+  LINE_CHARTS,
   RADAR_CHARTS,
   TOOLTIP_CHARTS,
 } from "@/lib/chart-catalog";
@@ -278,7 +279,7 @@ function ChartSourceActions(props: { entry: ChartCatalogEntry }) {
   );
 }
 
-type ChartFamily = "area" | "radar" | "tooltip";
+type ChartFamily = "area" | "line" | "radar" | "tooltip";
 
 const familyCatalog = {
   area: {
@@ -286,6 +287,12 @@ const familyCatalog = {
     heading: "Area Charts",
     path: "/charts",
     entries: AREA_CHARTS,
+  },
+  line: {
+    label: "Line",
+    heading: "Line Charts",
+    path: "/charts/line",
+    entries: LINE_CHARTS,
   },
   radar: {
     label: "Radar",

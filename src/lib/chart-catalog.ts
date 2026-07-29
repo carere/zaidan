@@ -22,6 +22,18 @@ type AreaChartSlug =
   | "chart-area-stacked"
   | "chart-area-step";
 
+export type LineChartSlug =
+  | "chart-line-default"
+  | "chart-line-dots-colors"
+  | "chart-line-dots-custom"
+  | "chart-line-dots"
+  | "chart-line-interactive"
+  | "chart-line-label-custom"
+  | "chart-line-label"
+  | "chart-line-linear"
+  | "chart-line-multiple"
+  | "chart-line-step";
+
 type RadarChartSlug =
   | "chart-radar-default"
   | "chart-radar-dots"
@@ -50,13 +62,17 @@ export type TooltipChartSlug =
   | "chart-tooltip-advanced";
 
 export type ChartCatalogEntry = {
-  slug: AreaChartSlug | RadarChartSlug | TooltipChartSlug;
+  slug: AreaChartSlug | LineChartSlug | RadarChartSlug | TooltipChartSlug;
   label: string;
   exportName: string;
   description: string;
-  categories: readonly ["charts", "charts-area" | "charts-radar" | "charts-tooltip"];
-  canonicalPath: "/charts" | "/charts/radar" | "/charts/tooltip";
+  categories: readonly [
+    "charts",
+    "charts-area" | "charts-line" | "charts-radar" | "charts-tooltip",
+  ];
+  canonicalPath: "/charts" | "/charts/line" | "/charts/radar" | "/charts/tooltip";
   interactive: boolean;
+  visualRepresentative: boolean;
   sourceUrl: string;
   installCommand: string;
 };
@@ -65,6 +81,12 @@ type AreaChartEntry = ChartCatalogEntry & {
   slug: AreaChartSlug;
   categories: readonly ["charts", "charts-area"];
   canonicalPath: "/charts";
+};
+
+type LineChartEntry = ChartCatalogEntry & {
+  slug: LineChartSlug;
+  categories: readonly ["charts", "charts-line"];
+  canonicalPath: "/charts/line";
 };
 
 type RadarChartEntry = ChartCatalogEntry & {
@@ -90,6 +112,15 @@ function chartEntry(
   interactive?: boolean,
 ): AreaChartEntry;
 function chartEntry(
+  family: "line",
+  slug: LineChartSlug,
+  label: string,
+  description: string,
+  exportName: string,
+  interactive?: boolean,
+  visualRepresentative?: boolean,
+): LineChartEntry;
+function chartEntry(
   family: "radar",
   slug: RadarChartSlug,
   label: string,
@@ -104,23 +135,26 @@ function chartEntry(
   exportName: string,
 ): TooltipChartEntry;
 function chartEntry(
-  family: "area" | "radar" | "tooltip",
-  slug: AreaChartSlug | RadarChartSlug | TooltipChartSlug,
+  family: "area" | "line" | "radar" | "tooltip",
+  slug: AreaChartSlug | LineChartSlug | RadarChartSlug | TooltipChartSlug,
   label: string,
   description: string,
   exportName: string,
   interactive = false,
+  visualRepresentative = false,
 ): ChartCatalogEntry {
   const category = {
     area: "charts-area",
+    line: "charts-line",
     radar: "charts-radar",
     tooltip: "charts-tooltip",
-  }[family] as "charts-area" | "charts-radar" | "charts-tooltip";
+  }[family] as "charts-area" | "charts-line" | "charts-radar" | "charts-tooltip";
   const canonicalPath = {
     area: "/charts",
+    line: "/charts/line",
     radar: "/charts/radar",
     tooltip: "/charts/tooltip",
-  }[family] as "/charts" | "/charts/radar" | "/charts/tooltip";
+  }[family] as "/charts" | "/charts/line" | "/charts/radar" | "/charts/tooltip";
   return {
     slug,
     label,
@@ -129,6 +163,7 @@ function chartEntry(
     categories: ["charts", category],
     canonicalPath,
     interactive,
+    visualRepresentative,
     sourceUrl: `${sourceRoot}/${slug}.tsx`,
     installCommand: `bunx shadcn@latest add @zaidan/${slug}`,
   };
@@ -203,6 +238,78 @@ export const AREA_CHARTS = [
 ] as const satisfies readonly AreaChartEntry[];
 
 export const AREA_CHART_SLUGS = AREA_CHARTS.map(({ slug }) => slug);
+
+export const LINE_CHARTS = [
+  chartEntry("line", "chart-line-default", "Line Chart", "A line chart.", "ChartLineDefault"),
+  chartEntry(
+    "line",
+    "chart-line-dots-colors",
+    "Line Chart — Dots Colors",
+    "A line chart with colored dots.",
+    "ChartLineDotsColors",
+  ),
+  chartEntry(
+    "line",
+    "chart-line-dots-custom",
+    "Line Chart — Custom Dots",
+    "A line chart with custom dots.",
+    "ChartLineDotsCustom",
+    false,
+    true,
+  ),
+  chartEntry(
+    "line",
+    "chart-line-dots",
+    "Line Chart — Dots",
+    "A line chart with dots.",
+    "ChartLineDots",
+  ),
+  chartEntry(
+    "line",
+    "chart-line-interactive",
+    "Line Chart — Interactive",
+    "An interactive line chart with selectable series.",
+    "ChartLineInteractive",
+    true,
+  ),
+  chartEntry(
+    "line",
+    "chart-line-label-custom",
+    "Line Chart — Custom Label",
+    "A line chart with custom labels.",
+    "ChartLineLabelCustom",
+  ),
+  chartEntry(
+    "line",
+    "chart-line-label",
+    "Line Chart — Label",
+    "A line chart with labels.",
+    "ChartLineLabel",
+  ),
+  chartEntry(
+    "line",
+    "chart-line-linear",
+    "Line Chart — Linear",
+    "A linear line chart.",
+    "ChartLineLinear",
+  ),
+  chartEntry(
+    "line",
+    "chart-line-multiple",
+    "Line Chart — Multiple",
+    "A multiple line chart.",
+    "ChartLineMultiple",
+  ),
+  chartEntry(
+    "line",
+    "chart-line-step",
+    "Line Chart — Step",
+    "A step line chart.",
+    "ChartLineStep",
+  ),
+] as const satisfies readonly LineChartEntry[];
+
+export const LINE_CHART_SLUGS = LINE_CHARTS.map(({ slug }) => slug);
 
 export const RADAR_CHARTS = [
   chartEntry("radar", "chart-radar-default", "Radar Chart", "A radar chart.", "ChartRadarDefault"),
@@ -373,6 +480,10 @@ export function getAreaChart(slug: string) {
   return AREA_CHARTS.find((candidate) => candidate.slug === slug);
 }
 
+export function getLineChart(slug: string) {
+  return LINE_CHARTS.find((candidate) => candidate.slug === slug);
+}
+
 export function getRadarChart(slug: string) {
   return RADAR_CHARTS.find((candidate) => candidate.slug === slug);
 }
@@ -382,5 +493,5 @@ export function getTooltipChart(slug: string) {
 }
 
 export function getChartCatalogEntry(slug: string) {
-  return getAreaChart(slug) ?? getRadarChart(slug) ?? getTooltipChart(slug);
+  return getAreaChart(slug) ?? getLineChart(slug) ?? getRadarChart(slug) ?? getTooltipChart(slug);
 }
