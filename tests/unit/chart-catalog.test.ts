@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   AREA_CHARTS,
+  BAR_CHARTS,
+  CHART_CATALOG_FAMILIES,
   CHART_SOURCE_REVISION,
   LINE_CHARTS,
   RADAR_CHARTS,
@@ -33,6 +35,19 @@ const pinnedLineOrder = [
   "chart-line-linear",
   "chart-line-multiple",
   "chart-line-step",
+] as const;
+
+const pinnedBarOrder = [
+  "chart-bar-active",
+  "chart-bar-default",
+  "chart-bar-horizontal",
+  "chart-bar-interactive",
+  "chart-bar-label-custom",
+  "chart-bar-label",
+  "chart-bar-mixed",
+  "chart-bar-multiple",
+  "chart-bar-negative",
+  "chart-bar-stacked",
 ] as const;
 
 const pinnedRadarOrder = [
@@ -175,6 +190,66 @@ describe("Line Chart Catalog contract", () => {
         ({ slug }) => slug,
       ),
     ).toEqual(["chart-line-dots-custom"]);
+  });
+});
+
+describe("Bar Chart Catalog contract", () => {
+  it("publishes the ten pinned entries in upstream source order", () => {
+    expect(CHART_SOURCE_REVISION).toBe("47c7f92dbc4dd22a29982986458787000c4e7bc1");
+    expect(BAR_CHARTS.map(({ slug }) => slug)).toEqual(pinnedBarOrder);
+    expect(BAR_CHARTS.every(({ categories }) => categories.join(",") === "charts,charts-bar")).toBe(
+      true,
+    );
+    expect(CHART_CATALOG_FAMILIES.bar).toMatchObject({
+      key: "bar",
+      label: "Bar",
+      itemLabel: "Bar",
+      heading: "Bar Charts",
+      path: "/charts/bar",
+    });
+    expect(CHART_CATALOG_FAMILIES.bar.entries).toBe(BAR_CHARTS);
+  });
+
+  it("gives every entry shared source, install, canonical-route, and Preview behavior", () => {
+    for (const entry of BAR_CHARTS) {
+      expect(entry.sourceUrl).toContain(CHART_SOURCE_REVISION);
+      expect(entry.sourceUrl.endsWith(`/${entry.slug}.tsx`)).toBe(true);
+      expect(entry.installCommand).toBe(`bunx shadcn@latest add @zaidan/${entry.slug}`);
+      expect(entry.canonicalPath).toBe("/charts/bar");
+      expect(resolvePreviewRequest(`/preview/charts/${entry.slug}`)).toEqual({
+        accepted: true,
+        kind: "charts",
+        slug: entry.slug,
+        canonicalPath: "/charts/bar",
+      });
+    }
+  });
+
+  it("keeps every Bar entry independently installable with exact registry metadata", () => {
+    const barItems = registry.items.filter(({ name }) =>
+      pinnedBarOrder.includes(name as (typeof pinnedBarOrder)[number]),
+    );
+
+    expect(barItems.map(({ name }) => name)).toEqual(pinnedBarOrder);
+    for (const item of barItems) {
+      const dependencies = item.dependencies ?? [];
+      const files = item.files ?? [];
+
+      expect(item.type).toBe("registry:block");
+      expect(item.categories).toEqual(["charts", "charts-bar"]);
+      expect(item.registryDependencies).toEqual(
+        ["card", "chart"].map(
+          (dependency) => `https://zaidan.carere.dev/r/kobalte/${dependency}.json`,
+        ),
+      );
+      expect(dependencies).toContain("solid-recharts@1.0.0");
+      expect(dependencies.some((dependency) => /^echarts(?:@|$)/.test(dependency))).toBe(false);
+      expect(files).toHaveLength(1);
+      expect(files[0]).toMatchObject({
+        path: `src/registry/kobalte/charts/${item.name}.tsx`,
+        type: "registry:block",
+      });
+    }
   });
 });
 

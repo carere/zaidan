@@ -38,6 +38,7 @@ import { Route as ProductComponentsBlocksRouteImport } from './routes/_product.c
 import { Route as ProductComponentsSlugRouteImport } from './routes/_product.components.$slug'
 import { Route as ProductChartsTooltipRouteImport } from './routes/_product.charts_.tooltip'
 import { Route as ProductChartsLineRouteImport } from './routes/_product.charts_.line'
+import { Route as ProductChartsBarRouteImport } from './routes/_product.charts_.bar'
 import { Route as ProductChartsRadarRouteImport } from './routes/_product.charts.radar'
 import { Route as PreviewKindPrimitiveSlugRouteImport } from './routes/preview.$kind.$primitive.$slug'
 import { Route as WebsiteUiSlugDocsRouteImport } from './routes/_website.ui.$slug.docs'
@@ -192,6 +193,11 @@ const ProductChartsLineRoute = ProductChartsLineRouteImport.update({
   path: '/charts/line',
   getParentRoute: () => ProductRoute,
 } as any)
+const ProductChartsBarRoute = ProductChartsBarRouteImport.update({
+  id: '/charts_/bar',
+  path: '/charts/bar',
+  getParentRoute: () => ProductRoute,
+} as any)
 const ProductChartsRadarRoute = ProductChartsRadarRouteImport.update({
   id: '/radar',
   path: '/radar',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
   '/charts/radar': typeof ProductChartsRadarRoute
+  '/charts/bar': typeof ProductChartsBarRoute
   '/charts/line': typeof ProductChartsLineRoute
   '/charts/tooltip': typeof ProductChartsTooltipRoute
   '/components/$slug': typeof ProductComponentsSlugRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/preview/create': typeof PreviewCreateRoute
   '/preview/home': typeof PreviewHomeRoute
   '/charts/radar': typeof ProductChartsRadarRoute
+  '/charts/bar': typeof ProductChartsBarRoute
   '/charts/line': typeof ProductChartsLineRoute
   '/charts/tooltip': typeof ProductChartsTooltipRoute
   '/components/$slug': typeof ProductComponentsSlugRoute
@@ -322,6 +330,7 @@ export interface FileRoutesById {
   '/preview/home': typeof PreviewHomeRoute
   '/_website/': typeof WebsiteIndexRoute
   '/_product/charts/radar': typeof ProductChartsRadarRoute
+  '/_product/charts_/bar': typeof ProductChartsBarRoute
   '/_product/charts_/line': typeof ProductChartsLineRoute
   '/_product/charts_/tooltip': typeof ProductChartsTooltipRoute
   '/_product/components/$slug': typeof ProductComponentsSlugRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/preview/create'
     | '/preview/home'
     | '/charts/radar'
+    | '/charts/bar'
     | '/charts/line'
     | '/charts/tooltip'
     | '/components/$slug'
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/preview/create'
     | '/preview/home'
     | '/charts/radar'
+    | '/charts/bar'
     | '/charts/line'
     | '/charts/tooltip'
     | '/components/$slug'
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/preview/home'
     | '/_website/'
     | '/_product/charts/radar'
+    | '/_product/charts_/bar'
     | '/_product/charts_/line'
     | '/_product/charts_/tooltip'
     | '/_product/components/$slug'
@@ -673,6 +685,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ProductChartsLineRouteImport
       parentRoute: typeof ProductRoute
     }
+    '/_product/charts_/bar': {
+      id: '/_product/charts_/bar'
+      path: '/charts/bar'
+      fullPath: '/charts/bar'
+      preLoaderRoute: typeof ProductChartsBarRouteImport
+      parentRoute: typeof ProductRoute
+    }
     '/_product/charts/radar': {
       id: '/_product/charts/radar'
       path: '/radar'
@@ -785,6 +804,7 @@ interface ProductRouteChildren {
   ProductComponentsRoute: typeof ProductComponentsRouteWithChildren
   ProductCreateRoute: typeof ProductCreateRoute
   ProductDocsRoute: typeof ProductDocsRouteWithChildren
+  ProductChartsBarRoute: typeof ProductChartsBarRoute
   ProductChartsLineRoute: typeof ProductChartsLineRoute
   ProductChartsTooltipRoute: typeof ProductChartsTooltipRoute
 }
@@ -794,6 +814,7 @@ const ProductRouteChildren: ProductRouteChildren = {
   ProductComponentsRoute: ProductComponentsRouteWithChildren,
   ProductCreateRoute: ProductCreateRoute,
   ProductDocsRoute: ProductDocsRouteWithChildren,
+  ProductChartsBarRoute: ProductChartsBarRoute,
   ProductChartsLineRoute: ProductChartsLineRoute,
   ProductChartsTooltipRoute: ProductChartsTooltipRoute,
 }

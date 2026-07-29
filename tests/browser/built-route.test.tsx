@@ -16,7 +16,7 @@ async function renderBuiltRoute(pathname = "/", viewport = { width: "1280px", he
       ? "Built chart route"
       : pathname === "/charts/line"
         ? "Line Chart Catalog route"
-        : pathname === "/charts" || pathname === "/charts/tooltip"
+        : pathname === "/charts" || pathname === "/charts/bar" || pathname === "/charts/tooltip"
           ? "Chart Catalog route"
           : pathname === "/charts/radar"
             ? "Radar Chart Catalog route"
@@ -318,6 +318,102 @@ describe("built application", () => {
     expect(evidence.openPreviewVisible).toBe(true);
     expect(evidence.recovered).toBe(true);
   });
+
+  it("renders the Bar catalog with accessible positive and negative geometry", async () => {
+    await renderBuiltRoute("/charts/bar");
+    const { inspectBarChartCatalog } = commands as unknown as {
+      inspectBarChartCatalog: () => Promise<{
+        activeFamily: string | null;
+        areaEntryCount: number;
+        areaHeadingCount: number;
+        entryCount: number;
+        entrySlugs: string[];
+        previewHeight: number;
+        previewLoading: string | null;
+        interactiveIsFullWidth: boolean;
+        previewsAreAccessible: boolean;
+        previewsRenderBars: boolean;
+        keyboardTooltipText: string | null;
+        pointerTooltipText: string | null;
+        interactiveSelection: string | null;
+        interactiveTotal: string | null;
+        negativeSharesZeroBaseline: boolean;
+        negativeUsesBothChartColors: boolean;
+        representativeCaptureSize: number;
+        consoleErrors: string[];
+      }>;
+    };
+
+    const evidence = await inspectBarChartCatalog();
+    expect(evidence.activeFamily).toBe("Bar");
+    expect(evidence.areaEntryCount).toBe(0);
+    expect(evidence.areaHeadingCount).toBe(0);
+    expect(evidence.entryCount).toBe(10);
+    expect(evidence.entrySlugs).toEqual([
+      "chart-bar-active",
+      "chart-bar-default",
+      "chart-bar-horizontal",
+      "chart-bar-interactive",
+      "chart-bar-label-custom",
+      "chart-bar-label",
+      "chart-bar-mixed",
+      "chart-bar-multiple",
+      "chart-bar-negative",
+      "chart-bar-stacked",
+    ]);
+    expect(evidence.previewHeight).toBe(460);
+    expect(evidence.previewLoading).toBe("lazy");
+    expect(evidence.interactiveIsFullWidth).toBe(true);
+    expect(evidence.previewsAreAccessible).toBe(true);
+    expect(evidence.previewsRenderBars).toBe(true);
+    expect(evidence.keyboardTooltipText).toMatch(/Visitors|Chrome|Safari|Firefox|187|200|275/);
+    expect(evidence.pointerTooltipText).toMatch(/Visitors|March|-207/);
+    expect(evidence.interactiveSelection).toBe("Mobile");
+    expect(evidence.interactiveTotal).toBe("25,010");
+    expect(evidence.negativeSharesZeroBaseline).toBe(true);
+    expect(evidence.negativeUsesBothChartColors).toBe(true);
+    expect(evidence.representativeCaptureSize).toBeGreaterThan(1_000);
+    expect(evidence.consoleErrors).toEqual([]);
+  }, 30_000);
+
+  it("keeps the Bar route responsive without horizontal overflow", async () => {
+    await renderBuiltRoute("/charts/bar", { width: "390px", height: "844px" });
+    const { inspectBarResponsiveGeometry } = commands as unknown as {
+      inspectBarResponsiveGeometry: () => Promise<{
+        documentOverflow: number;
+        cardFitsViewport: boolean;
+        iframeFitsCard: boolean;
+      }>;
+    };
+
+    expect(await inspectBarResponsiveGeometry()).toEqual({
+      documentOverflow: 0,
+      cardFitsViewport: true,
+      iframeFitsCard: true,
+    });
+  });
+
+  it("retains source actions and recovers a failed Bar Preview", async () => {
+    await renderBuiltRoute("/charts/bar");
+    const { exerciseBarCatalogRecovery } = commands as unknown as {
+      exerciseBarCatalogRecovery: () => Promise<{
+        sourceContainsExport: boolean;
+        installCommand: string | null;
+        alertText: string;
+        retryVisible: boolean;
+        openPreviewVisible: boolean;
+        recovered: boolean;
+      }>;
+    };
+
+    const evidence = await exerciseBarCatalogRecovery();
+    expect(evidence.sourceContainsExport).toBe(true);
+    expect(evidence.installCommand).toBe("bunx shadcn@latest add @zaidan/chart-bar-active");
+    expect(evidence.alertText).toContain("Preview could not be loaded");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.openPreviewVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
+  }, 20_000);
 
   it("renders the Radar catalog with polar, legend, accessibility, and interaction parity", async () => {
     await renderBuiltRoute("/charts/radar", { width: "1440px", height: "900px" });

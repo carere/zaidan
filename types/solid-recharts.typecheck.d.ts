@@ -56,21 +56,56 @@ type LineChartProps = {
 };
 
 type BarProps = {
+  children?: JSX.Element;
   dataKey: DataKey;
   fill?: string;
   radius?: number | readonly [number, number, number, number];
+  shape?: (props: BarShapeProps) => JSX.Element;
   stackId?: DataKey;
+  strokeWidth?: number;
 };
 
 type BarChartProps = {
   accessibilityLayer?: boolean;
   children?: JSX.Element;
   data: ReadonlyArray<unknown>;
+  layout?: "horizontal" | "vertical";
   margin?: ChartMargin;
 };
 
 type CartesianGridProps = {
+  horizontal?: boolean;
   vertical?: boolean;
+};
+
+export type BarShapeProps = {
+  fill?: string;
+  fillOpacity?: number;
+  height?: number;
+  index?: number;
+  payload?: unknown;
+  stroke?: string;
+  width?: number;
+  x?: number;
+  y?: number;
+};
+
+type CellProps = {
+  fill?: string;
+};
+
+type LabelListProps = {
+  class?: string;
+  dataKey?: DataKey;
+  fillOpacity?: number;
+  fontSize?: number;
+  offset?: number;
+  position?: string;
+};
+
+type RectangleProps = BarShapeProps & {
+  strokeDasharray?: number | string;
+  strokeDashoffset?: number | string;
 };
 
 type RadarProps = {
@@ -173,11 +208,13 @@ export type LegendProps = {
 type AxisProps = {
   axisLine?: boolean;
   dataKey?: DataKey;
+  hide?: boolean;
   minTickGap?: number;
   tickCount?: number;
   tickFormatter?: (value: unknown) => string;
   tickLine?: boolean;
   tickMargin?: number;
+  type?: "number" | "category";
 };
 
 export const Area: Component<AreaProps>;
@@ -185,7 +222,9 @@ export const AreaChart: Component<AreaChartProps>;
 export const Bar: Component<BarProps>;
 export const BarChart: Component<BarChartProps>;
 export const CartesianGrid: Component<CartesianGridProps>;
+export const Cell: Component<CellProps>;
 export const Dot: Component<DotProps>;
+export const LabelList: Component<LabelListProps>;
 export const Legend: Component<LegendProps>;
 export const Line: Component<LineProps>;
 export const LineChart: Component<LineChartProps>;
@@ -194,6 +233,7 @@ export const PolarGrid: Component<PolarGridProps>;
 export const PolarRadiusAxis: Component<PolarRadiusAxisProps>;
 export const Radar: Component<RadarProps>;
 export const RadarChart: Component<RadarChartProps>;
+export const Rectangle: Component<RectangleProps>;
 export const ResponsiveContainer: Component<ResponsiveContainerProps>;
 export const Tooltip: Component<TooltipProps>;
 export const XAxis: Component<AxisProps>;
