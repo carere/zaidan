@@ -470,22 +470,8 @@ export const TOOLTIP_CHARTS = [
 
 export const TOOLTIP_CHART_SLUGS = TOOLTIP_CHARTS.map(({ slug }) => slug);
 
-export function getAreaChart(slug: string) {
-  return AREA_CHARTS.find((candidate) => candidate.slug === slug);
-}
-
-export function getLineChart(slug: string) {
-  return LINE_CHARTS.find((candidate) => candidate.slug === slug);
-}
-
-export function getRadarChart(slug: string) {
-  return RADAR_CHARTS.find((candidate) => candidate.slug === slug);
-}
-
-export function getTooltipChart(slug: string) {
-  return TOOLTIP_CHARTS.find((candidate) => candidate.slug === slug);
-}
-
 export function getChartCatalogEntry(slug: string) {
-  return getAreaChart(slug) ?? getLineChart(slug) ?? getRadarChart(slug) ?? getTooltipChart(slug);
+  return [...AREA_CHARTS, ...LINE_CHARTS, ...RADAR_CHARTS, ...TOOLTIP_CHARTS].find(
+    (candidate) => candidate.slug === slug,
+  );
 }

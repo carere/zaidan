@@ -387,7 +387,7 @@
     {
       "name": "chart-line-interactive",
       "type": "registry:block",
-      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "dependencies": ["solid-recharts@1.0.0"],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"

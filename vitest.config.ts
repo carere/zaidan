@@ -1,6 +1,6 @@
 import { playwright } from "@vitest/browser-playwright";
 import axeCore from "axe-core";
-import type { Frame, FrameLocator, Locator, Page } from "playwright";
+import type { Frame, FrameLocator, Locator } from "playwright";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 import { createBrowserCommands } from "./tests/browser/support/create-commands";
@@ -74,11 +74,7 @@ async function getBrowserCommandFrame(context: unknown) {
 
 type ChartFamilyInspectionContext = {
   testFrame: Frame;
-  page: Page;
   routeFrame: FrameLocator;
-  entries: Locator;
-  firstEntry: Locator;
-  previewFrame: FrameLocator;
   interactiveEntry: Locator;
 };
 
@@ -152,11 +148,7 @@ async function inspectChartCatalogFamily<T>(
     await interactiveEntry.scrollIntoViewIfNeeded();
     const familyEvidence = await inspectFamily({
       testFrame,
-      page,
       routeFrame,
-      entries,
-      firstEntry,
-      previewFrame,
       interactiveEntry,
     });
 
