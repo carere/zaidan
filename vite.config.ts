@@ -1,4 +1,3 @@
-import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
@@ -27,7 +26,6 @@ export default defineConfig({
       stylePropertyNameCase: "css",
     }),
     devtools(),
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwind(),
     tanstackStart(),
     solid({ ssr: true, hot: true, extensions: [".tsx", ".mdx"] }),

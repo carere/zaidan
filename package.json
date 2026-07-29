@@ -27,7 +27,6 @@
     "validate": "moon run zaidan:validate"
   },
   "dependencies": {
-    "@cloudflare/vite-plugin": "^1.37.2",
     "@corvu/otp-field": "^0.1.4",
     "@dnd-kit/solid": "^0.4.0",
     "@fontsource-variable/eb-garamond": "^5.2.7",
@@ -100,7 +99,6 @@
     "lefthook": "^2.1.8",
     "mdast": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "miniflare": "4.20260518.0",
     "playwright": "1.62.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-expressive-code": "^0.41.7",
