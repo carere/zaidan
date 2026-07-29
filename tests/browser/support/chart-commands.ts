@@ -19,6 +19,7 @@ type CatalogPreviewEvidence = {
   slug: string | null;
   renderedShapeCount: number;
   chartRole: string | null;
+  canonicalPath: string | null;
 };
 
 type CatalogInspection = {
@@ -38,12 +39,15 @@ async function inspectChartCatalog<Evidence>(
     familyHeading: string;
     interactiveSlug: string;
     renderedShapeSelector: string;
+    routeFrameTitle?: string;
   },
   inspectFamily: (inspection: CatalogInspection) => Promise<Evidence>,
 ) {
   const testFrame = await getChartTestFrame(context);
   const page = testFrame.page();
-  const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
+  const routeFrame = testFrame.frameLocator(
+    `iframe[title="${options.routeFrameTitle ?? "Chart Catalog route"}"]`,
+  );
   const consoleErrors: string[] = [];
   const recordConsole = (message: { type: () => string; text: () => string }) => {
     if (message.type() === "error") consoleErrors.push(message.text());
@@ -73,10 +77,12 @@ async function inspectChartCatalog<Evidence>(
       await chart.waitFor({ state: "visible", timeout: 8_000 });
       await chart.locator(".recharts-surface").waitFor({ state: "visible" });
       const application = preview.getByRole("application");
+      const canonicalHref = await preview.locator('link[rel="canonical"]').getAttribute("href");
       previews.push({
         slug: await catalogEntry.getAttribute("data-chart-entry"),
         renderedShapeCount: await chart.locator(options.renderedShapeSelector).count(),
         chartRole: await application.getAttribute("role"),
+        canonicalPath: canonicalHref ? new URL(canonicalHref).pathname : null,
       });
     }
 
@@ -116,11 +122,94 @@ async function inspectChartCatalog<Evidence>(
       previewLoading: await firstEntry.locator("iframe").getAttribute("loading"),
       interactiveIsFullWidth: interactiveWidth > firstWidth * 2,
       keyboardTooltipText,
+      routeCanonicalPath: await routeFrame
+        .locator("main[data-product-surface=charts]")
+        .getAttribute("data-canonical-route"),
       consoleErrors,
     };
   } finally {
     page.off("console", recordConsole);
     page.off("pageerror", recordPageError);
+  }
+}
+
+async function inspectDeferredChartPreviews(
+  context: unknown,
+  options: { routeFrameTitle?: string },
+) {
+  const testFrame = await getChartTestFrame(context);
+  const routeFrame = testFrame.frameLocator(
+    `iframe[title="${options.routeFrameTitle ?? "Chart Catalog route"}"]`,
+  );
+  const entries = routeFrame.locator("[data-chart-entry]");
+  await entries.first().waitFor({ state: "visible" });
+  await testFrame.waitForTimeout(6_500);
+
+  let deferredAlertCount = 0;
+  for (let index = 6; index < (await entries.count()); index += 1) {
+    deferredAlertCount += await entries.nth(index).getByRole("alert").count();
+  }
+
+  return {
+    alertCount: await routeFrame.getByRole("alert").count(),
+    deferredAlertCount,
+    hasNoOverflow: await routeFrame
+      .locator("html")
+      .evaluate((element) => element.scrollWidth <= element.clientWidth),
+  };
+}
+
+async function exerciseChartSourceFailure(
+  context: unknown,
+  options: {
+    entrySlug: string;
+    exportName: string;
+    routeFrameTitle?: string;
+  },
+) {
+  const testFrame = await getChartTestFrame(context);
+  const page = testFrame.page();
+  const routeFrame = testFrame.frameLocator(
+    `iframe[title="${options.routeFrameTitle ?? "Chart Catalog route"}"]`,
+  );
+  const firstEntry = routeFrame.locator(`[data-chart-entry="${options.entrySlug}"]`);
+  const sourceChunk = new RegExp(`/assets/${options.entrySlug}-[^/]+\\.tsx(?:\\?.*)?$`);
+  const pageErrors: string[] = [];
+  const recordPageError = (error: Error) => pageErrors.push(error.message);
+  page.on("pageerror", recordPageError);
+
+  try {
+    await firstEntry.waitFor({ state: "visible" });
+    await firstEntry.scrollIntoViewIfNeeded();
+    await firstEntry.frameLocator("iframe").locator('[data-slot="chart"]').waitFor({
+      state: "visible",
+    });
+    await page.route(
+      sourceChunk,
+      (route) => route.fulfill({ status: 503, body: "Source temporarily unavailable" }),
+      { times: 1 },
+    );
+
+    await firstEntry.getByRole("button", { name: "View Code" }).click();
+    const alert = routeFrame.getByRole("alert").filter({ hasText: "Source failed to load" });
+    await alert.waitFor({ state: "visible", timeout: 7_000 });
+    const retry = alert.getByRole("button", { name: "Retry source" });
+    const evidence = {
+      alertText: (await alert.textContent()) ?? "",
+      retryVisible: await retry.isVisible(),
+    };
+
+    await page.unroute(sourceChunk);
+    await retry.press("Enter");
+    const source = routeFrame.locator("pre code");
+    await source.waitFor({ state: "visible", timeout: 7_000 });
+    await source.getByText(`export function ${options.exportName}`, { exact: false }).waitFor({
+      state: "visible",
+    });
+    return { ...evidence, recovered: true, pageErrors };
+  } finally {
+    page.off("pageerror", recordPageError);
+    await page.unroute(sourceChunk);
   }
 }
 
@@ -237,10 +326,11 @@ export const chartBrowserCommands = {
             .getByRole("navigation", { name: "Chart families" })
             .getByRole("link")
             .allTextContents(),
-          previews: previews.map(({ slug, renderedShapeCount, chartRole }) => ({
+          previews: previews.map(({ slug, renderedShapeCount, chartRole, canonicalPath }) => ({
             slug,
-            renderedAreaCount: renderedShapeCount,
+            renderedSeriesCount: renderedShapeCount,
             chartRole,
+            canonicalPath,
           })),
           pointerTooltipText,
           interactiveSelection: interactiveSelection?.trim() ?? null,
@@ -369,76 +459,109 @@ export const chartBrowserCommands = {
     };
   },
   async inspectDeferredAreaPreviews(context: unknown) {
-    const testFrame = await getChartTestFrame(context);
-    const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
-    const entries = routeFrame.locator("[data-chart-entry]");
-    await entries.first().waitFor({ state: "visible" });
-
-    // The catalog's failure threshold is five seconds. Native-lazy
-    // frames below the fold must not enter a failed state before the
-    // browser has brought them near the viewport.
-    await testFrame.waitForTimeout(6_500);
-
-    let deferredAlertCount = 0;
-    for (let index = 6; index < (await entries.count()); index += 1) {
-      deferredAlertCount += await entries.nth(index).getByRole("alert").count();
-    }
-
-    return {
-      alertCount: await routeFrame.getByRole("alert").count(),
-      deferredAlertCount,
-    };
+    return inspectDeferredChartPreviews(context, {});
   },
   async exerciseAreaSourceFailure(context: unknown) {
-    const testFrame = await getChartTestFrame(context);
-    const page = testFrame.page();
-    const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
-    const firstEntry = routeFrame.locator('[data-chart-entry="chart-area-axes"]');
-    const sourceChunk = /\/assets\/chart-area-axes-[^/]+\.tsx(?:\?.*)?$/;
-    const pageErrors: string[] = [];
-    const recordPageError = (error: Error) => pageErrors.push(error.message);
-    page.on("pageerror", recordPageError);
-
-    try {
-      await firstEntry.waitFor({ state: "visible" });
-      await firstEntry.scrollIntoViewIfNeeded();
-      await firstEntry
-        .frameLocator("iframe")
-        .locator('[data-slot="chart"]')
-        .waitFor({ state: "visible" });
-      await page.route(
-        sourceChunk,
-        (route) => route.fulfill({ status: 503, body: "Source temporarily unavailable" }),
-        { times: 1 },
-      );
-
-      await firstEntry.getByRole("button", { name: "View Code" }).click();
-      const alert = routeFrame.getByRole("alert").filter({
-        hasText: "Source failed to load",
-      });
-      await alert.waitFor({ state: "visible", timeout: 7_000 });
-      const retry = alert.getByRole("button", { name: "Retry source" });
-      const evidence = {
-        alertText: (await alert.textContent()) ?? "",
-        retryVisible: await retry.isVisible(),
-      };
-
-      await page.unroute(sourceChunk);
-      await retry.press("Enter");
-      const source = routeFrame.locator("pre code");
-      await source.waitFor({ state: "visible", timeout: 7_000 });
-      await source.getByText("export function ChartAreaAxes", { exact: false }).waitFor({
-        state: "visible",
-      });
-
-      return { ...evidence, recovered: true, pageErrors };
-    } finally {
-      page.off("pageerror", recordPageError);
-      await page.unroute(sourceChunk);
-    }
+    return exerciseChartSourceFailure(context, {
+      entrySlug: "chart-area-axes",
+      exportName: "ChartAreaAxes",
+    });
   },
   async exerciseAreaChartFailure(context: unknown) {
     return exerciseChartPreviewRecovery(context, { entrySlug: "chart-area-axes" });
+  },
+  async inspectLineChartCatalog(context: unknown) {
+    return inspectChartCatalog(
+      context,
+      {
+        familyHeading: "Line Charts",
+        interactiveSlug: "chart-line-interactive",
+        renderedShapeSelector: ".recharts-line-curve",
+        routeFrameTitle: "Line Chart Catalog route",
+      },
+      async ({ testFrame, routeFrame, firstPreview, interactiveEntry, previews }) => {
+        const chart = firstPreview.locator('[data-slot="chart"]');
+        const rtlHasNoOverflow = await firstPreview.locator("html").evaluate((element) => {
+          (element as HTMLHtmlElement).dir = "rtl";
+          const hasNoOverflow = element.scrollWidth <= element.clientWidth;
+          (element as HTMLHtmlElement).dir = "";
+          return hasNoOverflow;
+        });
+
+        await chart.locator(".recharts-surface").hover({ position: { x: 220, y: 150 } });
+        await firstPreview.locator(".cn-chart-tooltip").waitFor({ state: "visible" });
+        const pointerTooltipText = await firstPreview.locator(".cn-chart-tooltip").textContent();
+
+        await interactiveEntry.scrollIntoViewIfNeeded();
+        const interactiveFrame = interactiveEntry.frameLocator("iframe");
+        const mobileSeries = interactiveFrame.getByRole("button", { name: /Mobile/ });
+        await mobileSeries.press("Enter");
+        await testFrame.waitForTimeout(100);
+        const interactiveSelection = await interactiveFrame
+          .getByRole("button", { pressed: true })
+          .textContent();
+
+        const representativeFrame = routeFrame
+          .locator('[data-chart-entry="chart-line-dots-custom"]')
+          .frameLocator("iframe");
+        const customDotCount = await representativeFrame.locator("[data-custom-line-dot]").count();
+        const labelFrame = routeFrame
+          .locator('[data-chart-entry="chart-line-label"]')
+          .frameLocator("iframe");
+        const labelCount = await labelFrame.locator("[data-line-label]").count();
+        const customLabelFrame = routeFrame
+          .locator('[data-chart-entry="chart-line-label-custom"]')
+          .frameLocator("iframe");
+        const customLabels = await customLabelFrame.locator("[data-line-label]").allTextContents();
+
+        const beforeMode = await firstPreview.locator("html").getAttribute("class");
+        await routeFrame.getByRole("button", { name: "Toggle color mode" }).click();
+        await testFrame.waitForTimeout(250);
+        const afterMode = await firstPreview.locator("html").getAttribute("class");
+        const configTheme = await firstPreview.locator("html").getAttribute("data-kb-theme");
+
+        return {
+          heading: await routeFrame
+            .getByRole("heading", { name: "Beautiful Charts & Graphs" })
+            .textContent(),
+          activeFamily: await routeFrame
+            .getByRole("navigation", { name: "Chart families" })
+            .locator('[aria-current="page"]')
+            .textContent(),
+          previews: previews.map(({ slug, renderedShapeCount, chartRole, canonicalPath }) => ({
+            slug,
+            renderedSeriesCount: renderedShapeCount,
+            chartRole,
+            canonicalPath,
+          })),
+          pointerTooltipText,
+          interactiveSelection: interactiveSelection?.trim() ?? null,
+          customDotCount,
+          labelCount,
+          customLabels,
+          colorModeSynchronized: beforeMode !== afterMode,
+          configThemeSynchronized: configTheme === (afterMode?.includes("dark") ? "dark" : "light"),
+          rtlHasNoOverflow,
+        };
+      },
+    );
+  },
+  async inspectDeferredLinePreviews(context: unknown) {
+    return inspectDeferredChartPreviews(context, { routeFrameTitle: "Line Chart Catalog route" });
+  },
+  async exerciseLineSourceFailure(context: unknown) {
+    return exerciseChartSourceFailure(context, {
+      entrySlug: "chart-line-default",
+      exportName: "ChartLineDefault",
+      routeFrameTitle: "Line Chart Catalog route",
+    });
+  },
+  async exerciseLineChartFailure(context: unknown) {
+    return exerciseChartPreviewRecovery(context, {
+      entrySlug: "chart-line-default",
+      recoveredFrameTitle: "Line Chart Preview",
+      routeFrameTitle: "Line Chart Catalog route",
+    });
   },
   async inspectRadarChartCatalog(context: unknown) {
     const testFrame = await getChartTestFrame(context);
