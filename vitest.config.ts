@@ -5,6 +5,7 @@ import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
 const playwrightLibraryPath = resolve(".cloudflare/playwright-deps/usr/lib/x86_64-linux-gnu");
+const cloudBuildReadyTimeout = 90_000;
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
@@ -31,7 +32,7 @@ export default defineConfig({
           // Cloudflare Workers Builds share CPU while the built fixture and
           // Chromium run together, so route hydration can exceed Vitest's
           // 15-second default without indicating a failed assertion.
-          testTimeout: 60_000,
+          testTimeout: 120_000,
           browser: {
             enabled: true,
             headless: true,
@@ -57,10 +58,12 @@ export default defineConfig({
                   name: "The best foundation for your next SolidJS project",
                 });
 
-                await heading.waitFor({ state: "visible" });
+                await heading.waitFor({ state: "visible", timeout: cloudBuildReadyTimeout });
 
                 const previewFrame = routeFrame.frameLocator('iframe[title="Home Preview"]');
-                await previewFrame.locator(".theme-container").waitFor({ state: "visible" });
+                await previewFrame
+                  .locator(".theme-container")
+                  .waitFor({ state: "visible", timeout: cloudBuildReadyTimeout });
 
                 return {
                   heading: await heading.textContent(),
@@ -77,8 +80,10 @@ export default defineConfig({
                 const routeFrame = testFrame.frameLocator('iframe[title="Built chart route"]');
                 const chart = routeFrame.locator('[data-slot="chart"]');
 
-                await chart.waitFor({ state: "visible" });
-                await chart.locator(".recharts-surface").waitFor({ state: "visible" });
+                await chart.waitFor({ state: "visible", timeout: cloudBuildReadyTimeout });
+                await chart
+                  .locator(".recharts-surface")
+                  .waitFor({ state: "visible", timeout: cloudBuildReadyTimeout });
 
                 return {
                   chartSlot: await chart.getAttribute("data-chart"),
