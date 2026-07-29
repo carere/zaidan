@@ -1,4 +1,5 @@
 import { blocks, changelog, docs, ui } from "@velite";
+import { getAreaChart } from "@/lib/chart-catalog";
 import { DEFAULT_PRESET_TOKEN, decodePresetToken } from "@/lib/preset-token";
 
 export type ProductSurfaceId = "home" | "docs" | "components" | "charts" | "create";
@@ -514,8 +515,8 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
       ? nodeByPath.get(`/components/${slug}`)
       : kind === "blocks"
         ? nodeByPath.get(`/components/blocks/${slug}`)
-        : undefined;
-  if (!node) return { accepted: false };
+        : nodeByPath.get("/charts");
+  if (!node || (kind === "charts" && !getAreaChart(slug))) return { accepted: false };
 
   let fragment: string | undefined;
   if (url.hash) {
@@ -525,7 +526,9 @@ export function resolvePreviewRequest(input: string): PreviewResolution {
       return { accepted: false };
     }
   }
-  if (fragment && !node.previewAnchors?.includes(fragment)) return { accepted: false };
+  if (fragment && (kind === "charts" || !node.previewAnchors?.includes(fragment))) {
+    return { accepted: false };
+  }
 
   return {
     accepted: true,

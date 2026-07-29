@@ -160,6 +160,167 @@
       ]
     },
     {
+      "name": "chart-area-axes",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-axes.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-default",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-default.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-gradient",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-gradient.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-icons",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-icons.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-interactive",
+      "type": "registry:block",
+      "dependencies": ["solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json",
+        "https://zaidan.carere.dev/r/kobalte/select.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-interactive.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-legend",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-legend.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-linear",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-linear.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-stacked-expand",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-stacked-expand.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-stacked",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-stacked.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
+      "name": "chart-area-step",
+      "type": "registry:block",
+      "dependencies": ["lucide-solid", "solid-recharts@1.0.0"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/card.json",
+        "https://zaidan.carere.dev/r/kobalte/chart.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/charts/chart-area-step.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "categories": ["charts", "charts-area"]
+    },
+    {
       "name": "checkbox",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],

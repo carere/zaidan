@@ -3,6 +3,6 @@
   "exclude": [
     "node_modules",
     "src/registry/kobalte/ui/chart.tsx",
-    "src/registry/kobalte/examples/ui/chart-example.tsx"
+    "src/registry/kobalte/charts/**/*.tsx"
   ]
 }

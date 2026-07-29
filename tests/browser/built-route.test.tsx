@@ -12,7 +12,11 @@ afterEach(() => {
 async function renderBuiltRoute(pathname = "/") {
   const builtAppUrl = new URL(pathname, inject("builtAppUrl")).href;
   const title =
-    pathname === "/preview/ui/kobalte/chart" ? "Built chart route" : "Built Zaidan route";
+    pathname === "/preview/ui/kobalte/chart"
+      ? "Built chart route"
+      : pathname === "/charts"
+        ? "Chart Catalog route"
+        : "Built Zaidan route";
   let resolveLoaded: (() => void) | undefined;
   const loaded = new Promise<void>((resolve) => {
     resolveLoaded = resolve;
@@ -74,5 +78,65 @@ describe("built application", () => {
     expect(evidence.description).toBe("Showing total visitors for the last 6 months");
     expect(evidence.renderedAreaCount).toBeGreaterThan(0);
     expect(capture.length).toBeGreaterThan(1_000);
+  });
+
+  it("renders the Area catalog with isolated accessible Previews", async () => {
+    await renderBuiltRoute("/charts");
+    const { inspectAreaChartCatalog } = commands as unknown as {
+      inspectAreaChartCatalog: () => Promise<{
+        heading: string | null;
+        families: string[];
+        entryCount: number;
+        previewHeight: number;
+        previewLoading: string | null;
+        interactiveIsFullWidth: boolean;
+        chartRole: string | null;
+        tooltipText: string | null;
+        colorModeSynchronized: boolean;
+        configThemeSynchronized: boolean;
+        rtlHasNoOverflow: boolean;
+        consoleErrors: string[];
+      }>;
+    };
+    const evidence = await inspectAreaChartCatalog();
+
+    expect(evidence.heading).toBe("Beautiful Charts & Graphs");
+    expect(evidence.families).toEqual([
+      "Area",
+      "Bar",
+      "Line",
+      "Pie",
+      "Radar",
+      "Radial",
+      "Tooltips",
+    ]);
+    expect(evidence.entryCount).toBe(10);
+    expect(evidence.previewHeight).toBe(460);
+    expect(evidence.previewLoading).toBe("lazy");
+    expect(evidence.interactiveIsFullWidth).toBe(true);
+    expect(evidence.chartRole).toBe("application");
+    expect(evidence.tooltipText).toMatch(/January|Desktop|186/);
+    expect(evidence.colorModeSynchronized).toBe(true);
+    expect(evidence.configThemeSynchronized).toBe(true);
+    expect(evidence.rtlHasNoOverflow).toBe(true);
+    expect(evidence.consoleErrors).toEqual([]);
+  });
+
+  it("retains failure actions and recovers an Area Preview", async () => {
+    await renderBuiltRoute("/charts");
+    const { exerciseAreaChartFailure } = commands as unknown as {
+      exerciseAreaChartFailure: () => Promise<{
+        alertText: string;
+        retryVisible: boolean;
+        openPreviewVisible: boolean;
+        recovered: boolean;
+      }>;
+    };
+    const evidence = await exerciseAreaChartFailure();
+
+    expect(evidence.alertText).toContain("Preview could not be loaded");
+    expect(evidence.retryVisible).toBe(true);
+    expect(evidence.openPreviewVisible).toBe(true);
+    expect(evidence.recovered).toBe(true);
   });
 });

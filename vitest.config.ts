@@ -262,6 +262,120 @@ export default defineConfig({
                   renderedAreaCount: await chart.locator(".recharts-area-area").count(),
                 };
               },
+              async inspectAreaChartCatalog(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const page = testFrame.page();
+                const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
+                const consoleErrors: string[] = [];
+                const recordConsole = (message: { type: () => string; text: () => string }) => {
+                  if (message.type() === "error") consoleErrors.push(message.text());
+                };
+                const recordPageError = (error: Error) => consoleErrors.push(error.message);
+                page.on("console", recordConsole);
+                page.on("pageerror", recordPageError);
+
+                const heading = routeFrame.getByRole("heading", {
+                  name: "Beautiful Charts & Graphs",
+                });
+                await heading.waitFor({ state: "visible" });
+                const entries = routeFrame.locator("[data-chart-entry]");
+                const firstEntry = entries.first();
+                await firstEntry.scrollIntoViewIfNeeded();
+
+                const previewFrame = routeFrame.frameLocator(
+                  'iframe[title="Area Chart — Axes Preview"]',
+                );
+                const chart = previewFrame.locator('[data-slot="chart"]');
+                await chart.waitFor({ state: "visible" });
+                const rtlHasNoOverflow = await previewFrame.locator("html").evaluate((element) => {
+                  (element as HTMLHtmlElement).dir = "rtl";
+                  const hasNoOverflow = element.scrollWidth <= element.clientWidth;
+                  (element as HTMLHtmlElement).dir = "";
+                  return hasNoOverflow;
+                });
+                const application = previewFrame.getByRole("application");
+                await application.focus();
+                await page.keyboard.press("ArrowRight");
+                await testFrame.waitForTimeout(250);
+
+                const beforeMode = await previewFrame.locator("html").getAttribute("class");
+                await routeFrame.getByRole("button", { name: "Toggle color mode" }).click();
+                await testFrame.waitForTimeout(250);
+                const afterMode = await previewFrame.locator("html").getAttribute("class");
+                const configTheme = await previewFrame
+                  .locator("html")
+                  .getAttribute("data-kb-theme");
+
+                const firstWidth = await firstEntry.evaluate(
+                  (element) => element.getBoundingClientRect().width,
+                );
+                const interactiveWidth = await routeFrame
+                  .locator('[data-chart-entry="chart-area-interactive"]')
+                  .evaluate((element) => element.getBoundingClientRect().width);
+                const previewHeight = await firstEntry
+                  .locator("[data-chart-preview]")
+                  .evaluate((element) => element.getBoundingClientRect().height);
+
+                page.off("console", recordConsole);
+                page.off("pageerror", recordPageError);
+                return {
+                  heading: await heading.textContent(),
+                  families: await routeFrame
+                    .getByRole("navigation", { name: "Chart families" })
+                    .getByRole("link")
+                    .allTextContents(),
+                  entryCount: await entries.count(),
+                  previewHeight,
+                  previewLoading: await firstEntry.locator("iframe").getAttribute("loading"),
+                  interactiveIsFullWidth: interactiveWidth > firstWidth * 2,
+                  chartRole: await application.getAttribute("role"),
+                  tooltipText: await previewFrame.locator(".cn-chart-tooltip").textContent(),
+                  colorModeSynchronized: beforeMode !== afterMode,
+                  configThemeSynchronized:
+                    configTheme === (afterMode?.includes("dark") ? "dark" : "light"),
+                  rtlHasNoOverflow,
+                  consoleErrors,
+                };
+              },
+              async exerciseAreaChartFailure(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const page = testFrame.page();
+                const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
+                const blockedPreview = "**/preview/charts/chart-area-axes";
+                await page.route(blockedPreview, (route) => route.abort());
+                await routeFrame.locator("body").evaluate(() => window.location.reload());
+                await testFrame.waitForTimeout(750);
+
+                const firstEntry = routeFrame.locator('[data-chart-entry="chart-area-axes"]');
+                await firstEntry.waitFor({ state: "visible" });
+                await firstEntry.scrollIntoViewIfNeeded();
+                const alert = firstEntry.getByRole("alert");
+                await alert.waitFor({ state: "visible", timeout: 8_000 });
+                const retry = alert.getByRole("button", { name: /Retry/ });
+                const openPreview = alert.getByRole("link", { name: /Open Preview/ });
+                const evidence = {
+                  alertText: (await alert.textContent()) ?? "",
+                  retryVisible: await retry.isVisible(),
+                  openPreviewVisible: await openPreview.isVisible(),
+                };
+
+                await page.unroute(blockedPreview);
+                await retry.click();
+                const recoveredFrame = routeFrame.frameLocator(
+                  'iframe[title="Area Chart — Axes Preview"]',
+                );
+                await recoveredFrame.locator('[data-slot="chart"]').waitFor({
+                  state: "visible",
+                  timeout: 8_000,
+                });
+                return { ...evidence, recovered: true };
+              },
               async inspectDesktopProductHeader(context) {
                 const { header } = await getProductRouteTestFrame(context);
 

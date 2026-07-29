@@ -5,10 +5,12 @@ description: Composable and responsive charts built with solid-recharts.
 example: chart-example.tsx
 ---
 
-The Chart component ports shadcn's composition-first chart helpers to Solid 1 and
-[`solid-recharts`](https://www.npmjs.com/package/solid-recharts). It provides a responsive
-container, scoped color variables, and shadcn-shaped tooltip and legend content while leaving the
-chart primitives directly available from `solid-recharts`.
+The Chart component provides shadcn-shaped composition helpers for Solid 1 and
+[`solid-recharts`](https://www.npmjs.com/package/solid-recharts). It owns responsive sizing,
+configuration-aware color variables, tooltip content, and legend content. Import chart primitives
+such as `AreaChart`, `XAxis`, and `Area` directly from `solid-recharts`.
+
+Browse the independently installable examples in the [Chart Catalog](/charts).
 
 ## Installation
 
@@ -20,6 +22,43 @@ The registry item installs the pinned chart dependency:
 
 ```bash
 bun add solid-recharts@1.0.0
+```
+
+`solid-recharts@1.0.0` publishes raw TSX. Exclude it from Vite dependency optimization so the
+package passes through the Solid transform:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  optimizeDeps: {
+    exclude: ["solid-recharts"],
+  },
+})
+```
+
+## Your First Chart
+
+Create the data and configuration, then compose chart primitives inside `ChartContainer`:
+
+```tsx
+import { Area, AreaChart } from "solid-recharts"
+import { ChartContainer, type ChartConfig } from "@/registry/kobalte/ui/chart"
+
+const data = [
+  { month: "January", visitors: 186 },
+  { month: "February", visitors: 305 },
+]
+
+const chartConfig = {
+  visitors: { label: "Visitors", color: "var(--chart-1)" },
+} satisfies ChartConfig
+
+<ChartContainer config={chartConfig} class="aspect-auto h-[300px] w-full">
+  <AreaChart accessibilityLayer data={data}>
+    <Area dataKey="visitors" fill="var(--color-visitors)" stroke="var(--color-visitors)" />
+  </AreaChart>
+</ChartContainer>
 ```
 
 ## Chart Configuration
@@ -37,9 +76,9 @@ const chartConfig = {
 } satisfies ChartConfig
 ```
 
-## Composition
+## Grid and Axes
 
-Compose the Solid chart primitives inside `ChartContainer`:
+Compose grids and axes as direct chart children. Axis props remain the `solid-recharts` API:
 
 ```tsx
 import { Area, AreaChart, CartesianGrid, XAxis } from "solid-recharts"
@@ -49,7 +88,7 @@ import {
   ChartTooltipContent,
 } from "@/registry/kobalte/ui/chart"
 
-<ChartContainer config={chartConfig} class="min-h-[300px] w-full">
+<ChartContainer config={chartConfig} class="aspect-auto h-[300px] w-full">
   <AreaChart accessibilityLayer data={chartData}>
     <CartesianGrid vertical={false} />
     <XAxis dataKey="month" tickLine={false} axisLine={false} />
@@ -68,14 +107,41 @@ import {
 </ChartContainer>
 ```
 
-Custom tooltip and legend content use function-form renderers. Solid does not clone a pre-created
-JSX element to inject the active payload, so React's `content={<ChartTooltipContent />}` form does
-not carry the runtime tooltip props in `solid-recharts@1.0.0`.
+## Tooltips and Legends
 
-## Theming
+Custom tooltip and legend content must use function-form renderers so runtime payload props reach
+the Solid content components:
 
-Use either a single color or light/dark values. `ChartContainer` scopes the resulting
-`--color-*` variables to the chart instance and follows Zaidan's `data-kb-theme` attribute.
+```tsx
+import { AreaChart } from "solid-recharts"
+import {
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/registry/kobalte/ui/chart"
+
+<AreaChart accessibilityLayer data={chartData}>
+  <ChartTooltip
+    content={(tooltipProps) => (
+      <ChartTooltipContent {...tooltipProps} indicator="line" />
+    )}
+  />
+  <ChartLegend
+    content={(legendProps) => <ChartLegendContent {...legendProps} />}
+  />
+</AreaChart>
+```
+
+Solid does not clone a pre-created JSX element to inject the active payload. The React-shaped
+`content={<ChartTooltipContent />}` form therefore does not carry runtime tooltip or legend props
+with `solid-recharts@1.0.0`.
+
+## Configuration-aware Theming
+
+Each `ChartConfig` key can provide a label, icon, and either one color or explicit light and dark
+colors. `ChartContainer` scopes the generated `--color-*` variables to that chart instance and
+follows Zaidan's `data-kb-theme` configuration selector.
 
 ```tsx
 const chartConfig = {
@@ -89,5 +155,19 @@ const chartConfig = {
 } satisfies ChartConfig
 ```
 
-The full chart catalog and public contract will be defined after this Solid 1 foundation is
-validated across SSR, Cloudflare, browser behavior, accessibility, and registry installation.
+Use `var(--color-revenue)` in the chart primitive. The value changes with the active color mode
+without leaking into another chart.
+
+## Accessibility
+
+Enable `accessibilityLayer` on every chart root. Keep the surrounding title and description in the
+document, give isolated Preview iframes descriptive titles, and do not remove the SVG focus outline
+without providing an equivalent. Interactive charts must expose the same data through keyboard
+focus as pointer hover. Honor reduced-motion preferences for loading and transition treatments.
+
+## Right-to-left Layouts
+
+The surrounding card, labels, tooltip, and legend can inherit `dir="rtl"`; this has been validated
+without horizontal overflow in the Area Preview. `solid-recharts@1.0.0` does not automatically
+reverse Cartesian data or axis semantics from document direction. Keep the data order explicit and
+validate any axis reversal required by your locale before publishing it.
