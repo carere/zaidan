@@ -26,7 +26,7 @@ const renderCreate = async (path = "/create") => {
 };
 
 describe("built Create Workspace Preset Token behavior", () => {
-  it("pushes picker changes, replaces Undo/Redo, restores Back, and syncs Preview", async () => {
+  it("keeps Undo/Redo coherent across Back/Forward interleavings and syncs Preview", async () => {
     await renderCreate();
     const { exerciseCreateHistory } = commands as unknown as {
       exerciseCreateHistory: () => Promise<{
@@ -35,12 +35,23 @@ describe("built Create Workspace Preset Token behavior", () => {
         undoPath: string;
         redoPath: string;
         backPath: string;
+        forwardPath: string;
+        undoDisabledAfterBack: boolean;
+        undoDisabledAfterForward: boolean;
+        interleavedSelectedPath: string;
+        interleavedUndoPath: string;
+        interleavedRedoPath: string;
         historyDelta: number;
         previewPreset: string;
       }>;
     };
     const evidence = await exerciseCreateHistory();
     const novaToken = encodePresetToken({ ...DEFAULT_CONFIG, style: "nova" });
+    const novaZincToken = encodePresetToken({
+      ...DEFAULT_CONFIG,
+      style: "nova",
+      baseColor: "zinc",
+    });
 
     expect(evidence).toEqual({
       defaultPath: "/create",
@@ -48,12 +59,18 @@ describe("built Create Workspace Preset Token behavior", () => {
       undoPath: "/create",
       redoPath: `/create?preset=${novaToken}`,
       backPath: "/create",
+      forwardPath: `/create?preset=${novaToken}`,
+      undoDisabledAfterBack: true,
+      undoDisabledAfterForward: true,
+      interleavedSelectedPath: `/create?preset=${novaZincToken}`,
+      interleavedUndoPath: `/create?preset=${novaToken}`,
+      interleavedRedoPath: `/create?preset=${novaZincToken}`,
       historyDelta: 1,
-      previewPreset: "v1-0",
+      previewPreset: novaZincToken,
     });
-  });
+  }, 30_000);
 
-  it("keeps invalid Open Preset input visible and Get Code state-free", async () => {
+  it("covers invalid/valid Open, locked Shuffle, Reset history, and state-free Get Code", async () => {
     await renderCreate();
     const { inspectCreateActions } = commands as unknown as {
       inspectCreateActions: () => Promise<{
@@ -61,6 +78,13 @@ describe("built Create Workspace Preset Token behavior", () => {
         command: string;
         pathBefore: string;
         pathAfter: string;
+        validOpenPath: string;
+        shuffledPath: string;
+        shuffledToken: string;
+        lockedStyle: string;
+        resetPath: string;
+        lockCleared: boolean;
+        undoResetPath: string;
       }>;
     };
     const evidence = await inspectCreateActions();
@@ -68,6 +92,30 @@ describe("built Create Workspace Preset Token behavior", () => {
     expect(evidence.invalidError).toContain("valid v1 Preset Token");
     expect(evidence.command).toBe("bunx --bun shadcn@latest add @zaidan/preset-v1-0");
     expect(evidence.pathAfter).toBe(evidence.pathBefore);
+    expect(evidence.validOpenPath).toBe("/create?preset=v1-gWzAn");
+    expect(evidence.shuffledToken).toMatch(/^v1-[0-9A-Za-z]{1,6}$/);
+    expect(evidence.shuffledToken).not.toBe("v1-gWzAn");
+    expect(evidence.shuffledPath).toBe(`/create?preset=${evidence.shuffledToken}`);
+    expect(evidence.lockedStyle).toBe("nova");
+    expect(evidence.resetPath).toBe("/create");
+    expect(evidence.lockCleared).toBe(true);
+    expect(evidence.undoResetPath).toBe(evidence.shuffledPath);
+  });
+
+  it("forwards Shuffle and Undo/Redo shortcuts from inside Preview", async () => {
+    await renderCreate();
+    const { exerciseCreatePreviewShortcuts } = commands as unknown as {
+      exerciseCreatePreviewShortcuts: () => Promise<{
+        shuffledToken: string;
+        undoToken: string;
+        redoToken: string;
+      }>;
+    };
+    const evidence = await exerciseCreatePreviewShortcuts();
+
+    expect(evidence.shuffledToken).not.toBe("v1-0");
+    expect(evidence.undoToken).toBe("v1-0");
+    expect(evidence.redoToken).toBe(evidence.shuffledToken);
   });
 
   it("replaces invalid URLs and migrates recognized legacy fields", async () => {

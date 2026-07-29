@@ -1,36 +1,24 @@
 import { createHash } from "node:crypto";
 import type { RegistryItem } from "shadcn/schema";
-import { FONT_DEFINITIONS } from "@/lib/fonts";
+import { projectPresetTheme } from "@/lib/preset-theme";
 import { decodePresetToken } from "@/lib/preset-token";
-import { buildRegistryTheme } from "@/lib/theme-utils";
 
 const REGISTRY_ORIGIN = "https://zaidan.carere.dev";
 
 export function projectPresetRegistryItem(token: string): RegistryItem | null {
   const config = decodePresetToken(token);
   if (!config) return null;
-  const theme = buildRegistryTheme(config);
-  const bodyFont = FONT_DEFINITIONS.find(({ name }) => name === config.font);
-  const headingFont = FONT_DEFINITIONS.find(({ name }) => name === config.headingFont);
-  if (!theme || !bodyFont || !headingFont) return null;
-
-  const withFontRoles = (values: Record<string, string>) => ({
-    ...values,
-    "font-sans": bodyFont.family,
-    "font-heading": headingFont.family,
-  });
+  const theme = projectPresetTheme(config);
+  if (!theme) return null;
 
   return {
     name: `preset-${token}`,
     title: `Zaidan Preset ${token}`,
     description: "Generated immutable Zaidan Design Configuration.",
     type: "registry:theme",
-    dependencies: [...new Set([bodyFont.dependency, headingFont.dependency])],
+    dependencies: theme.dependencies,
     registryDependencies: [`${REGISTRY_ORIGIN}/r/kobalte/style-${config.style}.json`],
-    cssVars: {
-      light: withFontRoles(theme.cssVars.light),
-      dark: withFontRoles(theme.cssVars.dark),
-    },
+    cssVars: theme.cssVars,
   };
 }
 

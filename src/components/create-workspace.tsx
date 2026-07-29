@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/solid-router";
 import {
   Check,
   Clipboard,
@@ -11,14 +12,13 @@ import {
   X,
 } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import { RootComponents } from "@/components/home";
 import { BASE_COLORS, FONTS, MENU_ACCENTS, RADII, STYLES, THEMES } from "@/lib/config";
 import {
-  CREATE_PREVIEW_CHANNEL,
-  CREATE_PREVIEW_PROTOCOL_VERSION,
+  type CreateShortcut,
   createPresetSyncMessage,
   isCurrentPresetAcknowledgement,
   parsePreviewMessage,
+  resolveCreateShortcut,
 } from "@/lib/preset-protocol";
 import {
   type CreateLocationResolution,
@@ -35,7 +35,6 @@ import {
   sharePathForPreset,
   shufflePreset,
 } from "@/lib/preset-token";
-import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { DesignSystemConfig, LockableParam } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -68,8 +67,13 @@ const writeClipboard = async (value: string) => {
   await navigator.clipboard.writeText(value);
 };
 
+const isEditableTarget = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable || target.matches("input, textarea, select"));
+
 export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
   const { colorMode } = useColorMode();
+  const navigate = useNavigate();
   const [configuration, setConfiguration] = createSignal(props.initial.config);
   const [locks, setLocks] = createSignal<ReadonlySet<LockableParam>>(new Set<LockableParam>());
   const [openPreset, setOpenPreset] = createSignal(false);
@@ -95,8 +99,19 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
   );
   let degradedTimer: ReturnType<typeof setTimeout> | undefined;
 
+  const syncEditorHistory = () => {
+    setCanUndo(past.length > 0);
+    setCanRedo(future.length > 0);
+  };
+
+  const clearEditorHistory = () => {
+    past.length = 0;
+    future.length = 0;
+    syncEditorHistory();
+  };
+
   const replaceUrl = (nextToken: string) => {
-    window.history.replaceState(null, "", sharePathForPreset(nextToken));
+    void navigate({ href: sharePathForPreset(nextToken), replace: true, resetScroll: false });
   };
 
   const commit = (next: DesignSystemConfig, historyMode: "push" | "replace" = "push") => {
@@ -106,11 +121,13 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
     if (historyMode === "push") {
       past.push(current);
       future.length = 0;
-      setCanUndo(true);
-      setCanRedo(false);
-      window.history.pushState(null, "", sharePathForPreset(nextToken));
-    } else replaceUrl(nextToken);
-    setConfiguration(next);
+      syncEditorHistory();
+      setConfiguration(next);
+      void navigate({ href: sharePathForPreset(nextToken), resetScroll: false });
+    } else {
+      setConfiguration(next);
+      replaceUrl(nextToken);
+    }
     return true;
   };
 
@@ -128,8 +145,7 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
     if (!previous) return;
     future.push(configuration());
     commit(previous, "replace");
-    setCanUndo(past.length > 0);
-    setCanRedo(true);
+    syncEditorHistory();
   };
 
   const redo = () => {
@@ -137,8 +153,15 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
     if (!next) return;
     past.push(configuration());
     commit(next, "replace");
-    setCanUndo(true);
-    setCanRedo(future.length > 0);
+    syncEditorHistory();
+  };
+
+  const shuffle = () => commit(shufflePreset(configuration(), locks()));
+
+  const performShortcut = (action: CreateShortcut) => {
+    if (action === "shuffle") shuffle();
+    else if (action === "undo") undo();
+    else redo();
   };
 
   const reset = () => {
@@ -184,15 +207,16 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
 
   onMount(() => {
     if (props.initial.replace) {
-      window.history.replaceState(null, "", props.initial.canonicalPath);
+      void navigate({ href: props.initial.canonicalPath, replace: true, resetScroll: false });
     }
     const handlePopState = () => {
       const resolution = resolveCreateLocation(
         `${window.location.pathname}${window.location.search}`,
       );
       if (resolution.replace) {
-        window.history.replaceState(null, "", resolution.canonicalPath);
+        void navigate({ href: resolution.canonicalPath, replace: true, resetScroll: false });
       }
+      clearEditorHistory();
       setConfiguration(resolution.config);
     };
     const handleMessage = (event: MessageEvent) => {
@@ -207,14 +231,25 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
         clearTimeout(degradedTimer);
         setAppliedRevision(message.revision);
         setFrameStatus("ready");
+      } else if (message.type === "preview-shortcut") {
+        performShortcut(message.action);
       }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) return;
+      const action = resolveCreateShortcut(event);
+      if (!action) return;
+      event.preventDefault();
+      performShortcut(action);
     };
     window.addEventListener("popstate", handlePopState);
     window.addEventListener("message", handleMessage);
+    window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => {
       clearTimeout(degradedTimer);
       window.removeEventListener("popstate", handlePopState);
       window.removeEventListener("message", handleMessage);
+      window.removeEventListener("keydown", handleKeyDown);
     });
   });
 
@@ -317,11 +352,7 @@ export function CreateWorkspace(props: { initial: CreateLocationResolution }) {
             </Button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => commit(shufflePreset(configuration(), locks()))}
-            >
+            <Button variant="outline" size="sm" onClick={shuffle}>
               <Shuffle /> Shuffle
             </Button>
             <Button variant="outline" size="sm" onClick={reset}>
@@ -446,97 +477,5 @@ function Modal(props: { title: string; onClose: () => void; children: unknown })
         {props.children as never}
       </section>
     </div>
-  );
-}
-
-export function CreatePreviewSurface(props: { preset?: string }) {
-  const initial = props.preset
-    ? decodePresetToken(props.preset)
-    : decodePresetToken(DEFAULT_PRESET_TOKEN);
-  const [configuration, setConfiguration] = createSignal(initial as DesignSystemConfig);
-  let lastRevision = -1;
-
-  const applyConfiguration = (config: DesignSystemConfig, mode?: "light" | "dark") => {
-    for (const className of [...document.body.classList]) {
-      if (className.startsWith("style-")) document.body.classList.remove(className);
-    }
-    document.body.classList.add(`style-${config.style}`);
-    if (mode) {
-      document.documentElement.classList.remove("light", "dark");
-      document.documentElement.classList.add(mode);
-    }
-    const theme = buildRegistryTheme(config);
-    const font = FONTS.find(({ value }) => value === config.font);
-    const headingFont = FONTS.find(({ value }) => value === config.headingFont);
-    if (!theme || !font || !headingFont) return;
-    const styleId = "create-preview-preset-vars";
-    let style = document.getElementById(styleId) as HTMLStyleElement | null;
-    if (!style) {
-      style = document.createElement("style");
-      style.id = styleId;
-      document.head.appendChild(style);
-    }
-    const rules = (selector: string, variables: Record<string, string>) =>
-      `${selector}{${Object.entries(variables)
-        .map(([key, value]) => `--${key}:${value}`)
-        .join(";")};--font-sans:${font.fontFamily};--font-heading:${headingFont.fontFamily}}`;
-    style.textContent = `${rules(":root", theme.cssVars.light)}${rules(".dark", theme.cssVars.dark)}`;
-  };
-
-  createEffect(() => {
-    if (typeof document !== "undefined") applyConfiguration(configuration());
-  });
-
-  onMount(() => {
-    const parentOrigin = document.referrer
-      ? new URL(document.referrer).origin
-      : window.location.origin;
-    const postReady = () =>
-      window.parent.postMessage(
-        {
-          channel: CREATE_PREVIEW_CHANNEL,
-          protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
-          type: "preview-ready",
-        },
-        parentOrigin,
-      );
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== parentOrigin || event.source !== window.parent) return;
-      const message = parsePreviewMessage(event.data);
-      if (!message || message.type !== "preset-sync" || message.revision < lastRevision) return;
-      const next = message.token
-        ? decodePresetToken(message.token)
-        : decodePresetToken(DEFAULT_PRESET_TOKEN);
-      if (!next) return;
-      lastRevision = message.revision;
-      setConfiguration(next);
-      applyConfiguration(next, message.colorMode);
-      window.parent.postMessage(
-        {
-          channel: CREATE_PREVIEW_CHANNEL,
-          protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
-          type: "preset-applied",
-          revision: message.revision,
-          token: message.token,
-        },
-        parentOrigin,
-      );
-    };
-    window.addEventListener("message", handleMessage);
-    Promise.resolve(document.fonts?.ready).then(postReady);
-    onCleanup(() => {
-      window.removeEventListener("message", handleMessage);
-      document.getElementById("create-preview-preset-vars")?.remove();
-    });
-  });
-
-  return (
-    <main
-      data-preview-kind="create"
-      data-preset={encodePresetToken(configuration())}
-      class="min-h-svh p-6 md:p-10"
-    >
-      <RootComponents />
-    </main>
   );
 }

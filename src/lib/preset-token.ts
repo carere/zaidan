@@ -1,5 +1,4 @@
 import { DEFAULT_CONFIG } from "@/lib/config";
-import { FONT_DEFINITIONS } from "@/lib/fonts";
 import type {
   BaseColor,
   ChartColor,
@@ -48,8 +47,32 @@ const themeValues = freeze([
 
 const fontValues = freeze([
   "inter",
-  ...FONT_DEFINITIONS.map(({ name }) => name).filter((name) => name !== "inter"),
-] as readonly Font[]);
+  "geist",
+  "noto-sans",
+  "nunito-sans",
+  "figtree",
+  "roboto",
+  "raleway",
+  "dm-sans",
+  "public-sans",
+  "outfit",
+  "oxanium",
+  "manrope",
+  "space-grotesk",
+  "montserrat",
+  "ibm-plex-sans",
+  "source-sans-3",
+  "instrument-sans",
+  "jetbrains-mono",
+  "geist-mono",
+  "noto-serif",
+  "roboto-slab",
+  "merriweather",
+  "lora",
+  "playfair-display",
+  "eb-garamond",
+  "instrument-serif",
+] as const satisfies readonly Font[]);
 
 /**
  * Immutable v1 value tables. Defaults stay at index zero and new values may

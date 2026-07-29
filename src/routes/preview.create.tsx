@@ -1,5 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
-import { CreatePreviewSurface } from "@/components/create-workspace";
+import { CreatePreviewSurface } from "@/components/create-preview";
 import { resolvePreviewRequest } from "@/lib/product-routing";
 import { createPreviewHead } from "@/lib/seo";
 

@@ -4,8 +4,10 @@ import {
   CREATE_PREVIEW_CHANNEL,
   CREATE_PREVIEW_PROTOCOL_VERSION,
   createPresetSyncMessage,
+  createPreviewShortcutMessage,
   isCurrentPresetAcknowledgement,
   parsePreviewMessage,
+  resolveCreateShortcut,
 } from "@/lib/preset-protocol";
 import { encodePresetToken } from "@/lib/preset-token";
 
@@ -35,6 +37,10 @@ describe("Create Preview message protocol", () => {
         token,
       }),
     ).toMatchObject({ type: "preset-applied", revision: 3 });
+    expect(parsePreviewMessage(createPreviewShortcutMessage("shuffle"))).toMatchObject({
+      type: "preview-shortcut",
+      action: "shuffle",
+    });
   });
 
   it.each([
@@ -66,6 +72,12 @@ describe("Create Preview message protocol", () => {
       token: null,
       colorMode: "system",
     },
+    {
+      channel: CREATE_PREVIEW_CHANNEL,
+      protocolVersion: 1,
+      type: "preview-shortcut",
+      action: "reset",
+    },
   ])("rejects malformed message payloads %#", (message) => {
     expect(parsePreviewMessage(message)).toBeNull();
   });
@@ -81,5 +93,14 @@ describe("Create Preview message protocol", () => {
     expect(isCurrentPresetAcknowledgement({ ...latest, type: "preset-applied" }, latest)).toBe(
       true,
     );
+  });
+
+  it("maps Preview and parent keyboard events to the preserved Create shortcuts", () => {
+    expect(resolveCreateShortcut({ key: "r" })).toBe("shuffle");
+    expect(resolveCreateShortcut({ key: "R", shiftKey: true })).toBeNull();
+    expect(resolveCreateShortcut({ key: "z", metaKey: true })).toBe("undo");
+    expect(resolveCreateShortcut({ key: "z", ctrlKey: true, shiftKey: true })).toBe("redo");
+    expect(resolveCreateShortcut({ key: "r", repeat: true })).toBeNull();
+    expect(resolveCreateShortcut({ key: "r", altKey: true })).toBeNull();
   });
 });

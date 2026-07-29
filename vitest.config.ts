@@ -247,6 +247,7 @@ export default defineConfig({
                 const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
                 const workspace = routeFrame.locator("[data-create-workspace]");
                 await workspace.waitFor({ state: "visible" });
+                await routeFrame.locator('[data-preview-status="ready"]').waitFor();
                 const currentPath = () =>
                   routeFrame
                     .locator("body")
@@ -278,8 +279,41 @@ export default defineConfig({
                 await routeFrame.locator("body").evaluate(() => history.back());
                 await routeFrame.locator('[data-create-workspace][data-preset="v1-0"]').waitFor();
                 const backPath = await currentPath();
+                const undoDisabledAfterBack = await routeFrame
+                  .getByRole("button", { name: "Undo" })
+                  .isDisabled();
+
+                await routeFrame.locator("body").evaluate(() => history.forward());
+                await routeFrame
+                  .locator('[data-create-workspace][data-preset]:not([data-preset="v1-0"])')
+                  .waitFor();
+                const forwardPath = await currentPath();
+                const undoDisabledAfterForward = await routeFrame
+                  .getByRole("button", { name: "Undo" })
+                  .isDisabled();
+
+                await routeFrame.getByLabel("Base Color", { exact: true }).selectOption("zinc");
+                await routeFrame
+                  .locator('[data-create-workspace][data-preset]:not([data-preset="v1-0"])')
+                  .waitFor();
+                const interleavedSelectedPath = await currentPath();
+                const interleavedToken = interleavedSelectedPath.split("preset=")[1] as string;
+                const selectedToken = selectedPath.split("preset=")[1] as string;
+                await routeFrame.getByRole("button", { name: "Undo" }).click();
+                await routeFrame
+                  .locator(`[data-create-workspace][data-preset="${selectedToken}"]`)
+                  .waitFor();
+                const interleavedUndoPath = await currentPath();
+                await routeFrame.getByRole("button", { name: "Redo" }).click();
+                await routeFrame
+                  .locator(`[data-create-workspace][data-preset="${interleavedToken}"]`)
+                  .waitFor();
+                const interleavedRedoPath = await currentPath();
+
                 const preview = routeFrame.frameLocator('iframe[title="Create Preview"]');
-                await preview.locator('[data-preview-kind="create"][data-preset="v1-0"]').waitFor();
+                await preview
+                  .locator('[data-preview-kind="create"][data-preset]:not([data-preset="v1-0"])')
+                  .waitFor();
 
                 return {
                   defaultPath,
@@ -287,6 +321,12 @@ export default defineConfig({
                   undoPath,
                   redoPath,
                   backPath,
+                  forwardPath,
+                  undoDisabledAfterBack,
+                  undoDisabledAfterForward,
+                  interleavedSelectedPath,
+                  interleavedUndoPath,
+                  interleavedRedoPath,
                   historyDelta: selectedHistory - initialHistory,
                   previewPreset: (await preview
                     .locator('[data-preview-kind="create"]')
@@ -300,6 +340,7 @@ export default defineConfig({
                 const testFrame = await providerContext.frame();
                 const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
                 await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
+                await routeFrame.locator('[data-preview-status="ready"]').waitFor();
                 const currentPath = () =>
                   routeFrame
                     .locator("body")
@@ -323,11 +364,101 @@ export default defineConfig({
                 await routeFrame.locator("[role=dialog] code").waitFor({ state: "visible" });
                 const command = await routeFrame.locator("[role=dialog] code").textContent();
                 const pathAfter = await currentPath();
+                await routeFrame
+                  .getByRole("button", { name: "Close Get Code" })
+                  .evaluate((button) => (button as HTMLButtonElement).click());
+
+                await routeFrame
+                  .getByRole("button", { name: "Open Preset" })
+                  .evaluate((button) => (button as HTMLButtonElement).click());
+                await routeFrame.getByLabel("Preset Token").fill("--preset v1-gWzAn");
+                await routeFrame
+                  .locator("form")
+                  .evaluate((form) => (form as HTMLFormElement).requestSubmit());
+                await routeFrame
+                  .locator('[data-create-workspace][data-preset="v1-gWzAn"]')
+                  .waitFor();
+                const validOpenPath = await currentPath();
+
+                await routeFrame.getByRole("button", { name: "Lock Style" }).click();
+                await routeFrame.getByRole("button", { name: "Shuffle" }).click();
+                await routeFrame
+                  .locator('[data-create-workspace][data-preset]:not([data-preset="v1-gWzAn"])')
+                  .waitFor();
+                const shuffledPath = await currentPath();
+                const shuffledToken = (await routeFrame
+                  .locator("[data-create-workspace]")
+                  .getAttribute("data-preset")) as string;
+                const lockedStyle = await routeFrame
+                  .getByLabel("Style", { exact: true })
+                  .inputValue();
+
+                await routeFrame.locator("body").evaluate(() => {
+                  window.confirm = () => true;
+                });
+                await routeFrame.getByRole("button", { name: "Reset", exact: true }).click();
+                await routeFrame.locator('[data-create-workspace][data-preset="v1-0"]').waitFor();
+                const resetPath = await currentPath();
+                const lockCleared =
+                  (await routeFrame
+                    .getByRole("button", { name: "Lock Style" })
+                    .getAttribute("aria-pressed")) === "false";
+                await routeFrame.getByRole("button", { name: "Undo" }).click();
+                await routeFrame
+                  .locator(`[data-create-workspace][data-preset="${shuffledToken}"]`)
+                  .waitFor();
+                const undoResetPath = await currentPath();
                 return {
                   invalidError: invalidError ?? "",
                   command: command ?? "",
                   pathBefore,
                   pathAfter,
+                  validOpenPath,
+                  shuffledPath,
+                  shuffledToken,
+                  lockedStyle,
+                  resetPath,
+                  lockCleared,
+                  undoResetPath,
+                };
+              },
+              async exerciseCreatePreviewShortcuts(context) {
+                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
+                  frame: () => Promise<Frame>;
+                };
+                const testFrame = await providerContext.frame();
+                const routeFrame = testFrame.frameLocator('iframe[title="Built Create workspace"]');
+                await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
+                await routeFrame.locator('[data-preview-status="ready"]').waitFor();
+                const preview = routeFrame.frameLocator('iframe[title="Create Preview"]');
+                const previewSurface = preview.locator('[data-preview-kind="create"]');
+                await previewSurface.waitFor({ state: "visible" });
+
+                await previewSurface.press("r");
+                const shuffledWorkspace = routeFrame.locator(
+                  '[data-create-workspace][data-preset]:not([data-preset="v1-0"])',
+                );
+                await shuffledWorkspace.waitFor();
+                const shuffledToken = (await shuffledWorkspace.getAttribute(
+                  "data-preset",
+                )) as string;
+
+                await previewSurface.press("Meta+z");
+                await routeFrame.locator('[data-create-workspace][data-preset="v1-0"]').waitFor();
+                const undoToken = (await routeFrame
+                  .locator("[data-create-workspace]")
+                  .getAttribute("data-preset")) as string;
+
+                await previewSurface.press("Meta+Shift+z");
+                await routeFrame
+                  .locator(`[data-create-workspace][data-preset="${shuffledToken}"]`)
+                  .waitFor();
+                return {
+                  shuffledToken,
+                  undoToken,
+                  redoToken: (await routeFrame
+                    .locator("[data-create-workspace]")
+                    .getAttribute("data-preset")) as string,
                 };
               },
               async inspectCreateCanonicalization(context, urls: string[]) {
@@ -350,6 +481,7 @@ export default defineConfig({
                     `iframe[title="Canonical Create ${index}"]`,
                   );
                   await routeFrame.locator("[data-create-workspace]").waitFor({ state: "visible" });
+                  await routeFrame.locator('[data-preview-status="ready"]').waitFor();
                   results.push(
                     await routeFrame
                       .locator("body")

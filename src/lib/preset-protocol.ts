@@ -27,7 +27,20 @@ export type PresetAppliedMessage = {
   token: string | null;
 };
 
-export type CreatePreviewMessage = PreviewReadyMessage | PresetSyncMessage | PresetAppliedMessage;
+export type CreateShortcut = "shuffle" | "undo" | "redo";
+
+export type PreviewShortcutMessage = {
+  channel: typeof CREATE_PREVIEW_CHANNEL;
+  protocolVersion: typeof CREATE_PREVIEW_PROTOCOL_VERSION;
+  type: "preview-shortcut";
+  action: CreateShortcut;
+};
+
+export type CreatePreviewMessage =
+  | PreviewReadyMessage
+  | PresetSyncMessage
+  | PresetAppliedMessage
+  | PreviewShortcutMessage;
 
 const validToken = (value: unknown) =>
   value === null || (typeof value === "string" && decodePresetToken(value) !== null);
@@ -44,6 +57,11 @@ export function parsePreviewMessage(input: unknown): CreatePreviewMessage | null
     return null;
   }
   if (value.type === "preview-ready") return value as PreviewReadyMessage;
+  if (value.type === "preview-shortcut") {
+    return value.action === "shuffle" || value.action === "undo" || value.action === "redo"
+      ? (value as PreviewShortcutMessage)
+      : null;
+  }
   if (value.type === "preset-applied") {
     return validRevision(value.revision) && validToken(value.token)
       ? (value as PresetAppliedMessage)
@@ -77,3 +95,26 @@ export const isCurrentPresetAcknowledgement = (
   acknowledgement: PresetAppliedMessage,
   latest: PresetSyncMessage,
 ) => acknowledgement.revision === latest.revision && acknowledgement.token === latest.token;
+
+export function resolveCreateShortcut(input: {
+  key: string;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+  altKey?: boolean;
+  repeat?: boolean;
+}): CreateShortcut | null {
+  if (input.repeat || input.altKey) return null;
+  const key = input.key.toLowerCase();
+  const command = Boolean(input.ctrlKey || input.metaKey);
+  if (key === "r" && !command && !input.shiftKey) return "shuffle";
+  if (key === "z" && command) return input.shiftKey ? "redo" : "undo";
+  return null;
+}
+
+export const createPreviewShortcutMessage = (action: CreateShortcut): PreviewShortcutMessage => ({
+  channel: CREATE_PREVIEW_CHANNEL,
+  protocolVersion: CREATE_PREVIEW_PROTOCOL_VERSION,
+  type: "preview-shortcut",
+  action,
+});
