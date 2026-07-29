@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("contributor validation", () => {
@@ -62,5 +62,36 @@ describe("contributor validation", () => {
     expect(workflow).toContain("'moon.yml'");
     expect(workflow).not.toContain("if: steps.cache.outputs.cache-hit != 'true'");
     expect(workflow).not.toMatch(/^\s+dist$/m);
+  });
+
+  it("keeps public branch previews isolated from production traffic", () => {
+    const wrangler = JSON.parse(
+      readFileSync(new URL("../../wrangler.jsonc", import.meta.url), "utf8"),
+    ) as { preview_urls?: boolean; workers_dev?: boolean };
+
+    expect(wrangler).toMatchObject({
+      preview_urls: true,
+      workers_dev: false,
+    });
+  });
+
+  it("retains existing GitHub validation and release files during expansion", () => {
+    const retainedFiles = [
+      ".github/workflows/quality-assurance.yml",
+      ".github/workflows/pre-release.yml",
+      ".github/workflows/release.yml",
+      "knope.toml",
+    ];
+
+    for (const file of retainedFiles) {
+      expect(existsSync(new URL(`../../${file}`, import.meta.url))).toBe(true);
+    }
+
+    const workflow = readFileSync(
+      new URL("../../.github/workflows/quality-assurance.yml", import.meta.url),
+      "utf8",
+    );
+
+    expect(workflow).toMatch(/^\s{2}static-test:/m);
   });
 });
