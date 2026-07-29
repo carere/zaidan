@@ -69,6 +69,27 @@ async function renderProductHeaderRoute(pathname: string, width: number, height:
   await loaded;
 }
 
+async function inspectHomeShowcase(width: number, colorMode: "light" | "dark" = "light") {
+  await renderProductHeaderRoute("/", width, 900);
+  const { inspectHomeShowcase: inspect } = commands as unknown as {
+    inspectHomeShowcase: (colorMode: "light" | "dark") => Promise<{
+      columnCount: number;
+      content: string[];
+      fadeCount: number;
+      iframeCount: number;
+      installCommand: string | null;
+      mobileArtworkCount: number;
+      mobileArtworkSource: string | null;
+      mobileControlCount: number;
+      nativeShowcaseVisible: boolean;
+      overflow: number;
+      pathname: string;
+      search: string;
+    }>;
+  };
+  return inspect(colorMode);
+}
+
 async function renderSidebarCompatibilityNavigations() {
   const base = inject("builtAppUrl");
   dispose = render(
@@ -88,6 +109,77 @@ async function renderSidebarCompatibilityNavigations() {
 }
 
 describe("built canonical routing", () => {
+  it.each([
+    [768, 2, "light"],
+    [1024, 3, "light"],
+    [1440, 4, "light"],
+    [1440, 4, "dark"],
+  ] as const)("renders %s px Home as a native %s-column showcase in %s mode", async (width, columnCount, colorMode) => {
+    const evidence = await inspectHomeShowcase(width, colorMode);
+
+    expect(evidence.nativeShowcaseVisible).toBe(true);
+    expect(evidence.columnCount).toBe(columnCount);
+    expect(evidence.fadeCount).toBe(2);
+    expect(evidence.mobileArtworkCount).toBe(0);
+    expect(evidence.iframeCount).toBe(0);
+    expect(evidence.content).toEqual([
+      "Registry pulse",
+      "Design Configuration",
+      "Components in this surface",
+      "Latest release",
+      "Contributors",
+      "Create a project",
+      "Community",
+      "Calendar",
+      "Catalog coverage",
+      "Install from the registry",
+    ]);
+    expect(evidence.installCommand).toBe(
+      "bunx shadcn@latest add https://zaidan.dev/r/kobalte/button.json",
+    );
+    expect(evidence.overflow).toBeLessThanOrEqual(0);
+    expect(evidence.pathname).toBe("/");
+    expect(evidence.search).toBe("");
+  });
+
+  it.each([
+    "light",
+    "dark",
+  ] as const)("renders deterministic %s mobile artwork without live controls", async (colorMode) => {
+    const evidence = await inspectHomeShowcase(390, colorMode);
+
+    expect(evidence.nativeShowcaseVisible).toBe(false);
+    expect(evidence.columnCount).toBe(0);
+    expect(evidence.fadeCount).toBe(0);
+    expect(evidence.mobileArtworkCount).toBe(1);
+    expect(evidence.mobileArtworkSource).toContain(`home-showcase-${colorMode}.svg`);
+    expect(evidence.mobileControlCount).toBe(0);
+    expect(evidence.iframeCount).toBe(0);
+    expect(evidence.overflow).toBeLessThanOrEqual(0);
+  });
+
+  it("copies the Home install command with keyboard focus and preserves the URL", async () => {
+    await renderProductHeaderRoute("/", 1440, 900);
+    const { exerciseHomeInstallCopy } = commands as unknown as {
+      exerciseHomeInstallCopy: () => Promise<{
+        copiedText: string;
+        focusedLabel: string | null;
+        liveStatus: string | null;
+        pathname: string;
+        search: string;
+      }>;
+    };
+    const evidence = await exerciseHomeInstallCopy();
+
+    expect(evidence.copiedText).toBe(
+      "bunx shadcn@latest add https://zaidan.dev/r/kobalte/button.json",
+    );
+    expect(evidence.focusedLabel).toBe("Copy install command");
+    expect(evidence.liveStatus).toBe("Install command copied");
+    expect(evidence.pathname).toBe("/");
+    expect(evidence.search).toBe("");
+  });
+
   it("renders the complete desktop Product Header and measures its sticky offset", async () => {
     await renderProductHeaderRoute("/components/button", 1440, 900);
     const { inspectDesktopProductHeader } = commands as unknown as {
@@ -190,6 +282,7 @@ describe("built canonical routing", () => {
       expect(response.status, paths[index]).toBe(200);
       expect(response.body, paths[index]).not.toContain("404 - Not Found");
     }
+    expect(responses[0]?.body).toContain('data-product-surface="home"');
     expect(responses[1]?.body).toContain('data-product-surface="docs"');
     expect(responses[2]?.body).toContain('data-product-surface="components"');
     expect(responses[3]?.body).toContain('data-product-surface="charts"');

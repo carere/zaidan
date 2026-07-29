@@ -80,14 +80,94 @@ export default defineConfig({
 
                 await heading.waitFor({ state: "visible" });
 
-                const previewFrame = routeFrame.frameLocator('iframe[title="Home Preview"]');
-                await previewFrame.locator(".theme-container").waitFor({ state: "visible" });
+                const showcase = routeFrame.locator('[data-home-showcase="native"]');
+                await showcase.waitFor({ state: "visible" });
 
                 return {
                   heading: await heading.textContent(),
-                  previewPath: await routeFrame
-                    .locator('iframe[title="Home Preview"]')
-                    .getAttribute("src"),
+                  iframeCount: await routeFrame.locator("iframe").count(),
+                  showcaseVisible: await showcase.isVisible(),
+                };
+              },
+              async inspectHomeShowcase(context, colorMode: "light" | "dark") {
+                const { testFrame, routeFrame } = await getProductHeaderTestFrame(context);
+                await routeFrame.locator("html").evaluate((element, mode) => {
+                  element.classList.remove("light", "dark");
+                  element.classList.add(mode);
+                }, colorMode);
+                await testFrame.waitForTimeout(50);
+
+                const nativeShowcase = routeFrame.locator('[data-home-showcase="native"]');
+                const visibleColumns = nativeShowcase.locator("[data-showcase-column]:visible");
+                const mobileArtwork = routeFrame.locator("[data-mobile-artwork]:visible");
+                return {
+                  columnCount: await visibleColumns.count(),
+                  content: await routeFrame
+                    .locator("[data-showcase-content]")
+                    .evaluateAll((elements) =>
+                      elements.map(
+                        (element) => element.getAttribute("data-showcase-content") ?? "",
+                      ),
+                    ),
+                  fadeCount: await nativeShowcase.locator("[data-showcase-fade]:visible").count(),
+                  iframeCount: await routeFrame.locator("iframe").count(),
+                  installCommand: await routeFrame.locator("[data-install-command]").textContent(),
+                  mobileArtworkCount: await mobileArtwork.count(),
+                  mobileArtworkSource:
+                    (await mobileArtwork.count()) > 0
+                      ? await mobileArtwork.first().getAttribute("src")
+                      : null,
+                  mobileControlCount: await routeFrame
+                    .locator(
+                      "[data-home-mobile] button, [data-home-mobile] input, [data-home-mobile] select, [data-home-mobile] textarea, [data-home-mobile] iframe",
+                    )
+                    .count(),
+                  nativeShowcaseVisible: await nativeShowcase.isVisible(),
+                  overflow: await routeFrame
+                    .locator("body")
+                    .evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
+                  pathname: await routeFrame
+                    .locator("body")
+                    .evaluate(() => window.location.pathname),
+                  search: await routeFrame.locator("body").evaluate(() => window.location.search),
+                };
+              },
+              async exerciseHomeInstallCopy(context) {
+                const { testFrame, routeFrame } = await getProductHeaderTestFrame(context);
+                const copied: string[] = [];
+                await routeFrame.locator("body").evaluate(() => {
+                  Object.defineProperty(navigator, "clipboard", {
+                    configurable: true,
+                    value: {
+                      writeText(value: string) {
+                        document.documentElement.dataset.copiedInstallCommand = value;
+                        return Promise.resolve();
+                      },
+                    },
+                  });
+                });
+                const copyButton = routeFrame.getByRole("button", {
+                  name: "Copy install command",
+                });
+                await copyButton.focus();
+                await testFrame.page().keyboard.press("Enter");
+                await routeFrame.getByText("Install command copied", { exact: true }).waitFor({
+                  state: "attached",
+                });
+                copied.push(
+                  (await routeFrame.locator("html").getAttribute("data-copied-install-command")) ??
+                    "",
+                );
+                return {
+                  copiedText: copied[0] ?? "",
+                  focusedLabel: await routeFrame
+                    .locator("body")
+                    .evaluate(() => document.activeElement?.getAttribute("aria-label") ?? null),
+                  liveStatus: await routeFrame.locator('[aria-live="polite"]').textContent(),
+                  pathname: await routeFrame
+                    .locator("body")
+                    .evaluate(() => window.location.pathname),
+                  search: await routeFrame.locator("body").evaluate(() => window.location.search),
                 };
               },
               async inspectCanonicalPreview(context) {

@@ -10,8 +10,8 @@ export function HomeHero() {
       class="relative flex w-full flex-col items-center gap-6 px-4 pt-4 pb-16 text-center lg:pt-6 lg:pb-24"
     >
       <Link
-        to="/changelog/$slug"
-        params={{ slug: "image-crop-and-agent-docs" }}
+        to="/docs/changelog/$entry"
+        params={{ entry: "image-crop-and-agent-docs" }}
         class="group inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted/80"
       >
         <span>New: Image Crop and simpler Zaidan Agent</span>
@@ -28,16 +28,10 @@ export function HomeHero() {
       </p>
 
       <div class="flex flex-wrap items-center justify-center gap-3">
-        <Button
-          as={Link}
-          to="/$slug"
-          //@ts-expect-error <Problem with kobalte typing polymorphic props>
-          params={{ slug: "installation" }}
-          size="sm"
-        >
+        <Button as={Link} to="/docs/installation" size="sm">
           Getting Started
         </Button>
-        <Button as={Link} to="/ui/{-$slug}" variant="outline" size="sm">
+        <Button as={Link} to="/components" variant="outline" size="sm">
           View Components
         </Button>
       </div>

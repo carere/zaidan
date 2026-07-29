@@ -38,20 +38,22 @@ async function renderBuiltRoute(pathname = "/") {
 }
 
 describe("built application", () => {
-  it("drives and captures the main route with its same-origin Preview", async () => {
+  it("drives and captures the native Home Showcase", async () => {
     const route = await renderBuiltRoute();
 
     const { inspectBuiltRoute } = commands as unknown as {
       inspectBuiltRoute: () => Promise<{
         heading: string | null;
-        previewPath: string | null;
+        iframeCount: number;
+        showcaseVisible: boolean;
       }>;
     };
     const evidence = await inspectBuiltRoute();
     const capture = await route.screenshot({ save: false });
 
     expect(evidence.heading).toBe("The best foundation for your next SolidJS project");
-    expect(evidence.previewPath).toMatch(/^\/preview\/home(?:\?|$)/);
+    expect(evidence.iframeCount).toBe(0);
+    expect(evidence.showcaseVisible).toBe(true);
     expect(capture.length).toBeGreaterThan(1_000);
   });
 
