@@ -61,150 +61,200 @@ type RadarChartEntry = ChartCatalogEntry & {
 
 const sourceRoot = `https://github.com/shadcn-ui/ui/blob/${CHART_SOURCE_REVISION}/apps/v4/registry/new-york-v4/charts`;
 
-const entry = (
+function chartEntry(
+  family: "area",
   slug: AreaChartSlug,
   label: string,
   description: string,
   exportName: string,
+  interactive?: boolean,
+): AreaChartEntry;
+function chartEntry(
+  family: "radar",
+  slug: RadarChartSlug,
+  label: string,
+  description: string,
+  exportName: string,
+): RadarChartEntry;
+function chartEntry(
+  family: "area" | "radar",
+  slug: AreaChartSlug | RadarChartSlug,
+  label: string,
+  description: string,
+  exportName: string,
   interactive = false,
-): AreaChartEntry => ({
-  slug,
-  label,
-  exportName,
-  description,
-  categories: ["charts", "charts-area"],
-  interactive,
-  sourceUrl: `${sourceRoot}/${slug}.tsx`,
-  installCommand: `bunx shadcn@latest add @zaidan/${slug}`,
-});
+): ChartCatalogEntry {
+  const category = family === "area" ? "charts-area" : "charts-radar";
+  return {
+    slug,
+    label,
+    exportName,
+    description,
+    categories: ["charts", category],
+    interactive,
+    sourceUrl: `${sourceRoot}/${slug}.tsx`,
+    installCommand: `bunx shadcn@latest add @zaidan/${slug}`,
+  };
+}
 
 export const AREA_CHARTS = [
-  entry("chart-area-axes", "Area Chart — Axes", "An area chart with axes.", "ChartAreaAxes"),
-  entry("chart-area-default", "Area Chart", "A simple area chart.", "ChartAreaDefault"),
-  entry(
+  chartEntry(
+    "area",
+    "chart-area-axes",
+    "Area Chart — Axes",
+    "An area chart with axes.",
+    "ChartAreaAxes",
+  ),
+  chartEntry(
+    "area",
+    "chart-area-default",
+    "Area Chart",
+    "A simple area chart.",
+    "ChartAreaDefault",
+  ),
+  chartEntry(
+    "area",
     "chart-area-gradient",
     "Area Chart — Gradient",
     "An area chart with gradient fill.",
     "ChartAreaGradient",
   ),
-  entry("chart-area-icons", "Area Chart — Icons", "An area chart with icons.", "ChartAreaIcons"),
-  entry(
+  chartEntry(
+    "area",
+    "chart-area-icons",
+    "Area Chart — Icons",
+    "An area chart with icons.",
+    "ChartAreaIcons",
+  ),
+  chartEntry(
+    "area",
     "chart-area-interactive",
     "Area Chart — Interactive",
     "An interactive area chart with selectable time ranges.",
     "ChartAreaInteractive",
     true,
   ),
-  entry(
+  chartEntry(
+    "area",
     "chart-area-legend",
     "Area Chart — Legend",
     "An area chart with a legend.",
     "ChartAreaLegend",
   ),
-  entry("chart-area-linear", "Area Chart — Linear", "A linear area chart.", "ChartAreaLinear"),
-  entry(
+  chartEntry(
+    "area",
+    "chart-area-linear",
+    "Area Chart — Linear",
+    "A linear area chart.",
+    "ChartAreaLinear",
+  ),
+  chartEntry(
+    "area",
     "chart-area-stacked-expand",
     "Area Chart — Stacked Expanded",
     "A proportional stacked area chart.",
     "ChartAreaStackedExpand",
   ),
-  entry("chart-area-stacked", "Area Chart — Stacked", "A stacked area chart.", "ChartAreaStacked"),
-  entry("chart-area-step", "Area Chart — Step", "A step area chart.", "ChartAreaStep"),
+  chartEntry(
+    "area",
+    "chart-area-stacked",
+    "Area Chart — Stacked",
+    "A stacked area chart.",
+    "ChartAreaStacked",
+  ),
+  chartEntry("area", "chart-area-step", "Area Chart — Step", "A step area chart.", "ChartAreaStep"),
 ] as const satisfies readonly AreaChartEntry[];
 
 export const AREA_CHART_SLUGS = AREA_CHARTS.map(({ slug }) => slug);
 
-const radarEntry = (
-  slug: RadarChartSlug,
-  label: string,
-  description: string,
-  exportName: string,
-): RadarChartEntry => ({
-  slug,
-  label,
-  exportName,
-  description,
-  categories: ["charts", "charts-radar"],
-  interactive: false,
-  sourceUrl: `${sourceRoot}/${slug}.tsx`,
-  installCommand: `bunx shadcn@latest add @zaidan/${slug}`,
-});
-
 export const RADAR_CHARTS = [
-  radarEntry("chart-radar-default", "Radar Chart", "A radar chart.", "ChartRadarDefault"),
-  radarEntry(
+  chartEntry("radar", "chart-radar-default", "Radar Chart", "A radar chart.", "ChartRadarDefault"),
+  chartEntry(
+    "radar",
     "chart-radar-dots",
     "Radar Chart — Dots",
     "A radar chart with dots.",
     "ChartRadarDots",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-grid-circle-fill",
     "Radar Chart — Grid Circle Filled",
     "A radar chart with a filled circular grid.",
     "ChartRadarGridCircleFill",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-grid-circle-no-lines",
     "Radar Chart — Grid Circle, No Lines",
     "A radar chart with a circular grid and no radial lines.",
     "ChartRadarGridCircleNoLines",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-grid-circle",
     "Radar Chart — Grid Circle",
     "A radar chart with a circular grid.",
     "ChartRadarGridCircle",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-grid-custom",
     "Radar Chart — Grid Custom",
     "A radar chart with a custom grid.",
     "ChartRadarGridCustom",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-grid-fill",
     "Radar Chart — Grid Filled",
     "A radar chart with a filled grid.",
     "ChartRadarGridFill",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-grid-none",
     "Radar Chart — Grid None",
     "A radar chart without a grid.",
     "ChartRadarGridNone",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-icons",
     "Radar Chart — Icons",
     "A radar chart with icon-aware legend items.",
     "ChartRadarIcons",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-label-custom",
     "Radar Chart — Custom Label",
     "A radar chart with custom polar labels.",
     "ChartRadarLabelCustom",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-legend",
     "Radar Chart — Legend",
     "A radar chart with a legend.",
     "ChartRadarLegend",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-lines-only",
     "Radar Chart — Lines Only",
     "A radar chart with lines only.",
     "ChartRadarLinesOnly",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-multiple",
     "Radar Chart — Multiple",
     "A radar chart with multiple series.",
     "ChartRadarMultiple",
   ),
-  radarEntry(
+  chartEntry(
+    "radar",
     "chart-radar-radius",
     "Radar Chart — Radius Axis",
     "A radar chart with a radius axis.",

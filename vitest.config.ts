@@ -23,6 +23,62 @@ async function getProductRouteTestFrame(context: unknown) {
   return { testFrame, routeFrame, header };
 }
 
+async function exerciseChartPreviewFailure(
+  context: unknown,
+  options: {
+    entrySlug: string;
+    recoveredFrameTitle: string;
+    routeFrameTitle: string;
+  },
+) {
+  const commandContext = context as {
+    provider: {
+      getCommandsContext: (sessionId: string) => {
+        frame: () => Promise<Frame>;
+      };
+    };
+    sessionId: string;
+  };
+  const testFrame = await commandContext.provider
+    .getCommandsContext(commandContext.sessionId)
+    .frame();
+  const page = testFrame.page();
+  const routeFrame = testFrame.frameLocator(`iframe[title="${options.routeFrameTitle}"]`);
+  const blockedPreview = `**/preview/charts/${options.entrySlug}`;
+  await page.route(blockedPreview, (route) => route.abort());
+
+  try {
+    await routeFrame.locator("body").evaluate(() => window.location.reload());
+    await testFrame.waitForTimeout(750);
+
+    const entry = routeFrame.locator(`[data-chart-entry="${options.entrySlug}"]`);
+    await entry.waitFor({ state: "visible" });
+    await entry.scrollIntoViewIfNeeded();
+    const alert = entry.getByRole("alert");
+    await alert.waitFor({ state: "visible", timeout: 8_000 });
+    const retry = alert.getByRole("button", { name: /Retry/ });
+    const openPreview = alert.getByRole("link", { name: /Open Preview/ });
+    const evidence = {
+      alertText: (await alert.textContent()) ?? "",
+      retryVisible: await retry.isVisible(),
+      openPreviewVisible: await openPreview.isVisible(),
+    };
+
+    await page.unroute(blockedPreview);
+    await retry.click();
+    const recoveredFrame = routeFrame.frameLocator(
+      `iframe[title="${options.recoveredFrameTitle}"]`,
+    );
+    await recoveredFrame.locator('[data-slot="chart"]').waitFor({
+      state: "visible",
+      timeout: 8_000,
+    });
+    return { ...evidence, recovered: true };
+  } finally {
+    await page.unroute(blockedPreview);
+  }
+}
+
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [solid()],
@@ -501,7 +557,7 @@ export default defineConfig({
                   const customLabels = await customLabelPreview
                     .locator(".recharts-polar-angle-axis-tick")
                     .allTextContents();
-                  const firstWidth = await firstEntry
+                  const firstPreviewHeight = await firstEntry
                     .locator("[data-chart-preview]")
                     .evaluate((element) => element.getBoundingClientRect().height);
 
@@ -512,7 +568,7 @@ export default defineConfig({
                       .locator('[aria-current="page"]')
                       .textContent(),
                     entryCount: await entries.count(),
-                    previewHeight: firstWidth,
+                    previewHeight: firstPreviewHeight,
                     previewLoading: await firstEntry.locator("iframe").getAttribute("loading"),
                     previews,
                     keyboardTooltipText,
@@ -613,85 +669,18 @@ export default defineConfig({
                 }
               },
               async exerciseAreaChartFailure(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const page = testFrame.page();
-                const routeFrame = testFrame.frameLocator('iframe[title="Chart Catalog route"]');
-                const blockedPreview = "**/preview/charts/chart-area-axes";
-                await page.route(blockedPreview, (route) => route.abort());
-                try {
-                  await routeFrame.locator("body").evaluate(() => window.location.reload());
-                  await testFrame.waitForTimeout(750);
-
-                  const firstEntry = routeFrame.locator('[data-chart-entry="chart-area-axes"]');
-                  await firstEntry.waitFor({ state: "visible" });
-                  await firstEntry.scrollIntoViewIfNeeded();
-                  const alert = firstEntry.getByRole("alert");
-                  await alert.waitFor({ state: "visible", timeout: 8_000 });
-                  const retry = alert.getByRole("button", { name: /Retry/ });
-                  const openPreview = alert.getByRole("link", { name: /Open Preview/ });
-                  const evidence = {
-                    alertText: (await alert.textContent()) ?? "",
-                    retryVisible: await retry.isVisible(),
-                    openPreviewVisible: await openPreview.isVisible(),
-                  };
-
-                  await page.unroute(blockedPreview);
-                  await retry.click();
-                  const recoveredFrame = routeFrame.frameLocator(
-                    'iframe[title="Area Chart — Axes Preview"]',
-                  );
-                  await recoveredFrame.locator('[data-slot="chart"]').waitFor({
-                    state: "visible",
-                    timeout: 8_000,
-                  });
-                  return { ...evidence, recovered: true };
-                } finally {
-                  await page.unroute(blockedPreview);
-                }
+                return exerciseChartPreviewFailure(context, {
+                  routeFrameTitle: "Chart Catalog route",
+                  entrySlug: "chart-area-axes",
+                  recoveredFrameTitle: "Area Chart — Axes Preview",
+                });
               },
               async exerciseRadarChartFailure(context) {
-                const providerContext = context.provider.getCommandsContext(context.sessionId) as {
-                  frame: () => Promise<Frame>;
-                };
-                const testFrame = await providerContext.frame();
-                const page = testFrame.page();
-                const routeFrame = testFrame.frameLocator(
-                  'iframe[title="Radar Chart Catalog route"]',
-                );
-                const blockedPreview = "**/preview/charts/chart-radar-default";
-                await page.route(blockedPreview, (route) => route.abort());
-                try {
-                  await routeFrame.locator("body").evaluate(() => window.location.reload());
-                  await testFrame.waitForTimeout(500);
-                  const firstEntry = routeFrame.locator('[data-chart-entry="chart-radar-default"]');
-                  await firstEntry.waitFor({ state: "visible" });
-                  await firstEntry.scrollIntoViewIfNeeded();
-                  const alert = firstEntry.getByRole("alert");
-                  await alert.waitFor({ state: "visible", timeout: 8_000 });
-                  const retry = alert.getByRole("button", { name: /Retry/ });
-                  const openPreview = alert.getByRole("link", { name: /Open Preview/ });
-                  const evidence = {
-                    alertText: (await alert.textContent()) ?? "",
-                    retryVisible: await retry.isVisible(),
-                    openPreviewVisible: await openPreview.isVisible(),
-                  };
-
-                  await page.unroute(blockedPreview);
-                  await retry.click();
-                  const recoveredFrame = routeFrame.frameLocator(
-                    'iframe[title="Radar Chart Preview"]',
-                  );
-                  await recoveredFrame.locator('[data-slot="chart"]').waitFor({
-                    state: "visible",
-                    timeout: 8_000,
-                  });
-                  return { ...evidence, recovered: true };
-                } finally {
-                  await page.unroute(blockedPreview);
-                }
+                return exerciseChartPreviewFailure(context, {
+                  routeFrameTitle: "Radar Chart Catalog route",
+                  entrySlug: "chart-radar-default",
+                  recoveredFrameTitle: "Radar Chart Preview",
+                });
               },
               async inspectRadarRepresentative(context) {
                 const providerContext = context.provider.getCommandsContext(context.sessionId) as {
