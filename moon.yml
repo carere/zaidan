@@ -12,7 +12,7 @@ tasks:
     preset: server
 
   build:
-    command: bun run build
+    command: bun --bun vite build
     description: Build Zaidan
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
