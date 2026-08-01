@@ -30,3 +30,11 @@ tasks:
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
     preset: server
+
+  r-build-kobalte:
+    command: bun --bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte
+    description: Build the Kobalte registry
+
+  r-validate-kobalte:
+    command: bun --bun shadcn registry validate src/registry/kobalte/registry.json
+    description: Validate the Kobalte registry

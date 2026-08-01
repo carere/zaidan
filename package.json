@@ -11,16 +11,6 @@
   "license": "MIT",
   "author": "Kevin Abatan <abatan.k@gmail.com> (https://github.com/carere)",
   "type": "module",
-  "scripts": {
-    "build": "vite build",
-    "check": "biome check",
-    "compile": "tsc --noEmit",
-    "deploy": "wrangler deploy",
-    "dev": "vite dev",
-    "preview": "vite preview",
-    "r:build:kobalte": "shadcn build src/registry/kobalte/registry.json --output public/r/kobalte",
-    "r:validate:kobalte": "shadcn registry validate src/registry/kobalte/registry.json"
-  },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.50.0",
     "@corvu/otp-field": "^0.1.4",
@@ -81,6 +71,7 @@
     "@fontsource-variable/raleway": "^5.3.0",
     "@fontsource-variable/roboto": "^5.3.0",
     "@mdx-js/mdx": "^3.1.1",
+    "@moonrepo/cli": "^2.4.6",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/devtools-vite": "^0.4.1",
     "@tanstack/solid-router-devtools": "^1.167.0",

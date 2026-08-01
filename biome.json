@@ -7,11 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "*.{ts,json,jsonc,css}",
-      "src/**/*.{ts,tsx,json,jsonc,css}",
-      "!src/routeTree.gen.ts"
-    ]
+    "includes": ["*.json", "*.jsonc", "*.ts", "*.css", "src/**/*", "!src/routeTree.gen.ts"]
   },
   "formatter": {
     "enabled": true,
