@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-green",
+  "title": "Chart Color Green",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.871 0.15 154.449)",
+      "chart-2": "oklch(0.723 0.219 149.579)",
+      "chart-3": "oklch(0.627 0.194 149.214)",
+      "chart-4": "oklch(0.527 0.154 150.069)",
+      "chart-5": "oklch(0.448 0.119 151.328)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.871 0.15 154.449)",
+      "chart-2": "oklch(0.723 0.219 149.579)",
+      "chart-3": "oklch(0.627 0.194 149.214)",
+      "chart-4": "oklch(0.527 0.154 150.069)",
+      "chart-5": "oklch(0.448 0.119 151.328)"
+    }
+  },
+  "type": "registry:theme"
+}

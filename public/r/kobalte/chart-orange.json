@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-orange",
+  "title": "Chart Color Orange",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.837 0.128 66.29)",
+      "chart-2": "oklch(0.705 0.213 47.604)",
+      "chart-3": "oklch(0.646 0.222 41.116)",
+      "chart-4": "oklch(0.553 0.195 38.402)",
+      "chart-5": "oklch(0.47 0.157 37.304)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.837 0.128 66.29)",
+      "chart-2": "oklch(0.705 0.213 47.604)",
+      "chart-3": "oklch(0.646 0.222 41.116)",
+      "chart-4": "oklch(0.553 0.195 38.402)",
+      "chart-5": "oklch(0.47 0.157 37.304)"
+    }
+  },
+  "type": "registry:theme"
+}

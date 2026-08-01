@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-teal",
+  "title": "Chart Color Teal",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.855 0.138 181.071)",
+      "chart-2": "oklch(0.704 0.14 182.503)",
+      "chart-3": "oklch(0.6 0.118 184.704)",
+      "chart-4": "oklch(0.511 0.096 186.391)",
+      "chart-5": "oklch(0.437 0.078 188.216)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.855 0.138 181.071)",
+      "chart-2": "oklch(0.704 0.14 182.503)",
+      "chart-3": "oklch(0.6 0.118 184.704)",
+      "chart-4": "oklch(0.511 0.096 186.391)",
+      "chart-5": "oklch(0.437 0.078 188.216)"
+    }
+  },
+  "type": "registry:theme"
+}

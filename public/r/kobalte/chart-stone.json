@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-stone",
+  "title": "Chart Color Stone",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.869 0.005 56.366)",
+      "chart-2": "oklch(0.553 0.013 58.071)",
+      "chart-3": "oklch(0.444 0.011 73.639)",
+      "chart-4": "oklch(0.374 0.01 67.558)",
+      "chart-5": "oklch(0.268 0.007 34.298)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.869 0.005 56.366)",
+      "chart-2": "oklch(0.553 0.013 58.071)",
+      "chart-3": "oklch(0.444 0.011 73.639)",
+      "chart-4": "oklch(0.374 0.01 67.558)",
+      "chart-5": "oklch(0.268 0.007 34.298)"
+    }
+  },
+  "type": "registry:theme"
+}

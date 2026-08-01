@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "button",
+  "dependencies": [
+    "@kobalte/core",
+    "class-variance-authority"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/kobalte/ui/button.tsx",
+      "content": "import { type ButtonRootProps, Root } from \"@kobalte/core/button\";\nimport type { PolymorphicProps } from \"@kobalte/core/polymorphic\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\nimport { type ComponentProps, splitProps, type ValidComponent } from \"solid-js\";\nimport { cn } from \"@/lib/utils\";\n\nconst buttonVariants = cva(\n  \"group/button z-button inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0\",\n  {\n    variants: {\n      variant: {\n        default: \"z-button-variant-default\",\n        outline: \"z-button-variant-outline\",\n        secondary: \"z-button-variant-secondary\",\n        ghost: \"z-button-variant-ghost\",\n        destructive: \"z-button-variant-destructive\",\n        link: \"z-button-variant-link\",\n      },\n      size: {\n        default: \"z-button-size-default\",\n        xs: \"z-button-size-xs\",\n        sm: \"z-button-size-sm\",\n        lg: \"z-button-size-lg\",\n        icon: \"z-button-size-icon\",\n        \"icon-xs\": \"z-button-size-icon-xs\",\n        \"icon-sm\": \"z-button-size-icon-sm\",\n        \"icon-lg\": \"z-button-size-icon-lg\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n      size: \"default\",\n    },\n  },\n);\n\ntype ButtonProps<T extends ValidComponent = \"button\"> = PolymorphicProps<T, ButtonRootProps<T>> &\n  VariantProps<typeof buttonVariants> &\n  Pick<ComponentProps<T>, \"class\">;\n\nconst Button = <T extends ValidComponent = \"button\">(props: ButtonProps<T>) => {\n  const [local, others] = splitProps(props as ButtonProps, [\"variant\", \"size\", \"class\"]);\n  return (\n    <Root\n      class={cn(buttonVariants({ variant: local.variant, size: local.size }), local.class)}\n      data-slot=\"button\"\n      {...others}\n    />\n  );\n};\n\nexport { Button, type ButtonProps, buttonVariants };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

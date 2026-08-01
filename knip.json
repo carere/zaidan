@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "moonrepo": true,
+  "entry": ["content-collections.ts"],
+  "ignoreDependencies": ["content-collections"],
+  "ignoreIssues": {
+    "src/registry/kobalte/ui/**": ["exports"],
+    "src/registry/kobalte/resources/**": ["files", "exports"]
+  },
+  "ignoreExportsUsedInFile": true,
+  "treatConfigHintsAsErrors": true
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-olive",
+  "title": "Chart Color Olive",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.88 0.011 106.6)",
+      "chart-2": "oklch(0.58 0.031 107.3)",
+      "chart-3": "oklch(0.466 0.025 107.3)",
+      "chart-4": "oklch(0.394 0.023 107.4)",
+      "chart-5": "oklch(0.286 0.016 107.4)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.88 0.011 106.6)",
+      "chart-2": "oklch(0.58 0.031 107.3)",
+      "chart-3": "oklch(0.466 0.025 107.3)",
+      "chart-4": "oklch(0.394 0.023 107.4)",
+      "chart-5": "oklch(0.286 0.016 107.4)"
+    }
+  },
+  "type": "registry:theme"
+}

@@ -1,0 +1,35 @@
+branch_whitelist = ["main"]
+
+pre_bump_hooks = [
+  "bun pm version {{version}} --no-git-tag-version",
+  "git add package.json",
+]
+
+pre_package_bump_hooks = [
+  "bun pm version {{version}} --no-git-tag-version",
+  "git add package.json",
+]
+
+post_bump_hooks = ["git push origin HEAD:$GITHUB_REF_NAME", "git push --tags"]
+
+[commit_types.build]
+bump_patch = true
+
+[commit_types.chore]
+bump_patch = true
+
+[commit_types.perf]
+bump_patch = true
+
+[commit_types.refactor]
+bump_patch = true
+
+[commit_types.revert]
+bump_patch = true
+
+[commit_types.style]
+bump_patch = true
+
+[[changelog.authors]]
+signature = "contact@carere.dev"
+username = "carere"

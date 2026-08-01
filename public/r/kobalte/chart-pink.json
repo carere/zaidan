@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-pink",
+  "title": "Chart Color Pink",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.823 0.12 346.018)",
+      "chart-2": "oklch(0.656 0.241 354.308)",
+      "chart-3": "oklch(0.592 0.249 0.584)",
+      "chart-4": "oklch(0.525 0.223 3.958)",
+      "chart-5": "oklch(0.459 0.187 3.815)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.823 0.12 346.018)",
+      "chart-2": "oklch(0.656 0.241 354.308)",
+      "chart-3": "oklch(0.592 0.249 0.584)",
+      "chart-4": "oklch(0.525 0.223 3.958)",
+      "chart-5": "oklch(0.459 0.187 3.815)"
+    }
+  },
+  "type": "registry:theme"
+}

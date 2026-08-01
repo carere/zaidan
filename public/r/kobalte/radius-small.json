@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radius-small",
+  "title": "Small",
+  "cssVars": {
+    "light": {
+      "radius": "0.25rem"
+    },
+    "dark": {
+      "radius": "0.25rem"
+    }
+  },
+  "type": "registry:theme"
+}

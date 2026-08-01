@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radius-large",
+  "title": "Large",
+  "cssVars": {
+    "light": {
+      "radius": "0.75rem"
+    },
+    "dark": {
+      "radius": "0.75rem"
+    }
+  },
+  "type": "registry:theme"
+}

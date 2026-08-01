@@ -1,0 +1,32 @@
+$schema: ./.moon/cache/schemas/project.json
+
+stack: frontend
+layer: application
+
+tasks:
+  dev:
+    command: bun --bun vite dev
+    description: Start Zaidan in development mode
+    env:
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
+    preset: server
+
+  build:
+    command: bun run build
+    description: Build Zaidan
+    env:
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(workspace)"
+    outputs:
+      - "dist/"
+    type: build
+
+  preview:
+    command: bun --bun vite preview
+    description: Preview the production build
+    env:
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
+    preset: server

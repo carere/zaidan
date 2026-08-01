@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-purple",
+  "title": "Chart Color Purple",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.827 0.119 306.383)",
+      "chart-2": "oklch(0.627 0.265 303.9)",
+      "chart-3": "oklch(0.558 0.288 302.321)",
+      "chart-4": "oklch(0.496 0.265 301.924)",
+      "chart-5": "oklch(0.438 0.218 303.724)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.827 0.119 306.383)",
+      "chart-2": "oklch(0.627 0.265 303.9)",
+      "chart-3": "oklch(0.558 0.288 302.321)",
+      "chart-4": "oklch(0.496 0.265 301.924)",
+      "chart-5": "oklch(0.438 0.218 303.724)"
+    }
+  },
+  "type": "registry:theme"
+}

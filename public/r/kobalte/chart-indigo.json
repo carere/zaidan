@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-indigo",
+  "title": "Chart Color Indigo",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.785 0.115 274.713)",
+      "chart-2": "oklch(0.585 0.233 277.117)",
+      "chart-3": "oklch(0.511 0.262 276.966)",
+      "chart-4": "oklch(0.457 0.24 277.023)",
+      "chart-5": "oklch(0.398 0.195 277.366)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.785 0.115 274.713)",
+      "chart-2": "oklch(0.585 0.233 277.117)",
+      "chart-3": "oklch(0.511 0.262 276.966)",
+      "chart-4": "oklch(0.457 0.24 277.023)",
+      "chart-5": "oklch(0.398 0.195 277.366)"
+    }
+  },
+  "type": "registry:theme"
+}

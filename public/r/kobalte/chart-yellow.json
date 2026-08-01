@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-yellow",
+  "title": "Chart Color Yellow",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.905 0.182 98.111)",
+      "chart-2": "oklch(0.795 0.184 86.047)",
+      "chart-3": "oklch(0.681 0.162 75.834)",
+      "chart-4": "oklch(0.554 0.135 66.442)",
+      "chart-5": "oklch(0.476 0.114 61.907)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.905 0.182 98.111)",
+      "chart-2": "oklch(0.795 0.184 86.047)",
+      "chart-3": "oklch(0.681 0.162 75.834)",
+      "chart-4": "oklch(0.554 0.135 66.442)",
+      "chart-5": "oklch(0.476 0.114 61.907)"
+    }
+  },
+  "type": "registry:theme"
+}

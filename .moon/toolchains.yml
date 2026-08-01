@@ -1,0 +1,11 @@
+$schema: ./cache/schemas/toolchains.json
+
+javascript:
+  packageManager: bun
+  inferTasksFromScripts: false
+
+bun:
+  version: latest
+
+typescript:
+  routeOutDirToCache: true

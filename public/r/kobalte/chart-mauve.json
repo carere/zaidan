@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-mauve",
+  "title": "Chart Color Mauve",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.865 0.012 325.68)",
+      "chart-2": "oklch(0.542 0.034 322.5)",
+      "chart-3": "oklch(0.435 0.029 321.78)",
+      "chart-4": "oklch(0.364 0.029 323.89)",
+      "chart-5": "oklch(0.263 0.024 320.12)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.865 0.012 325.68)",
+      "chart-2": "oklch(0.542 0.034 322.5)",
+      "chart-3": "oklch(0.435 0.029 321.78)",
+      "chart-4": "oklch(0.364 0.029 323.89)",
+      "chart-5": "oklch(0.263 0.024 320.12)"
+    }
+  },
+  "type": "registry:theme"
+}

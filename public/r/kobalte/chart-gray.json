@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-gray",
+  "title": "Chart Color Gray",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.872 0.01 258.338)",
+      "chart-2": "oklch(0.551 0.027 264.364)",
+      "chart-3": "oklch(0.446 0.03 256.802)",
+      "chart-4": "oklch(0.373 0.034 259.733)",
+      "chart-5": "oklch(0.278 0.033 256.848)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.872 0.01 258.338)",
+      "chart-2": "oklch(0.551 0.027 264.364)",
+      "chart-3": "oklch(0.446 0.03 256.802)",
+      "chart-4": "oklch(0.373 0.034 259.733)",
+      "chart-5": "oklch(0.278 0.033 256.848)"
+    }
+  },
+  "type": "registry:theme"
+}

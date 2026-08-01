@@ -1,7 +1,7 @@
 commit-msg:
   commands:
-    commitlint:
-      run: commitlint --edit {1}
+    conventional-commit:
+      run: cog verify --file {1}
 
 pre-commit:
   commands:
