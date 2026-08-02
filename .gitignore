@@ -4,6 +4,7 @@ node_modules
 # build output
 dist
 .tanstack
+.velite
 .content-collections
 .registry-build-*
 
