@@ -29,6 +29,7 @@ import {
 } from "@/registry/kobalte/ui/command";
 
 type CreateSearch = { preset?: string; item?: string };
+type ConfigKey = Exclude<keyof DesignSystemConfig, "primitive">;
 
 export const Route = createFileRoute("/_public/create")({
   validateSearch: (search: Record<string, unknown>): CreateSearch => ({
@@ -137,20 +138,38 @@ function CreatePage() {
     navigate({ search: (previous) => ({ ...previous, preset: undefined }) });
   };
   const randomItem = <T,>(items: readonly T[]) => items[Math.floor(Math.random() * items.length)];
-  const shuffle = () => {
+  const shuffle = (locks: ReadonlySet<ConfigKey> = new Set<ConfigKey>()) => {
+    const current = config();
     const next: DesignSystemConfig = {
       primitive: "kobalte",
-      style: randomItem(STYLES)?.name ?? DEFAULT_CONFIG.style,
-      baseColor: randomItem(BASE_COLORS)?.name ?? DEFAULT_CONFIG.baseColor,
-      theme: randomItem(THEMES)?.name ?? DEFAULT_CONFIG.theme,
-      chartColor: randomItem(CHART_COLORS)?.name ?? DEFAULT_CONFIG.chartColor,
-      font: randomItem(FONTS)?.value ?? DEFAULT_CONFIG.font,
-      headingFont: randomItem(FONTS)?.value ?? DEFAULT_CONFIG.headingFont,
-      radius: randomItem(RADII)?.name ?? DEFAULT_CONFIG.radius,
-      menuAccent: randomItem(MENU_ACCENTS)?.name ?? DEFAULT_CONFIG.menuAccent,
+      style: locks.has("style")
+        ? current.style
+        : (randomItem(STYLES)?.name ?? DEFAULT_CONFIG.style),
+      baseColor: locks.has("baseColor")
+        ? current.baseColor
+        : (randomItem(BASE_COLORS)?.name ?? DEFAULT_CONFIG.baseColor),
+      theme: locks.has("theme")
+        ? current.theme
+        : (randomItem(THEMES)?.name ?? DEFAULT_CONFIG.theme),
+      chartColor: locks.has("chartColor")
+        ? current.chartColor
+        : (randomItem(CHART_COLORS)?.name ?? DEFAULT_CONFIG.chartColor),
+      font: locks.has("font") ? current.font : (randomItem(FONTS)?.value ?? DEFAULT_CONFIG.font),
+      headingFont: locks.has("headingFont")
+        ? current.headingFont
+        : (randomItem(FONTS)?.value ?? DEFAULT_CONFIG.headingFont),
+      radius: locks.has("radius")
+        ? current.radius
+        : (randomItem(RADII)?.name ?? DEFAULT_CONFIG.radius),
+      menuAccent: locks.has("menuAccent")
+        ? current.menuAccent
+        : (randomItem(MENU_ACCENTS)?.name ?? DEFAULT_CONFIG.menuAccent),
     };
+    const nextPreset = encodeDesignSystemPreset(next);
+    if (nextPreset === encodeDesignSystemPreset(current)) return;
+
     setOverride({});
-    navigate({ search: (previous) => ({ ...previous, preset: encodeDesignSystemPreset(next) }) });
+    navigate({ search: (previous) => ({ ...previous, preset: nextPreset }) });
   };
   const iframeHref = createMemo(() =>
     (() => {
@@ -160,7 +179,7 @@ function CreatePage() {
             to: "/preview/$kind/$primitive/$slug",
             params: { kind: item.kind, primitive: "kobalte", slug: item.slug },
           }).href
-        : router.buildLocation({ to: "/preview/home" }).href;
+        : router.buildLocation({ to: "/preview/create" }).href;
     })(),
   );
 

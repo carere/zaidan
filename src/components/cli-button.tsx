@@ -1,4 +1,4 @@
-import { Check, Copy, SquareTerminal } from "lucide-solid";
+import { Check, Copy } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
 import { DEFAULT_CONFIG } from "@/lib/config";
@@ -93,7 +93,6 @@ export function CliButton(
   return (
     <Dialog>
       <DialogTrigger as={Button} size="sm" class={props.class}>
-        <SquareTerminal />
         <span>{props.label ?? "Setup Project"}</span>
       </DialogTrigger>
 

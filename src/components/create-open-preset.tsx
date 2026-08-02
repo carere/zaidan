@@ -53,8 +53,8 @@ export function CreateOpenPreset(props: {
         variant="outline"
         class="max-w-20 min-w-0 flex-1 touch-manipulation bg-transparent px-2 text-sm transition-none sm:max-w-none md:flex-none"
       >
-        <span class="w-full truncate text-center font-normal sm:hidden">Open</span>
-        <span class="hidden w-full truncate text-center font-normal sm:block">Open Preset</span>
+        <span class="w-full truncate text-center font-normal md:hidden">Open</span>
+        <span class="hidden w-full truncate text-center font-normal md:block">Open Preset</span>
       </DialogTrigger>
       <DialogContent class="dark sm:max-w-md">
         <form

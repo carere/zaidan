@@ -5,7 +5,7 @@ import { DEFAULT_CONFIG, FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
 
-export const Route = createFileRoute("/preview/home")({
+export const Route = createFileRoute("/preview/create")({
   component: PreviewComponent,
 });
 

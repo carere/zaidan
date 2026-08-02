@@ -1,11 +1,14 @@
 import { Link, useLocation } from "@tanstack/solid-router";
 import { Plus } from "lucide-solid";
-import { ErrorBoundary, For } from "solid-js";
+import { createMemo, ErrorBoundary, For, Show } from "solid-js";
+import { CliButton } from "@/components/cli-button";
 import { GitHubLink } from "@/components/github-link";
 import { Zaidan } from "@/components/icons/zaidan";
 import { MobileNav } from "@/components/mobile-nav";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { SiteSearch } from "@/components/site-search";
+import { DEFAULT_CONFIG } from "@/lib/config";
+import { decodeDesignSystemPreset } from "@/lib/preset";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Separator } from "@/registry/kobalte/ui/separator";
 
@@ -17,6 +20,16 @@ const navItems = [
 
 export function SiteHeader() {
   const location = useLocation();
+  const isCreatePage = createMemo(() => location().pathname.startsWith("/create"));
+  const createPreset = createMemo(() => {
+    if (!isCreatePage()) return undefined;
+
+    const preset = new URLSearchParams(location().searchStr).get("preset") ?? undefined;
+    return preset && decodeDesignSystemPreset(preset) ? preset : undefined;
+  });
+  const createConfig = createMemo(
+    () => decodeDesignSystemPreset(createPreset() ?? "") ?? DEFAULT_CONFIG,
+  );
 
   return (
     <header class="sticky top-0 z-50 w-full bg-background">
@@ -61,15 +74,22 @@ export function SiteHeader() {
             <Separator orientation="vertical" />
             <ModeSwitcher />
             <Separator orientation="vertical" />
-            <Button
-              as={Link}
-              to="/create"
-              size="sm"
-              class="h-7.75 rounded-lg group-has-[[data-slot=designer]]/layout:hidden"
+            <Show
+              when={isCreatePage()}
+              fallback={
+                <Button as={Link} to="/create" size="sm" class="h-7.75 rounded-lg">
+                  <Plus />
+                  New
+                </Button>
+              }
             >
-              <Plus />
-              New
-            </Button>
+              <CliButton
+                preset={createPreset()}
+                config={createConfig()}
+                class="h-7.75 rounded-lg"
+                label="Get Code"
+              />
+            </Show>
           </div>
         </div>
       </div>

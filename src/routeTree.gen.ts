@@ -13,7 +13,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as PublicCreateRouteImport } from './routes/_public.create'
 import { Route as PublicDocsRouteImport } from './routes/_public.docs'
-import { Route as PreviewHomeRouteImport } from './routes/preview.home'
+import { Route as PreviewCreateRouteImport } from './routes/preview.create'
 import { Route as PublicDocsIndexRouteImport } from './routes/_public.docs.index'
 import { Route as PublicDocsSlugRouteImport } from './routes/_public.docs.$slug'
 import { Route as RPrimitiveNameRouteImport } from './routes/r.$primitive.$name'
@@ -43,9 +43,9 @@ const PublicDocsRoute = PublicDocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => PublicRoute,
 } as any)
-const PreviewHomeRoute = PreviewHomeRouteImport.update({
-  id: '/preview/home',
-  path: '/preview/home',
+const PreviewCreateRoute = PreviewCreateRouteImport.update({
+  id: '/preview/create',
+  path: '/preview/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicDocsIndexRoute = PublicDocsIndexRouteImport.update({
@@ -103,7 +103,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/create': typeof PublicCreateRoute
   '/docs': typeof PublicDocsRouteWithChildren
-  '/preview/home': typeof PreviewHomeRoute
+  '/preview/create': typeof PreviewCreateRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/docs/': typeof PublicDocsIndexRoute
@@ -116,7 +116,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/create': typeof PublicCreateRoute
-  '/preview/home': typeof PreviewHomeRoute
+  '/preview/create': typeof PreviewCreateRoute
   '/': typeof PublicIndexRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
@@ -133,7 +133,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_public/create': typeof PublicCreateRoute
   '/_public/docs': typeof PublicDocsRouteWithChildren
-  '/preview/home': typeof PreviewHomeRoute
+  '/preview/create': typeof PreviewCreateRoute
   '/_public/': typeof PublicIndexRoute
   '/_public/docs/$slug': typeof PublicDocsSlugRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
@@ -151,7 +151,7 @@ export interface FileRouteTypes {
     | '/'
     | '/create'
     | '/docs'
-    | '/preview/home'
+    | '/preview/create'
     | '/docs/$slug'
     | '/r/$primitive/$name'
     | '/docs/'
@@ -164,7 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/create'
-    | '/preview/home'
+    | '/preview/create'
     | '/'
     | '/docs/$slug'
     | '/r/$primitive/$name'
@@ -180,7 +180,7 @@ export interface FileRouteTypes {
     | '/_public'
     | '/_public/create'
     | '/_public/docs'
-    | '/preview/home'
+    | '/preview/create'
     | '/_public/'
     | '/_public/docs/$slug'
     | '/r/$primitive/$name'
@@ -195,7 +195,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
-  PreviewHomeRoute: typeof PreviewHomeRoute
+  PreviewCreateRoute: typeof PreviewCreateRoute
   RPrimitiveNameRoute: typeof RPrimitiveNameRoute
   PreviewKindPrimitiveSlugRoute: typeof PreviewKindPrimitiveSlugRoute
 }
@@ -230,11 +230,11 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof PublicDocsRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/preview/home': {
-      id: '/preview/home'
-      path: '/preview/home'
-      fullPath: '/preview/home'
-      preLoaderRoute: typeof PreviewHomeRouteImport
+    '/preview/create': {
+      id: '/preview/create'
+      path: '/preview/create'
+      fullPath: '/preview/create'
+      preLoaderRoute: typeof PreviewCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_public/docs/': {
@@ -345,7 +345,7 @@ const PublicRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
-  PreviewHomeRoute: PreviewHomeRoute,
+  PreviewCreateRoute: PreviewCreateRoute,
   RPrimitiveNameRoute: RPrimitiveNameRoute,
   PreviewKindPrimitiveSlugRoute: PreviewKindPrimitiveSlugRoute,
 }
