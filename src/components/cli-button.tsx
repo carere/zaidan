@@ -1,4 +1,3 @@
-import { useSearch } from "@tanstack/solid-router";
 import { Check, Copy, SquareTerminal } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
@@ -30,7 +29,6 @@ const PACKAGE_MANAGER_PREFIXES: Record<PackageManager, string> = {
 export function CliButton() {
   const [packageManager, setPackageManager] = createSignal<PackageManager>("bun");
   const [hasCopied, setHasCopied] = createSignal(false);
-  const search = useSearch({ strict: false });
 
   createEffect(() => {
     if (hasCopied()) {
@@ -40,14 +38,13 @@ export function CliButton() {
   });
 
   const commands = createMemo(() => {
-    const params = search() as Record<string, string | undefined>;
-    const font = params.font ?? DEFAULT_CONFIG.font;
-    const headingFont = params.headingFont ?? DEFAULT_CONFIG.headingFont;
-    const theme = params.theme ?? DEFAULT_CONFIG.theme;
-    const radius = params.radius ?? DEFAULT_CONFIG.radius;
-    const style = params.style ?? DEFAULT_CONFIG.style;
-    const baseColor = params.baseColor ?? DEFAULT_CONFIG.baseColor;
-    const chartColor = params.chartColor ?? DEFAULT_CONFIG.chartColor;
+    const font = DEFAULT_CONFIG.font;
+    const headingFont = DEFAULT_CONFIG.headingFont;
+    const theme = DEFAULT_CONFIG.theme;
+    const radius = DEFAULT_CONFIG.radius;
+    const style = DEFAULT_CONFIG.style;
+    const baseColor = DEFAULT_CONFIG.baseColor;
+    const chartColor = DEFAULT_CONFIG.chartColor;
 
     // Build packages list, avoiding duplicates when baseColor and theme are the same
     const registryItems = [`@zaidan/font-${font}`, `@zaidan/${theme}`, `@zaidan/style-${style}`];

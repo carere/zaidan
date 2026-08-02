@@ -2,12 +2,10 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanst
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
 import { getCookie } from "@tanstack/solid-start/server";
-import { zodValidator } from "@tanstack/zod-adapter";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { NotFoundPage } from "@/components/not-found-page";
 import { siteConfig } from "@/lib/site";
-import { DesignSystemConfigSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   type ColorMode,
@@ -55,7 +53,6 @@ export const Route = createRootRouteWithContext()({
       { name: "twitter:image:alt", content: siteConfig.description },
     ],
   }),
-  validateSearch: zodValidator(DesignSystemConfigSchema),
   shellComponent: RootComponent,
   notFoundComponent: () => <NotFoundPage />,
 });

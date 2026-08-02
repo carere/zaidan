@@ -10,8 +10,8 @@ import { Button } from "@/registry/kobalte/ui/button";
 import { Separator } from "@/registry/kobalte/ui/separator";
 
 const navItems = [
-  { label: "Docs", to: "/installation" },
-  { label: "Components", to: "/ui" },
+  { label: "Docs", to: "/docs" },
+  { label: "Components", to: "/docs/components" },
   { label: "Create", to: "/create" },
 ] as const;
 
@@ -39,7 +39,10 @@ export function SiteHeader() {
                   data-active={
                     item.to === "/create"
                       ? location().pathname.startsWith("/create")
-                      : location().pathname.startsWith(item.to)
+                      : item.to === "/docs"
+                        ? location().pathname.startsWith("/docs") &&
+                          !location().pathname.startsWith("/docs/components")
+                        : location().pathname.startsWith(item.to)
                   }
                 >
                   {item.label}
@@ -58,7 +61,7 @@ export function SiteHeader() {
             <Separator orientation="vertical" />
             <ModeSwitcher />
             <Separator orientation="vertical" />
-            <Button as={Link} to="/create" size="sm" class="h-[31px] rounded-lg">
+            <Button as={Link} to="/create" size="sm" class="h-7.75 rounded-lg">
               <Plus />
               New
             </Button>

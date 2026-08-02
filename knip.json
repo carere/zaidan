@@ -1,11 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "moonrepo": true,
-  "entry": ["content-collections.ts"],
-  "ignoreDependencies": ["content-collections"],
+  "entry": ["src/pages/**/*.mdx", "src/registry/kobalte/examples/**/*.tsx", "velite.config.ts"],
   "ignoreIssues": {
-    "src/registry/kobalte/ui/**": ["exports"],
-    "src/registry/kobalte/resources/**": ["files", "exports"]
+    ".velite/**": ["files", "exports", "types"],
+    "src/registry/kobalte/**": ["files", "exports", "types"]
   },
   "ignoreExportsUsedInFile": true,
   "treatConfigHintsAsErrors": true

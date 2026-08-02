@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useParams, useSearch } from "@tanstack/solid-router";
+import { useNavigate, useParams } from "@tanstack/solid-router";
 import { Search } from "lucide-solid";
 import {
   type ComponentProps,
@@ -10,7 +10,7 @@ import {
   Show,
   splitProps,
 } from "solid-js";
-import { getEntries, hasUpdate } from "@/lib/registry-entries";
+import { getPreviewEntries, hasUpdate } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -28,12 +28,9 @@ import { Kbd } from "@/registry/kobalte/ui/kbd";
 export function ItemPicker(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   const [open, setOpen] = createSignal(false);
-  const location = useLocation();
-  const search = useSearch({ strict: false });
   const navigate = useNavigate();
   const params = useParams({ strict: false });
-  const isDocsPage = createMemo(() => location().pathname.endsWith("/docs"));
-  const entries = getEntries();
+  const entries = getPreviewEntries();
 
   // Keyboard shortcut: Cmd+K / Ctrl+K to open dialog
   onMount(() => {
@@ -63,9 +60,7 @@ export function ItemPicker(props: ComponentProps<"div">) {
         {...others}
       >
         <span class="flex flex-col items-start">
-          <span class="text-muted-foreground text-xs sm:hidden">
-            {isDocsPage() ? "Docs" : "Preview"}
-          </span>
+          <span class="text-muted-foreground text-xs sm:hidden">Preview</span>
           <span class="truncate">{currentPage()}</span>
         </span>
         <Kbd class="ml-2 hidden items-center sm:flex">⌘K</Kbd>
@@ -91,7 +86,6 @@ export function ItemPicker(props: ComponentProps<"div">) {
                             navigate({
                               to: entry.route,
                               params: { slug: item.slug },
-                              search: search(),
                             });
                             setOpen(false);
                           }}

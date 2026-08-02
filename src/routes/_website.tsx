@@ -1,18 +1,15 @@
-import { createFileRoute, Link, Outlet, useSearch } from "@tanstack/solid-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
 import { CircleAlert } from "lucide-solid";
 import { createSignal, ErrorBoundary } from "solid-js";
 import { CliButton } from "@/components/cli-button";
-import { Customizer } from "@/components/customizer";
 import { GitHubLink } from "@/components/github-link";
 import { Zaidan } from "@/components/icons/zaidan";
 import { ItemExplorer } from "@/components/item-explorer";
 import { ItemPicker } from "@/components/item-picker";
 import { ModeSwitcher } from "@/components/mode-switcher";
 import { NotFoundPage } from "@/components/not-found-page";
-import { RandomButton } from "@/components/random-button";
 import { ShareButton } from "@/components/share-button";
 import { SiteConfig } from "@/components/site-config";
-import { LocksProvider } from "@/lib/use-locks";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import { SidebarProvider } from "@/registry/kobalte/ui/sidebar";
@@ -25,10 +22,9 @@ export const Route = createFileRoute("/_website")({
 
 function RouteComponent() {
   const [isFullLayout, switchLayout] = createSignal(false);
-  const search = useSearch({ strict: false });
 
   return (
-    <LocksProvider>
+    <>
       <Toaster position="top-center" />
       <div
         data-slot="layout"
@@ -44,7 +40,7 @@ function RouteComponent() {
           )}
         >
           <div class="flex items-center lg:mr-2 xl:w-1/3">
-            <Link to="/" search={search()}>
+            <Link to="/">
               <Zaidan class="size-6" />
             </Link>
             <Separator orientation="vertical" class="mx-4" />
@@ -52,7 +48,6 @@ function RouteComponent() {
           </div>
           <div class="fixed bottom-0 flex w-[calc(100svw-var(--spacing)*4)] items-center gap-2 pt-2 pr-4 pb-4 md:relative md:bottom-auto md:ml-auto md:p-0 lg:basis-1/3">
             <ItemPicker class="grow rounded-2xl md:rounded-md" />
-            <RandomButton class="md:hidden" />
           </div>
           <div class="ml-auto flex items-center gap-2 md:justify-end xl:ml-auto xl:w-1/3">
             <ErrorBoundary
@@ -75,10 +70,9 @@ function RouteComponent() {
           <ItemExplorer class="w-56 shrink-0" />
           <div data-slot="main-content" class="flex basis-full flex-col gap-2 md:flex-row">
             <Outlet />
-            <Customizer class="shrink-0 md:w-48" />
           </div>
         </SidebarProvider>
       </div>
-    </LocksProvider>
+    </>
   );
 }

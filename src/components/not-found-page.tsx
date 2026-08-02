@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearch } from "@tanstack/solid-router";
+import { Link, useNavigate } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { createMemo } from "solid-js";
 import {
@@ -26,11 +26,21 @@ type Option = {
 };
 
 const getOptions = (): Option[] => {
-  const docsOptions = docs.map((d) => ({
-    pathname: d.parent ? `/${d.parent}/${d.slug}` : `/${d.slug}`,
-    slug: d.slug,
-    route: (d.parent ? `/${d.parent}/${d.slug}` : "/$slug") as FileRouteTypes["to"],
-  }));
+  const docsOptions = docs.map((d) => {
+    if (d.slug === "index") {
+      return {
+        pathname: "/docs",
+        slug: d.slug,
+        route: "/docs" as FileRouteTypes["to"],
+      };
+    }
+
+    return {
+      pathname: d.parent ? `/docs/${d.parent}/${d.slug}` : `/docs/${d.slug}`,
+      slug: d.slug,
+      route: (d.parent ? "/docs/installation/$slug" : "/docs/$slug") as FileRouteTypes["to"],
+    };
+  });
 
   const uiOptions = ui
     .toSorted((a, b) => a.title.localeCompare(b.title))
@@ -45,7 +55,6 @@ const getOptions = (): Option[] => {
 
 export function NotFoundPage() {
   const navigate = useNavigate();
-  const search = useSearch({ strict: false });
   const options = createMemo(() => getOptions());
 
   return (
@@ -71,7 +80,6 @@ export function NotFoundPage() {
               navigate({
                 to: value.route,
                 params: { slug: value.slug },
-                search: search(),
               });
             }
           }}

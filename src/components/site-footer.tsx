@@ -2,7 +2,7 @@ import { siteConfig } from "@/lib/site";
 
 export function SiteFooter() {
   return (
-    <footer>
+    <footer class="group-has-[[data-slot=docs]]/layout:hidden">
       <div class="container-wrapper px-4 xl:px-6">
         <div class="flex h-(--footer-height) items-center justify-between">
           <div class="w-full px-1 text-center text-xs leading-loose text-muted-foreground sm:text-sm">

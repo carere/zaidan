@@ -58,23 +58,9 @@ export type Radius = z.infer<typeof RadiusSchema>;
 export const MenuAccentSchema = z.enum(["subtle", "bold"]);
 export type MenuAccent = z.infer<typeof MenuAccentSchema>;
 
-export type LockableParam =
-  | "style"
-  | "baseColor"
-  | "theme"
-  | "chartColor"
-  | "headingFont"
-  | "font"
-  | "radius"
-  | "menuAccent";
-
 export type TocEntry = docs["toc"];
 
 export type IframeMessage =
-  | {
-      type: "design-system-params-sync";
-      data: DesignSystemConfig;
-    }
   | {
       type: "cmd-k-forward";
       key: "k" | "K";
@@ -82,10 +68,6 @@ export type IframeMessage =
   | {
       type: "dark-mode-forward";
       key: "d" | "D";
-    }
-  | {
-      type: "randomize-forward";
-      key: "r" | "R";
     }
   | {
       type: "color-mode-sync";
@@ -104,18 +86,16 @@ export type Primitive = z.infer<typeof PrimitiveSchema>;
 
 export type Kind = "ui" | "blocks";
 
-export const DesignSystemConfigSchema = z.object({
-  primitive: PrimitiveSchema.optional().default("kobalte"),
-  style: StyleSchema.optional().default("vega"),
-  baseColor: BaseColorSchema.optional().default("neutral"),
-  theme: ThemeSchema.optional().default("neutral"),
-  chartColor: ChartColorSchema.optional().default("neutral"),
-  font: FontSchema.optional().default("inter"),
-  headingFont: FontSchema.optional().default("inter"),
-  radius: RadiusSchema.optional().default("default"),
-  menuAccent: MenuAccentSchema.optional().default("subtle"),
-});
-
-export type DesignSystemConfig = z.infer<typeof DesignSystemConfigSchema>;
+export type DesignSystemConfig = {
+  primitive: Primitive;
+  style: Style;
+  baseColor: BaseColor;
+  theme: Theme;
+  chartColor: ChartColor;
+  font: Font;
+  headingFont: Font;
+  radius: Radius;
+  menuAccent: MenuAccent;
+};
 
 export type MdxModule = { default: Component<{ components?: typeof sharedComponents }> };

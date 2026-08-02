@@ -7,7 +7,9 @@ import { Button } from "@/registry/kobalte/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/registry/kobalte/ui/popover";
 
 const topLevelDocs = [...docs]
-  .filter((item) => item.parent === undefined)
+  .filter(
+    (item) => item.parent === undefined && item.slug !== "index" && item.slug !== "components",
+  )
   .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 
 const installationDocs = [...docs]
@@ -76,15 +78,10 @@ export function MobileNav(props: MobileNavProps) {
               <Link to="/" class={mobileLinkClass} onClick={() => setOpen(false)}>
                 Home
               </Link>
-              <Link
-                to="/$slug"
-                params={{ slug: "installation" }}
-                class={mobileLinkClass}
-                onClick={() => setOpen(false)}
-              >
+              <Link to="/docs" class={mobileLinkClass} onClick={() => setOpen(false)}>
                 Docs
               </Link>
-              <Link to="/ui/{-$slug}" class={mobileLinkClass} onClick={() => setOpen(false)}>
+              <Link to="/docs/components" class={mobileLinkClass} onClick={() => setOpen(false)}>
                 Components
               </Link>
               <Link to="/create" class={mobileLinkClass} onClick={() => setOpen(false)}>
@@ -99,7 +96,7 @@ export function MobileNav(props: MobileNavProps) {
               <For each={topLevelDocs}>
                 {(item) => (
                   <Link
-                    to="/$slug"
+                    to="/docs/$slug"
                     params={{ slug: item.slug }}
                     class={mobileLinkClass}
                     onClick={() => setOpen(false)}
@@ -111,7 +108,7 @@ export function MobileNav(props: MobileNavProps) {
                   </Link>
                 )}
               </For>
-              <Link to="/changelog" class={mobileLinkClass} onClick={() => setOpen(false)}>
+              <Link to="/docs/changelog" class={mobileLinkClass} onClick={() => setOpen(false)}>
                 Changelog
                 <Show when={hasUpdate("changelog", "docs")}>
                   <span class="flex size-2 rounded-full bg-blue-500" title="New" />
@@ -127,7 +124,7 @@ export function MobileNav(props: MobileNavProps) {
                 <For each={installationDocs}>
                   {(item) => (
                     <Link
-                      to="/installation/$slug"
+                      to="/docs/installation/$slug"
                       params={{ slug: item.slug }}
                       class={mobileLinkClass}
                       onClick={() => setOpen(false)}
@@ -169,8 +166,8 @@ export function MobileNav(props: MobileNavProps) {
                 <For each={componentPages}>
                   {(item) => (
                     <Link
-                      to="/ui/{-$slug}"
-                      params={{ slug: item.slug }}
+                      to="/docs/components/$primitive/$slug"
+                      params={{ primitive: "kobalte", slug: item.slug }}
                       class={mobileLinkClass}
                       onClick={() => setOpen(false)}
                     >

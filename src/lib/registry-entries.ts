@@ -40,12 +40,12 @@ export function getEntries(): Entry[] {
       title: "Getting Started",
       items: [
         ...docs
-          .filter((d) => d.parent === undefined)
+          .filter((d) => d.parent === undefined && d.slug !== "index" && d.slug !== "components")
           .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
         CHANGELOG_ENTRY,
       ],
       kind: "docs",
-      route: "/$slug",
+      route: "/docs/$slug",
     },
     {
       title: "Blocks",
@@ -60,4 +60,8 @@ export function getEntries(): Entry[] {
       route: "/ui/{-$slug}",
     },
   ];
+}
+
+export function getPreviewEntries(): Entry[] {
+  return getEntries().filter((entry) => entry.kind !== "docs");
 }

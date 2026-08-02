@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount, Show } from "solid-js";
 import { RootComponents } from "@/components/home";
-import { FONTS, RADII } from "@/lib/config";
+import { DEFAULT_CONFIG, FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
 
@@ -10,12 +10,10 @@ export const Route = createFileRoute("/preview/home")({
 });
 
 function PreviewComponent() {
-  const initialSearch = Route.useSearch();
-  const [search, setSearch] = createSignal(initialSearch());
   const [isReady, setIsReady] = createSignal(false);
 
   const registryTheme = createMemo(() => {
-    const p = search();
+    const p = DEFAULT_CONFIG;
     if (!p.baseColor || !p.theme || !p.chartColor || !p.menuAccent || !p.radius) {
       return null;
     }
@@ -31,9 +29,6 @@ function PreviewComponent() {
 
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
-      if (event.data?.type === "design-system-params-sync" && event.data.data)
-        setSearch(event.data.data);
-
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(event.data.data);
@@ -64,24 +59,6 @@ function PreviewComponent() {
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({
             type: "dark-mode-forward",
-            key: e.key,
-          } satisfies IframeMessage);
-        }
-      }
-
-      if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
-        if (
-          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
-        ) {
-          return;
-        }
-        e.preventDefault();
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({
-            type: "randomize-forward",
             key: e.key,
           } satisfies IframeMessage);
         }
@@ -124,10 +101,10 @@ function PreviewComponent() {
   createEffect(
     on(
       [
-        () => search().style,
-        () => search().baseColor,
-        () => search().font,
-        () => search().headingFont,
+        () => DEFAULT_CONFIG.style,
+        () => DEFAULT_CONFIG.baseColor,
+        () => DEFAULT_CONFIG.font,
+        () => DEFAULT_CONFIG.headingFont,
       ],
       ([style, baseColor, font, headingFont]) => {
         document.body.classList.forEach((className) => {
@@ -167,7 +144,7 @@ function PreviewComponent() {
   // Apply radius CSS custom property to document.documentElement
   createEffect(
     on(
-      () => search().radius,
+      () => DEFAULT_CONFIG.radius,
       (radius) => {
         const radiusValue = RADII.find((r) => r.name === radius || r.name === "medium")
           ?.value as string;

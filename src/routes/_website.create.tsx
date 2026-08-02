@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/solid-router";
-import { createEffect, createSignal, onCleanup, onMount, untrack } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
@@ -18,7 +18,6 @@ export const Route = createFileRoute("/_website/create")({
 
 function RouteComponent() {
   const router = useRouter();
-  const search = Route.useSearch();
   const { colorMode } = useColorMode();
 
   // Drives the iframe's height — set from messages posted by the iframe so
@@ -31,13 +30,6 @@ function RouteComponent() {
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.data.type === "dark-mode-forward") {
-        const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key,
-          bubbles: true,
-          cancelable: true,
-        });
-        document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === "randomize-forward") {
         const syntheticEvent = new KeyboardEvent("keydown", {
           key: event.data.key,
           bubbles: true,
@@ -63,14 +55,6 @@ function RouteComponent() {
     onCleanup(() => window.removeEventListener("message", handleMessage));
   });
 
-  // Send design system params to iframe when they change
-  createEffect(() => {
-    iframeRef?.contentWindow?.postMessage({
-      type: "design-system-params-sync",
-      data: search(),
-    } satisfies IframeMessage);
-  });
-
   // Send color mode to iframe when it changes
   createEffect(() => {
     iframeRef?.contentWindow?.postMessage({
@@ -79,14 +63,7 @@ function RouteComponent() {
     } satisfies IframeMessage);
   });
 
-  const href = () =>
-    untrack(
-      () =>
-        router.buildLocation({
-          to: "/preview/home",
-          search: search(),
-        }).href,
-    );
+  const href = () => router.buildLocation({ to: "/preview/home" }).href;
 
   return (
     <div class="no-scrollbar relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-col overflow-y-auto md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">

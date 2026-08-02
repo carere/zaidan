@@ -1,7 +1,7 @@
-import { Link, useSearch } from "@tanstack/solid-router";
+import { Link } from "@tanstack/solid-router";
 import { ChevronRightIcon } from "lucide-solid";
 import { For, mergeProps, Show, splitProps } from "solid-js";
-import { getEntries, hasUpdate } from "@/lib/registry-entries";
+import { getPreviewEntries, hasUpdate } from "@/lib/registry-entries";
 import { cn } from "@/lib/utils";
 import {
   Collapsible,
@@ -21,7 +21,6 @@ import {
 
 export function ItemExplorer(props: SidebarProps) {
   const mergedProps = mergeProps({ collapsible: "none" }, props);
-  const search = useSearch({ strict: false });
   const [local, others] = splitProps(mergedProps as SidebarProps, ["class", "collapsible"]);
 
   return (
@@ -31,7 +30,7 @@ export function ItemExplorer(props: SidebarProps) {
       {...others}
     >
       <SidebarContent class="no-scrollbar -mx-1 overflow-x-hidden">
-        <For each={getEntries()}>
+        <For each={getPreviewEntries()}>
           {(entry) => (
             <Show when={entry.items.length > 0}>
               <Collapsible defaultOpen class="group/collapsible">
@@ -52,8 +51,6 @@ export function ItemExplorer(props: SidebarProps) {
                                 to={entry.route}
                                 //@ts-expect-error <Problem with kobalte typing polymorphic props>
                                 params={{ slug: item.slug }}
-                                //@ts-expect-error <Problem with kobalte typing polymorphic props>
-                                search={search()}
                                 class="relative h-6.5 w-fit cursor-pointer overflow-visible border border-transparent font-normal text-[0.8rem] after:absolute after:inset-x-0 after:-inset-y-1 after:z-0 after:rounded-md data-[status=active]:border-accent data-[status=active]:bg-accent"
                               >
                                 {item.title}

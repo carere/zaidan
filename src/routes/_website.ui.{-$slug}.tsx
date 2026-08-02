@@ -1,8 +1,7 @@
 import { createFileRoute, notFound, useRouter } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { createEffect, createMemo, onCleanup, onMount, untrack } from "solid-js";
+import { createEffect, createMemo, onCleanup, onMount } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
-import { PageToggleNav } from "@/components/page-toggle-nav";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
@@ -34,7 +33,6 @@ export const Route = createFileRoute("/_website/ui/{-$slug}")({
 function RouteComponent() {
   const router = useRouter();
   const doc = Route.useLoaderData();
-  const search = Route.useSearch();
   const { colorMode } = useColorMode();
 
   let iframeRef: HTMLIFrameElement | undefined;
@@ -43,13 +41,6 @@ function RouteComponent() {
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.data.type === "dark-mode-forward") {
-        const syntheticEvent = new KeyboardEvent("keydown", {
-          key: event.data.key,
-          bubbles: true,
-          cancelable: true,
-        });
-        document.dispatchEvent(syntheticEvent);
-      } else if (event.data.type === "randomize-forward") {
         const syntheticEvent = new KeyboardEvent("keydown", {
           key: event.data.key,
           bubbles: true,
@@ -73,14 +64,6 @@ function RouteComponent() {
     onCleanup(() => window.removeEventListener("message", handleMessage));
   });
 
-  // Send design system params to iframe when they change
-  createEffect(() => {
-    iframeRef?.contentWindow?.postMessage({
-      type: "design-system-params-sync",
-      data: search(),
-    } satisfies IframeMessage);
-  });
-
   // Send color mode to iframe when it changes
   createEffect(() => {
     iframeRef?.contentWindow?.postMessage({
@@ -91,20 +74,15 @@ function RouteComponent() {
 
   const href = createMemo(() => {
     const slug = doc().slug;
-    return untrack(
-      () =>
-        router.buildLocation({
-          to: "/preview/$kind/$primitive/$slug",
-          params: { kind: "ui", primitive: "kobalte", slug },
-          search: search(),
-        }).href,
-    );
+    return router.buildLocation({
+      to: "/preview/$kind/$primitive/$slug",
+      params: { kind: "ui", primitive: "kobalte", slug },
+    }).href;
   });
 
   return (
     <div class="relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-row overflow-hidden rounded-2xl ring-1 ring-foreground/15 md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
       <iframe ref={iframeRef} src={href()} class="z-10 size-full rounded-lg" title="Preview" />
-      <PageToggleNav kind="ui" slug={doc().slug} class="absolute right-2 bottom-2 isolate z-10" />
     </div>
   );
 }

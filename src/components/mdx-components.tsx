@@ -1,8 +1,17 @@
 import { makePersisted, messageSync } from "@solid-primitives/storage";
 import { CircleAlert, Terminal, TriangleAlert } from "lucide-solid";
-import { type ComponentProps, children, createSignal, For, type ParentProps, Show } from "solid-js";
+import {
+  type ComponentProps,
+  children,
+  createSignal,
+  For,
+  type ParentProps,
+  Show,
+  type Signal,
+} from "solid-js";
 import { isServer } from "solid-js/web";
 import { CliButton } from "@/components/cli-button";
+import { ComponentsList } from "@/components/components-list";
 import { SolidStartLogo } from "@/components/icons/solid-start";
 import { SolidJS } from "@/components/icons/solidjs";
 import { SolidJsOff } from "@/components/icons/solidjs-off";
@@ -49,10 +58,11 @@ export const UpdateCard = (props: { date: string; title: string; href?: string }
 };
 
 export const sharedComponents = {
+  ComponentsList,
   h1: (props: ComponentProps<"h1">) => {
     return (
       <h1
-        class="relative mt-2 scroll-m-28 font-heading font-semibold text-4xl tracking-tight dark:text-[#D4D4D4] [&>a]:no-underline"
+        class="relative mt-2 scroll-m-28 pr-12 font-heading font-semibold text-4xl tracking-tight xl:pr-0 dark:text-[#D4D4D4] [&>a]:no-underline"
         {...props}
       />
     );
@@ -228,11 +238,14 @@ export const sharedComponents = {
     if (props.type === "tab-group") {
       const tabNames = props.tabNames?.split("\0") as string[];
 
-      const [openTab, setOpenTab] = makePersisted(createSignal(tabNames[0]), {
-        name: `tab-group:${props.title}`,
-        sync: isServer ? undefined : messageSync(new BroadcastChannel("tab-group")),
-        storage: getStorage(),
-      });
+      const [openTab, setOpenTab] = makePersisted<string, Signal<string>>(
+        createSignal(tabNames[0] ?? ""),
+        {
+          name: `tab-group:${props.title}`,
+          sync: isServer ? undefined : messageSync(new BroadcastChannel("tab-group")),
+          storage: getStorage(),
+        },
+      );
 
       if (props.title === "package-manager") {
         const tabNames = props.tabNames?.split("\0");

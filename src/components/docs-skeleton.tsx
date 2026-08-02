@@ -6,19 +6,15 @@ type DocsSkeletonProps = {
   class?: string;
   /** Show the right-side TOC sidebar skeleton (xl breakpoint only). Defaults to true. */
   showToc?: boolean;
-  /** Show the bottom-right `PageToggleNav` placeholder (ui/blocks docs only). Defaults to false. */
-  showToggleNav?: boolean;
 };
 
 /**
  * Layout-preserving fallback for routes that lazy-load MDX. Mirrors the docs
- * route shape (outer width calc + content column + optional TOC sidebar +
- * optional bottom-right toggle nav) so the surrounding chrome (sidebar,
- * customizer, header) stays anchored while the MDX module is loading.
+ * route shape (outer width calc + content column + optional TOC sidebar) so
+ * the surrounding chrome stays anchored while the MDX module is loading.
  */
 export function DocsSkeleton(props: DocsSkeletonProps) {
   const showToc = () => props.showToc ?? true;
-  const showToggleNav = () => props.showToggleNav ?? false;
 
   return (
     <div
@@ -97,10 +93,6 @@ export function DocsSkeleton(props: DocsSkeletonProps) {
             <Skeleton class="ml-3 h-3 w-2/3" />
           </div>
         </div>
-      </Show>
-
-      <Show when={showToggleNav()}>
-        <Skeleton class="absolute right-2 bottom-2 isolate z-10 h-9 w-32 rounded-md" />
       </Show>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useNavigate, useSearch } from "@tanstack/solid-router";
+import { useNavigate } from "@tanstack/solid-router";
 import { Search } from "lucide-solid";
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { getEntries, hasUpdate } from "@/lib/registry-entries";
@@ -17,7 +17,6 @@ import {
 export function SiteSearch() {
   const [open, setOpen] = createSignal(false);
   const navigate = useNavigate();
-  const search = useSearch({ strict: false });
   const entries = getEntries();
 
   onMount(() => {
@@ -59,11 +58,22 @@ export function SiteSearch() {
                         <CommandItem
                           value={`${entry.title} ${item.title} ${item.slug}`}
                           onSelect={() => {
-                            navigate({
-                              to: entry.route,
-                              params: { slug: item.slug },
-                              search: search(),
-                            });
+                            if (entry.kind === "docs") {
+                              navigate({
+                                to: item.slug === "changelog" ? "/docs/changelog" : "/docs/$slug",
+                                params: { slug: item.slug },
+                              });
+                            } else if (entry.kind === "ui") {
+                              navigate({
+                                to: "/docs/components/$primitive/$slug",
+                                params: { primitive: "kobalte", slug: item.slug },
+                              });
+                            } else {
+                              navigate({
+                                to: entry.route,
+                                params: { slug: item.slug },
+                              });
+                            }
                             setOpen(false);
                           }}
                         >
