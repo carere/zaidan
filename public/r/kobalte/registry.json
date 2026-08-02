@@ -1632,7 +1632,7 @@
     {
       "name": "resizable",
       "type": "registry:ui",
-      "dependencies": ["@corvu/resizable", "@kobalte/core"],
+      "dependencies": ["@corvu/resizable"],
       "registryDependencies": [],
       "files": [
         {

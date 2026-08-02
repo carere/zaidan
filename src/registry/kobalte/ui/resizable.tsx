@@ -1,4 +1,5 @@
 import {
+  type DynamicProps,
   Handle,
   type HandleProps,
   Panel,
@@ -6,22 +7,20 @@ import {
   Root,
   type RootProps,
 } from "@corvu/resizable";
-import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ComponentProps, ValidComponent } from "solid-js";
+import type { ValidComponent } from "solid-js";
 import { Show, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type ResizablePanelGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
+type ResizablePanelGroupProps<T extends ValidComponent = "div"> = DynamicProps<
   T,
-  RootProps<T>
-> &
-  Pick<ComponentProps<T>, "class">;
+  RootProps<T> & { class?: string }
+>;
 
 const ResizablePanelGroup = <T extends ValidComponent = "div">(
   props: ResizablePanelGroupProps<T>,
 ) => {
-  const [local, others] = splitProps(props as ResizablePanelGroupProps, ["class"]);
+  const [local, others] = splitProps(props as ResizablePanelGroupProps<T>, ["class"]);
   return (
     <Root
       class={cn(
@@ -34,22 +33,19 @@ const ResizablePanelGroup = <T extends ValidComponent = "div">(
   );
 };
 
-type ResizablePanelProps<T extends ValidComponent = "div"> = PolymorphicProps<T, PanelProps<T>>;
+type ResizablePanelProps<T extends ValidComponent = "div"> = DynamicProps<T, PanelProps<T>>;
 
 const ResizablePanel = <T extends ValidComponent = "div">(props: ResizablePanelProps<T>) => {
   return <Panel data-slot="resizable-panel" {...props} />;
 };
 
-type ResizableHandleProps<T extends ValidComponent = "button"> = PolymorphicProps<
+type ResizableHandleProps<T extends ValidComponent = "button"> = DynamicProps<
   T,
-  HandleProps<T>
-> &
-  Pick<ComponentProps<T>, "class"> & {
-    withHandle?: boolean;
-  };
+  HandleProps<T> & { class?: string; withHandle?: boolean }
+>;
 
 const ResizableHandle = <T extends ValidComponent = "button">(props: ResizableHandleProps<T>) => {
-  const [local, others] = splitProps(props as ResizableHandleProps, ["class", "withHandle"]);
+  const [local, others] = splitProps(props as ResizableHandleProps<T>, ["class", "withHandle"]);
   return (
     <Handle
       class={cn(

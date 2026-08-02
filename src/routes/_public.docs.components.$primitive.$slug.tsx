@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
 import { lazy, Suspense } from "solid-js";
+import { ComponentDocsHeader } from "@/components/component-docs-header";
 import { DocsPage } from "@/components/docs-page";
 import { DocsSkeleton } from "@/components/docs-skeleton";
 import { sharedComponents } from "@/components/mdx-components";
@@ -40,7 +41,20 @@ function ComponentPage() {
 
   return (
     <DocsPage toc={doc().toc}>
-      <MDXContent components={sharedComponents} />
+      {doc().component ? (
+        <div class="flex flex-col gap-6">
+          <ComponentDocsHeader
+            title={doc().title}
+            description={doc().description}
+            foundation={doc().foundation}
+          />
+          <div class="w-full flex-1">
+            <MDXContent components={sharedComponents} />
+          </div>
+        </div>
+      ) : (
+        <MDXContent components={sharedComponents} />
+      )}
     </DocsPage>
   );
 }

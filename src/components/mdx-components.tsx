@@ -11,6 +11,7 @@ import {
 } from "solid-js";
 import { isServer } from "solid-js/web";
 import { CliButton } from "@/components/cli-button";
+import { CodeTabs, ComponentPreview, ComponentSource } from "@/components/component-preview";
 import { ComponentsList } from "@/components/components-list";
 import { SolidStartLogo } from "@/components/icons/solid-start";
 import { SolidJS } from "@/components/icons/solidjs";
@@ -347,6 +348,13 @@ export const sharedComponents = {
   CircleAlert,
   TriangleAlert,
   CliButton,
+  CodeTabs,
+  ComponentPreview,
+  ComponentSource,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   ChangelogEntry,
   MoreUpdates,
   UpdateCard,

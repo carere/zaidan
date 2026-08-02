@@ -17,6 +17,7 @@ import type { Plugin as VitePlugin } from "vite";
 import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code";
 import { codeImport as remarkCodeImport } from "../remark-plugins/code-import";
 import { remarkCodeTabs } from "../remark-plugins/code-tabs";
+import { remarkComponentSource } from "../remark-plugins/component-source";
 import { remarkDirectiveContainers } from "../remark-plugins/directives";
 import { remarkGithubAlertsToDirectives } from "../remark-plugins/gh-directives";
 import { remarkAddClass } from "../remark-plugins/kbd";
@@ -79,6 +80,7 @@ export const remarkPlugins: Pluggable[] = [
   remarkDirective,
   remarkDirectiveContainers,
   remarkAddClass,
+  remarkComponentSource,
   remarkCodeImport,
 ];
 

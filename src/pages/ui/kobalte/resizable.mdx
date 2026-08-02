@@ -2,41 +2,61 @@
 title: Resizable
 slug: resizable
 description: Accessible resizable panel groups and layouts with keyboard support.
+component: true
+foundation: corvu
+links:
+  doc: https://corvu.dev/docs/primitives/resizable
+  api: https://corvu.dev/docs/primitives/resizable#api-reference
 ---
 
-# Resizable
+<ComponentPreview name="resizable-demo" previewClass="h-80" />
 
-Accessible resizable panel groups and layouts with keyboard support.
+## About
+
+The `Resizable` component is built on top of [Corvu Resizable](https://corvu.dev/docs/primitives/resizable) by [Jasmin](https://github.com/GiyoMoon).
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/resizable
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependency:</Step>
 
 ```package-install
 @corvu/resizable
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/resizable.tsx showLineNumbers
+<ComponentSource name="resizable" title="components/ui/resizable.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Horizontal
+</CodeTabs>
 
-```tsx
+## Usage
+
+```tsx showLineNumbers
 import {
   ResizableHandle,
   ResizablePanel,
@@ -44,71 +64,43 @@ import {
 } from "~/components/ui/resizable";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/resizable-example.tsx#L21-L39
-
+```tsx showLineNumbers
+<ResizablePanelGroup orientation="horizontal">
+  <ResizablePanel initialSize={0.25}>One</ResizablePanel>
+  <ResizableHandle />
+  <ResizablePanel initialSize={0.75}>Two</ResizablePanel>
+</ResizablePanelGroup>
 ```
 
-### Vertical
+## Composition
 
-Use the `orientation` prop to set the orientation of the resizable panels.
+Use the following composition to build a `ResizablePanelGroup`:
 
-```tsx
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
+```text
+ResizablePanelGroup
+├── ResizablePanel
+├── ResizableHandle
+└── ResizablePanel
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/resizable-example.tsx#L41-L59
+## Vertical
 
-```
+Use `orientation="vertical"` for vertical resizing.
 
-### With Handle
+<ComponentPreview name="resizable-vertical" />
 
-You can set or hide the handle by using the `withHandle` prop on the `ResizableHandle` component.
+## Handle
 
-```tsx
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
-```
+Use the `withHandle` prop on `ResizableHandle` to show a visible handle.
 
-```tsx file=../../../registry/kobalte/examples/ui/resizable-example.tsx#L61-L79
+<ComponentPreview name="resizable-handle" />
 
-```
+## API Reference
 
-### Nested
+See the [Corvu Resizable documentation](https://corvu.dev/docs/primitives/resizable#api-reference) for the primitive API.
 
-You can nest `ResizablePanelGroup` components to create more complex layouts.
+## Changelog
 
-```tsx
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
-```
+### 2026-08-02 Corvu dynamic components
 
-```tsx file=../../../registry/kobalte/examples/ui/resizable-example.tsx#L81-L109
-
-```
-
-### Controlled
-
-Use the `sizes` and `onSizesChange` props to control the panel sizes.
-
-```tsx
-import { createSignal } from "solid-js";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/resizable-example.tsx#L111-L138
-
-```
+The wrapper now uses Corvu's [`DynamicProps`](https://corvu.dev/docs/dynamic-components/) directly. Resizable no longer requires Kobalte for polymorphic component types.
