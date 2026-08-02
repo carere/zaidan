@@ -1,6 +1,5 @@
 import { blocks, docs, ui } from "@velite";
 import { UPDATED_ITEMS, type UpdatedItem } from "@/lib/config";
-import type { FileRouteTypes } from "@/routeTree.gen";
 
 export type MergedItem = {
   slug: string;
@@ -13,7 +12,6 @@ export type Entry = {
   title: string;
   items: MergedItem[];
   kind: "docs" | "ui" | "blocks";
-  route: FileRouteTypes["to"];
 };
 
 const CHANGELOG_ENTRY: MergedItem = {
@@ -45,19 +43,16 @@ export function getEntries(): Entry[] {
         CHANGELOG_ENTRY,
       ],
       kind: "docs",
-      route: "/docs/$slug",
     },
     {
       title: "Blocks",
       items: getAllBlocks(),
       kind: "blocks",
-      route: "/blocks/{-$slug}",
     },
     {
       title: "UI",
       items: getAllUI(),
       kind: "ui",
-      route: "/ui/{-$slug}",
     },
   ];
 }

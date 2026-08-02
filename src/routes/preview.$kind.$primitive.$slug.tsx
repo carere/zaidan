@@ -38,6 +38,7 @@ export const Route = createFileRoute("/preview/$kind/$primitive/$slug")({
 function PreviewComponent() {
   const params = Route.useParams();
   const [isReady, setIsReady] = createSignal(false);
+  const [config, setConfig] = createSignal(DEFAULT_CONFIG);
 
   const ExampleComponent = lazy(
     () =>
@@ -47,7 +48,7 @@ function PreviewComponent() {
   );
 
   const registryTheme = createMemo(() => {
-    const p = DEFAULT_CONFIG;
+    const p = config();
     if (!p.baseColor || !p.theme || !p.chartColor || !p.menuAccent || !p.radius) {
       return null;
     }
@@ -63,9 +64,12 @@ function PreviewComponent() {
 
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
+      if (event.origin !== window.location.origin || event.source !== window.parent) return;
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(event.data.data);
+      } else if (event.data?.type === "design-system-params-sync") {
+        setConfig(event.data.data);
       }
     };
 
@@ -98,6 +102,10 @@ function PreviewComponent() {
 
     window.addEventListener("message", handleMessage);
     document.addEventListener("keydown", handleKeyDown);
+    window.parent.postMessage(
+      { type: "preview-ready" } satisfies IframeMessage,
+      window.location.origin,
+    );
 
     onCleanup(() => {
       window.removeEventListener("message", handleMessage);
@@ -110,10 +118,10 @@ function PreviewComponent() {
   createEffect(
     on(
       [
-        () => DEFAULT_CONFIG.style,
-        () => DEFAULT_CONFIG.baseColor,
-        () => DEFAULT_CONFIG.font,
-        () => DEFAULT_CONFIG.headingFont,
+        () => config().style,
+        () => config().baseColor,
+        () => config().font,
+        () => config().headingFont,
       ],
       ([style, baseColor, font, headingFont]) => {
         document.body.classList.forEach((className) => {
@@ -153,7 +161,7 @@ function PreviewComponent() {
   // Apply radius CSS custom property to document.documentElement
   createEffect(
     on(
-      () => DEFAULT_CONFIG.radius,
+      () => config().radius,
       (radius) => {
         const radiusValue = RADII.find((r) => r.name === radius || r.name === "medium")
           ?.value as string;

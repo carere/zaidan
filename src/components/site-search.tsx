@@ -70,8 +70,8 @@ export function SiteSearch() {
                               });
                             } else {
                               navigate({
-                                to: entry.route,
-                                params: { slug: item.slug },
+                                to: "/create",
+                                search: { item: item.slug },
                               });
                             }
                             setOpen(false);

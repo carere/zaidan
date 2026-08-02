@@ -2,6 +2,8 @@ import { Check, Copy, SquareTerminal } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
 import { toast } from "solid-sonner";
 import { DEFAULT_CONFIG } from "@/lib/config";
+import { encodeDesignSystemPreset } from "@/lib/preset";
+import type { DesignSystemConfig } from "@/lib/types";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Dialog,
@@ -26,7 +28,9 @@ const PACKAGE_MANAGER_PREFIXES: Record<PackageManager, string> = {
   bun: "bunx --bun",
 };
 
-export function CliButton() {
+export function CliButton(
+  props: { preset?: string; config?: DesignSystemConfig; class?: string; label?: string } = {},
+) {
   const [packageManager, setPackageManager] = createSignal<PackageManager>("bun");
   const [hasCopied, setHasCopied] = createSignal(false);
 
@@ -38,36 +42,34 @@ export function CliButton() {
   });
 
   const commands = createMemo(() => {
-    const font = DEFAULT_CONFIG.font;
-    const headingFont = DEFAULT_CONFIG.headingFont;
-    const theme = DEFAULT_CONFIG.theme;
-    const radius = DEFAULT_CONFIG.radius;
-    const style = DEFAULT_CONFIG.style;
-    const baseColor = DEFAULT_CONFIG.baseColor;
-    const chartColor = DEFAULT_CONFIG.chartColor;
+    const registryItems = (() => {
+      if (props.preset || props.config) {
+        const preset = props.preset ?? encodeDesignSystemPreset(props.config ?? DEFAULT_CONFIG);
+        return [`@zaidan/preset-${preset}`];
+      }
 
-    // Build packages list, avoiding duplicates when baseColor and theme are the same
-    const registryItems = [`@zaidan/font-${font}`, `@zaidan/${theme}`, `@zaidan/style-${style}`];
+      const config = DEFAULT_CONFIG;
+      const items = [
+        `@zaidan/font-${config.font}`,
+        `@zaidan/${config.theme}`,
+        `@zaidan/style-${config.style}`,
+      ];
 
-    // Only add heading font package when it differs from the body font
-    if (headingFont !== font) {
-      registryItems.push(`@zaidan/font-${headingFont}`);
-    }
+      if (config.headingFont !== config.font) {
+        items.push(`@zaidan/font-${config.headingFont}`);
+      }
+      if (config.radius !== "default") {
+        items.push(`@zaidan/radius-${config.radius}`);
+      }
+      if (config.baseColor !== config.theme) {
+        items.push(`@zaidan/${config.baseColor}`);
+      }
+      if (config.chartColor !== config.theme && config.chartColor !== config.baseColor) {
+        items.push(`@zaidan/chart-${config.chartColor}`);
+      }
 
-    // Only add radius package when it's not the default value
-    if (radius !== "default") {
-      registryItems.push(`@zaidan/radius-${radius}`);
-    }
-
-    // Only add baseColor if it's different from theme
-    if (baseColor !== theme) {
-      registryItems.push(`@zaidan/${baseColor}`);
-    }
-
-    // Only add chartColor if it's different from theme
-    if (chartColor !== theme && chartColor !== baseColor) {
-      registryItems.push(`@zaidan/chart-${chartColor}`);
-    }
+      return items;
+    })();
 
     return Object.fromEntries(
       Object.entries(PACKAGE_MANAGER_PREFIXES).map(([pm, prefix]) => [
@@ -90,9 +92,9 @@ export function CliButton() {
 
   return (
     <Dialog>
-      <DialogTrigger as={Button} size="sm">
+      <DialogTrigger as={Button} size="sm" class={props.class}>
         <SquareTerminal />
-        <span class="hidden sm:inline">Setup Project</span>
+        <span>{props.label ?? "Setup Project"}</span>
       </DialogTrigger>
 
       <DialogContent class="min-w-0 overflow-hidden rounded-xl ring-4 sm:max-w-md">

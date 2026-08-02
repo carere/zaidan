@@ -45,9 +45,9 @@ const getOptions = (): Option[] => {
   const uiOptions = ui
     .toSorted((a, b) => a.title.localeCompare(b.title))
     .map((u) => ({
-      pathname: `/ui/${u.slug}`,
+      pathname: `/docs/components/kobalte/${u.slug}`,
       slug: u.slug,
-      route: "/ui/{-$slug}" as FileRouteTypes["to"],
+      route: "/docs/components/$primitive/$slug" as FileRouteTypes["to"],
     }));
 
   return [...docsOptions, ...uiOptions];
@@ -77,6 +77,13 @@ export function NotFoundPage() {
           )}
           onChange={(value) => {
             if (value) {
+              if (value.route === "/docs/components/$primitive/$slug") {
+                navigate({
+                  to: value.route,
+                  params: { primitive: "kobalte", slug: value.slug },
+                });
+                return;
+              }
               navigate({
                 to: value.route,
                 params: { slug: value.slug },

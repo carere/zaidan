@@ -145,8 +145,8 @@ export function MobileNav(props: MobileNavProps) {
                 <For each={blockPages}>
                   {(item) => (
                     <Link
-                      to="/blocks/{-$slug}"
-                      params={{ slug: item.slug }}
+                      to="/create"
+                      search={{ item: item.slug }}
                       class={mobileLinkClass}
                       onClick={() => setOpen(false)}
                     >

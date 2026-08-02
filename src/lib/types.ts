@@ -62,6 +62,9 @@ export type TocEntry = docs["toc"];
 
 export type IframeMessage =
   | {
+      type: "preview-ready";
+    }
+  | {
       type: "cmd-k-forward";
       key: "k" | "K";
     }
@@ -74,11 +77,9 @@ export type IframeMessage =
       data: ColorMode;
     }
   | {
-      type: "iframe-height-sync";
-      data: number;
+      type: "design-system-params-sync";
+      data: DesignSystemConfig;
     };
-
-export type IframeMessageType = IframeMessage["type"];
 
 export const PrimitiveSchema = z.enum(["kobalte", "base"]);
 
@@ -97,5 +98,17 @@ export type DesignSystemConfig = {
   radius: Radius;
   menuAccent: MenuAccent;
 };
+
+export const DesignSystemConfigSchema = z.object({
+  primitive: PrimitiveSchema,
+  style: StyleSchema,
+  baseColor: BaseColorSchema,
+  theme: ThemeSchema,
+  chartColor: ChartColorSchema,
+  font: FontSchema,
+  headingFont: FontSchema,
+  radius: RadiusSchema,
+  menuAccent: MenuAccentSchema,
+});
 
 export type MdxModule = { default: Component<{ components?: typeof sharedComponents }> };

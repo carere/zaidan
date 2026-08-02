@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount, Show } from "solid-js";
-import { RootComponents } from "@/components/home";
+import { CreateIndex } from "@/components/create-index";
 import { DEFAULT_CONFIG, FONTS, RADII } from "@/lib/config";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
@@ -11,9 +11,10 @@ export const Route = createFileRoute("/preview/home")({
 
 function PreviewComponent() {
   const [isReady, setIsReady] = createSignal(false);
+  const [config, setConfig] = createSignal(DEFAULT_CONFIG);
 
   const registryTheme = createMemo(() => {
-    const p = DEFAULT_CONFIG;
+    const p = config();
     if (!p.baseColor || !p.theme || !p.chartColor || !p.menuAccent || !p.radius) {
       return null;
     }
@@ -29,9 +30,12 @@ function PreviewComponent() {
 
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
+      if (event.origin !== window.location.origin || event.source !== window.parent) return;
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(event.data.data);
+      } else if (event.data?.type === "design-system-params-sync") {
+        setConfig(event.data.data);
       }
     };
 
@@ -65,34 +69,16 @@ function PreviewComponent() {
       }
     };
 
-    // Notify the parent of the iframe document's content height so the
-    // parent can size the iframe to its content (no internal scroll).
-    const postHeight = () => {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({
-          type: "iframe-height-sync",
-          data: document.documentElement.scrollHeight,
-        } satisfies IframeMessage);
-      }
-    };
-
-    // Re-measure whenever the body resizes (theme/style/font/customizer
-    // changes can grow or shrink the bento).
-    const resizeObserver = new ResizeObserver(() => postHeight());
-    resizeObserver.observe(document.body);
-
-    // Initial measurement + recompute on viewport resize.
-    postHeight();
-    window.addEventListener("resize", postHeight);
-
     window.addEventListener("message", handleMessage);
     document.addEventListener("keydown", handleKeyDown);
+    window.parent.postMessage(
+      { type: "preview-ready" } satisfies IframeMessage,
+      window.location.origin,
+    );
 
     onCleanup(() => {
       window.removeEventListener("message", handleMessage);
-      window.removeEventListener("resize", postHeight);
       document.removeEventListener("keydown", handleKeyDown);
-      resizeObserver.disconnect();
       document.getElementById("design-system-theme-vars")?.remove();
     });
   });
@@ -101,10 +87,10 @@ function PreviewComponent() {
   createEffect(
     on(
       [
-        () => DEFAULT_CONFIG.style,
-        () => DEFAULT_CONFIG.baseColor,
-        () => DEFAULT_CONFIG.font,
-        () => DEFAULT_CONFIG.headingFont,
+        () => config().style,
+        () => config().baseColor,
+        () => config().font,
+        () => config().headingFont,
       ],
       ([style, baseColor, font, headingFont]) => {
         document.body.classList.forEach((className) => {
@@ -144,7 +130,7 @@ function PreviewComponent() {
   // Apply radius CSS custom property to document.documentElement
   createEffect(
     on(
-      () => DEFAULT_CONFIG.radius,
+      () => config().radius,
       (radius) => {
         const radiusValue = RADII.find((r) => r.name === radius || r.name === "medium")
           ?.value as string;
@@ -200,7 +186,7 @@ function PreviewComponent() {
 
   return (
     <Show when={isReady()}>
-      <RootComponents />
+      <CreateIndex />
     </Show>
   );
 }

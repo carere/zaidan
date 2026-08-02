@@ -223,9 +223,8 @@ export const PRIMITIVES: { name: Primitive; label: string }[] = [
 /**
  * Discriminated entry for the "has updates" indicator. Items listed in
  * {@link UPDATED_ITEMS} render a small blue dot next to their label in the
- * sidebar (`ItemExplorer`) and command palette (`ItemPicker`). The `kind`
- * keeps the lookup unambiguous when the same slug exists across docs, ui,
- * and blocks (e.g. a doc page named "button" vs the button component).
+ * navigation lists and search results. The `kind` keeps the lookup unambiguous
+ * when the same slug exists across docs, ui, and blocks.
  */
 export type UpdatedItem = {
   kind: "docs" | "ui" | "blocks";

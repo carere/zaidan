@@ -61,7 +61,12 @@ export function SiteHeader() {
             <Separator orientation="vertical" />
             <ModeSwitcher />
             <Separator orientation="vertical" />
-            <Button as={Link} to="/create" size="sm" class="h-7.75 rounded-lg">
+            <Button
+              as={Link}
+              to="/create"
+              size="sm"
+              class="h-7.75 rounded-lg group-has-[[data-slot=designer]]/layout:hidden"
+            >
               <Plus />
               New
             </Button>
