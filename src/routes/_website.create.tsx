@@ -1,17 +1,16 @@
 import { createFileRoute, useRouter } from "@tanstack/solid-router";
 import { createEffect, createSignal, onCleanup, onMount, untrack } from "solid-js";
-import { HomeHero } from "@/components/home-hero";
 import { createPageHead } from "@/lib/seo";
 import type { IframeMessage } from "@/lib/types";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
 
-export const Route = createFileRoute("/_website/")({
+export const Route = createFileRoute("/_website/create")({
   head: () => {
     return createPageHead({
-      title: "Home",
+      title: "Create",
       description:
         "A beautiful ShadCN UI registry for SolidJS - accessible, customizable components built on Kobalte and Corvu.",
-      path: "/",
+      path: "/create",
     });
   },
   component: RouteComponent,
@@ -91,7 +90,6 @@ function RouteComponent() {
 
   return (
     <div class="no-scrollbar relative flex h-full w-[calc(100svw-var(--spacing)*8)] flex-col overflow-y-auto md:w-[calc(100svw-var(--spacing)*56)] lg:w-full">
-      <HomeHero />
       <iframe
         ref={iframeRef}
         src={href()}

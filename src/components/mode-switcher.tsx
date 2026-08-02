@@ -33,7 +33,7 @@ export function ModeSwitcher(props: ButtonProps) {
     <Button
       variant="ghost"
       size="icon"
-      class={cn("size-8", local.class)}
+      class={cn("extend-touch-target size-8", local.class)}
       title="Toggle color mode"
       onClick={() => toggleColorMode()}
       {...others}

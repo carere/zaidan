@@ -5,14 +5,14 @@ layer: application
 
 tasks:
   dev:
-    command: bun --bun vite dev
+    command: bun vite dev
     description: Start Zaidan in development mode
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
     preset: server
 
   build:
-    command: bun --bun vite build
+    command: bun vite build
     description: Build Zaidan
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
@@ -25,16 +25,16 @@ tasks:
     type: build
 
   preview:
-    command: bun --bun vite preview
+    command: bun vite preview
     description: Preview the production build
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
     preset: server
 
   r-build-kobalte:
-    command: bun --bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte
+    command: bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte
     description: Build the Kobalte registry
 
   r-validate-kobalte:
-    command: bun --bun shadcn registry validate src/registry/kobalte/registry.json
+    command: bun shadcn registry validate src/registry/kobalte/registry.json
     description: Validate the Kobalte registry
