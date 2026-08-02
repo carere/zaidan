@@ -1,3 +1,4 @@
+import { useRouter } from "@tanstack/solid-router";
 import {
   ChartArea,
   ChartBarBig,
@@ -10,10 +11,12 @@ import {
   Radar,
 } from "lucide-solid";
 import type { Component, ComponentProps } from "solid-js";
-import { createSignal, onCleanup, onMount, Show, splitProps } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, splitProps } from "solid-js";
 import { Dynamic } from "solid-js/web";
-import { type ChartDefinition, type ChartType, loadChartComponent } from "@/lib/charts";
+import type { ChartDefinition, ChartType } from "@/lib/charts";
+import type { IframeMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useColorMode } from "@/registry/kobalte/components/color-mode";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import {
@@ -69,91 +72,44 @@ export function ChartDisplay(props: ChartDisplayProps) {
 }
 
 function ChartPreview(props: { chart: ChartDefinition }) {
-  const [component, setComponent] = createSignal<Component>();
-  const [visible, setVisible] = createSignal(false);
-  const [pinned, setPinned] = createSignal(false);
-  const [ready, setReady] = createSignal(false);
-  const [failed, setFailed] = createSignal(false);
-  let previewRef: HTMLDivElement | undefined;
-  let pinTimer: ReturnType<typeof setTimeout> | undefined;
-  let requested = false;
-  let disposed = false;
-  const active = () => visible() || pinned();
-  const pinForInteraction = () => {
-    if (pinTimer) clearTimeout(pinTimer);
-    setPinned(true);
-    pinTimer = setTimeout(() => setPinned(false), 2000);
-  };
+  const router = useRouter();
+  const { colorMode } = useColorMode();
+  let iframeRef: HTMLIFrameElement | undefined;
+  const iframeHref = () =>
+    router.buildLocation({
+      to: "/preview/charts/$name",
+      params: { name: props.chart.id },
+    }).href;
 
-  const load = async () => {
-    if (requested) return;
-    requested = true;
-
-    try {
-      const module = await loadChartComponent(props.chart.id);
-      if (disposed) return;
-      setComponent(() => module.default);
-      requestAnimationFrame(() => {
-        if (!disposed) setReady(true);
-      });
-    } catch {
-      if (!disposed) setFailed(true);
-    }
+  const syncColorMode = () => {
+    iframeRef?.contentWindow?.postMessage(
+      { type: "color-mode-sync", data: colorMode() } satisfies IframeMessage,
+      window.location.origin,
+    );
   };
+  createEffect(syncColorMode);
 
   onMount(() => {
-    if (!previewRef || typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      void load();
-      return;
-    }
+    const handleMessage = (event: MessageEvent<IframeMessage>) => {
+      if (event.origin !== window.location.origin || event.source !== iframeRef?.contentWindow)
+        return;
+      if (event.data.type === "preview-ready") syncColorMode();
+    };
 
-    // Solid Recharts replaces animated SVG nodes every frame. Keeping only the
-    // row crossing the viewport center in layout prevents those replacements
-    // from invalidating every chart on the page.
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const isVisible = entry?.isIntersecting ?? false;
-        setVisible(isVisible);
-        if (isVisible) void load();
-      },
-      { rootMargin: "-49% 0px -49% 0px" },
-    );
-    observer.observe(previewRef);
-    onCleanup(() => observer.disconnect());
-  });
-  onCleanup(() => {
-    disposed = true;
-    if (pinTimer) clearTimeout(pinTimer);
+    window.addEventListener("message", handleMessage);
+    onCleanup(() => window.removeEventListener("message", handleMessage));
   });
 
   return (
-    <div
-      ref={previewRef}
+    <iframe
+      ref={iframeRef}
       data-slot="chart-preview"
       data-chart-id={props.chart.id}
-      aria-busy={active() && !component() && !failed()}
-      onPointerDown={pinForInteraction}
-      onFocusIn={pinForInteraction}
-      class="flex min-h-115 flex-1 items-center justify-center overflow-hidden border-t bg-background p-3 sm:p-6 **:data-[slot=card]:w-full"
-    >
-      <Show when={component()} keyed>
-        {(Chart) => (
-          <div
-            class={cn(
-              "w-full transition-opacity duration-300",
-              active() ? "block" : "hidden",
-              ready() ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <Dynamic component={Chart} />
-          </div>
-        )}
-      </Show>
-      <Show when={failed()}>
-        <p class="text-muted-foreground text-sm">Preview unavailable.</p>
-      </Show>
-    </div>
+      src={iframeHref()}
+      title={`${props.chart.id} preview`}
+      onLoad={syncColorMode}
+      class="min-h-115 w-full flex-1 border-x-0 border-b-0 border-t bg-background"
+    />
   );
 }
 

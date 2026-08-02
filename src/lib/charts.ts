@@ -149,6 +149,10 @@ export function isChartType(value: string): value is ChartType {
   return chartTypes.some((type) => type === value);
 }
 
+export function isChartId(value: string) {
+  return chartTypes.some((type) => idsByType[type].some((id) => id === value));
+}
+
 export async function loadChartComponent(id: string): Promise<{ default: Component }> {
   const path = chartPath(id);
   const load = modules[path];

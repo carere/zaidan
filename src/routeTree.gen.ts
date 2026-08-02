@@ -19,6 +19,7 @@ import { Route as PublicChartsIndexRouteImport } from './routes/_public.charts.i
 import { Route as PublicChartsTypeRouteImport } from './routes/_public.charts.$type'
 import { Route as PublicDocsIndexRouteImport } from './routes/_public.docs.index'
 import { Route as PublicDocsSlugRouteImport } from './routes/_public.docs.$slug'
+import { Route as PreviewChartsNameRouteImport } from './routes/preview.charts.$name'
 import { Route as RPrimitiveNameRouteImport } from './routes/r.$primitive.$name'
 import { Route as PublicDocsChangelogIndexRouteImport } from './routes/_public.docs.changelog.index'
 import { Route as PublicDocsChangelogSlugRouteImport } from './routes/_public.docs.changelog.$slug'
@@ -76,6 +77,11 @@ const PublicDocsSlugRoute = PublicDocsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => PublicDocsRoute,
 } as any)
+const PreviewChartsNameRoute = PreviewChartsNameRouteImport.update({
+  id: '/preview/charts/$name',
+  path: '/preview/charts/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RPrimitiveNameRoute = RPrimitiveNameRouteImport.update({
   id: '/r/$primitive/$name',
   path: '/r/$primitive/$name',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/preview/create': typeof PreviewCreateRoute
   '/charts/$type': typeof PublicChartsTypeRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
+  '/preview/charts/$name': typeof PreviewChartsNameRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/charts/': typeof PublicChartsIndexRoute
   '/docs/': typeof PublicDocsIndexRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/charts/$type': typeof PublicChartsTypeRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
+  '/preview/charts/$name': typeof PreviewChartsNameRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/charts': typeof PublicChartsIndexRoute
   '/docs': typeof PublicDocsIndexRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_public/charts/$type': typeof PublicChartsTypeRoute
   '/_public/docs/$slug': typeof PublicDocsSlugRoute
+  '/preview/charts/$name': typeof PreviewChartsNameRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/_public/charts/': typeof PublicChartsIndexRoute
   '/_public/docs/': typeof PublicDocsIndexRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/preview/create'
     | '/charts/$type'
     | '/docs/$slug'
+    | '/preview/charts/$name'
     | '/r/$primitive/$name'
     | '/charts/'
     | '/docs/'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/'
     | '/charts/$type'
     | '/docs/$slug'
+    | '/preview/charts/$name'
     | '/r/$primitive/$name'
     | '/charts'
     | '/docs'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_public/charts/$type'
     | '/_public/docs/$slug'
+    | '/preview/charts/$name'
     | '/r/$primitive/$name'
     | '/_public/charts/'
     | '/_public/docs/'
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   PreviewCreateRoute: typeof PreviewCreateRoute
+  PreviewChartsNameRoute: typeof PreviewChartsNameRoute
   RPrimitiveNameRoute: typeof RPrimitiveNameRoute
   PreviewKindPrimitiveSlugRoute: typeof PreviewKindPrimitiveSlugRoute
 }
@@ -305,6 +318,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/docs/$slug'
       preLoaderRoute: typeof PublicDocsSlugRouteImport
       parentRoute: typeof PublicDocsRoute
+    }
+    '/preview/charts/$name': {
+      id: '/preview/charts/$name'
+      path: '/preview/charts/$name'
+      fullPath: '/preview/charts/$name'
+      preLoaderRoute: typeof PreviewChartsNameRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/r/$primitive/$name': {
       id: '/r/$primitive/$name'
@@ -417,6 +437,7 @@ const PublicRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   PreviewCreateRoute: PreviewCreateRoute,
+  PreviewChartsNameRoute: PreviewChartsNameRoute,
   RPrimitiveNameRoute: RPrimitiveNameRoute,
   PreviewKindPrimitiveSlugRoute: PreviewKindPrimitiveSlugRoute,
 }
