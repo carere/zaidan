@@ -24,12 +24,12 @@ export function ComponentDocsHeader(props: {
   const foundation = () => (props.foundation ? FOUNDATIONS[props.foundation] : undefined);
 
   return (
-    <div class="flex flex-col gap-6">
+    <div data-not-typeset class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
         <h1 class="scroll-m-24 font-heading font-semibold text-3xl tracking-tight">
           {props.title}
         </h1>
-        <p class="text-[1.05rem] text-muted-foreground sm:text-balance sm:text-base md:max-w-[80%]">
+        <p class="text-[1.05rem] leading-[1.5] text-muted-foreground sm:text-balance sm:text-base md:max-w-[80%]">
           {props.description}
         </p>
       </div>
@@ -45,6 +45,9 @@ export function ComponentDocsHeader(props: {
             </div>
           </div>
         )}
+      </Show>
+      <Show when={!foundation()}>
+        <div aria-hidden="true" class="h-[30px]" />
       </Show>
     </div>
   );

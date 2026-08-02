@@ -67,7 +67,13 @@ export const rehypePlugins: Pluggable[] = [
   rehypeFixExpressiveCodeJsx,
   [rehypeRaw, { passThrough: nodeTypes }],
   rehypeSlug,
-  [rehypeAutolinkHeadings, { behavior: "wrap", properties: { "data-auto-heading": "" } }],
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: "wrap",
+      properties: { "data-auto-heading": "", className: ["group", "no-underline"] },
+    },
+  ],
 ];
 
 export const remarkPlugins: Pluggable[] = [

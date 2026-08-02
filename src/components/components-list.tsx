@@ -6,7 +6,7 @@ const components = [...ui].sort((a, b) => a.title.localeCompare(b.title));
 
 export function ComponentsList() {
   return (
-    <div class="not-prose grid gap-x-6 gap-y-3 pt-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div data-not-typeset class="not-prose grid gap-x-6 gap-y-3 pt-2 sm:grid-cols-2 lg:grid-cols-3">
       <For each={components}>
         {(component) => (
           <Link

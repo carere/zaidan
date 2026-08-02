@@ -42,7 +42,7 @@ function ComponentPage() {
   return (
     <DocsPage toc={doc().toc}>
       {doc().component ? (
-        <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-4">
           <ComponentDocsHeader
             title={doc().title}
             description={doc().description}

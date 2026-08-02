@@ -60,17 +60,19 @@ export function DocsPage(props: DocsPageProps) {
               </CollapsibleContent>
             </Collapsible>
           </Show>
-          <div class="w-full flex-1 pb-16 sm:pb-0">{local.children}</div>
+          <div class="typeset w-full flex-1 pb-16 *:data-[slot=alert]:first:mt-0 sm:pb-0">
+            {local.children}
+          </div>
         </article>
       </div>
-      <Show when={hasToc()}>
-        <aside class="sticky top-[calc(var(--header-height)+1px)] z-30 ml-auto hidden h-[90svh] w-(--toc-width) shrink-0 flex-col overflow-hidden overscroll-none pb-8 xl:flex">
-          <div class="h-(--top-spacing) shrink-0" />
+      <aside class="sticky top-[calc(var(--header-height)+1px)] z-30 ml-auto hidden h-[90svh] w-(--toc-width) shrink-0 flex-col overflow-hidden overscroll-none pb-8 xl:flex">
+        <div class="h-(--top-spacing) shrink-0" />
+        <Show when={hasToc()}>
           <div class="scroll-fade no-scrollbar overflow-y-auto px-8">
             <TableOfContents toc={toc()} />
           </div>
-        </aside>
-      </Show>
+        </Show>
+      </aside>
     </div>
   );
 }

@@ -37,6 +37,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   return (
     <div
       data-slot="component-preview"
+      data-not-typeset
       class={cn(
         "group relative mt-4 mb-12 flex flex-col overflow-hidden rounded-2xl border",
         local.class,
@@ -67,7 +68,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         <div
           data-slot="component-preview-source"
           data-expanded={expanded()}
-          class="relative overflow-hidden border-t bg-neutral-100 dark:bg-zinc-900 [&_.expressive-code]:mt-0 [&_.expressive-code_.frame_pre]:rounded-none"
+          class="relative overflow-hidden border-t bg-neutral-100 dark:bg-zinc-900 [&_.expressive-code]:mx-0 [&_.expressive-code]:mt-0 [&_.expressive-code_.frame_pre]:rounded-none"
         >
           <div
             class={cn(
@@ -104,6 +105,7 @@ export function ComponentSource(props: ParentProps<{ class?: string }>) {
   return (
     <div
       data-slot="component-source"
+      data-not-typeset
       class={cn("relative mt-6 [&_.expressive-code]:mt-0", local.class)}
       {...others}
     >
@@ -116,6 +118,7 @@ export function CodeTabs(props: ComponentProps<typeof Tabs>) {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <Tabs
+      data-not-typeset
       defaultValue="cli"
       class={cn(
         "relative mt-6 w-full gap-2 [&>[data-slot=tabs-list]]:gap-6 [&>[data-slot=tabs-list]]:p-0 [&>[data-slot=tabs-list]>[data-slot=tabs-trigger]]:rounded-none [&>[data-slot=tabs-list]>[data-slot=tabs-trigger]]:px-0 [&>[data-slot=tabs-list]>[data-slot=tabs-trigger]]:py-1",

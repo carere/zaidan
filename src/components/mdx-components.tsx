@@ -1,5 +1,5 @@
 import { makePersisted, messageSync } from "@solid-primitives/storage";
-import { CircleAlert, Terminal, TriangleAlert } from "lucide-solid";
+import { CircleAlert, TriangleAlert } from "lucide-solid";
 import {
   type ComponentProps,
   children,
@@ -8,6 +8,7 @@ import {
   type ParentProps,
   Show,
   type Signal,
+  splitProps,
 } from "solid-js";
 import { isServer } from "solid-js/web";
 import { CliButton } from "@/components/cli-button";
@@ -17,6 +18,7 @@ import { SolidStartLogo } from "@/components/icons/solid-start";
 import { SolidJS } from "@/components/icons/solidjs";
 import { SolidJsOff } from "@/components/icons/solidjs-off";
 import { Zaidan } from "@/components/icons/zaidan";
+import { PackageManagerCodeBlock } from "@/components/package-manager-code-block";
 import { cn, getStorage } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/registry/kobalte/ui/alert";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -58,158 +60,94 @@ export const UpdateCard = (props: { date: string; title: string; href?: string }
   );
 };
 
+function MdxTable(props: ComponentProps<"table">) {
+  const [local, others] = splitProps(props, ["class"]);
+
+  return (
+    <div class="typeset-scroll scroll-fade-x no-scrollbar">
+      <table class={local.class} {...others} />
+    </div>
+  );
+}
+
+function MdxPre(props: ComponentProps<"pre">) {
+  const [local, others] = splitProps(props, ["class"]);
+
+  return (
+    <pre
+      data-not-typeset
+      class={cn(
+        "no-scrollbar min-w-0 overflow-x-auto overflow-y-auto overscroll-x-contain overscroll-y-auto px-4 py-3.5 outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
+function MdxSteps(props: ComponentProps<"div">) {
+  const [local, others] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      class={cn(
+        "steps mb-12 [counter-reset:step] md:ml-4 md:border-l md:pl-8 [&>h3]:step",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
+function MdxTabs(props: ComponentProps<typeof Tabs>) {
+  const [local, others] = splitProps(props, ["class"]);
+  return <Tabs class={cn("relative mt-6 w-full", local.class)} {...others} />;
+}
+
+function MdxTabsList(props: ComponentProps<typeof TabsList>) {
+  const [local, others] = splitProps(props, ["class", "variant"]);
+  return (
+    <TabsList
+      variant={local.variant ?? "line"}
+      class={cn("justify-start gap-4 rounded-none bg-transparent px-0", local.class)}
+      {...others}
+    />
+  );
+}
+
+function MdxTabsTrigger(props: ComponentProps<typeof TabsTrigger>) {
+  const [local, others] = splitProps(props, ["class"]);
+  return (
+    <TabsTrigger
+      class={cn(
+        "h-auto! rounded-none border-0 border-transparent bg-transparent px-0 pt-0! pb-[9px]! text-base leading-5 text-muted-foreground shadow-none hover:text-primary data-selected:bg-transparent data-selected:text-foreground data-selected:shadow-none dark:data-selected:border-primary dark:data-selected:bg-transparent dark:data-selected:text-foreground",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
+function MdxTabsContent(props: ComponentProps<typeof TabsContent>) {
+  const [local, others] = splitProps(props, ["class"]);
+  return (
+    <TabsContent
+      class={cn(
+        "relative [&>.steps]:mt-6 [&_h3.font-heading]:font-medium [&_h3.font-heading]:text-base *:[figure]:first:mt-0",
+        local.class,
+      )}
+      {...others}
+    />
+  );
+}
+
 export const sharedComponents = {
   ComponentsList,
-  h1: (props: ComponentProps<"h1">) => {
-    return (
-      <h1
-        class="relative mt-2 scroll-m-28 pr-12 font-heading font-semibold text-4xl tracking-tight xl:pr-0 dark:text-[#D4D4D4] [&>a]:no-underline"
-        {...props}
-      />
-    );
-  },
-  h2: (props: ComponentProps<"h2">) => {
-    return (
-      <h2
-        class="relative mt-10 mb-4 inline-flex scroll-m-28 font-heading font-semibold text-xl tracking-tight first:mt-0 lg:mt-12 dark:text-[#D4D4D4] [&+.steps>h3]:mt-4! [&+.steps]:mt-0! [&+h3]:mt-6! [&+p]:mt-4! [&+]*:[code]:text-xl"
-        {...props}
-      />
-    );
-  },
-  h3: (props: ComponentProps<"h3">) => {
-    return (
-      <h3
-        class="relative mt-12 scroll-m-28 font-heading font-semibold text-lg tracking-tight dark:text-[#D4D4D4] [&+p]:mt-4! *:[code]:text-xl"
-        {...props}
-      />
-    );
-  },
-
-  h4: (props: ComponentProps<"h4">) => {
-    return (
-      <h4
-        class="relative mt-8 scroll-m-28 font-heading font-semibold text-base tracking-tight dark:text-[#D4D4D4]"
-        {...props}
-      />
-    );
-  },
-
-  h5: (props: ComponentProps<"h5">) => {
-    return (
-      <h5
-        class="relative mt-8 scroll-m-28 font-semibold text-base tracking-tight dark:text-[#D4D4D4]"
-        {...props}
-      />
-    );
-  },
-
-  h6: (props: ComponentProps<"h6">) => {
-    return (
-      <h6
-        class="relative mt-8 scroll-m-28 font-semibold text-base tracking-tight dark:text-[#D4D4D4]"
-        {...props}
-      />
-    );
-  },
-
-  a: (props: ComponentProps<"a">) => {
-    return <a class="underline-offset-4" {...props} />;
-  },
-
-  p: (props: ComponentProps<"p">) => {
-    return <p class="not-first:mt-6 text-base leading-relaxed dark:text-[#D4D4D4]" {...props} />;
-  },
-
-  strong: (props: ComponentProps<"strong">) => {
-    return <strong class="font-medium" {...props} />;
-  },
-
-  ul: (props: ComponentProps<"ul">) => {
-    return <ul class="my-6 ml-6 list-disc" {...props} />;
-  },
-
-  ol: (props: ComponentProps<"ol">) => {
-    return <ol class="my-6 ml-6 list-decimal" {...props} />;
-  },
-
-  li: (props: ComponentProps<"li">) => {
-    return <li class="mt-2 dark:text-[#D4D4D4]" {...props} />;
-  },
-
-  blockquote: (props: ComponentProps<"blockquote">) => {
-    return <blockquote class="mt-6 border-l-2 pl-6 italic" {...props} />;
-  },
-
-  img: (props: ComponentProps<"img">) => {
-    // biome-ignore lint/a11y/useAltText: <will be passed as props>
-    return <img class="rounded-md" {...props} />;
-  },
-
-  hr: (props: ComponentProps<"hr">) => {
-    return <hr class="my-4 md:my-8" {...props} />;
-  },
-
-  table: (props: ComponentProps<"table">) => {
-    return (
-      <div class="no-scrollbar my-6 w-full overflow-y-auto rounded-xl border">
-        <table
-          class="relative w-full overflow-hidden border-none text-sm [&_tbody_tr:last-child]:border-b-0"
-          {...props}
-        />
-      </div>
-    );
-  },
-
-  tr: (props: ComponentProps<"tr">) => {
-    return <tr class="m-0 border-b" {...props} />;
-  },
-
-  th: (props: ComponentProps<"th">) => {
-    return (
-      <th
-        class="px-4 py-2 text-left font-bold [[align=center]]:text-center [[align=right]]:text-right"
-        {...props}
-      />
-    );
-  },
-
-  td: (props: ComponentProps<"td">) => {
-    return (
-      <td
-        class="whitespace-nowrap px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right"
-        {...props}
-      />
-    );
-  },
-
-  pre: (props: ComponentProps<"pre">) => {
-    return (
-      <pre
-        class="no-scrollbar min-w-0 overflow-x-auto overflow-y-auto overscroll-y-auto overscroll-x-contain px-4 py-3.5 outline-none has-data-[slot=tabs]:p-0 has-data-highlighted-line:px-0 has-data-line-numbers:px-0"
-        {...props}
-      />
-    );
-  },
-
-  code: (props: ComponentProps<"code">) => {
-    return (
-      <code
-        class="wrap-break-word relative rounded-md bg-muted px-[0.3rem] py-[0.2rem] font-mono text-[0.8rem] outline-none"
-        {...props}
-      />
-    );
-  },
-
-  Step: (props: ComponentProps<"h3">) => (
-    <h3 class="mt-8 scroll-m-32 font-heading font-medium text-lg tracking-tight" {...props} />
-  ),
-
-  Steps: (props: ComponentProps<"div">) => (
-    <div
-      class="[&>h3]:step steps mb-12 [counter-reset:step] md:ml-4 md:border-l md:pl-8"
-      {...props}
-    />
-  ),
+  table: MdxTable,
+  pre: MdxPre,
+  code: (props: ComponentProps<"code">) => <code {...props} />,
+  Step: (props: ComponentProps<"h3">) => <h3 {...props} />,
+  Steps: MdxSteps,
 
   DirectiveContainer: (
     props: {
@@ -248,46 +186,6 @@ export const sharedComponents = {
         },
       );
 
-      if (props.title === "package-manager") {
-        const tabNames = props.tabNames?.split("\0");
-        return (
-          <div class="mt-6 rounded-lg bg-accent first:mt-0 dark:bg-zinc-900">
-            <Tabs class="gap-0" onChange={setOpenTab} value={openTab?.()}>
-              <div class="flex items-center gap-2 border-border/50 border-b px-3 py-1">
-                <div class="flex size-4 items-center justify-center rounded-[1px] bg-foreground opacity-70">
-                  <Terminal class="size-3 text-white dark:text-black" />
-                </div>
-                <TabsList class="rounded-none bg-transparent p-0">
-                  <For each={tabNames}>
-                    {(title) => (
-                      <TabsTrigger
-                        class="h-7 border border-transparent pt-0.5 data-selected:border-input data-selected:bg-accent data-selected:shadow-none"
-                        value={title}
-                      >
-                        {title}
-                      </TabsTrigger>
-                    )}
-                  </For>
-                </TabsList>
-              </div>
-              <div class="no-scrollbar overflow-x-auto">
-                <For each={tabNames}>
-                  {(title, i) => (
-                    <TabsContent
-                      class="relative mt-0 hidden data-selected:block"
-                      forceMount={true}
-                      value={title}
-                    >
-                      {_children[i()]}
-                    </TabsContent>
-                  )}
-                </For>
-              </div>
-            </Tabs>
-          </div>
-        );
-      }
-
       return (
         <Tabs class="relative mt-6 w-full" onChange={setOpenTab} value={openTab?.()}>
           <TabsList class="justify-start gap-4 rounded-none bg-transparent px-0">
@@ -320,20 +218,29 @@ export const sharedComponents = {
 
     if (props.type === "details") {
       return (
-        <details class="custom-container" data-custom-container="details">
+        <details data-custom-container="details">
           <summary>{props.title ?? props.type}</summary>
           {_children}
         </details>
       );
     }
 
+    const Icon = ["warning", "danger", "caution"].includes(props.type)
+      ? TriangleAlert
+      : CircleAlert;
+
     return (
-      <div class="custom-container" data-custom-container={props.type}>
+      <Alert
+        data-not-typeset
+        data-variant={props.type}
+        class="mt-6 w-auto rounded-2xl border-surface bg-surface text-surface-foreground shadow-none md:-mx-1 **:[code]:border"
+      >
+        <Icon class="size-4" />
         <Show when={props.title !== " "}>
-          <span>{props.title ?? props.type}</span>
+          <AlertTitle class="capitalize">{props.title ?? props.type}</AlertTitle>
         </Show>
-        {_children}
-      </div>
+        <AlertDescription class="text-card-foreground/80">{_children}</AlertDescription>
+      </Alert>
     );
   },
   Button,
@@ -351,10 +258,11 @@ export const sharedComponents = {
   CodeTabs,
   ComponentPreview,
   ComponentSource,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+  PackageManagerCodeBlock,
+  Tabs: MdxTabs,
+  TabsContent: MdxTabsContent,
+  TabsList: MdxTabsList,
+  TabsTrigger: MdxTabsTrigger,
   ChangelogEntry,
   MoreUpdates,
   UpdateCard,

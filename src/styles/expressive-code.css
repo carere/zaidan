@@ -22,19 +22,29 @@
   }
 
   .frame {
-    @apply shadow-none bg-transparent;
+    @apply overflow-hidden rounded-2xl bg-surface text-surface-foreground shadow-none;
 
     pre {
-      @apply max-h-112.5 overflow-y-auto rounded-xl border-0 bg-neutral-100 dark:bg-zinc-900;
+      @apply max-h-112.5 overflow-y-auto rounded-2xl border-0 bg-surface;
+
+      > code {
+        padding-block: 14px;
+      }
+
+      &[data-language="text"] .ec-line,
+      &[data-language="plaintext"] .ec-line {
+        padding-block: 1px;
+        line-height: 22.7px;
+      }
     }
 
     .header {
-      @apply bg-transparent;
+      @apply border-border/30 border-b bg-transparent;
     }
 
     &.has-title:not(.is-terminal) {
       .title {
-        @apply border-none bg-transparent py-2 text-[0.9rem] font-mono text-foreground after:border-none dark:text-zinc-400;
+        @apply border-none bg-transparent px-4 py-2.5 font-mono text-sm text-surface-foreground after:border-none;
       }
     }
   }

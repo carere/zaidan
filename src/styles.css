@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @import "./styles/expressive-code.css";
+@import "./styles/typeset.css";
 
 /* Sans (17) */
 @import "@fontsource-variable/geist";
