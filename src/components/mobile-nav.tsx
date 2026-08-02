@@ -84,6 +84,14 @@ export function MobileNav(props: MobileNavProps) {
               <Link to="/docs/components" class={mobileLinkClass} onClick={() => setOpen(false)}>
                 Components
               </Link>
+              <Link
+                to="/charts/$type"
+                params={{ type: "area" }}
+                class={mobileLinkClass}
+                onClick={() => setOpen(false)}
+              >
+                Charts
+              </Link>
               <Link to="/create" class={mobileLinkClass} onClick={() => setOpen(false)}>
                 Create
               </Link>

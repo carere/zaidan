@@ -1,409 +1,154 @@
 ---
 title: Chart
 slug: chart
-description: Beautiful and responsive charts built with Apache ECharts and SVG rendering.
-example: chart-example.tsx
+description: Beautiful and responsive charts built with Solid Recharts.
 ---
 
 # Chart
 
-A collection of chart components built on [Apache ECharts](https://echarts.apache.org/) with SVG rendering for crisp graphics at any resolution.
+Composable chart primitives built with [Solid Recharts](https://github.com/yumemi-thomas/solid-recharts). The wrapper adds shadcn-compatible colors, configuration, tooltips, and legends while keeping the chart itself fully composable.
 
-## Overview
-
-Unlike shadcn's Recharts-based implementation, this chart component uses Apache ECharts with its powerful configuration-based API. The key benefits include:
-
-- **SVG Rendering**: Crisp graphics that scale perfectly on any display
-- **Rich Chart Types**: Bar, line, area, pie, radar, scatter, and more
-- **Theme Integration**: Uses CSS variables for automatic light/dark mode support
-- **Responsive by Default**: Charts automatically resize with their container
-- **Familiar Patterns**: Similar `ChartConfig` and `ChartContainer` patterns from shadcn
+Browse the complete collection on the [Charts page](/charts/area).
 
 ## Installation
 
-```bash
-bunx shadcn@latest add @zaidan/chart
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/chart
 ```
 
-You'll also need to install the ECharts dependency:
+### Manual
 
-```bash
-bun add echarts
+Install the SolidJS 1.x-compatible release:
+
+```package-install
+solid-recharts@1.0.0
 ```
 
-## Chart Configuration
+Copy and paste the component into your project.
 
-The `ChartConfig` type allows you to define labels, colors, and icons for each data series:
+```tsx file=../../../registry/kobalte/ui/chart.tsx showLineNumbers
+
+```
+
+### Vite
+
+`solid-recharts@1.0.0` publishes Solid TSX source. Exclude it from Vite's client and SSR dependency optimizers so `vite-plugin-solid` compiles that source:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  optimizeDeps: {
+    exclude: ["solid-recharts"],
+  },
+  ssr: {
+    noExternal: ["solid-recharts"],
+    optimizeDeps: {
+      exclude: ["solid-recharts"],
+    },
+  },
+});
+```
+
+## Chart config
+
+`ChartConfig` maps data keys to their display labels, icons, and colors. Colors become scoped CSS variables such as `--color-desktop`.
 
 ```tsx
-import type { ChartConfig } from "@/registry/kobalte/ui/chart"
+import type { ChartConfig } from "~/components/ui/chart";
 
-const chartConfig: ChartConfig = {
+const chartConfig = {
   desktop: {
     label: "Desktop",
     color: "var(--chart-1)",
   },
   mobile: {
     label: "Mobile",
-    color: "var(--chart-2)",
-  },
-}
-```
-
-### Theme-aware Colors
-
-You can define different colors for light and dark mode:
-
-```tsx
-const chartConfig: ChartConfig = {
-  revenue: {
-    label: "Revenue",
     theme: {
       light: "oklch(0.646 0.222 41.116)",
       dark: "oklch(0.488 0.243 264.376)",
     },
   },
-}
+} satisfies ChartConfig;
 ```
 
-## Default Presets
+## Usage
 
-The component exports several preset configurations to quickly style your charts:
-
-### Colors
+Compose Solid Recharts primitives inside `ChartContainer`.
 
 ```tsx
-import { chartColors } from "@/registry/kobalte/ui/chart"
+import { Area, AreaChart, CartesianGrid, XAxis } from "solid-recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "~/components/ui/chart";
 
-// Uses --chart-1 through --chart-5 CSS variables
-const option = {
-  color: chartColors,
-  // ...
-}
+<ChartContainer config={chartConfig}>
+  <AreaChart data={chartData} accessibilityLayer>
+    <CartesianGrid vertical={false} />
+    <XAxis dataKey="month" tickLine={false} axisLine={false} />
+    <ChartTooltip
+      cursor={false}
+      content={(props) => <ChartTooltipContent {...props} />}
+    />
+    <Area
+      dataKey="desktop"
+      fill="var(--color-desktop)"
+      stroke="var(--color-desktop)"
+    />
+  </AreaChart>
+</ChartContainer>
 ```
 
-### Tooltip
+:::note[Solid content callbacks]
+Pass tooltip and legend content as a function. Solid Recharts uses the function to inject the active payload into your component.
+:::
+
+## Tooltip
+
+`ChartTooltipContent` understands the chart config and supports dot, line, and dashed indicators.
 
 ```tsx
-import { chartTooltipDefaults } from "@/registry/kobalte/ui/chart"
-
-const option = {
-  tooltip: {
-    ...chartTooltipDefaults,
-    trigger: "axis",
-  },
-  // ...
-}
-```
-
-### Axes
-
-```tsx
-import { chartXAxisDefaults, chartYAxisDefaults } from "@/registry/kobalte/ui/chart"
-
-const option = {
-  xAxis: {
-    ...chartXAxisDefaults,
-    type: "category",
-    data: ["Jan", "Feb", "Mar"],
-  },
-  yAxis: {
-    ...chartYAxisDefaults,
-    type: "value",
-  },
-  // ...
-}
-```
-
-### Grid
-
-```tsx
-import { chartGridDefaults } from "@/registry/kobalte/ui/chart"
-
-const option = {
-  grid: chartGridDefaults,
-  // ...
-}
-```
-
-### Legend
-
-```tsx
-import { chartLegendDefaults } from "@/registry/kobalte/ui/chart"
-
-const option = {
-  legend: {
-    ...chartLegendDefaults,
-    data: ["Series A", "Series B"],
-  },
-  // ...
-}
-```
-
-## Event Handling
-
-Handle chart interactions using the `eventHandlers` prop:
-
-```tsx
-<ChartContainer
-  option={option}
-  eventHandlers={{
-    click: (params) => {
-      console.log("Clicked:", params)
-    },
-  }}
+<ChartTooltip
+  content={(props) => (
+    <ChartTooltipContent
+      {...props}
+      indicator="dashed"
+      labelFormatter={(value) => String(value)}
+    />
+  )}
 />
 ```
 
-## Loading State
+Useful props include `hideLabel`, `hideIndicator`, `indicator`, `nameKey`, `labelKey`, `color`, `class`, and `labelClass`.
 
-Show a loading animation while fetching data:
+## Legend
 
 ```tsx
-<ChartContainer
-  option={option}
-  loading={isLoading()}
-  loadingOptions={{
-    text: "Loading...",
-  }}
+import { ChartLegend, ChartLegendContent } from "~/components/ui/chart";
+
+<ChartLegend
+  content={(props) => <ChartLegendContent {...props} />}
 />
 ```
 
-## Accessing the Chart Instance
+Use `nameKey` to resolve a different config key or `hideIcon` to render color swatches instead of configured icons.
 
-Use the `onInit` callback to access the ECharts instance directly:
+## Accessibility
 
-```tsx
-<ChartContainer
-  option={option}
-  onInit={(chart) => {
-    // Access the ECharts instance
-    chart.on("click", handleClick)
-  }}
-/>
-```
-
-## Chart Types
-
-### Bar Chart
+Set `accessibilityLayer` on the Solid Recharts chart component to enable keyboard navigation and screen-reader descriptions.
 
 ```tsx
-const option = {
-  color: chartColors,
-  xAxis: { type: "category", data: categories },
-  yAxis: { type: "value" },
-  series: [{
-    type: "bar",
-    data: values,
-    itemStyle: { borderRadius: [4, 4, 0, 0] },
-  }],
-}
+<AreaChart accessibilityLayer data={chartData}>
+  {/* ... */}
+</AreaChart>
 ```
 
-### Line Chart
+## Example
 
-```tsx
-const option = {
-  color: chartColors,
-  xAxis: { type: "category", data: categories, boundaryGap: false },
-  yAxis: { type: "value" },
-  series: [{
-    type: "line",
-    data: values,
-    smooth: true,
-  }],
-}
-```
-
-### Area Chart
-
-```tsx
-const option = {
-  series: [{
-    type: "line",
-    data: values,
-    areaStyle: { opacity: 0.3 },
-  }],
-}
-```
-
-### Pie Chart
-
-```tsx
-const option = {
-  color: chartColors,
-  series: [{
-    type: "pie",
-    radius: ["40%", "70%"],
-    data: pieData,
-    itemStyle: { borderRadius: 8 },
-  }],
-}
-```
-
-### Radar Chart
-
-```tsx
-const option = {
-  color: chartColors,
-  radar: {
-    indicator: [
-      { name: "Sales", max: 100 },
-      { name: "Admin", max: 100 },
-      // ...
-    ],
-  },
-  series: [{
-    type: "radar",
-    data: radarData,
-  }],
-}
-```
-
-## Theming
-
-Charts automatically adapt to light/dark mode using CSS variables. The default chart colors are defined as:
-
-```css
-:root {
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-}
-
-[data-kb-theme="dark"] {
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-}
-```
-
-## API Reference
-
-### ChartContainer Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `option` | `EChartsOption` | Required | ECharts configuration object |
-| `config` | `ChartConfig` | `{}` | Chart series configuration |
-| `loading` | `boolean` | `false` | Show loading animation |
-| `loadingOptions` | `object` | `{}` | ECharts loading options |
-| `setOptionOpts` | `SetOptionOpts` | `{ notMerge: true }` | Options for setOption |
-| `onInit` | `(chart: ECharts) => void` | - | Callback with chart instance |
-| `eventHandlers` | `Record<string, Function>` | - | Chart event handlers |
-| `class` | `string` | - | Additional CSS classes |
-
-### ChartConfig Type
-
-```tsx
-type ChartConfig = {
-  [key: string]: {
-    label?: JSX.Element | string
-    icon?: Component
-    color?: string
-    theme?: { light: string; dark: string }
-  }
-}
-```
-
-## Examples
-
-Here are the source code of all the examples from the preview page:
-
-### Area Chart
-
-```tsx
-import type { ECBasicOption } from "echarts/types/dist/shared";
-import {
-  type ChartConfig,
-  ChartContainer,
-  chartColors,
-  chartGridDefaults,
-  chartTooltipDefaults,
-  chartXAxisDefaults,
-  chartYAxisDefaults,
-} from "~/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/chart-example.tsx#L56-L121
-
-```
-
-### Bar Chart
-
-```tsx
-import type { ECBasicOption } from "echarts/types/dist/shared";
-import {
-  type ChartConfig,
-  ChartContainer,
-  chartColors,
-  chartGridDefaults,
-  chartTooltipDefaults,
-  chartXAxisDefaults,
-  chartYAxisDefaults,
-} from "~/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/chart-example.tsx#L123-L192
-
-```
-
-### Line Chart
-
-```tsx
-import type { ECBasicOption } from "echarts/types/dist/shared";
-import {
-  type ChartConfig,
-  ChartContainer,
-  chartColors,
-  chartGridDefaults,
-  chartLegendDefaults,
-  chartTooltipDefaults,
-  chartXAxisDefaults,
-  chartYAxisDefaults,
-} from "~/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/chart-example.tsx#L194-L259
-
-```
-
-### Pie Chart
-
-```tsx
-import type { ECBasicOption } from "echarts/types/dist/shared";
-import {
-  type ChartConfig,
-  ChartContainer,
-  chartColors,
-  chartLegendDefaults,
-} from "~/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/chart-example.tsx#L261-L333
-
-```
-
-### Radar Chart
-
-```tsx
-import type { ECBasicOption } from "echarts/types/dist/shared";
-import {
-  ChartContainer,
-  chartColors,
-  chartLegendDefaults,
-} from "~/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/chart-example.tsx#L335-L419
+```tsx file=../../../registry/kobalte/examples/ui/chart-example.tsx showLineNumbers
 
 ```

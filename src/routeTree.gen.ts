@@ -11,9 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
+import { Route as PublicChartsRouteImport } from './routes/_public.charts'
 import { Route as PublicCreateRouteImport } from './routes/_public.create'
 import { Route as PublicDocsRouteImport } from './routes/_public.docs'
 import { Route as PreviewCreateRouteImport } from './routes/preview.create'
+import { Route as PublicChartsIndexRouteImport } from './routes/_public.charts.index'
+import { Route as PublicChartsTypeRouteImport } from './routes/_public.charts.$type'
 import { Route as PublicDocsIndexRouteImport } from './routes/_public.docs.index'
 import { Route as PublicDocsSlugRouteImport } from './routes/_public.docs.$slug'
 import { Route as RPrimitiveNameRouteImport } from './routes/r.$primitive.$name'
@@ -33,6 +36,11 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicChartsRoute = PublicChartsRouteImport.update({
+  id: '/charts',
+  path: '/charts',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicCreateRoute = PublicCreateRouteImport.update({
   id: '/create',
   path: '/create',
@@ -47,6 +55,16 @@ const PreviewCreateRoute = PreviewCreateRouteImport.update({
   id: '/preview/create',
   path: '/preview/create',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PublicChartsIndexRoute = PublicChartsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicChartsRoute,
+} as any)
+const PublicChartsTypeRoute = PublicChartsTypeRouteImport.update({
+  id: '/$type',
+  path: '/$type',
+  getParentRoute: () => PublicChartsRoute,
 } as any)
 const PublicDocsIndexRoute = PublicDocsIndexRouteImport.update({
   id: '/',
@@ -101,11 +119,14 @@ const PublicDocsComponentsPrimitiveSlugRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/charts': typeof PublicChartsRouteWithChildren
   '/create': typeof PublicCreateRoute
   '/docs': typeof PublicDocsRouteWithChildren
   '/preview/create': typeof PreviewCreateRoute
+  '/charts/$type': typeof PublicChartsTypeRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
+  '/charts/': typeof PublicChartsIndexRoute
   '/docs/': typeof PublicDocsIndexRoute
   '/docs/changelog/$slug': typeof PublicDocsChangelogSlugRoute
   '/docs/installation/$slug': typeof PublicDocsInstallationSlugRoute
@@ -118,8 +139,10 @@ export interface FileRoutesByTo {
   '/create': typeof PublicCreateRoute
   '/preview/create': typeof PreviewCreateRoute
   '/': typeof PublicIndexRoute
+  '/charts/$type': typeof PublicChartsTypeRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
+  '/charts': typeof PublicChartsIndexRoute
   '/docs': typeof PublicDocsIndexRoute
   '/docs/changelog/$slug': typeof PublicDocsChangelogSlugRoute
   '/docs/installation/$slug': typeof PublicDocsInstallationSlugRoute
@@ -131,12 +154,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
+  '/_public/charts': typeof PublicChartsRouteWithChildren
   '/_public/create': typeof PublicCreateRoute
   '/_public/docs': typeof PublicDocsRouteWithChildren
   '/preview/create': typeof PreviewCreateRoute
   '/_public/': typeof PublicIndexRoute
+  '/_public/charts/$type': typeof PublicChartsTypeRoute
   '/_public/docs/$slug': typeof PublicDocsSlugRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
+  '/_public/charts/': typeof PublicChartsIndexRoute
   '/_public/docs/': typeof PublicDocsIndexRoute
   '/_public/docs/changelog/$slug': typeof PublicDocsChangelogSlugRoute
   '/_public/docs/installation/$slug': typeof PublicDocsInstallationSlugRoute
@@ -149,11 +175,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/charts'
     | '/create'
     | '/docs'
     | '/preview/create'
+    | '/charts/$type'
     | '/docs/$slug'
     | '/r/$primitive/$name'
+    | '/charts/'
     | '/docs/'
     | '/docs/changelog/$slug'
     | '/docs/installation/$slug'
@@ -166,8 +195,10 @@ export interface FileRouteTypes {
     | '/create'
     | '/preview/create'
     | '/'
+    | '/charts/$type'
     | '/docs/$slug'
     | '/r/$primitive/$name'
+    | '/charts'
     | '/docs'
     | '/docs/changelog/$slug'
     | '/docs/installation/$slug'
@@ -178,12 +209,15 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_public'
+    | '/_public/charts'
     | '/_public/create'
     | '/_public/docs'
     | '/preview/create'
     | '/_public/'
+    | '/_public/charts/$type'
     | '/_public/docs/$slug'
     | '/r/$primitive/$name'
+    | '/_public/charts/'
     | '/_public/docs/'
     | '/_public/docs/changelog/$slug'
     | '/_public/docs/installation/$slug'
@@ -216,6 +250,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/charts': {
+      id: '/_public/charts'
+      path: '/charts'
+      fullPath: '/charts'
+      preLoaderRoute: typeof PublicChartsRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/create': {
       id: '/_public/create'
       path: '/create'
@@ -236,6 +277,20 @@ declare module '@tanstack/solid-router' {
       fullPath: '/preview/create'
       preLoaderRoute: typeof PreviewCreateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_public/charts/': {
+      id: '/_public/charts/'
+      path: '/'
+      fullPath: '/charts/'
+      preLoaderRoute: typeof PublicChartsIndexRouteImport
+      parentRoute: typeof PublicChartsRoute
+    }
+    '/_public/charts/$type': {
+      id: '/_public/charts/$type'
+      path: '/$type'
+      fullPath: '/charts/$type'
+      preLoaderRoute: typeof PublicChartsTypeRouteImport
+      parentRoute: typeof PublicChartsRoute
     }
     '/_public/docs/': {
       id: '/_public/docs/'
@@ -303,6 +358,20 @@ declare module '@tanstack/solid-router' {
   }
 }
 
+interface PublicChartsRouteChildren {
+  PublicChartsTypeRoute: typeof PublicChartsTypeRoute
+  PublicChartsIndexRoute: typeof PublicChartsIndexRoute
+}
+
+const PublicChartsRouteChildren: PublicChartsRouteChildren = {
+  PublicChartsTypeRoute: PublicChartsTypeRoute,
+  PublicChartsIndexRoute: PublicChartsIndexRoute,
+}
+
+const PublicChartsRouteWithChildren = PublicChartsRoute._addFileChildren(
+  PublicChartsRouteChildren,
+)
+
 interface PublicDocsRouteChildren {
   PublicDocsSlugRoute: typeof PublicDocsSlugRoute
   PublicDocsIndexRoute: typeof PublicDocsIndexRoute
@@ -329,12 +398,14 @@ const PublicDocsRouteWithChildren = PublicDocsRoute._addFileChildren(
 )
 
 interface PublicRouteChildren {
+  PublicChartsRoute: typeof PublicChartsRouteWithChildren
   PublicCreateRoute: typeof PublicCreateRoute
   PublicDocsRoute: typeof PublicDocsRouteWithChildren
   PublicIndexRoute: typeof PublicIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicChartsRoute: PublicChartsRouteWithChildren,
   PublicCreateRoute: PublicCreateRoute,
   PublicDocsRoute: PublicDocsRouteWithChildren,
   PublicIndexRoute: PublicIndexRoute,

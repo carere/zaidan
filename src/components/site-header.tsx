@@ -15,6 +15,7 @@ import { Separator } from "@/registry/kobalte/ui/separator";
 const navItems = [
   { label: "Docs", to: "/docs" },
   { label: "Components", to: "/docs/components" },
+  { label: "Charts", to: "/charts/area" },
   { label: "Create", to: "/create" },
 ] as const;
 
@@ -52,10 +53,12 @@ export function SiteHeader() {
                   data-active={
                     item.to === "/create"
                       ? location().pathname.startsWith("/create")
-                      : item.to === "/docs"
-                        ? location().pathname.startsWith("/docs") &&
-                          !location().pathname.startsWith("/docs/components")
-                        : location().pathname.startsWith(item.to)
+                      : item.to === "/charts/area"
+                        ? location().pathname.startsWith("/charts")
+                        : item.to === "/docs"
+                          ? location().pathname.startsWith("/docs") &&
+                            !location().pathname.startsWith("/docs/components")
+                          : location().pathname.startsWith(item.to)
                   }
                 >
                   {item.label}

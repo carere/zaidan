@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-area-default",
+  "dependencies": [
+    "lucide-solid"
+  ],
+  "registryDependencies": [
+    "https://zaidan.carere.dev/r/kobalte/card.json",
+    "https://zaidan.carere.dev/r/kobalte/chart.json"
+  ],
+  "files": [
+    {
+      "path": "src/registry/kobalte/charts/chart-area-default.tsx",
+      "content": "import { TrendingUp } from \"lucide-solid\";\nimport { Area, AreaChart, CartesianGrid, XAxis } from \"solid-recharts\";\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardFooter,\n  CardHeader,\n  CardTitle,\n} from \"@/registry/kobalte/ui/card\";\nimport {\n  type ChartConfig,\n  ChartContainer,\n  ChartTooltip,\n  ChartTooltipContent,\n} from \"@/registry/kobalte/ui/chart\";\n\nconst chartData = [\n  { month: \"January\", desktop: 186 },\n  { month: \"February\", desktop: 305 },\n  { month: \"March\", desktop: 237 },\n  { month: \"April\", desktop: 73 },\n  { month: \"May\", desktop: 209 },\n  { month: \"June\", desktop: 214 },\n];\n\nconst chartConfig = {\n  desktop: {\n    label: \"Desktop\",\n    color: \"var(--chart-1)\",\n  },\n} satisfies ChartConfig;\n\nexport function ChartAreaDefault() {\n  return (\n    <Card>\n      <CardHeader>\n        <CardTitle>Area Chart</CardTitle>\n        <CardDescription>Showing total visitors for the last 6 months</CardDescription>\n      </CardHeader>\n      <CardContent>\n        <ChartContainer config={chartConfig}>\n          <AreaChart\n            accessibilityLayer\n            data={chartData}\n            margin={{\n              left: 12,\n              right: 12,\n            }}\n          >\n            <CartesianGrid vertical={false} />\n            <XAxis\n              dataKey=\"month\"\n              tickLine={false}\n              axisLine={false}\n              tickMargin={8}\n              tickFormatter={(value) => String(value).slice(0, 3)}\n            />\n            <ChartTooltip\n              cursor={false}\n              content={(props) => <ChartTooltipContent {...props} indicator=\"line\" />}\n            />\n            <Area\n              dataKey=\"desktop\"\n              type=\"natural\"\n              fill=\"var(--color-desktop)\"\n              fillOpacity={0.4}\n              stroke=\"var(--color-desktop)\"\n            />\n          </AreaChart>\n        </ChartContainer>\n      </CardContent>\n      <CardFooter>\n        <div class=\"flex w-full items-start gap-2 text-sm\">\n          <div class=\"grid gap-2\">\n            <div class=\"flex items-center gap-2 leading-none font-medium\">\n              Trending up by 5.2% this month <TrendingUp class=\"h-4 w-4\" />\n            </div>\n            <div class=\"flex items-center gap-2 leading-none text-muted-foreground\">\n              January - June 2024\n            </div>\n          </div>\n        </div>\n      </CardFooter>\n    </Card>\n  );\n}\n",
+      "type": "registry:block"
+    }
+  ],
+  "categories": [
+    "charts",
+    "charts-area"
+  ],
+  "type": "registry:block"
+}

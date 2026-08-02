@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-radar-grid-custom",
+  "dependencies": [
+    "lucide-solid"
+  ],
+  "registryDependencies": [
+    "https://zaidan.carere.dev/r/kobalte/card.json",
+    "https://zaidan.carere.dev/r/kobalte/chart.json"
+  ],
+  "files": [
+    {
+      "path": "src/registry/kobalte/charts/chart-radar-grid-custom.tsx",
+      "content": "import { TrendingUp } from \"lucide-solid\";\nimport { PolarAngleAxis, PolarGrid, Radar, RadarChart } from \"solid-recharts\";\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardFooter,\n  CardHeader,\n  CardTitle,\n} from \"@/registry/kobalte/ui/card\";\nimport {\n  type ChartConfig,\n  ChartContainer,\n  ChartTooltip,\n  ChartTooltipContent,\n} from \"@/registry/kobalte/ui/chart\";\n\nconst chartData = [\n  { month: \"January\", desktop: 186 },\n  { month: \"February\", desktop: 305 },\n  { month: \"March\", desktop: 237 },\n  { month: \"April\", desktop: 273 },\n  { month: \"May\", desktop: 209 },\n  { month: \"June\", desktop: 214 },\n];\n\nconst chartConfig = {\n  desktop: {\n    label: \"Desktop\",\n    color: \"var(--chart-1)\",\n  },\n} satisfies ChartConfig;\n\nexport function ChartRadarGridCustom() {\n  return (\n    <Card>\n      <CardHeader class=\"items-center pb-4\">\n        <CardTitle>Radar Chart - Grid Custom</CardTitle>\n        <CardDescription>Showing total visitors for the last 6 months</CardDescription>\n      </CardHeader>\n      <CardContent class=\"pb-0\">\n        <ChartContainer config={chartConfig} class=\"mx-auto aspect-square max-h-[250px]\">\n          <RadarChart data={chartData}>\n            <ChartTooltip\n              cursor={false}\n              content={(contentProps) => <ChartTooltipContent {...contentProps} hideLabel />}\n            />\n            <PolarGrid radialLines={false} polarRadius={[90]} strokeWidth={1} />\n            <PolarAngleAxis dataKey=\"month\" />\n            <Radar dataKey=\"desktop\" fill=\"var(--color-desktop)\" fillOpacity={0.6} />\n          </RadarChart>\n        </ChartContainer>\n      </CardContent>\n      <CardFooter class=\"flex-col gap-2 text-sm\">\n        <div class=\"flex items-center gap-2 leading-none font-medium\">\n          Trending up by 5.2% this month <TrendingUp class=\"h-4 w-4\" />\n        </div>\n        <div class=\"flex items-center gap-2 leading-none text-muted-foreground\">\n          January - June 2024\n        </div>\n      </CardFooter>\n    </Card>\n  );\n}\n",
+      "type": "registry:block"
+    }
+  ],
+  "categories": [
+    "charts",
+    "charts-radar"
+  ],
+  "type": "registry:block"
+}
