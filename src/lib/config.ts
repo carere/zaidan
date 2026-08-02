@@ -6,7 +6,6 @@ import type {
   DesignSystemConfig,
   Font,
   MenuAccent,
-  Primitive,
   Radius,
   Style,
   Theme,
@@ -203,22 +202,6 @@ export const FONTS: {
   fontFamily: f.family,
   type: f.type,
 }));
-
-/**
- * Menu color options for sidebar/navigation styling
- * Currently a placeholder for future menu color customization
- */
-export const MENU_COLORS: { name: string; label: string }[] = [
-  { name: "default", label: "Default" },
-];
-
-/**
- * Available primitive options with their metadata
- */
-export const PRIMITIVES: { name: Primitive; label: string }[] = [
-  { name: "kobalte", label: "Kobalte" },
-  { name: "base", label: "Base" },
-];
 
 /**
  * Discriminated entry for the "has updates" indicator. Items listed in

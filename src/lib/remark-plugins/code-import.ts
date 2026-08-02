@@ -115,4 +115,3 @@ function codeImport(options: CodeImportOptions = {}) {
 }
 
 export { codeImport };
-export default codeImport;
