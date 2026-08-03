@@ -18,7 +18,7 @@ const packageManagerSync = isServer
 
 export function PackageManagerCodeBlock(props: PackageManagerCodeBlockProps) {
   const [packageManager, setPackageManager] = makePersisted<PackageManager, Signal<PackageManager>>(
-    createSignal("bun"),
+    createSignal("bun" as PackageManager),
     {
       name: "package-manager",
       storage: getStorage(),

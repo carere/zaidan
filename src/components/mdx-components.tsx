@@ -120,7 +120,7 @@ function MdxTabsTrigger(props: ComponentProps<typeof TabsTrigger>) {
   return (
     <TabsTrigger
       class={cn(
-        "h-auto! rounded-none border-0 border-transparent bg-transparent px-0 pt-0! pb-[9px]! text-base leading-5 text-muted-foreground shadow-none hover:text-primary data-selected:bg-transparent data-selected:text-foreground data-selected:shadow-none dark:data-selected:border-primary dark:data-selected:bg-transparent dark:data-selected:text-foreground",
+        "h-auto! rounded-none border-0 border-transparent bg-transparent px-0 pt-0! pb-2.25! text-base leading-5 text-muted-foreground shadow-none hover:text-primary data-selected:bg-transparent data-selected:text-foreground data-selected:shadow-none dark:data-selected:border-primary dark:data-selected:bg-transparent dark:data-selected:text-foreground",
         local.class,
       )}
       {...others}

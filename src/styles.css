@@ -88,6 +88,10 @@
 
   --surface: oklch(0.98 0 0);
   --surface-foreground: var(--foreground);
+  --code: var(--surface);
+  --code-foreground: var(--surface-foreground);
+  --code-highlight: oklch(0.96 0 0);
+  --code-number: oklch(0.56 0 0);
 
   --info: oklch(0.97 0.014 254.604);
   --info-foreground: oklch(0.379 0.146 265.522);
@@ -136,6 +140,10 @@
 
   --surface: oklch(0.2 0 0);
   --surface-foreground: oklch(0.708 0 0);
+  --code: var(--surface);
+  --code-foreground: var(--surface-foreground);
+  --code-highlight: oklch(0.27 0 0);
+  --code-number: oklch(0.72 0 0);
 
   --info: oklch(0.25 0.0714 268.38);
   --info-foreground: oklch(0.707 0.165 254.624);
@@ -266,6 +274,10 @@
 
   --color-surface: var(--surface);
   --color-surface-foreground: var(--surface-foreground);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-highlight: var(--code-highlight);
+  --color-code-number: var(--code-number);
 
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
