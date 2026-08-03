@@ -21,7 +21,7 @@ Detailed mapping of third-party React libraries to their SolidJS equivalents. Th
 | 7 | `react-resizable-panels` | `@corvu/resizable` | Layout |
 | 8 | `input-otp` | `input-otp` | Input |
 | 9 | `vaul` | `@corvu/drawer` | Overlay |
-| 10 | `sonner` | `solid-sonner` | Notifications |
+| 10 | `sonner` | Zaidan Toast over `@kobalte/core/toast` | Notifications |
 | 11 | `embla-carousel-react` | `embla-carousel-solid` | Carousel |
 | 12 | `cmdk` | `@kobalte/core/combobox` | Command Palette |
 | 13 | `@tanstack/react-table` | `@tanstack/solid-table` | Data Tables |
@@ -171,19 +171,26 @@ import Drawer from "@corvu/drawer"
 
 The API is similar but uses Corvu conventions (data attributes, context hooks).
 
-### 10. sonner -> solid-sonner
+### 10. sonner -> Zaidan Toast over Kobalte
 
-**Package:** `solid-sonner`
+**Package:** `@kobalte/core` (Toast module, already used by Zaidan)
 
-Toast notification library. The API is very similar:
+Do not introduce or preserve `solid-sonner` during the shadcn Base sync.
+Implement the pinned shadcn Toast public surface over Kobalte Toast and migrate
+callers to that surface. Kobalte exposes lower-level Region/List/Root parts and
+the `toaster` state API, so a Zaidan adapter is required for shadcn manager and
+stack behavior.
 
 ```tsx
 // React:
 import { toast, Toaster } from "sonner"
 
-// SolidJS:
-import { toast, Toaster } from "solid-sonner"
+// SolidJS/Zaidan:
+import { toast, Toaster } from "@/registry/kobalte/ui/toast"
 ```
+
+See `base-ui-mapping.md` for Toast parts, attributes, swipe variables, and
+behavioral checks.
 
 ### 11. embla-carousel-react -> embla-carousel-solid
 

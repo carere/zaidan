@@ -6,7 +6,7 @@ description: React-to-SolidJS transformation patterns for porting shadcn-style R
 # React to SolidJS
 
 Use this skill for the translation itself. Use
-`.agents/skills/zaidan-agent/SKILL.md` for the workflow, source URLs, target
+`.agents/skills/zaidan/SKILL.md` for the workflow, source URLs, target
 paths, registry updates, browser testing, and command choices.
 
 ## Load References Only When Needed
@@ -42,6 +42,24 @@ paths, registry updates, browser testing, and command choices.
 
 Use `e.currentTarget` for typed form events. Use signal calls such as `value()`;
 do not treat signals like React state variables.
+
+## Source-of-Truth and Dependency Policy
+
+For Zaidan's shadcn release sync, the pinned Base UI component API, behavior,
+slots, and styling contract are authoritative. Do not preserve an older Zaidan
+API merely for backward compatibility. Record only unavoidable Solid-specific
+divergences.
+
+Choose an implementation foundation in this order:
+
+1. Kobalte when it has an equivalent accessible primitive.
+2. Corvu when Kobalte has no adequate equivalent and Corvu does.
+3. Vanilla SolidJS when neither primitive library fits.
+
+For other React-only packages, read `docs/third-party-deps.md`, search for an
+actively maintained SolidJS flavor, and compare behavior/API coverage before
+writing a local adapter. Never carry a React runtime dependency into registry
+code merely because upstream imports it.
 
 ## Import Rewrites
 
@@ -95,9 +113,9 @@ reused.
 
 ## Primitive Pattern
 
-Prefer Kobalte for accessible shadcn-style primitives. Use Corvu when the repo
-already uses it for that component family, when Kobalte does not provide the
-primitive, or when Corvu matches the source behavior better.
+Prefer Kobalte for accessible shadcn-style primitives. Use Corvu only when
+Kobalte does not provide an adequate equivalent. Use vanilla SolidJS when
+neither library fits.
 
 ```tsx
 import * as ButtonPrimitive from "@kobalte/core/button";
@@ -135,3 +153,12 @@ prefer existing Zaidan wrappers when they exist.
 - Match nearby Zaidan files for naming, exports, data attributes, and types.
 - Keep imports minimal.
 - Prefer `cn()` from `@/lib/utils` for class merging.
+- Replace upstream app-only helpers such as `IconPlaceholder` with the concrete
+  Zaidan icon choice, normally `lucide-solid`.
+- Preserve upstream semantic `cn-*` style markers as Zaidan `z-*` markers.
+  Translate selectors, data attributes, and CSS variables to the actual
+  Kobalte/Corvu DOM; do not assume a mechanical rename is sufficient.
+- When a component changes, inspect and update its section in all eight Zaidan
+  styles: Vega, Nova, Maia, Lyra, Mira, Luma, Sera, and Rhea.
+- Verify state selectors in the browser. The Base UI mapping reference is a
+  starting table, not proof that a selector matches the rendered primitive.
