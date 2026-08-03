@@ -6,6 +6,7 @@ import velite from "@velite/plugin-vite";
 import { defineConfig } from "vite";
 import lucide from "vite-plugin-lucide-preprocess";
 import solid from "vite-plugin-solid";
+import { highlightCode } from "./src/lib/vite-plugins/highlight-code";
 import mdx from "./src/lib/vite-plugins/mdx";
 
 export default defineConfig({
@@ -25,6 +26,7 @@ export default defineConfig({
   },
   plugins: [
     lucide(),
+    highlightCode(),
     mdx({
       jsx: true,
       jsxImportSource: "solid-js",

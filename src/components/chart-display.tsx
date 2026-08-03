@@ -9,10 +9,12 @@ import {
   Hexagon,
   MousePointer2,
   Radar,
+  X,
 } from "lucide-solid";
 import type { Component, ComponentProps } from "solid-js";
-import { createEffect, createSignal, onCleanup, onMount, splitProps } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, Show, splitProps } from "solid-js";
 import { Dynamic } from "solid-js/web";
+import { TypeScript } from "@/components/icons/typescript";
 import type { ChartDefinition, ChartType } from "@/lib/charts";
 import type { IframeMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -21,6 +23,7 @@ import { Button } from "@/registry/kobalte/ui/button";
 import { Separator } from "@/registry/kobalte/ui/separator";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -163,23 +166,76 @@ function CopySourceButton(props: { chart: ChartDefinition }) {
 }
 
 function ChartSourceViewer(props: { chart: ChartDefinition }) {
+  const [highlightedSource, setHighlightedSource] = createSignal<string>();
+  let highlightedSourcePromise: Promise<string> | undefined;
+
+  const loadHighlightedSource = () => {
+    highlightedSourcePromise ??= props.chart.loadHighlightedSource().then((source) => {
+      setHighlightedSource(source);
+      return source;
+    });
+    return highlightedSourcePromise;
+  };
+
   return (
-    <Sheet>
-      <SheetTrigger as={Button} variant="outline" size="xs" class="h-7 rounded-md px-2.5">
+    <Sheet onOpenChange={(open) => open && void loadHighlightedSource()}>
+      <SheetTrigger
+        as={Button}
+        variant="outline"
+        size="xs"
+        class="h-7 rounded-md px-2.5"
+        onFocus={() => void loadHighlightedSource()}
+        onPointerEnter={() => void loadHighlightedSource()}
+      >
         View code
       </SheetTrigger>
-      <SheetContent class="flex w-full flex-col gap-0 p-0 sm:max-w-3xl">
-        <SheetHeader class="border-b px-5 py-4">
-          <SheetTitle class="font-mono text-sm">{props.chart.id}.tsx</SheetTitle>
-          <SheetDescription>
-            Copy and adapt this chart block in your Solid application.
-          </SheetDescription>
+      <SheetContent
+        showCloseButton={false}
+        class="flex w-full flex-col gap-0 overflow-hidden border-l-0 p-4 sm:max-w-sm md:w-[700px] md:max-w-[700px] dark:border-l"
+      >
+        <SheetHeader class="sr-only">
+          <SheetTitle>{props.chart.id}.tsx</SheetTitle>
+          <SheetDescription>View and copy the code for this chart.</SheetDescription>
         </SheetHeader>
-        <div class="min-h-0 flex-1 overflow-auto bg-muted/30">
-          <pre class="min-w-max p-5 font-mono text-[13px] leading-6">
-            <code>{props.chart.source}</code>
-          </pre>
-        </div>
+        <Show
+          when={highlightedSource()}
+          fallback={
+            <div class="flex min-h-0 flex-1 items-center justify-center bg-code text-muted-foreground text-sm">
+              Loading code…
+            </div>
+          }
+        >
+          {(source) => (
+            <figure
+              data-slot="chart-source-code"
+              class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[18px] bg-code text-code-foreground"
+            >
+              <figcaption class="flex min-h-10 shrink-0 items-center gap-2 border-border/30 border-b px-4">
+                <TypeScript aria-hidden="true" class="size-4 shrink-0 opacity-70" />
+                <span class="font-mono text-sm">{props.chart.id}.tsx</span>
+                <div class="ml-auto flex items-center gap-1">
+                  <CopySourceButton chart={props.chart} />
+                  <SheetClose
+                    as={Button}
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    class="rounded-md"
+                  >
+                    <X />
+                    <span class="sr-only">Close</span>
+                  </SheetClose>
+                </div>
+              </figcaption>
+              <div
+                data-slot="chart-source-scroll"
+                class="no-scrollbar min-h-0 flex-1 overflow-auto"
+                // The HTML is generated from trusted local registry source by the build-time highlighter.
+                innerHTML={source()}
+              />
+            </figure>
+          )}
+        </Show>
       </SheetContent>
     </Sheet>
   );

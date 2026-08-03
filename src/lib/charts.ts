@@ -10,6 +10,7 @@ export type ChartDefinition = {
   id: string;
   type: ChartType;
   source: string;
+  loadHighlightedSource: () => Promise<string>;
   fullWidth: boolean;
 };
 
@@ -19,6 +20,11 @@ const sources = import.meta.glob<string>("../registry/kobalte/charts/*.tsx", {
   eager: true,
   import: "default",
   query: "?raw",
+});
+
+const highlightedSources = import.meta.glob<string>("../registry/kobalte/charts/*.tsx", {
+  import: "default",
+  query: "?highlight-code",
 });
 
 const idsByType = {
@@ -128,8 +134,9 @@ function chartPath(id: string) {
 function createChartDefinition(type: ChartType, id: string): ChartDefinition {
   const path = chartPath(id);
   const source = sources[path];
+  const loadHighlightedSource = highlightedSources[path];
 
-  if (!modules[path] || !source) {
+  if (!modules[path] || !source || !loadHighlightedSource) {
     throw new Error(`Unable to resolve chart registry item: ${id}`);
   }
 
@@ -137,6 +144,7 @@ function createChartDefinition(type: ChartType, id: string): ChartDefinition {
     id,
     type,
     source,
+    loadHighlightedSource,
     fullWidth: fullWidthCharts.has(id),
   };
 }

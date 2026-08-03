@@ -14,6 +14,7 @@ import remarkGfm from "remark-gfm";
 import type { Pluggable } from "unified";
 import { VFile } from "vfile";
 import type { Plugin as VitePlugin } from "vite";
+import { codeThemeNames } from "../code-highlighting";
 import { pluginTitledCodeBlocks } from "../expressive-code-plugins/titled-code-blocks";
 import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code";
 import { codeImport as remarkCodeImport } from "../remark-plugins/code-import";
@@ -56,7 +57,7 @@ export const rehypePlugins: Pluggable[] = [
   [
     rehypeExpressiveCode,
     {
-      themes: ["vesper", "github-light-default"],
+      themes: [...codeThemeNames],
       themeCssSelector: (theme: ExpressiveCodeTheme) => `.${theme.type}`,
       minSyntaxHighlightingColorContrast: 0,
       plugins: [pluginCollapsibleSections(), pluginLineNumbers(), pluginTitledCodeBlocks()],
