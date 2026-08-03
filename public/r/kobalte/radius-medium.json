@@ -4,10 +4,10 @@
   "title": "Medium",
   "cssVars": {
     "light": {
-      "radius": "0.5rem"
+      "radius": "0.625rem"
     },
     "dark": {
-      "radius": "0.5rem"
+      "radius": "0.625rem"
     }
   },
   "type": "registry:theme"

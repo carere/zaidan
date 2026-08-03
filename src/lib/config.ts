@@ -65,6 +65,11 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
     label: "Sera",
     description: "Editorial and typographic. Sharp corners with expressive type.",
   },
+  {
+    name: "rhea",
+    label: "Rhea",
+    description: "Like Luma but compact.",
+  },
 ];
 
 /**
@@ -172,11 +177,11 @@ export const CHART_COLORS: {
  * Available radius options with their metadata
  */
 export const RADII: { name: Radius; label: string; value: string }[] = [
-  { name: "default", label: "Default", value: "0.625rem" },
+  { name: "default", label: "Default", value: "" },
   { name: "none", label: "None", value: "0" },
-  { name: "small", label: "Small", value: "0.25rem" },
-  { name: "medium", label: "Medium", value: "0.5rem" },
-  { name: "large", label: "Large", value: "0.75rem" },
+  { name: "small", label: "Small", value: "0.45rem" },
+  { name: "medium", label: "Medium", value: "0.625rem" },
+  { name: "large", label: "Large", value: "0.875rem" },
 ];
 
 /**

@@ -1912,6 +1912,34 @@
       ]
     },
     {
+      "name": "style-rhea",
+      "type": "registry:theme",
+      "dependencies": [],
+      "registryDependencies": [],
+      "css": {
+        "@layer base": {
+          "@import \"./styles/base.css\"": {},
+          ".z-font-heading": {
+            "@apply": "font-heading"
+          }
+        },
+        "@utility no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            "display": "none"
+          }
+        }
+      },
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/style-rhea.css",
+          "target": "styles/base.css",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
       "name": "style-sera",
       "type": "registry:theme",
       "dependencies": [],
@@ -3248,10 +3276,10 @@
       "type": "registry:theme",
       "cssVars": {
         "light": {
-          "radius": "0.25rem"
+          "radius": "0.45rem"
         },
         "dark": {
-          "radius": "0.25rem"
+          "radius": "0.45rem"
         }
       }
     },
@@ -3261,10 +3289,10 @@
       "type": "registry:theme",
       "cssVars": {
         "light": {
-          "radius": "0.5rem"
+          "radius": "0.625rem"
         },
         "dark": {
-          "radius": "0.5rem"
+          "radius": "0.625rem"
         }
       }
     },
@@ -3274,10 +3302,10 @@
       "type": "registry:theme",
       "cssVars": {
         "light": {
-          "radius": "0.75rem"
+          "radius": "0.875rem"
         },
         "dark": {
-          "radius": "0.75rem"
+          "radius": "0.875rem"
         }
       }
     },

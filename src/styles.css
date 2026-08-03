@@ -42,6 +42,7 @@
 @custom-variant style-maia (&:where(.style-maia *));
 @custom-variant style-mira (&:where(.style-mira *));
 @custom-variant style-luma (&:where(.style-luma *));
+@custom-variant style-rhea (&:where(.style-rhea *));
 @custom-variant style-sera (&:where(.style-sera *));
 
 @custom-variant dark (&:is(.dark *));
@@ -236,6 +237,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -334,6 +338,10 @@
 
   .style-luma {
     @import "./registry/kobalte/styles/style-luma.css";
+  }
+
+  .style-rhea {
+    @import "./registry/kobalte/styles/style-rhea.css";
   }
 
   .style-sera {

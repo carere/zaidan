@@ -4,10 +4,10 @@
   "title": "Small",
   "cssVars": {
     "light": {
-      "radius": "0.25rem"
+      "radius": "0.45rem"
     },
     "dark": {
-      "radius": "0.25rem"
+      "radius": "0.45rem"
     }
   },
   "type": "registry:theme"

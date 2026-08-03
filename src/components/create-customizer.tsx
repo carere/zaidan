@@ -213,6 +213,14 @@ function StyleIcon(props: { style: string }) {
       <Show when={props.style === "luma"}>
         <rect x="2" y="5" width="20" height="14" rx="7" stroke="currentColor" stroke-width="2" />
       </Show>
+      <Show when={props.style === "rhea"}>
+        <path
+          d="M3 12C3 9.79086 4.79086 8 7 8H17C19.2091 8 21 9.79086 21 12C21 14.2091 19.2091 16 17 16H7C4.79086 16 3 14.2091 3 12Z"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linejoin="round"
+        />
+      </Show>
       <Show when={props.style === "sera"}>
         <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" />
       </Show>

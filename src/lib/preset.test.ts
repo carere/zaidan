@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_CONFIG } from "@/lib/config";
+import { DEFAULT_CONFIG, RADII, STYLES } from "@/lib/config";
 import { decodeDesignSystemPreset, encodeDesignSystemPreset } from "@/lib/preset";
 import { buildPresetRegistryItem } from "@/lib/registry-preset";
 
@@ -22,6 +22,35 @@ describe("design system presets", () => {
 
   it("rejects malformed or unsupported presets", () => {
     expect(decodeDesignSystemPreset("not-a-preset")).toBeNull();
+  });
+
+  it("round-trips the Rhea style", () => {
+    const config = {
+      ...DEFAULT_CONFIG,
+      style: "rhea" as const,
+    };
+
+    expect(decodeDesignSystemPreset(encodeDesignSystemPreset(config))).toEqual(config);
+  });
+
+  it("exposes the pinned style and radius catalogs", () => {
+    expect(STYLES.map((style) => style.name)).toEqual([
+      "vega",
+      "nova",
+      "maia",
+      "lyra",
+      "mira",
+      "luma",
+      "sera",
+      "rhea",
+    ]);
+    expect(RADII.map(({ name, value }) => [name, value])).toEqual([
+      ["default", ""],
+      ["none", "0"],
+      ["small", "0.45rem"],
+      ["medium", "0.625rem"],
+      ["large", "0.875rem"],
+    ]);
   });
 
   it("builds an installable virtual registry base item", () => {

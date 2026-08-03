@@ -154,7 +154,7 @@
 }
 
 .z-button-variant-secondary {
-  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground;
+  @apply bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground;
 }
 
 .z-button-variant-ghost {
@@ -283,10 +283,6 @@
   @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 *:data-[slot=input-group]:bg-transparent *:data-[slot=input-group]:border-b-input max-h-72 min-w-36 overflow-hidden rounded-none shadow-md ring-1 duration-100 *:data-[slot=input-group]:m-1.5 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-transparent *:data-[slot=input-group]:focus-within:border-transparent *:data-[slot=input-group]:px-2.5;
 }
 
-.z-combobox-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
-}
-
 .z-combobox-label {
   @apply px-3 py-2 text-xs uppercase tracking-wider font-semibold text-muted-foreground;
 }
@@ -303,8 +299,8 @@
   @apply text-muted-foreground hidden w-full justify-center py-2 text-center text-sm group-data-empty/combobox-content:flex;
 }
 
-.z-combobox-list {
-  @apply no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1.5 overflow-y-auto p-1.5 data-empty:p-0;
+.z-combobox-listbox {
+  @apply no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--kb-popper-content-available-height)---spacing(9)))] scroll-py-1.5 overflow-y-auto p-1.5 data-empty:p-0;
 }
 
 .z-combobox-item-text {
@@ -389,10 +385,6 @@
   @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-48 rounded-none p-1.5 shadow-md ring-1 duration-100;
 }
 
-.z-context-menu-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
-}
-
 .z-context-menu-item {
   @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive focus:*:[svg]:text-accent-foreground gap-2.5 rounded-none px-3 py-2 text-xs font-medium uppercase tracking-wider data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
@@ -464,19 +456,19 @@
 
 /* MARK: Drawer */
 .z-drawer-overlay {
-  @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 bg-black/20 supports-backdrop-filter:backdrop-blur-sm;
+  @apply bg-black/20 supports-backdrop-filter:backdrop-blur-sm data-transitioning:transition-colors data-transitioning:duration-400;
 }
 
 .z-drawer-content {
-  @apply bg-popover text-popover-foreground flex h-auto flex-col text-sm data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-none data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:rounded-none data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-none data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-none data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm;
+  @apply data-transitioning:transition-transform data-transitioning:duration-400 flex h-auto flex-col data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:mt-24 data-[side=bottom]:max-h-[80vh] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:w-3/4 data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:w-3/4 data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:mb-24 data-[side=top]:max-h-[80vh] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm bg-popover text-popover-foreground text-sm data-[side=bottom]:rounded-none data-[side=bottom]:border-t data-[side=left]:rounded-none data-[side=left]:border-r data-[side=right]:rounded-none data-[side=right]:border-l data-[side=top]:rounded-none data-[side=top]:border-b;
 }
 
 .z-drawer-handle {
-  @apply bg-muted mx-auto mt-4 hidden h-1.5 w-[100px] shrink-0 rounded-none group-data-[vaul-drawer-direction=bottom]/drawer-content:block;
+  @apply bg-muted mx-auto mt-4 hidden h-1.5 w-[100px] shrink-0 rounded-none group-data-[side=bottom]/drawer-content:block;
 }
 
 .z-drawer-header {
-  @apply gap-1 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-2 md:text-left;
+  @apply gap-1 p-4 md:gap-2 md:text-left group-data-[side=bottom]/drawer-content:text-center group-data-[side=top]/drawer-content:text-center;
 }
 
 .z-drawer-title {
@@ -494,10 +486,6 @@
 /* MARK: Dropdown Menu */
 .z-dropdown-menu-content {
   @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-48 rounded-none p-1.5 shadow-md ring-1 duration-100;
-}
-
-.z-dropdown-menu-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
 }
 
 .z-dropdown-menu-item {
@@ -621,10 +609,6 @@
 /* MARK: Hover Card */
 .z-hover-card-content {
   @apply data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground w-72 p-4 text-sm shadow-md ring-1 duration-100;
-}
-
-.z-hover-card-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
 }
 
 /* MARK: Input */
@@ -757,10 +741,6 @@
   @apply bg-popover text-popover-foreground data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-48 rounded-none p-1.5 shadow-md ring-1 duration-100;
 }
 
-.z-menubar-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
-}
-
 .z-menubar-item {
   @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive! not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-none px-3 py-2 text-sm data-disabled:opacity-50 data-inset:pl-9.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
@@ -811,7 +791,7 @@
 }
 
 .z-navigation-menu-trigger {
-  @apply hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/30 data-expanded:bg-muted/50 data-expanded:hover:bg-muted rounded-none px-4.5 py-2.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:outline-1 disabled:opacity-50;
+  @apply hover:bg-muted focus:bg-muted data-expanded:hover:bg-muted data-expanded:focus:bg-muted data-expanded:bg-muted/50 focus-visible:ring-ring/30 rounded-none px-4.5 py-2.5 text-sm font-medium transition-all focus-visible:ring-2 focus-visible:outline-1 disabled:opacity-50;
 }
 
 .z-navigation-menu-link {
@@ -819,7 +799,7 @@
 }
 
 .z-navigation-menu-trigger-icon {
-  @apply relative top-px ml-1 size-3 transition duration-300 group-data-open/navigation-menu-trigger:rotate-180 group-data-popup-open/navigation-menu-trigger:rotate-180;
+  @apply relative top-px ml-1 size-3 transition duration-300 group-data-expanded/navigation-menu-trigger:rotate-180;
 }
 
 .z-navigation-menu-content {
@@ -836,14 +816,6 @@
 
 .z-navigation-menu-indicator-arrow {
   @apply bg-border rounded-none shadow-md;
-}
-
-.z-navigation-menu-positioner {
-  @apply transition-[top,left,right,bottom] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:before:top-[-10px] data-[side=bottom]:before:right-0 data-[side=bottom]:before:left-0;
-}
-
-.z-navigation-menu-popup {
-  @apply bg-popover text-popover-foreground ring-foreground/10 rounded-none shadow-md ring-1 transition-all ease-[cubic-bezier(0.22,1,0.36,1)] outline-none data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:scale-90 data-starting-style:opacity-0;
 }
 
 /* MARK: Native Select */
@@ -877,10 +849,6 @@
   @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 flex flex-col gap-4 rounded-none p-4 text-sm shadow-md ring-1 duration-100;
 }
 
-.z-popover-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
-}
-
 .z-popover-header {
   @apply flex flex-col gap-1 text-sm;
 }
@@ -894,9 +862,6 @@
 }
 
 /* MARK: Progress */
-.z-progress {
-  @apply bg-muted h-0.5 rounded-none;
-}
 
 .z-progress-track {
   @apply bg-muted h-0.5 rounded-none;
@@ -938,7 +903,7 @@
 
 /* MARK: Scroll Area */
 .z-scroll-area-scrollbar {
-  @apply data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-l data-vertical:border-l-transparent;
+  @apply data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2.5 data-[orientation=vertical]:border-l data-[orientation=vertical]:border-l-transparent;
 }
 
 .z-scroll-area-thumb {
@@ -947,7 +912,7 @@
 
 /* MARK: Select */
 .z-select-trigger {
-  @apply border-transparent border-b-input bg-transparent data-placeholder:text-muted-foreground focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 gap-1.5 rounded-none border py-2 px-0 text-sm transition-[color,border-color] data-[size=default]:h-10 data-[size=sm]:h-9 *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply border-transparent border-b-input bg-transparent focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 gap-1.5 rounded-none border py-2 px-0 text-sm transition-[color,border-color] data-[size=default]:h-10 data-[size=sm]:h-9 *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-select-value {
@@ -960,10 +925,6 @@
 
 .z-select-content {
   @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 min-w-36 rounded-none shadow-md ring-1 duration-100;
-}
-
-.z-select-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
 }
 
 .z-select-label {
@@ -1106,7 +1067,7 @@
 }
 
 .z-sidebar-menu-button-variant-outline {
-  @apply bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))];
+  @apply bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_var(--sidebar-border)] hover:shadow-[0_0_0_1px_var(--sidebar-accent)];
 }
 
 .z-sidebar-menu-button-size-default {
@@ -1156,11 +1117,11 @@
 
 /* MARK: Slider */
 .z-slider {
-  @apply data-vertical:min-h-40;
+  @apply data-[orientation=vertical]:min-h-40;
 }
 
 .z-slider-track {
-  @apply bg-input/50 data-horizontal:h-0.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-0.5;
+  @apply bg-input/50 data-[orientation=horizontal]:h-0.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-0.5;
 }
 
 .z-slider-range {
@@ -1171,7 +1132,7 @@
   @apply size-3 border-none bg-primary transition-colors hover:ring-2 hover:ring-ring/30 focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:outline-hidden;
 }
 
-/* MARK: Sonner */
+/* MARK: Toast */
 .z-toast {
   @apply rounded-none!;
 }
@@ -1228,11 +1189,11 @@
 }
 
 .z-tabs-list {
-  @apply p-1 group-data-horizontal/tabs:h-10;
+  @apply p-1 group-data-[orientation=horizontal]/tabs:h-10;
 }
 
 .z-tabs-trigger {
-  @apply gap-2 border border-transparent px-4 py-1.5 text-xs font-semibold group-data-vertical/tabs:px-4 group-data-vertical/tabs:py-2 [&_svg:not([class*='size-'])]:size-3.5 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 uppercase tracking-wider;
+  @apply gap-2 border border-transparent px-4 py-1.5 text-xs font-semibold group-data-[orientation=vertical]/tabs:px-4 group-data-[orientation=vertical]/tabs:py-2 [&_svg:not([class*='size-'])]:size-3.5 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 uppercase tracking-wider;
 }
 
 .z-tabs-content {
@@ -1275,7 +1236,7 @@
 }
 
 .z-toggle-group-item {
-  @apply data-[state=on]:bg-muted data-[state=on]:text-foreground group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-6 group-data-[spacing=0]/toggle-group:shadow-none group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-none group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-none group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-none group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-none group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-4 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-4;
+  @apply data-[state=on]:bg-muted data-[state=on]:text-foreground group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-6 group-data-[spacing=0]/toggle-group:shadow-none group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-none group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:first:rounded-none group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-none group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:last:rounded-none group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-4 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-4;
 }
 
 /* MARK: Tooltip */
@@ -1283,16 +1244,8 @@
   @apply data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-none;
 }
 
-.z-tooltip-content-logical {
-  @apply data-[side=inline-start]:slide-in-from-right-2 data-[side=inline-end]:slide-in-from-left-2;
-}
-
 .z-tooltip-arrow {
   @apply size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-none;
-}
-
-.z-tooltip-arrow-logical {
-  @apply data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:translate-x-[1.5px] data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:translate-x-[-1.5px] data-[side=inline-start]:-translate-y-1/2;
 }
 
 /* MARK: Input Group */
@@ -1351,4 +1304,173 @@
 /* MARK: Menu Translucent */
 .z-menu-translucent {
   @apply animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-foreground/10! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:**:text-accent-foreground!;
+}
+
+/* MARK: Bubble */
+.z-bubble {
+  @apply gap-1 data-[align=end]:self-end max-w-[80%] data-[variant=ghost]:max-w-full group-data-[align=end]/message:self-end;
+}
+
+.z-bubble-content {
+  @apply rounded-none border border-transparent px-4 py-3 text-sm leading-relaxed [button,a]:outline-none [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-2 [button,a]:focus-visible:ring-ring/30 group-data-[align=end]/bubble:self-end;
+}
+
+.z-bubble-variant-default {
+  @apply *:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80;
+}
+
+.z-bubble-variant-secondary {
+  @apply *:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)];
+}
+
+.z-bubble-variant-muted {
+  @apply *:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)];
+}
+
+.z-bubble-variant-tinted {
+  @apply *:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)] dark:*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.3_calc(c*0.4)_h)] *:data-[slot=bubble-content]:text-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.88_calc(c*0.5)_h)] dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.35_calc(c*0.5)_h)];
+}
+
+.z-bubble-variant-outline {
+  @apply *:data-[slot=bubble-content]:bg-background *:data-[slot=bubble-content]:border-border [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30;
+}
+
+.z-bubble-variant-ghost {
+  @apply *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50 border-none;
+}
+
+.z-bubble-variant-destructive {
+  @apply *:data-[slot=bubble-content]:bg-destructive/10 dark:*:data-[slot=bubble-content]:bg-destructive/20 *:data-[slot=bubble-content]:text-destructive [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30;
+}
+
+.z-bubble-reactions {
+  @apply rounded-none ring-3 ring-card bg-muted shrink-0 gap-1 px-2 py-0.5 has-[button]:p-0 text-sm;
+}
+
+.z-bubble-reactions-side-top {
+  @apply top-0 -translate-y-3/4;
+}
+
+.z-bubble-reactions-side-bottom {
+  @apply bottom-0 translate-y-3/4;
+}
+
+.z-bubble-reactions-align-start {
+  @apply left-3;
+}
+
+.z-bubble-reactions-align-end {
+  @apply right-3;
+}
+
+.z-bubble-group {
+  @apply gap-2;
+}
+
+/* MARK: Attachment */
+.z-attachment {
+  @apply rounded-none w-fit focus-within:ring-1 focus-within:ring-ring/30;
+}
+
+.z-attachment-orientation-horizontal {
+  @apply min-w-40;
+}
+
+.z-attachment-orientation-vertical {
+  @apply w-24 has-data-[slot=attachment-content]:w-30;
+}
+
+.z-attachment-size-default {
+  @apply gap-2 has-data-[slot=attachment-content]:px-3 has-data-[slot=attachment-content]:py-2.5 has-data-[slot=attachment-media]:p-2.5 text-sm;
+}
+
+.z-attachment-size-sm {
+  @apply gap-2.5 has-data-[slot=attachment-content]:px-2.5 has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-media]:p-2 text-xs;
+}
+
+.z-attachment-size-xs {
+  @apply gap-1.5 has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-media]:p-1.5 text-xs rounded-none;
+}
+
+.z-attachment-media {
+  @apply bg-muted text-foreground w-10 rounded-none group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=xs]/attachment:rounded-none [&_svg:not([class*='size-'])]:size-4 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5 group-data-[orientation=vertical]/attachment:w-full group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[orientation=vertical]/attachment:*:data-[slot=spinner]:size-6!;
+}
+
+.z-attachment-media-variant-image {
+  @apply opacity-60 group-data-[state=idle]/attachment:opacity-100 group-data-[state=done]/attachment:opacity-100;
+}
+
+.z-attachment-content {
+  @apply leading-tight group-data-[orientation=vertical]/attachment:px-1;
+}
+
+.z-attachment-title {
+  @apply font-medium;
+}
+
+.z-attachment-description {
+  @apply mt-0.5 text-xs;
+}
+
+.z-attachment-actions {
+  @apply group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:right-3 relative z-20 group-data-[orientation=vertical]/attachment:gap-1;
+}
+
+.z-attachment-group {
+  @apply gap-3 scroll-px-1 py-1;
+}
+
+.z-attachment-trigger {
+  @apply absolute inset-0 z-10 outline-none;
+}
+
+/* MARK: Marker */
+.z-marker {
+  @apply gap-2 text-xs text-muted-foreground [a]:hover:text-foreground [a]:underline-offset-3 [a]:underline [&_svg:not([class*='size-'])]:size-4 min-h-4 text-left uppercase tracking-wide;
+}
+
+.z-marker-variant-separator {
+  @apply before:h-px before:min-w-0 before:flex-1 before:bg-border after:h-px after:min-w-0 after:flex-1 after:bg-border before:mr-1 after:ml-1;
+}
+
+.z-marker-variant-border {
+  @apply border-b border-border pb-2;
+}
+
+.z-marker-icon {
+  @apply size-4 [&_svg:not([class*='size-'])]:size-4;
+}
+
+.z-marker-content {
+  @apply group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:hover:text-foreground *:[a]:underline *:[a]:underline-offset-3;
+}
+
+/* MARK: Message Scroller */
+.z-message-scroller-content {
+  @apply gap-8;
+}
+
+/* MARK: Message */
+.z-message {
+  @apply text-sm gap-2;
+}
+
+.z-message-avatar {
+  @apply min-w-8 group-has-data-[slot=message-footer]/message:-translate-y-8;
+}
+
+.z-message-content {
+  @apply gap-2.5 group-data-[align=end]/message:*:data-slot:self-end;
+}
+
+.z-message-header {
+  @apply text-xs font-medium text-muted-foreground px-4 group-has-data-[variant=ghost]/message:px-0 uppercase tracking-wide;
+}
+
+.z-message-footer {
+  @apply text-xs font-medium text-muted-foreground px-4 group-has-data-[variant=ghost]/message:px-0 uppercase tracking-wide;
+}
+
+.z-message-group {
+  @apply gap-2;
 }

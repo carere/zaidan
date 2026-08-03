@@ -4,10 +4,10 @@
   "title": "Large",
   "cssVars": {
     "light": {
-      "radius": "0.75rem"
+      "radius": "0.875rem"
     },
     "dark": {
-      "radius": "0.75rem"
+      "radius": "0.875rem"
     }
   },
   "type": "registry:theme"

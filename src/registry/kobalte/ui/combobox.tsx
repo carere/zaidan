@@ -196,7 +196,7 @@ const ComboboxContent = <T extends ValidComponent = "div">(props: ComboboxConten
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Content
         class={cn(
-          "relative isolate z-50 z-combobox-content z-menu-target max-h-(--kb-popper-available-height) min-w-32 origin-(--kb-combobox-content-transform-origin) overflow-y-auto overflow-x-hidden",
+          "relative isolate z-50 z-combobox-content z-menu-target max-h-(--kb-popper-content-available-height) min-w-32 origin-(--kb-combobox-content-transform-origin) overflow-y-auto overflow-x-hidden",
           local.class,
         )}
         data-slot="combobox-content"

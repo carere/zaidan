@@ -5,7 +5,7 @@ import type { sharedComponents } from "@/components/mdx-components";
 import { FONT_DEFINITIONS, type FontName } from "@/lib/fonts";
 import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
-export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera"]);
+export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera", "rhea"]);
 export type Style = z.infer<typeof StyleSchema>;
 
 export const BaseColorSchema = z.enum([
