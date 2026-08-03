@@ -5,6 +5,7 @@ import {
   createSignal,
   type ParentProps,
   Show,
+  Suspense,
   splitProps,
 } from "solid-js";
 import { Dynamic } from "solid-js/web";
@@ -60,7 +61,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
             </p>
           }
         >
-          {(Example) => <Dynamic component={Example()} />}
+          {(Example) => (
+            <Suspense>
+              <Dynamic component={Example()} />
+            </Suspense>
+          )}
         </Show>
       </div>
 

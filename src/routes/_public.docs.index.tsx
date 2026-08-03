@@ -1,36 +1,36 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { docs } from "@velite";
-import { lazy, Suspense } from "solid-js";
+import { createMemo } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { DocsPage } from "@/components/docs-page";
-import { DocsSkeleton } from "@/components/docs-skeleton";
 import { sharedComponents } from "@/components/mdx-components";
+import { getMdxContent, preloadMdxContent } from "@/lib/mdx-content";
 import { createPageHead } from "@/lib/seo";
-import type { MdxModule } from "@/lib/types";
 
-const mdxModules = import.meta.glob<MdxModule>("../pages/docs/*.mdx");
+const mdxPath = "../pages/docs/index.mdx";
 
 export const Route = createFileRoute("/_public/docs/")({
-  loader: () => docs.find((page) => page.slug === "index"),
+  loader: async () => {
+    const doc = docs.find((page) => page.slug === "index");
+    await preloadMdxContent(mdxPath);
+    return { doc, mdxPath };
+  },
   head: () =>
     createPageHead({
       title: "Introduction",
       description: "Zaidan is a collection of open-code components for SolidJS.",
       path: "/docs",
     }),
-  component: () => (
-    <Suspense fallback={<DocsSkeleton />}>
-      <IntroductionPage />
-    </Suspense>
-  ),
+  component: IntroductionPage,
 });
 
 function IntroductionPage() {
-  const doc = Route.useLoaderData();
-  const MDXContent = lazy(mdxModules["../pages/docs/index.mdx"] as () => Promise<MdxModule>);
+  const data = Route.useLoaderData();
+  const MDXContent = createMemo(() => getMdxContent(data().mdxPath));
 
   return (
-    <DocsPage toc={doc()?.toc ?? []}>
-      <MDXContent components={sharedComponents} />
+    <DocsPage toc={data().doc?.toc ?? []}>
+      <Dynamic component={MDXContent()} components={sharedComponents} />
     </DocsPage>
   );
 }

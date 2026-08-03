@@ -1,7 +1,12 @@
-import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  ScriptOnce,
+  Scripts,
+} from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { createIsomorphicFn } from "@tanstack/solid-start";
-import { getCookie } from "@tanstack/solid-start/server";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import { NotFoundPage } from "@/components/not-found-page";
@@ -11,6 +16,7 @@ import {
   type ColorMode,
   ColorModeProvider,
   getClientColorMode,
+  ZAIDAN_COLOR_MODE_COOKIE_KEY,
 } from "@/registry/kobalte/components/color-mode";
 import styleCss from "../styles.css?url";
 
@@ -58,8 +64,24 @@ export const Route = createRootRouteWithContext()({
 });
 
 const getColorMode = createIsomorphicFn()
-  .server(() => getCookie("zaidan-color-mode") ?? "light")
+  .server(() => "light" as ColorMode)
   .client(getClientColorMode);
+
+const colorModeScript = `(() => {
+  try {
+    const cookie = document.cookie
+      .split("; ")
+      .find((value) => value.startsWith("${ZAIDAN_COLOR_MODE_COOKIE_KEY}="));
+    const stored = cookie?.split("=")[1];
+    const colorMode = stored === "light" || stored === "dark"
+      ? stored
+      : window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(colorMode);
+  } catch {}
+})()`;
 
 function RootComponent() {
   const colorMode = getColorMode() as ColorMode;
@@ -73,9 +95,10 @@ function RootComponent() {
     >
       <head>
         <HydrationScript />
+        <ScriptOnce>{colorModeScript}</ScriptOnce>
+        <HeadContent />
       </head>
       <body class="style-vega">
-        <HeadContent />
         <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
             <Outlet />

@@ -1,43 +1,42 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { ui } from "@velite";
-import { lazy, Suspense } from "solid-js";
+import { createMemo } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { ComponentDocsHeader } from "@/components/component-docs-header";
 import { DocsPage } from "@/components/docs-page";
-import { DocsSkeleton } from "@/components/docs-skeleton";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
+import { getMdxContent, preloadMdxContent } from "@/lib/mdx-content";
 import { createPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/docs/components/$primitive/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     if (params.primitive !== "kobalte") {
       throw notFound({ data: { slug: params.slug } });
     }
 
     const doc = ui.find((page) => page.slug === params.slug);
     if (!doc) throw notFound({ data: { slug: params.slug } });
-    return doc;
+    const mdxPath = `../pages/ui/${params.primitive}/${doc.slug}.mdx`;
+    await preloadMdxContent(mdxPath);
+    return { doc, mdxPath };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return {};
     return createPageHead({
-      title: loaderData.title,
-      description: loaderData.description,
-      path: `/docs/components/${params.primitive}/${loaderData.slug}`,
+      title: loaderData.doc.title,
+      description: loaderData.doc.description,
+      path: `/docs/components/${params.primitive}/${loaderData.doc.slug}`,
     });
   },
-  component: () => (
-    <Suspense fallback={<DocsSkeleton />}>
-      <ComponentPage />
-    </Suspense>
-  ),
+  component: ComponentPage,
   notFoundComponent: () => <NotFoundPage />,
 });
 
 function ComponentPage() {
-  const doc = Route.useLoaderData();
-  const params = Route.useParams();
-  const MDXContent = lazy(() => import(`../pages/ui/${params().primitive}/${doc().slug}.mdx`));
+  const data = Route.useLoaderData();
+  const doc = createMemo(() => data().doc);
+  const MDXContent = createMemo(() => getMdxContent(data().mdxPath));
 
   return (
     <DocsPage toc={doc().toc}>
@@ -49,11 +48,11 @@ function ComponentPage() {
             foundation={doc().foundation}
           />
           <div class="w-full flex-1">
-            <MDXContent components={sharedComponents} />
+            <Dynamic component={MDXContent()} components={sharedComponents} />
           </div>
         </div>
       ) : (
-        <MDXContent components={sharedComponents} />
+        <Dynamic component={MDXContent()} components={sharedComponents} />
       )}
     </DocsPage>
   );

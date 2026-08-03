@@ -16,6 +16,7 @@ import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage, Kind } from "@/lib/types";
 
 export const Route = createFileRoute("/preview/$kind/$primitive/$slug")({
+  ssr: false,
   loader: ({ params }) => {
     const { slug, primitive, kind } = params;
 

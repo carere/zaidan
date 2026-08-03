@@ -6,6 +6,7 @@ import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
 
 export const Route = createFileRoute("/preview/create")({
+  ssr: false,
   component: PreviewComponent,
 });
 

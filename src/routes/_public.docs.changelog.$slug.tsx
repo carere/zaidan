@@ -1,38 +1,38 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { changelog } from "@velite";
-import { lazy, Suspense } from "solid-js";
+import { createMemo } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { DocsPage } from "@/components/docs-page";
-import { DocsSkeleton } from "@/components/docs-skeleton";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
+import { getMdxContent, preloadMdxContent } from "@/lib/mdx-content";
 import { createPageHead } from "@/lib/seo";
 import { fmtDate } from "@/lib/utils";
 
 export const Route = createFileRoute("/_public/docs/changelog/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const entry = changelog.find((item) => item.slug === params.slug);
     if (!entry) throw notFound({ data: { slug: params.slug } });
-    return entry;
+    const mdxPath = `../pages/changelog/${entry.slug}.mdx`;
+    await preloadMdxContent(mdxPath);
+    return { entry, mdxPath };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
     return createPageHead({
-      title: `${loaderData.title} | Changelog`,
-      description: loaderData.description,
-      path: `/docs/changelog/${loaderData.slug}`,
+      title: `${loaderData.entry.title} | Changelog`,
+      description: loaderData.entry.description,
+      path: `/docs/changelog/${loaderData.entry.slug}`,
     });
   },
-  component: () => (
-    <Suspense fallback={<DocsSkeleton />}>
-      <ChangelogEntryPage />
-    </Suspense>
-  ),
+  component: ChangelogEntryPage,
   notFoundComponent: () => <NotFoundPage />,
 });
 
 function ChangelogEntryPage() {
-  const entry = Route.useLoaderData();
-  const MDXContent = lazy(() => import(`../pages/changelog/${entry().slug}.mdx`));
+  const data = Route.useLoaderData();
+  const entry = createMemo(() => data().entry);
+  const MDXContent = createMemo(() => getMdxContent(data().mdxPath));
 
   return (
     <DocsPage toc={entry().toc}>
@@ -43,7 +43,7 @@ function ChangelogEntryPage() {
         </h1>
         <p class="mt-3 text-base text-muted-foreground">{entry().description}</p>
       </header>
-      <MDXContent components={sharedComponents} />
+      <Dynamic component={MDXContent()} components={sharedComponents} />
     </DocsPage>
   );
 }

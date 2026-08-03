@@ -4,6 +4,7 @@ import { isChartId, loadChartComponent } from "@/lib/charts";
 import type { IframeMessage } from "@/lib/types";
 
 export const Route = createFileRoute("/preview/charts/$name")({
+  ssr: false,
   loader: ({ params }) => {
     if (!isChartId(params.name)) throw notFound();
     return params.name;

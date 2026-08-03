@@ -1,43 +1,43 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { docs } from "@velite";
-import { lazy, Suspense } from "solid-js";
+import { createMemo } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import { DocsPage } from "@/components/docs-page";
-import { DocsSkeleton } from "@/components/docs-skeleton";
 import { sharedComponents } from "@/components/mdx-components";
 import { NotFoundPage } from "@/components/not-found-page";
+import { getMdxContent, preloadMdxContent } from "@/lib/mdx-content";
 import { createPageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/docs/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const doc = docs.find((page) => page.parent === undefined && page.slug === params.slug);
     if (!doc || doc.slug === "index") {
       throw notFound({ data: { slug: params.slug } });
     }
-    return doc;
+    const mdxPath = `../pages/docs/${doc.slug}.mdx`;
+    await preloadMdxContent(mdxPath);
+    return { doc, mdxPath };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return {};
     return createPageHead({
-      title: loaderData.title,
-      description: loaderData.description,
-      path: `/docs/${loaderData.slug}`,
+      title: loaderData.doc.title,
+      description: loaderData.doc.description,
+      path: `/docs/${loaderData.doc.slug}`,
     });
   },
-  component: () => (
-    <Suspense fallback={<DocsSkeleton />}>
-      <DocPage />
-    </Suspense>
-  ),
+  component: DocPage,
   notFoundComponent: () => <NotFoundPage />,
 });
 
 function DocPage() {
-  const doc = Route.useLoaderData();
-  const MDXContent = lazy(() => import(`../pages/docs/${doc().slug}.mdx`));
+  const data = Route.useLoaderData();
+  const doc = createMemo(() => data().doc);
+  const MDXContent = createMemo(() => getMdxContent(data().mdxPath));
 
   return (
     <DocsPage toc={doc().toc}>
-      <MDXContent components={sharedComponents} />
+      <Dynamic component={MDXContent()} components={sharedComponents} />
     </DocsPage>
   );
 }

@@ -1,3 +1,4 @@
+import { ClientOnly } from "@tanstack/solid-router";
 import { createMemo, createResource, Suspense } from "solid-js";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Skeleton } from "@/registry/kobalte/ui/skeleton";
@@ -38,9 +39,11 @@ export function GitHubLink() {
       class="h-8 shadow-none"
     >
       <Github class="fill-foreground" />
-      <Suspense fallback={<Skeleton class="h-4 w-10.5" />}>
-        <StarsCount />
-      </Suspense>
+      <ClientOnly fallback={<Skeleton class="h-4 w-10.5" />}>
+        <Suspense fallback={<Skeleton class="h-4 w-10.5" />}>
+          <StarsCount />
+        </Suspense>
+      </ClientOnly>
     </Button>
   );
 }
