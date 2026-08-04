@@ -11,19 +11,8 @@ import { highlightCode } from "./src/lib/vite-plugins/highlight-code";
 import mdx from "./src/lib/vite-plugins/mdx";
 
 export default defineConfig({
-  optimizeDeps: {
-    // v1.0.0 publishes TS/TSX source. Vite's optimizer preserves some JSX in its
-    // generated .js bundle, so let vite-plugin-solid compile the source directly.
-    exclude: ["solid-recharts"],
-  },
   resolve: {
     tsconfigPaths: true,
-  },
-  ssr: {
-    noExternal: ["solid-recharts"],
-    optimizeDeps: {
-      exclude: ["solid-recharts"],
-    },
   },
   plugins: [
     lucide(),

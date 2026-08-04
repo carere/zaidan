@@ -47,7 +47,7 @@
     "shadcn": "^4.16.1",
     "solid-js": "^1.9.14",
     "solid-mdx": "^0.0.7",
-    "solid-recharts": "1.0.0",
+    "solid-recharts": "^1.0.1",
     "solid-sonner": "^0.2.8",
     "tailwind-merge": "^3.6.0",
     "ts-pattern": "^5.9.0",

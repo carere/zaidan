@@ -162,7 +162,7 @@
     {
       "name": "chart",
       "type": "registry:ui",
-      "dependencies": ["solid-recharts@1.0.0"],
+      "dependencies": ["solid-recharts@1.0.1"],
       "registryDependencies": [],
       "files": [
         {
