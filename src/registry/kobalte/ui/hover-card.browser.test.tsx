@@ -45,9 +45,11 @@ describe("Hover Card browser behavior", () => {
     expect(content?.hasAttribute("data-base-ui-focusable")).toBe(true);
     expect(content?.classList.contains("z-hover-card-content-logical")).toBe(true);
     expect(positioner?.classList.contains("isolate")).toBe(true);
+    expect(positioner?.getAttribute("role")).toBe("presentation");
     expect(positioner?.hasAttribute("data-open")).toBe(true);
     expect(positioner?.getAttribute("data-side")).toBe("top");
     expect(positioner?.getAttribute("data-align")).toBe("end");
+    expect(positioner?.hasAttribute("data-anchor-hidden")).toBe(false);
     expect(positioner?.style.getPropertyValue("--transform-origin")).toBe(
       "var(--kb-popper-content-transform-origin)",
     );
@@ -57,6 +59,10 @@ describe("Hover Card browser behavior", () => {
     expect(positioner?.style.getPropertyValue("--anchor-width")).toBe(
       "var(--kb-popper-anchor-width)",
     );
+
+    positioner?.style.setProperty("visibility", "hidden");
+    await Promise.resolve();
+    expect(positioner?.hasAttribute("data-anchor-hidden")).toBe(true);
   });
 
   it("reports completion after an initially open card finishes mounting", async () => {
@@ -239,11 +245,13 @@ describe("Hover Card browser behavior", () => {
     finishAnimation?.();
     await finished;
     await Promise.resolve();
-    expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
+    expect(onOpenChangeComplete).not.toHaveBeenCalled();
 
     actionsRef.current?.unmount();
     retained?.dispatchEvent(new AnimationEvent("animationend", { bubbles: true }));
     await Promise.resolve();
+    expect(onOpenChangeComplete).toHaveBeenCalledOnce();
+    expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
   });
 });

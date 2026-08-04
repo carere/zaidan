@@ -1,6 +1,6 @@
 import * as HoverCardPrimitive from "@kobalte/core/hover-card";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ComponentProps, JSX, ValidComponent } from "solid-js";
+import type { JSX, ValidComponent } from "solid-js";
 import {
   createContext,
   createEffect,
@@ -193,13 +193,20 @@ function setElementRef(ref: unknown, element: HTMLElement) {
   if (typeof ref === "function") (ref as (element: HTMLElement) => void)(element);
 }
 
-// Base UI's detached handle, React event payload, and render-function children do not
-// have direct Solid equivalents. Solid callers use controlled props, actionsRef, and `as`.
-type HoverCardProps = Omit<HoverCardPrimitive.HoverCardRootProps, "onOpenChange"> & {
+/**
+ * The pinned Base UI root surface adapted to Solid.
+ *
+ * Base UI's detached `handle`, trigger IDs/payload, and render-function children need a
+ * shared cross-tree trigger store that Kobalte does not provide. Solid callers use controlled
+ * `open`, `onOpenChange`, `actionsRef`, JSX children, and polymorphic `as` props instead.
+ */
+type HoverCardProps = {
   actionsRef?: { current: HoverCardActions | null };
-  onCurrentPlacementChange?: (placement: HoverCardPlacement) => void;
+  children?: JSX.Element;
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean, details: HoverCardChangeEventDetails) => void;
   onOpenChangeComplete?: (open: boolean) => void;
+  open?: boolean;
 };
 
 type HoverCardActions = {
@@ -208,35 +215,27 @@ type HoverCardActions = {
 };
 
 const HoverCard = (props: HoverCardProps) => {
-  const [local, others] = splitProps(props, [
+  const [local] = splitProps(props, [
     "actionsRef",
     "children",
-    "closeDelay",
     "defaultOpen",
-    "forceMount",
-    "gutter",
-    "onCurrentPlacementChange",
     "onOpenChange",
     "onOpenChangeComplete",
     "open",
-    "openDelay",
-    "placement",
-    "shift",
   ]);
-  const initialPlacement = placementParts(local.placement ?? "bottom");
   const defaultPosition: ResolvedHoverCardPosition = {
-    align: initialPlacement.align,
-    alignOffset: local.shift ?? 4,
-    side: initialPlacement.side,
-    sideOffset: local.gutter ?? 4,
+    align: "center",
+    alignOffset: 4,
+    side: "bottom",
+    sideOffset: 4,
   };
   const [position, setPosition] = createSignal(defaultPosition);
   const [currentPlacement, setCurrentPlacement] = createSignal(
     positionToPlacement(defaultPosition),
   );
   const [uncontrolledOpen, setUncontrolledOpen] = createSignal(local.defaultOpen ?? false);
-  const [openDelay, setOpenDelay] = createSignal(local.openDelay ?? 600);
-  const [closeDelay, setCloseDelay] = createSignal(local.closeDelay ?? 300);
+  const [openDelay, setOpenDelay] = createSignal(600);
+  const [closeDelay, setCloseDelay] = createSignal(300);
   const [preventedUnmount, setPreventedUnmount] = createSignal(false);
   const [transitionStatus, setTransitionStatus] = createSignal<HoverCardTransitionStatus>();
   const [content, setContent] = createSignal<HTMLElement>();
@@ -287,7 +286,6 @@ const HoverCard = (props: HoverCardProps) => {
     },
     recordPlacement: (placement) => {
       setCurrentPlacement(placement);
-      local.onCurrentPlacementChange?.(placement);
     },
     setContent,
     setTrigger,
@@ -331,6 +329,7 @@ const HoverCard = (props: HoverCardProps) => {
       }
       if (version === completeVersion) {
         setTransitionStatus(undefined);
+        if (!nextOpen && preventedUnmount()) return;
         local.onOpenChangeComplete?.(nextOpen);
       }
     });
@@ -341,7 +340,15 @@ const HoverCard = (props: HoverCardProps) => {
     if (!actionsRef) return;
     const actions: HoverCardActions = {
       close: () => requestOpenChange(false, "imperative-action"),
-      unmount: () => setPreventedUnmount(false),
+      unmount: () => {
+        const completesPreventedClose = untrack(preventedUnmount);
+        setPreventedUnmount(false);
+        if (completesPreventedClose) {
+          completeVersion += 1;
+          setTransitionStatus(undefined);
+          local.onOpenChangeComplete?.(false);
+        }
+      },
     };
     actionsRef.current = actions;
     onCleanup(() => {
@@ -360,8 +367,9 @@ const HoverCard = (props: HoverCardProps) => {
       <HoverCardPrimitive.Root
         data-slot="hover-card"
         closeDelay={closeDelay()}
-        forceMount={local.forceMount || preventedUnmount()}
+        forceMount={preventedUnmount()}
         gutter={position().sideOffset}
+        hideWhenDetached
         onOpenChange={(nextOpen) => {
           const change = pendingChange;
           pendingChange = undefined;
@@ -376,7 +384,6 @@ const HoverCard = (props: HoverCardProps) => {
         openDelay={openDelay()}
         placement={positionToPlacement(position())}
         shift={position().alignOffset}
-        {...others}
       >
         {local.children}
       </HoverCardPrimitive.Root>
@@ -386,11 +393,8 @@ const HoverCard = (props: HoverCardProps) => {
 
 type HoverCardTriggerProps<T extends ValidComponent = "a"> = PolymorphicProps<
   T,
-  HoverCardPrimitive.HoverCardTriggerProps<T>
-> & {
-  closeDelay?: number;
-  delay?: number;
-};
+  { closeDelay?: number; delay?: number }
+>;
 
 const HoverCardTrigger = <T extends ValidComponent = "a">(props: HoverCardTriggerProps<T>) => {
   const context = useHoverCardContext();
@@ -410,7 +414,7 @@ const HoverCardTrigger = <T extends ValidComponent = "a">(props: HoverCardTrigge
       local.onPointerEnter as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
       event,
     );
-    if (event.defaultPrevented || others.disabled || event.pointerType === "touch") return;
+    if (event.defaultPrevented || event.pointerType === "touch") return;
     if (event.pointerType !== "mouse") {
       event.preventDefault();
       return;
@@ -432,7 +436,7 @@ const HoverCardTrigger = <T extends ValidComponent = "a">(props: HoverCardTrigge
       local.onFocus as JSX.EventHandlerUnion<HTMLElement, FocusEvent> | undefined,
       event,
     );
-    if (event.defaultPrevented || others.disabled) return;
+    if (event.defaultPrevented) return;
     configureDelays();
     context.recordChange("trigger-focus", event, event.currentTarget);
   };
@@ -464,14 +468,15 @@ const HoverCardTrigger = <T extends ValidComponent = "a">(props: HoverCardTrigge
 
 type HoverCardContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
   T,
-  HoverCardPrimitive.HoverCardContentProps<T>
-> &
-  Pick<ComponentProps<T>, "class" | "children"> & {
+  {
     align?: HoverCardAlign;
     alignOffset?: HoverCardOffset;
+    children?: JSX.Element;
+    class?: string;
     side?: HoverCardSide;
     sideOffset?: HoverCardOffset;
-  };
+  }
+>;
 
 const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardContentProps<T>) => {
   const context = useHoverCardContext();
@@ -552,6 +557,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
     setPositioner(positionerElement);
 
     positionerElement.classList.add("isolate", "z-50");
+    positionerElement.setAttribute("role", "presentation");
     positionerElement.style.setProperty(
       "--transform-origin",
       "var(--kb-popper-content-transform-origin)",
@@ -567,6 +573,10 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
     positionerElement.style.setProperty("--anchor-width", "var(--kb-popper-anchor-width)");
 
     const updatePlacement = () => {
+      positionerElement.toggleAttribute(
+        "data-anchor-hidden",
+        positionerElement.style.visibility === "hidden",
+      );
       const nextPlacement = placementFromTransformOrigin(
         positionerElement.style.getPropertyValue("--kb-popper-content-transform-origin"),
       );
@@ -576,12 +586,25 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
     mutationObserver.observe(positionerElement, { attributeFilter: ["style"], attributes: true });
     updatePlacement();
 
-    let previousMeasurements = "";
+    let previousMeasurements:
+      | { anchorHeight: number; anchorWidth: number; height: number; width: number }
+      | undefined;
     const updateMeasurements = () => {
       const anchorRect = context.trigger()?.getBoundingClientRect();
       const positionerRect = positionerElement.getBoundingClientRect();
-      const measurements = `${anchorRect?.width ?? 0}:${anchorRect?.height ?? 0}:${positionerRect.width}:${positionerRect.height}`;
-      if (measurements === previousMeasurements) return;
+      const measurements = {
+        anchorHeight: anchorRect?.height ?? 0,
+        anchorWidth: anchorRect?.width ?? 0,
+        height: positionerRect.height,
+        width: positionerRect.width,
+      };
+      if (
+        previousMeasurements?.anchorHeight === measurements.anchorHeight &&
+        previousMeasurements.anchorWidth === measurements.anchorWidth &&
+        previousMeasurements.height === measurements.height &&
+        previousMeasurements.width === measurements.width
+      )
+        return;
       previousMeasurements = measurements;
       if (anchorRect)
         positionerElement.style.setProperty("--anchor-height", `${anchorRect.height}px`);
