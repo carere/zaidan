@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "solid-js";
-import { splitProps } from "solid-js";
+import { mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
 type EmptyProps = ComponentProps<"div">;
@@ -52,7 +52,8 @@ const emptyMediaVariants = cva(
 type EmptyMediaProps = ComponentProps<"div"> & VariantProps<typeof emptyMediaVariants>;
 
 const EmptyMedia = (props: EmptyMediaProps) => {
-  const [local, others] = splitProps(props, ["class", "variant"]);
+  const mergedProps = mergeProps({ variant: "default" } as const, props);
+  const [local, others] = splitProps(mergedProps, ["class", "variant"]);
 
   return (
     <div
