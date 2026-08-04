@@ -1296,7 +1296,7 @@
     {
       "name": "checkbox",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": ["lucide-solid"],
       "registryDependencies": [],
       "files": [
         {
