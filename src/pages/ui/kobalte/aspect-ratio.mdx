@@ -2,68 +2,75 @@
 title: Aspect Ratio
 slug: aspect-ratio
 description: Displays content within a desired ratio.
+component: true
 ---
 
-# Aspect Ratio
-
-Displays content within a desired ratio.
+<ComponentPreview name="aspect-ratio-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/aspect-ratio
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/aspect-ratio.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
-```
+<Step>Copy and paste the following code into your project.</Step>
 
-## Examples
+<ComponentSource name="aspect-ratio" title="components/ui/aspect-ratio.tsx" />
 
-Here are the source code of all the examples from the preview page:
+<Step>Update the import paths to match your project setup.</Step>
 
-### 16 / 9
+</Steps>
 
-```tsx
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/aspect-ratio-example.tsx#L16-L28
-
+```tsx showLineNumbers
+<AspectRatio ratio={16 / 9}>
+  <img src="..." alt="Example" class="rounded-md object-cover" />
+</AspectRatio>
 ```
 
-### 1 / 1
+## Square
 
-```tsx
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-```
+A square aspect ratio using `ratio={1 / 1}` is useful for displaying square images.
 
-```tsx file=../../../registry/kobalte/examples/ui/aspect-ratio-example.tsx#L30-L42
+<ComponentPreview name="aspect-ratio-square" />
 
-```
+## Portrait
 
-### 9 / 16
+A portrait aspect ratio using `ratio={9 / 16}` is useful for displaying portrait images.
 
-```tsx
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-```
+<ComponentPreview name="aspect-ratio-portrait" previewClass="min-h-96" />
 
-```tsx file=../../../registry/kobalte/examples/ui/aspect-ratio-example.tsx#L44-L56
+## API Reference
 
-```
+### AspectRatio
 
-### 21 / 9
+Displays content within a desired ratio.
 
-```tsx
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/aspect-ratio-example.tsx#L58-L70
-
-```
+| Prop | Type | Default | Required |
+| --- | --- | --- | --- |
+| `ratio` | `number` | - | Yes |
+| `class` | `string` | - | No |
