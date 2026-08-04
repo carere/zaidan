@@ -147,7 +147,7 @@ describe("Drawer browser behavior", () => {
     expect(secondary?.getAttribute("aria-controls")).toBe(popup?.id);
   });
 
-  it("transfers an open drawer and payload to an inactive trigger", () => {
+  it("transfers an open drawer, payload, and return focus to an inactive trigger", async () => {
     const onOpenChange = vi.fn();
     const primaryPayload = { label: "Primary" };
     const secondaryPayload = { label: "Secondary" };
@@ -171,6 +171,7 @@ describe("Drawer browser behavior", () => {
               <DrawerContent>
                 <DrawerTitle>{payload?.label}</DrawerTitle>
                 <DrawerDescription>Content follows its active trigger.</DrawerDescription>
+                <DrawerClose>Close transferred drawer</DrawerClose>
               </DrawerContent>
             </>
           )}
@@ -193,6 +194,49 @@ describe("Drawer browser behavior", () => {
       true,
       expect.objectContaining({ reason: "trigger-press", trigger: secondary }),
     ]);
+
+    document.querySelector<HTMLButtonElement>('[data-slot="drawer-close"]')?.click();
+    await Promise.resolve();
+    expect(document.activeElement).toBe(host.querySelector<HTMLButtonElement>("#secondary-owner"));
+  });
+
+  it("preserves keyboard button semantics for polymorphic internal triggers", () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <Drawer>
+          <DrawerTrigger as="div" id="polymorphic-internal">
+            Open polymorphic drawer
+          </DrawerTrigger>
+          <DrawerTrigger as="div" disabled id="polymorphic-disabled">
+            Disabled polymorphic drawer
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerTitle>Polymorphic trigger</DrawerTitle>
+            <DrawerDescription>Opened by an accessible div trigger.</DrawerDescription>
+          </DrawerContent>
+        </Drawer>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>("#polymorphic-internal");
+    expect(trigger?.getAttribute("role")).toBe("button");
+    expect(trigger?.tabIndex).toBe(0);
+    expect(trigger?.hasAttribute("type")).toBe(false);
+
+    const disabledTrigger = host.querySelector<HTMLElement>("#polymorphic-disabled");
+    expect(disabledTrigger?.getAttribute("aria-disabled")).toBe("true");
+    expect(disabledTrigger?.tabIndex).toBe(-1);
+    expect(disabledTrigger?.hasAttribute("disabled")).toBe(false);
+    disabledTrigger?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    expect(document.querySelector('[data-slot="drawer-popup"]')).toBeNull();
+
+    trigger?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter" }));
+    expect(document.querySelector('[data-slot="drawer-popup"]')?.hasAttribute("data-open")).toBe(
+      true,
+    );
   });
 
   it("honors canceled uncontrolled changes", () => {
@@ -471,7 +515,12 @@ describe("Drawer browser behavior", () => {
     dispose = render(
       () => (
         <>
-          <DrawerTrigger handle={handle} id="detached-trigger" payload={{ label: "Profile" }}>
+          <DrawerTrigger
+            as="div"
+            handle={handle}
+            id="detached-trigger"
+            payload={{ label: "Profile" }}
+          >
             Open detached
           </DrawerTrigger>
           <Drawer handle={handle}>
@@ -487,8 +536,11 @@ describe("Drawer browser behavior", () => {
       host,
     );
 
-    const trigger = host.querySelector<HTMLButtonElement>("#detached-trigger");
-    trigger?.click();
+    const trigger = host.querySelector<HTMLElement>("#detached-trigger");
+    expect(trigger?.getAttribute("role")).toBe("button");
+    expect(trigger?.tabIndex).toBe(0);
+    expect(trigger?.hasAttribute("type")).toBe(false);
+    trigger?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: " " }));
 
     expect(handle.isOpen).toBe(true);
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
