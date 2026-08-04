@@ -16,7 +16,7 @@ export default defineConfig({
           environment: "node",
           exclude: [
             ...configDefaults.exclude,
-            "**/accordion*.test.tsx",
+            "**/{accordion,collapsible}*.test.tsx",
             "**/checkbox*.browser.test.tsx",
           ],
         },
@@ -30,7 +30,7 @@ export default defineConfig({
         test: {
           name: "browser",
           environment: "happy-dom",
-          include: ["**/accordion*.test.tsx", "**/checkbox*.browser.test.tsx"],
+          include: ["**/{accordion,collapsible}*.test.tsx", "**/checkbox*.browser.test.tsx"],
           server: {
             deps: {
               inline: [/@tanstack\/solid-(router|start)/],
