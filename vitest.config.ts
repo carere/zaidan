@@ -14,7 +14,11 @@ export default defineConfig({
         test: {
           name: "server",
           environment: "node",
-          exclude: [...configDefaults.exclude, "**/accordion*.test.tsx"],
+          exclude: [
+            ...configDefaults.exclude,
+            "**/accordion*.test.tsx",
+            "**/context-menu.test.tsx",
+          ],
         },
       },
       {
@@ -26,7 +30,7 @@ export default defineConfig({
         test: {
           name: "browser",
           environment: "happy-dom",
-          include: ["**/accordion*.test.tsx"],
+          include: ["**/accordion*.test.tsx", "**/context-menu.test.tsx"],
           server: {
             deps: {
               inline: [/@tanstack\/solid-(router|start)/],
