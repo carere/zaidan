@@ -5,7 +5,7 @@ import { splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "group/badge z-badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
+  "group/badge z-badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none",
   {
     variants: {
       variant: {
@@ -32,7 +32,7 @@ const Badge = <T extends ValidComponent = "span">(props: BadgeProps<T>) => {
     <Root
       class={cn(badgeVariants({ variant: local.variant }), local.class)}
       data-slot="badge"
-      data-variant={local.variant}
+      data-variant={local.variant ?? "default"}
       {...others}
     />
   );
