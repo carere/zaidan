@@ -15,6 +15,26 @@ afterEach(() => {
 });
 
 describe("Hover Card browser behavior", () => {
+  it("preserves native button semantics for a polymorphic trigger", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard>
+          <HoverCardTrigger as="button">Profile</HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    await Promise.resolve();
+
+    expect(trigger?.tagName).toBe("BUTTON");
+    expect(trigger?.getAttribute("role")).toBe("button");
+  });
+
   it("renders the pinned slots, position state, logical marker, and Base UI variables", async () => {
     const host = document.createElement("div");
     document.body.append(host);

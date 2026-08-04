@@ -408,6 +408,14 @@ const HoverCardTrigger = <T extends ValidComponent = "a">(props: HoverCardTrigge
     "ref",
   ]);
   const configureDelays = () => context.configureDelays(local.delay, local.closeDelay);
+  const triggerRole = () => {
+    const role = (props as { role?: string }).role;
+    if (role !== undefined) return role;
+
+    const tagName = context.trigger()?.tagName;
+    if (tagName === "BUTTON") return "button";
+    return tagName && tagName !== "A" ? "link" : undefined;
+  };
 
   const onPointerEnter: JSX.EventHandler<HTMLElement, PointerEvent> = (event) => {
     callEventHandler(
@@ -455,6 +463,7 @@ const HoverCardTrigger = <T extends ValidComponent = "a">(props: HoverCardTrigge
         context.setTrigger(element);
         setElementRef(local.ref, element);
       }}
+      role={triggerRole()}
       onBlur={onBlur}
       onFocus={onFocus}
       onPointerEnter={onPointerEnter}
