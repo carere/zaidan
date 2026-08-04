@@ -88,6 +88,18 @@
       ]
     },
     {
+      "name": "bubble",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/bubble.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "button",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "class-variance-authority"],
