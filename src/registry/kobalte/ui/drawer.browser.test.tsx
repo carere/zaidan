@@ -120,6 +120,33 @@ describe("Drawer browser behavior", () => {
     ).toBe(true);
   });
 
+  it("exposes open state only on the trigger that owns a controlled drawer", () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <Drawer open triggerId="secondary-trigger">
+          <DrawerTrigger id="primary-trigger">Primary</DrawerTrigger>
+          <DrawerTrigger id="secondary-trigger">Secondary</DrawerTrigger>
+          <DrawerContent>
+            <DrawerTitle>Owned drawer</DrawerTitle>
+            <DrawerDescription>Only the associated trigger owns this popup.</DrawerDescription>
+          </DrawerContent>
+        </Drawer>
+      ),
+      host,
+    );
+
+    const primary = host.querySelector<HTMLButtonElement>("#primary-trigger");
+    const secondary = host.querySelector<HTMLButtonElement>("#secondary-trigger");
+    const popup = document.querySelector<HTMLElement>('[data-slot="drawer-popup"]');
+
+    expect(primary?.getAttribute("aria-expanded")).toBe("false");
+    expect(primary?.hasAttribute("aria-controls")).toBe(false);
+    expect(secondary?.getAttribute("aria-expanded")).toBe("true");
+    expect(secondary?.getAttribute("aria-controls")).toBe(popup?.id);
+  });
+
   it("honors canceled uncontrolled changes", () => {
     const canceledChange = vi.fn((_open: boolean, details) => details.cancel());
     const host = document.createElement("div");
@@ -172,6 +199,61 @@ describe("Drawer browser behavior", () => {
         .querySelector<HTMLElement>('[data-slot="drawer-popup"]')
         ?.hasAttribute("data-closed"),
     ).toBe(true);
+  });
+
+  it("closes the topmost Android drawer through CloseWatcher", () => {
+    const onOpenChange = vi.fn();
+    const originalUserAgent = Object.getOwnPropertyDescriptor(window.navigator, "userAgent");
+    const originalCloseWatcher = Object.getOwnPropertyDescriptor(window, "CloseWatcher");
+    let watcher: (EventTarget & { destroyed: boolean; destroy: () => void }) | undefined;
+    class TestCloseWatcher extends EventTarget {
+      destroyed = false;
+
+      constructor() {
+        super();
+        watcher = this;
+      }
+
+      destroy() {
+        this.destroyed = true;
+      }
+    }
+    Object.defineProperty(window.navigator, "userAgent", {
+      configurable: true,
+      value: "Mozilla/5.0 (Linux; Android 15)",
+    });
+    Object.defineProperty(window, "CloseWatcher", {
+      configurable: true,
+      value: TestCloseWatcher,
+    });
+
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <Drawer defaultOpen onOpenChange={onOpenChange}>
+          <DrawerContent>
+            <DrawerTitle>Android drawer</DrawerTitle>
+            <DrawerDescription>Use the system back gesture to close.</DrawerDescription>
+          </DrawerContent>
+        </Drawer>
+      ),
+      host,
+    );
+
+    watcher?.dispatchEvent(new Event("close"));
+
+    expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
+      event: expect.any(Event),
+      reason: "close-watcher",
+    });
+    expect(watcher?.destroyed).toBe(true);
+
+    if (originalUserAgent) Object.defineProperty(window.navigator, "userAgent", originalUserAgent);
+    else Reflect.deleteProperty(window.navigator, "userAgent");
+    if (originalCloseWatcher) Object.defineProperty(window, "CloseWatcher", originalCloseWatcher);
+    else Reflect.deleteProperty(window, "CloseWatcher");
   });
 
   it("keeps non-modal and trap-focus drawers non-blocking without backdrops", () => {
@@ -373,15 +455,16 @@ describe("Drawer browser behavior", () => {
       host,
     );
 
+    const popup = document.querySelector<HTMLElement>('[data-slot="drawer-popup"]');
+    expect(popup?.hasAttribute("data-expanded")).toBe(false);
+
     document.querySelector<HTMLButtonElement>('[data-slot="drawer-close"]')?.click();
 
     expect(onSnapPointChange).toHaveBeenCalledWith(
       0.25,
       expect.objectContaining({ reason: "close-press" }),
     );
-    expect(document.querySelector<HTMLElement>('[data-slot="drawer-popup"]')?.style.transform).toBe(
-      "var(--closed-transform)",
-    );
+    expect(popup?.style.transform).toBe("var(--closed-transform)");
   });
 
   it("supports imperative close, deferred unmount, and explicit unmount", () => {

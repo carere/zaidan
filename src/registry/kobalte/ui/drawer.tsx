@@ -315,9 +315,24 @@ function focusElementFrom(target: DrawerFocusTarget | null | undefined): HTMLEle
   return undefined;
 }
 
-type NestedDrawerState = { frontmostHeight: number; open: boolean; swiping: boolean };
+type NestedDrawerState = {
+  frontmostHeight: number;
+  nestedCount: number;
+  open: boolean;
+  swipeProgress: number;
+  swiping: boolean;
+};
+
+type DrawerCloseWatcher = EventTarget & { destroy: () => void };
+type DrawerCloseWatcherConstructor = new () => DrawerCloseWatcher;
+
+type RegisteredDrawerTrigger<Payload> = {
+  element: HTMLElement;
+  payload: Accessor<Payload | undefined>;
+};
 
 type DrawerRootContextValue = {
+  activeSnapPoint: Accessor<DrawerSnapPoint | null>;
   activeTriggerId: Accessor<string | null>;
   direction: Accessor<DrawerSwipeDirection>;
   drawerSize: Accessor<number>;
@@ -331,6 +346,7 @@ type DrawerRootContextValue = {
   nestedSwiping: Accessor<boolean>;
   open: Accessor<boolean>;
   normalizeSnapPoint: (point: DrawerSnapPoint) => number | `${number}px`;
+  popupHeight: Accessor<number>;
   popupId: Accessor<string>;
   recordChange: (
     reason: DrawerChangeReason,
@@ -340,7 +356,9 @@ type DrawerRootContextValue = {
     triggerId?: string | null,
   ) => void;
   registerNested: (token: symbol, state?: NestedDrawerState) => void;
+  registerTrigger: (id: string, element: HTMLElement, payload: Accessor<unknown>) => () => void;
   setDrawerSize: (size: number) => void;
+  setPopupHeight: (height: number) => void;
   setFocusTargets: (
     initial: Accessor<DrawerFocusTarget | undefined>,
     final: Accessor<DrawerFocusTarget | undefined>,
@@ -450,6 +468,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     local.defaultSnapPoint ?? local.snapPoints?.[0] ?? null,
   );
   const [drawerSize, setDrawerSize] = createSignal(0);
+  const [popupHeight, setPopupHeight] = createSignal(0);
   const [viewportHeight, setViewportHeight] = createSignal(
     typeof document === "undefined" ? 0 : document.documentElement.clientHeight,
   );
@@ -468,6 +487,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     () => undefined,
   );
   const [nestedDrawers, setNestedDrawers] = createSignal(new Map<symbol, NestedDrawerState>());
+  const registeredTriggers = new Map<string, RegisteredDrawerTrigger<Payload>>();
   const open = () => local.open ?? uncontrolledOpen();
   const activeTriggerId = () => local.triggerId ?? uncontrolledTriggerId();
   const direction = () => local.swipeDirection ?? "down";
@@ -479,8 +499,23 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     const nested = Array.from(nestedDrawers().values()).filter(
       (state) => state.open && state.frontmostHeight > 0,
     );
-    return nested.at(-1)?.frontmostHeight ?? drawerSize();
+    return nested.at(-1)?.frontmostHeight ?? popupHeight();
   };
+  const nestedCount = () =>
+    Array.from(nestedDrawers().values()).reduce(
+      (count, state) => (state.open ? count + 1 + state.nestedCount : count),
+      0,
+    );
+  const nestedSwiping = () =>
+    Array.from(nestedDrawers().values()).some((state) => state.open && state.swiping);
+  const nestedSwipeProgress = () =>
+    Math.max(
+      0,
+      ...Array.from(nestedDrawers().values()).map((state) =>
+        state.open ? state.swipeProgress : 0,
+      ),
+    );
+  const effectiveSwipeProgress = () => Math.max(swipeProgress(), nestedSwipeProgress());
   let pendingChange: DrawerHandleChange<Payload> | undefined;
   let preventPrimitiveInitialFocus = false;
   let returnFocusTarget: HTMLElement | undefined;
@@ -492,6 +527,24 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
       else next.delete(token);
       return next;
     });
+  };
+
+  const registerTrigger = (id: string, element: HTMLElement, triggerPayload: Accessor<unknown>) => {
+    const registered: RegisteredDrawerTrigger<Payload> = {
+      element,
+      payload: triggerPayload as Accessor<Payload | undefined>,
+    };
+    registeredTriggers.set(id, registered);
+    if (
+      open() &&
+      (activeTriggerId() === id || (activeTriggerId() == null && registeredTriggers.size === 1))
+    ) {
+      if (local.triggerId === undefined) setUncontrolledTriggerId(id);
+      setPayload(() => registered.payload());
+    }
+    return () => {
+      if (registeredTriggers.get(id) === registered) registeredTriggers.delete(id);
+    };
   };
 
   const recordChange = (
@@ -606,6 +659,34 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
   });
 
   createEffect(() => {
+    const id = activeTriggerId();
+    if (!open() || id == null) return;
+    const trigger = registeredTriggers.get(id);
+    if (trigger) setPayload(() => trigger.payload());
+  });
+
+  createEffect(() => {
+    if (typeof window === "undefined" || !open() || nestedCount() > 0) return;
+    // Base UI limits CloseWatcher to Android so desktop Escape and nested dismissal stay ordered.
+    if (!/Android/i.test(window.navigator.userAgent)) return;
+    const CloseWatcher = (window as Window & { CloseWatcher?: DrawerCloseWatcherConstructor })
+      .CloseWatcher;
+    if (!CloseWatcher) return;
+    const watcher = new CloseWatcher();
+    const close = (event: Event) => {
+      if (!open()) return;
+      setLastReason("close-watcher");
+      setLastInteractionType("keyboard");
+      applyOpenChange(false, { event, open: false, reason: "close-watcher" });
+    };
+    watcher.addEventListener("close", close);
+    onCleanup(() => {
+      watcher.removeEventListener("close", close);
+      watcher.destroy();
+    });
+  });
+
+  createEffect(() => {
     if (typeof window === "undefined") return;
     const measure = () => setViewportHeight(document.documentElement.clientHeight);
     window.addEventListener("resize", measure);
@@ -632,8 +713,10 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
   createEffect(() => {
     parent?.registerNested(nestedToken, {
       frontmostHeight: frontmostHeight(),
+      nestedCount: nestedCount(),
       open: open(),
-      swiping: swiping(),
+      swipeProgress: effectiveSwipeProgress(),
+      swiping: swiping() || nestedSwiping(),
     });
   });
   onCleanup(() => parent?.registerNested(nestedToken));
@@ -672,6 +755,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     (normalized === 0 ? null : normalized);
 
   const context: DrawerRootContextValue = {
+    activeSnapPoint: snapPoint,
     activeTriggerId,
     direction,
     drawerSize,
@@ -681,15 +765,17 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     isNested: () => parent != null,
     lastReason,
     modal: () => local.modal ?? true,
-    nestedCount: () => Array.from(nestedDrawers().values()).filter((state) => state.open).length,
-    nestedSwiping: () =>
-      Array.from(nestedDrawers().values()).some((state) => state.open && state.swiping),
+    nestedCount,
+    nestedSwiping,
     normalizeSnapPoint: normalize,
+    popupHeight,
     open,
     popupId: () => popupId,
     recordChange,
     registerNested,
+    registerTrigger,
     setDrawerSize,
+    setPopupHeight,
     setFocusTargets: (initial, final) => {
       setInitialFocus(() => initial);
       setFinalFocus(() => final);
@@ -699,7 +785,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     setSwiping,
     showSwipeHandle: () => local.showSwipeHandle ?? false,
     snapPoints: () => local.snapPoints,
-    swipeProgress,
+    swipeProgress: effectiveSwipeProgress,
     swipeStrength,
   };
 
@@ -783,7 +869,8 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
   const triggerId = () => local.id ?? generatedId;
   const opened = () => {
     revision();
-    return local.handle?.isOpenedBy(triggerId()) ?? false;
+    if (local.handle) return local.handle.isOpenedBy(triggerId());
+    return Boolean(root?.open() && root.activeTriggerId() === triggerId());
   };
 
   createEffect(() => {
@@ -799,6 +886,26 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
     if (!handle || !trigger) return;
     const unregister = handle.registerTrigger(triggerId(), trigger, () => local.payload);
     onCleanup(unregister);
+  });
+
+  createEffect(() => {
+    const trigger = element();
+    if (!root || local.handle || !trigger) return;
+    const triggerPayload = local.payload;
+    const unregister = root.registerTrigger(triggerId(), trigger, () => triggerPayload);
+    onCleanup(unregister);
+  });
+
+  createEffect(() => {
+    const trigger = element();
+    if (!trigger) return;
+    const isOpen = opened();
+    trigger.setAttribute("aria-expanded", String(isOpen));
+    trigger.toggleAttribute("data-open", isOpen);
+    trigger.toggleAttribute("data-closed", !isOpen);
+    const controls = local.handle?.popupId ?? root?.popupId();
+    if (isOpen && controls) trigger.setAttribute("aria-controls", controls);
+    else trigger.removeAttribute("aria-controls");
   });
 
   if (local.handle) {
@@ -835,6 +942,19 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
   const corvuProps = {
     ...others,
     as: local.as,
+    get "aria-controls"() {
+      return opened() ? root.popupId() : undefined;
+    },
+    get "aria-expanded"() {
+      return opened() ? "true" : "false";
+    },
+    "aria-haspopup": "dialog",
+    get "data-closed"() {
+      return !opened() ? "" : undefined;
+    },
+    get "data-open"() {
+      return opened() ? "" : undefined;
+    },
     "data-slot": "drawer-trigger",
     disabled: local.disabled,
     id: triggerId(),
@@ -845,7 +965,10 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
         event,
       );
     },
-    ref: local.ref,
+    ref: (trigger: HTMLElement) => {
+      setElement(trigger);
+      if (typeof local.ref === "function") local.ref(trigger);
+    },
   } as unknown as DynamicProps<T, CorvuTriggerProps<T>>;
 
   return <CorvuTrigger {...corvuProps} />;
@@ -1038,6 +1161,7 @@ const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentPro
       const bounds = element.getBoundingClientRect();
       const size = axis() === "y" ? bounds.height : bounds.width;
       if (size > 1) root.setDrawerSize(size);
+      if (bounds.height > 1) root.setPopupHeight(bounds.height);
     };
     queueMicrotask(measure);
     requestAnimationFrame(measure);
@@ -1081,11 +1205,12 @@ const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentPro
     const sign = direction === "up" || direction === "left" ? -1 : 1;
     const snapOffset = sign * restingOffset();
     const movement = sign * swipeMovement();
-    const drawerHeight = root.drawerSize();
+    const drawerHeight = root.popupHeight();
     const frontmostHeight = root.frontmostHeight();
+    const shouldLockHeight = root.nestedCount() > 0 || drawer.transitionState() === "closing";
     const variables = {
       "--drawer-frontmost-height": frontmostHeight > 0 ? `${frontmostHeight}px` : undefined,
-      "--drawer-height": drawerHeight > 0 ? `${drawerHeight}px` : undefined,
+      "--drawer-height": shouldLockHeight && drawerHeight > 0 ? `${drawerHeight}px` : undefined,
       "--drawer-snap-point-offset": `${snapOffset}px`,
       "--drawer-swipe-progress": String(root.swipeProgress()),
       "--drawer-swipe-movement-x":
@@ -1108,9 +1233,7 @@ const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentPro
   };
 
   const expanded = () => {
-    const points = root.snapPoints();
-    if (!points?.length) return true;
-    return Object.is(drawer.activeSnapPoint(), root.normalizeSnapPoint(points.at(-1) ?? 1));
+    return Object.is(root.activeSnapPoint(), 1);
   };
 
   return (
