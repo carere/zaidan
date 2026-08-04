@@ -36,7 +36,7 @@
     "@kobalte/core": "^0.13.12",
     "@solid-primitives/storage": "^4.4.0",
     "@tanstack/solid-router": "^1.170.18",
-    "@tanstack/solid-start": "^1.168.33",
+    "@tanstack/solid-start": "^1.168.34",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk-solid": "^1.1.2",
