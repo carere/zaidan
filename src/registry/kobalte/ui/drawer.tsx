@@ -15,6 +15,7 @@ import {
   type DynamicProps,
   useContext as useCorvuDrawerContext,
 } from "@corvu/drawer";
+import { Dynamic } from "@corvu/utils/dynamic";
 import type { Accessor, ComponentProps, JSX, ValidComponent } from "solid-js";
 import {
   createContext,
@@ -27,7 +28,6 @@ import {
   splitProps,
   useContext,
 } from "solid-js";
-import { Dynamic } from "solid-js/web";
 
 import { cn } from "@/lib/utils";
 
@@ -262,6 +262,26 @@ function callEventHandler<T extends Element, E extends Event>(
 ) {
   if (typeof handler === "function") handler(event);
   else handler?.[0](handler[1], event);
+}
+
+function isNativeButton(element: HTMLElement) {
+  if (element instanceof HTMLButtonElement) return true;
+  if (!(element instanceof HTMLInputElement)) return false;
+  return ["button", "image", "reset", "submit"].includes(element.type);
+}
+
+function handleTriggerKeyDown(
+  event: KeyboardEvent & { currentTarget: HTMLElement; target: Element },
+  disabled: boolean | undefined,
+) {
+  if (
+    disabled ||
+    isNativeButton(event.currentTarget) ||
+    (event.key !== "Enter" && event.key !== " ")
+  )
+    return;
+  event.preventDefault();
+  event.currentTarget.click();
 }
 
 function interactionTypeFor(event?: Event): DrawerInteractionType {
@@ -549,6 +569,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     ) {
       if (local.triggerId === undefined) setUncontrolledTriggerId(id);
       setPayload(() => registered.payload());
+      returnFocusTarget = element;
     }
     return () => {
       if (registeredTriggers.get(id) === registered) registeredTriggers.delete(id);
@@ -615,6 +636,10 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     }
 
     if (transfersTrigger) {
+      returnFocusTarget =
+        change.trigger instanceof HTMLElement
+          ? change.trigger
+          : registeredTriggers.get(change.triggerId ?? "")?.element;
       if (local.triggerId === undefined) {
         setUncontrolledTriggerId(change.triggerId ?? null);
         setPayload(() => change.payload);
@@ -649,11 +674,15 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
       if (element) queueMicrotask(() => element.focus());
     } else {
       const option = finalFocus()();
+      const associatedTrigger =
+        activeTriggerId() == null
+          ? undefined
+          : registeredTriggers.get(activeTriggerId() ?? "")?.element;
       const target =
         typeof option === "function"
           ? option(lastInteractionType())
           : option === undefined || option === true
-            ? returnFocusTarget
+            ? (associatedTrigger ?? returnFocusTarget)
             : option;
       const element = focusElementFrom(target);
       if (element) queueMicrotask(() => element.focus());
@@ -879,7 +908,12 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
         onOutsideFocus={(event) => recordChange("focus-out", event)}
         onOutsidePointer={(event) => recordChange("outside-press", event)}
         initialFocusEl={focusElementFrom(initialFocus()())}
-        finalFocusEl={focusElementFrom(finalFocus()()) ?? local.finalFocusEl}
+        finalFocusEl={
+          focusElementFrom(finalFocus()()) ??
+          registeredTriggers.get(activeTriggerId() ?? "")?.element ??
+          returnFocusTarget ??
+          local.finalFocusEl
+        }
         restoreFocus={finalFocus()() !== false}
         onInitialFocus={(event) => handleFocus("initial", event)}
         onFinalFocus={(event) => handleFocus("final", event)}
@@ -898,9 +932,10 @@ type DrawerTriggerProps<Payload = unknown, T extends ValidComponent = "button"> 
   handle?: DrawerHandle<Payload>;
   id?: string;
   onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>;
+  onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>;
   payload?: Payload;
   ref?: (element: HTMLElement) => void;
-} & Omit<ComponentProps<T>, "as" | "disabled" | "id" | "onClick" | "ref">;
+} & Omit<ComponentProps<T>, "as" | "disabled" | "id" | "onClick" | "onKeyDown" | "ref">;
 
 const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
   props: DrawerTriggerProps<Payload, T>,
@@ -915,10 +950,15 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
     "handle",
     "id",
     "onClick",
+    "onKeyDown",
     "payload",
     "ref",
   ]);
   const triggerId = () => local.id ?? generatedId;
+  const nativeButton = () => {
+    const trigger = element();
+    return trigger ? isNativeButton(trigger) : local.as == null || local.as === "button";
+  };
   const opened = () => {
     revision();
     if (local.handle) return local.handle.isOpenedBy(triggerId());
@@ -963,27 +1003,38 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
   if (local.handle) {
     return (
       <Dynamic
-        component={local.as ?? "button"}
+        as={local.as ?? "button"}
         ref={(trigger: HTMLElement) => {
           setElement(trigger);
           if (typeof local.ref === "function")
             (local.ref as (element: HTMLElement) => void)(trigger);
         }}
         id={triggerId()}
-        type="button"
-        disabled={local.disabled}
+        type={nativeButton() ? "button" : undefined}
+        role={!nativeButton() ? "button" : undefined}
+        disabled={nativeButton() ? local.disabled : undefined}
+        aria-disabled={!nativeButton() && local.disabled ? "true" : undefined}
         aria-controls={local.handle.popupId}
         aria-expanded={opened()}
         aria-haspopup="dialog"
+        tabIndex={!nativeButton() ? (local.disabled ? -1 : 0) : undefined}
         data-slot="drawer-trigger"
         data-open={opened() ? "" : undefined}
         data-closed={!opened() ? "" : undefined}
         onClick={(event: MouseEvent & { currentTarget: HTMLElement; target: Element }) => {
-          local.handle?.toggle(triggerId(), local.payload, event, event.currentTarget);
           callEventHandler(
             local.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined,
             event,
           );
+          if (!event.defaultPrevented && !local.disabled)
+            local.handle?.toggle(triggerId(), local.payload, event, event.currentTarget);
+        }}
+        onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLElement; target: Element }) => {
+          callEventHandler(
+            local.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
+            event,
+          );
+          if (!event.defaultPrevented) handleTriggerKeyDown(event, local.disabled);
         }}
         {...others}
       />
@@ -993,17 +1044,20 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
   if (!root) throw new Error("DrawerTrigger must be used within Drawer or provided a handle");
   return (
     <Dynamic
-      component={local.as ?? "button"}
+      as={local.as ?? "button"}
       ref={(trigger: HTMLElement) => {
         setElement(trigger);
         if (typeof local.ref === "function") local.ref(trigger);
       }}
       id={triggerId()}
-      type="button"
-      disabled={local.disabled}
+      type={nativeButton() ? "button" : undefined}
+      role={!nativeButton() ? "button" : undefined}
+      disabled={nativeButton() ? local.disabled : undefined}
+      aria-disabled={!nativeButton() && local.disabled ? "true" : undefined}
       aria-controls={opened() ? root.popupId() : undefined}
       aria-expanded={opened()}
       aria-haspopup="dialog"
+      tabIndex={!nativeButton() ? (local.disabled ? -1 : 0) : undefined}
       data-slot="drawer-trigger"
       data-open={opened() ? "" : undefined}
       data-closed={!opened() ? "" : undefined}
@@ -1012,8 +1066,15 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
           local.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined,
           event,
         );
-        if (!event.defaultPrevented)
+        if (!event.defaultPrevented && !local.disabled)
           root.pressTrigger(event, event.currentTarget, local.payload, triggerId());
+      }}
+      onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLElement; target: Element }) => {
+        callEventHandler(
+          local.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
+          event,
+        );
+        if (!event.defaultPrevented) handleTriggerKeyDown(event, local.disabled);
       }}
       {...others}
     />
