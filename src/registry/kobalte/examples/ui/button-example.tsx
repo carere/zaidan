@@ -1,6 +1,6 @@
 import { ArrowLeftCircle, ArrowRight } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
-import { Button } from "@/registry/kobalte/ui/button";
+import { Button, buttonVariants } from "@/registry/kobalte/ui/button";
 
 export default function ButtonExample() {
   return (
@@ -448,6 +448,10 @@ function ButtonExamples() {
             <ArrowRight data-icon="inline-end" />
           </Button>
         </div>
+        {/* biome-ignore lint/a11y: Mirrors the pinned upstream placeholder link. */}
+        <a href="#" class={buttonVariants()}>
+          Link
+        </a>
       </div>
     </Example>
   );
