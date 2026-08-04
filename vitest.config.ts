@@ -1,14 +1,39 @@
 import solid from "vite-plugin-solid";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
+
+const alias = {
+  "@": new URL("./src", import.meta.url).pathname,
+};
 
 export default defineConfig({
-  plugins: [solid({ ssr: true })],
-  resolve: {
-    alias: {
-      "@": new URL("./src", import.meta.url).pathname,
-    },
-  },
   test: {
-    environment: "node",
+    projects: [
+      {
+        plugins: [solid({ ssr: true })],
+        resolve: { alias },
+        test: {
+          name: "server",
+          environment: "node",
+          exclude: [...configDefaults.exclude, "**/accordion*.test.tsx"],
+        },
+      },
+      {
+        plugins: [solid()],
+        resolve: {
+          alias,
+          conditions: ["browser"],
+        },
+        test: {
+          name: "browser",
+          environment: "happy-dom",
+          include: ["**/accordion*.test.tsx"],
+          server: {
+            deps: {
+              inline: [/@tanstack\/solid-(router|start)/],
+            },
+          },
+        },
+      },
+    ],
   },
 });
