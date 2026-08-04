@@ -29,7 +29,7 @@ describe("Input", () => {
 
     const [generated, explicit] = Array.from(host.querySelectorAll("input"));
 
-    expect(generated.id).not.toBe("");
+    expect(generated.id).toMatch(/^base-ui-/);
     expect(generated.getAttribute("data-slot")).toBe("input");
     expect(generated.getAttribute("class")).toContain("z-input");
     expect(generated.getAttribute("class")).toContain("custom-input");

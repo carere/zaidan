@@ -6,7 +6,7 @@ type InputProps = ComponentProps<"input">;
 
 const Input = (props: InputProps) => {
   const [local, others] = splitProps(props, ["class", "disabled", "id", "type"]);
-  const generatedId = `input-${createUniqueId()}`;
+  const generatedId = `base-ui-${createUniqueId()}`;
 
   return (
     <input
