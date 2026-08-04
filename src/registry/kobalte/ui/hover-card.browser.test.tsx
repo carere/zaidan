@@ -41,8 +41,13 @@ describe("Hover Card browser behavior", () => {
     expect(content?.hasAttribute("data-open")).toBe(true);
     expect(content?.getAttribute("data-side")).toBe("top");
     expect(content?.getAttribute("data-align")).toBe("end");
+    expect(content?.getAttribute("tabindex")).toBe("-1");
+    expect(content?.hasAttribute("data-base-ui-focusable")).toBe(true);
     expect(content?.classList.contains("z-hover-card-content-logical")).toBe(true);
     expect(positioner?.classList.contains("isolate")).toBe(true);
+    expect(positioner?.hasAttribute("data-open")).toBe(true);
+    expect(positioner?.getAttribute("data-side")).toBe("top");
+    expect(positioner?.getAttribute("data-align")).toBe("end");
     expect(positioner?.style.getPropertyValue("--transform-origin")).toBe(
       "var(--kb-popper-content-transform-origin)",
     );
@@ -52,6 +57,61 @@ describe("Hover Card browser behavior", () => {
     expect(positioner?.style.getPropertyValue("--anchor-width")).toBe(
       "var(--kb-popper-anchor-width)",
     );
+  });
+
+  it("reports completion after an initially open card finishes mounting", async () => {
+    const onOpenChangeComplete = vi.fn();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard defaultOpen onOpenChangeComplete={onOpenChangeComplete}>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(onOpenChangeComplete).toHaveBeenCalledOnce();
+    expect(onOpenChangeComplete).toHaveBeenCalledWith(true);
+  });
+
+  it("resolves functional offsets from the rendered anchor and positioner", async () => {
+    const sideOffset = vi.fn(() => 9);
+    const alignOffset = vi.fn(() => 6);
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard defaultOpen>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent sideOffset={sideOffset} alignOffset={alignOffset}>
+            Profile preview
+          </HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(sideOffset).toHaveBeenCalledWith({
+      align: "center",
+      anchor: { height: 0, width: 0 },
+      positioner: { height: 0, width: 0 },
+      side: "bottom",
+    });
+    expect(alignOffset).toHaveBeenCalledWith({
+      align: "center",
+      anchor: { height: 0, width: 0 },
+      positioner: { height: 0, width: 0 },
+      side: "bottom",
+    });
   });
 
   it("reports and can cancel mouse hover opening after the trigger delay", async () => {
