@@ -147,6 +147,54 @@ describe("Drawer browser behavior", () => {
     expect(secondary?.getAttribute("aria-controls")).toBe(popup?.id);
   });
 
+  it("transfers an open drawer and payload to an inactive trigger", () => {
+    const onOpenChange = vi.fn();
+    const primaryPayload = { label: "Primary" };
+    const secondaryPayload = { label: "Secondary" };
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <Drawer<{ label: string }>
+          defaultOpen
+          defaultTriggerId="primary-owner"
+          onOpenChange={onOpenChange}
+        >
+          {({ payload }) => (
+            <>
+              <DrawerTrigger id="primary-owner" payload={primaryPayload}>
+                Primary
+              </DrawerTrigger>
+              <DrawerTrigger id="secondary-owner" payload={secondaryPayload}>
+                Secondary
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerTitle>{payload?.label}</DrawerTitle>
+                <DrawerDescription>Content follows its active trigger.</DrawerDescription>
+              </DrawerContent>
+            </>
+          )}
+        </Drawer>
+      ),
+      host,
+    );
+
+    const primary = host.querySelector<HTMLButtonElement>("#primary-owner");
+    const secondary = host.querySelector<HTMLButtonElement>("#secondary-owner");
+    secondary?.click();
+
+    expect(document.querySelector('[data-slot="drawer-popup"]')?.hasAttribute("data-open")).toBe(
+      true,
+    );
+    expect(primary?.getAttribute("aria-expanded")).toBe("false");
+    expect(secondary?.getAttribute("aria-expanded")).toBe("true");
+    expect(document.querySelector('[data-slot="drawer-title"]')?.textContent).toBe("Secondary");
+    expect(onOpenChange.mock.lastCall).toEqual([
+      true,
+      expect.objectContaining({ reason: "trigger-press", trigger: secondary }),
+    ]);
+  });
+
   it("honors canceled uncontrolled changes", () => {
     const canceledChange = vi.fn((_open: boolean, details) => details.cancel());
     const host = document.createElement("div");
@@ -202,16 +250,17 @@ describe("Drawer browser behavior", () => {
   });
 
   it("closes the topmost Android drawer through CloseWatcher", () => {
-    const onOpenChange = vi.fn();
+    const parentChange = vi.fn();
+    const childChange = vi.fn();
     const originalUserAgent = Object.getOwnPropertyDescriptor(window.navigator, "userAgent");
     const originalCloseWatcher = Object.getOwnPropertyDescriptor(window, "CloseWatcher");
-    let watcher: (EventTarget & { destroyed: boolean; destroy: () => void }) | undefined;
+    const watchers: TestCloseWatcher[] = [];
     class TestCloseWatcher extends EventTarget {
       destroyed = false;
 
       constructor() {
         super();
-        watcher = this;
+        watchers.push(this);
       }
 
       destroy() {
@@ -227,33 +276,47 @@ describe("Drawer browser behavior", () => {
       value: TestCloseWatcher,
     });
 
-    const host = document.createElement("div");
-    document.body.append(host);
-    dispose = render(
-      () => (
-        <Drawer defaultOpen onOpenChange={onOpenChange}>
-          <DrawerContent>
-            <DrawerTitle>Android drawer</DrawerTitle>
-            <DrawerDescription>Use the system back gesture to close.</DrawerDescription>
-          </DrawerContent>
-        </Drawer>
-      ),
-      host,
-    );
+    try {
+      const host = document.createElement("div");
+      document.body.append(host);
+      dispose = render(
+        () => (
+          <Drawer defaultOpen onOpenChange={parentChange}>
+            <DrawerContent>
+              <DrawerTitle>Parent Android drawer</DrawerTitle>
+              <DrawerDescription>The parent yields system back to its child.</DrawerDescription>
+              <Drawer defaultOpen onOpenChange={childChange}>
+                <DrawerContent>
+                  <DrawerTitle>Child Android drawer</DrawerTitle>
+                  <DrawerDescription>The topmost drawer handles system back.</DrawerDescription>
+                </DrawerContent>
+              </Drawer>
+            </DrawerContent>
+          </Drawer>
+        ),
+        host,
+      );
 
-    watcher?.dispatchEvent(new Event("close"));
+      const activeWatcher = watchers.find((watcher) => !watcher.destroyed);
+      expect(watchers.some((watcher) => watcher.destroyed)).toBe(true);
+      expect(watchers.filter((watcher) => !watcher.destroyed)).toHaveLength(1);
 
-    expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
-    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
-      event: expect.any(Event),
-      reason: "close-watcher",
-    });
-    expect(watcher?.destroyed).toBe(true);
+      activeWatcher?.dispatchEvent(new Event("close"));
 
-    if (originalUserAgent) Object.defineProperty(window.navigator, "userAgent", originalUserAgent);
-    else Reflect.deleteProperty(window.navigator, "userAgent");
-    if (originalCloseWatcher) Object.defineProperty(window, "CloseWatcher", originalCloseWatcher);
-    else Reflect.deleteProperty(window, "CloseWatcher");
+      expect(parentChange).not.toHaveBeenCalled();
+      expect(childChange.mock.lastCall?.[0]).toBe(false);
+      expect(childChange.mock.lastCall?.[1]).toMatchObject({
+        event: expect.any(Event),
+        reason: "close-watcher",
+      });
+      expect(activeWatcher?.destroyed).toBe(true);
+    } finally {
+      if (originalUserAgent)
+        Object.defineProperty(window.navigator, "userAgent", originalUserAgent);
+      else Reflect.deleteProperty(window.navigator, "userAgent");
+      if (originalCloseWatcher) Object.defineProperty(window, "CloseWatcher", originalCloseWatcher);
+      else Reflect.deleteProperty(window, "CloseWatcher");
+    }
   });
 
   it("keeps non-modal and trap-focus drawers non-blocking without backdrops", () => {
@@ -499,7 +562,7 @@ describe("Drawer browser behavior", () => {
     expect(document.querySelector('[data-slot="drawer-portal"]')).toBeNull();
   });
 
-  it("coordinates nested drawer state without duplicating the modal overlay", () => {
+  it("coordinates nested drawer state through the child exit transition", async () => {
     const host = document.createElement("div");
     document.body.append(host);
     dispose = render(
@@ -513,6 +576,7 @@ describe("Drawer browser behavior", () => {
               <DrawerContent>
                 <DrawerTitle>Nested drawer</DrawerTitle>
                 <DrawerDescription>Nested content.</DrawerDescription>
+                <DrawerClose>Close nested drawer</DrawerClose>
               </DrawerContent>
             </Drawer>
           </DrawerContent>
@@ -528,5 +592,12 @@ describe("Drawer browser behavior", () => {
     expect(popups[0]?.hasAttribute("data-nested-drawer-open")).toBe(true);
     expect(popups[1]?.hasAttribute("data-nested")).toBe(true);
     expect(document.querySelectorAll('[data-slot="drawer-overlay"]')).toHaveLength(1);
+
+    document.querySelector<HTMLButtonElement>('[data-slot="drawer-close"]')?.click();
+    expect(popups[0]?.hasAttribute("data-nested-drawer-open")).toBe(true);
+
+    popups[1]?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+    await Promise.resolve();
+    expect(popups[0]?.hasAttribute("data-nested-drawer-open")).toBe(false);
   });
 });

@@ -12,8 +12,6 @@ import {
   Portal as CorvuPortal,
   Root as CorvuRoot,
   type RootProps as CorvuRootProps,
-  Trigger as CorvuTrigger,
-  type TriggerProps as CorvuTriggerProps,
   type DynamicProps,
   useContext as useCorvuDrawerContext,
 } from "@corvu/drawer";
@@ -334,6 +332,7 @@ type RegisteredDrawerTrigger<Payload> = {
 type DrawerRootContextValue = {
   activeSnapPoint: Accessor<DrawerSnapPoint | null>;
   activeTriggerId: Accessor<string | null>;
+  completeClose: () => void;
   direction: Accessor<DrawerSwipeDirection>;
   drawerSize: Accessor<number>;
   forceMount: Accessor<boolean>;
@@ -348,6 +347,12 @@ type DrawerRootContextValue = {
   normalizeSnapPoint: (point: DrawerSnapPoint) => number | `${number}px`;
   popupHeight: Accessor<number>;
   popupId: Accessor<string>;
+  pressTrigger: (
+    event: MouseEvent,
+    trigger: HTMLElement,
+    payload: unknown,
+    triggerId: string,
+  ) => void;
   recordChange: (
     reason: DrawerChangeReason,
     event?: Event,
@@ -474,6 +479,9 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
   );
   const [forceUnmount, setForceUnmount] = createSignal(false);
   const [preventUnmount, setPreventUnmount] = createSignal(false);
+  const [contentPresent, setContentPresent] = createSignal(
+    local.handle?.isOpen ?? local.open ?? local.defaultOpen ?? false,
+  );
   const [swipeProgress, setSwipeProgress] = createSignal(0);
   const [swipeStrength, setSwipeStrength] = createSignal(1);
   const [swiping, setSwiping] = createSignal(false);
@@ -588,7 +596,12 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     change = pendingChange ?? { open: nextOpen, reason: "none" as const },
   ) => {
     pendingChange = undefined;
-    if (nextOpen === open()) return;
+    const transfersTrigger =
+      nextOpen &&
+      nextOpen === open() &&
+      change.triggerId != null &&
+      change.triggerId !== activeTriggerId();
+    if (nextOpen === open() && !transfersTrigger) return;
 
     const details = createChangeDetails(change.reason, change.event, change.trigger);
     local.onOpenChange?.(nextOpen, details);
@@ -597,6 +610,15 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
       if (!details.isPropagationAllowed) change.event.stopPropagation();
     }
     if (details.isCanceled) {
+      local.handle?.sync(open(), activeTriggerId(), payload(), popupId);
+      return;
+    }
+
+    if (transfersTrigger) {
+      if (local.triggerId === undefined) {
+        setUncontrolledTriggerId(change.triggerId ?? null);
+        setPayload(() => change.payload);
+      }
       local.handle?.sync(open(), activeTriggerId(), payload(), popupId);
       return;
     }
@@ -645,7 +667,30 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
       setLastReason("imperative-action");
       applyOpenChange(false, { event, open: false, reason: "imperative-action" });
     },
-    unmount: () => setForceUnmount(true),
+    unmount: () => {
+      setContentPresent(false);
+      setForceUnmount(true);
+    },
+  };
+
+  const pressTrigger = (
+    event: MouseEvent,
+    trigger: HTMLElement,
+    nextPayload: unknown,
+    triggerId: string,
+  ) => {
+    const nextOpen = !(open() && activeTriggerId() === triggerId);
+    const change: DrawerHandleChange<Payload> = {
+      event,
+      open: nextOpen,
+      payload: nextPayload as Payload | undefined,
+      reason: "trigger-press",
+      trigger,
+      triggerId,
+    };
+    setLastReason(change.reason);
+    setLastInteractionType(interactionTypeFor(event));
+    applyOpenChange(nextOpen, change);
   };
 
   createEffect(() => {
@@ -714,7 +759,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     parent?.registerNested(nestedToken, {
       frontmostHeight: frontmostHeight(),
       nestedCount: nestedCount(),
-      open: open(),
+      open: open() || contentPresent(),
       swipeProgress: effectiveSwipeProgress(),
       swiping: swiping() || nestedSwiping(),
     });
@@ -757,6 +802,9 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
   const context: DrawerRootContextValue = {
     activeSnapPoint: snapPoint,
     activeTriggerId,
+    completeClose: () => {
+      if (!open()) setContentPresent(false);
+    },
     direction,
     drawerSize,
     forceMount: () => preventUnmount(),
@@ -771,6 +819,7 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
     popupHeight,
     open,
     popupId: () => popupId,
+    pressTrigger,
     recordChange,
     registerNested,
     registerTrigger,
@@ -801,7 +850,10 @@ const DrawerRoot = <Payload = unknown>(props: DrawerProps<Payload>) => {
         open={open()}
         initialOpen={local.handle?.isOpen ?? local.defaultOpen}
         onOpenChange={applyOpenChange}
-        onContentPresentChange={local.onOpenChangeComplete}
+        onContentPresentChange={(present) => {
+          setContentPresent(present);
+          local.onOpenChangeComplete?.(present);
+        }}
         activeSnapPoint={open() ? normalizedSnapPoint() : 0}
         defaultSnapPoint={normalize(defaultSnapPoint() ?? 1)}
         onActiveSnapPointChange={(nextPoint) => {
@@ -939,39 +991,33 @@ const DrawerTrigger = <Payload = unknown, T extends ValidComponent = "button">(
   }
 
   if (!root) throw new Error("DrawerTrigger must be used within Drawer or provided a handle");
-  const corvuProps = {
-    ...others,
-    as: local.as,
-    get "aria-controls"() {
-      return opened() ? root.popupId() : undefined;
-    },
-    get "aria-expanded"() {
-      return opened() ? "true" : "false";
-    },
-    "aria-haspopup": "dialog",
-    get "data-closed"() {
-      return !opened() ? "" : undefined;
-    },
-    get "data-open"() {
-      return opened() ? "" : undefined;
-    },
-    "data-slot": "drawer-trigger",
-    disabled: local.disabled,
-    id: triggerId(),
-    onClick: (event: MouseEvent & { currentTarget: HTMLElement; target: Element }) => {
-      root.recordChange("trigger-press", event, event.currentTarget, local.payload, triggerId());
-      callEventHandler(
-        local.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined,
-        event,
-      );
-    },
-    ref: (trigger: HTMLElement) => {
-      setElement(trigger);
-      if (typeof local.ref === "function") local.ref(trigger);
-    },
-  } as unknown as DynamicProps<T, CorvuTriggerProps<T>>;
-
-  return <CorvuTrigger {...corvuProps} />;
+  return (
+    <Dynamic
+      component={local.as ?? "button"}
+      ref={(trigger: HTMLElement) => {
+        setElement(trigger);
+        if (typeof local.ref === "function") local.ref(trigger);
+      }}
+      id={triggerId()}
+      type="button"
+      disabled={local.disabled}
+      aria-controls={opened() ? root.popupId() : undefined}
+      aria-expanded={opened()}
+      aria-haspopup="dialog"
+      data-slot="drawer-trigger"
+      data-open={opened() ? "" : undefined}
+      data-closed={!opened() ? "" : undefined}
+      onClick={(event: MouseEvent & { currentTarget: HTMLElement; target: Element }) => {
+        callEventHandler(
+          local.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined,
+          event,
+        );
+        if (!event.defaultPrevented)
+          root.pressTrigger(event, event.currentTarget, local.payload, triggerId());
+      }}
+      {...others}
+    />
+  );
 };
 
 type DrawerCloseProps<T extends ValidComponent = "button"> = DynamicProps<T, CorvuCloseProps<T>>;
@@ -1183,19 +1229,26 @@ const DrawerContent = <T extends ValidComponent = "div">(props: DrawerContentPro
         event as TouchEvent & { currentTarget: HTMLElement; target: Element },
       );
     };
-    const transitionEnd = (event: TransitionEvent) =>
+    const transitionEnd = (event: TransitionEvent) => {
+      if (event.target === element) root.completeClose();
       callEventHandler(
         local.onTransitionEnd as JSX.EventHandlerUnion<HTMLElement, TransitionEvent> | undefined,
         event as TransitionEvent & { currentTarget: HTMLElement; target: Element },
       );
+    };
+    const animationEnd = (event: AnimationEvent) => {
+      if (event.target === element) root.completeClose();
+    };
 
     element.addEventListener("pointerdown", pointerDown, true);
     element.addEventListener("touchstart", touchStart, true);
     element.addEventListener("transitionend", transitionEnd);
+    element.addEventListener("animationend", animationEnd);
     onCleanup(() => {
       element.removeEventListener("pointerdown", pointerDown, true);
       element.removeEventListener("touchstart", touchStart, true);
       element.removeEventListener("transitionend", transitionEnd);
+      element.removeEventListener("animationend", animationEnd);
       resizeObserver?.disconnect();
     });
   };
