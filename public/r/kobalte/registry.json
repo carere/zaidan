@@ -1359,7 +1359,7 @@
     {
       "name": "drawer",
       "type": "registry:ui",
-      "dependencies": ["@corvu/drawer", "@corvu/utils"],
+      "dependencies": ["@corvu/drawer"],
       "registryDependencies": [],
       "files": [
         {
