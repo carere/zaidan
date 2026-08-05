@@ -31,21 +31,31 @@ const PASSWORD_MANAGER_BADGE_SELECTORS = [
   '[style$="2147483647 !important;"]',
 ].join(",");
 
-type InputOTPProps = Omit<OtpFieldRootProps, "contextId"> &
+type InputOTPBaseProps = Omit<OtpFieldRootProps, "contextId"> &
   Omit<
     DynamicProps<"input", OtpFieldInputProps>,
     "children" | "contextId" | "defaultValue" | "maxLength" | "onChange" | "value"
   > & {
-    children?: JSX.Element;
     containerClass?: string;
     containerClassName?: string;
     defaultValue?: string;
     onChange?: (value: string) => unknown;
     pasteTransformer?: (pasted: string) => string;
     pushPasswordManagerStrategy?: "increase-width" | "none";
-    render?: (props: InputOTPRenderProps) => JSX.Element;
     textAlign?: "center" | "left" | "right";
   };
+
+type InputOTPProps = InputOTPBaseProps &
+  (
+    | {
+        children?: never;
+        render: (props: InputOTPRenderProps) => JSX.Element;
+      }
+    | {
+        children: JSX.Element;
+        render?: never;
+      }
+  );
 
 type InputOTPSlotState = {
   char: string | null;
@@ -105,6 +115,12 @@ const InputOTP = (props: InputOTPProps) => {
         badgeDetectionFinishTimer = undefined;
       }
     };
+    const updateRootHeight = () => {
+      if (rootRef && inputRef) {
+        rootRef.style.setProperty("--root-height", `${inputRef.clientHeight}px`);
+      }
+    };
+    const rootHeightObserver = new ResizeObserver(updateRootHeight);
     const updatePasswordManagerSpace = () => {
       const availableSpace = rootRef
         ? window.innerWidth - rootRef.getBoundingClientRect().right
@@ -156,6 +172,8 @@ const InputOTP = (props: InputOTPProps) => {
     };
     const spaceTimer = window.setInterval(updatePasswordManagerSpace, 1000);
 
+    updateRootHeight();
+    if (inputRef) rootHeightObserver.observe(inputRef);
     updatePasswordManagerSpace();
     window.addEventListener("resize", updatePasswordManagerSpace);
     rootRef?.addEventListener("focusin", startPasswordManagerBadgeDetection);
@@ -166,6 +184,7 @@ const InputOTP = (props: InputOTPProps) => {
       rootRef?.removeEventListener("focusin", startPasswordManagerBadgeDetection);
       rootRef?.removeEventListener("focusout", clearBadgeDetectionTimers);
       clearBadgeDetectionTimers();
+      rootHeightObserver.disconnect();
       window.clearInterval(spaceTimer);
     });
   });
@@ -224,11 +243,15 @@ const InputOTP = (props: InputOTPProps) => {
   const inputStyle = (): string | JSX.CSSProperties => {
     const textAlign = local.textAlign ?? "left";
     if (typeof local.style === "string") {
-      return `${local.style}${local.style.trimEnd().endsWith(";") ? "" : ";"}text-align:${
-        textAlign
-      }`;
+      return `${local.style}${
+        local.style.trimEnd().endsWith(";") ? "" : ";"
+      }font-size:var(--root-height);text-align:${textAlign}`;
     }
-    return { ...local.style, "text-align": textAlign };
+    return {
+      ...local.style,
+      "font-size": "var(--root-height)",
+      "text-align": textAlign,
+    };
   };
 
   return (

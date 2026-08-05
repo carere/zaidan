@@ -42,6 +42,13 @@ describe("Input OTP browser behavior", () => {
     expect(root?.hasAttribute("data-slot")).toBe(false);
   });
 
+  it("exposes the pinned root height variable used to size the hidden input", () => {
+    const { input, root } = mountInputOTP();
+
+    expect(root?.style.getPropertyValue("--root-height")).toBe(`${input?.clientHeight}px`);
+    expect(input?.style.fontSize).toBe("var(--root-height)");
+  });
+
   it("forwards the pinned native input contract without imposing a digit pattern", () => {
     const host = document.createElement("div");
     document.body.append(host);
