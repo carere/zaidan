@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
 
+import type { ComponentProps } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
+import { createHoverCardHandle, HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
 
 let dispose: (() => void) | undefined;
 
@@ -15,13 +16,161 @@ afterEach(() => {
 });
 
 describe("Hover Card browser behavior", () => {
+  it("connects detached triggers and renders the active trigger payload", async () => {
+    vi.useFakeTimers();
+    const handle = createHoverCardHandle<{ name: string }>();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <>
+          <HoverCardTrigger
+            as="button"
+            delay={1}
+            handle={handle}
+            id="ada-trigger"
+            payload={{ name: "Ada" }}
+          >
+            Ada
+          </HoverCardTrigger>
+          <HoverCard handle={handle}>
+            {({ payload }) => <HoverCardContent>{payload?.name ?? "No profile"}</HoverCardContent>}
+          </HoverCard>
+        </>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>("#ada-trigger");
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }),
+    );
+    await vi.advanceTimersByTimeAsync(1);
+    await Promise.resolve();
+
+    expect(handle.isOpen).toBe(true);
+    expect(trigger?.hasAttribute("data-popup-open")).toBe(true);
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
+      "Ada",
+    );
+  });
+
+  it("switches payload when another detached trigger becomes active", async () => {
+    vi.useFakeTimers();
+    const handle = createHoverCardHandle<{ name: string }>();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <>
+          <HoverCardTrigger delay={1} handle={handle} id="ada" payload={{ name: "Ada" }}>
+            Ada
+          </HoverCardTrigger>
+          <HoverCardTrigger delay={1} handle={handle} id="linus" payload={{ name: "Linus" }}>
+            Linus
+          </HoverCardTrigger>
+          <HoverCard handle={handle}>
+            {({ payload }) => <HoverCardContent>{payload?.name}</HoverCardContent>}
+          </HoverCard>
+        </>
+      ),
+      host,
+    );
+
+    host
+      .querySelector<HTMLElement>("#ada")
+      ?.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }));
+    await vi.advanceTimersByTimeAsync(1);
+    host
+      .querySelector<HTMLElement>("#linus")
+      ?.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }));
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(handle.isOpen).toBe(true);
+    expect(host.querySelector("#ada")?.hasAttribute("data-popup-open")).toBe(false);
+    expect(host.querySelector("#linus")?.hasAttribute("data-popup-open")).toBe(true);
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
+      "Linus",
+    );
+  });
+
+  it("does not open when focus is acquired by a pointer press", async () => {
+    vi.useFakeTimers();
+    const onOpenChange = vi.fn();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard onOpenChange={onOpenChange}>
+          <HoverCardTrigger as="button" delay={1}>
+            Profile
+          </HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true, pointerType: "mouse" }),
+    );
+    trigger?.focus();
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(document.activeElement).toBe(trigger);
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+  });
+
+  it("honors Escape cancellation without preventing the native event", async () => {
+    const onOpenChange = vi.fn((open: boolean, details) => {
+      if (!open) {
+        details.cancel();
+        details.allowPropagation();
+      }
+    });
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard defaultOpen onOpenChange={onOpenChange}>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    const event = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "Escape",
+    });
+    document.body
+      .querySelector<HTMLElement>('[data-slot="hover-card-content"]')
+      ?.dispatchEvent(event);
+    await Promise.resolve();
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
+      event,
+      isCanceled: true,
+      isPropagationAllowed: true,
+      reason: "escape-key",
+    });
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).not.toBeNull();
+  });
+
   it("preserves native button semantics for a polymorphic trigger", async () => {
+    const TriggerButton = (props: ComponentProps<"button">) => <button {...props} />;
     const host = document.createElement("div");
     document.body.append(host);
     dispose = render(
       () => (
         <HoverCard>
-          <HoverCardTrigger as="button">Profile</HoverCardTrigger>
+          <HoverCardTrigger as={TriggerButton}>Profile</HoverCardTrigger>
           <HoverCardContent>Profile preview</HoverCardContent>
         </HoverCard>
       ),
