@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 
 import type { ComponentProps } from "solid-js";
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -121,6 +122,33 @@ describe("Hover Card browser behavior", () => {
     expect(document.activeElement).toBe(trigger);
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+  });
+
+  it("keeps the active trigger when a controlled card accepts hover opening", async () => {
+    vi.useFakeTimers();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(() => {
+      const [open, setOpen] = createSignal(false);
+      return (
+        <HoverCard open={open()} onOpenChange={setOpen}>
+          <HoverCardTrigger delay={1} href="/profile">
+            Profile
+          </HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      );
+    }, host);
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }),
+    );
+    await vi.advanceTimersByTimeAsync(1);
+    await Promise.resolve();
+
+    expect(trigger?.hasAttribute("data-popup-open")).toBe(true);
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).not.toBeNull();
   });
 
   it("honors Escape cancellation without preventing the native event", async () => {
@@ -327,6 +355,49 @@ describe("Hover Card browser behavior", () => {
       trigger,
     });
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+  });
+
+  it("uses the active trigger close delay after the pointer leaves the content", async () => {
+    vi.useFakeTimers();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard>
+          <HoverCardTrigger closeDelay={20} delay={1} href="/profile">
+            Profile
+          </HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }),
+    );
+    await vi.advanceTimersByTimeAsync(1);
+    const content = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
+
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerleave", { bubbles: true, pointerType: "mouse" }),
+    );
+    content?.dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }),
+    );
+    content?.dispatchEvent(
+      new PointerEvent("pointerleave", { bubbles: true, pointerType: "mouse" }),
+    );
+
+    await vi.advanceTimersByTimeAsync(19);
+    expect(
+      document.body.querySelector('[data-slot="hover-card-content"]')?.hasAttribute("data-open"),
+    ).toBe(true);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(
+      document.body.querySelector('[data-slot="hover-card-content"]')?.hasAttribute("data-closed"),
+    ).toBe(true);
   });
 
   it("opens from focus and reports Escape dismissal without moving trigger focus", async () => {

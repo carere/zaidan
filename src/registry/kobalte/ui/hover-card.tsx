@@ -92,6 +92,7 @@ type HoverCardOpenChangeResult = {
 };
 
 type HoverCardTriggerRegistration<Payload> = {
+  closeDelay: () => number;
   element: HTMLElement;
   payload: () => Payload | undefined;
 };
@@ -129,6 +130,11 @@ class HoverCardHandle<Payload = unknown> {
     return this.#activeTriggerIdState[0]();
   }
 
+  _activeCloseDelay() {
+    const triggerId = this.#activeTriggerIdState[0]();
+    return triggerId ? (this.#triggers.get(triggerId)?.closeDelay() ?? 300) : 300;
+  }
+
   _trigger(triggerId: string | null | undefined) {
     return triggerId ? this.#triggers.get(triggerId)?.element : undefined;
   }
@@ -146,12 +152,14 @@ class HoverCardHandle<Payload = unknown> {
   }
 
   _commit(open: boolean, triggerId: string | null) {
-    if (open) {
-      const registration = triggerId ? this.#triggers.get(triggerId) : undefined;
-      this.#activeTriggerIdState[1](triggerId);
-      this.#payloadState[1](() => registration?.payload());
-    }
+    if (open) this._activate(triggerId);
     this.#openState[1](open);
+  }
+
+  _activate(triggerId: string | null) {
+    const registration = triggerId ? this.#triggers.get(triggerId) : undefined;
+    this.#activeTriggerIdState[1](triggerId);
+    this.#payloadState[1](() => registration?.payload());
   }
 
   _contentContains(target: EventTarget | null) {
@@ -456,6 +464,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     changeTriggerId?: string | null,
   ) => {
     if (nextOpen === open()) return { accepted: false } satisfies HoverCardOpenChangeResult;
+    if (nextOpen && changeTriggerId) handle._activate(changeTriggerId);
     let shouldPreventUnmount = false;
     const details = createChangeDetails(reason, event, changeTrigger ?? trigger(), () => {
       shouldPreventUnmount = !nextOpen;
@@ -734,6 +743,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
           cancelRegistration?.();
           setTriggerElement(element);
           cancelRegistration = local.handle?._register(id(), {
+            closeDelay: () => local.closeDelay ?? 300,
             element,
             payload: () => local.payload,
           });
@@ -957,7 +967,9 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
     );
     if (context.trigger()?.contains(event.relatedTarget as Node | null)) return;
     const triggerId = context.handle._activeTriggerId();
-    if (triggerId) context.handle._scheduleClose(300, event, triggerId);
+    if (triggerId) {
+      context.handle._scheduleClose(context.handle._activeCloseDelay(), event, triggerId);
+    }
   };
 
   return (
