@@ -333,6 +333,29 @@ describe("Hover Card browser behavior", () => {
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).not.toBeNull();
   });
 
+  it("associates a sole trigger when a controlled card is opened externally", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    let openCard = () => {};
+    dispose = render(() => {
+      const [open, setOpen] = createSignal(false);
+      openCard = () => setOpen(true);
+      return (
+        <HoverCard open={open()}>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      );
+    }, host);
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    openCard();
+    await Promise.resolve();
+
+    expect(trigger?.hasAttribute("data-popup-open")).toBe(true);
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).not.toBeNull();
+  });
+
   it("honors Escape cancellation without preventing the native event", async () => {
     const onOpenChange = vi.fn((open: boolean, details) => {
       if (!open) {
@@ -438,6 +461,7 @@ describe("Hover Card browser behavior", () => {
     expect(positioner?.style.getPropertyValue("--anchor-width")).toBe(
       "var(--kb-popper-anchor-width)",
     );
+    expect(positioner?.style.getPropertyValue("--kb-popper-content-overflow-padding")).toBe("5px");
 
     positioner?.style.setProperty("visibility", "hidden");
     await Promise.resolve();
@@ -503,6 +527,40 @@ describe("Hover Card browser behavior", () => {
       positioner: { height: 0, width: 0 },
       side: "bottom",
     });
+  });
+
+  it("resolves functional offsets from the collision-adjusted side and alignment", async () => {
+    const sideOffset = vi.fn((_data: HoverCardOffsetData) => 9);
+    const alignOffset = vi.fn((_data: HoverCardOffsetData) => 6);
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard defaultOpen>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent
+            align="end"
+            alignOffset={alignOffset}
+            side="top"
+            sideOffset={sideOffset}
+          >
+            Profile preview
+          </HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    const positioner = document.body.querySelector<HTMLElement>(
+      '[data-slot="hover-card-content"]',
+    )?.parentElement;
+    positioner?.style.setProperty("--kb-popper-content-transform-origin", "top left");
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(sideOffset.mock.lastCall?.[0]).toMatchObject({ align: "start", side: "bottom" });
+    expect(alignOffset.mock.lastCall?.[0]).toMatchObject({ align: "start", side: "bottom" });
   });
 
   it("positions a wrapping trigger from the hovered inline line box", async () => {
@@ -719,6 +777,51 @@ describe("Hover Card browser behavior", () => {
     expect(
       document.body.querySelector('[data-slot="hover-card-content"]')?.hasAttribute("data-closed"),
     ).toBe(true);
+  });
+
+  it("keeps an ancestor card open for interactions in a nested portaled card", async () => {
+    vi.useFakeTimers();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard defaultOpen>
+          <HoverCardTrigger href="/parent">Parent</HoverCardTrigger>
+          <HoverCardContent>
+            Parent preview
+            <HoverCard defaultOpen>
+              <HoverCardTrigger href="/child">Child</HoverCardTrigger>
+              <HoverCardContent>Child preview</HoverCardContent>
+            </HoverCard>
+          </HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    const contents = document.body.querySelectorAll<HTMLElement>(
+      '[data-slot="hover-card-content"]',
+    );
+    const parentContent = contents[0];
+    const childContent = contents[1];
+    parentContent?.dispatchEvent(
+      new PointerEvent("pointerleave", {
+        bubbles: true,
+        pointerType: "mouse",
+        relatedTarget: childContent,
+      }),
+    );
+    childContent?.dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }),
+    );
+    childContent?.dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true, pointerType: "mouse" }),
+    );
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(parentContent?.hasAttribute("data-open")).toBe(true);
+    expect(childContent?.hasAttribute("data-open")).toBe(true);
   });
 
   it("opens from focus and reports Escape dismissal without moving trigger focus", async () => {

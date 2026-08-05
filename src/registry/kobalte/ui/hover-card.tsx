@@ -315,6 +315,12 @@ class HoverCardHandle<Payload = unknown> {
     return this.#openState[0]() && this.#activeTriggerIdState[0]() === triggerId;
   }
 
+  _implicitTriggerId(triggerId: string | null) {
+    if (triggerId && this.#triggers.has(triggerId)) return triggerId;
+    if (this.#triggers.size !== 1) return null;
+    return this.#triggers.keys().next().value ?? null;
+  }
+
   _payload() {
     return this.#payloadState[0]();
   }
@@ -450,6 +456,7 @@ function nextHoverCardAnimationFrame() {
 }
 
 type HoverCardContextValue = {
+  ancestorHandles: readonly HoverCardHandle<unknown>[];
   configurePosition: (position: ResolvedHoverCardPosition) => void;
   currentPlacement: () => HoverCardPlacement;
   defaultPosition: ResolvedHoverCardPosition;
@@ -464,6 +471,21 @@ type HoverCardContextValue = {
 };
 
 const HoverCardContext = createContext<HoverCardContextValue>();
+
+const hoverCardContentAncestors = new WeakMap<HTMLElement, Set<HoverCardHandle<unknown>>>();
+
+function isTargetWithinDescendantHoverCard(
+  target: EventTarget | null,
+  handle: HoverCardHandle<unknown>,
+) {
+  let element =
+    target instanceof Element ? target : target instanceof Node ? target.parentElement : null;
+  while (element) {
+    if (hoverCardContentAncestors.get(element as HTMLElement)?.has(handle)) return true;
+    element = element.parentElement;
+  }
+  return false;
+}
 
 function useHoverCardContext() {
   const context = useContext(HoverCardContext);
@@ -659,6 +681,7 @@ type HoverCardActions = {
 };
 
 const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
+  const parentContext = useContext(HoverCardContext);
   const [local] = splitProps(props, [
     "actionsRef",
     "children",
@@ -683,8 +706,22 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   const [forceUnmounted, setForceUnmounted] = createSignal(false);
   const [preventedUnmount, setPreventedUnmount] = createSignal(false);
   const [transitionStatus, setTransitionStatus] = createSignal<HoverCardTransitionStatus>();
-  const [content, setContent] = createSignal<HTMLElement>();
+  const [content, setContentElement] = createSignal<HTMLElement>();
   const handle = local.handle ?? createHoverCardHandle<Payload>();
+  const ancestorHandles = parentContext
+    ? [...parentContext.ancestorHandles, parentContext.handle]
+    : [];
+  const setRootContent = (element: HTMLElement | undefined) => {
+    const previousElement = untrack(content);
+    if (previousElement && previousElement !== element) {
+      hoverCardContentAncestors.delete(previousElement);
+    }
+    if (element && ancestorHandles.length > 0) {
+      hoverCardContentAncestors.set(element, new Set(ancestorHandles));
+    }
+    setContentElement(element);
+    handle._setContent(element);
+  };
   if (local.open === undefined && local.defaultOpen && !handle.isOpen) {
     handle._initialize(true, local.defaultTriggerId ?? null);
   }
@@ -744,6 +781,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   };
 
   const context: HoverCardContextValue = {
+    ancestorHandles,
     configurePosition: (nextPosition) => {
       const previousPosition = untrack(position);
       const requestedPlacementChanged =
@@ -761,10 +799,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     recordPlacement: (placement) => {
       setCurrentPlacement(placement);
     },
-    setContent: (element) => {
-      setContent(element);
-      handle._setContent(element);
-    },
+    setContent: setRootContent,
     transitionStatus,
     trigger,
   };
@@ -785,7 +820,13 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
       setMounted(true);
     }
     previousControlledOpen = controlledOpen;
-    handle._initialize(controlledOpen, local.triggerId ?? handle._activeTriggerId());
+    const triggerId =
+      local.triggerId !== undefined
+        ? local.triggerId
+        : controlledOpen
+          ? handle._implicitTriggerId(handle._activeTriggerId())
+          : handle._activeTriggerId();
+    handle._initialize(controlledOpen, triggerId);
   });
 
   createEffect(() => {
@@ -798,7 +839,12 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     };
     const recordOutsidePress = (event: PointerEvent) => {
       const target = event.target as Node | null;
-      if (trigger()?.contains(target) || content()?.contains(target)) return;
+      if (
+        trigger()?.contains(target) ||
+        content()?.contains(target) ||
+        isTargetWithinDescendantHoverCard(target, handle as HoverCardHandle<unknown>)
+      )
+        return;
       requestOpenChange(false, "outside-press", event, trigger());
     };
     document.addEventListener("keydown", recordEscape, true);
@@ -820,6 +866,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
       if (
         (target instanceof Node && activeTrigger.contains(target)) ||
         handle._contentContains(target) ||
+        isTargetWithinDescendantHoverCard(target, handle as HoverCardHandle<unknown>) ||
         isPointInHoverCardArea(
           event.clientX,
           event.clientY,
@@ -865,7 +912,10 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
         setTransitionStatus(undefined);
         if (!nextOpen) handle._setHoverClosing(false);
         if (!nextOpen && preventedUnmount()) return;
-        if (!nextOpen) setMounted(false);
+        if (!nextOpen) {
+          setMounted(false);
+          setRootContent(undefined);
+        }
         local.onOpenChangeComplete?.(nextOpen);
       }
     });
@@ -883,10 +933,9 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
         setPreventedUnmount(false);
         setForceUnmounted(true);
         setMounted(false);
-        setContent(undefined);
+        setRootContent(undefined);
         handle._setHoverClosing(false);
         handle._activate(null);
-        handle._setContent(undefined);
         local.onOpenChangeComplete?.(false);
       },
     };
@@ -898,9 +947,8 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
 
   onCleanup(() => {
     completeVersion += 1;
-    setContent(undefined);
+    setRootContent(undefined);
     handle._setHoverClosing(false);
-    handle._setContent(undefined);
   });
 
   return (
@@ -914,6 +962,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
         hideWhenDetached
         open={open()}
         openDelay={600}
+        overflowPadding={5}
         placement={positionToPlacement(position())}
         shift={position().alignOffset}
       >
@@ -1156,16 +1205,17 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
   const resolvedPosition = (): ResolvedHoverCardPosition => {
     measurementVersion();
     const requested = requestedPosition();
+    const resolvedPlacement = context.currentPlacement();
     const anchorRect = context.handle._anchorRect(positionToPlacement(requested));
     const positionerRect = positioner()?.getBoundingClientRect();
     const offsetData: HoverCardOffsetData = {
-      align: requested.align,
+      align: placementParts(resolvedPlacement).align,
       anchor: { height: anchorRect?.height ?? 0, width: anchorRect?.width ?? 0 },
       positioner: {
         height: positionerRect?.height ?? 0,
         width: positionerRect?.width ?? 0,
       },
-      side: requested.side,
+      side: exposedSide(resolvedPlacement, requested.side),
     };
     return {
       align: requested.align,
@@ -1290,6 +1340,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
       event,
     );
     context.handle._cancelClosing();
+    for (const ancestorHandle of context.ancestorHandles) ancestorHandle._cancelClosing();
   };
   const onPointerLeave: JSX.EventHandler<HTMLElement, PointerEvent> = (event) => {
     callEventHandler(
