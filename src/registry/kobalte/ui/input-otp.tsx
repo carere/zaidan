@@ -1,46 +1,282 @@
-import OtpField, { type RootProps as OtpFieldRootProps } from "@corvu/otp-field";
+/** biome-ignore-all lint/a11y/useAriaPropsForRole: structural separators do not require aria-valuenow */
+
+import OtpField, {
+  type DynamicProps,
+  type InputProps as OtpFieldInputProps,
+  type RootCorvuProps as OtpFieldRootProps,
+} from "@corvu/otp-field";
 import { Minus } from "lucide-solid";
-import { type ComponentProps, Show, splitProps } from "solid-js";
+import {
+  type ComponentProps,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  on,
+  onCleanup,
+  onMount,
+  Show,
+  splitProps,
+  untrack,
+} from "solid-js";
 
 import { cn } from "@/lib/utils";
 
-type InputOTPProps = OtpFieldRootProps &
-  ComponentProps<"div"> &
-  Pick<ComponentProps<"input">, "disabled" | "required"> & {
+const PASSWORD_MANAGER_BADGE_SPACE = 40;
+const PASSWORD_MANAGER_BADGE_OFFSET = 18;
+const PASSWORD_MANAGER_BADGE_SELECTORS = [
+  "[data-lastpass-icon-root]",
+  "com-1password-button",
+  "[data-dashlanecreated]",
+  '[style$="2147483647 !important;"]',
+].join(",");
+
+type InputOTPProps = Omit<OtpFieldRootProps, "contextId"> &
+  Omit<
+    DynamicProps<"input", OtpFieldInputProps>,
+    "children" | "contextId" | "defaultValue" | "maxLength" | "onChange" | "value"
+  > & {
+    children?: JSX.Element;
     containerClass?: string;
+    containerClassName?: string;
+    defaultValue?: string;
+    onChange?: (value: string) => unknown;
+    pasteTransformer?: (pasted: string) => string;
+    pushPasswordManagerStrategy?: "increase-width" | "none";
+    render?: (props: InputOTPRenderProps) => JSX.Element;
+    textAlign?: "center" | "left" | "right";
   };
 
+type InputOTPSlotState = {
+  char: string | null;
+  hasFakeCaret: boolean;
+  isActive: boolean;
+  placeholderChar: string | null;
+};
+
+type InputOTPRenderProps = {
+  isFocused: boolean;
+  isHovering: boolean;
+  slots: InputOTPSlotState[];
+};
+
 const InputOTP = (props: InputOTPProps) => {
-  const [local, others] = splitProps(props as InputOTPProps, [
+  const [local, inputProps] = splitProps(props as InputOTPProps, [
     "class",
     "containerClass",
+    "containerClassName",
     "children",
-    "id",
+    "defaultValue",
     "disabled",
-    "required",
+    "maxLength",
+    "onChange",
+    "onComplete",
+    "onPaste",
     "value",
     "onValueChange",
+    "pasteTransformer",
+    "pattern",
+    "placeholder",
+    "pushPasswordManagerStrategy",
+    "ref",
+    "render",
+    "shiftPWManagers",
+    "style",
+    "textAlign",
   ]);
+  const [uncontrolledValue, setUncontrolledValue] = createSignal(local.defaultValue ?? "");
+  const [hasPasswordManagerBadge, setHasPasswordManagerBadge] = createSignal(false);
+  const [hasPasswordManagerSpace, setHasPasswordManagerSpace] = createSignal(false);
+  const currentValue = () => local.value ?? uncontrolledValue();
+  let rootRef: HTMLElement | undefined;
+  let inputRef: HTMLInputElement | undefined;
+  let previousValue = untrack(currentValue);
+
+  onMount(() => {
+    const updatePasswordManagerSpace = () => {
+      const availableSpace = rootRef
+        ? window.innerWidth - rootRef.getBoundingClientRect().right
+        : 0;
+      setHasPasswordManagerSpace(availableSpace >= PASSWORD_MANAGER_BADGE_SPACE);
+    };
+    const detectPasswordManagerBadge = () => {
+      if (
+        local.pushPasswordManagerStrategy === "none" ||
+        local.shiftPWManagers === false ||
+        hasPasswordManagerBadge() ||
+        !rootRef ||
+        !inputRef
+      ) {
+        return;
+      }
+
+      const bounds = rootRef.getBoundingClientRect();
+      const badgeX = bounds.left + rootRef.offsetWidth - PASSWORD_MANAGER_BADGE_OFFSET;
+      const badgeY = bounds.top + rootRef.offsetHeight / 2;
+      const elementAtBadgePosition = document.elementFromPoint?.(badgeX, badgeY);
+      const hasKnownBadge = document.querySelector(PASSWORD_MANAGER_BADGE_SELECTORS) !== null;
+
+      if (hasKnownBadge || (elementAtBadgePosition && !rootRef.contains(elementAtBadgePosition))) {
+        setHasPasswordManagerBadge(true);
+      }
+    };
+    const detectOnFocus = () => {
+      window.setTimeout(detectPasswordManagerBadge);
+    };
+    const detectionTimers = [0, 2000, 5000].map((delay) =>
+      window.setTimeout(detectPasswordManagerBadge, delay),
+    );
+    const spaceTimer = window.setInterval(updatePasswordManagerSpace, 1000);
+
+    updatePasswordManagerSpace();
+    window.addEventListener("resize", updatePasswordManagerSpace);
+    rootRef?.addEventListener("focusin", detectOnFocus);
+    onCleanup(() => {
+      window.removeEventListener("resize", updatePasswordManagerSpace);
+      rootRef?.removeEventListener("focusin", detectOnFocus);
+      for (const timer of detectionTimers) window.clearTimeout(timer);
+      window.clearInterval(spaceTimer);
+    });
+  });
+
+  createEffect(
+    on(
+      currentValue,
+      (nextValue) => {
+        if (previousValue.length < local.maxLength && nextValue.length === local.maxLength) {
+          local.onComplete?.(nextValue);
+        }
+        previousValue = nextValue;
+      },
+      { defer: true },
+    ),
+  );
+
+  const onValueChange = (nextValue: string) => {
+    if (local.value === undefined) setUncontrolledValue(nextValue);
+    local.onChange?.(nextValue);
+    local.onValueChange?.(nextValue);
+  };
+
+  const onPaste: JSX.EventHandler<HTMLInputElement, ClipboardEvent> = (event) => {
+    if (local.pasteTransformer) {
+      const pastedValue = local.pasteTransformer(event.clipboardData?.getData("text/plain") ?? "");
+      const selectionStart = event.currentTarget.selectionStart ?? currentValue().length;
+      const selectionEnd = event.currentTarget.selectionEnd ?? selectionStart;
+      const nextValue = `${currentValue().slice(0, selectionStart)}${pastedValue}${currentValue().slice(
+        selectionEnd,
+      )}`;
+
+      event.preventDefault();
+      event.currentTarget.value = nextValue;
+      event.currentTarget.dispatchEvent(
+        new InputEvent("input", {
+          bubbles: true,
+          data: pastedValue,
+          inputType: "insertFromPaste",
+        }),
+      );
+      const nextSelectionEnd = event.currentTarget.value.length;
+      event.currentTarget.setSelectionRange(
+        Math.min(nextSelectionEnd, local.maxLength - 1),
+        nextSelectionEnd,
+      );
+    }
+
+    if (typeof local.onPaste === "function") {
+      local.onPaste(event);
+    } else {
+      local.onPaste?.[0](local.onPaste[1], event);
+    }
+  };
+
+  const inputStyle = (): string | JSX.CSSProperties => {
+    const textAlign = local.textAlign ?? "left";
+    if (typeof local.style === "string") {
+      return `${local.style}${local.style.trimEnd().endsWith(";") ? "" : ";"}text-align:${
+        textAlign
+      }`;
+    }
+    return { ...local.style, "text-align": textAlign };
+  };
 
   return (
     <OtpField
-      data-slot="input-otp"
-      spellcheck={false}
-      class={cn("z-input-otp flex items-center has-disabled:opacity-50", local.containerClass)}
-      {...others}
+      class={cn(
+        "z-input-otp flex items-center has-disabled:opacity-50",
+        local.containerClass,
+        local.containerClassName,
+      )}
+      maxLength={local.maxLength}
+      onValueChange={onValueChange}
+      ref={(element) => (rootRef = element)}
+      shiftPWManagers={
+        hasPasswordManagerBadge() &&
+        hasPasswordManagerSpace() &&
+        (local.pushPasswordManagerStrategy === undefined
+          ? (local.shiftPWManagers ?? true)
+          : local.pushPasswordManagerStrategy === "increase-width")
+      }
+      style={{ cursor: local.disabled ? "default" : "text" }}
+      value={currentValue()}
     >
       <OtpField.Input
-        id={local.id}
-        data-slot="input-otp-input"
+        data-slot="input-otp"
+        aria-placeholder={local.placeholder}
         class={cn("z-input-otp-input disabled:cursor-not-allowed", local.class)}
-        spellcheck={false}
         disabled={local.disabled}
-        required={local.required}
-        value={local.value}
-        onChange={(e) => local.onValueChange?.(e.target.value)}
+        maxLength={local.maxLength}
+        onPaste={onPaste}
+        pattern={local.pattern ?? null}
+        ref={(element) => {
+          inputRef = element;
+          if (local.defaultValue !== undefined) element.defaultValue = local.defaultValue;
+          if (typeof local.ref === "function") local.ref(element);
+        }}
+        style={inputStyle()}
+        {...inputProps}
       />
-      {local.children}
+      <InputOTPContent placeholder={local.placeholder} render={local.render}>
+        {local.children}
+      </InputOTPContent>
     </OtpField>
+  );
+};
+
+type InputOTPContentProps = {
+  children?: JSX.Element;
+  placeholder?: string;
+  render?: (props: InputOTPRenderProps) => JSX.Element;
+};
+
+const InputOTPContent = (props: InputOTPContentProps) => {
+  const context = OtpField.useContext();
+  const renderProps = createMemo<InputOTPRenderProps>(() => {
+    const value = context.value();
+    const activeSlots = context.activeSlots();
+    const slots = Array.from({ length: context.maxLength() }, (_, index) => {
+      const char = value[index] ?? null;
+      const isActive = activeSlots.includes(index);
+
+      return {
+        char,
+        hasFakeCaret: isActive && char === null,
+        isActive,
+        placeholderChar: value[0] === undefined ? (props.placeholder?.[index] ?? null) : null,
+      };
+    });
+
+    return {
+      isFocused: context.isFocused(),
+      isHovering: context.isHovered(),
+      slots,
+    };
+  });
+
+  return (
+    <Show fallback={props.children} keyed when={props.render ? renderProps() : undefined}>
+      {(state) => props.render?.(state)}
+    </Show>
   );
 };
 
@@ -67,7 +303,7 @@ const InputOTPSlot = (props: InputOTPSlotProps) => {
 
   const char = () => context.value()[local.index];
   const isActive = () => context.activeSlots().includes(local.index);
-  const showCaret = () => isActive() && context.isInserting();
+  const showCaret = () => isActive() && char() === undefined;
 
   return (
     <div
@@ -82,7 +318,7 @@ const InputOTPSlot = (props: InputOTPSlotProps) => {
       {char()}
       <Show when={showCaret()}>
         <div class="pointer-events-none absolute inset-0 z-input-otp-caret flex items-center justify-center">
-          <div class="z-input-otp-caret-line h-4 w-px animate-caret-blink bg-foreground" />
+          <div class="z-input-otp-caret-line" />
         </div>
       </Show>
     </div>
@@ -94,10 +330,12 @@ type InputOTPSeparatorProps = ComponentProps<"div">;
 const InputOTPSeparator = (props: InputOTPSeparatorProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
+    // biome-ignore lint/a11y/useFocusableInteractive: the pinned separator is structural, not adjustable
+    // biome-ignore lint/a11y/useSemanticElements: the pinned div wraps the separator icon
     <div
       data-slot="input-otp-separator"
       class={cn("z-input-otp-separator flex items-center", local.class)}
-      aria-hidden="true"
+      role="separator"
       {...others}
     >
       <Minus />
