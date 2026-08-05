@@ -3,7 +3,6 @@
 import OtpField, {
   type DynamicProps,
   type InputProps as OtpFieldInputProps,
-  type RootCorvuProps as OtpFieldRootProps,
 } from "@corvu/otp-field";
 import { Minus } from "lucide-solid";
 import {
@@ -30,20 +29,41 @@ const PASSWORD_MANAGER_BADGE_SELECTORS = [
   "[data-dashlanecreated]",
   '[style$="2147483647 !important;"]',
 ].join(",");
+const DEFAULT_NOSCRIPT_CSS_FALLBACK = `
+[data-corvu-otp-field-input] {
+  --nojs-bg: white !important;
+  --nojs-fg: black !important;
+  background-color: var(--nojs-bg) !important;
+  color: var(--nojs-fg) !important;
+  caret-color: var(--nojs-fg) !important;
+  letter-spacing: .25em !important;
+  text-align: center !important;
+  border: 1px solid var(--nojs-fg) !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+}
+@media (prefers-color-scheme: dark) {
+  [data-corvu-otp-field-input] {
+    --nojs-bg: black !important;
+    --nojs-fg: white !important;
+  }
+}
+`;
 
-type InputOTPBaseProps = Omit<OtpFieldRootProps, "contextId"> &
-  Omit<
-    DynamicProps<"input", OtpFieldInputProps>,
-    "children" | "contextId" | "defaultValue" | "maxLength" | "onChange" | "value"
-  > & {
-    containerClass?: string;
-    containerClassName?: string;
-    defaultValue?: string;
-    onChange?: (value: string) => unknown;
-    pasteTransformer?: (pasted: string) => string;
-    pushPasswordManagerStrategy?: "increase-width" | "none";
-    textAlign?: "center" | "left" | "right";
-  };
+type InputOTPBaseProps = Omit<
+  DynamicProps<"input", OtpFieldInputProps>,
+  "as" | "children" | "contextId" | "defaultValue" | "maxLength" | "onChange" | "value"
+> & {
+  containerClass?: string;
+  defaultValue?: string;
+  maxLength: number;
+  onChange?: (value: string) => unknown;
+  onComplete?: (value: string) => unknown;
+  pasteTransformer?: (pasted: string) => string;
+  pushPasswordManagerStrategy?: "increase-width" | "none";
+  textAlign?: "center" | "left" | "right";
+  value?: string;
+};
 
 type InputOTPProps = InputOTPBaseProps &
   (
@@ -74,23 +94,21 @@ const InputOTP = (props: InputOTPProps) => {
   const [local, inputProps] = splitProps(props as InputOTPProps, [
     "class",
     "containerClass",
-    "containerClassName",
     "children",
     "defaultValue",
     "disabled",
     "maxLength",
+    "noScriptCSSFallback",
     "onChange",
     "onComplete",
     "onPaste",
     "value",
-    "onValueChange",
     "pasteTransformer",
     "pattern",
     "placeholder",
     "pushPasswordManagerStrategy",
     "ref",
     "render",
-    "shiftPWManagers",
     "style",
     "textAlign",
   ]);
@@ -115,6 +133,10 @@ const InputOTP = (props: InputOTPProps) => {
         badgeDetectionFinishTimer = undefined;
       }
     };
+    const shouldSkipPasswordManagerDetection = () =>
+      local.pushPasswordManagerStrategy === "none" ||
+      badgeDetectionFinished ||
+      hasPasswordManagerBadge();
     const updateRootHeight = () => {
       if (rootRef && inputRef) {
         rootRef.style.setProperty("--root-height", `${inputRef.clientHeight}px`);
@@ -128,14 +150,7 @@ const InputOTP = (props: InputOTPProps) => {
       setHasPasswordManagerSpace(availableSpace >= PASSWORD_MANAGER_BADGE_SPACE);
     };
     const detectPasswordManagerBadge = () => {
-      if (
-        local.pushPasswordManagerStrategy === "none" ||
-        local.shiftPWManagers === false ||
-        badgeDetectionFinished ||
-        hasPasswordManagerBadge() ||
-        !rootRef ||
-        !inputRef
-      ) {
+      if (shouldSkipPasswordManagerDetection() || !rootRef || !inputRef) {
         return;
       }
 
@@ -152,12 +167,7 @@ const InputOTP = (props: InputOTPProps) => {
       }
     };
     const startPasswordManagerBadgeDetection = () => {
-      if (
-        local.pushPasswordManagerStrategy === "none" ||
-        local.shiftPWManagers === false ||
-        badgeDetectionFinished ||
-        hasPasswordManagerBadge()
-      ) {
+      if (shouldSkipPasswordManagerDetection()) {
         return;
       }
 
@@ -179,6 +189,14 @@ const InputOTP = (props: InputOTPProps) => {
     rootRef?.addEventListener("focusin", startPasswordManagerBadgeDetection);
     rootRef?.addEventListener("focusout", clearBadgeDetectionTimers);
     if (document.activeElement === inputRef) startPasswordManagerBadgeDetection();
+    createEffect(() => {
+      if (local.pushPasswordManagerStrategy === "none" || document.activeElement !== inputRef) {
+        clearBadgeDetectionTimers();
+        return;
+      }
+
+      startPasswordManagerBadgeDetection();
+    });
     onCleanup(() => {
       window.removeEventListener("resize", updatePasswordManagerSpace);
       rootRef?.removeEventListener("focusin", startPasswordManagerBadgeDetection);
@@ -202,10 +220,9 @@ const InputOTP = (props: InputOTPProps) => {
     ),
   );
 
-  const onValueChange = (nextValue: string) => {
+  const handleValueChange = (nextValue: string) => {
     if (local.value === undefined) setUncontrolledValue(nextValue);
     local.onChange?.(nextValue);
-    local.onValueChange?.(nextValue);
   };
 
   const onPaste: JSX.EventHandler<HTMLInputElement, ClipboardEvent> = (event) => {
@@ -257,20 +274,14 @@ const InputOTP = (props: InputOTPProps) => {
 
   return (
     <OtpField
-      class={cn(
-        "z-input-otp flex items-center has-disabled:opacity-50",
-        local.containerClass,
-        local.containerClassName,
-      )}
+      class={cn("z-input-otp flex items-center has-disabled:opacity-50", local.containerClass)}
       maxLength={local.maxLength}
-      onValueChange={onValueChange}
+      onValueChange={handleValueChange}
       ref={(element) => (rootRef = element)}
       shiftPWManagers={
         hasPasswordManagerBadge() &&
         hasPasswordManagerSpace() &&
-        (local.pushPasswordManagerStrategy === undefined
-          ? (local.shiftPWManagers ?? true)
-          : local.pushPasswordManagerStrategy === "increase-width")
+        local.pushPasswordManagerStrategy !== "none"
       }
       style={{ cursor: local.disabled ? "default" : "text" }}
       value={currentValue()}
@@ -288,6 +299,11 @@ const InputOTP = (props: InputOTPProps) => {
         class={cn("z-input-otp-input disabled:cursor-not-allowed", local.class)}
         disabled={local.disabled}
         maxLength={local.maxLength}
+        noScriptCSSFallback={
+          local.noScriptCSSFallback === undefined
+            ? DEFAULT_NOSCRIPT_CSS_FALLBACK
+            : local.noScriptCSSFallback
+        }
         onPaste={onPaste}
         pattern={local.pattern ?? null}
         ref={(element) => {

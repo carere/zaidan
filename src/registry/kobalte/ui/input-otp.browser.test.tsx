@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -59,7 +59,6 @@ describe("Input OTP browser behavior", () => {
           aria-label="Account code"
           class="custom-input"
           containerClass="custom-container"
-          containerClassName="upstream-container"
           id="account-code"
           inputMode="text"
           maxLength={4}
@@ -98,13 +97,10 @@ describe("Input OTP browser behavior", () => {
     expect(input?.getAttribute("pattern")).toBeNull();
     expect(input?.getAttribute("class")).toContain("custom-input");
     expect(root?.getAttribute("class")).toContain("custom-container");
-    expect(root?.getAttribute("class")).toContain("upstream-container");
-    expect(root?.hasAttribute("containerClassName")).toBe(false);
   });
 
   it("supports the pinned uncontrolled value and completion lifecycle", async () => {
     const changes: string[] = [];
-    const solidChanges: string[] = [];
     const completions: string[] = [];
     const host = document.createElement("div");
     document.body.append(host);
@@ -116,7 +112,6 @@ describe("Input OTP browser behavior", () => {
           maxLength={2}
           onChange={(value) => changes.push(value)}
           onComplete={(value) => completions.push(value)}
-          onValueChange={(value) => solidChanges.push(value)}
         >
           <InputOTPGroup>
             <InputOTPSlot index={0} />
@@ -141,7 +136,6 @@ describe("Input OTP browser behavior", () => {
 
     expect(slots.map((slot) => slot.textContent)).toEqual(["A", "B"]);
     expect(changes).toEqual(["AB"]);
-    expect(solidChanges).toEqual(["AB"]);
     expect(completions).toEqual(["AB"]);
   });
 
@@ -230,6 +224,47 @@ describe("Input OTP browser behavior", () => {
 
       expect(input?.style.width).toBe("calc(100% + 40px)");
       expect(input?.style.clipPath).toBe("inset(0 40px 0 0)");
+    } finally {
+      Object.defineProperty(document, "elementFromPoint", {
+        configurable: true,
+        value: originalElementFromPoint,
+      });
+    }
+  });
+
+  it("starts password-manager detection when the strategy is enabled while focused", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    let enablePasswordManagerPushing = () => {};
+    const Fixture = () => {
+      const [strategy, setStrategy] = createSignal<"increase-width" | "none">("none");
+      enablePasswordManagerPushing = () => setStrategy("increase-width");
+
+      return (
+        <InputOTP maxLength={1} pushPasswordManagerStrategy={strategy()}>
+          <InputOTPGroup>
+            <InputOTPSlot index={0} />
+          </InputOTPGroup>
+        </InputOTP>
+      );
+    };
+    dispose = render(() => <Fixture />, host);
+
+    const input = host.querySelector<HTMLInputElement>("input");
+    const originalElementFromPoint = document.elementFromPoint;
+    Object.defineProperty(document, "elementFromPoint", {
+      configurable: true,
+      value: () => input,
+    });
+
+    try {
+      input?.focus();
+      await new Promise((resolve) => window.setTimeout(resolve));
+      expect(input?.style.width).toBe("100%");
+
+      enablePasswordManagerPushing();
+      await new Promise((resolve) => window.setTimeout(resolve));
+      expect(input?.style.width).toBe("calc(100% + 40px)");
     } finally {
       Object.defineProperty(document, "elementFromPoint", {
         configurable: true,
@@ -327,7 +362,7 @@ describe("Input OTP browser behavior", () => {
           placeholder="XY"
           render={({ isFocused, slots }) => (
             <output>
-              {slots.map((slot) => slot.char ?? slot.placeholderChar ?? "_").join("")}:
+              <For each={slots}>{(slot) => slot.char ?? slot.placeholderChar ?? "_"}</For>:
               {String(isFocused)}
             </output>
           )}
