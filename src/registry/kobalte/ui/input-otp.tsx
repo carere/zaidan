@@ -290,7 +290,11 @@ const InputOTP = (props: InputOTPProps) => {
         style={inputStyle()}
         {...inputProps}
       />
-      <InputOTPContent placeholder={local.placeholder} render={local.render}>
+      <InputOTPContent
+        disabled={local.disabled}
+        placeholder={local.placeholder}
+        render={local.render}
+      >
         {local.children}
       </InputOTPContent>
     </OtpField>
@@ -299,6 +303,7 @@ const InputOTP = (props: InputOTPProps) => {
 
 type InputOTPContentProps = {
   children?: JSX.Element;
+  disabled?: boolean;
   placeholder?: string;
   render?: (props: InputOTPRenderProps) => JSX.Element;
 };
@@ -322,7 +327,7 @@ const InputOTPContent = (props: InputOTPContentProps) => {
 
     return {
       isFocused: context.isFocused(),
-      isHovering: context.isHovered(),
+      isHovering: !props.disabled && context.isHovered(),
       slots,
     };
   });

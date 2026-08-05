@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -321,5 +322,33 @@ describe("Input OTP browser behavior", () => {
     await Promise.resolve();
 
     expect(host.querySelector("output")?.textContent).toBe("XY:true");
+  });
+
+  it("clears the pinned hover render state when disabled", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    let disable = () => {};
+    const Fixture = () => {
+      const [disabled, setDisabled] = createSignal(false);
+      disable = () => setDisabled(true);
+
+      return (
+        <InputOTP
+          disabled={disabled()}
+          maxLength={1}
+          render={({ isHovering }) => <output>{String(isHovering)}</output>}
+        />
+      );
+    };
+    dispose = render(() => <Fixture />, host);
+
+    const input = host.querySelector<HTMLInputElement>("input");
+    input?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    await Promise.resolve();
+    expect(host.querySelector("output")?.textContent).toBe("true");
+
+    disable();
+    await Promise.resolve();
+    expect(host.querySelector("output")?.textContent).toBe("false");
   });
 });
