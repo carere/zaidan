@@ -29,10 +29,9 @@ function mountInputOTP() {
     host,
   );
 
-  return {
-    input: host.querySelector<HTMLInputElement>("input"),
-    root: host.querySelector<HTMLElement>("[data-corvu-otp-field-root]"),
-  };
+  const input = host.querySelector<HTMLInputElement>("input");
+
+  return { input, root: input?.parentElement };
 }
 
 describe("Input OTP browser behavior", () => {
@@ -48,6 +47,7 @@ describe("Input OTP browser behavior", () => {
 
     expect(root?.style.getPropertyValue("--root-height")).toBe(`${input?.clientHeight}px`);
     expect(input?.style.fontSize).toBe("var(--root-height)");
+    expect(input?.style.letterSpacing).toBe("-0.5em");
   });
 
   it("forwards the pinned native input contract without imposing a digit pattern", () => {
@@ -74,7 +74,7 @@ describe("Input OTP browser behavior", () => {
     );
 
     const input = host.querySelector<HTMLInputElement>("input");
-    const root = host.querySelector<HTMLElement>("[data-corvu-otp-field-root]");
+    const root = input?.parentElement;
 
     expect({
       autocomplete: input?.getAttribute("autocomplete"),
@@ -216,6 +216,28 @@ describe("Input OTP browser behavior", () => {
     expect(input?.style.clipPath).toBe("");
   });
 
+  it("matches the pinned focus heuristic when the hidden input occupies the badge probe", async () => {
+    const { input } = mountInputOTP();
+    const originalElementFromPoint = document.elementFromPoint;
+    Object.defineProperty(document, "elementFromPoint", {
+      configurable: true,
+      value: () => input,
+    });
+
+    try {
+      input?.focus();
+      await new Promise((resolve) => window.setTimeout(resolve));
+
+      expect(input?.style.width).toBe("calc(100% + 40px)");
+      expect(input?.style.clipPath).toBe("inset(0 40px 0 0)");
+    } finally {
+      Object.defineProperty(document, "elementFromPoint", {
+        configurable: true,
+        value: originalElementFromPoint,
+      });
+    }
+  });
+
   it("creates badge space only after a supported password manager is detected on focus", async () => {
     document.body.append(document.createElement("com-1password-button"));
     const { input } = mountInputOTP();
@@ -253,7 +275,7 @@ describe("Input OTP browser behavior", () => {
       host,
     );
 
-    expect(host.querySelector<HTMLElement>("[data-corvu-otp-field-root]")?.style.cursor).toBe(
+    expect(host.querySelector<HTMLInputElement>("input")?.parentElement?.style.cursor).toBe(
       "default",
     );
   });

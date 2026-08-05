@@ -145,7 +145,7 @@ const InputOTP = (props: InputOTPProps) => {
       const elementAtBadgePosition = document.elementFromPoint?.(badgeX, badgeY);
       const hasKnownBadge = document.querySelector(PASSWORD_MANAGER_BADGE_SELECTORS) !== null;
 
-      if (hasKnownBadge || (elementAtBadgePosition && !rootRef.contains(elementAtBadgePosition))) {
+      if (hasKnownBadge || elementAtBadgePosition !== rootRef) {
         badgeDetectionFinished = true;
         clearBadgeDetectionTimers();
         setHasPasswordManagerBadge(true);
@@ -245,11 +245,12 @@ const InputOTP = (props: InputOTPProps) => {
     if (typeof local.style === "string") {
       return `${local.style}${
         local.style.trimEnd().endsWith(";") ? "" : ";"
-      }font-size:var(--root-height);text-align:${textAlign}`;
+      }font-size:var(--root-height);letter-spacing:-.5em;text-align:${textAlign}`;
     }
     return {
       ...local.style,
       "font-size": "var(--root-height)",
+      "letter-spacing": "-.5em",
       "text-align": textAlign,
     };
   };
@@ -274,6 +275,13 @@ const InputOTP = (props: InputOTPProps) => {
       style={{ cursor: local.disabled ? "default" : "text" }}
       value={currentValue()}
     >
+      <InputOTPContent
+        disabled={local.disabled}
+        placeholder={local.placeholder}
+        render={local.render}
+      >
+        {local.children}
+      </InputOTPContent>
       <OtpField.Input
         data-slot="input-otp"
         aria-placeholder={local.placeholder}
@@ -290,13 +298,6 @@ const InputOTP = (props: InputOTPProps) => {
         style={inputStyle()}
         {...inputProps}
       />
-      <InputOTPContent
-        disabled={local.disabled}
-        placeholder={local.placeholder}
-        render={local.render}
-      >
-        {local.children}
-      </InputOTPContent>
     </OtpField>
   );
 };
@@ -309,6 +310,7 @@ type InputOTPContentProps = {
 };
 
 const InputOTPContent = (props: InputOTPContentProps) => {
+  const [local] = splitProps(props, ["children", "disabled", "placeholder", "render"]);
   const context = OtpField.useContext();
   const renderProps = createMemo<InputOTPRenderProps>(() => {
     const value = context.value();
@@ -321,20 +323,20 @@ const InputOTPContent = (props: InputOTPContentProps) => {
         char,
         hasFakeCaret: isActive && char === null,
         isActive,
-        placeholderChar: value[0] === undefined ? (props.placeholder?.[index] ?? null) : null,
+        placeholderChar: value[0] === undefined ? (local.placeholder?.[index] ?? null) : null,
       };
     });
 
     return {
       isFocused: context.isFocused(),
-      isHovering: !props.disabled && context.isHovered(),
+      isHovering: !local.disabled && context.isHovered(),
       slots,
     };
   });
 
   return (
-    <Show fallback={props.children} keyed when={props.render ? renderProps() : undefined}>
-      {(state) => props.render?.(state)}
+    <Show fallback={local.children} keyed when={local.render ? renderProps() : undefined}>
+      {(state) => local.render?.(state)}
     </Show>
   );
 };
