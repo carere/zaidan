@@ -11,7 +11,7 @@ const Label = (props: LabelProps) => {
   return (
     <label
       class={cn(
-        "z-label flex select-none items-center peer-disabled:cursor-not-allowed group-data-[disabled=true]:pointer-events-none",
+        "z-label flex items-center select-none group-data-[disabled=true]:pointer-events-none peer-disabled:cursor-not-allowed",
         local.class,
       )}
       data-slot="label"
