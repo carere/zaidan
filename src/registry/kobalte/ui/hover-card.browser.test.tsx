@@ -5,6 +5,7 @@ import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type { HoverCardOffsetData } from "./hover-card";
 import { createHoverCardHandle, HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
 
 let dispose: (() => void) | undefined;
@@ -90,6 +91,143 @@ describe("Hover Card browser behavior", () => {
     expect(handle.isOpen).toBe(true);
     expect(host.querySelector("#ada")?.hasAttribute("data-popup-open")).toBe(false);
     expect(host.querySelector("#linus")?.hasAttribute("data-popup-open")).toBe(true);
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
+      "Linus",
+    );
+  });
+
+  it("switches a controlled open card to another trigger immediately", async () => {
+    vi.useFakeTimers();
+    const onOpenChange = vi.fn();
+    const handle = createHoverCardHandle<string>();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(() => {
+      const [triggerId, setTriggerId] = createSignal<string | null>("ada");
+      return (
+        <>
+          <HoverCardTrigger delay={1} handle={handle} id="ada" payload="Ada">
+            Ada
+          </HoverCardTrigger>
+          <HoverCardTrigger delay={1_000} handle={handle} id="linus" payload="Linus">
+            Linus
+          </HoverCardTrigger>
+          <HoverCard
+            handle={handle}
+            open
+            triggerId={triggerId()}
+            onOpenChange={(nextOpen, details) => {
+              onOpenChange(nextOpen, details);
+              setTriggerId(details.trigger?.id ?? null);
+            }}
+          >
+            {({ payload }) => <HoverCardContent>{payload}</HoverCardContent>}
+          </HoverCard>
+        </>
+      );
+    }, host);
+
+    const linus = host.querySelector<HTMLElement>("#linus");
+    const event = new PointerEvent("pointerenter", {
+      bubbles: true,
+      clientX: 10,
+      clientY: 10,
+      pointerType: "mouse",
+    });
+    linus?.dispatchEvent(event);
+    await Promise.resolve();
+
+    expect(onOpenChange).toHaveBeenCalledOnce();
+    expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
+      event,
+      reason: "trigger-hover",
+      trigger: linus,
+    });
+    expect(linus?.hasAttribute("data-popup-open")).toBe(true);
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
+      "Linus",
+    );
+  });
+
+  it("switches immediately when focus moves between detached triggers", async () => {
+    vi.useFakeTimers();
+    const handle = createHoverCardHandle<string>();
+    const onOpenChange = vi.fn();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <>
+          <HoverCardTrigger as="button" delay={1_000} handle={handle} id="ada" payload="Ada">
+            Ada
+          </HoverCardTrigger>
+          <HoverCardTrigger as="button" delay={1_000} handle={handle} id="linus" payload="Linus">
+            Linus
+          </HoverCardTrigger>
+          <HoverCard defaultOpen defaultTriggerId="ada" handle={handle} onOpenChange={onOpenChange}>
+            {({ payload }) => <HoverCardContent>{payload}</HoverCardContent>}
+          </HoverCard>
+        </>
+      ),
+      host,
+    );
+
+    host.querySelector<HTMLElement>("#ada")?.focus();
+    host.querySelector<HTMLElement>("#linus")?.focus();
+    await Promise.resolve();
+
+    expect(onOpenChange).toHaveBeenCalledOnce();
+    expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
+      reason: "trigger-focus",
+      trigger: host.querySelector("#linus"),
+    });
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
+      "Linus",
+    );
+  });
+
+  it("switches immediately during a hover-driven exit transition", async () => {
+    vi.useFakeTimers();
+    const handle = createHoverCardHandle<string>();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <>
+          <HoverCardTrigger closeDelay={1} delay={1} handle={handle} id="ada" payload="Ada">
+            Ada
+          </HoverCardTrigger>
+          <HoverCardTrigger delay={1_000} handle={handle} id="linus" payload="Linus">
+            Linus
+          </HoverCardTrigger>
+          <HoverCard handle={handle}>
+            {({ payload }) => <HoverCardContent>{payload}</HoverCardContent>}
+          </HoverCard>
+        </>
+      ),
+      host,
+    );
+
+    const ada = host.querySelector<HTMLElement>("#ada");
+    ada?.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }));
+    await vi.advanceTimersByTimeAsync(1);
+    const content = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
+    Object.defineProperty(content, "getAnimations", {
+      value: () => [{ finished: new Promise(() => {}), playState: "running" }],
+    });
+
+    ada?.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true, pointerType: "mouse" }));
+    await vi.advanceTimersByTimeAsync(1);
+    await Promise.resolve();
+    expect(content?.hasAttribute("data-ending-style")).toBe(true);
+
+    const linus = host.querySelector<HTMLElement>("#linus");
+    linus?.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }));
+    await Promise.resolve();
+
+    expect(linus?.hasAttribute("data-popup-open")).toBe(true);
     expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
       "Linus",
     );
@@ -317,6 +455,44 @@ describe("Hover Card browser behavior", () => {
     });
   });
 
+  it("positions a wrapping trigger from the hovered inline line box", async () => {
+    vi.useFakeTimers();
+    const sideOffset = vi.fn((_data: HoverCardOffsetData) => 4);
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard>
+          <HoverCardTrigger delay={1} href="/profile">
+            A wrapping profile link
+          </HoverCardTrigger>
+          <HoverCardContent sideOffset={sideOffset}>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    const lineRects = [new DOMRect(10, 10, 120, 20), new DOMRect(10, 30, 80, 20)];
+    Object.defineProperty(trigger, "getClientRects", { value: () => lineRects });
+    Object.defineProperty(trigger, "getBoundingClientRect", {
+      value: () => new DOMRect(10, 10, 120, 40),
+    });
+
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerenter", {
+        bubbles: true,
+        clientX: 40,
+        clientY: 35,
+        pointerType: "mouse",
+      }),
+    );
+    await vi.advanceTimersByTimeAsync(1);
+    await Promise.resolve();
+
+    expect(sideOffset.mock.lastCall?.[0].anchor).toEqual({ height: 20, width: 80 });
+  });
+
   it("reports and can cancel mouse hover opening after the trigger delay", async () => {
     vi.useFakeTimers();
     const onOpenChange = vi.fn((_open: boolean, details) => details.cancel());
@@ -400,6 +576,71 @@ describe("Hover Card browser behavior", () => {
     ).toBe(true);
   });
 
+  it("keeps the card open while the pointer crosses the safe corridor", async () => {
+    vi.useFakeTimers();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard>
+          <HoverCardTrigger closeDelay={20} delay={1} href="/profile">
+            Profile
+          </HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    const trigger = host.querySelector<HTMLElement>('[data-slot="hover-card-trigger"]');
+    Object.defineProperty(trigger, "getBoundingClientRect", {
+      value: () => new DOMRect(0, 0, 100, 20),
+    });
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }),
+    );
+    await vi.advanceTimersByTimeAsync(1);
+    const content = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
+    Object.defineProperty(content, "getBoundingClientRect", {
+      value: () => new DOMRect(0, 40, 200, 100),
+    });
+
+    trigger?.dispatchEvent(
+      new PointerEvent("pointerleave", {
+        bubbles: true,
+        clientX: 50,
+        clientY: 20,
+        pointerType: "mouse",
+      }),
+    );
+    document.body.dispatchEvent(
+      new PointerEvent("pointermove", {
+        bubbles: true,
+        clientX: 60,
+        clientY: 30,
+        pointerType: "mouse",
+      }),
+    );
+    await vi.advanceTimersByTimeAsync(25);
+
+    expect(
+      document.body.querySelector('[data-slot="hover-card-content"]')?.hasAttribute("data-open"),
+    ).toBe(true);
+
+    document.body.dispatchEvent(
+      new PointerEvent("pointermove", {
+        bubbles: true,
+        clientX: 400,
+        clientY: 400,
+        pointerType: "mouse",
+      }),
+    );
+    await vi.advanceTimersByTimeAsync(20);
+    expect(
+      document.body.querySelector('[data-slot="hover-card-content"]')?.hasAttribute("data-closed"),
+    ).toBe(true);
+  });
+
   it("opens from focus and reports Escape dismissal without moving trigger focus", async () => {
     vi.useFakeTimers();
     const onOpenChange = vi.fn();
@@ -434,7 +675,12 @@ describe("Hover Card browser behavior", () => {
     await Promise.resolve();
 
     expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
-    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({ event, reason: "escape-key", trigger });
+    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
+      event,
+      reason: "escape-key",
+      trigger: undefined,
+    });
+    expect(event.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(trigger);
   });
 
@@ -476,7 +722,10 @@ describe("Hover Card browser behavior", () => {
     await Promise.resolve();
 
     const retained = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
-    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({ reason: "imperative-action" });
+    expect(onOpenChange.mock.lastCall?.[1]).toMatchObject({
+      reason: "imperative-action",
+      trigger: undefined,
+    });
     expect(retained?.hasAttribute("data-closed")).toBe(true);
     expect(retained?.hasAttribute("data-ending-style")).toBe(true);
     expect(retained?.parentElement?.inert).toBe(true);
@@ -493,5 +742,36 @@ describe("Hover Card browser behavior", () => {
     expect(onOpenChangeComplete).toHaveBeenCalledOnce();
     expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+  });
+
+  it("force unmounts an open card and clears its active trigger", async () => {
+    const actionsRef: {
+      current: { close: () => void; unmount: () => void } | null;
+    } = { current: null };
+    const onOpenChangeComplete = vi.fn();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard actionsRef={actionsRef} defaultOpen onOpenChangeComplete={onOpenChangeComplete}>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    await Promise.resolve();
+    onOpenChangeComplete.mockClear();
+    actionsRef.current?.unmount();
+    await Promise.resolve();
+
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+    expect(
+      host.querySelector('[data-slot="hover-card-trigger"]')?.hasAttribute("data-popup-open"),
+    ).toBe(false);
+    expect(onOpenChangeComplete).toHaveBeenCalledOnce();
+    expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
   });
 });

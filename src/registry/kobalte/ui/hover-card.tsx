@@ -9,6 +9,8 @@ import {
   createSignal,
   createUniqueId,
   onCleanup,
+  children as resolveChildren,
+  Show,
   splitProps,
   untrack,
   useContext,
@@ -97,6 +99,119 @@ type HoverCardTriggerRegistration<Payload> = {
   payload: () => Payload | undefined;
 };
 
+type HoverCardInlineRectCoordinates = {
+  element: HTMLElement;
+  lineIndex: number | undefined;
+  x: number;
+  y: number;
+};
+
+type HoverCardRect = {
+  bottom: number;
+  height: number;
+  left: number;
+  right: number;
+  top: number;
+  width: number;
+  x: number;
+  y: number;
+};
+
+function createHoverCardRect(left: number, top: number, right: number, bottom: number) {
+  return {
+    bottom,
+    height: bottom - top,
+    left,
+    right,
+    top,
+    width: right - left,
+    x: left,
+    y: top,
+  } satisfies HoverCardRect;
+}
+
+function hoverCardLineRects(element: HTMLElement) {
+  const lines: HoverCardRect[] = [];
+  let previousRect: DOMRect | undefined;
+  let left = Number.POSITIVE_INFINITY;
+  let top = Number.POSITIVE_INFINITY;
+  let right = Number.NEGATIVE_INFINITY;
+  let bottom = Number.NEGATIVE_INFINITY;
+
+  for (const rect of Array.from(element.getClientRects()).sort((a, b) => a.top - b.top)) {
+    left = Math.min(left, rect.left);
+    top = Math.min(top, rect.top);
+    right = Math.max(right, rect.right);
+    bottom = Math.max(bottom, rect.bottom);
+    if (!previousRect || rect.top - previousRect.top > previousRect.height / 2) {
+      lines.push(createHoverCardRect(rect.left, rect.top, rect.right, rect.bottom));
+    } else {
+      const line = lines[lines.length - 1];
+      lines[lines.length - 1] = createHoverCardRect(
+        Math.min(line.left, rect.left),
+        line.top,
+        Math.max(line.right, rect.right),
+        Math.max(line.bottom, rect.bottom),
+      );
+    }
+    previousRect = rect;
+  }
+
+  return { lines, fallback: createHoverCardRect(left, top, right, bottom) };
+}
+
+function hoverCardLineIndex(lines: HoverCardRect[], x: number, y: number) {
+  const lineIndex = lines.findIndex(
+    (line) => x > line.left - 2 && x < line.right + 2 && y > line.top - 2 && y < line.bottom + 2,
+  );
+  return lineIndex === -1 ? undefined : lineIndex;
+}
+
+function hoverCardInlineRect(
+  element: HTMLElement,
+  placement: HoverCardPlacement,
+  coordinates: HoverCardInlineRectCoordinates | undefined,
+) {
+  const { fallback, lines } = hoverCardLineRects(element);
+  if (lines.length < 2) return element.getBoundingClientRect();
+  if (coordinates?.lineIndex !== undefined && lines[coordinates.lineIndex]) {
+    return lines[coordinates.lineIndex];
+  }
+  if (coordinates) {
+    const lineIndex = hoverCardLineIndex(lines, coordinates.x, coordinates.y);
+    if (lineIndex !== undefined) return lines[lineIndex];
+    if (lines.length === 2 && lines[0].left > lines[1].right) return fallback;
+  }
+
+  const side = placementParts(placement).side;
+  if (side === "top" || side === "bottom") {
+    const firstRect = lines[0];
+    const lastRect = lines[lines.length - 1];
+    const targetRect = side === "top" ? firstRect : lastRect;
+    return createHoverCardRect(targetRect.left, firstRect.top, targetRect.right, lastRect.bottom);
+  }
+
+  const isLeft = side === "left";
+  let left = lines[0].left;
+  let right = lines[0].right;
+  let edge = isLeft ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+  let targetFirstRect = lines[0];
+  let targetLastRect = lines[0];
+  for (const rect of lines) {
+    left = Math.min(left, rect.left);
+    right = Math.max(right, rect.right);
+    const nextEdge = isLeft ? rect.left : rect.right;
+    if ((isLeft && nextEdge < edge) || (!isLeft && nextEdge > edge)) {
+      edge = nextEdge;
+      targetFirstRect = rect;
+      targetLastRect = rect;
+    } else if (nextEdge === edge) {
+      targetLastRect = rect;
+    }
+  }
+  return createHoverCardRect(left, targetFirstRect.top, right, targetLastRect.bottom);
+}
+
 class HoverCardHandle<Payload = unknown> {
   readonly #triggers = new Map<string, HoverCardTriggerRegistration<Payload>>();
   readonly #openState = createSignal(false);
@@ -105,6 +220,8 @@ class HoverCardHandle<Payload = unknown> {
   #request: HoverCardHandleRequest | undefined;
   #closeTimer: number | undefined;
   #content: HTMLElement | undefined;
+  #hoverClosing = false;
+  #inlineRectCoordinates: HoverCardInlineRectCoordinates | undefined;
 
   open(triggerId: string) {
     if (!this.#triggers.has(triggerId)) {
@@ -121,11 +238,6 @@ class HoverCardHandle<Payload = unknown> {
     return this.#openState[0]();
   }
 
-  _activeTrigger() {
-    const triggerId = this.#activeTriggerIdState[0]();
-    return triggerId ? this.#triggers.get(triggerId)?.element : undefined;
-  }
-
   _activeTriggerId() {
     return this.#activeTriggerIdState[0]();
   }
@@ -133,6 +245,14 @@ class HoverCardHandle<Payload = unknown> {
   _activeCloseDelay() {
     const triggerId = this.#activeTriggerIdState[0]();
     return triggerId ? (this.#triggers.get(triggerId)?.closeDelay() ?? 300) : 300;
+  }
+
+  _anchorRect(placement: HoverCardPlacement) {
+    const trigger = this._trigger(this._activeTriggerId());
+    if (!trigger) return undefined;
+    const coordinates =
+      this.#inlineRectCoordinates?.element === trigger ? this.#inlineRectCoordinates : undefined;
+    return hoverCardInlineRect(trigger, placement, coordinates);
   }
 
   _trigger(triggerId: string | null | undefined) {
@@ -164,6 +284,25 @@ class HoverCardHandle<Payload = unknown> {
 
   _contentContains(target: EventTarget | null) {
     return target instanceof Node && this.#content?.contains(target);
+  }
+
+  _clearInlineRect() {
+    this.#inlineRectCoordinates = undefined;
+  }
+
+  _hasScheduledClose() {
+    return this.#closeTimer !== undefined;
+  }
+
+  _isHoverClosing() {
+    return this.#hoverClosing;
+  }
+
+  _hasTriggerTarget(target: EventTarget | null) {
+    return (
+      target instanceof Node &&
+      Array.from(this.#triggers.values()).some(({ element }) => element.contains(target))
+    );
   }
 
   _initialize(open: boolean, triggerId: string | null) {
@@ -208,11 +347,11 @@ class HoverCardHandle<Payload = unknown> {
   ) {
     this._cancelClosing();
     if (open && triggerId && !this.#triggers.has(triggerId)) return false;
+    if (this.#request) return this.#request(open, reason, event, triggerId);
     if (open && this.#openState[0]() && triggerId !== this.#activeTriggerIdState[0]()) {
       this._commit(true, triggerId);
       return true;
     }
-    if (this.#request) return this.#request(open, reason, event, triggerId);
     this._commit(open, triggerId);
     return true;
   }
@@ -233,6 +372,16 @@ class HoverCardHandle<Payload = unknown> {
 
   _setContent(element: HTMLElement | undefined) {
     this.#content = element;
+  }
+
+  _setHoverClosing(hoverClosing: boolean) {
+    this.#hoverClosing = hoverClosing;
+  }
+
+  _updateInlineRect(element: HTMLElement, x: number, y: number) {
+    const { lines } = hoverCardLineRects(element);
+    this.#inlineRectCoordinates =
+      lines.length < 2 ? undefined : { element, lineIndex: hoverCardLineIndex(lines, x, y), x, y };
   }
 }
 
@@ -278,13 +427,12 @@ function callEventHandler<T extends Element, E extends Event>(
 }
 
 type HoverCardContextValue = {
-  configureDelays: (delay: number | undefined, closeDelay: number | undefined) => void;
   configurePosition: (position: ResolvedHoverCardPosition) => void;
   currentPlacement: () => HoverCardPlacement;
   defaultPosition: ResolvedHoverCardPosition;
+  forceUnmounted: () => boolean;
   handle: HoverCardHandle<unknown>;
   open: () => boolean;
-  recordChange: (reason: HoverCardChangeEventReason, event: Event, trigger?: Element) => void;
   recordPlacement: (placement: HoverCardPlacement) => void;
   setContent: (element: HTMLElement | undefined) => void;
   transitionStatus: () => HoverCardTransitionStatus;
@@ -358,6 +506,75 @@ function placementFromTransformOrigin(value: string): HoverCardPlacement | undef
   return align === "center" ? side : `${side}-${align}`;
 }
 
+type HoverCardPoint = [number, number];
+
+function hoverCardSafeArea(
+  placement: HoverCardPlacement,
+  anchor: HTMLElement,
+  content: HTMLElement,
+) {
+  const side = placementParts(placement).side;
+  const anchorRect = anchor.getBoundingClientRect();
+  const contentRect = content.getBoundingClientRect();
+  const anchorCenterX = anchorRect.left + anchorRect.width / 2;
+  const anchorCenterY = anchorRect.top + anchorRect.height / 2;
+  const points: HoverCardPoint[] = [];
+
+  if (side === "top") {
+    points.push(
+      [anchorRect.left, anchorCenterY],
+      [contentRect.left, contentRect.bottom],
+      [contentRect.left, contentRect.top],
+      [contentRect.right, contentRect.top],
+      [contentRect.right, contentRect.bottom],
+      [anchorRect.right, anchorCenterY],
+    );
+  } else if (side === "right") {
+    points.push(
+      [anchorCenterX, anchorRect.top],
+      [contentRect.left, contentRect.top],
+      [contentRect.right, contentRect.top],
+      [contentRect.right, contentRect.bottom],
+      [contentRect.left, contentRect.bottom],
+      [anchorCenterX, anchorRect.bottom],
+    );
+  } else if (side === "bottom") {
+    points.push(
+      [anchorRect.left, anchorCenterY],
+      [contentRect.left, contentRect.top],
+      [contentRect.left, contentRect.bottom],
+      [contentRect.right, contentRect.bottom],
+      [contentRect.right, contentRect.top],
+      [anchorRect.right, anchorCenterY],
+    );
+  } else {
+    points.push(
+      [anchorCenterX, anchorRect.top],
+      [contentRect.right, contentRect.top],
+      [contentRect.left, contentRect.top],
+      [contentRect.left, contentRect.bottom],
+      [contentRect.right, contentRect.bottom],
+      [anchorCenterX, anchorRect.bottom],
+    );
+  }
+  return points;
+}
+
+function isPointInHoverCardArea(x: number, y: number, points: HoverCardPoint[]) {
+  let inside = false;
+  for (let index = 0, previous = points.length - 1; index < points.length; previous = index++) {
+    const [currentX, currentY] = points[index];
+    const [previousX, previousY] = points[previous];
+    if (
+      currentY > y !== previousY > y &&
+      x < ((previousX - currentX) * (y - currentY)) / (previousY - currentY) + currentX
+    ) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 function setElementRef(ref: unknown, element: HTMLElement) {
   if (typeof ref === "function") (ref as (element: HTMLElement) => void)(element);
 }
@@ -383,10 +600,14 @@ type HoverCardRenderedChildrenProps<Payload> = {
 const HoverCardRenderedChildren = <Payload,>(
   props: HoverCardRenderedChildrenProps<Payload>,
 ): JSX.Element => {
-  const child = props.getChildren();
-  if (typeof child !== "function") return child;
-  if (child.length === 0) return child as unknown as JSX.Element;
-  const renderedChild = createMemo(() => child({ payload: props.payload() }));
+  type ChildBox = { child: JSX.Element | HoverCardPayloadChildRenderFunction<Payload> };
+  const resolved = resolveChildren(
+    () => ({ child: props.getChildren() }) as unknown as JSX.Element,
+  );
+  const renderedChild = createMemo(() => {
+    const child = (resolved() as unknown as ChildBox).child;
+    return typeof child === "function" ? child({ payload: props.payload() }) : child;
+  });
   return <>{renderedChild()}</>;
 };
 
@@ -435,8 +656,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   const [currentPlacement, setCurrentPlacement] = createSignal(
     positionToPlacement(defaultPosition),
   );
-  const [openDelay, setOpenDelay] = createSignal(600);
-  const [closeDelay, setCloseDelay] = createSignal(300);
+  const [forceUnmounted, setForceUnmounted] = createSignal(false);
   const [preventedUnmount, setPreventedUnmount] = createSignal(false);
   const [transitionStatus, setTransitionStatus] = createSignal<HoverCardTransitionStatus>();
   const [content, setContent] = createSignal<HTMLElement>();
@@ -450,10 +670,8 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   const open = () => local.open ?? handle.isOpen;
   const payload = () =>
     local.triggerId !== undefined ? handle._payloadFor(local.triggerId) : handle._payload();
-  let pendingChange:
-    | { event: Event; reason: HoverCardChangeEventReason; trigger?: Element }
-    | undefined;
   let previousOpen = false;
+  let previousControlledOpen = local.open;
   let completeVersion = 0;
 
   const requestOpenChange = (
@@ -463,29 +681,42 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     changeTrigger?: Element,
     changeTriggerId?: string | null,
   ) => {
-    if (nextOpen === open()) return { accepted: false } satisfies HoverCardOpenChangeResult;
-    if (nextOpen && changeTriggerId) handle._activate(changeTriggerId);
+    const nextTriggerId = changeTriggerId ?? changeTrigger?.id ?? handle._activeTriggerId();
+    const switchesTrigger =
+      nextOpen && nextTriggerId !== null && nextTriggerId !== handle._activeTriggerId();
+    if (nextOpen === open() && !switchesTrigger) {
+      return { accepted: false } satisfies HoverCardOpenChangeResult;
+    }
     let shouldPreventUnmount = false;
-    const details = createChangeDetails(reason, event, changeTrigger ?? trigger(), () => {
-      shouldPreventUnmount = !nextOpen;
-    });
+    const details = createChangeDetails(
+      reason,
+      event,
+      nextOpen ? (changeTrigger ?? trigger()) : undefined,
+      () => {
+        shouldPreventUnmount = !nextOpen;
+      },
+    );
     local.onOpenChange?.(nextOpen, details);
     if (details.isCanceled) {
       return { accepted: false, details } satisfies HoverCardOpenChangeResult;
     }
-    if (nextOpen) setPreventedUnmount(false);
-    else if (shouldPreventUnmount) setPreventedUnmount(true);
+    if (nextOpen) {
+      handle._setHoverClosing(false);
+      setForceUnmounted(false);
+      setPreventedUnmount(false);
+    } else {
+      handle._setHoverClosing(reason === "trigger-hover");
+      if (shouldPreventUnmount) setPreventedUnmount(true);
+    }
     if (local.open === undefined) {
-      handle._commit(nextOpen, changeTriggerId ?? changeTrigger?.id ?? handle._activeTriggerId());
+      handle._commit(nextOpen, nextTriggerId);
+    } else if (nextOpen && local.triggerId === undefined) {
+      handle._activate(nextTriggerId);
     }
     return { accepted: true, details } satisfies HoverCardOpenChangeResult;
   };
 
   const context: HoverCardContextValue = {
-    configureDelays: (delay, nextCloseDelay) => {
-      if (delay !== undefined) setOpenDelay(delay);
-      if (nextCloseDelay !== undefined) setCloseDelay(nextCloseDelay);
-    },
     configurePosition: (nextPosition) => {
       const previousPosition = untrack(position);
       const requestedPlacementChanged =
@@ -496,11 +727,9 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     },
     currentPlacement,
     defaultPosition,
+    forceUnmounted,
     handle: handle as HoverCardHandle<unknown>,
     open,
-    recordChange: (reason, event, changeTrigger) => {
-      pendingChange = { event, reason, trigger: changeTrigger };
-    },
     recordPlacement: (placement) => {
       setCurrentPlacement(placement);
     },
@@ -521,8 +750,11 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   });
 
   createEffect(() => {
-    if (local.open === undefined) return;
-    handle._initialize(local.open, local.triggerId ?? handle._activeTriggerId());
+    const controlledOpen = local.open;
+    if (controlledOpen === undefined) return;
+    if (controlledOpen && previousControlledOpen === false) setForceUnmounted(false);
+    previousControlledOpen = controlledOpen;
+    handle._initialize(controlledOpen, local.triggerId ?? handle._activeTriggerId());
   });
 
   createEffect(() => {
@@ -530,6 +762,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     const recordEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       const result = requestOpenChange(false, "escape-key", event, trigger());
+      if (result.accepted) event.preventDefault();
       if (!result.details?.isPropagationAllowed) event.stopPropagation();
     };
     const recordOutsidePress = (event: PointerEvent) => {
@@ -543,6 +776,35 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
       document.removeEventListener("keydown", recordEscape, true);
       document.removeEventListener("pointerdown", recordOutsidePress, true);
     });
+  });
+
+  createEffect(() => {
+    if (!open()) return;
+    const recordPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      const activeTrigger = trigger();
+      const activeContent = content();
+      const target = event.target;
+      if (!activeTrigger || !activeContent) return;
+      if (
+        (target instanceof Node && activeTrigger.contains(target)) ||
+        handle._contentContains(target) ||
+        isPointInHoverCardArea(
+          event.clientX,
+          event.clientY,
+          hoverCardSafeArea(currentPlacement(), activeTrigger, activeContent),
+        )
+      ) {
+        handle._cancelClosing();
+        return;
+      }
+      const triggerId = handle._activeTriggerId();
+      if (triggerId && !handle._hasScheduledClose()) {
+        handle._scheduleClose(handle._activeCloseDelay(), event, triggerId);
+      }
+    };
+    document.addEventListener("pointermove", recordPointerMove, true);
+    onCleanup(() => document.removeEventListener("pointermove", recordPointerMove, true));
   });
 
   createEffect(() => {
@@ -562,6 +824,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
       }
       if (version === completeVersion) {
         setTransitionStatus(undefined);
+        if (!nextOpen) handle._setHoverClosing(false);
         if (!nextOpen && preventedUnmount()) return;
         local.onOpenChangeComplete?.(nextOpen);
       }
@@ -574,13 +837,16 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     const actions: HoverCardActions = {
       close: () => requestOpenChange(false, "imperative-action"),
       unmount: () => {
-        const completesPreventedClose = untrack(preventedUnmount);
+        completeVersion += 1;
+        previousOpen = false;
+        setTransitionStatus(undefined);
         setPreventedUnmount(false);
-        if (completesPreventedClose) {
-          completeVersion += 1;
-          setTransitionStatus(undefined);
-          local.onOpenChangeComplete?.(false);
-        }
+        setForceUnmounted(true);
+        setContent(undefined);
+        handle._setHoverClosing(false);
+        handle._activate(null);
+        handle._setContent(undefined);
+        local.onOpenChangeComplete?.(false);
       },
     };
     actionsRef.current = actions;
@@ -592,6 +858,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   onCleanup(() => {
     completeVersion += 1;
     setContent(undefined);
+    handle._setHoverClosing(false);
     handle._setContent(undefined);
   });
 
@@ -599,22 +866,13 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     <HoverCardContext.Provider value={context}>
       <HoverCardPrimitive.Root
         data-slot="hover-card"
-        closeDelay={closeDelay()}
+        closeDelay={handle._activeCloseDelay()}
         forceMount={preventedUnmount()}
+        getAnchorRect={() => handle._anchorRect(positionToPlacement(position()))}
         gutter={position().sideOffset}
         hideWhenDetached
-        onOpenChange={(nextOpen) => {
-          const change = pendingChange;
-          pendingChange = undefined;
-          requestOpenChange(
-            nextOpen,
-            change?.reason ?? "none",
-            change?.event,
-            change?.trigger ?? trigger(),
-          );
-        }}
         open={open()}
-        openDelay={openDelay()}
+        openDelay={600}
         placement={positionToPlacement(position())}
         shift={position().alignOffset}
       >
@@ -649,6 +907,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
     "onPointerDown",
     "onPointerEnter",
     "onPointerLeave",
+    "onPointerMove",
     "payload",
     "ref",
   ]);
@@ -669,6 +928,13 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
   ) => {
     cancelOpening();
     local.handle?._cancelClosing();
+    if (
+      (local.handle?.isOpen && !local.handle._isOpenedBy(id())) ||
+      (reason === "trigger-hover" && local.handle?._isHoverClosing())
+    ) {
+      local.handle._requestOpen(true, reason, event, id());
+      return;
+    }
     if (typeof window === "undefined") return;
     openTimer = window.setTimeout(() => {
       openTimer = undefined;
@@ -685,7 +951,18 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
       event.preventDefault();
       return;
     }
+    local.handle?._updateInlineRect(event.currentTarget, event.clientX, event.clientY);
     openWithDelay("trigger-hover", event);
+  };
+  const onPointerMove: JSX.EventHandler<HTMLElement, PointerEvent> = (event) => {
+    callEventHandler(
+      local.onPointerMove as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
+      event,
+    );
+    if (event.defaultPrevented || event.pointerType !== "mouse") return;
+    if (!local.handle?._isOpenedBy(id())) {
+      local.handle?._updateInlineRect(event.currentTarget, event.clientX, event.clientY);
+    }
   };
   const onPointerLeave: JSX.EventHandler<HTMLElement, PointerEvent> = (event) => {
     callEventHandler(
@@ -715,6 +992,11 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
       event,
     );
     if (event.defaultPrevented || pointerDown) return;
+    local.handle?._clearInlineRect();
+    if (local.handle?.isOpen && local.handle._hasTriggerTarget(event.relatedTarget)) {
+      local.handle._requestOpen(true, "trigger-focus", event, id());
+      return;
+    }
     openWithDelay("trigger-focus", event);
   };
   const onBlur: JSX.EventHandler<HTMLElement, FocusEvent> = (event) => {
@@ -724,6 +1006,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
     );
     cancelOpening();
     if (local.handle?._contentContains(event.relatedTarget)) return;
+    if (local.handle?._hasTriggerTarget(event.relatedTarget)) return;
     if (local.handle?._isOpenedBy(id())) {
       local.handle._scheduleClose(local.closeDelay ?? 300, event, id(), "trigger-focus");
     }
@@ -764,6 +1047,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
       onPointerDown={onPointerDown}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
+      onPointerMove={onPointerMove}
       data-popup-open={local.handle?._isOpenedBy(id()) ? "" : undefined}
       data-slot="hover-card-trigger"
     />
@@ -820,10 +1104,22 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
   const [positioner, setPositioner] = createSignal<HTMLElement>();
   const [measurementVersion, setMeasurementVersion] = createSignal(0);
 
+  const cleanupPositioner = () => {
+    if (measurementAnimationFrame !== undefined) {
+      cancelAnimationFrame(measurementAnimationFrame);
+      measurementAnimationFrame = undefined;
+    }
+    mutationObserver?.disconnect();
+    mutationObserver = undefined;
+    resizeObserver?.disconnect();
+    resizeObserver = undefined;
+    setPositioner(undefined);
+  };
+
   const resolvedPosition = (): ResolvedHoverCardPosition => {
     measurementVersion();
     const requested = requestedPosition();
-    const anchorRect = context.trigger()?.getBoundingClientRect();
+    const anchorRect = context.handle._anchorRect(positionToPlacement(requested));
     const positionerRect = positioner()?.getBoundingClientRect();
     const offsetData: HoverCardOffsetData = {
       align: requested.align,
@@ -850,6 +1146,9 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
 
   createEffect(() => context.configurePosition(resolvedPosition()));
   createEffect(() => {
+    if (context.forceUnmounted()) cleanupPositioner();
+  });
+  createEffect(() => {
     const element = positioner();
     if (!element) return;
     const open = context.open();
@@ -860,13 +1159,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
     element.setAttribute("data-align", align());
   });
 
-  onCleanup(() => {
-    if (measurementAnimationFrame !== undefined) {
-      cancelAnimationFrame(measurementAnimationFrame);
-    }
-    mutationObserver?.disconnect();
-    resizeObserver?.disconnect();
-  });
+  onCleanup(cleanupPositioner);
 
   const setContentRef = (element: HTMLElement) => {
     context.setContent(element);
@@ -878,6 +1171,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
   const configurePositioner = (element: HTMLElement) => {
     const positionerElement = element.parentElement;
     if (!positionerElement) return;
+    cleanupPositioner();
     setPositioner(positionerElement);
 
     positionerElement.classList.add("isolate", "z-50");
@@ -914,7 +1208,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
       | { anchorHeight: number; anchorWidth: number; height: number; width: number }
       | undefined;
     const updateMeasurements = () => {
-      const anchorRect = context.trigger()?.getBoundingClientRect();
+      const anchorRect = context.handle._anchorRect(context.currentPlacement());
       const positionerRect = positionerElement.getBoundingClientRect();
       const measurements = {
         anchorHeight: anchorRect?.height ?? 0,
@@ -973,34 +1267,36 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
   };
 
   return (
-    <HoverCardPrimitive.Portal
-      ref={(element) => element.setAttribute("data-slot", "hover-card-portal")}
-    >
-      <PopperPrimitive.Positioner>
-        <Dynamic
-          component={local.as ?? "div"}
-          {...others}
-          ref={setContentRef}
-          data-align={align()}
-          data-base-ui-focusable=""
-          data-closed={context.open() ? undefined : ""}
-          data-ending-style={context.transitionStatus() === "ending" ? "" : undefined}
-          data-open={context.open() ? "" : undefined}
-          data-side={side()}
-          data-slot="hover-card-content"
-          data-starting-style={context.transitionStatus() === "starting" ? "" : undefined}
-          tabIndex={-1}
-          class={cn(
-            "z-50 z-hover-card-content z-hover-card-content-logical origin-(--transform-origin) outline-hidden",
-            local.class,
-          )}
-          onPointerEnter={onPointerEnter}
-          onPointerLeave={onPointerLeave}
-        >
-          {local.children}
-        </Dynamic>
-      </PopperPrimitive.Positioner>
-    </HoverCardPrimitive.Portal>
+    <Show when={!context.forceUnmounted()}>
+      <HoverCardPrimitive.Portal
+        ref={(element) => element.setAttribute("data-slot", "hover-card-portal")}
+      >
+        <PopperPrimitive.Positioner>
+          <Dynamic
+            component={local.as ?? "div"}
+            {...others}
+            ref={setContentRef}
+            data-align={align()}
+            data-base-ui-focusable=""
+            data-closed={context.open() ? undefined : ""}
+            data-ending-style={context.transitionStatus() === "ending" ? "" : undefined}
+            data-open={context.open() ? "" : undefined}
+            data-side={side()}
+            data-slot="hover-card-content"
+            data-starting-style={context.transitionStatus() === "starting" ? "" : undefined}
+            tabIndex={-1}
+            class={cn(
+              "z-50 z-hover-card-content z-hover-card-content-logical origin-(--transform-origin) outline-hidden",
+              local.class,
+            )}
+            onPointerEnter={onPointerEnter}
+            onPointerLeave={onPointerLeave}
+          >
+            {local.children}
+          </Dynamic>
+        </PopperPrimitive.Positioner>
+      </HoverCardPrimitive.Portal>
+    </Show>
   );
 };
 
