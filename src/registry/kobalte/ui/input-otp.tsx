@@ -93,6 +93,18 @@ const InputOTP = (props: InputOTPProps) => {
   let previousValue = untrack(currentValue);
 
   onMount(() => {
+    let badgeDetectionFinished = false;
+    let badgeDetectionTimers: number[] = [];
+    let badgeDetectionFinishTimer: number | undefined;
+
+    const clearBadgeDetectionTimers = () => {
+      for (const timer of badgeDetectionTimers) window.clearTimeout(timer);
+      badgeDetectionTimers = [];
+      if (badgeDetectionFinishTimer !== undefined) {
+        window.clearTimeout(badgeDetectionFinishTimer);
+        badgeDetectionFinishTimer = undefined;
+      }
+    };
     const updatePasswordManagerSpace = () => {
       const availableSpace = rootRef
         ? window.innerWidth - rootRef.getBoundingClientRect().right
@@ -103,6 +115,7 @@ const InputOTP = (props: InputOTPProps) => {
       if (
         local.pushPasswordManagerStrategy === "none" ||
         local.shiftPWManagers === false ||
+        badgeDetectionFinished ||
         hasPasswordManagerBadge() ||
         !rootRef ||
         !inputRef
@@ -117,24 +130,42 @@ const InputOTP = (props: InputOTPProps) => {
       const hasKnownBadge = document.querySelector(PASSWORD_MANAGER_BADGE_SELECTORS) !== null;
 
       if (hasKnownBadge || (elementAtBadgePosition && !rootRef.contains(elementAtBadgePosition))) {
+        badgeDetectionFinished = true;
+        clearBadgeDetectionTimers();
         setHasPasswordManagerBadge(true);
       }
     };
-    const detectOnFocus = () => {
-      window.setTimeout(detectPasswordManagerBadge);
+    const startPasswordManagerBadgeDetection = () => {
+      if (
+        local.pushPasswordManagerStrategy === "none" ||
+        local.shiftPWManagers === false ||
+        badgeDetectionFinished ||
+        hasPasswordManagerBadge()
+      ) {
+        return;
+      }
+
+      clearBadgeDetectionTimers();
+      badgeDetectionTimers = [0, 2000, 5000].map((delay) =>
+        window.setTimeout(detectPasswordManagerBadge, delay),
+      );
+      badgeDetectionFinishTimer = window.setTimeout(() => {
+        badgeDetectionFinished = true;
+        badgeDetectionFinishTimer = undefined;
+      }, 6000);
     };
-    const detectionTimers = [0, 2000, 5000].map((delay) =>
-      window.setTimeout(detectPasswordManagerBadge, delay),
-    );
     const spaceTimer = window.setInterval(updatePasswordManagerSpace, 1000);
 
     updatePasswordManagerSpace();
     window.addEventListener("resize", updatePasswordManagerSpace);
-    rootRef?.addEventListener("focusin", detectOnFocus);
+    rootRef?.addEventListener("focusin", startPasswordManagerBadgeDetection);
+    rootRef?.addEventListener("focusout", clearBadgeDetectionTimers);
+    if (document.activeElement === inputRef) startPasswordManagerBadgeDetection();
     onCleanup(() => {
       window.removeEventListener("resize", updatePasswordManagerSpace);
-      rootRef?.removeEventListener("focusin", detectOnFocus);
-      for (const timer of detectionTimers) window.clearTimeout(timer);
+      rootRef?.removeEventListener("focusin", startPasswordManagerBadgeDetection);
+      rootRef?.removeEventListener("focusout", clearBadgeDetectionTimers);
+      clearBadgeDetectionTimers();
       window.clearInterval(spaceTimer);
     });
   });

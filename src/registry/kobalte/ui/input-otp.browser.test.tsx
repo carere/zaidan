@@ -208,10 +208,16 @@ describe("Input OTP browser behavior", () => {
     expect(input?.style.clipPath).toBe("");
   });
 
-  it("creates badge space when a supported password manager is detected", async () => {
+  it("creates badge space only after a supported password manager is detected on focus", async () => {
     document.body.append(document.createElement("com-1password-button"));
     const { input } = mountInputOTP();
 
+    await new Promise((resolve) => window.setTimeout(resolve));
+
+    expect(input?.style.width).toBe("100%");
+    expect(input?.style.clipPath).toBe("");
+
+    input?.focus();
     await new Promise((resolve) => window.setTimeout(resolve));
 
     expect(input?.style.width).toBe("calc(100% + 40px)");
