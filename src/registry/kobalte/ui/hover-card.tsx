@@ -6,6 +6,7 @@ import {
   createContext,
   createEffect,
   createMemo,
+  createRenderEffect,
   createSignal,
   createUniqueId,
   onCleanup,
@@ -334,7 +335,15 @@ class HoverCardHandle<Payload = unknown> {
       if (this.#triggers.get(triggerId) !== registration) return;
       this.#triggers.delete(triggerId);
       if (this.#activeTriggerIdState[0]() === triggerId && this.#openState[0]()) {
-        this._requestOpen(false, "none", undefined, triggerId);
+        queueMicrotask(() => {
+          if (
+            this.#openState[0]() &&
+            this.#activeTriggerIdState[0]() === triggerId &&
+            !this.#triggers.has(triggerId)
+          ) {
+            if (this._requestOpen(false, "none", undefined, triggerId)) this._activate(null);
+          }
+        });
       }
     };
   }
@@ -426,12 +435,27 @@ function callEventHandler<T extends Element, E extends Event>(
   else handler?.[0](handler[1], event);
 }
 
+function isMouseLikePointerType(pointerType: string) {
+  return pointerType === "" || pointerType === "mouse" || pointerType === "pen";
+}
+
+function nextHoverCardAnimationFrame() {
+  return new Promise<void>((resolve) => {
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => resolve());
+    } else {
+      queueMicrotask(resolve);
+    }
+  });
+}
+
 type HoverCardContextValue = {
   configurePosition: (position: ResolvedHoverCardPosition) => void;
   currentPlacement: () => HoverCardPlacement;
   defaultPosition: ResolvedHoverCardPosition;
   forceUnmounted: () => boolean;
   handle: HoverCardHandle<unknown>;
+  mounted: () => boolean;
   open: () => boolean;
   recordPlacement: (placement: HoverCardPlacement) => void;
   setContent: (element: HTMLElement | undefined) => void;
@@ -668,9 +692,11 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     local.triggerId !== undefined ? local.triggerId : handle._activeTriggerId();
   const trigger = () => handle._trigger(activeTriggerId());
   const open = () => local.open ?? handle.isOpen;
+  const [mounted, setMounted] = createSignal(open());
   const payload = () =>
     local.triggerId !== undefined ? handle._payloadFor(local.triggerId) : handle._payload();
-  let previousOpen = false;
+  let previousOpen = open();
+  let shouldCompleteInitialOpen = previousOpen;
   let previousControlledOpen = local.open;
   let completeVersion = 0;
 
@@ -703,6 +729,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     if (nextOpen) {
       handle._setHoverClosing(false);
       setForceUnmounted(false);
+      setMounted(true);
       setPreventedUnmount(false);
     } else {
       handle._setHoverClosing(reason === "trigger-hover");
@@ -729,6 +756,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     defaultPosition,
     forceUnmounted,
     handle: handle as HoverCardHandle<unknown>,
+    mounted,
     open,
     recordPlacement: (placement) => {
       setCurrentPlacement(placement);
@@ -752,7 +780,10 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
   createEffect(() => {
     const controlledOpen = local.open;
     if (controlledOpen === undefined) return;
-    if (controlledOpen && previousControlledOpen === false) setForceUnmounted(false);
+    if (controlledOpen && previousControlledOpen === false) {
+      setForceUnmounted(false);
+      setMounted(true);
+    }
     previousControlledOpen = controlledOpen;
     handle._initialize(controlledOpen, local.triggerId ?? handle._activeTriggerId());
   });
@@ -807,14 +838,22 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
     onCleanup(() => document.removeEventListener("pointermove", recordPointerMove, true));
   });
 
-  createEffect(() => {
+  createRenderEffect(() => {
     const nextOpen = open();
-    if (nextOpen === previousOpen) return;
+    const isInitialOpen = shouldCompleteInitialOpen;
+    shouldCompleteInitialOpen = false;
+    if (nextOpen === previousOpen && !isInitialOpen) return;
     previousOpen = nextOpen;
-    setTransitionStatus(nextOpen ? "starting" : "ending");
+    setTransitionStatus(isInitialOpen ? undefined : nextOpen ? "starting" : "ending");
     const version = ++completeVersion;
     queueMicrotask(async () => {
+      await nextHoverCardAnimationFrame();
+      if (version !== completeVersion) return;
+      if (nextOpen) setTransitionStatus(undefined);
       const element = content();
+      if (element?.isConnected && typeof getComputedStyle === "function") {
+        void getComputedStyle(element).animationName;
+      }
       const animations =
         element && "getAnimations" in element
           ? element.getAnimations().filter((animation) => animation.playState !== "finished")
@@ -826,6 +865,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
         setTransitionStatus(undefined);
         if (!nextOpen) handle._setHoverClosing(false);
         if (!nextOpen && preventedUnmount()) return;
+        if (!nextOpen) setMounted(false);
         local.onOpenChangeComplete?.(nextOpen);
       }
     });
@@ -842,6 +882,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
         setTransitionStatus(undefined);
         setPreventedUnmount(false);
         setForceUnmounted(true);
+        setMounted(false);
         setContent(undefined);
         handle._setHoverClosing(false);
         handle._activate(null);
@@ -867,7 +908,7 @@ const HoverCard = <Payload,>(props: HoverCardProps<Payload>) => {
       <HoverCardPrimitive.Root
         data-slot="hover-card"
         closeDelay={handle._activeCloseDelay()}
-        forceMount={preventedUnmount()}
+        forceMount={mounted()}
         getAnchorRect={() => handle._anchorRect(positionToPlacement(position()))}
         gutter={position().sideOffset}
         hideWhenDetached
@@ -946,11 +987,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
       local.onPointerEnter as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
       event,
     );
-    if (event.defaultPrevented || event.pointerType === "touch") return;
-    if (event.pointerType !== "mouse") {
-      event.preventDefault();
-      return;
-    }
+    if (event.defaultPrevented || !isMouseLikePointerType(event.pointerType)) return;
     local.handle?._updateInlineRect(event.currentTarget, event.clientX, event.clientY);
     openWithDelay("trigger-hover", event);
   };
@@ -959,7 +996,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
       local.onPointerMove as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
       event,
     );
-    if (event.defaultPrevented || event.pointerType !== "mouse") return;
+    if (event.defaultPrevented || !isMouseLikePointerType(event.pointerType)) return;
     if (!local.handle?._isOpenedBy(id())) {
       local.handle?._updateInlineRect(event.currentTarget, event.clientX, event.clientY);
     }
@@ -969,7 +1006,7 @@ const HoverCardDetachedTrigger = <T extends ValidComponent = "a", Payload = unkn
       local.onPointerLeave as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
       event,
     );
-    if (event.pointerType !== "mouse") return;
+    if (!isMouseLikePointerType(event.pointerType)) return;
     cancelOpening();
     if (local.handle?._isOpenedBy(id())) {
       local.handle._scheduleClose(local.closeDelay ?? 300, event, id());
@@ -1267,7 +1304,7 @@ const HoverCardContent = <T extends ValidComponent = "div">(props: HoverCardCont
   };
 
   return (
-    <Show when={!context.forceUnmounted()}>
+    <Show when={context.mounted() && !context.forceUnmounted()}>
       <HoverCardPrimitive.Portal
         ref={(element) => element.setAttribute("data-slot", "hover-card-portal")}
       >

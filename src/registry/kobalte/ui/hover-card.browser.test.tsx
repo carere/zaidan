@@ -96,6 +96,50 @@ describe("Hover Card browser behavior", () => {
     );
   });
 
+  it("keeps an open card associated with a same-tick replacement trigger", async () => {
+    const handle = createHoverCardHandle<string>();
+    const onOpenChange = vi.fn();
+    const host = document.createElement("div");
+    document.body.append(host);
+    let replaceTrigger = () => {};
+    dispose = render(() => {
+      const [replaced, setReplaced] = createSignal(false);
+      replaceTrigger = () => setReplaced(true);
+      return (
+        <>
+          {replaced() ? (
+            <HoverCardTrigger as="button" handle={handle} id="profile" payload="Grace">
+              Grace
+            </HoverCardTrigger>
+          ) : (
+            <HoverCardTrigger as="button" handle={handle} id="profile" payload="Ada">
+              Ada
+            </HoverCardTrigger>
+          )}
+          <HoverCard
+            defaultOpen
+            defaultTriggerId="profile"
+            handle={handle}
+            onOpenChange={onOpenChange}
+          >
+            {({ payload }) => <HoverCardContent>{payload}</HoverCardContent>}
+          </HoverCard>
+        </>
+      );
+    }, host);
+
+    await Promise.resolve();
+    onOpenChange.mockClear();
+    replaceTrigger();
+    await Promise.resolve();
+
+    expect(handle.isOpen).toBe(true);
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')?.textContent).toBe(
+      "Grace",
+    );
+  });
+
   it("switches a controlled open card to another trigger immediately", async () => {
     vi.useFakeTimers();
     const onOpenChange = vi.fn();
@@ -414,7 +458,13 @@ describe("Hover Card browser behavior", () => {
       host,
     );
 
+    expect(
+      document.body
+        .querySelector('[data-slot="hover-card-content"]')
+        ?.hasAttribute("data-starting-style"),
+    ).toBe(false);
     await Promise.resolve();
+    await new Promise(requestAnimationFrame);
     await Promise.resolve();
 
     expect(onOpenChangeComplete).toHaveBeenCalledOnce();
@@ -533,6 +583,30 @@ describe("Hover Card browser behavior", () => {
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
   });
 
+  it("treats pen input as mouse-like hover input", async () => {
+    vi.useFakeTimers();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard>
+          <HoverCardTrigger delay={1} href="/profile">
+            Profile
+          </HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    host
+      .querySelector<HTMLElement>('[data-slot="hover-card-trigger"]')
+      ?.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true, pointerType: "pen" }));
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).not.toBeNull();
+  });
+
   it("uses the active trigger close delay after the pointer leaves the content", async () => {
     vi.useFakeTimers();
     const host = document.createElement("div");
@@ -555,6 +629,9 @@ describe("Hover Card browser behavior", () => {
     );
     await vi.advanceTimersByTimeAsync(1);
     const content = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
+    Object.defineProperty(content, "getAnimations", {
+      value: () => [{ finished: new Promise(() => {}), playState: "running" }],
+    });
 
     trigger?.dispatchEvent(
       new PointerEvent("pointerleave", { bubbles: true, pointerType: "mouse" }),
@@ -601,6 +678,9 @@ describe("Hover Card browser behavior", () => {
     );
     await vi.advanceTimersByTimeAsync(1);
     const content = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
+    Object.defineProperty(content, "getAnimations", {
+      value: () => [{ finished: new Promise(() => {}), playState: "running" }],
+    });
     Object.defineProperty(content, "getBoundingClientRect", {
       value: () => new DOMRect(0, 40, 200, 100),
     });
@@ -733,6 +813,7 @@ describe("Hover Card browser behavior", () => {
 
     finishAnimation?.();
     await finished;
+    content?.dispatchEvent(new AnimationEvent("animationend", { bubbles: true }));
     await Promise.resolve();
     expect(onOpenChangeComplete).not.toHaveBeenCalled();
 
@@ -742,6 +823,53 @@ describe("Hover Card browser behavior", () => {
     expect(onOpenChangeComplete).toHaveBeenCalledOnce();
     expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
     expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+  });
+
+  it("keeps a normal close mounted until its exit animation completes", async () => {
+    const actionsRef: {
+      current: { close: () => void; unmount: () => void } | null;
+    } = { current: null };
+    const onOpenChangeComplete = vi.fn();
+    const host = document.createElement("div");
+    document.body.append(host);
+    dispose = render(
+      () => (
+        <HoverCard actionsRef={actionsRef} defaultOpen onOpenChangeComplete={onOpenChangeComplete}>
+          <HoverCardTrigger href="/profile">Profile</HoverCardTrigger>
+          <HoverCardContent>Profile preview</HoverCardContent>
+        </HoverCard>
+      ),
+      host,
+    );
+
+    await Promise.resolve();
+    await Promise.resolve();
+    onOpenChangeComplete.mockClear();
+    const content = document.body.querySelector<HTMLElement>('[data-slot="hover-card-content"]');
+    let finishAnimation: (() => void) | undefined;
+    const finished = new Promise<void>((resolve) => {
+      finishAnimation = resolve;
+    });
+    Object.defineProperty(content, "getAnimations", {
+      value: () => [{ finished, playState: "running" }],
+    });
+
+    actionsRef.current?.close();
+    await Promise.resolve();
+
+    expect(content?.isConnected).toBe(true);
+    expect(content?.hasAttribute("data-closed")).toBe(true);
+    expect(content?.hasAttribute("data-ending-style")).toBe(true);
+    expect(onOpenChangeComplete).not.toHaveBeenCalled();
+
+    await new Promise(requestAnimationFrame);
+    finishAnimation?.();
+    await finished;
+    await Promise.resolve();
+
+    expect(document.body.querySelector('[data-slot="hover-card-content"]')).toBeNull();
+    expect(onOpenChangeComplete).toHaveBeenCalledOnce();
+    expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
   });
 
   it("force unmounts an open card and clears its active trigger", async () => {
