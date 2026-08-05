@@ -11,7 +11,7 @@ const Kbd = (props: KbdProps) => {
   return (
     <kbd
       class={cn(
-        "pointer-events-none z-kbd inline-flex select-none items-center justify-center",
+        "z-kbd pointer-events-none inline-flex items-center justify-center select-none",
         local.class,
       )}
       data-slot="kbd"
@@ -24,12 +24,14 @@ type KbdGroupProps = ComponentProps<"div">;
 
 const KbdGroup = (props: KbdGroupProps) => {
   const [local, others] = splitProps(props, ["class"]);
+  // shadcn 4.16.1 exposes div props even though KbdGroup renders a kbd element.
+  const kbdProps = others as ComponentProps<"kbd">;
 
   return (
-    <div
+    <kbd
       class={cn("z-kbd-group inline-flex items-center", local.class)}
       data-slot="kbd-group"
-      {...others}
+      {...kbdProps}
     />
   );
 };
