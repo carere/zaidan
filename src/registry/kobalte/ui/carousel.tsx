@@ -131,7 +131,7 @@ const Carousel = (props: CarouselRootProps) => {
         aria-roledescription="carousel"
         class={cn("relative", local.class)}
         data-slot="carousel"
-        onKeyDown={handleKeyDown}
+        on:keydown={{ capture: true, handleEvent: handleKeyDown }}
         role="region"
         {...others}
       >
@@ -194,7 +194,7 @@ const CarouselPrevious = (props: CarouselPreviousProps) => {
       class={cn(
         "absolute z-carousel-previous touch-manipulation",
         orientation === "horizontal"
-          ? "top-1/2 -left-12 -translate-y-1/2"
+          ? "inset-y-0 -left-12 my-auto"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         local.class,
       )}
@@ -226,7 +226,7 @@ const CarouselNext = (props: CarouselNextProps) => {
       class={cn(
         "absolute z-carousel-next touch-manipulation",
         orientation === "horizontal"
-          ? "top-1/2 -right-12 -translate-y-1/2"
+          ? "inset-y-0 -right-12 my-auto"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         local.class,
       )}
