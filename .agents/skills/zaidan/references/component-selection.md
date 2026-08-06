@@ -25,7 +25,7 @@ an install command.
 | Related toggles | `toggle-group` | Choose single or multiple selection behavior deliberately. |
 | Short status or category | `badge` | Use for metadata, not a primary action. |
 | Important inline feedback | `alert` | Persistent, contextual information inside the page. |
-| Brief asynchronous feedback | `sonner` | Verify the current notification item name before installing. |
+| Brief asynchronous feedback | `toast` | Mount the Toast host in every context that emits notifications. |
 | Loading | `spinner`, `skeleton`, or `progress` | Spinner for indeterminate work, skeleton for content shape, progress for measurable completion. |
 | No results or first-use state | `empty` | Compose with a clear next action when one exists. |
 

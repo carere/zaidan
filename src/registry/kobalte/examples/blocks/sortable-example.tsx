@@ -1,6 +1,5 @@
 import { FileText, GripVertical, Image as ImageIcon, Music, Video } from "lucide-solid";
 import { createSignal, For } from "solid-js";
-import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Sortable, SortableItem, SortableItemHandle } from "@/registry/kobalte/blocks/sortable";
 import { Badge } from "@/registry/kobalte/ui/badge";
@@ -11,16 +10,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/kobalte/ui/card";
-import { Toaster } from "@/registry/kobalte/ui/sonner";
 import { Switch } from "@/registry/kobalte/ui/switch";
+import { createToastManager, Toaster, type ToastManager } from "@/registry/kobalte/ui/toast";
 
 export default function SortableExample() {
+  const toastManager = createToastManager();
+
   return (
     <>
-      <Toaster />
+      <Toaster toastManager={toastManager} />
       <ExampleWrapper class="lg:grid-cols-1 2xl:grid-cols-1">
-        <SortableBasic />
-        <SortableGrid />
+        <SortableBasic toastManager={toastManager} />
+        <SortableGrid toastManager={toastManager} />
         <SortableWithSwitch />
       </ExampleWrapper>
     </>
@@ -101,7 +102,7 @@ function getTypeVariant(
   }
 }
 
-function SortableBasic() {
+function SortableBasic(props: { toastManager: ToastManager }) {
   const [items, setItems] = createSignal<FileItem[]>(defaultFileItems);
 
   return (
@@ -112,7 +113,9 @@ function SortableBasic() {
         class="mx-auto w-full max-w-xl space-y-2"
         onValueChange={(newItems) => {
           setItems(newItems);
-          toast.success("Items reordered successfully!", {
+          props.toastManager.add({
+            type: "success",
+            title: "Items reordered successfully!",
             description: newItems.map((item, index) => `${index + 1}. ${item.title}`).join(", "),
           });
         }}
@@ -248,7 +251,7 @@ function getGridVariant(
   }
 }
 
-function SortableGrid() {
+function SortableGrid(props: { toastManager: ToastManager }) {
   const [items, setItems] = createSignal<GridItem[]>(defaultGridItems);
 
   return (
@@ -257,7 +260,9 @@ function SortableGrid() {
         value={items()}
         onValueChange={(newItems) => {
           setItems(newItems);
-          toast.success("Grid items reordered successfully!", {
+          props.toastManager.add({
+            type: "success",
+            title: "Grid items reordered successfully!",
             description: `New order: ${newItems
               .map((item, index) => `${index + 1}. ${item.title}`)
               .join(", ")}`,

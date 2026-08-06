@@ -141,7 +141,7 @@ All 57 concrete paths under `/docs/components/kobalte/`:
 - `card`, `carousel`, `chart`, `checkbox`, `collapsible`, `combobox`, `command`, `context-menu`, `dialog`, `drawer`
 - `dropdown-menu`, `empty`, `field`, `hover-card`, `input-group`, `input-otp`, `input`, `item`, `kbd`, `label`
 - `menubar`, `native-select`, `navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`, `resizable`, `scroll-area`, `select`
-- `separator`, `sheet`, `sidebar-floating`, `sidebar-icon`, `sidebar-inset`, `sidebar`, `skeleton`, `slider`, `sonner`, `spinner`
+- `separator`, `sheet`, `sidebar-floating`, `sidebar-icon`, `sidebar-inset`, `sidebar`, `skeleton`, `slider`, `spinner`, `toast`
 - `switch`, `table`, `tabs`, `textarea`, `toggle-group`, `toggle`, `tooltip`
 
 ### Changelog
