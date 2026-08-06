@@ -11,6 +11,9 @@ describe("Sidebar documentation", () => {
     const page = await readFile(pagePath, "utf8");
 
     expect(page).toContain("native SolidJS composition");
+    expect(page).toContain("foundation: kobalte");
+    expect(page).toContain("https://kobalte.dev/docs/core/components/dialog");
+    expect(page).toContain("https://kobalte.dev/docs/core/components/dialog#api-reference");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);
@@ -39,5 +42,8 @@ describe("Sidebar documentation", () => {
     expect(page).not.toContain("## RTL");
     expect(page).not.toContain("Direction");
     expect(page).not.toContain("Sonner");
+    expect(page).not.toContain("React.");
+    expect(page).not.toContain("next/");
+    expect(page).not.toContain("<Callout>");
   });
 });

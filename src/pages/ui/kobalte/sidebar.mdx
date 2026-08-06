@@ -3,9 +3,13 @@ title: Sidebar
 slug: sidebar
 description: A composable, themeable, and customizable sidebar component.
 component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/dialog
+  api: https://kobalte.dev/docs/core/components/dialog#api-reference
 ---
 
-Sidebar is a native SolidJS composition that provides desktop collapse, a mobile sheet, and a consistent set of navigation building blocks.
+Sidebar is a native SolidJS composition that provides desktop collapse, a mobile sheet, and a consistent set of navigation building blocks. Its mobile sheet uses [Kobalte Dialog](https://kobalte.dev/docs/core/components/dialog) for modal focus management and keyboard behavior.
 
 <ComponentPreview name="sidebar-demo" align="start" previewClass="h-[42rem] overflow-hidden p-0" />
 
@@ -438,3 +442,7 @@ Target the Sidebar data attributes to tailor collapsed and active states.
   <SidebarMenuAction class="peer-data-[active=true]/menu-button:opacity-100" />
 </SidebarMenuItem>
 ```
+
+## API Reference
+
+Sidebar's public API is native SolidJS composition. For mobile sheet primitive props, focus management, and keyboard behavior, see the [Kobalte Dialog API reference](https://kobalte.dev/docs/core/components/dialog#api-reference).
