@@ -347,12 +347,12 @@ function DatePickerWithDropdowns() {
   return (
     <Example title="Date Picker with Dropdowns">
       <Field class="mx-auto w-72">
-        <FieldLabel for="date-picker-dropdowns">Date</FieldLabel>
+        <FieldLabel for="date-picker-with-dropdowns-desktop">Date</FieldLabel>
         <Popover open={open()} onOpenChange={(nextOpen) => setOpen(nextOpen)}>
           <PopoverTrigger
             as={Button}
             variant="outline"
-            id="date-picker-dropdowns"
+            id="date-picker-with-dropdowns-desktop"
             class="justify-start px-2.5 font-normal"
           >
             <Show when={date()} fallback={<span>Pick a date</span>} keyed>
