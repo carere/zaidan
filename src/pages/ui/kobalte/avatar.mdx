@@ -2,147 +2,222 @@
 title: Avatar
 slug: avatar
 description: An image element with a fallback for representing the user.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/image
+  api: https://kobalte.dev/docs/core/components/image#api-reference
 ---
 
-# Avatar
+The Avatar component is built on top of [Kobalte Image](https://kobalte.dev/docs/core/components/image), which provides accessible image loading and fallback behavior.
 
-An image element with a fallback for representing the user.
+<ClientOnly>
+  <ComponentPreview name="avatar-demo" previewClass="h-72" />
+</ClientOnly>
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/avatar
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/avatar.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="avatar" title="components/ui/avatar.tsx" />
 
-### Sizes
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "~/components/ui/avatar";
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L36-L66
-
+```tsx showLineNumbers
+<Avatar>
+  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+  <AvatarFallback>CN</AvatarFallback>
+</Avatar>
 ```
 
-### Badge
+## Composition
 
-```tsx
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallback,
-  AvatarImage,
-} from "~/components/ui/avatar";
+Use the following composition to build an `Avatar`:
+
+```text
+Avatar
+├── AvatarImage
+├── AvatarFallback
+└── AvatarBadge
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L68-L104
+Use the following composition to build an `AvatarGroup`:
 
+```text
+AvatarGroup
+├── Avatar
+│   ├── AvatarImage
+│   ├── AvatarFallback
+│   └── AvatarBadge
+├── Avatar
+│   ├── AvatarImage
+│   ├── AvatarFallback
+│   └── AvatarBadge
+└── AvatarGroupCount
 ```
 
-### Badge with Icon
+## Basic
 
-```tsx
-import { Check, Plus } from "lucide-solid";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallback,
-  AvatarImage,
-} from "~/components/ui/avatar";
+A basic avatar component with an image and a fallback.
+
+<ClientOnly>
+  <ComponentPreview name="avatar-basic" />
+</ClientOnly>
+
+## Badge
+
+Use the `AvatarBadge` component to add a badge to the avatar. The badge is positioned at the bottom right of the avatar.
+
+<ClientOnly>
+  <ComponentPreview name="avatar-badge" />
+</ClientOnly>
+
+Use the `class` prop to add custom styles to the badge, such as custom colors and sizes.
+
+```tsx showLineNumbers
+<Avatar>
+  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+  <AvatarFallback>CN</AvatarFallback>
+  <AvatarBadge class="bg-green-600 dark:bg-green-800" />
+</Avatar>
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L106-L154
+## Badge with Icon
 
-```
+You can also use an icon inside `<AvatarBadge>`.
 
-### Group
+<ClientOnly>
+  <ComponentPreview name="avatar-badge-icon" />
+</ClientOnly>
 
-```tsx
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarImage,
-} from "~/components/ui/avatar";
-```
+## Avatar Group
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L156-L203
+Use the `AvatarGroup` component to add a group of avatars.
 
-```
+<ClientOnly>
+  <ComponentPreview name="avatar-group" />
+</ClientOnly>
 
-### Group with Count
+## Avatar Group Count
 
-```tsx
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarImage,
-} from "~/components/ui/avatar";
-```
+Use `<AvatarGroupCount>` to add a count to the group.
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L205-L255
+<ClientOnly>
+  <ComponentPreview name="avatar-group-count" />
+</ClientOnly>
 
-```
+## Avatar Group with Icon
 
-### Group with Icon Count
+You can also use an icon inside `<AvatarGroupCount>`.
 
-```tsx
-import { Plus } from "lucide-solid";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarImage,
-} from "~/components/ui/avatar";
-```
+<ClientOnly>
+  <ComponentPreview name="avatar-group-count-icon" />
+</ClientOnly>
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L257-L317
+## Sizes
 
-```
+Use the `size` prop to change the size of the avatar.
 
-### In Empty
+<ClientOnly>
+  <ComponentPreview name="avatar-size" />
+</ClientOnly>
 
-```tsx
-import { Plus } from "lucide-solid";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarImage,
-} from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-```
+## Dropdown
 
-```tsx file=../../../registry/kobalte/examples/ui/avatar-example.tsx#L319-L363
+You can use the `Avatar` component as a trigger for a dropdown menu.
 
-```
+<ClientOnly>
+  <ComponentPreview name="avatar-dropdown" />
+</ClientOnly>
+
+## API Reference
+
+### Avatar
+
+The `Avatar` component is the root component that wraps the avatar image and fallback.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `size` | `"default" \| "sm" \| "lg"` | `"default"` |
+| `class` | `string` | - |
+
+### AvatarImage
+
+The `AvatarImage` component displays the avatar image. It accepts all Kobalte Image Img props.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `src` | `string` | - |
+| `alt` | `string` | - |
+| `class` | `string` | - |
+
+### AvatarFallback
+
+The `AvatarFallback` component displays a fallback when the image fails to load. It accepts all Kobalte Image Fallback props.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+### AvatarBadge
+
+The `AvatarBadge` component displays a badge indicator on the avatar, typically positioned at the bottom right.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+### AvatarGroup
+
+The `AvatarGroup` component displays a group of avatars with overlapping styling.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+### AvatarGroupCount
+
+The `AvatarGroupCount` component displays a count indicator in an avatar group, typically showing the number of additional avatars.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+For all primitive props and fallback behavior, see the [Kobalte Image API reference](https://kobalte.dev/docs/core/components/image#api-reference).
