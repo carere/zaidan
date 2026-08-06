@@ -2,68 +2,84 @@
 title: Separator
 slug: separator
 description: Visually or semantically separates content.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/separator
+  api: https://kobalte.dev/docs/core/components/separator#api-reference
 ---
 
-# Separator
+The Separator component is built on top of [Kobalte Separator](https://kobalte.dev/docs/core/components/separator), which provides the accessible separator primitive.
 
-Visually or semantically separates content.
+<ComponentPreview name="separator-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/separator
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/separator.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="separator" title="components/ui/separator.tsx" />
 
-### Horizontal
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Separator } from "~/components/ui/separator";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/separator-example.tsx#L15-L30
-
+```tsx showLineNumbers
+<Separator />
 ```
 
-### Vertical
+## Vertical
 
-```tsx
-import { Separator } from "~/components/ui/separator";
-```
+Use `orientation="vertical"` for a vertical separator.
 
-```tsx file=../../../registry/kobalte/examples/ui/separator-example.tsx#L32-L44
+<ComponentPreview name="separator-vertical" />
 
-```
+## Menu
 
-### Vertical Menu
+Vertical separators between menu items with descriptions.
 
-```tsx
-import { Separator } from "~/components/ui/separator";
-```
+<ComponentPreview name="separator-menu" />
 
-```tsx file=../../../registry/kobalte/examples/ui/separator-example.tsx#L46-L67
+## List
 
-```
+Horizontal separators between list items.
 
-### In List
+<ComponentPreview name="separator-list" />
 
-```tsx
-import { Separator } from "~/components/ui/separator";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/separator-example.tsx#L69-L90
-
-```
+See the [Kobalte Separator API reference](https://kobalte.dev/docs/core/components/separator#api-reference) for primitive props, accessibility, and separator semantics.
