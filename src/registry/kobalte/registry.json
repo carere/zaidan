@@ -1632,7 +1632,7 @@
     {
       "name": "radio-group",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [],
       "registryDependencies": [],
       "files": [
         {
