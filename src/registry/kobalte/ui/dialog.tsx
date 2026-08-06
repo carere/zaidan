@@ -44,7 +44,7 @@ const DialogOverlay = <T extends ValidComponent = "div">(props: DialogOverlayPro
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      class={cn("fixed inset-0 isolate z-50 z-dialog-overlay", local.class)}
+      class={cn("z-dialog-overlay fixed inset-0 isolate z-50", local.class)}
       {...others}
     />
   );
@@ -67,7 +67,7 @@ const DialogContent = <T extends ValidComponent = "div">(props: DialogContentPro
       <DialogPrimitive.Content
         data-slot="dialog-content"
         class={cn(
-          "fixed top-1/2 left-1/2 z-50 z-dialog-content w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+          "z-dialog-content fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
           local.class,
         )}
         {...others}
@@ -103,15 +103,11 @@ const DialogHeader = (props: DialogHeaderProps) => {
   );
 };
 
-type DialogFooterProps<T extends ValidComponent = "div"> = PolymorphicProps<
-  T,
-  ComponentProps<"div">
-> &
-  Pick<ComponentProps<T>, "class" | "children"> & {
-    showCloseButton?: boolean;
-  };
+type DialogFooterProps = ComponentProps<"div"> & {
+  showCloseButton?: boolean;
+};
 
-const DialogFooter = <T extends ValidComponent = "div">(props: DialogFooterProps<T>) => {
+const DialogFooter = (props: DialogFooterProps) => {
   const mergedProps = mergeProps({ showCloseButton: false } as DialogFooterProps, props);
   const [local, others] = splitProps(mergedProps, ["class", "children", "showCloseButton"]);
   return (
