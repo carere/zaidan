@@ -2,171 +2,106 @@
 title: Tabs
 slug: tabs
 description: A set of layered sections of content—known as tab panels—that are displayed one at a time.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/tabs
+  api: https://kobalte.dev/docs/core/components/tabs#api-reference
 ---
 
-# Tabs
+The Tabs component is built on top of [Kobalte Tabs](https://kobalte.dev/docs/core/components/tabs), which provides the accessible tab, tablist, and tabpanel primitives with keyboard navigation.
 
-A set of layered sections of content—known as tab panels—that are displayed one at a time.
+<ComponentPreview name="tabs-demo" previewClass="h-96" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/tabs
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/tabs.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core class-variance-authority solid-js
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="tabs" title="components/ui/tabs.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
+</Steps>
 
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L34-L45
+</TabsContent>
 
-```
+</CodeTabs>
 
-### Line
+## Usage
 
-```tsx
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L47-L59
-
-```
-
-### Variants Alignment
-
-```tsx
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L61-L80
-
-```
-
-### Disabled
-
-```tsx
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L82-L95
-
-```
-
-### With Icons
-
-```tsx
-import { AppWindow, Code } from "lucide-solid";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L97-L114
-
-```
-
-### Icon Only
-
-```tsx
-import { Home, Search, Settings } from "lucide-solid";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L116-L134
-
-```
-
-### Multiple
-
-```tsx
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L136-L149
-
-```
-
-### With Content
-
-```tsx
+```tsx showLineNumbers
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L151-L174
-
+```tsx showLineNumbers
+<Tabs defaultValue="account" class="w-[400px]">
+  <TabsList>
+    <TabsTrigger value="account">Account</TabsTrigger>
+    <TabsTrigger value="password">Password</TabsTrigger>
+  </TabsList>
+  <TabsContent value="account">Make changes to your account here.</TabsContent>
+  <TabsContent value="password">Change your password here.</TabsContent>
+</Tabs>
 ```
 
-### Line With Content
+## Composition
 
-```tsx
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+Use the following composition to build `Tabs`:
+
+```text
+Tabs
+├── TabsList
+│   ├── TabsTrigger
+│   └── TabsTrigger
+├── TabsContent
+└── TabsContent
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L176-L199
+## Line
 
-```
+Use the `variant="line"` prop on `TabsList` for a line style.
 
-### Line Disabled
+<ComponentPreview name="tabs-line" />
 
-```tsx
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
+## Vertical
 
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L201-L215
+Use `orientation="vertical"` for vertical tabs.
 
-```
+<ComponentPreview name="tabs-vertical" />
 
-### With Dropdown
+## Disabled
 
-```tsx
-import { MoreHorizontal } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
+<ComponentPreview name="tabs-disabled" />
 
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L217-L253
+## Icons
 
-```
+<ComponentPreview name="tabs-icons" />
 
-### Vertical
+## API Reference
 
-```tsx
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L255-L280
-
-```
-
-### With Input and Button
-
-```tsx
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tabs-example.tsx#L282-L308
-
-```
+For primitive props, keyboard behavior, and accessibility details, see the [Kobalte Tabs API reference](https://kobalte.dev/docs/core/components/tabs#api-reference).
