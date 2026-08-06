@@ -158,8 +158,6 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
   const [highlightedValue, setHighlightedValue] = createSignal<unknown>();
   const tabs = new Set<RegisteredTab>();
   let pendingTriggerEvent: Event | undefined;
-  let pendingPointerValue: unknown;
-  let hasPendingPointerValue = false;
   let selectionResolved = local.defaultValue !== undefined || local.value !== undefined;
   let honorDisabledDefault = local.defaultValue !== undefined;
   let didRegisterTabs = false;
@@ -340,8 +338,6 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
       pendingTriggerEvent.type === "pointerdown" &&
       pendingTriggerEvent.pointerType === "mouse"
     ) {
-      pendingPointerValue = proposedValue;
-      hasPendingPointerValue = true;
       if (!activateOnFocus()) pendingTriggerEvent = undefined;
       return;
     }
@@ -354,8 +350,6 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
       pendingTriggerEvent = undefined;
       return;
     }
-    hasPendingPointerValue = false;
-    pendingPointerValue = undefined;
     const reason: TabsChangeReason = pendingTriggerEvent
       ? "none"
       : selectionResolved
@@ -389,9 +383,9 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
     },
     activationDirection,
     commitPointerActivation: (value, event) => {
-      if (!hasPendingPointerValue || !Object.is(pendingPointerValue, value)) return;
-      hasPendingPointerValue = false;
-      pendingPointerValue = undefined;
+      const tab = tabForValue(value);
+      if (!tab || tab.disabled()) return;
+
       if (value !== selectedValue()) requestValueChange(value, "none", event);
       pendingTriggerEvent = undefined;
     },
