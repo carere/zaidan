@@ -121,13 +121,18 @@ const Toggle = <T extends ValidComponent = "button">(rawProps: ToggleProps<T>) =
   const pressed = () => local.pressed ?? uncontrolledPressed();
   const nativeButton = () => local.nativeButton ?? true;
 
-  const requestPressedChange = (event: Event) => {
-    const nextPressed = !pressed();
+  let lastInteraction: Event | undefined;
+
+  const requestPressedChange = (nextPressed: boolean, event: Event) => {
     const details = createChangeDetails(event);
     local.onPressedChange?.(nextPressed, details);
     if (details.isCanceled) return;
 
     if (local.pressed === undefined) setUncontrolledPressed(nextPressed);
+  };
+
+  const handlePrimitiveChange = (nextPressed: boolean) => {
+    requestPressedChange(nextPressed, lastInteraction ?? new Event("change"));
   };
 
   const handleClick: JSX.EventHandler<HTMLElement, MouseEvent> = (event) => {
@@ -139,7 +144,7 @@ const Toggle = <T extends ValidComponent = "button">(rawProps: ToggleProps<T>) =
       local.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined,
       event,
     );
-    requestPressedChange(event);
+    lastInteraction = event;
   };
 
   const handleKeyboardActivation = (
@@ -149,7 +154,7 @@ const Toggle = <T extends ValidComponent = "button">(rawProps: ToggleProps<T>) =
       local.onClick as unknown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
       event,
     );
-    requestPressedChange(event);
+    requestPressedChange(!pressed(), event);
   };
 
   const handleMouseDown: JSX.EventHandler<HTMLElement, MouseEvent> = (event) => {
@@ -215,6 +220,7 @@ const Toggle = <T extends ValidComponent = "button">(rawProps: ToggleProps<T>) =
       onKeyUp={handleKeyUp}
       onMouseDown={handleMouseDown}
       onPointerDown={handlePointerDown}
+      onChange={handlePrimitiveChange}
       pressed={pressed()}
       role={nativeButton() ? local.role : (local.role ?? "button")}
       tabIndex={nativeButton() ? local.tabIndex : (local.tabIndex ?? (local.disabled ? -1 : 0))}
