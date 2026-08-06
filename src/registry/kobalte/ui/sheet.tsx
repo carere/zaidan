@@ -3,8 +3,9 @@ import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { X } from "lucide-solid";
 import type { Component, ComponentProps, ValidComponent } from "solid-js";
 import { mergeProps, Show, splitProps } from "solid-js";
+
 import { cn } from "@/lib/utils";
-import { Button } from "./button";
+import { Button } from "@/registry/kobalte/ui/button";
 
 const Sheet: Component<SheetPrimitive.DialogRootProps> = (props) => {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -43,7 +44,7 @@ const SheetOverlay = <T extends ValidComponent = "div">(props: SheetOverlayProps
   return (
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
-      class={cn("fixed inset-0 z-50 z-sheet-overlay", local.class)}
+      class={cn("z-sheet-overlay fixed inset-0 z-50", local.class)}
       {...others}
     />
   );
@@ -128,7 +129,7 @@ const SheetTitle = <T extends ValidComponent = "h2">(props: SheetTitleProps<T>) 
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      class={cn("z-font-heading z-sheet-title", local.class)}
+      class={cn("z-sheet-title z-font-heading", local.class)}
       {...others}
     />
   );
