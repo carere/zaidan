@@ -31,15 +31,7 @@ export function MobileNav(props: MobileNavProps) {
   let contentRef: HTMLDivElement | undefined;
 
   return (
-    <Popover
-      open={open()}
-      placement="bottom-start"
-      gutter={14}
-      shift={-16}
-      fitViewport
-      overflowPadding={0}
-      onOpenChange={setOpen}
-    >
+    <Popover open={open()} onOpenChange={setOpen}>
       <PopoverTrigger
         as={Button}
         variant="ghost"
@@ -65,10 +57,10 @@ export function MobileNav(props: MobileNavProps) {
       </PopoverTrigger>
       <PopoverContent
         ref={contentRef}
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-          contentRef?.focus();
-        }}
+        align="start"
+        alignOffset={-16}
+        initialFocus={() => contentRef ?? false}
+        sideOffset={14}
         class="no-scrollbar h-(--kb-popper-content-available-height) w-(--kb-popper-content-available-width) overflow-y-auto rounded-none border-none bg-background/90 p-0 shadow-none ring-0! backdrop-blur duration-100 data-expanded:animate-none!"
       >
         <nav class="flex flex-col gap-12 overflow-auto px-6 py-6" aria-label="Mobile navigation">
