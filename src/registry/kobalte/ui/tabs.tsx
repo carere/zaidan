@@ -51,6 +51,7 @@ type RegisteredTab = {
 };
 
 type TabsContextValue = {
+  activateFocusedTab: (value: unknown, disabled: boolean, event: FocusEvent) => void;
   activationDirection: Accessor<TabsActivationDirection>;
   commitPointerActivation: (value: unknown, event: MouseEvent) => void;
   keyForValue: (value: unknown) => string;
@@ -374,12 +375,24 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
   };
 
   const context: TabsContextValue = {
+    activateFocusedTab: (value, disabled, event) => {
+      if (
+        !activateOnFocus() ||
+        disabled ||
+        value === selectedValue() ||
+        (typeof KeyboardEvent !== "undefined" && pendingTriggerEvent instanceof KeyboardEvent)
+      ) {
+        return;
+      }
+      requestValueChange(value, "none", event);
+      selectionResolved = true;
+    },
     activationDirection,
     commitPointerActivation: (value, event) => {
       if (!hasPendingPointerValue || !Object.is(pendingPointerValue, value)) return;
       hasPendingPointerValue = false;
       pendingPointerValue = undefined;
-      requestValueChange(value, "none", event);
+      if (value !== selectedValue()) requestValueChange(value, "none", event);
       pendingTriggerEvent = undefined;
     },
     keyForValue,
@@ -616,6 +629,7 @@ const TabsTrigger = <T extends ValidComponent = "button", Value = unknown>(
   const onFocus: JSX.EventHandler<HTMLButtonElement, FocusEvent> = (event) => {
     context.recordTriggerEvent(event);
     context.recordTabFocus(local.value, local.disabled ?? false);
+    context.activateFocusedTab(local.value, local.disabled ?? false, event);
     callEventHandler(
       local.onFocus as JSX.EventHandlerUnion<HTMLButtonElement, FocusEvent> | undefined,
       event,
