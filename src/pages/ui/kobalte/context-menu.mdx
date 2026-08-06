@@ -1,227 +1,168 @@
 ---
 title: Context Menu
 slug: context-menu
-description: Displays a menu to the user — such as a set of actions or functions — triggered by a right-click.
+description: Displays a menu of actions triggered by a right click.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/context-menu
+  api: https://kobalte.dev/docs/core/components/context-menu#api-reference
+example: context-menu-example.tsx
 ---
 
-# Context Menu
+The Context Menu component is built on top of [Kobalte Context Menu](https://kobalte.dev/docs/core/components/context-menu), which provides accessible context-menu, keyboard, and focus behavior.
 
-Displays a menu to the user — such as a set of actions or functions — triggered by a right-click.
+<ComponentPreview name="context-menu-demo" description="A context menu with submenu items." />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/context-menu
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/context-menu.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core lucide-solid
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="context-menu" title="components/ui/context-menu.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import {
   ContextMenu,
   ContextMenuContent,
-  ContextMenuGroup,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L47-L64
-
+```tsx showLineNumbers
+<ContextMenu>
+  <ContextMenuTrigger>Right click here</ContextMenuTrigger>
+  <ContextMenuContent>
+    <ContextMenuItem>Profile</ContextMenuItem>
+    <ContextMenuItem>Billing</ContextMenuItem>
+    <ContextMenuItem>Team</ContextMenuItem>
+    <ContextMenuItem>Subscription</ContextMenuItem>
+  </ContextMenuContent>
+</ContextMenu>
 ```
 
-### With Sides
+See the [Kobalte Context Menu documentation](https://kobalte.dev/docs/core/components/context-menu) for primitive-level options, accessibility, and keyboard behavior.
 
-```tsx
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
+## Composition
+
+Use the following composition to build a `ContextMenu`:
+
+```text
+ContextMenu
+├── ContextMenuTrigger
+└── ContextMenuContent
+    ├── ContextMenuGroup
+    │   ├── ContextMenuLabel
+    │   ├── ContextMenuItem
+    │   └── ContextMenuItem
+    ├── ContextMenuSeparator
+    ├── ContextMenuGroup
+    │   ├── ContextMenuLabel
+    │   ├── ContextMenuCheckboxItem
+    │   └── ContextMenuCheckboxItem
+    ├── ContextMenuSeparator
+    ├── ContextMenuGroup
+    │   ├── ContextMenuLabel
+    │   └── ContextMenuRadioGroup
+    │       ├── ContextMenuRadioItem
+    │       └── ContextMenuRadioItem
+    └── ContextMenuSub
+        ├── ContextMenuSubTrigger
+        └── ContextMenuSubContent
+            └── ContextMenuGroup
+                ├── ContextMenuItem
+                └── ContextMenuItem
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L332-L387
+## Basic
 
-```
+A simple context menu with a few actions.
 
-### With Icons
+<ComponentPreview name="context-menu-basic" />
 
-```tsx
-import {
-  Archive,
-  ClipboardPaste,
-  Copy,
-  Scissors,
-  Trash,
-} from "lucide-solid";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+## Submenu
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L66-L99
+Use `ContextMenuSub` to nest secondary actions.
 
-```
+<ComponentPreview name="context-menu-submenu" />
 
-### With Shortcuts
+## Shortcuts
 
-```tsx
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+Add `ContextMenuShortcut` to show keyboard hints.
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L101-L138
+<ComponentPreview name="context-menu-shortcuts" />
 
-```
+## Groups
 
-### With Submenu
+Group related actions and separate them with dividers.
 
-```tsx
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+<ComponentPreview name="context-menu-groups" />
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L140-L180
+## Icons
 
-```
+Combine icons with labels for quick scanning.
 
-### With Groups, Labels & Separators
+<ComponentPreview name="context-menu-icons" />
 
-```tsx
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuLabel,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+## Checkboxes
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L182-L243
+Use `ContextMenuCheckboxItem` for toggles.
 
-```
+<ComponentPreview name="context-menu-checkboxes" />
 
-### With Checkboxes
+## Radio
 
-```tsx
-import {
-  ContextMenu,
-  ContextMenuCheckboxItem,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+Use `ContextMenuRadioItem` for exclusive choices.
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L245-L262
+<ComponentPreview name="context-menu-radio" />
 
-```
+## Destructive
 
-### With Radio Group
+Use `variant="destructive"` to style the menu item as destructive.
 
-```tsx
-import { createSignal } from "solid-js";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuLabel,
-  ContextMenuRadioGroup,
-  ContextMenuRadioItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+<ComponentPreview name="context-menu-destructive" />
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L264-L295
+## Sides
 
-```
+Control submenu placement with side and align props.
 
-### With Destructive Items
+<ComponentPreview name="context-menu-sides" />
 
-```tsx
-import { Archive, Pencil, Share, Trash } from "lucide-solid";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L297-L330
-
-```
-
-### In Dialog
-
-```tsx
-import { ClipboardPaste, Copy, Scissors, Trash } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuGroup,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/context-menu-example.tsx#L389-L450
-
-```
+See the [Kobalte Context Menu API reference](https://kobalte.dev/docs/core/components/context-menu#api-reference) for primitive props, keyboard behavior, and accessibility details.
