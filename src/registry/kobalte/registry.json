@@ -2080,6 +2080,18 @@
       ]
     },
     {
+      "name": "toast",
+      "type": "registry:ui",
+      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/toast.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "toggle",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "class-variance-authority"],
