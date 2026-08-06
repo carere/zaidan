@@ -2,126 +2,112 @@
 title: Checkbox
 slug: checkbox
 description: A control that allows the user to toggle between checked and not checked.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/checkbox
+  api: https://kobalte.dev/docs/core/components/checkbox#api-reference
 ---
 
-# Checkbox
+The Checkbox component is built on top of [Kobalte Checkbox](https://kobalte.dev/docs/core/components/checkbox), which provides accessible checked, disabled, and keyboard interaction behavior.
 
-A control that allows the user to toggle between checked and not checked.
+<ComponentPreview name="checkbox-demo" previewClass="h-80" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/checkbox
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
 
 ```package-install
 @kobalte/core
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/checkbox.tsx showLineNumbers
+<ComponentSource name="checkbox" title="components/ui/checkbox.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Basic
+</CodeTabs>
 
-```tsx
+## Usage
+
+```tsx showLineNumbers
 import { Checkbox } from "~/components/ui/checkbox";
-import { Field, FieldLabel } from "~/components/ui/field";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L36-L45
-
+```tsx showLineNumbers
+<Checkbox />
 ```
 
-### With Description
+## Checked State
 
-```tsx
-import { Checkbox } from "~/components/ui/checkbox";
-import { Field, FieldContent, FieldDescription, FieldLabel } from "~/components/ui/field";
+Use `defaultChecked` for uncontrolled checkboxes, or `checked` and `onCheckedChange` to control the state.
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+
+const [checked, setChecked] = createSignal(false);
+
+<Checkbox checked={checked()} onCheckedChange={setChecked} />;
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L47-L61
+## Invalid State
 
-```
+Set `aria-invalid` on the checkbox and `data-invalid` on the field wrapper to show the invalid styles.
 
-### Invalid
+<ComponentPreview name="checkbox-invalid" />
 
-```tsx
-import { Checkbox } from "~/components/ui/checkbox";
-import { Field, FieldLabel } from "~/components/ui/field";
-```
+## Basic
 
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L63-L72
+Pair the checkbox with `Field` and `FieldLabel` for proper layout and labeling.
 
-```
+<ComponentPreview name="checkbox-basic" />
 
-### Disabled
+## Description
 
-```tsx
-import { Checkbox } from "~/components/ui/checkbox";
-import { Field, FieldLabel } from "~/components/ui/field";
-```
+Use `FieldContent` and `FieldDescription` for helper text.
 
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L74-L83
+<ComponentPreview name="checkbox-description" />
 
-```
+## Disabled
 
-### With Title
+Use the `disabled` prop to prevent interaction and add the `data-disabled` attribute to the `<Field>` component for disabled styles.
 
-```tsx
-import { Checkbox } from "~/components/ui/checkbox";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldTitle,
-} from "~/components/ui/field";
-```
+<ComponentPreview name="checkbox-disabled" />
 
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L85-L114
+## Group
 
-```
+Use multiple fields to create a checkbox list.
 
-### In Table
+<ComponentPreview name="checkbox-group" />
 
-```tsx
-import { createSignal, For } from "solid-js";
-import { Checkbox } from "~/components/ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
+## Table
 
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L143-L200
+<ComponentPreview name="checkbox-table" previewClass="p-4 md:p-8" />
 
-```
+## API Reference
 
-### Group
-
-```tsx
-import { Checkbox } from "~/components/ui/checkbox";
-import { Field, FieldLabel } from "~/components/ui/field";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/checkbox-example.tsx#L202-L234
-
-```
+For primitive props and keyboard behavior, see the [Kobalte Checkbox API reference](https://kobalte.dev/docs/core/components/checkbox#api-reference).
