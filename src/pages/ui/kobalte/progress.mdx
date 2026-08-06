@@ -2,122 +2,105 @@
 title: Progress
 slug: progress
 description: Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/progress
+  api: https://kobalte.dev/docs/core/components/progress#api-reference
 ---
 
-# Progress
+The Progress component is built on top of [Kobalte Progress](https://kobalte.dev/docs/core/components/progress), which provides the accessible progress primitive.
 
-Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
+<ComponentPreview name="progress-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/progress
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/progress.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core
 ```
 
-## With Label
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx
+<ComponentSource name="progress" title="components/ui/progress.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { Progress } from "~/components/ui/progress";
+```
+
+```tsx showLineNumbers
+<Progress value={33} />
+```
+
+## Composition
+
+### With label and value
+
+Use `ProgressLabel` and `ProgressValue` to add a label and value display.
+
+```tsx showLineNumbers
 import {
   Progress,
   ProgressLabel,
   ProgressValue,
 } from "~/components/ui/progress";
-```
 
-```tsx showLineNumbers
-<Progress value={75}>
-  <div class="flex w-full justify-between">
-    <ProgressLabel>Loading...</ProgressLabel>
-    <ProgressValue />
-  </div>
+<Progress value={56} class="w-full max-w-sm">
+  <ProgressLabel>Upload progress</ProgressLabel>
+  <ProgressValue />
 </Progress>
 ```
 
-## Indeterminate
-
-Use the `indeterminate` prop to show an indeterminate progress state.
-
-```tsx showLineNumbers
-<Progress indeterminate>
-  <ProgressLabel>Processing...</ProgressLabel>
-</Progress>
+```text
+Progress
+├── ProgressLabel
+├── ProgressValue
+└── ProgressTrack
+    └── ProgressIndicator
 ```
 
-## Custom Value Range
+## Label
 
-Use `minValue` and `maxValue` to set custom value ranges.
+Use `ProgressLabel` and `ProgressValue` to add a label and value display.
 
-```tsx showLineNumbers
-<Progress value={5} minValue={0} maxValue={10}>
-  <div class="flex w-full justify-between">
-    <ProgressLabel>5 of 10 tasks completed</ProgressLabel>
-    <ProgressValue />
-  </div>
-</Progress>
-```
+<ComponentPreview name="progress-label" />
 
-## Examples
+## Controlled
 
-Here are the source code of all the examples from the preview page:
+A progress bar that can be controlled by a slider.
 
-### Progress Bar
+<ComponentPreview name="progress-controlled" />
 
-```tsx
-import { Progress } from "~/components/ui/progress";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/progress-example.tsx#L26-L38
-
-```
-
-### With Label
-
-```tsx
-import { Progress, ProgressLabel, ProgressValue } from "~/components/ui/progress";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/progress-example.tsx#L40-L49
-
-```
-
-### Controlled
-
-```tsx
-import { createSignal } from "solid-js";
-import { Progress } from "~/components/ui/progress";
-import { Slider } from "~/components/ui/slider";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/progress-example.tsx#L51-L68
-
-```
-
-### File Upload List
-
-```tsx
-import { FileIcon } from "lucide-solid";
-import { For } from "solid-js";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Progress } from "~/components/ui/progress";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/progress-example.tsx#L70-L122
-
-```
+See the [Kobalte Progress API reference](https://kobalte.dev/docs/core/components/progress#api-reference) for primitive props, accessibility, and progress semantics.
