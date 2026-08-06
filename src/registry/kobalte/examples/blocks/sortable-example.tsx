@@ -1,5 +1,6 @@
 import { FileText, GripVertical, Image as ImageIcon, Music, Video } from "lucide-solid";
 import { createSignal, For } from "solid-js";
+import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Sortable, SortableItem, SortableItemHandle } from "@/registry/kobalte/blocks/sortable";
 import { Badge } from "@/registry/kobalte/ui/badge";
@@ -10,15 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/kobalte/ui/card";
+import { Toaster } from "@/registry/kobalte/ui/sonner";
 import { Switch } from "@/registry/kobalte/ui/switch";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
 
 export default function SortableExample() {
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <ExampleWrapper class="lg:grid-cols-1 2xl:grid-cols-1">
         <SortableBasic />
         <SortableGrid />
@@ -113,9 +112,7 @@ function SortableBasic() {
         class="mx-auto w-full max-w-xl space-y-2"
         onValueChange={(newItems) => {
           setItems(newItems);
-          toastManager.add({
-            type: "success",
-            title: "Items reordered successfully!",
+          toast.success("Items reordered successfully!", {
             description: newItems.map((item, index) => `${index + 1}. ${item.title}`).join(", "),
           });
         }}
@@ -260,9 +257,7 @@ function SortableGrid() {
         value={items()}
         onValueChange={(newItems) => {
           setItems(newItems);
-          toastManager.add({
-            type: "success",
-            title: "Grid items reordered successfully!",
+          toast.success("Grid items reordered successfully!", {
             description: `New order: ${newItems
               .map((item, index) => `${index + 1}. ${item.title}`)
               .join(", ")}`,
