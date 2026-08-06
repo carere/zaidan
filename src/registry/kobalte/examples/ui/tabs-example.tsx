@@ -157,7 +157,7 @@ function TabsWithContent() {
           <TabsTrigger value="password">Password</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
-        <div class="rounded-lg border p-4">
+        <div class="border style-vega:rounded-lg style-vega:p-6 style-nova:rounded-lg style-nova:p-4 style-lyra:rounded-none style-lyra:p-4 style-maia:rounded-xl style-maia:p-6 style-mira:rounded-md style-mira:p-4 style-luma:rounded-xl style-luma:p-6 style-rhea:rounded-xl style-rhea:p-6">
           <TabsContent value="account">
             Manage your account preferences and profile information.
           </TabsContent>
@@ -182,7 +182,7 @@ function TabsLineWithContent() {
           <TabsTrigger value="password">Password</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
-        <div class="rounded-lg border p-4">
+        <div class="border style-vega:rounded-lg style-vega:p-6 style-nova:rounded-lg style-nova:p-4 style-lyra:rounded-none style-lyra:p-4 style-maia:rounded-xl style-maia:p-6 style-mira:rounded-md style-mira:p-4 style-luma:rounded-xl style-luma:p-6 style-rhea:rounded-xl style-rhea:p-6">
           <TabsContent value="account">
             Manage your account preferences and profile information.
           </TabsContent>
@@ -238,7 +238,7 @@ function TabsWithDropdown() {
           </DropdownMenu>
         </div>
 
-        <div class="rounded-lg border p-4">
+        <div class="border style-vega:rounded-lg style-vega:p-6 style-nova:rounded-lg style-nova:p-4 style-lyra:rounded-none style-lyra:p-4 style-maia:rounded-xl style-maia:p-6 style-mira:rounded-md style-mira:p-4 style-luma:rounded-xl style-luma:p-6 style-rhea:rounded-xl style-rhea:p-6">
           <TabsContent value="overview">
             View your dashboard metrics and key performance indicators.
           </TabsContent>
@@ -261,7 +261,7 @@ function TabsVertical() {
           <TabsTrigger value="password">Password</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
-        <div class="rounded-lg border p-4">
+        <div class="border style-vega:rounded-lg style-vega:p-6 style-nova:rounded-lg style-nova:p-4 style-lyra:rounded-none style-lyra:p-4 style-maia:rounded-xl style-maia:p-6 style-mira:rounded-md style-mira:p-4 style-luma:rounded-xl style-luma:p-6 style-rhea:rounded-xl style-rhea:p-6">
           <TabsContent value="account">
             Manage your account preferences and profile information.
           </TabsContent>
@@ -293,7 +293,7 @@ function TabsWithInputAndButton() {
             <Button>Action</Button>
           </div>
         </div>
-        <div class="rounded-lg border p-4">
+        <div class="border style-vega:rounded-lg style-vega:p-6 style-nova:rounded-lg style-nova:p-4 style-lyra:rounded-none style-lyra:p-4 style-maia:rounded-xl style-maia:p-6 style-mira:rounded-md style-mira:p-4 style-luma:rounded-xl style-luma:p-6 style-rhea:rounded-xl style-rhea:p-6">
           <TabsContent value="overview">
             View your dashboard metrics and key performance indicators.
           </TabsContent>
