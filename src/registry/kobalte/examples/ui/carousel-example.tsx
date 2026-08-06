@@ -27,7 +27,7 @@ function CarouselBasic() {
           <For each={Array.from({ length: 5 })}>
             {(_, index) => (
               <CarouselItem>
-                <div class="p-1">
+                <div class="p-1 style-luma:p-2.5">
                   <Card>
                     <CardContent class="flex aspect-square items-center justify-center p-6">
                       <span class="font-semibold text-4xl">{index() + 1}</span>
@@ -58,7 +58,7 @@ function CarouselMultiple() {
           <For each={Array.from({ length: 5 })}>
             {(_, index) => (
               <CarouselItem class="sm:basis-1/2 lg:basis-1/3">
-                <div class="p-1">
+                <div class="p-1 style-luma:p-2.5">
                   <Card>
                     <CardContent class="flex aspect-square items-center justify-center p-6">
                       <span class="font-semibold text-3xl">{index() + 1}</span>
@@ -84,7 +84,7 @@ function CarouselWithGap() {
           <For each={Array.from({ length: 5 })}>
             {(_, index) => (
               <CarouselItem class="pl-1 md:basis-1/2">
-                <div class="p-1">
+                <div class="p-1 style-luma:p-2.5">
                   <Card>
                     <CardContent class="flex aspect-square items-center justify-center p-6">
                       <span class="font-semibold text-2xl">{index() + 1}</span>
