@@ -1,6 +1,5 @@
 import { Check, Copy } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
-import { toast } from "solid-sonner";
 import { DEFAULT_CONFIG } from "@/lib/config";
 import { encodeDesignSystemPreset } from "@/lib/preset";
 import type { DesignSystemConfig } from "@/lib/types";
@@ -17,6 +16,7 @@ import {
 } from "@/registry/kobalte/ui/dialog";
 import { FieldGroup } from "@/registry/kobalte/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
+import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 type PackageManager = "pnpm" | "npm" | "yarn" | "bun";
@@ -33,6 +33,7 @@ export function CliButton(
 ) {
   const [packageManager, setPackageManager] = createSignal<PackageManager>("bun");
   const [hasCopied, setHasCopied] = createSignal(false);
+  const toastManager = createToastManager();
 
   createEffect(() => {
     if (hasCopied()) {
@@ -83,74 +84,81 @@ export function CliButton(
     try {
       await navigator.clipboard.writeText(commands()[packageManager()]);
       setHasCopied(true);
-      toast.success("Command copied to clipboard");
+      toastManager.add({ type: "success", description: "Command copied to clipboard" });
     } catch (err) {
       console.error("Failed to copy command:", err);
-      toast.error("Failed to copy command");
+      toastManager.add({
+        type: "error",
+        description: "Failed to copy command",
+        priority: "high",
+      });
     }
   };
 
   return (
-    <Dialog>
-      <DialogTrigger as={Button} size="sm" class={props.class}>
-        <span>{props.label ?? "Setup Project"}</span>
-      </DialogTrigger>
+    <>
+      <Toaster toastManager={toastManager} />
+      <Dialog>
+        <DialogTrigger as={Button} size="sm" class={props.class}>
+          <span>{props.label ?? "Setup Project"}</span>
+        </DialogTrigger>
 
-      <DialogContent class="min-w-0 overflow-hidden rounded-xl ring-4 sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Install Configuration</DialogTitle>
-          <DialogDescription>
-            Run this command to add your design system configuration to your project.
-          </DialogDescription>
-        </DialogHeader>
-        <FieldGroup class="gap-3">
-          <Tabs
-            class="min-w-0 gap-0 overflow-hidden rounded-lg border bg-surface"
-            value={packageManager()}
-            onChange={(value) => setPackageManager(value as PackageManager)}
-          >
-            <div class="flex items-center gap-2 p-2">
-              <TabsList class="h-auto rounded-none bg-transparent p-0 font-mono *:data-[slot=tabs-trigger]:data-[state=active]:border-input *:data-[slot=tabs-trigger]:h-7 *:data-[slot=tabs-trigger]:border *:data-[slot=tabs-trigger]:border-transparent *:data-[slot=tabs-trigger]:pt-0.5 *:data-[slot=tabs-trigger]:shadow-none! group-data-[orientation=horizontal]/tabs:h-8">
-                <TabsTrigger value="pnpm">pnpm</TabsTrigger>
-                <TabsTrigger value="npm">npm</TabsTrigger>
-                <TabsTrigger value="yarn">yarn</TabsTrigger>
-                <TabsTrigger value="bun">bun</TabsTrigger>
-              </TabsList>
-              <Tooltip>
-                <TooltipTrigger
-                  as={Button}
-                  class="ml-auto size-7 rounded-lg"
-                  size="icon-sm"
-                  variant="ghost"
-                  onClick={handleCopy}
-                >
-                  {hasCopied() ? <Check class="size-4" /> : <Copy class="size-4" />}
-                  <span class="sr-only">Copy command</span>
-                </TooltipTrigger>
-                <TooltipContent>{hasCopied() ? "Copied!" : "Copy command"}</TooltipContent>
-              </Tooltip>
-            </div>
+        <DialogContent class="min-w-0 overflow-hidden rounded-xl ring-4 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Install Configuration</DialogTitle>
+            <DialogDescription>
+              Run this command to add your design system configuration to your project.
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup class="gap-3">
+            <Tabs
+              class="min-w-0 gap-0 overflow-hidden rounded-lg border bg-surface"
+              value={packageManager()}
+              onChange={(value) => setPackageManager(value as PackageManager)}
+            >
+              <div class="flex items-center gap-2 p-2">
+                <TabsList class="h-auto rounded-none bg-transparent p-0 font-mono *:data-[slot=tabs-trigger]:data-[state=active]:border-input *:data-[slot=tabs-trigger]:h-7 *:data-[slot=tabs-trigger]:border *:data-[slot=tabs-trigger]:border-transparent *:data-[slot=tabs-trigger]:pt-0.5 *:data-[slot=tabs-trigger]:shadow-none! group-data-[orientation=horizontal]/tabs:h-8">
+                  <TabsTrigger value="pnpm">pnpm</TabsTrigger>
+                  <TabsTrigger value="npm">npm</TabsTrigger>
+                  <TabsTrigger value="yarn">yarn</TabsTrigger>
+                  <TabsTrigger value="bun">bun</TabsTrigger>
+                </TabsList>
+                <Tooltip>
+                  <TooltipTrigger
+                    as={Button}
+                    class="ml-auto size-7 rounded-lg"
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={handleCopy}
+                  >
+                    {hasCopied() ? <Check class="size-4" /> : <Copy class="size-4" />}
+                    <span class="sr-only">Copy command</span>
+                  </TooltipTrigger>
+                  <TooltipContent>{hasCopied() ? "Copied!" : "Copy command"}</TooltipContent>
+                </Tooltip>
+              </div>
 
-            <For each={Object.entries(commands())}>
-              {([pm, cmd]) => (
-                <TabsContent value={pm}>
-                  <div class="relative overflow-hidden border-border/50 border-t bg-surface px-3 py-3 text-surface-foreground">
-                    <div class="no-scrollbar overflow-x-auto">
-                      <code class="whitespace-nowrap font-mono text-sm">{cmd}</code>
+              <For each={Object.entries(commands())}>
+                {([pm, cmd]) => (
+                  <TabsContent value={pm}>
+                    <div class="relative overflow-hidden border-border/50 border-t bg-surface px-3 py-3 text-surface-foreground">
+                      <div class="no-scrollbar overflow-x-auto">
+                        <code class="whitespace-nowrap font-mono text-sm">{cmd}</code>
+                      </div>
                     </div>
-                  </div>
-                </TabsContent>
-              )}
-            </For>
-          </Tabs>
-        </FieldGroup>
+                  </TabsContent>
+                )}
+              </For>
+            </Tabs>
+          </FieldGroup>
 
-        <DialogFooter class="-mx-6 mt-2 -mb-6 flex flex-col gap-2 border-t bg-muted/50 p-6 sm:flex-col">
-          <DialogClose as={Button} size="sm" class="h-9 w-full rounded-lg" onClick={handleCopy}>
-            Copy Command
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter class="-mx-6 mt-2 -mb-6 flex flex-col gap-2 border-t bg-muted/50 p-6 sm:flex-col">
+            <DialogClose as={Button} size="sm" class="h-9 w-full rounded-lg" onClick={handleCopy}>
+              Copy Command
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

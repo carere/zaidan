@@ -1733,18 +1733,6 @@
       ]
     },
     {
-      "name": "sonner",
-      "type": "registry:ui",
-      "dependencies": ["lucide-solid", "solid-sonner"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/color-mode.json"],
-      "files": [
-        {
-          "path": "src/registry/kobalte/ui/sonner.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
       "name": "sortable",
       "type": "registry:block",
       "title": "Sortable",
