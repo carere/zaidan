@@ -7,11 +7,13 @@ component: true
 
 The Chart component is built with [Solid Recharts](https://github.com/yumemi-thomas/solid-recharts), a SolidJS port of Recharts. It provides configuration-aware colors, tooltips, and legends while leaving chart composition in your hands.
 
-<ComponentPreview
-  name="chart-demo"
-  previewClass="h-auto p-0 [&>div]:w-full [&>div]:border-none [&>div]:shadow-none"
-  hideCode
-/>
+<ClientOnly>
+  <ComponentPreview
+    name="chart-demo"
+    previewClass="h-auto p-0 [&>div]:w-full [&>div]:border-none [&>div]:shadow-none"
+    hideCode
+  />
+</ClientOnly>
 
 Charts work with the rest of the component library and are fully customizable. Browse the complete collection on the [Charts page](/charts/area).
 
@@ -118,7 +120,9 @@ const chartConfig = {
 
 Give `ChartContainer` a height, minimum height, or aspect ratio so its responsive container can measure on first render.
 
-<ComponentPreview name="chart-example" previewClass="h-80" />
+<ClientOnly>
+  <ComponentPreview name="chart-example" previewClass="h-80" />
+</ClientOnly>
 
 ### Add a Grid
 
@@ -136,7 +140,9 @@ import { Bar, BarChart, CartesianGrid } from "solid-recharts";
 </ChartContainer>;
 ```
 
-<ComponentPreview name="chart-example-grid" previewClass="h-80" />
+<ClientOnly>
+  <ComponentPreview name="chart-example-grid" previewClass="h-80" />
+</ClientOnly>
 
 ### Add an Axis
 
@@ -161,7 +167,9 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "solid-recharts";
 </ChartContainer>;
 ```
 
-<ComponentPreview name="chart-example-axis" previewClass="h-80" />
+<ClientOnly>
+  <ComponentPreview name="chart-example-axis" previewClass="h-80" />
+</ClientOnly>
 
 ### Add Tooltip
 
@@ -173,7 +181,9 @@ import { ChartTooltip, ChartTooltipContent } from "~/components/ui/chart";
 <ChartTooltip content={(props) => <ChartTooltipContent {...props} />} />;
 ```
 
-<ComponentPreview name="chart-example-tooltip" previewClass="h-80" />
+<ClientOnly>
+  <ComponentPreview name="chart-example-tooltip" previewClass="h-80" />
+</ClientOnly>
 
 Hover a bar to see the tooltip.
 
@@ -187,7 +197,9 @@ import { ChartLegend, ChartLegendContent } from "~/components/ui/chart";
 <ChartLegend content={(props) => <ChartLegendContent {...props} />} />;
 ```
 
-<ComponentPreview name="chart-example-legend" previewClass="h-80" />
+<ClientOnly>
+  <ComponentPreview name="chart-example-legend" previewClass="h-80" />
+</ClientOnly>
 
 ## Chart Config
 
@@ -274,7 +286,9 @@ const chartData = [
 
 ## Tooltip
 
-<ComponentPreview name="chart-tooltip" hideCode />
+<ClientOnly>
+  <ComponentPreview name="chart-tooltip" hideCode />
+</ClientOnly>
 
 Use `hideLabel`, `hideIndicator`, and `indicator` to customize tooltip content. Use `labelKey` and `nameKey` when the chart data uses different field names.
 
@@ -340,7 +354,9 @@ const chartConfig = {
   safari: { label: "Safari", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
-<ChartLegend content={(props) => <ChartLegendContent {...props} nameKey="browser" />} />;
+<ChartLegend
+  content={(props) => <ChartLegendContent {...props} nameKey="browser" />}
+/>;
 ```
 
 ## Accessibility

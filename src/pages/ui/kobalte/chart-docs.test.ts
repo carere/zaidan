@@ -19,14 +19,20 @@ describe("Chart documentation", () => {
     const page = await readFile(pagePath, "utf8");
 
     expect(page).toContain("Solid Recharts");
-    expect(page).toContain("https://github.com/yumemi-thomas/solid-recharts#readme");
+    expect(page).toContain(
+      "https://github.com/yumemi-thomas/solid-recharts#readme",
+    );
     expect(page).toContain("https://recharts.github.io/en-US/api/");
+    expect(page.match(/<ClientOnly>/g)).toHaveLength(demoNames.length);
 
     for (const name of demoNames) {
-      expect(page).toContain(`<ComponentPreview name="${name}"`);
+      expect(page).toMatch(new RegExp(`<ComponentPreview\\s+name="${name}"`));
 
       const demoPath = fileURLToPath(
-        new URL(`../../../registry/kobalte/examples/docs/${name}.tsx`, import.meta.url),
+        new URL(
+          `../../../registry/kobalte/examples/docs/${name}.tsx`,
+          import.meta.url,
+        ),
       );
       const demo = await readFile(demoPath, "utf8");
 
