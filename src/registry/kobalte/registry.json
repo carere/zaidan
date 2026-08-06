@@ -138,7 +138,7 @@
     {
       "name": "calendar",
       "type": "registry:ui",
-      "dependencies": ["@corvu/calendar", "date-fns", "lucide-solid"],
+      "dependencies": ["@corvu/calendar", "@date-fns/tz", "date-fns", "lucide-solid"],
       "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
