@@ -1259,7 +1259,7 @@
 }
 
 .z-toggle-group-item {
-  @apply data-[state=on]:bg-muted group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 group-data-[spacing=0]/toggle-group:shadow-none group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-l-2xl group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:first:rounded-t-2xl group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-r-2xl group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:last:rounded-b-2xl group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5;
+  @apply data-pressed:bg-muted group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 group-data-[spacing=0]/toggle-group:shadow-none group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:first:rounded-l-2xl group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:first:rounded-t-2xl group-data-[orientation=horizontal]/toggle-group:data-[spacing=0]:last:rounded-r-2xl group-data-[orientation=vertical]/toggle-group:data-[spacing=0]:last:rounded-b-2xl group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5;
 }
 
 /* MARK: Tooltip */
