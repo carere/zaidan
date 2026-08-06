@@ -169,7 +169,7 @@ function CheckboxInTable() {
         <TableHeader>
           <TableRow>
             <TableHead class="w-8">
-              <Checkbox id="select-all" checked={selectAll()} onChange={handleSelectAll} />
+              <Checkbox id="select-all" checked={selectAll()} onCheckedChange={handleSelectAll} />
             </TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
@@ -184,7 +184,7 @@ function CheckboxInTable() {
                   <Checkbox
                     id={`row-${row.id}`}
                     checked={selectedRows().has(row.id)}
-                    onChange={(checked) => handleSelectRow(row.id, checked)}
+                    onCheckedChange={(checked) => handleSelectRow(row.id, checked)}
                   />
                 </TableCell>
                 <TableCell class="font-medium">{row.name}</TableCell>
