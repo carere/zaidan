@@ -1,4 +1,5 @@
 import { Example, ExampleWrapper } from "@/components/example";
+import { Field, FieldLabel } from "@/registry/kobalte/ui/field";
 import {
   Pagination,
   PaginationContent,
@@ -8,8 +9,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/registry/kobalte/ui/pagination";
-import { Field, FieldLabel } from "../../ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/registry/kobalte/ui/select";
 
 export default function PaginationExample() {
   return (
@@ -81,33 +88,23 @@ function PaginationSimple() {
 }
 
 function PaginationIconsOnly() {
-  const items = [
-    { value: "10", label: "10" },
-    { value: "25", label: "25" },
-    { value: "50", label: "50" },
-    { value: "100", label: "100" },
-  ];
-
   return (
     <Example title="With Select">
       <div class="flex items-center justify-between gap-4">
         <Field orientation="horizontal" class="w-fit">
           <FieldLabel for="select-rows-per-page">Rows per page</FieldLabel>
-          <Select<(typeof items)[number]>
-            options={items}
-            optionValue="value"
-            optionTextValue="label"
-            defaultValue={items[1]}
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
+          <Select defaultValue="25">
             <SelectTrigger class="w-20" id="select-rows-per-page">
-              <SelectValue<(typeof items)[number]>>
-                {(state) => state.selectedOption().label}
-              </SelectValue>
+              <SelectValue />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent align="start">
+              <SelectGroup>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </Field>
         <Pagination class="mx-0 w-auto">
