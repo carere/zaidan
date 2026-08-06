@@ -42,14 +42,18 @@ function WithIcons() {
         <Alert>
           <CircleAlert />
           <AlertTitle>
-            Let&apos;s try one with icon, title and a <a href="#">saved-changes link</a>.
+            Let&apos;s try one with icon, title and a{" "}
+            <a href="#" aria-label="link — Alert details">
+              link
+            </a>
+            .
           </AlertTitle>
         </Alert>
         <Alert>
           <CircleAlert />
           <AlertDescription>
-            This one has an icon and a description only. No title. It links to the{" "}
-            <a href="#">alert details</a> and <a href="#">related guidance</a>.
+            This one has an icon and a description only. No title. <a href="#">But it has a link</a>{" "}
+            and a <a href="#">second link</a>.
           </AlertDescription>
         </Alert>
 
