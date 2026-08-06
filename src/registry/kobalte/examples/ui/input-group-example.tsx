@@ -17,7 +17,6 @@ import {
   Trash,
 } from "lucide-solid";
 import { createSignal } from "solid-js";
-import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/registry/kobalte/ui/button-group";
@@ -56,21 +55,27 @@ import {
 } from "@/registry/kobalte/ui/popover";
 import { Spinner } from "@/registry/kobalte/ui/spinner";
 import { Textarea } from "@/registry/kobalte/ui/textarea";
+import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
+
+const toastManager = createToastManager();
 
 export default function InputGroupExample() {
   const [country, setCountry] = createSignal("+1");
 
   return (
-    <ExampleWrapper class="min-w-0">
-      <InputGroupBasic />
-      <InputGroupWithAddons />
-      <InputGroupWithButtons />
-      <InputGroupWithTooltip country={country()} setCountry={setCountry} />
-      <InputGroupWithKbd />
-      <InputGroupInCard />
-      <InputGroupTextareaExamples />
-    </ExampleWrapper>
+    <>
+      <Toaster toastManager={toastManager} />
+      <ExampleWrapper class="min-w-0">
+        <InputGroupBasic />
+        <InputGroupWithAddons />
+        <InputGroupWithButtons />
+        <InputGroupWithTooltip country={country()} setCountry={setCountry} />
+        <InputGroupWithKbd />
+        <InputGroupInCard />
+        <InputGroupTextareaExamples />
+      </ExampleWrapper>
+    </>
   );
 }
 
@@ -169,7 +174,10 @@ function InputGroupWithAddons() {
             <InputGroupInput id="input-icon-both-10" />
             <InputGroupAddon align="inline-end">
               <Star />
-              <InputGroupButton size="icon-xs" onClick={() => toast("Copied to clipboard")}>
+              <InputGroupButton
+                size="icon-xs"
+                onClick={() => toastManager.add({ description: "Copied to clipboard" })}
+              >
                 <Copy />
               </InputGroupButton>
             </InputGroupAddon>
@@ -322,7 +330,10 @@ function InputGroupWithTooltip(props: { country: string; setCountry: (value: str
             <InputGroupAddon class="pl-1 text-muted-foreground">https://</InputGroupAddon>
             <InputGroupInput id="input-secure-19" />
             <InputGroupAddon align="inline-end">
-              <InputGroupButton size="icon-xs" onClick={() => toast("Added to favorites")}>
+              <InputGroupButton
+                size="icon-xs"
+                onClick={() => toastManager.add({ description: "Added to favorites" })}
+              >
                 <Star />
               </InputGroupButton>
             </InputGroupAddon>
