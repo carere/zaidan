@@ -2,49 +2,71 @@
 title: Scroll Area
 slug: scroll-area
 description: Augments native scroll functionality for custom, cross-browser styling.
+component: true
 ---
 
-# Scroll Area
-
-Augments native scroll functionality for custom, cross-browser styling.
+<ComponentPreview name="scroll-area-demo" previewClass="h-96" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/scroll-area
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/scroll-area.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
-```
+<Step>Copy and paste the following code into your project.</Step>
 
-## Examples
+<ComponentSource name="scroll-area" title="components/ui/scroll-area.tsx" />
 
-Here are the source code of all the examples from the preview page:
+<Step>Update the import paths to match your project setup.</Step>
 
-### Vertical
+</Steps>
 
-```tsx
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Separator } from "~/components/ui/separator";
-```
+</TabsContent>
 
-```tsx file=../../../registry/kobalte/examples/ui/scroll-area-example.tsx#L33-L51
+</CodeTabs>
 
-```
+## Usage
 
-### Horizontal
-
-```tsx
+```tsx showLineNumbers
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/scroll-area-example.tsx#L53-L81
-
+```tsx showLineNumbers
+<ScrollArea class="h-[200px] w-[350px] rounded-md border p-4">
+  Your scrollable content here.
+</ScrollArea>
 ```
+
+## Composition
+
+Use the following composition to build a `ScrollArea`:
+
+```text
+ScrollArea
+└── ScrollBar
+```
+
+## Horizontal
+
+Use `ScrollBar` with `orientation="horizontal"` for horizontal scrolling.
+
+<ComponentPreview name="scroll-area-horizontal-demo" />
+
+## API Reference
+
+The Scroll Area API is compatible with [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area#api-reference).
