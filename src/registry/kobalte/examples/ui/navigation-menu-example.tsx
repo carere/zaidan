@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
+import { CircleAlert } from "lucide-solid";
 import { type ComponentProps, For, splitProps } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
@@ -6,6 +7,7 @@ import {
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
+  NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/registry/kobalte/ui/navigation-menu";
@@ -59,41 +61,64 @@ function NavigationMenuBasic() {
   return (
     <Example title="Basic">
       <NavigationMenu>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul class="w-96 rounded-md bg-popover p-2">
-              <ListItem href="#" title="Introduction">
-                Re-usable components built with Tailwind CSS.
-              </ListItem>
-              <ListItem href="#" title="Installation">
-                How to install dependencies and structure your app.
-              </ListItem>
-              <ListItem href="#" title="Typography">
-                Styles for headings, paragraphs, lists...etc
-              </ListItem>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul class="grid w-[400px] gap-2 rounded-md bg-popover p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-              <For each={components}>
-                {(component) => (
-                  <ListItem title={component.title} href={component.href}>
-                    {component.description}
-                  </ListItem>
-                )}
-              </For>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink href="/docs" class={navigationMenuTriggerStyle()}>
-            Documentation
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul class="w-96">
+                <ListItem href="#" title="Introduction">
+                  Re-usable components built with Tailwind CSS.
+                </ListItem>
+                <ListItem href="#" title="Installation">
+                  How to install dependencies and structure your app.
+                </ListItem>
+                <ListItem href="#" title="Typography">
+                  Styles for headings, paragraphs, lists...etc
+                </ListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul class="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                <For each={components}>
+                  {(component) => (
+                    <ListItem title={component.title} href={component.href}>
+                      {component.description}
+                    </ListItem>
+                  )}
+                </For>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul class="grid w-[200px]">
+                <li>
+                  <NavigationMenuLink href="#" class="flex-row items-center gap-2">
+                    <CircleAlert />
+                    Backlog
+                  </NavigationMenuLink>
+                  <NavigationMenuLink href="#" class="flex-row items-center gap-2">
+                    <CircleAlert />
+                    To Do
+                  </NavigationMenuLink>
+                  <NavigationMenuLink href="#" class="flex-row items-center gap-2">
+                    <CircleAlert />
+                    Done
+                  </NavigationMenuLink>
+                </li>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="/docs" class={navigationMenuTriggerStyle()}>
+              Documentation
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
       </NavigationMenu>
     </Example>
   );
@@ -104,7 +129,7 @@ function ListItem(props: ComponentProps<"li"> & { href: string }) {
   return (
     <li {...others}>
       <NavigationMenuLink href={local.href}>
-        <div class="flex flex-col gap-1 style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+        <div class="flex flex-col gap-1 style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm style-luma:text-sm">
           <div class="font-medium leading-none">{local.title}</div>
           <div class="line-clamp-2 text-muted-foreground">{local.children}</div>
         </div>
