@@ -2,50 +2,53 @@
 title: Pagination
 slug: pagination
 description: Pagination with page navigation, next and previous links.
+component: true
 ---
 
-# Pagination
-
-Pagination with page navigation, next and previous links.
+<ComponentPreview name="pagination-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/pagination
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/pagination.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+lucide-solid
 ```
 
-## SolidJS Router
+<Step>Copy and paste the following code into your project.</Step>
 
-By default, the `<PaginationLink />` component will render an `<a>` element. You can use the `as` prop to render a different component, such as a SolidJS Router `<A>` component.
+<ComponentSource name="pagination" title="components/ui/pagination.tsx" />
 
-```tsx
-import { A } from "@solidjs/router";
-import { PaginationLink } from "~/components/ui/pagination";
-```
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
 
 ```tsx showLineNumbers
-<PaginationLink as={A} href="/page/2">
-  2
-</PaginationLink>
-```
-
-## Examples
-
-Here are the source code of all the examples from the preview page:
-
-### Basic
-
-```tsx
 import {
   Pagination,
   PaginationContent,
@@ -57,45 +60,122 @@ import {
 } from "~/components/ui/pagination";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/pagination-example.tsx#L24-L53
-
+```tsx showLineNumbers
+<Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious href="#" />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">1</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#" isActive>
+        2
+      </PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">3</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext href="#" />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
 ```
 
-### Simple
+## Composition
 
-```tsx
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from "~/components/ui/pagination";
+Use the following composition to build a `Pagination`:
+
+```text
+Pagination
+└── PaginationContent
+    ├── PaginationItem
+    │   └── PaginationPrevious
+    ├── PaginationItem
+    │   └── PaginationLink
+    ├── PaginationItem
+    │   └── PaginationEllipsis
+    └── PaginationItem
+        └── PaginationNext
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/pagination-example.tsx#L55-L81
+## Simple
 
-```
+A simple pagination with only page numbers.
 
-### With Select
+<ComponentPreview name="pagination-simple" />
 
-```tsx
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "~/components/ui/pagination";
-import { Field, FieldLabel } from "~/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
+## Icons Only
 
-```tsx file=../../../registry/kobalte/examples/ui/pagination-example.tsx#L83-L126
+Use just the previous and next buttons without page numbers. This is useful for data tables with a rows per page selector.
 
-```
+<ComponentPreview name="pagination-icons-only" />
+
+## API Reference
+
+### Pagination
+
+The root navigation element for the pagination controls. It renders a semantic `<nav>` with an accessible pagination label.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+### PaginationContent
+
+The list that contains pagination items.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+### PaginationItem
+
+An individual pagination list item.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+### PaginationLink
+
+A page link. Set `isActive` to announce the current page with `aria-current="page"`.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `isActive` | `boolean` | `false` |
+| `size` | `ButtonProps["size"]` | `"icon"` |
+| `class` | `string` | - |
+
+### PaginationPrevious
+
+A link to the previous page.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `text` | `string` | `"Previous"` |
+| `class` | `string` | - |
+
+### PaginationNext
+
+A link to the next page.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `text` | `string` | `"Next"` |
+| `class` | `string` | - |
+
+### PaginationEllipsis
+
+An inaccessible visual indicator that more pages are available.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+Pagination is a native Solid composition of semantic HTML elements, so it does not expose a Kobalte or Corvu primitive API.
