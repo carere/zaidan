@@ -2,46 +2,61 @@
 title: Drawer
 slug: drawer
 description: A drawer component for SolidJS.
+component: true
+foundation: corvu
+links:
+  doc: https://corvu.dev/docs/primitives/drawer
+  api: https://corvu.dev/docs/primitives/drawer#api-reference
 ---
 
-# Drawer
+The Drawer component is built on top of [Corvu Drawer](https://corvu.dev/docs/primitives/drawer), which provides the accessible dialog, focus-management, and swipe primitive.
 
-A drawer component for SolidJS.
-
-## About
-
-Drawer is built on top of [Corvu Drawer](https://corvu.dev/docs/primitives/drawer) by [Jasmin](https://github.com/GiyoMoon).
+<ClientOnly>
+  <ComponentPreview name="drawer-demo" />
+</ClientOnly>
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/drawer
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
 
-```bash
-bun add corvu
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@corvu/drawer @corvu/utils
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/drawer.tsx showLineNumbers
+<ComponentSource name="drawer" title="components/ui/drawer.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Scrollable Content
+</CodeTabs>
 
-```tsx
-import { Index } from "solid-js";
+## Usage
+
+```tsx showLineNumbers
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -55,43 +70,146 @@ import {
 } from "~/components/ui/drawer";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/drawer-example.tsx#L70-L106
-
+```tsx showLineNumbers
+<Drawer>
+  <DrawerTrigger as={Button} variant="outline">
+    Open
+  </DrawerTrigger>
+  <DrawerContent>
+    <DrawerHeader>
+      <DrawerTitle>Are you absolutely sure?</DrawerTitle>
+      <DrawerDescription>This action cannot be undone.</DrawerDescription>
+    </DrawerHeader>
+    <div class="p-4">{/* Content here */}</div>
+    <DrawerFooter>
+      <Button>Submit</Button>
+      <DrawerClose as={Button} variant="outline">
+        Cancel
+      </DrawerClose>
+    </DrawerFooter>
+  </DrawerContent>
+</Drawer>
 ```
 
-### Sides
+## Composition
+
+Use the following composition to build a `Drawer`:
+
+```text
+Drawer
+├── DrawerTrigger
+└── DrawerContent
+    ├── DrawerHeader
+    │   ├── DrawerTitle
+    │   └── DrawerDescription
+    └── DrawerFooter
+```
+
+`DrawerContent` composes the portal, overlay, viewport, and popup from Corvu. For lower-level control, `DrawerPortal`, `DrawerOverlay`, and `DrawerSwipeHandle` are also exported.
+
+## Custom Sizes
+
+A vertical drawer sizes itself to its content and is capped at `calc(100dvh - 6rem)` by default. A side drawer spans `75%` of the viewport width, or `24rem` on larger screens.
+
+To customize the height of a vertical drawer, use the `h-*` and `max-h-*` utilities on `DrawerContent`.
 
 ```tsx
-import { For, Index } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "~/components/ui/drawer";
+<DrawerContent class="h-[50vh]" />
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/drawer-example.tsx#L26-L68
+To customize the width of a side drawer, use the `w-*` and `max-w-*` utilities on `DrawerContent`.
 
+```tsx
+<DrawerContent class="w-96" />
 ```
 
-## Props
+When the same component renders in multiple directions, scope an override to one axis using the `data-[swipe-axis=*]` variants.
 
-The Drawer component uses Corvu's Drawer primitive under the hood. Here are the main props:
+```tsx
+<DrawerContent class="data-[swipe-axis=y]:max-h-[50vh] data-[swipe-axis=x]:w-96" />
+```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `side` | `"top" \| "right" \| "bottom" \| "left"` | `"bottom"` | The side the drawer opens from |
-| `open` | `boolean` | - | The controlled open state |
-| `defaultOpen` | `boolean` | `false` | The default open state |
-| `onOpenChange` | `(open: boolean) => void` | - | Handler called when open state changes |
-| `snapPoints` | `Size[]` | `[0, 1]` | Positions to snap to |
-| `activeSnapPoint` | `Size` | - | The controlled active snap point |
-| `allowSkippingSnapPoints` | `boolean` | `true` | Whether to allow skipping snap points |
-| `closeOnOutsidePointer` | `boolean` | `true` | Whether to close on outside pointer |
-| `closeOnEscapeKeyDown` | `boolean` | `true` | Whether to close on escape key |
+To make a region of the drawer scrollable, make the scroll container a flex item. Avoid `h-full`, which does not resolve inside a content-sized drawer.
+
+```tsx
+<DrawerContent>
+  <DrawerHeader>...</DrawerHeader>
+  <div class="flex-1 overflow-y-auto p-4">{/* Scrollable content */}</div>
+  <DrawerFooter>...</DrawerFooter>
+</DrawerContent>
+```
+
+## Styling
+
+The drawer exposes CSS variables for style-level customization. Set sizing variables on `DrawerContent`. Set the overlay variable on `[data-slot=drawer-overlay]` in your CSS.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--drawer-inset` | `0px` | Floats the drawer from the viewport edges. |
+| `--drawer-bleed-background` | `var(--color-popover)` | Fills the gap behind the drawer on swipe overshoot. |
+| `--drawer-overlay-min-opacity` | `0` | Minimum overlay opacity. Defaults to `0.5` when snap points are active. |
+
+The drawer also sets data attributes you can target with variants such as `data-[swipe-direction=down]:` on `DrawerContent`, or `group-data-[swipe-axis=y]/drawer-popup:` on its descendants.
+
+| Attribute | Values | Set when |
+| --- | --- | --- |
+| `data-swipe-direction` | `up`, `right`, `down`, `left` | Always. |
+| `data-swipe-axis` | `x`, `y` | Always. |
+| `data-snap-points` | Present | The drawer has snap points. |
+| `data-expanded` | Present | The drawer is at the full snap point. |
+| `data-swiping` | Present | A swipe is in progress. |
+| `data-nested-drawer-open` | Present | A nested drawer is open on top. |
+
+## Position
+
+Use the `swipeDirection` prop to set the side of the drawer. Available options are `up`, `right`, `down`, and `left`.
+
+<ClientOnly>
+  <ComponentPreview name="drawer-sides" />
+</ClientOnly>
+
+## Swipe Handle
+
+Use `showSwipeHandle` on `Drawer` to render a swipe handle.
+
+<ClientOnly>
+  <ComponentPreview name="drawer-swipe-handle" />
+</ClientOnly>
+
+## Nested
+
+Open drawers from inside another drawer. Parent drawers stay mounted and stack behind the frontmost drawer.
+
+<ClientOnly>
+  <ComponentPreview name="drawer-nested" />
+</ClientOnly>
+
+## Non Modal
+
+Set `modal={false}` to allow interaction with the rest of the page while the drawer is open. Combine with `disablePointerDismissal` to prevent the drawer from closing on outside presses. Use `modal="trap-focus"` to keep focus inside the drawer while leaving scroll and pointer interaction unrestricted.
+
+<ClientOnly>
+  <ComponentPreview name="drawer-non-modal" />
+</ClientOnly>
+
+## Snap Points
+
+Use `snapPoints` to snap a drawer to preset heights. Numbers between `0` and `1` represent fractions of the viewport. Numbers greater than `1` are treated as pixel values. String values support `px` and `rem` units. Snap points apply to vertical drawers.
+
+Track the active snap point with the controlled `snapPoint` and `onSnapPointChange` props. At the full snap point, the drawer gets a `data-expanded` attribute you can style with the `data-expanded:` variant.
+
+<ClientOnly>
+  <ComponentPreview name="drawer-snap-points" />
+</ClientOnly>
+
+## Responsive
+
+You can combine the `Dialog` and `Drawer` components to create a responsive dialog. This renders a `Dialog` component on desktop and a `Drawer` on mobile.
+
+<ClientOnly>
+  <ComponentPreview name="drawer-dialog" />
+</ClientOnly>
+
+## API Reference
+
+See the [Corvu Drawer API reference](https://corvu.dev/docs/primitives/drawer#api-reference) for primitive props, swipe behavior, focus management, and accessibility details.
