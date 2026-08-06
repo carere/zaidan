@@ -41,13 +41,13 @@ function TooltipSides() {
   return (
     <Example title="Sides">
       <div class="flex flex-wrap gap-2">
-        <For each={["top", "right", "bottom", "left"] as const}>
+        <For each={["inline-start", "left", "top", "bottom", "right", "inline-end"] as const}>
           {(side) => (
-            <Tooltip placement={side}>
+            <Tooltip>
               <TooltipTrigger as={Button} variant="outline" class="w-fit capitalize">
-                {side}
+                {side.replace("-", " ")}
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent side={side}>
                 <p>Add to library</p>
               </TooltipContent>
             </Tooltip>
