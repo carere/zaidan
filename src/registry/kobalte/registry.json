@@ -1573,6 +1573,18 @@
       ]
     },
     {
+      "name": "marker",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/marker.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "message-scroller",
       "type": "registry:ui",
       "dependencies": ["lucide-solid"],
@@ -1580,6 +1592,18 @@
       "files": [
         {
           "path": "src/registry/kobalte/ui/message-scroller.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "message",
+      "type": "registry:ui",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/message.tsx",
           "type": "registry:ui"
         }
       ]

@@ -1,0 +1,63 @@
+---
+title: Marker
+slug: marker
+description: Displays a compact status, activity, or timeline marker.
+component: true
+---
+
+<ComponentPreview name="marker-demo" previewClass="h-auto" />
+
+The `Marker` component renders compact status and activity rows for timelines, assistant output,
+and system events. Compose it with `MarkerIcon` and `MarkerContent`.
+
+## Installation
+
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+```package-dlx
+shadcn@latest add @zaidan/marker
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="marker" title="components/ui/marker.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { Marker, MarkerContent, MarkerIcon } from "~/components/ui/marker";
+```
+
+```tsx showLineNumbers
+<Marker variant="border">
+  <MarkerIcon><FileTextIcon /></MarkerIcon>
+  <MarkerContent>Opened implementation notes</MarkerContent>
+</Marker>
+```
+
+## Variants
+
+Use `default`, `border`, or `separator` to match the surrounding timeline or activity surface.
+
+<ComponentPreview name="marker-demo" previewClass="h-auto" />

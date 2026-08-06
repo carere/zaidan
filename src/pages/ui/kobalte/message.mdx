@@ -1,0 +1,72 @@
+---
+title: Message
+slug: message
+description: Provides accessible layout primitives for chat messages and message groups.
+component: true
+---
+
+<ComponentPreview name="message-demo" previewClass="h-auto" />
+
+The `Message` component provides the layout primitives around conversational content. Combine it
+with `Bubble`, avatars, headers, footers, and `MessageGroup` for complete chat transcripts.
+
+## Installation
+
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+```package-dlx
+shadcn@latest add @zaidan/message
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the related conversation primitives:</Step>
+
+```package-dlx
+shadcn@latest add @zaidan/bubble @zaidan/avatar
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="message" title="components/ui/message.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { Message, MessageContent } from "~/components/ui/message";
+import { Bubble, BubbleContent } from "~/components/ui/bubble";
+```
+
+```tsx showLineNumbers
+<Message align="end">
+  <MessageContent>
+    <Bubble><BubbleContent>Thanks!</BubbleContent></Bubble>
+  </MessageContent>
+</Message>
+```
+
+## Composition
+
+Use `MessageAvatar`, `MessageHeader`, and `MessageFooter` to add context around the message
+content. Use `MessageGroup` for consecutive messages from the same participant.
+
+<ComponentPreview name="message-demo" previewClass="h-auto" />
