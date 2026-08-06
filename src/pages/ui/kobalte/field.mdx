@@ -2,26 +2,144 @@
 title: Field
 slug: field
 description: Combine labels, controls, and help text to compose accessible form fields and grouped inputs.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/label
+  api: https://kobalte.dev/docs/core/components/label#api-reference
 ---
 
-# Field
+Field is a Solid composition helper that uses [Kobalte Label](https://kobalte.dev/docs/core/components/label) for accessible control labeling. Use the Field family to arrange labels, controls, descriptions, validation messages, and related controls.
 
-Combine labels, controls, and help text to compose accessible form fields and grouped inputs.
+<ComponentPreview name="field-demo" previewClass="h-[800px] p-6 md:h-[850px]" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/field
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/field.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="field" title="components/ui/field.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "~/components/ui/field";
+```
+
+```tsx showLineNumbers
+<FieldSet>
+  <FieldLegend>Profile</FieldLegend>
+  <FieldDescription>This appears on invoices and emails.</FieldDescription>
+  <FieldGroup>
+    <Field>
+      <FieldLabel for="name">Full name</FieldLabel>
+      <Input id="name" autocomplete="off" placeholder="Evil Rabbit" />
+      <FieldDescription>This appears on invoices and emails.</FieldDescription>
+    </Field>
+    <Field>
+      <FieldLabel for="username">Username</FieldLabel>
+      <Input id="username" autocomplete="off" aria-invalid />
+      <FieldError>Choose another username.</FieldError>
+    </Field>
+    <Field orientation="horizontal">
+      <Switch id="newsletter" />
+      <FieldLabel for="newsletter">Subscribe to the newsletter</FieldLabel>
+    </Field>
+  </FieldGroup>
+</FieldSet>
+```
+
+## Composition
+
+### Field
+
+A single control with label, helper text, and validation.
+
+```text
+Field
+├── FieldLabel
+├── Input / Textarea / Switch / Select
+├── FieldDescription
+└── FieldError
+```
+
+### FieldGroup
+
+Related fields in one group. Use `FieldSeparator` between sections when needed.
+
+```text
+FieldGroup
+├── Field
+│   ├── FieldLabel
+│   ├── Input / Textarea / Switch / Select
+│   ├── FieldDescription
+│   └── FieldError
+├── FieldSeparator
+└── Field
+    ├── FieldLabel
+    └── Input / Textarea / Switch / Select
+```
+
+### FieldSet
+
+Semantic grouping with a legend and description, usually containing a `FieldGroup`.
+
+```text
+FieldSet
+├── FieldLegend
+├── FieldDescription
+└── FieldGroup
+    ├── Field
+    │   ├── FieldLabel
+    │   ├── Input / Textarea / Switch / Select
+    │   ├── FieldDescription
+    │   └── FieldError
+    └── Field
+        ├── FieldLabel
+        └── Input / Textarea / Switch / Select
 ```
 
 ## Anatomy
@@ -38,14 +156,60 @@ The `Field` family is designed for composing accessible forms. A typical field i
 ```
 
 - `Field` is the core wrapper for a single field.
-- `FieldContent` is a flex column that groups label and description. Not required if you have no description.
+- `FieldContent` is a flex column that groups label and description. It is not required without a description.
 - Wrap related fields with `FieldGroup`, and use `FieldSet` with `FieldLegend` for semantic grouping.
+
+## Input
+
+<ComponentPreview name="field-input" />
+
+## Textarea
+
+<ComponentPreview name="field-textarea" />
+
+## Select
+
+<ComponentPreview name="field-select" />
+
+## Slider
+
+<ComponentPreview name="field-slider" />
+
+## Fieldset
+
+<ComponentPreview name="field-fieldset" />
+
+## Checkbox
+
+<ComponentPreview name="field-checkbox" previewClass="h-[32rem]" />
+
+## Radio
+
+<ComponentPreview name="field-radio" />
+
+## Switch
+
+<ComponentPreview name="field-switch" />
+
+## Choice Card
+
+Wrap `Field` components inside `FieldLabel` to create selectable field groups. This works with `RadioGroupItem`, `Checkbox`, and `Switch` components.
+
+<ComponentPreview name="field-choice-card" />
+
+## Field Group
+
+Stack `Field` components with `FieldGroup`. Add `FieldSeparator` to divide them.
+
+<ComponentPreview name="field-group" previewClass="h-96" />
 
 ## Responsive Layout
 
-- **Vertical fields:** Default orientation stacks label, control, and helper text—ideal for mobile-first layouts.
+- **Vertical fields:** The default orientation stacks label, control, and helper text for mobile-first layouts.
 - **Horizontal fields:** Set `orientation="horizontal"` on `Field` to align the label and control side-by-side. Pair with `FieldContent` to keep descriptions aligned.
-- **Responsive fields:** Set `orientation="responsive"` for automatic column layouts inside container-aware parents. Apply `@container/field-group` classes on `FieldGroup` to switch orientations at specific breakpoints.
+- **Responsive fields:** Set `orientation="responsive"` for automatic column layouts inside container-aware parents. `FieldGroup` provides the `@container/field-group` container used by the component styles.
+
+<ComponentPreview name="field-responsive" previewClass="h-[650px] p-6 md:h-[500px] md:p-10" />
 
 ## Validation and Errors
 
@@ -53,7 +217,7 @@ The `Field` family is designed for composing accessible forms. A typical field i
 - Add `aria-invalid` on the input itself for assistive technologies.
 - Render `FieldError` immediately after the control or inside `FieldContent` to keep error messages aligned with the field.
 
-```tsx showLineNumbers
+```tsx showLineNumbers /data-invalid/ /aria-invalid/
 <Field data-invalid>
   <FieldLabel for="email">Email</FieldLabel>
   <Input id="email" type="email" aria-invalid />
@@ -63,279 +227,10 @@ The `Field` family is designed for composing accessible forms. A typical field i
 
 ## Accessibility
 
-- `FieldSet` and `FieldLegend` keep related controls grouped for keyboard and assistive tech users.
+- `FieldSet` and `FieldLegend` keep related controls grouped for keyboard and assistive-tech users.
 - `Field` outputs `role="group"` so nested controls inherit labeling from `FieldLabel` and `FieldLegend` when combined.
-- Apply `FieldSeparator` sparingly to ensure screen readers encounter clear section boundaries.
-
-## Examples
-
-Here are the source code of all the examples from the preview page:
-
-### Input Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import { Badge } from "~/components/ui/badge";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L56-L108
-
-```
-
-### Textarea Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import { Textarea } from "~/components/ui/textarea";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L110-L152
-
-```
-
-### Select Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L156-L279
-
-```
-
-### Checkbox Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import { Checkbox } from "~/components/ui/checkbox";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-  FieldTitle,
-} from "~/components/ui/field";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L356-L427
-
-```
-
-### Radio Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-  FieldTitle,
-} from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L429-L545
-
-```
-
-### Switch Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import { Switch } from "~/components/ui/switch";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L547-L608
-
-```
-
-### Slider Fields
-
-```tsx
-import { createSignal } from "solid-js";
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import { Slider } from "~/components/ui/slider";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L610-L705
-
-```
-
-### Native Select Fields
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import {
-  NativeSelect,
-  NativeSelectOptGroup,
-  NativeSelectOption,
-} from "~/components/ui/native-select";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L281-L354
-
-```
-
-### OTP Input Fields
-
-```tsx
-import { createSignal } from "solid-js";
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "~/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "~/components/ui/input-otp";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/field-example.tsx#L707-L801
-
-```
+- Apply `FieldSeparator` sparingly so screen readers encounter clear section boundaries.
 
 ## API Reference
 
-### FieldSet
-
-Container that renders a semantic `fieldset` with spacing presets.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-### FieldLegend
-
-Legend element for a `FieldSet`. Switch to the `label` variant to align with label sizing.
-
-| Prop      | Type                  | Default    |
-| --------- | --------------------- | ---------- |
-| `variant` | `"legend" \| "label"` | `"legend"` |
-| `class`   | `string`              |            |
-
-### FieldGroup
-
-Layout wrapper that stacks `Field` components and enables container queries for responsive orientations.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-### Field
-
-The core wrapper for a single field. Provides orientation control, invalid state styling, and spacing.
-
-| Prop           | Type                                         | Default      |
-| -------------- | -------------------------------------------- | ------------ |
-| `orientation`  | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` |
-| `class`        | `string`                                     |              |
-| `data-invalid` | `boolean`                                    |              |
-
-### FieldContent
-
-Flex column that groups control and descriptions when the label sits beside the control.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-### FieldLabel
-
-Label styled for both direct inputs and nested `Field` children.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-### FieldTitle
-
-Renders a title with label styling inside `FieldContent`.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-### FieldDescription
-
-Helper text slot that automatically balances long lines in horizontal layouts.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-### FieldSeparator
-
-Visual divider to separate sections inside a `FieldGroup`. Accepts optional inline content.
-
-| Prop       | Type          | Default |
-| ---------- | ------------- | ------- |
-| `class`    | `string`      |         |
-| `children` | `JSX.Element` |         |
-
-### FieldError
-
-Accessible error container that accepts children or an `errors` array.
-
-| Prop     | Type                                       | Default |
-| -------- | ------------------------------------------ | ------- |
-| `errors` | `Array<{ message?: string } \| undefined>` |         |
-| `class`  | `string`                                   |         |
-
-When the `errors` array contains multiple messages, the component renders a list automatically.
+For primitive label props and keyboard behavior, see the [Kobalte Label API reference](https://kobalte.dev/docs/core/components/label#api-reference).
