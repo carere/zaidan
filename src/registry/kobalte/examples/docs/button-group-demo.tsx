@@ -1,17 +1,16 @@
 import {
-  Archive,
-  ArrowLeft,
-  CalendarPlus,
-  Clock,
-  ListFilter,
-  MailCheck,
-  MoreHorizontal,
-  Tag,
-  Trash2,
+  ArchiveIcon,
+  ArrowLeftIcon,
+  CalendarPlusIcon,
+  ClockIcon,
+  ListFilterIcon,
+  MailCheckIcon,
+  MoreHorizontalIcon,
+  TagIcon,
+  Trash2Icon,
 } from "lucide-solid";
 import { createSignal } from "solid-js";
-
-import { Button, buttonVariants } from "@/registry/kobalte/ui/button";
+import { Button } from "@/registry/kobalte/ui/button";
 import { ButtonGroup } from "@/registry/kobalte/ui/button-group";
 import {
   DropdownMenu,
@@ -33,8 +32,8 @@ export default function ButtonGroupDemo() {
   return (
     <ButtonGroup>
       <ButtonGroup class="hidden sm:flex">
-        <Button variant="outline" size="icon" aria-label="Go Back">
-          <ArrowLeft />
+        <Button variant="outline" size="icon" aria-label="Go back">
+          <ArrowLeftIcon />
         </Button>
       </ButtonGroup>
       <ButtonGroup>
@@ -45,43 +44,46 @@ export default function ButtonGroupDemo() {
         <Button variant="outline">Snooze</Button>
         <DropdownMenu>
           <DropdownMenuTrigger
-            class={buttonVariants({ variant: "outline", size: "icon" })}
-            aria-label="More Options"
+            as={Button}
+            variant="outline"
+            size="icon"
+            class="w-fit"
+            aria-label="More options"
           >
-            <MoreHorizontal />
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-40">
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <MailCheck />
+                <MailCheckIcon />
                 Mark as Read
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Archive />
+                <ArchiveIcon />
                 Archive
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Clock />
+                <ClockIcon />
                 Snooze
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <CalendarPlus />
+                <CalendarPlusIcon />
                 Add to Calendar
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <ListFilter />
+                <ListFilterIcon />
                 Add to List
               </DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
-                  <Tag />
+                  <TagIcon />
                   Label As...
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuRadioGroup value={label()} onValueChange={setLabel}>
+                  <DropdownMenuRadioGroup value={label()} onChange={setLabel}>
                     <DropdownMenuRadioItem value="personal">Personal</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="work">Work</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="other">Other</DropdownMenuRadioItem>
@@ -92,7 +94,7 @@ export default function ButtonGroupDemo() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem variant="destructive">
-                <Trash2 />
+                <Trash2Icon />
                 Trash
               </DropdownMenuItem>
             </DropdownMenuGroup>
