@@ -862,7 +862,9 @@ const Slider = <T extends ValidComponent = "div", Value extends SliderValue = Sl
       {...others}
     >
       <div
-        ref={controlElement}
+        ref={(element) => {
+          controlElement = element;
+        }}
         data-orientation={orientation()}
         data-disabled={disabled() ? "" : undefined}
         data-dragging={dragging() ? "" : undefined}
