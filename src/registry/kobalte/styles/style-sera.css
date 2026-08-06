@@ -1273,7 +1273,7 @@
 }
 
 .z-tooltip-arrow {
-  @apply size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-none;
+  @apply rounded-none;
 }
 
 /* MARK: Input Group */
