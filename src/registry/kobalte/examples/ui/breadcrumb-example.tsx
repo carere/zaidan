@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/solid-router";
-import { ChevronRight } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
   Breadcrumb,
@@ -31,7 +30,7 @@ export default function BreadcrumbExample() {
 function BreadcrumbBasic() {
   return (
     <Example title="Basic" class="items-center justify-center">
-      <Breadcrumb separator={<ChevronRight />}>
+      <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="#">Home</BreadcrumbLink>
@@ -53,19 +52,19 @@ function BreadcrumbBasic() {
 function BreadcrumbWithDropdown() {
   return (
     <Example title="With Dropdown" class="items-center justify-center">
-      <Breadcrumb separator={<ChevronRight />}>
+      <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="#">Home</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <DropdownMenu placement="bottom-start">
+            <DropdownMenu>
               <DropdownMenuTrigger as={Button} size="icon-sm" variant="ghost" class="size-7">
                 <BreadcrumbEllipsis />
                 <span class="sr-only">Toggle menu</span>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent align="start">
                 <DropdownMenuItem>Documentation</DropdownMenuItem>
                 <DropdownMenuItem>Themes</DropdownMenuItem>
                 <DropdownMenuItem>GitHub</DropdownMenuItem>
@@ -89,7 +88,7 @@ function BreadcrumbWithDropdown() {
 function BreadcrumbWithLink() {
   return (
     <Example title="With Link" class="items-center justify-center">
-      <Breadcrumb separator={<ChevronRight />}>
+      <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink as={Link} to="#">
