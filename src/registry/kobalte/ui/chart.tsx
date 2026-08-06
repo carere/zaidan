@@ -24,8 +24,6 @@ import { cn } from "@/lib/utils";
 
 const THEMES = { light: "", dark: ".dark" } as const;
 
-const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
-
 export type ChartConfig = Record<
   string,
   {
@@ -61,8 +59,7 @@ export type ChartContainerProps = Omit<ComponentProps<"div">, "children"> & {
 
 function ChartContainer(props: ChartContainerProps) {
   const uniqueId = createUniqueId();
-  const mergedProps = mergeProps({ initialDimension: INITIAL_DIMENSION }, props);
-  const [local, others] = splitProps(mergedProps, [
+  const [local, others] = splitProps(props, [
     "id",
     "class",
     "children",
@@ -75,7 +72,7 @@ function ChartContainer(props: ChartContainerProps) {
     <ChartContext.Provider
       value={{
         get config() {
-          return props.config;
+          return local.config;
         },
       }}
     >
@@ -88,7 +85,8 @@ function ChartContainer(props: ChartContainerProps) {
         )}
         {...others}
       >
-        <ChartStyle id={chartId()} config={props.config} />
+        <ChartStyle id={chartId()} config={local.config} />
+        {/* A fixed default initial size leaves unclaimed chart nodes during SSR hydration. */}
         <ResponsiveContainer initialDimension={local.initialDimension}>
           {local.children}
         </ResponsiveContainer>
