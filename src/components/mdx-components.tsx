@@ -1,4 +1,5 @@
 import { makePersisted, messageSync } from "@solid-primitives/storage";
+import { ClientOnly } from "@tanstack/solid-router";
 import { CircleAlert, TriangleAlert } from "lucide-solid";
 import {
   type ComponentProps,
@@ -258,6 +259,7 @@ export const sharedComponents = {
   CodeTabs,
   ComponentPreview,
   ComponentSource,
+  ClientOnly,
   PackageManagerCodeBlock,
   Tabs: MdxTabs,
   TabsContent: MdxTabsContent,
