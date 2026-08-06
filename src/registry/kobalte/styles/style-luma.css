@@ -1266,7 +1266,7 @@
 }
 
 .z-tooltip-arrow {
-  @apply size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-[2px] data-[side=left]:translate-x-[-1.5px] data-[side=right]:translate-x-[1.5px];
+  @apply rounded-[2px] data-[side=left]:-ml-[1.5px] data-[side=right]:-mr-[1.5px];
 }
 
 /* MARK: Empty */
