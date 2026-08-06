@@ -52,6 +52,18 @@
       ]
     },
     {
+      "name": "attachment",
+      "type": "registry:ui",
+      "dependencies": ["class-variance-authority"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/attachment.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "avatar",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
