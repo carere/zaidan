@@ -1735,7 +1735,7 @@
     {
       "name": "slider",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [],
       "registryDependencies": [],
       "files": [
         {

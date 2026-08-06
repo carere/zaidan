@@ -1166,7 +1166,7 @@
 }
 
 .z-slider-thumb {
-  @apply border-ring ring-ring/50 relative size-3 rounded-full border bg-white transition-[color,box-shadow] after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden data-[active=true]:ring-3 data-[active=true]:ring-[3px];
+  @apply border-ring ring-ring/50 relative size-3 rounded-full border bg-white transition-[color,box-shadow] after:absolute after:-inset-2 hover:ring-3 has-[:focus-visible]:ring-3 has-[:focus-visible]:outline-hidden data-[active=true]:ring-3;
 }
 
 /* MARK: Toast */
