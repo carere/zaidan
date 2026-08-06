@@ -33,7 +33,7 @@ export default function ScrollAreaExample() {
 function ScrollAreaVertical() {
   return (
     <Example title="Vertical">
-      <ScrollArea class="mx-auto h-72 w-48 rounded-md style-luma:rounded-2xl border">
+      <ScrollArea class="mx-auto h-72 w-48 rounded-md style-luma:rounded-2xl style-rhea:rounded-2xl border">
         <div class="p-4">
           <h4 class="mb-4 font-medium text-sm leading-none">Tags</h4>
           <For each={tags}>
@@ -53,7 +53,7 @@ function ScrollAreaVertical() {
 function ScrollAreaHorizontal() {
   return (
     <Example title="Horizontal">
-      <ScrollArea class="mx-auto w-full max-w-96 rounded-md style-luma:rounded-2xl border p-4">
+      <ScrollArea class="mx-auto w-full max-w-96 rounded-md style-luma:rounded-2xl style-rhea:rounded-2xl border p-4">
         <div class="flex gap-4">
           <For each={artworks}>
             {(artwork) => (
