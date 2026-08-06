@@ -870,6 +870,13 @@ const TooltipTrigger = <T extends ValidComponent = "button", Payload = unknown>(
 
   createEffect(() => {
     const triggerElement = element();
+    if (triggerElement && !handle._isOpenedBy(id())) {
+      triggerElement.removeAttribute("aria-describedby");
+    }
+  });
+
+  createEffect(() => {
+    const triggerElement = element();
     if (!triggerElement) return;
     const unregister = handle._register(id(), {
       closeDelay: () =>
@@ -903,7 +910,6 @@ const TooltipTrigger = <T extends ValidComponent = "button", Payload = unknown>(
         setElement(triggerElement);
         setElementRef(local.ref, triggerElement);
       }}
-      aria-describedby={handle._isOpenedBy(id()) ? handle._contentId() : undefined}
       data-popup-open={handle._isOpenedBy(id()) ? "" : undefined}
       data-trigger-disabled={disabled() ? "" : undefined}
       data-slot="tooltip-trigger"
@@ -1024,6 +1030,7 @@ const TooltipContent = <T extends ValidComponent = "div">(props: TooltipContentP
   let previousMeasurements:
     | { anchorHeight: number; anchorWidth: number; height: number; width: number }
     | undefined;
+  let contentElement: HTMLElement | undefined;
 
   const requestedPosition = (): TooltipPosition => ({
     align: local.align ?? context.defaultPosition.align,
@@ -1106,7 +1113,12 @@ const TooltipContent = <T extends ValidComponent = "div">(props: TooltipContentP
   };
 
   const setContentRef = (element: HTMLElement) => {
+    contentElement = element;
     context.setContent(element);
+    queueMicrotask(() => {
+      if (contentElement !== element || !context.isOpen() || !element.id) return;
+      context.trigger()?.setAttribute("aria-describedby", element.id);
+    });
     setElementRef(local.ref, element);
     const positionerElement = element.parentElement;
     if (!positionerElement) return;
@@ -1162,6 +1174,14 @@ const TooltipContent = <T extends ValidComponent = "div">(props: TooltipContentP
   onCleanup(() => {
     resizeObserver?.disconnect();
     mutationObserver?.disconnect();
+    const trigger = context.trigger();
+    if (
+      trigger &&
+      contentElement &&
+      trigger.getAttribute("aria-describedby") === contentElement.id
+    ) {
+      trigger.removeAttribute("aria-describedby");
+    }
     context.setContent(undefined);
     setPositioner(undefined);
   });
