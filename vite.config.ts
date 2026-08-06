@@ -1,3 +1,5 @@
+/// <reference types="vitest/config" />
+
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -6,6 +8,7 @@ import velite from "@velite/plugin-vite";
 import { defineConfig } from "vite";
 import lucide from "vite-plugin-lucide-preprocess";
 import solid from "vite-plugin-solid";
+import { configDefaults } from "vitest/config";
 import { getPrerenderPages } from "./src/lib/prerender-pages.ts";
 import { highlightCode } from "./src/lib/vite-plugins/highlight-code";
 import mdx from "./src/lib/vite-plugins/mdx";
@@ -48,4 +51,8 @@ export default defineConfig({
     solid({ ssr: true, hot: true, extensions: [".tsx", ".mdx"] }),
     velite(),
   ],
+  test: {
+    environment: "node",
+    exclude: [...configDefaults.exclude, ".sandcastle/**"],
+  },
 });

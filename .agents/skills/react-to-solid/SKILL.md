@@ -6,7 +6,7 @@ description: React-to-SolidJS transformation patterns for porting shadcn-style R
 # React to SolidJS
 
 Use this skill for the translation itself. Use
-`.agents/skills/zaidan/SKILL.md` for the workflow, source URLs, target
+`.agents/skills/shadcn-to-zaidan/SKILL.md` for the workflow, source URLs, target
 paths, registry updates, browser testing, and command choices.
 
 ## Load References Only When Needed

@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-Issues and delivery workstreams are tracked in GitHub Issues. See `docs/agents/issue-tracker.md`.
+Repository issues are tracked in GitHub Issues. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
