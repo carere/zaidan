@@ -27,6 +27,7 @@
         "@fontsource-variable/source-sans-3": "^5.3.0",
         "@fontsource-variable/space-grotesk": "^5.3.0",
         "@fontsource/instrument-serif": "^5.3.0",
+        "@internationalized/date": "^3.11.0",
         "@kobalte/core": "^0.13.12",
         "@kobalte/utils": "^0.9.2",
         "@solid-primitives/storage": "^4.4.0",
@@ -37,6 +38,7 @@
         "cmdk-solid": "^1.1.2",
         "date-fns": "^4.4.0",
         "embla-carousel": "^8.6.0",
+        "embla-carousel-autoplay": "^8.6.0",
         "embla-carousel-solid": "^8.6.0",
         "lucide-solid": "^1.28.0",
         "shadcn": "^4.16.1",
@@ -1024,6 +1026,8 @@
     "electron-to-chromium": ["electron-to-chromium@1.5.302", "", {}, "sha512-sM6HAN2LyK82IyPBpznDRqlTQAtuSaO+ShzFiWTvoMJLHyZ+Y39r8VMfHzwbU8MVBzQ4Wdn85+wlZl2TLGIlwg=="],
 
     "embla-carousel": ["embla-carousel@8.6.0", "", {}, "sha512-SjWyZBHJPbqxHOzckOfo8lHisEaJWmwd23XppYFYVh10bU66/Pn5tkVkbkCMZVdbUE5eTCI2nD8OyIP4Z+uwkA=="],
+
+    "embla-carousel-autoplay": ["embla-carousel-autoplay@8.6.0", "", { "peerDependencies": { "embla-carousel": "8.6.0" } }, "sha512-OBu5G3nwaSXkZCo1A6LTaFMZ8EpkYbwIaH+bPqdBnDGQ2fh4+NbzjXjs2SktoPNKCtflfVMc75njaDHOYXcrsA=="],
 
     "embla-carousel-reactive-utils": ["embla-carousel-reactive-utils@8.6.0", "", { "peerDependencies": { "embla-carousel": "8.6.0" } }, "sha512-fMVUDUEx0/uIEDM0Mz3dHznDhfX+znCCDCeIophYb1QGVM7YThSWX+wz11zlYwWFOr74b4QLGg0hrGPJeG2s4A=="],
 
