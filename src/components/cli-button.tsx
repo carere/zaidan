@@ -84,12 +84,12 @@ export function CliButton(
     try {
       await navigator.clipboard.writeText(commands()[packageManager()]);
       setHasCopied(true);
-      toastManager.add({ type: "success", description: "Command copied to clipboard" });
+      toastManager.add({ type: "success", title: "Command copied to clipboard" });
     } catch (err) {
       console.error("Failed to copy command:", err);
       toastManager.add({
         type: "error",
-        description: "Failed to copy command",
+        title: "Failed to copy command",
         priority: "high",
       });
     }

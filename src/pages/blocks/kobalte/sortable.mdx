@@ -75,7 +75,7 @@ The toast-emitting examples share a manager and mount its host around the galler
 ```tsx
 import { FileText, GripVertical, Image as ImageIcon, Music, Video } from "lucide-solid";
 import { createSignal, For } from "solid-js";
-import { createToastManager, Toaster, type ToastManager } from "~/components/ui/toast";
+import type { ToastManager } from "~/components/ui/toast";
 import { Badge } from "~/components/ui/badge";
 import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/sortable";
 ```
@@ -89,7 +89,7 @@ import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/
 ```tsx
 import { GripVertical } from "lucide-solid";
 import { createSignal, For } from "solid-js";
-import { createToastManager, Toaster, type ToastManager } from "~/components/ui/toast";
+import type { ToastManager } from "~/components/ui/toast";
 import { Badge } from "~/components/ui/badge";
 import { Sortable, SortableItem, SortableItemHandle } from "~/components/blocks/sortable";
 ```
