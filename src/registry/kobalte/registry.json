@@ -1570,6 +1570,18 @@
       ]
     },
     {
+      "name": "message-scroller",
+      "type": "registry:ui",
+      "dependencies": ["lucide-solid"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/message-scroller.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "menubar",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
