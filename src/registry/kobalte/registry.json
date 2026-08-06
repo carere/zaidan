@@ -2010,7 +2010,7 @@
     {
       "name": "switch",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [],
       "registryDependencies": [],
       "files": [
         {
