@@ -2,81 +2,80 @@
 title: Textarea
 slug: textarea
 description: Displays a form textarea or a component that looks like a textarea.
+component: true
+links:
+  api: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea
 ---
 
-# Textarea
-
-Displays a form textarea or a component that looks like a textarea.
+<ComponentPreview name="textarea-demo" previewClass="*:max-w-xs" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/textarea
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/textarea.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
-```
+<Step>Copy and paste the following code into your project.</Step>
 
-## Examples
+<ComponentSource name="textarea" title="components/ui/textarea.tsx" />
 
-Here are the source code of all the examples from the preview page:
+<Step>Update the import paths to match your project setup.</Step>
 
-### Basic
+</Steps>
 
-```tsx
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Textarea } from "~/components/ui/textarea";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/textarea-example.tsx#L17-L23
-
+```tsx showLineNumbers
+<Textarea />
 ```
 
-### Invalid
+## Field
 
-```tsx
-import { Textarea } from "~/components/ui/textarea";
-```
+Use `Field`, `FieldLabel`, and `FieldDescription` to create a textarea with a label and description.
 
-```tsx file=../../../registry/kobalte/examples/ui/textarea-example.tsx#L25-L31
+<ComponentPreview name="textarea-field" previewClass="*:max-w-xs" />
 
-```
+## Disabled
 
-### With Label
+Use the `disabled` prop to disable the textarea. To style the disabled state, add the `data-disabled` attribute to the `Field` component.
 
-```tsx
-import { Field, FieldLabel } from "~/components/ui/field";
-import { Textarea } from "~/components/ui/textarea";
-```
+<ComponentPreview name="textarea-disabled" previewClass="*:max-w-xs" />
 
-```tsx file=../../../registry/kobalte/examples/ui/textarea-example.tsx#L33-L42
+## Invalid
 
-```
+Use the `aria-invalid` prop to mark the textarea as invalid. To style the invalid state, add the `data-invalid` attribute to the `Field` component.
 
-### With Description
+<ComponentPreview name="textarea-invalid" previewClass="*:max-w-xs" />
 
-```tsx
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
-import { Textarea } from "~/components/ui/textarea";
-```
+## Button
 
-```tsx file=../../../registry/kobalte/examples/ui/textarea-example.tsx#L44-L54
+Pair with `Button` to create a textarea with a submit button.
 
-```
+<ComponentPreview name="textarea-button" previewClass="*:max-w-xs" />
 
-### Disabled
+## API Reference
 
-```tsx
-import { Field, FieldLabel } from "~/components/ui/field";
-import { Textarea } from "~/components/ui/textarea";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/textarea-example.tsx#L56-L65
-
-```
+`Textarea` is a styled native textarea element. See the [HTML textarea element reference](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea) for its native props, keyboard behavior, and accessibility semantics.
