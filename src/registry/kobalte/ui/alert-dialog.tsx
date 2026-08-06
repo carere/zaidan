@@ -37,7 +37,7 @@ const AlertDialogOverlay = <T extends ValidComponent = "div">(
   const [local, others] = splitProps(props as AlertDialogOverlayProps, ["class"]);
   return (
     <AlertDialogPrimitive.Overlay
-      class={cn("fixed inset-0 z-50 z-alert-dialog-overlay", local.class)}
+      class={cn("z-alert-dialog-overlay fixed inset-0 isolate z-50", local.class)}
       data-slot="alert-dialog-overlay"
       {...others}
     />
@@ -149,26 +149,14 @@ const AlertDialogDescription = <T extends ValidComponent = "p">(
   );
 };
 
-type AlertDialogActionProps<T extends ValidComponent = "button"> = PolymorphicProps<
-  T,
-  AlertDialogPrimitive.AlertDialogCloseButtonProps<T>
-> &
-  Pick<ButtonProps, "variant" | "size" | "class">;
+type AlertDialogActionProps<T extends ValidComponent = "button"> = ButtonProps<T>;
 
 const AlertDialogAction = <T extends ValidComponent = "button">(
   props: AlertDialogActionProps<T>,
 ) => {
-  const mergedProps = mergeProps({ variant: "default", size: "default" }, props);
-  const [local, others] = splitProps(mergedProps as AlertDialogActionProps, [
-    "class",
-    "variant",
-    "size",
-  ]);
+  const [local, others] = splitProps(props as AlertDialogActionProps, ["class"]);
   return (
-    <AlertDialogPrimitive.CloseButton
-      as={Button}
-      size={local.size}
-      variant={local.variant}
+    <Button
       data-slot="alert-dialog-action"
       class={cn("z-alert-dialog-action", local.class)}
       {...others}
