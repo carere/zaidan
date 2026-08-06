@@ -460,7 +460,7 @@
 }
 
 .z-dialog-title {
-  @apply leading-none font-medium text-sm;
+  @apply text-base leading-none font-medium;
 }
 
 .z-dialog-description {
