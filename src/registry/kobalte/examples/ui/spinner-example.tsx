@@ -92,7 +92,7 @@ function SpinnerInInputGroup() {
         <FieldLabel for="input-group-spinner">Input Group</FieldLabel>
         <InputGroup>
           <InputGroupInput id="input-group-spinner" />
-          <InputGroupAddon align="inline-end">
+          <InputGroupAddon>
             <Spinner />
           </InputGroupAddon>
         </InputGroup>
