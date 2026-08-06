@@ -34,6 +34,7 @@ type ChatMessage = {
 
 type ScriptedTurn = {
   answer: string;
+  delayMs: number;
   question: string;
 };
 
@@ -54,11 +55,13 @@ const initialMessages: ChatMessage[] = [
 
 const scriptedTurns: ScriptedTurn[] = [
   {
+    delayMs: 2_000,
     question: "What about message spacing when one reply is short and the next is really long?",
     answer:
       "Use a consistent gap on the message list so short and long turns sit on the same grid. Keep a long assistant reply in one bubble instead of splitting each paragraph into a separate row; the transcript stays much easier to scan.",
   },
   {
+    delayMs: 1_000,
     question: "Thanks, that helps.",
     answer: "Happy to help — send another message when you're ready to continue the demo.",
   },
@@ -104,7 +107,7 @@ function MessageScrollerDemo() {
       ]);
       setStatus("ready");
       responseTimer = undefined;
-    }, 900);
+    }, turn.delayMs);
   };
 
   const stop = () => {
@@ -189,7 +192,7 @@ function MessageScrollerDemo() {
                     </InputGroupButton>
                   }
                 >
-                  <InputGroupButton size="icon-sm" class="ml-auto" onClick={stop}>
+                  <InputGroupButton size="icon-sm" type="button" class="ml-auto" onClick={stop}>
                     <Square />
                     <span class="sr-only">Stop</span>
                   </InputGroupButton>
