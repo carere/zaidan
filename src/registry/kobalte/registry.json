@@ -1572,8 +1572,8 @@
     {
       "name": "menubar",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": [],
+      "dependencies": ["@kobalte/core"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/dropdown-menu.json"],
       "files": [
         {
           "path": "src/registry/kobalte/ui/menubar.tsx",

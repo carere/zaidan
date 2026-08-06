@@ -770,7 +770,8 @@
   @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-2 rounded-md py-1.5 pr-2 pl-8 text-sm data-inset:pl-8;
 }
 
-.z-menubar-checkbox-item-indicator {
+.z-menubar-checkbox-item-indicator,
+.z-menubar-checkbox-item > [data-slot="dropdown-menu-checkbox-item-indicator"] {
   @apply left-2 size-4 [&_svg:not([class*='size-'])]:size-4;
 }
 
@@ -778,7 +779,8 @@
   @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground gap-2 rounded-md py-1.5 pr-2 pl-8 text-sm data-disabled:opacity-50 data-inset:pl-8 [&_svg:not([class*='size-'])]:size-4;
 }
 
-.z-menubar-radio-item-indicator {
+.z-menubar-radio-item-indicator,
+.z-menubar-radio-item > [data-slot="dropdown-menu-radio-item-indicator"] {
   @apply left-2 size-4 [&_svg:not([class*='size-'])]:size-4;
 }
 
