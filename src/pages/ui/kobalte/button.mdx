@@ -2,92 +2,155 @@
 title: Button
 slug: button
 description: Displays a button or a component that looks like a button.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/button
+  api: https://kobalte.dev/docs/core/components/button#api-reference
 ---
 
-# Button
+The Button component is built on top of [Kobalte Button](https://kobalte.dev/docs/core/components/button), which provides the accessible button primitive.
 
-Displays a button or a component that looks like a button.
+<ComponentPreview name="button-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/button
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/button.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core class-variance-authority
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="button" title="components/ui/button.tsx" />
 
-### Variants & Sizes
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Button } from "~/components/ui/button";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/button-example.tsx#L18-L85
-
+```tsx showLineNumbers
+<Button variant="outline">Button</Button>
 ```
 
-### Icon Right
+## Cursor
 
-```tsx
-import { ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
+Tailwind v4 [switched](https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor) from `cursor: pointer` to `cursor: default` for button elements.
+
+If you want to keep the `cursor: pointer` behavior, add the following code to your CSS file:
+
+```css showLineNumbers title="globals.css"
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/button-example.tsx#L87-L174
+## Size
 
-```
+Use the `size` prop to change the size of the button.
 
-### Icon Left
+<ComponentPreview name="button-size" />
 
-```tsx
-import { ArrowLeftCircle } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-```
+## Default
 
-```tsx file=../../../registry/kobalte/examples/ui/button-example.tsx#L176-L261
+<ComponentPreview name="button-default" />
 
-```
+## Outline
 
-### Icon Only
+<ComponentPreview name="button-outline" />
 
-```tsx
-import { ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-```
+## Secondary
 
-```tsx file=../../../registry/kobalte/examples/ui/button-example.tsx#L263-L348
+<ComponentPreview name="button-secondary" />
 
-```
+## Ghost
 
-### Invalid States
+<ComponentPreview name="button-ghost" />
 
-```tsx
-import { Button } from "~/components/ui/button";
-```
+## Destructive
 
-```tsx file=../../../registry/kobalte/examples/ui/button-example.tsx#L350-L433
+<ComponentPreview name="button-destructive" />
 
-```
+## Link
 
-### Examples
+<ComponentPreview name="button-link" />
 
-```tsx
-import { ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-```
+## Icon
 
-```tsx file=../../../registry/kobalte/examples/ui/button-example.tsx#L435-L454
+<ComponentPreview name="button-icon" />
 
-```
+## With Icon
+
+Add the `data-icon="inline-start"` or `data-icon="inline-end"` attribute to an icon for correct spacing.
+
+<ComponentPreview name="button-with-icon" />
+
+## Rounded
+
+Use the `rounded-full` class to make a button rounded.
+
+<ComponentPreview name="button-rounded" />
+
+## Spinner
+
+Render a `<Spinner />` inside the button to show a loading state. Add `data-icon="inline-start"` or `data-icon="inline-end"` to the spinner for correct spacing.
+
+<ComponentPreview name="button-spinner" />
+
+## Button Group
+
+To create a button group, use the `ButtonGroup` component. See the [Button Group](/docs/components/kobalte/button-group) documentation for more details.
+
+<ComponentPreview name="button-group-demo" />
+
+## As Link
+
+Use the `buttonVariants` helper to make a link look like a button while preserving native link semantics.
+
+<ComponentPreview name="button-render" />
+
+## API Reference
+
+### Button
+
+The `Button` component is a wrapper around the button element that adds a variety of styles and functionality.
+
+| Prop      | Type                                                                                 | Default     |
+| --------- | ------------------------------------------------------------------------------------ | ----------- |
+| `variant` | `"default" \| "outline" \| "ghost" \| "destructive" \| "secondary" \| "link"`        | `"default"` |
+| `size`    | `"default" \| "xs" \| "sm" \| "lg" \| "icon" \| "icon-xs" \| "icon-sm" \| "icon-lg"` | `"default"` |
+| `class`   | `string`                                                                             | -           |
+
+For primitive props, see the [Kobalte Button API reference](https://kobalte.dev/docs/core/components/button#api-reference).
