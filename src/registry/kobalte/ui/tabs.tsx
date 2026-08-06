@@ -61,7 +61,7 @@ type TabsContextValue = {
   recordTriggerEvent: (event: Event) => void;
   registerPanel: (value: unknown, id: string) => () => void;
   registerTab: (tab: RegisteredTab) => () => void;
-  recordTabFocus: (value: unknown, disabled: boolean) => void;
+  recordTabFocus: (value: unknown) => void;
   registeredTabIdForValue: (value: unknown) => string | undefined;
   scheduleReconciliation: () => void;
   selectedValue: Accessor<unknown>;
@@ -430,9 +430,7 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
         scheduleReconciliation();
       };
     },
-    recordTabFocus: (value, disabled) => {
-      if (!disabled) setHighlightedValue(value);
-    },
+    recordTabFocus: setHighlightedValue,
     registeredTabIdForValue: (value) => {
       registeredTabVersion();
       return [...tabs].find((tab) => tab.value() === value)?.id();
@@ -628,7 +626,7 @@ const TabsTrigger = <T extends ValidComponent = "button", Value = unknown>(
   };
   const onFocus: JSX.EventHandler<HTMLButtonElement, FocusEvent> = (event) => {
     context.recordTriggerEvent(event);
-    context.recordTabFocus(local.value, local.disabled ?? false);
+    context.recordTabFocus(local.value);
     context.activateFocusedTab(local.value, local.disabled ?? false, event);
     callEventHandler(
       local.onFocus as JSX.EventHandlerUnion<HTMLButtonElement, FocusEvent> | undefined,
