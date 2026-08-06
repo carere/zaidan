@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 
 const THEMES = { light: "", dark: ".dark" } as const;
 
+const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
+
 export type ChartConfig = Record<
   string,
   {
@@ -59,7 +61,8 @@ export type ChartContainerProps = Omit<ComponentProps<"div">, "children"> & {
 
 function ChartContainer(props: ChartContainerProps) {
   const uniqueId = createUniqueId();
-  const [local, others] = splitProps(props, [
+  const mergedProps = mergeProps({ initialDimension: INITIAL_DIMENSION }, props);
+  const [local, others] = splitProps(mergedProps, [
     "id",
     "class",
     "children",
@@ -86,9 +89,8 @@ function ChartContainer(props: ChartContainerProps) {
         {...others}
       >
         <ChartStyle id={chartId()} config={props.config} />
-        {/* A fixed default initial size leaves unclaimed chart nodes during SSR hydration. */}
-        <ResponsiveContainer initialDimension={props.initialDimension}>
-          {props.children}
+        <ResponsiveContainer initialDimension={local.initialDimension}>
+          {local.children}
         </ResponsiveContainer>
       </div>
     </ChartContext.Provider>
@@ -157,14 +159,13 @@ function ChartTooltipContent(props: ChartTooltipContentProps) {
     },
     props,
   );
-  const visiblePayload = createMemo(() =>
-    (mergedProps.payload ?? []).filter((item) => item.type !== "none"),
-  );
-  const nestLabel = () => visiblePayload().length === 1 && mergedProps.indicator !== "dot";
+  const payload = createMemo(() => mergedProps.payload ?? []);
+  const visiblePayload = createMemo(() => payload().filter((item) => item.type !== "none"));
+  const nestLabel = () => payload().length === 1 && mergedProps.indicator !== "dot";
 
   const labelValue = () => {
-    const [item] = visiblePayload();
-    const key = `${mergedProps.labelKey ?? stringKey(item?.dataKey) ?? stringKey(item?.name) ?? "value"}`;
+    const [item] = payload();
+    const key = String(mergedProps.labelKey ?? item?.dataKey ?? item?.name ?? "value");
     const itemConfig = getPayloadConfigFromPayload(chart.config, item, key);
 
     return !mergedProps.labelKey && typeof mergedProps.label === "string"
@@ -173,18 +174,18 @@ function ChartTooltipContent(props: ChartTooltipContentProps) {
   };
 
   const TooltipLabel = () => (
-    <Show when={!mergedProps.hideLabel && visiblePayload().length > 0}>
+    <Show when={!mergedProps.hideLabel && payload().length > 0}>
       <Show
         when={mergedProps.labelFormatter}
         fallback={
-          <Show when={labelValue() != null && labelValue() !== ""}>
+          <Show when={labelValue()}>
             <div class={cn("font-medium", mergedProps.labelClass)}>{labelValue()}</div>
           </Show>
         }
       >
         {(labelFormatter) => (
           <div class={cn("font-medium", mergedProps.labelClass)}>
-            {labelFormatter()(labelValue(), mergedProps.payload ?? [])}
+            {labelFormatter()(labelValue(), payload())}
           </div>
         )}
       </Show>
@@ -193,7 +194,9 @@ function ChartTooltipContent(props: ChartTooltipContentProps) {
 
   const TooltipRow = (rowProps: { item: TooltipPayloadEntry; index: number }) => {
     const itemConfig = () => {
-      const key = `${mergedProps.nameKey ?? stringKey(rowProps.item.name) ?? stringKey(rowProps.item.dataKey) ?? "value"}`;
+      const key = String(
+        mergedProps.nameKey ?? rowProps.item.name ?? rowProps.item.dataKey ?? "value",
+      );
       return getPayloadConfigFromPayload(chart.config, rowProps.item, key);
     };
     const indicatorColor = () => {
@@ -213,7 +216,7 @@ function ChartTooltipContent(props: ChartTooltipContentProps) {
       >
         <Show
           when={
-            mergedProps.formatter && rowProps.item.value !== undefined && rowProps.item.name != null
+            mergedProps.formatter && rowProps.item.value !== undefined && rowProps.item.name
               ? mergedProps.formatter
               : undefined
           }
@@ -274,7 +277,8 @@ function ChartTooltipContent(props: ChartTooltipContentProps) {
                 rowProps.item.name,
                 rowProps.item,
                 rowProps.index,
-                mergedProps.payload ?? [],
+                // Solid Recharts exposes the complete tooltip payload as the fifth argument.
+                payload(),
               )}
             </>
           )}
@@ -284,7 +288,7 @@ function ChartTooltipContent(props: ChartTooltipContentProps) {
   };
 
   return (
-    <Show when={mergedProps.active && visiblePayload().length > 0}>
+    <Show when={mergedProps.active && payload().length > 0}>
       <div
         class={cn("z-chart-tooltip grid min-w-32 items-start", mergedProps.class)}
         style={mergedProps.style}
@@ -321,7 +325,7 @@ function ChartLegendContent(props: ChartLegendContentProps) {
 
   const LegendItem = (itemProps: { item: LegendPayload }) => {
     const itemConfig = () => {
-      const key = `${props.nameKey ?? stringKey(itemProps.item.dataKey) ?? "value"}`;
+      const key = String(props.nameKey ?? itemProps.item.dataKey ?? "value");
       return getPayloadConfigFromPayload(chart.config, itemProps.item, key);
     };
 
@@ -361,18 +365,6 @@ function ChartLegendContent(props: ChartLegendContentProps) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function stringKey(value: unknown) {
-  if (typeof value === "string") {
-    return value;
-  }
-
-  if (typeof value === "number") {
-    return String(value);
-  }
-
-  return undefined;
 }
 
 function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
