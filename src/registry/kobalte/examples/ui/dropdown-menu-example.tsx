@@ -11,38 +11,23 @@ import {
   ClipboardPaste,
   Copy,
   CreditCard,
-  Download,
-  Eye,
-  File,
-  FileCode,
-  FileText,
-  Folder,
-  FolderOpen,
-  FolderSearch,
   HelpCircle,
-  Keyboard,
-  Languages,
   Layout,
   LogOut,
   Mail,
   MessageSquare,
-  Monitor,
-  Moon,
-  MoreHorizontal,
-  Palette,
   PanelLeft,
   Pencil,
-  Save,
+  PlusCircle,
   Scissors,
   Settings,
   Share,
-  Shield,
-  Sun,
   Trash,
   User,
+  Users,
   Wallet,
 } from "lucide-solid";
-import { createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Avatar, AvatarFallback, AvatarImage } from "@/registry/kobalte/ui/avatar";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -77,6 +62,7 @@ export default function DropdownMenuExample() {
     <ExampleWrapper>
       <DropdownMenuBasic />
       <DropdownMenuComplex />
+      <DropdownMenuSides />
       <DropdownMenuWithIcons />
       <DropdownMenuWithShortcuts />
       <DropdownMenuWithSubmenu />
@@ -87,6 +73,7 @@ export default function DropdownMenuExample() {
       <DropdownMenuWithDestructive />
       <DropdownMenuWithAvatar />
       <DropdownMenuInDialog />
+      <DropdownMenuWithInset />
     </ExampleWrapper>
   );
 }
@@ -111,6 +98,33 @@ function DropdownMenuBasic() {
           <DropdownMenuItem disabled>API</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+    </Example>
+  );
+}
+
+function DropdownMenuSides() {
+  const sides = ["inline-start", "left", "top", "bottom", "right", "inline-end"] as const;
+
+  return (
+    <Example title="Sides" containerClass="col-span-2">
+      <div class="flex flex-wrap justify-center gap-2">
+        <For each={sides}>
+          {(side) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger as={Button} variant="outline" class="w-fit capitalize">
+                {side.replace("-", " ")}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side={side}>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </For>
+      </div>
     </Example>
   );
 }
@@ -404,11 +418,11 @@ function DropdownMenuWithAvatar() {
   return (
     <Example title="With Avatar">
       <div class="flex items-center justify-between gap-4">
-        <DropdownMenu placement="top-end">
+        <DropdownMenu>
           <DropdownMenuTrigger
             as={Button}
             variant="outline"
-            class="h-12 justify-start px-2 md:max-w-[200px]"
+            class="h-12 justify-start px-2 md:max-w-[200px] style-sera:font-normal style-sera:tracking-normal style-sera:normal-case"
           >
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" alt="Shadcn" />
@@ -449,8 +463,7 @@ function DropdownMenuWithAvatar() {
               <AvatarFallback>LR</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {" "}
+          <DropdownMenuContent align="end" side="top">
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
@@ -532,13 +545,76 @@ function DropdownMenuInDialog() {
   );
 }
 
+function DropdownMenuWithInset() {
+  const [showBookmarks, setShowBookmarks] = createSignal(true);
+  const [showUrls, setShowUrls] = createSignal(false);
+  const [theme, setTheme] = createSignal("system");
+
+  return (
+    <Example title="With Inset">
+      <DropdownMenu>
+        <DropdownMenuTrigger as={Button} variant="outline" class="w-fit">
+          Open
+        </DropdownMenuTrigger>
+        <DropdownMenuContent class="w-44">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <Copy />
+              Copy
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Scissors />
+              Cut
+            </DropdownMenuItem>
+            <DropdownMenuItem inset>Paste</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
+            <DropdownMenuCheckboxItem inset checked={showBookmarks()} onChange={setShowBookmarks}>
+              Bookmarks
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem inset checked={showUrls()} onChange={setShowUrls}>
+              Full URLs
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel inset>Theme</DropdownMenuLabel>
+            <DropdownMenuRadioGroup value={theme()} onChange={setTheme}>
+              <DropdownMenuRadioItem inset value="light">
+                Light
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem inset value="dark">
+                Dark
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem inset value="system">
+                System
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger inset>More Options</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Save Page...</DropdownMenuItem>
+                  <DropdownMenuItem>Create Shortcut...</DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Example>
+  );
+}
+
 function DropdownMenuComplex() {
-  const [notifications, setNotifications] = createSignal({
-    email: true,
-    sms: false,
-    push: true,
-  });
-  const [theme, setTheme] = createSignal("light");
+  const [showSidebar, setShowSidebar] = createSignal(true);
+  const [showStatusBar, setShowStatusBar] = createSignal(false);
 
   return (
     <Example title="Complex">
@@ -546,129 +622,9 @@ function DropdownMenuComplex() {
         <DropdownMenuTrigger as={Button} variant="outline" class="w-fit">
           Complex Menu
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="style-lyra:w-48 style-maia:w-56 style-mira:w-48 style-nova:w-48 style-vega:w-56">
+        <DropdownMenuContent class="w-56">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>File</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <File />
-              New File
-              <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Folder />
-              New Folder
-              <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <FolderOpen />
-                Open Recent
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>Recent Projects</DropdownMenuLabel>
-                    <DropdownMenuItem>
-                      <FileCode />
-                      Project Alpha
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <FileCode />
-                      Project Beta
-                    </DropdownMenuItem>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <MoreHorizontal />
-                        More Projects
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuItem>
-                            <FileCode />
-                            Project Gamma
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FileCode />
-                            Project Delta
-                          </DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <FolderSearch />
-                      Browse...
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Save />
-              Save
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Download />
-              Export
-              <DropdownMenuShortcut>⇧⌘E</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>View</DropdownMenuLabel>
-            <DropdownMenuCheckboxItem
-              checked={notifications().email}
-              onChange={(checked) =>
-                setNotifications({ ...notifications(), email: checked === true })
-              }
-            >
-              <Eye />
-              Show Sidebar
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={notifications().sms}
-              onChange={(checked) =>
-                setNotifications({ ...notifications(), sms: checked === true })
-              }
-            >
-              <Layout />
-              Show Status Bar
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Palette />
-                Theme
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                    <DropdownMenuRadioGroup value={theme()} onChange={setTheme}>
-                      <DropdownMenuRadioItem value="light">
-                        <Sun />
-                        Light
-                      </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="dark">
-                        <Moon />
-                        Dark
-                      </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="system">
-                        <Monitor />
-                        System
-                      </DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Account</DropdownMenuLabel>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuItem>
               <User />
               Profile
@@ -677,67 +633,50 @@ function DropdownMenuComplex() {
             <DropdownMenuItem>
               <CreditCard />
               Billing
+              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
             </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings />
+              Settings
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>View</DropdownMenuLabel>
+            <DropdownMenuCheckboxItem checked={showSidebar()} onChange={setShowSidebar}>
+              <PanelLeft />
+              Sidebar
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem checked={showStatusBar()} onChange={setShowStatusBar}>
+              <Layout />
+              Status Bar
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                <Settings />
-                Settings
+                <Users />
+                Invite Users
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel>Preferences</DropdownMenuLabel>
                     <DropdownMenuItem>
-                      <Keyboard />
-                      Keyboard Shortcuts
+                      <Mail />
+                      Email
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Languages />
-                      Language
+                      <MessageSquare />
+                      Message
                     </DropdownMenuItem>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <Bell />
-                        Notifications
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuGroup>
-                            <DropdownMenuLabel>Notification Types</DropdownMenuLabel>
-                            <DropdownMenuCheckboxItem
-                              checked={notifications().push}
-                              onChange={(checked) =>
-                                setNotifications({
-                                  ...notifications(),
-                                  push: checked === true,
-                                })
-                              }
-                            >
-                              <Bell />
-                              Push Notifications
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                              checked={notifications().email}
-                              onChange={(checked) =>
-                                setNotifications({
-                                  ...notifications(),
-                                  email: checked === true,
-                                })
-                              }
-                            >
-                              <Mail />
-                              Email Notifications
-                            </DropdownMenuCheckboxItem>
-                          </DropdownMenuGroup>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
-                      <Shield />
-                      Privacy & Security
+                      <PlusCircle />
+                      More...
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuSubContent>
@@ -748,15 +687,8 @@ function DropdownMenuComplex() {
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <HelpCircle />
-              Help & Support
+              Support
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <FileText />
-              Documentation
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
             <DropdownMenuItem variant="destructive">
               <LogOut />
               Sign Out
