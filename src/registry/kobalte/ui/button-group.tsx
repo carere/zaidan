@@ -1,11 +1,18 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { type ComponentProps, mergeProps, splitProps } from "solid-js";
+import {
+  type ComponentProps,
+  type JSX,
+  mergeProps,
+  splitProps,
+  type ValidComponent,
+} from "solid-js";
+import { Dynamic } from "solid-js/web";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "@/registry/kobalte/ui/separator";
 
 const buttonGroupVariants = cva(
-  "z-button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
+  "group/button-group z-button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
   {
     variants: {
       orientation: {
@@ -26,7 +33,7 @@ type ButtonGroupProps = ComponentProps<"div"> & VariantProps<typeof buttonGroupV
 const ButtonGroup = (props: ButtonGroupProps) => {
   const [local, others] = splitProps(props, ["class", "orientation"]);
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <exception for button group>
+    // biome-ignore lint/a11y/useSemanticElements: role="group" matches the pinned shadcn contract
     <div
       class={cn(buttonGroupVariants({ orientation: local.orientation }), local.class)}
       data-orientation={local.orientation}
@@ -37,12 +44,18 @@ const ButtonGroup = (props: ButtonGroupProps) => {
   );
 };
 
-type ButtonGroupTextProps = ComponentProps<"div">;
+type ButtonGroupTextProps<T extends ValidComponent = "div"> = {
+  as?: T;
+  class?: string | undefined;
+  children?: JSX.Element;
+} & Omit<ComponentProps<T>, "as" | "class" | "children">;
 
-const ButtonGroupText = (props: ButtonGroupTextProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+const ButtonGroupText = <T extends ValidComponent = "div">(rawProps: ButtonGroupTextProps<T>) => {
+  const props = mergeProps({ as: "div" as T } as const, rawProps);
+  const [local, others] = splitProps(props as ButtonGroupTextProps, ["as", "class"]);
   return (
-    <div
+    <Dynamic
+      component={local.as}
       data-slot="button-group-text"
       class={cn("z-button-group-text flex items-center [&_svg]:pointer-events-none", local.class)}
       {...others}
