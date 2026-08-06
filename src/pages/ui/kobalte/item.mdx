@@ -2,42 +2,155 @@
 title: Item
 slug: item
 description: A versatile component for displaying content with media, title, description, and actions.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/separator
+  api: https://kobalte.dev/docs/core/components/separator#api-reference
 ---
 
-# Item
+The `ItemSeparator` component is built on top of [Kobalte Separator](https://kobalte.dev/docs/core/components/separator), which provides the accessible separator primitive.
 
-A versatile component that you can use to display any content. Use it to display a title, description, and actions. Group it with the `ItemGroup` component to create a list of items.
+<ComponentPreview name="item-demo" />
+
+The `Item` component is a straightforward flex container that can house nearly any type of content. Use it to display a title, description, and actions. Group it with `ItemGroup` to create a list of items.
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/item
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/item.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core class-variance-authority
 ```
 
-## API Reference
+<Step>Copy and paste the following code into your project.</Step>
 
-### Item
+<ComponentSource name="item" title="components/ui/item.tsx" />
 
-The main component for displaying content with media, title, description, and actions.
+<Step>Update the import paths to match your project setup.</Step>
 
-| Prop      | Type                                | Default     |
-| --------- | ----------------------------------- | ----------- |
-| `variant` | `"default" \| "outline" \| "muted"` | `"default"` |
-| `size`    | `"default" \| "sm" \| "xs"`         | `"default"` |
-| `as`      | `ValidComponent`                    | `"div"`     |
-| `class`   | `string`                            |             |
+</Steps>
 
-You can use the `as` prop to render a custom element, for example a link:
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "~/components/ui/item";
+```
+
+```tsx showLineNumbers
+<Item>
+  <ItemMedia variant="icon">
+    <Icon />
+  </ItemMedia>
+  <ItemContent>
+    <ItemTitle>Title</ItemTitle>
+    <ItemDescription>Description</ItemDescription>
+  </ItemContent>
+  <ItemActions>
+    <Button>Action</Button>
+  </ItemActions>
+</Item>
+```
+
+## Composition
+
+Use the following composition to build an `Item`:
+
+```text
+ItemGroup
+└── Item
+    ├── ItemHeader
+    ├── ItemMedia
+    ├── ItemContent
+    │   ├── ItemTitle
+    │   └── ItemDescription
+    ├── ItemActions
+    └── ItemFooter
+```
+
+## Item vs Field
+
+Use `Field` if you need to display a form input such as a checkbox, input, radio, or select.
+
+If you only need to display content such as a title, description, and actions, use `Item`.
+
+## Variant
+
+Use the `variant` prop to change the visual style of the item.
+
+<ComponentPreview name="item-variant" previewClass="h-96" />
+
+## Size
+
+Use the `size` prop to change the size of the item. Available sizes are `default`, `sm`, and `xs`.
+
+<ComponentPreview name="item-size" previewClass="h-96" />
+
+## Icon
+
+Use `ItemMedia` with `variant="icon"` to display an icon.
+
+<ComponentPreview name="item-icon" />
+
+## Avatar
+
+Wrap an `Avatar` in `ItemMedia` to display an avatar.
+
+<ComponentPreview name="item-avatar" />
+
+## Image
+
+Use `ItemMedia` with `variant="image"` to display an image.
+
+<ComponentPreview name="item-image" />
+
+## Group
+
+Use `ItemGroup` to group related items together.
+
+<ComponentPreview name="item-group" previewClass="h-96" />
+
+## Header
+
+Use `ItemHeader` to add a header above the item content.
+
+<ComponentPreview name="item-header" previewClass="h-96" />
+
+## Link
+
+Set `as="a"` to render the item as a link. The hover and focus states apply to the anchor element.
+
+<ComponentPreview name="item-link" />
 
 ```tsx showLineNumbers
 <Item as="a" href="/dashboard">
@@ -51,13 +164,26 @@ You can use the `as` prop to render a custom element, for example a link:
 </Item>
 ```
 
+## Dropdown
+
+<ComponentPreview name="item-dropdown" />
+
+## API Reference
+
+### Item
+
+The main component for displaying content with media, title, description, and actions.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `variant` | `"default" \| "outline" \| "muted"` | `"default"` |
+| `size` | `"default" \| "sm" \| "xs"` | `"default"` |
+| `as` | `ValidComponent` | `"div"` |
+| `class` | `string` | - |
+
 ### ItemGroup
 
-Container that groups related items together with consistent styling.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+A container that groups related items together with consistent styling.
 
 ```tsx
 <ItemGroup>
@@ -69,20 +195,16 @@ Container that groups related items together with consistent styling.
 
 ### ItemSeparator
 
-Separator that divides items in an item group.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+A separator between items in a group. It accepts [Kobalte Separator props](https://kobalte.dev/docs/core/components/separator#api-reference).
 
 ### ItemMedia
 
-Display media content such as icons, images, or avatars.
+Use `ItemMedia` to display media content such as icons, images, or avatars.
 
-| Prop      | Type                             | Default     |
-| --------- | -------------------------------- | ----------- |
+| Prop | Type | Default |
+| --- | --- | --- |
 | `variant` | `"default" \| "icon" \| "image"` | `"default"` |
-| `class`   | `string`                         |             |
+| `class` | `string` | - |
 
 ```tsx
 <ItemMedia variant="icon">
@@ -90,258 +212,33 @@ Display media content such as icons, images, or avatars.
 </ItemMedia>
 ```
 
-```tsx
-<ItemMedia variant="image">
-  <img src="..." alt="..." />
-</ItemMedia>
-```
-
 ### ItemContent
 
 Wraps the title and description of the item.
 
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+```tsx
+<ItemContent>
+  <ItemTitle>Title</ItemTitle>
+  <ItemDescription>Description</ItemDescription>
+</ItemContent>
+```
 
 ### ItemTitle
 
-Display the title of the item.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+Displays the title of the item.
 
 ### ItemDescription
 
-Display the description of the item.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+Displays the description of the item.
 
 ### ItemActions
 
-Display action buttons or other interactive elements.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+Container for action buttons or other interactive elements.
 
 ### ItemHeader
 
-Display a header in the item.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
+Displays a header above the item content.
 
 ### ItemFooter
 
-Display a footer in the item.
-
-| Prop    | Type     | Default |
-| ------- | -------- | ------- |
-| `class` | `string` |         |
-
-## Examples
-
-Here are the source code of all the examples from the preview page:
-
-### Default
-
-```tsx
-import { Inbox } from "lucide-solid";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L49-L138
-
-```
-
-### Outline
-
-```tsx
-import { Inbox } from "lucide-solid";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L140-L229
-
-```
-
-### Muted
-
-```tsx
-import { Inbox } from "lucide-solid";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L231-L320
-
-```
-
-### Small
-
-```tsx
-import { Inbox } from "lucide-solid";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L322-L415
-
-```
-
-### As Link
-
-```tsx
-import { Inbox } from "lucide-solid";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L892-L940
-
-```
-
-### ItemGroup
-
-```tsx
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemTitle,
-} from "~/components/ui/item";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L1042-L1067
-
-```
-
-### ItemSeparator
-
-```tsx
-import { Inbox } from "lucide-solid";
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemMedia,
-  ItemSeparator,
-  ItemTitle,
-} from "~/components/ui/item";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L1147-L1193
-
-```
-
-### ItemHeader
-
-```tsx
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemHeader,
-  ItemTitle,
-} from "~/components/ui/item";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L1195-L1233
-
-```
-
-### ItemFooter
-
-```tsx
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemTitle,
-} from "~/components/ui/item";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L1235-L1275
-
-```
-
-### ItemHeader + ItemFooter
-
-```tsx
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemHeader,
-  ItemTitle,
-} from "~/components/ui/item";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L1277-L1326
-
-```
-
-### ItemMedia with Image
-
-```tsx
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "~/components/ui/item";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/item-example.tsx#L1328-L1388
-
-```
+Displays a footer below the item content.
