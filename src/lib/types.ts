@@ -2,6 +2,7 @@ import type { docs } from "@velite";
 import type { Component } from "solid-js";
 import { z } from "zod";
 import type { sharedComponents } from "@/components/mdx-components";
+import type { CreateShowcase } from "@/lib/create-previews";
 import { FONT_DEFINITIONS, type FontName } from "@/lib/fonts";
 import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
@@ -79,6 +80,10 @@ export type IframeMessage =
   | {
       type: "design-system-params-sync";
       data: DesignSystemConfig;
+    }
+  | {
+      type: "showcase-change";
+      data: CreateShowcase;
     };
 
 export const PrimitiveSchema = z.enum(["kobalte", "base"]);

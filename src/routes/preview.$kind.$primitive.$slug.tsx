@@ -12,6 +12,7 @@ import {
 } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
 import { DEFAULT_CONFIG, FONTS, RADII } from "@/lib/config";
+import { getPreviewModule, hasPreviewModule } from "@/lib/create-previews";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage, Kind } from "@/lib/types";
 
@@ -20,9 +21,13 @@ export const Route = createFileRoute("/preview/$kind/$primitive/$slug")({
   loader: ({ params }) => {
     const { slug, primitive, kind } = params;
 
+    if (kind !== "ui" && kind !== "blocks") {
+      throw notFound({ data: { slug } });
+    }
+
     const collection = kind === "ui" ? ui : blocks;
     const component = collection.find((u) => u.slug === slug);
-    if (!component) {
+    if (!component || !hasPreviewModule(kind, primitive, slug)) {
       throw notFound({ data: { slug } });
     }
 
@@ -41,12 +46,17 @@ function PreviewComponent() {
   const [isReady, setIsReady] = createSignal(false);
   const [config, setConfig] = createSignal(DEFAULT_CONFIG);
 
-  const ExampleComponent = lazy(
-    () =>
-      import(
-        `../registry/${params().primitive}/examples/${params().kind}/${params().slug}-example.tsx`
-      ),
-  );
+  const ExampleComponent = lazy(async () => {
+    const kind = params().kind;
+    if (kind !== "ui" && kind !== "blocks") {
+      throw new Error(`Unsupported Create preview kind: ${kind}`);
+    }
+    const module = getPreviewModule(kind, params().primitive, params().slug);
+    if (!module) {
+      throw new Error(`Missing Create preview module: ${params().slug}`);
+    }
+    return module();
+  });
 
   const registryTheme = createMemo(() => {
     const p = config();

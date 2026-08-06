@@ -12,6 +12,7 @@ import {
   STYLES,
   THEMES,
 } from "@/lib/config";
+import { isCreateShowcase } from "@/lib/create-previews";
 import { decodeDesignSystemPreset, encodeDesignSystemPreset } from "@/lib/preset";
 import { getPreviewEntries } from "@/lib/registry-entries";
 import { createPageHead } from "@/lib/seo";
@@ -95,6 +96,8 @@ function CreatePage() {
         return;
       if (event.data.type === "preview-ready") {
         sendPreview();
+      } else if (event.data.type === "showcase-change") {
+        navigate({ search: (previous) => ({ ...previous, item: event.data.data }) });
       } else if (event.data.type === "dark-mode-forward" || event.data.type === "cmd-k-forward") {
         document.dispatchEvent(
           new KeyboardEvent("keydown", {
@@ -173,13 +176,25 @@ function CreatePage() {
   };
   const iframeHref = createMemo(() =>
     (() => {
+      const requestedItem = search().item;
+      const showcase = requestedItem
+        ? isCreateShowcase(requestedItem)
+          ? requestedItem
+          : undefined
+        : "preview-02";
+      if (showcase) {
+        return router.buildLocation({ to: "/preview/create", search: { showcase } }).href;
+      }
+
       const item = currentItem();
-      return item
-        ? router.buildLocation({
-            to: "/preview/$kind/$primitive/$slug",
-            params: { kind: item.kind, primitive: "kobalte", slug: item.slug },
-          }).href
-        : router.buildLocation({ to: "/preview/create" }).href;
+      return router.buildLocation({
+        to: "/preview/$kind/$primitive/$slug",
+        params: {
+          kind: item?.kind ?? "ui",
+          primitive: "kobalte",
+          slug: requestedItem ?? "missing",
+        },
+      }).href;
     })(),
   );
 
@@ -228,13 +243,22 @@ function CreatePage() {
             <CommandEmpty>No previews found.</CommandEmpty>
             <CommandGroup heading="Showcase">
               <CommandItem
-                value="components index"
+                value="preview 01 showcase"
                 onSelect={() => {
-                  navigate({ search: (previous) => ({ ...previous, item: undefined }) });
+                  navigate({ search: (previous) => ({ ...previous, item: "preview-02" }) });
                   setPickerOpen(false);
                 }}
               >
-                Components
+                Preview 01
+              </CommandItem>
+              <CommandItem
+                value="preview 02 showcase"
+                onSelect={() => {
+                  navigate({ search: (previous) => ({ ...previous, item: "preview" }) });
+                  setPickerOpen(false);
+                }}
+              >
+                Preview 02
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
