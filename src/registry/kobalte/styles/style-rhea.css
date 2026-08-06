@@ -1304,7 +1304,91 @@
 
 /* MARK: Calendar */
 .z-calendar {
+  --rdp-animation_duration: 0.3s;
+  --rdp-animation_timing: cubic-bezier(0.4, 0, 0.2, 1);
   @apply p-3 [--cell-radius:var(--radius-2xl)] [--cell-size:--spacing(8)];
+}
+
+@keyframes z-calendar-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes z-calendar-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes z-calendar-slide-out-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes z-calendar-slide-out-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes z-calendar-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes z-calendar-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.z-calendar-weeks-before-enter {
+  animation: z-calendar-slide-in-left var(--rdp-animation_duration) var(--rdp-animation_timing)
+    forwards;
+}
+
+.z-calendar-weeks-before-exit {
+  animation: z-calendar-slide-out-left var(--rdp-animation_duration) var(--rdp-animation_timing)
+    forwards;
+}
+
+.z-calendar-weeks-after-enter {
+  animation: z-calendar-slide-in-right var(--rdp-animation_duration) var(--rdp-animation_timing)
+    forwards;
+}
+
+.z-calendar-weeks-after-exit {
+  animation: z-calendar-slide-out-right var(--rdp-animation_duration) var(--rdp-animation_timing)
+    forwards;
+}
+
+.z-calendar[dir="rtl"] .z-calendar-weeks-after-enter {
+  animation-name: z-calendar-slide-in-left;
+}
+
+.z-calendar[dir="rtl"] .z-calendar-weeks-before-exit {
+  animation-name: z-calendar-slide-out-right;
+}
+
+.z-calendar[dir="rtl"] .z-calendar-weeks-before-enter {
+  animation-name: z-calendar-slide-in-right;
+}
+
+.z-calendar[dir="rtl"] .z-calendar-weeks-after-exit {
+  animation-name: z-calendar-slide-out-left;
+}
+
+.z-calendar-caption-after-enter,
+.z-calendar-caption-before-enter {
+  animation: z-calendar-fade-in var(--rdp-animation_duration) var(--rdp-animation_timing) forwards;
+}
+
+.z-calendar-caption-after-exit,
+.z-calendar-caption-before-exit {
+  animation: z-calendar-fade-out var(--rdp-animation_duration) var(--rdp-animation_timing) forwards;
 }
 
 .z-calendar-dropdown-root {
