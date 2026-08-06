@@ -1,6 +1,8 @@
+// Kobalte Combobox requires a predefined options collection and popup lifecycle,
+// which cannot preserve cmdk's arbitrary-child, rank-sorted command API.
 import { Command as CommandPrimitive } from "cmdk-solid";
 import { Check, SearchIcon } from "lucide-solid";
-import { type ComponentProps, mergeProps, splitProps } from "solid-js";
+import { type ComponentProps, type JSX, mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -11,22 +13,25 @@ import {
 } from "@/registry/kobalte/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/registry/kobalte/ui/input-group";
 
-function Command(props: ComponentProps<"div">) {
+function Command(props: ComponentProps<typeof CommandPrimitive>) {
+  const [local, others] = splitProps(props, ["class"]);
+
   return (
     <CommandPrimitive
       data-slot="command"
-      class={cn("z-command flex size-full flex-col overflow-hidden", props.class)}
-      {...props}
+      class={cn("z-command flex size-full flex-col overflow-hidden", local.class)}
+      {...others}
     />
   );
 }
 
-type CommandDialogProps = ComponentProps<typeof Dialog> &
-  Pick<ComponentProps<"div">, "class"> & {
-    title?: string;
-    description?: string;
-    showCloseButton?: boolean;
-  };
+type CommandDialogProps = Omit<ComponentProps<typeof Dialog>, "children"> & {
+  title?: string;
+  description?: string;
+  class?: string;
+  showCloseButton?: boolean;
+  children: JSX.Element;
+};
 
 function CommandDialog(props: CommandDialogProps) {
   const mergedProps = mergeProps(
@@ -53,7 +58,7 @@ function CommandDialog(props: CommandDialogProps) {
         <DialogDescription>{local.description}</DialogDescription>
       </DialogHeader>
       <DialogContent
-        class={cn("z-command-dialog overflow-hidden p-0", local.class)}
+        class={cn("z-command-dialog top-1/3 translate-y-0 overflow-hidden p-0", local.class)}
         showCloseButton={local.showCloseButton}
       >
         {local.children}
