@@ -1,5 +1,6 @@
 import { CheckIcon } from "lucide-solid";
 import { Bubble, BubbleContent, BubbleReactions } from "@/registry/kobalte/ui/bubble";
+import { Button } from "@/registry/kobalte/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 export default function BubbleTooltip() {
@@ -13,8 +14,10 @@ export default function BubbleTooltip() {
         <BubbleReactions>
           <Tooltip>
             <TooltipTrigger
+              as={Button}
+              variant="ghost"
+              size="icon-xs"
               aria-label="Message read details"
-              class="group/button z-button z-button-variant-ghost z-button-size-icon-xs inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap border border-transparent text-sm font-medium outline-none transition-all"
             >
               <CheckIcon />
             </TooltipTrigger>
