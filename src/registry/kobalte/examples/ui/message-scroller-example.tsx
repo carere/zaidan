@@ -78,15 +78,44 @@ export default function MessageScrollerExample() {
 function MessageScrollerDemo() {
   const [messages, setMessages] = createSignal(initialMessages);
   const [nextTurn, setNextTurn] = createSignal(0);
-  const [status, setStatus] = createSignal<"ready" | "submitted">("ready");
+  const [status, setStatus] = createSignal<"ready" | "submitted" | "streaming">("ready");
   let responseTimer: ReturnType<typeof setTimeout> | undefined;
+  let streamTimer: ReturnType<typeof setInterval> | undefined;
 
   onCleanup(() => {
     if (responseTimer) clearTimeout(responseTimer);
+    if (streamTimer) clearInterval(streamTimer);
   });
 
-  const isBusy = () => status() === "submitted";
+  const isBusy = () => status() === "submitted" || status() === "streaming";
   const pendingTurn = () => scriptedTurns[nextTurn()];
+
+  const streamResponse = (turn: ScriptedTurn, turnNumber: number) => {
+    const chunks = turn.answer.match(/\S+\s*/g) ?? [turn.answer];
+    let chunkIndex = 0;
+    const messageId = `answer-${turnNumber}`;
+
+    setMessages((current) => [...current, { id: messageId, role: "assistant", text: "" }]);
+    setStatus("streaming");
+
+    streamTimer = setInterval(() => {
+      const chunk = chunks[chunkIndex];
+      if (chunk) {
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === messageId ? { ...message, text: `${message.text}${chunk}` } : message,
+          ),
+        );
+        chunkIndex += 1;
+      }
+
+      if (chunkIndex < chunks.length) return;
+
+      clearInterval(streamTimer);
+      streamTimer = undefined;
+      setStatus("ready");
+    }, 10);
+  };
 
   const sendNextMessage = () => {
     const turn = pendingTurn();
@@ -101,18 +130,16 @@ function MessageScrollerDemo() {
     setStatus("submitted");
 
     responseTimer = setTimeout(() => {
-      setMessages((current) => [
-        ...current,
-        { id: `answer-${turnNumber}`, role: "assistant", text: turn.answer },
-      ]);
-      setStatus("ready");
       responseTimer = undefined;
+      streamResponse(turn, turnNumber);
     }, turn.delayMs);
   };
 
   const stop = () => {
     if (responseTimer) clearTimeout(responseTimer);
+    if (streamTimer) clearInterval(streamTimer);
     responseTimer = undefined;
+    streamTimer = undefined;
     setStatus("ready");
   };
 
@@ -144,7 +171,7 @@ function MessageScrollerDemo() {
                       </MessageScrollerItem>
                     )}
                   </For>
-                  <Show when={isBusy()}>
+                  <Show when={status() === "submitted"}>
                     <MessageScrollerItem scrollAnchor={false}>
                       <div
                         class="flex items-center gap-2 text-muted-foreground text-sm"
