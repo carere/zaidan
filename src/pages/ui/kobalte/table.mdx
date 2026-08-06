@@ -2,176 +2,169 @@
 title: Table
 slug: table
 description: A responsive table component.
+component: true
 ---
 
-# Table
-
-A responsive table component.
+<ComponentPreview name="table-demo" previewClass="h-[30rem]" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/table
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/table.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="table" title="components/ui/table.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 ```
+
+```tsx showLineNumbers
+<Table>
+  <TableCaption>A list of your recent invoices.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead class="w-[100px]">Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead class="text-right">Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell class="font-medium">INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>Credit Card</TableCell>
+      <TableCell class="text-right">$250.00</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+## Composition
+
+Use the following composition to build a `Table`:
+
+```text
+Table
+├── TableCaption
+├── TableHeader
+│   └── TableRow
+│       ├── TableHead
+│       ├── TableHead
+│       ├── TableHead
+│       └── TableHead
+├── TableBody
+│   ├── TableRow
+│   │   ├── TableCell
+│   │   ├── TableCell
+│   │   ├── TableCell
+│   │   └── TableCell
+│   └── TableRow
+│       ├── TableCell
+│       ├── TableCell
+│       ├── TableCell
+│       └── TableCell
+└── TableFooter
+```
+
+## Footer
+
+Use the `<TableFooter />` component to add a footer to the table.
+
+<ComponentPreview name="table-footer" />
+
+## Actions
+
+A table showing actions for each row using a `<DropdownMenu />` component.
+
+<ComponentPreview name="table-actions" />
 
 ## Data Table
 
-You can use the `<Table />` component to build more complex data tables. Combine it with [@tanstack/solid-table](https://tanstack.com/table/v8) to create tables with sorting, filtering and pagination.
+You can use the `<Table />` component to build more complex data tables. Combine it with [@tanstack/solid-table](https://tanstack.com/table/v8) to create tables with sorting, filtering, and pagination.
 
-## Examples
+## API Reference
 
-Here are the source code of all the examples from the preview page:
+### Table
 
-### Basic
+A responsive native `<table>` wrapped in a scrollable container. It forwards standard table attributes.
 
-```tsx
-import { For } from "solid-js";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
 
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L90-L118
+### TableCaption
 
-```
+A native `<caption>` that describes the table.
 
-### With Footer
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
 
-```tsx
-import { For } from "solid-js";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
+### TableHeader and TableBody
 
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L120-L154
+Native `<thead>` and `<tbody>` sections.
 
-```
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
 
-### Simple
+### TableFooter
 
-```tsx
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
+A native `<tfoot>` for summary rows.
 
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L156-L187
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
 
-```
+### TableRow
 
-### With Badges
+A native `<tr>` row.
 
-```tsx
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
 
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L189-L244
+### TableHead and TableCell
 
-```
+Native `<th>` and `<td>` cells.
 
-### With Actions
-
-```tsx
-import { MoreHorizontal } from "lucide-solid";
-import { For } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L246-L290
-
-```
-
-### With Select
-
-```tsx
-import { For } from "solid-js";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L317-L359
-
-```
-
-### With Input
-
-```tsx
-import { For } from "solid-js";
-import { Input } from "~/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/table-example.tsx#L361-L394
-
-```
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
