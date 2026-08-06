@@ -2,15 +2,23 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount, Show } from "solid-js";
 import { CreateIndex } from "@/components/create-index";
 import { DEFAULT_CONFIG, FONTS, RADII } from "@/lib/config";
+import { isCreateShowcase } from "@/lib/create-previews";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage } from "@/lib/types";
 
 export const Route = createFileRoute("/preview/create")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>) => ({
+    showcase:
+      typeof search.showcase === "string" && isCreateShowcase(search.showcase)
+        ? search.showcase
+        : "preview-02",
+  }),
   component: PreviewComponent,
 });
 
 function PreviewComponent() {
+  const search = Route.useSearch();
   const [isReady, setIsReady] = createSignal(false);
   const [config, setConfig] = createSignal(DEFAULT_CONFIG);
 
@@ -187,7 +195,16 @@ function PreviewComponent() {
 
   return (
     <Show when={isReady()}>
-      <CreateIndex />
+      <CreateIndex
+        config={config()}
+        showcase={search().showcase}
+        onShowcaseChange={(showcase) =>
+          window.parent.postMessage(
+            { type: "showcase-change", data: showcase } satisfies IframeMessage,
+            window.location.origin,
+          )
+        }
+      />
     </Show>
   );
 }

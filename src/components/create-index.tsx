@@ -1,72 +1,42 @@
-import { AccountAccess } from "@/components/home/cards/account-access";
-import { AnalyticsCard } from "@/components/home/cards/analytics-card";
-import { ClaimableBalance } from "@/components/home/cards/claimable-balance";
-import { ContributionHistory } from "@/components/home/cards/contribution-history";
-import { DividendIncome } from "@/components/home/cards/dividend-income";
-import { EmptyDistributeTrack } from "@/components/home/cards/empty-distribute-track";
-import { MessageScrollerPlaceholder } from "@/components/home/cards/message-scroller-placeholder";
-import { NewMilestone } from "@/components/home/cards/new-milestone";
-import { NotificationSettings } from "@/components/home/cards/notification-settings";
-import { Payments } from "@/components/home/cards/payments";
-import { PayoutThreshold } from "@/components/home/cards/payout-threshold";
-import { PowerUsage } from "@/components/home/cards/power-usage";
-import { QrConnect } from "@/components/home/cards/qr-connect";
-import { SavingsTargets } from "@/components/home/cards/savings-targets";
-import { SidebarNav } from "@/components/home/cards/sidebar-nav";
-import { UIElements } from "@/components/home/cards/ui-elements";
+import { For, Show } from "solid-js";
+import { PreviewShowcase } from "@/components/create-showcases/preview";
+import { Preview02Showcase } from "@/components/create-showcases/preview-02";
+import type { CreateShowcase } from "@/lib/create-previews";
+import type { DesignSystemConfig } from "@/lib/types";
+import { Button } from "@/registry/kobalte/ui/button";
 
-export function CreateIndex() {
+const SHOWCASE_OPTIONS: { label: string; value: CreateShowcase }[] = [
+  { label: "01", value: "preview-02" },
+  { label: "02", value: "preview" },
+];
+
+export function CreateIndex(props: {
+  config: DesignSystemConfig;
+  onShowcaseChange: (showcase: CreateShowcase) => void;
+  showcase: CreateShowcase;
+}) {
   return (
-    <div class="overflow-x-auto overflow-y-hidden bg-muted contain-[paint] [--gap:--spacing(4)] md:[--gap:--spacing(10)] 3xl:[--gap:--spacing(12)] dark:bg-background style-lyra:md:[--gap:--spacing(6)] style-mira:md:[--gap:--spacing(6)]">
-      <div class="flex w-full min-w-max justify-center">
-        <div
-          data-slot="capture-target"
-          class="grid w-[2400px] grid-cols-7 items-start gap-(--gap) bg-muted p-(--gap) md:w-[3000px] dark:bg-background style-lyra:md:w-[2600px] style-mira:md:w-[2600px] *:[div]:gap-(--gap)"
-        >
-          <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
-            <ContributionHistory />
-            <EmptyDistributeTrack />
-            <QrConnect />
-            <DividendIncome />
-          </div>
-          <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
-            <PayoutThreshold />
-            <ClaimableBalance />
-            <PowerUsage />
-            <NotificationSettings />
-          </div>
-          <div class="col-span-2 flex flex-col p-1 [contain-intrinsic-size:760px_1200px] [content-visibility:auto]">
-            <SavingsTargets />
-            <div class="grid grid-cols-2 items-start gap-(--gap)">
-              <div class="flex flex-col gap-(--gap)">
-                <SidebarNav />
-                <AccountAccess />
-              </div>
-              <div class="flex flex-col gap-(--gap)">
-                <Payments />
-                <MessageScrollerPlaceholder />
-              </div>
-            </div>
-            <AnalyticsCard />
-          </div>
-          <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
-            <AccountAccess />
-            <UIElements />
-            <NewMilestone />
-          </div>
-          <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
-            <PowerUsage />
-            <Payments />
-            <QrConnect />
-          </div>
-          <div class="flex flex-col p-1 [contain-intrinsic-size:380px_1200px] [content-visibility:auto]">
-            <AnalyticsCard />
-            <NotificationSettings />
-            <ClaimableBalance />
-            <NewMilestone />
-          </div>
-        </div>
-      </div>
+    <div class="relative">
+      <Show when={props.showcase === "preview"} fallback={<Preview02Showcase />}>
+        <PreviewShowcase config={props.config} />
+      </Show>
+      <fieldset class="dark fixed right-3 bottom-3 z-20 flex items-center gap-1 rounded-xl bg-card/90 p-1 shadow-xl backdrop-blur-xl">
+        <legend class="sr-only">Showcase preview</legend>
+        <For each={SHOWCASE_OPTIONS}>
+          {(item) => (
+            <Button
+              variant="ghost"
+              size="sm"
+              data-active={props.showcase === item.value}
+              aria-pressed={props.showcase === item.value}
+              class="h-7 min-w-8 cursor-pointer rounded-lg px-2.5 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
+              onClick={() => props.onShowcaseChange(item.value)}
+            >
+              {item.label}
+            </Button>
+          )}
+        </For>
+      </fieldset>
     </div>
   );
 }

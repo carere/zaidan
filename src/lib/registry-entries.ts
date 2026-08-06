@@ -1,5 +1,6 @@
 import { blocks, docs, ui } from "@velite";
 import { UPDATED_ITEMS, type UpdatedItem } from "@/lib/config";
+import { hasPreviewModule } from "@/lib/create-previews";
 
 export type MergedItem = {
   slug: string;
@@ -58,5 +59,11 @@ export function getEntries(): Entry[] {
 }
 
 export function getPreviewEntries(): Entry[] {
-  return getEntries().filter((entry) => entry.kind !== "docs");
+  return getEntries()
+    .filter((entry): entry is Entry & { kind: "blocks" | "ui" } => entry.kind !== "docs")
+    .map((entry) => ({
+      ...entry,
+      items: entry.items.filter((item) => hasPreviewModule(entry.kind, "kobalte", item.slug)),
+    }))
+    .filter((entry) => entry.items.length > 0);
 }
