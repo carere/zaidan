@@ -19,6 +19,7 @@ import {
   createUniqueId,
   type JSX,
   mergeProps,
+  on,
   onCleanup,
   onMount,
   splitProps,
@@ -45,18 +46,27 @@ type TabsChangeDetails = {
 type RegisteredTab = {
   disabled: Accessor<boolean>;
   element: Accessor<HTMLElement | undefined>;
+  id: Accessor<string>;
   value: Accessor<unknown>;
 };
 
 type TabsContextValue = {
   activationDirection: Accessor<TabsActivationDirection>;
+  commitPointerActivation: (value: unknown, event: MouseEvent) => void;
   keyForValue: (value: unknown) => string;
+  mountedPanelIdForValue: (value: unknown) => string | undefined;
   orientation: Accessor<"horizontal" | "vertical">;
+  panelIdForValue: (value: unknown) => string;
   recordTriggerEvent: (event: Event) => void;
+  registerPanel: (value: unknown, id: string) => () => void;
   registerTab: (tab: RegisteredTab) => () => void;
+  recordTabFocus: (value: unknown, disabled: boolean) => void;
+  registeredTabIdForValue: (value: unknown) => string | undefined;
   scheduleReconciliation: () => void;
   selectedValue: Accessor<unknown>;
   setActivateOnFocus: (activateOnFocus: boolean) => void;
+  tabIndexForValue: (value: unknown) => number;
+  triggerIdForValue: (value: unknown) => string;
 };
 
 const TabsContext = createContext<TabsContextValue>();
@@ -79,38 +89,21 @@ function setElementRef(ref: unknown, element: HTMLElement) {
   if (typeof ref === "function") (ref as (element: HTMLElement) => void)(element);
 }
 
-function activationDirectionForEvent(
-  event: Event,
-  orientation: "horizontal" | "vertical",
-): TabsActivationDirection {
-  if (typeof KeyboardEvent === "undefined" || !(event instanceof KeyboardEvent)) return "none";
-
-  if (orientation === "horizontal") {
-    if (event.key === "ArrowLeft") return "left";
-    if (event.key === "ArrowRight") return "right";
-  } else {
-    if (event.key === "ArrowDown") return "down";
-    if (event.key === "ArrowUp") return "up";
-  }
-
-  return "none";
-}
-
 function createChangeDetails(
   reason: TabsChangeReason,
   event: Event,
-  orientation: "horizontal" | "vertical",
+  activationDirection: TabsActivationDirection,
 ): TabsChangeDetails {
   let canceled = false;
   let propagationAllowed = false;
 
   return {
-    activationDirection: activationDirectionForEvent(event, orientation),
+    activationDirection,
     allowPropagation: () => {
       propagationAllowed = true;
     },
     cancel: () => {
-      if (reason === "none") canceled = true;
+      canceled = true;
     },
     event,
     get isCanceled() {
@@ -120,13 +113,13 @@ function createChangeDetails(
       return propagationAllowed;
     },
     reason,
-    trigger: event.currentTarget instanceof Element ? event.currentTarget : undefined,
+    trigger: undefined,
   };
 }
 
 type TabsProps<T extends ValidComponent = "div", Value = unknown> = Omit<
   PolymorphicProps<T, TabsRootPrimitiveProps<T>>,
-  "activationMode" | "defaultValue" | "onChange" | "orientation" | "value"
+  "activationMode" | "defaultValue" | "disabled" | "onChange" | "orientation" | "value"
 > &
   Pick<ComponentProps<T>, "class" | "children"> & {
     defaultValue?: Value | null;
@@ -143,30 +136,42 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
     "children",
     "class",
     "defaultValue",
-    "disabled",
     "onChange",
     "onValueChange",
     "orientation",
     "value",
   ]);
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<unknown>(local.defaultValue);
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<unknown>(
+    local.defaultValue === undefined ? 0 : local.defaultValue,
+  );
   const [activateOnFocus, setActivateOnFocus] = createSignal(false);
   const [activationDirection, setActivationDirection] =
     createSignal<TabsActivationDirection>("none");
-  const emptySelectionKey = `tabs-empty-${createUniqueId()}`;
+  const baseId = `tabs-${createUniqueId()}`;
+  const emptySelectionKey = `${baseId}-empty`;
   const valueToKey = new Map<unknown, string>();
   const keyToValue = new Map<string, unknown>();
+  const mountedPanels = new Map<string, { count: number; id: string }>();
+  const [mountedPanelVersion, setMountedPanelVersion] = createSignal(0);
+  const [registeredTabVersion, setRegisteredTabVersion] = createSignal(0);
+  const [highlightedValue, setHighlightedValue] = createSignal<unknown>();
   const tabs = new Set<RegisteredTab>();
   let pendingTriggerEvent: Event | undefined;
+  let pendingPointerValue: unknown;
+  let hasPendingPointerValue = false;
   let selectionResolved = local.defaultValue !== undefined || local.value !== undefined;
+  let honorDisabledDefault = local.defaultValue !== undefined;
+  let didRegisterTabs = false;
+  let lastKnownTabElement: HTMLElement | undefined;
   let reconciliationQueued = false;
+  let disposed = false;
 
   const selectedValue = () => (local.value !== undefined ? local.value : uncontrolledValue());
   const keyForValue = (value: unknown) => {
     const existingKey = valueToKey.get(value);
     if (existingKey) return existingKey;
 
-    const key = `tabs-value-${valueToKey.size + 1}`;
+    const key = `${baseId}-value-${valueToKey.size + 1}`;
     valueToKey.set(value, key);
     keyToValue.set(key, value);
     return key;
@@ -186,31 +191,108 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
       if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1;
       return 0;
     });
+  const tabForValue = (value: unknown) => orderedTabs().find((tab) => tab.value() === value);
+  const computeActivationDirection = (oldValue: unknown, newValue: unknown) => {
+    if (oldValue == null || newValue == null) return "none";
+
+    const ordered = orderedTabs();
+    const oldElement = ordered.find((tab) => tab.value() === oldValue)?.element();
+    const newElement = ordered.find((tab) => tab.value() === newValue)?.element();
+
+    if (oldElement && newElement) {
+      const oldRect = oldElement.getBoundingClientRect();
+      const newRect = newElement.getBoundingClientRect();
+      if (local.orientation === "vertical") {
+        if (newRect.top < oldRect.top) return "up";
+        if (newRect.top > oldRect.top) return "down";
+      } else {
+        if (newRect.left < oldRect.left) return "left";
+        if (newRect.left > oldRect.left) return "right";
+      }
+      return "none";
+    }
+
+    if (oldElement !== newElement && typeof oldValue === "number" && typeof newValue === "number") {
+      if (local.orientation === "vertical") return newValue > oldValue ? "down" : "up";
+      return newValue > oldValue ? "right" : "left";
+    }
+    if (oldElement !== newElement && typeof oldValue === "string" && typeof newValue === "string") {
+      if (local.orientation === "vertical") return newValue > oldValue ? "down" : "up";
+      return newValue > oldValue ? "right" : "left";
+    }
+
+    return "none";
+  };
 
   const requestValueChange = (
     nextValue: unknown,
     reason: TabsChangeReason,
     event = new Event("base-ui"),
   ) => {
-    const details = createChangeDetails(reason, event, local.orientation ?? "horizontal");
+    const automatic = reason !== "none";
+    const nextActivationDirection = automatic
+      ? "none"
+      : computeActivationDirection(selectedValue(), nextValue);
+    const details = createChangeDetails(reason, event, nextActivationDirection);
+    if (automatic) {
+      if (local.value === undefined) setUncontrolledValue(nextValue);
+      setActivationDirection("none");
+    }
     local.onValueChange?.(nextValue, details);
-    if (details.isCanceled) return;
+    if (!automatic && details.isCanceled) return;
 
-    setActivationDirection(details.activationDirection);
+    if (!automatic && local.value === undefined) {
+      setActivationDirection(details.activationDirection);
+    }
+    const nextTab = tabForValue(nextValue);
+    if (nextTab && !nextTab.disabled()) setHighlightedValue(nextValue);
     local.onChange?.(nextValue);
-    if (local.value === undefined) setUncontrolledValue(nextValue);
+    if (!automatic && local.value === undefined) setUncontrolledValue(nextValue);
   };
   const reconcileSelection = () => {
     reconciliationQueued = false;
-    if (local.value !== undefined) return;
+    if (disposed) return;
 
     const currentValue = selectedValue();
-    if (currentValue == null) return;
-
     const ordered = orderedTabs();
-    if (ordered.length === 0) return;
+    if (ordered.length === 0) {
+      if (
+        local.value === undefined &&
+        currentValue != null &&
+        didRegisterTabs &&
+        selectionResolved &&
+        !lastKnownTabElement?.isConnected
+      ) {
+        requestValueChange(null, "missing");
+      }
+      return;
+    }
+    lastKnownTabElement = ordered[0]?.element();
+
+    const highlightedTab = ordered.find((tab) => tab.value() === highlightedValue());
+    if (!highlightedTab) {
+      const selectedTab = ordered.find((tab) => tab.value() === currentValue);
+      setHighlightedValue(
+        selectedTab && !selectedTab.disabled() ? currentValue : ordered[0]?.value(),
+      );
+    }
+
+    if (local.value !== undefined || currentValue == null) return;
 
     const selectedTab = ordered.find((tab) => tab.value() === currentValue);
+    if (selectedTab && honorDisabledDefault && currentValue === local.defaultValue) {
+      if (selectedTab.disabled()) return;
+      honorDisabledDefault = false;
+    }
+    if (!selectionResolved) {
+      const initialValue =
+        selectedTab && !selectedTab.disabled()
+          ? currentValue
+          : (ordered.find((tab) => !tab.disabled())?.value() ?? null);
+      requestValueChange(initialValue, "initial");
+      selectionResolved = true;
+      return;
+    }
     if (selectedTab && !selectedTab.disabled()) return;
 
     const fallback = ordered.find((tab) => !tab.disabled());
@@ -218,7 +300,7 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
     else if (selectionResolved) requestValueChange(fallback?.value() ?? null, "missing");
   };
   const scheduleReconciliation = () => {
-    if (reconciliationQueued) return;
+    if (typeof window === "undefined" || reconciliationQueued) return;
     reconciliationQueued = true;
     queueMicrotask(reconcileSelection);
   };
@@ -241,6 +323,38 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
     if (selectedValue() === null && !pendingTriggerEvent) return;
     if (local.value !== undefined && !pendingTriggerEvent) return;
 
+    const proposedValue = keyToValue.get(key);
+    const proposedTab = orderedTabs().find((tab) => tab.value() === proposedValue);
+    if (proposedValue === selectedValue()) {
+      pendingTriggerEvent = undefined;
+      return;
+    }
+    if (pendingTriggerEvent && proposedTab?.disabled()) {
+      pendingTriggerEvent = undefined;
+      return;
+    }
+    if (
+      typeof PointerEvent !== "undefined" &&
+      pendingTriggerEvent instanceof PointerEvent &&
+      pendingTriggerEvent.type === "pointerdown" &&
+      pendingTriggerEvent.pointerType === "mouse"
+    ) {
+      pendingPointerValue = proposedValue;
+      hasPendingPointerValue = true;
+      if (!activateOnFocus()) pendingTriggerEvent = undefined;
+      return;
+    }
+    if (
+      typeof MouseEvent !== "undefined" &&
+      pendingTriggerEvent instanceof MouseEvent &&
+      pendingTriggerEvent.type === "click" &&
+      pendingTriggerEvent.button !== 0
+    ) {
+      pendingTriggerEvent = undefined;
+      return;
+    }
+    hasPendingPointerValue = false;
+    pendingPointerValue = undefined;
     const reason: TabsChangeReason = pendingTriggerEvent
       ? "none"
       : selectionResolved
@@ -248,28 +362,94 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
         : local.defaultValue === undefined
           ? "initial"
           : "missing";
-    requestValueChange(keyToValue.get(key), reason, pendingTriggerEvent);
+    const nextValue =
+      !pendingTriggerEvent && proposedTab?.disabled()
+        ? (orderedTabs()
+            .find((tab) => !tab.disabled())
+            ?.value() ?? null)
+        : proposedValue;
+    requestValueChange(nextValue, reason, pendingTriggerEvent);
     selectionResolved = true;
     pendingTriggerEvent = undefined;
   };
 
   const context: TabsContextValue = {
     activationDirection,
+    commitPointerActivation: (value, event) => {
+      if (!hasPendingPointerValue || !Object.is(pendingPointerValue, value)) return;
+      hasPendingPointerValue = false;
+      pendingPointerValue = undefined;
+      requestValueChange(value, "none", event);
+      pendingTriggerEvent = undefined;
+    },
     keyForValue,
+    mountedPanelIdForValue: (value) => {
+      mountedPanelVersion();
+      const key = keyForValue(value);
+      return mountedPanels.get(key)?.id;
+    },
     orientation: () => local.orientation ?? "horizontal",
+    panelIdForValue: (value) => `${keyForValue(value)}-content`,
     recordTriggerEvent,
+    registerPanel: (value, id) => {
+      const key = keyForValue(value);
+      const mountedPanel = mountedPanels.get(key);
+      mountedPanels.set(key, {
+        count: (mountedPanel?.count ?? 0) + 1,
+        id,
+      });
+      setMountedPanelVersion((version) => version + 1);
+      return () => {
+        const current = mountedPanels.get(key);
+        if (!current || current.count <= 1) mountedPanels.delete(key);
+        else mountedPanels.set(key, { ...current, count: current.count - 1 });
+        setMountedPanelVersion((version) => version + 1);
+      };
+    },
     registerTab: (tab) => {
       tabs.add(tab);
+      setRegisteredTabVersion((version) => version + 1);
+      didRegisterTabs = true;
       scheduleReconciliation();
       return () => {
         tabs.delete(tab);
+        setRegisteredTabVersion((version) => version + 1);
         scheduleReconciliation();
       };
+    },
+    recordTabFocus: (value, disabled) => {
+      if (!disabled) setHighlightedValue(value);
+    },
+    registeredTabIdForValue: (value) => {
+      registeredTabVersion();
+      return [...tabs].find((tab) => tab.value() === value)?.id();
     },
     scheduleReconciliation,
     selectedValue,
     setActivateOnFocus,
+    tabIndexForValue: (value) => (highlightedValue() === value ? 0 : -1),
+    triggerIdForValue: (value) => `${keyForValue(value)}-trigger`,
   };
+  let previousControlledValue = local.value;
+  createEffect(() => {
+    const nextControlledValue = local.value;
+    if (nextControlledValue !== undefined && nextControlledValue !== previousControlledValue) {
+      setActivationDirection(
+        computeActivationDirection(previousControlledValue, nextControlledValue),
+      );
+      const focusIsInTabs = [...tabs].some(
+        (tab) => tab.element() === globalThis.document?.activeElement,
+      );
+      const nextTab = tabForValue(nextControlledValue);
+      if (!focusIsInTabs && nextTab && !nextTab.disabled()) {
+        setHighlightedValue(nextControlledValue);
+      }
+    }
+    previousControlledValue = nextControlledValue;
+  });
+  onCleanup(() => {
+    disposed = true;
+  });
 
   return (
     <TabsContext.Provider value={context}>
@@ -279,7 +459,6 @@ const Tabs = <T extends ValidComponent = "div", Value = unknown>(props: TabsProp
         data-activation-direction={activationDirection()}
         orientation={local.orientation}
         activationMode={activateOnFocus() ? "automatic" : "manual"}
-        disabled={local.disabled}
         value={primitiveValue()}
         onChange={handlePrimitiveChange}
         class={cn("group/tabs z-tabs flex data-[orientation=horizontal]:flex-col", local.class)}
@@ -342,18 +521,16 @@ const TabsList = <T extends ValidComponent = "div">(props: TabsListProps<T>) => 
     const backwardKey = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp";
     if (event.key !== forwardKey && event.key !== backwardKey) return;
 
-    const enabledTabs = [...element.querySelectorAll<HTMLElement>("[role=tab]")].filter(
-      (tab) => !tab.hasAttribute("data-disabled"),
-    );
+    const tabsInList = [...element.querySelectorAll<HTMLElement>("[role=tab]")];
     const currentTab =
       event.target instanceof Element ? event.target.closest<HTMLElement>("[role=tab]") : null;
-    const currentIndex = currentTab ? enabledTabs.indexOf(currentTab) : -1;
+    const currentIndex = currentTab ? tabsInList.indexOf(currentTab) : -1;
     if (currentIndex < 0) return;
 
     const isRtl = getComputedStyle(element).direction === "rtl";
     const movesForward =
       orientation === "horizontal" && isRtl ? event.key === backwardKey : event.key === forwardKey;
-    const atBoundary = movesForward ? currentIndex === enabledTabs.length - 1 : currentIndex === 0;
+    const atBoundary = movesForward ? currentIndex === tabsInList.length - 1 : currentIndex === 0;
     if (!atBoundary) return;
 
     event.preventDefault();
@@ -394,6 +571,7 @@ const TabsTrigger = <T extends ValidComponent = "button", Value = unknown>(
   const [local, others] = splitProps(props as TabsTriggerProps, [
     "class",
     "disabled",
+    "id",
     "onClick",
     "onFocus",
     "onKeyDown",
@@ -402,48 +580,53 @@ const TabsTrigger = <T extends ValidComponent = "button", Value = unknown>(
     "value",
   ]);
   let element: HTMLElement | undefined;
+  const id = () => local.id ?? context.triggerIdForValue(local.value);
 
-  onMount(() => {
-    const unregister = context.registerTab({
-      disabled: () => local.disabled ?? false,
-      element: () => element,
-      value: () => local.value,
-    });
-    onCleanup(unregister);
+  const unregister = context.registerTab({
+    disabled: () => local.disabled ?? false,
+    element: () => element,
+    id,
+    value: () => local.value,
   });
-  createEffect(() => {
-    local.disabled;
-    context.scheduleReconciliation();
-  });
+  onCleanup(unregister);
+  createEffect(
+    on(
+      () => [local.disabled, local.value] as const,
+      () => context.scheduleReconciliation(),
+      { defer: true },
+    ),
+  );
 
+  const withTriggerEvent = <EventType extends Event>(
+    handler: Accessor<JSX.EventHandlerUnion<HTMLButtonElement, EventType> | undefined>,
+  ): JSX.EventHandler<HTMLButtonElement, EventType> => {
+    return (event) => {
+      context.recordTriggerEvent(event);
+      callEventHandler(handler(), event);
+    };
+  };
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (event) => {
     context.recordTriggerEvent(event);
     callEventHandler(
       local.onClick as JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> | undefined,
       event,
     );
+    context.commitPointerActivation(local.value, event);
   };
   const onFocus: JSX.EventHandler<HTMLButtonElement, FocusEvent> = (event) => {
     context.recordTriggerEvent(event);
+    context.recordTabFocus(local.value, local.disabled ?? false);
     callEventHandler(
       local.onFocus as JSX.EventHandlerUnion<HTMLButtonElement, FocusEvent> | undefined,
       event,
     );
   };
-  const onKeyDown: JSX.EventHandler<HTMLButtonElement, KeyboardEvent> = (event) => {
-    context.recordTriggerEvent(event);
-    callEventHandler(
-      local.onKeyDown as JSX.EventHandlerUnion<HTMLButtonElement, KeyboardEvent> | undefined,
-      event,
-    );
-  };
-  const onPointerDown: JSX.EventHandler<HTMLButtonElement, PointerEvent> = (event) => {
-    context.recordTriggerEvent(event);
-    callEventHandler(
-      local.onPointerDown as JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent> | undefined,
-      event,
-    );
-  };
+  const onKeyDown = withTriggerEvent(
+    () => local.onKeyDown as JSX.EventHandlerUnion<HTMLButtonElement, KeyboardEvent> | undefined,
+  );
+  const onPointerDown = withTriggerEvent(
+    () => local.onPointerDown as JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent> | undefined,
+  );
 
   return (
     <Trigger
@@ -451,10 +634,15 @@ const TabsTrigger = <T extends ValidComponent = "button", Value = unknown>(
         element = nextElement;
         setElementRef(local.ref, nextElement);
       }}
+      id={id()}
       value={context.keyForValue(local.value)}
-      disabled={local.disabled}
+      disabled={false}
+      tabIndex={context.tabIndexForValue(local.value)}
       data-slot="tabs-trigger"
+      data-disabled={local.disabled ? "" : undefined}
       data-activation-direction={context.activationDirection()}
+      aria-disabled={local.disabled || undefined}
+      aria-controls={context.mountedPanelIdForValue(local.value)}
       class={cn(
         "z-tabs-trigger relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap text-foreground/60 transition-all group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-selected:bg-transparent dark:group-data-[variant=line]/tabs-list:data-selected:border-transparent dark:group-data-[variant=line]/tabs-list:data-selected:bg-transparent",
@@ -486,22 +674,31 @@ const TabsContent = <T extends ValidComponent = "div", Value = unknown>(
   props: TabsContentProps<T, Value>,
 ) => {
   const context = useTabsContext();
-  const mergedProps = mergeProps({ keepMounted: false }, props);
-  const [local, others] = splitProps(mergedProps as TabsContentProps, [
+  const [local, others] = splitProps(props as TabsContentProps, [
     "class",
     "forceMount",
+    "id",
     "keepMounted",
     "value",
   ]);
   const isSelected = () => context.selectedValue() === local.value;
+  const shouldKeepMounted = () => local.keepMounted ?? local.forceMount ?? false;
+  const id = () => local.id ?? context.panelIdForValue(local.value);
+  createEffect(() => {
+    if (!isSelected() && !shouldKeepMounted()) return;
+    const unregister = context.registerPanel(local.value, id());
+    onCleanup(unregister);
+  });
 
   return (
     <Content
+      id={id()}
       value={context.keyForValue(local.value)}
-      forceMount={local.keepMounted || local.forceMount}
+      forceMount={shouldKeepMounted()}
       data-slot="tabs-content"
       data-hidden={!isSelected() ? "" : undefined}
       data-activation-direction={context.activationDirection()}
+      aria-labelledby={context.registeredTabIdForValue(local.value)}
       hidden={!isSelected()}
       inert={!isSelected() ? true : undefined}
       tabIndex={isSelected() ? 0 : -1}
