@@ -18,6 +18,7 @@ import {
   UserRoundX,
   VolumeX,
 } from "lucide-solid";
+import { For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/registry/kobalte/ui/button-group";
@@ -36,6 +37,7 @@ import { Label } from "@/registry/kobalte/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -105,10 +107,14 @@ function ButtonGroupWithText() {
           <Button variant="outline">Another Button</Button>
         </ButtonGroup>
         <ButtonGroup>
-          <ButtonGroupText>
-            <Label for="input-text">GPU Size</Label>
+          <ButtonGroupText as={Label} for="input-text">
+            GPU Size
           </ButtonGroupText>
-          <Input id="input-text" placeholder="Type something here..." />
+          <Input
+            id="input-text"
+            placeholder="Type something here..."
+            class="style-luma:border-border"
+          />
         </ButtonGroup>
       </div>
     </Example>
@@ -122,10 +128,10 @@ function ButtonGroupWithDropdown() {
         <ButtonGroup>
           <Button variant="outline">Update</Button>
           <DropdownMenu>
-            <DropdownMenuTrigger as={Button} variant="outline" size="icon" class="">
+            <DropdownMenuTrigger as={Button} variant="outline" size="icon">
               <ChevronDown />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align="end">
               <DropdownMenuItem>Disable</DropdownMenuItem>
               <DropdownMenuItem variant="destructive">Uninstall</DropdownMenuItem>
             </DropdownMenuContent>
@@ -134,7 +140,7 @@ function ButtonGroupWithDropdown() {
         <ButtonGroup>
           <Button variant="outline">Follow</Button>
           <DropdownMenu>
-            <DropdownMenuTrigger as={Button} variant="outline" size="icon" class="">
+            <DropdownMenuTrigger as={Button} variant="outline" size="icon">
               <ChevronDown />
             </DropdownMenuTrigger>
             <DropdownMenuContent class="w-50">
@@ -191,23 +197,19 @@ function ButtonGroupWithSelect() {
       <Field>
         <Label for="amount">Amount</Label>
         <ButtonGroup>
-          <Select
-            options={currencyItems}
-            optionValue="value"
-            optionTextValue="label"
-            defaultValue={currencyItems[0]}
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
-            <SelectTrigger class="rounded-r-none">
-              <SelectValue<(typeof currencyItems)[number]>>
-                {(state) => state.selectedOption()?.label}
-              </SelectValue>
+          <Select items={currencyItems} defaultValue={currencyItems[0]}>
+            <SelectTrigger>
+              <SelectValue />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent>
+              <SelectGroup>
+                <For each={currencyItems}>
+                  {(item) => <SelectItem value={item}>{item.label}</SelectItem>}
+                </For>
+              </SelectGroup>
+            </SelectContent>
           </Select>
-          <Input placeholder="Enter amount to send" class="rounded-l-none border-l-0" />
+          <Input placeholder="Enter amount to send" />
           <Button variant="outline">
             <ArrowRight />
           </Button>
@@ -304,23 +306,19 @@ function ButtonGroupWithSelectAndInput() {
   return (
     <Example title="With Select and Input">
       <ButtonGroup>
-        <Select
-          options={durationItems}
-          optionValue="value"
-          optionTextValue="label"
-          defaultValue={durationItems[0]}
-          itemComponent={(props) => (
-            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-          )}
-        >
-          <SelectTrigger id="duration" class="rounded-r-none">
-            <SelectValue<(typeof durationItems)[number]>>
-              {(state) => state.selectedOption()?.label}
-            </SelectValue>
+        <Select items={durationItems} defaultValue={durationItems[0].value}>
+          <SelectTrigger id="duration">
+            <SelectValue />
           </SelectTrigger>
-          <SelectContent />
+          <SelectContent align="start">
+            <SelectGroup>
+              <For each={durationItems}>
+                {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
+              </For>
+            </SelectGroup>
+          </SelectContent>
         </Select>
-        <Input class="rounded-l-none border-l-0" />
+        <Input />
       </ButtonGroup>
     </Example>
   );
