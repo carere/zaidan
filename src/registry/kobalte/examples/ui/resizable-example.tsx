@@ -22,13 +22,13 @@ function ResizableHorizontal() {
   return (
     <Example title="Horizontal">
       <ResizablePanelGroup orientation="horizontal" class="min-h-[200px] rounded-lg border">
-        <ResizablePanel initialSize={0.25}>
+        <ResizablePanel defaultSize="25%">
           <div class="flex h-full items-center justify-center p-6">
             <span class="font-semibold">Sidebar</span>
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel initialSize={0.75}>
+        <ResizablePanel defaultSize="75%">
           <div class="flex h-full items-center justify-center p-6">
             <span class="font-semibold">Content</span>
           </div>
@@ -42,13 +42,13 @@ function ResizableVertical() {
   return (
     <Example title="Vertical">
       <ResizablePanelGroup orientation="vertical" class="min-h-[200px] rounded-lg border">
-        <ResizablePanel initialSize={0.25}>
+        <ResizablePanel defaultSize="25%">
           <div class="flex h-full items-center justify-center p-6">
             <span class="font-semibold">Header</span>
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel initialSize={0.75}>
+        <ResizablePanel defaultSize="75%">
           <div class="flex h-full items-center justify-center p-6">
             <span class="font-semibold">Content</span>
           </div>
@@ -62,13 +62,13 @@ function ResizableWithHandle() {
   return (
     <Example title="With Handle">
       <ResizablePanelGroup orientation="horizontal" class="min-h-[200px] rounded-lg border">
-        <ResizablePanel initialSize={0.25}>
+        <ResizablePanel defaultSize="25%">
           <div class="flex h-full items-center justify-center p-6">
             <span class="font-semibold">Sidebar</span>
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel initialSize={0.75}>
+        <ResizablePanel defaultSize="75%">
           <div class="flex h-full items-center justify-center p-6">
             <span class="font-semibold">Content</span>
           </div>
@@ -82,21 +82,21 @@ function ResizableNested() {
   return (
     <Example title="Nested">
       <ResizablePanelGroup orientation="horizontal" class="rounded-lg border">
-        <ResizablePanel initialSize={0.5}>
+        <ResizablePanel defaultSize="50%">
           <div class="flex h-[200px] items-center justify-center p-6">
             <span class="font-semibold">One</span>
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel initialSize={0.5}>
+        <ResizablePanel defaultSize="50%">
           <ResizablePanelGroup orientation="vertical">
-            <ResizablePanel initialSize={0.25}>
+            <ResizablePanel defaultSize="25%">
               <div class="flex h-full items-center justify-center p-6">
                 <span class="font-semibold">Two</span>
               </div>
             </ResizablePanel>
             <ResizableHandle />
-            <ResizablePanel initialSize={0.75}>
+            <ResizablePanel defaultSize="75%">
               <div class="flex h-full items-center justify-center p-6">
                 <span class="font-semibold">Three</span>
               </div>
@@ -109,27 +109,24 @@ function ResizableNested() {
 }
 
 function ResizableControlled() {
-  const [sizes, setSizes] = createSignal([0.3, 0.7]);
+  const [layout, setLayout] = createSignal<Record<string, number>>({});
 
   return (
     <Example title="Controlled">
       <ResizablePanelGroup
         orientation="horizontal"
         class="min-h-[200px] rounded-lg border"
-        sizes={sizes()}
-        onSizesChange={(newSizes) => {
-          setSizes(newSizes);
-        }}
+        onLayoutChange={setLayout}
       >
-        <ResizablePanel initialSize={0.3} minSize={0.2}>
+        <ResizablePanel defaultSize="30%" id="left" minSize="20%">
           <div class="flex h-full flex-col items-center justify-center gap-2 p-6">
-            <span class="font-semibold">{Math.round((sizes()[0] ?? 0.3) * 100)}%</span>
+            <span class="font-semibold">{Math.round(layout().left ?? 30)}%</span>
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel initialSize={0.7} minSize={0.3}>
+        <ResizablePanel defaultSize="70%" id="right" minSize="30%">
           <div class="flex h-full flex-col items-center justify-center gap-2 p-6">
-            <span class="font-semibold">{Math.round((sizes()[1] ?? 0.7) * 100)}%</span>
+            <span class="font-semibold">{Math.round(layout().right ?? 70)}%</span>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
