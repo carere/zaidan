@@ -1,4 +1,3 @@
-// @ts-nocheck - Avatar size prop not yet implemented in component
 import { Check, Plus } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import {
