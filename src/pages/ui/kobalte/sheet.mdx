@@ -2,44 +2,61 @@
 title: Sheet
 slug: sheet
 description: Extends the Dialog component to display content that complements the main content of the screen.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/dialog
+  api: https://kobalte.dev/docs/core/components/dialog#api-reference
 ---
 
-# Sheet
+The Sheet component is built on top of [Kobalte Dialog](https://kobalte.dev/docs/core/components/dialog), which provides accessible modal, focus-management, and keyboard behavior.
 
-Extends the Dialog component to display content that complements the main content of the screen.
+<ClientOnly>
+  <ComponentPreview name="sheet-demo" description="A sheet for editing profile details." />
+</ClientOnly>
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/sheet
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
 
 ```package-install
-@kobalte/core
+@kobalte/core lucide-solid
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/sheet.tsx showLineNumbers
+<ComponentSource name="sheet" title="components/ui/sheet.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### With Form
+</CodeTabs>
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+## Usage
+
+```tsx showLineNumbers
 import {
   Sheet,
   SheetClose,
@@ -52,66 +69,48 @@ import {
 } from "~/components/ui/sheet";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/sheet-example.tsx#L27-L63
-
-```
-
-### No Close Button
-
-```tsx
-import { Button } from "~/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/sheet-example.tsx#L65-L84
-
-```
-
-### Sides
-
-Use the `side` property to `<SheetContent />` to indicate the edge of the screen where the component will appear. The values can be `top`, `right`, `bottom` or `left`.
-
-```tsx
-import { For, Index } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/sheet-example.tsx#L86-L135
-
-```
-
-## Size
-
-You can adjust the size of the sheet using CSS classes:
-
-```tsx showLineNumbers {3}
+```tsx showLineNumbers
 <Sheet>
   <SheetTrigger>Open</SheetTrigger>
-  <SheetContent class="w-[400px] sm:w-[540px]">
+  <SheetContent>
     <SheetHeader>
       <SheetTitle>Are you absolutely sure?</SheetTitle>
-      <SheetDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </SheetDescription>
+      <SheetDescription>This action cannot be undone.</SheetDescription>
     </SheetHeader>
   </SheetContent>
 </Sheet>
 ```
+
+## Composition
+
+Use the following composition to build a `Sheet`:
+
+```text
+Sheet
+├── SheetTrigger
+└── SheetContent
+    ├── SheetHeader
+    │   ├── SheetTitle
+    │   └── SheetDescription
+    └── SheetFooter
+```
+
+## Side
+
+Use the `side` prop on `SheetContent` to set the edge of the screen where the sheet appears. Values are `top`, `right`, `bottom`, or `left`.
+
+<ClientOnly>
+  <ComponentPreview name="sheet-side" />
+</ClientOnly>
+
+## No Close Button
+
+Use `showCloseButton={false}` on `SheetContent` to hide the close button.
+
+<ClientOnly>
+  <ComponentPreview name="sheet-no-close-button" />
+</ClientOnly>
+
+## API Reference
+
+For all primitive props and keyboard interactions, see the [Kobalte Dialog API reference](https://kobalte.dev/docs/core/components/dialog#api-reference).
