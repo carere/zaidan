@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 
 import { Example, ExampleWrapper } from "@/components/example";
 import { Badge } from "@/registry/kobalte/ui/badge";
@@ -29,6 +29,7 @@ import { RadioGroup, RadioGroupItem } from "@/registry/kobalte/ui/radio-group";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -49,6 +50,7 @@ export default function FieldExample() {
       <SliderFields />
       <NativeSelectFields />
       <InputOTPFields />
+      <HorizontalFields />
     </ExampleWrapper>
   );
 }
@@ -153,28 +155,41 @@ function TextareaFields() {
 
 type SelectItemType = { label: string; value: string | null };
 
+function FieldSelectOptions(props: { items: SelectItemType[] }) {
+  return (
+    <For each={props.items}>
+      {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
+    </For>
+  );
+}
+
 function SelectFields() {
   const basicItems: SelectItemType[] = [
+    { label: "Choose an option", value: null },
     { label: "Option 1", value: "option1" },
     { label: "Option 2", value: "option2" },
     { label: "Option 3", value: "option3" },
   ];
   const countryItems: SelectItemType[] = [
+    { label: "Select your country", value: null },
     { label: "United States", value: "us" },
     { label: "United Kingdom", value: "uk" },
     { label: "Canada", value: "ca" },
   ];
   const timezoneItems: SelectItemType[] = [
+    { label: "Select timezone", value: null },
     { label: "UTC", value: "utc" },
     { label: "Eastern Time", value: "est" },
     { label: "Pacific Time", value: "pst" },
   ];
   const invalidItems: SelectItemType[] = [
+    { label: "This field has an error", value: null },
     { label: "Option 1", value: "option1" },
     { label: "Option 2", value: "option2" },
     { label: "Option 3", value: "option3" },
   ];
   const disabledItems: SelectItemType[] = [
+    { label: "Cannot select", value: null },
     { label: "Option 1", value: "option1" },
     { label: "Option 2", value: "option2" },
     { label: "Option 3", value: "option3" },
@@ -185,91 +200,70 @@ function SelectFields() {
       <FieldGroup>
         <Field>
           <FieldLabel for="select-basic">Basic Select</FieldLabel>
-          <Select
-            options={basicItems}
-            optionValue="value"
-            optionTextValue="label"
-            placeholder="Choose an option"
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
+          <Select<string | null> items={basicItems}>
             <SelectTrigger id="select-basic">
-              <SelectValue<SelectItemType>>{(state) => state.selectedOption().label}</SelectValue>
+              <SelectValue placeholder="Choose an option" />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent>
+              <SelectGroup>
+                <FieldSelectOptions items={basicItems} />
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </Field>
         <Field>
           <FieldLabel for="select-country">Country</FieldLabel>
-          <Select
-            options={countryItems}
-            optionValue="value"
-            optionTextValue="label"
-            placeholder="Select your country"
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
+          <Select<string | null> items={countryItems}>
             <SelectTrigger id="select-country">
-              <SelectValue<SelectItemType>>{(state) => state.selectedOption().label}</SelectValue>
+              <SelectValue placeholder="Select your country" />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent>
+              <SelectGroup>
+                <FieldSelectOptions items={countryItems} />
+              </SelectGroup>
+            </SelectContent>
           </Select>
           <FieldDescription>Select the country where you currently reside.</FieldDescription>
         </Field>
         <Field>
           <FieldLabel for="select-timezone">Timezone</FieldLabel>
           <FieldDescription>Choose your local timezone for accurate scheduling.</FieldDescription>
-          <Select
-            options={timezoneItems}
-            optionValue="value"
-            optionTextValue="label"
-            placeholder="Select timezone"
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
+          <Select<string | null> items={timezoneItems}>
             <SelectTrigger id="select-timezone">
-              <SelectValue<SelectItemType>>{(state) => state.selectedOption().label}</SelectValue>
+              <SelectValue placeholder="Select timezone" />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent>
+              <SelectGroup>
+                <FieldSelectOptions items={timezoneItems} />
+              </SelectGroup>
+            </SelectContent>
           </Select>
         </Field>
         <Field data-invalid>
           <FieldLabel for="select-invalid">Invalid Select</FieldLabel>
-          <Select
-            options={invalidItems}
-            optionValue="value"
-            optionTextValue="label"
-            placeholder="This field has an error"
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
+          <Select<string | null> items={invalidItems}>
             <SelectTrigger id="select-invalid" aria-invalid>
-              <SelectValue<SelectItemType>>{(state) => state.selectedOption().label}</SelectValue>
+              <SelectValue placeholder="This field has an error" />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent>
+              <SelectGroup>
+                <FieldSelectOptions items={invalidItems} />
+              </SelectGroup>
+            </SelectContent>
           </Select>
           <FieldDescription>This field contains validation errors.</FieldDescription>
         </Field>
         <Field data-disabled>
           <FieldLabel for="select-disabled-field">Disabled Field</FieldLabel>
-          <Select
-            options={disabledItems}
-            optionValue="value"
-            optionTextValue="label"
-            placeholder="Cannot select"
-            disabled
-            itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-            )}
-          >
+          <Select<string | null> items={disabledItems} disabled>
             <SelectTrigger id="select-disabled-field">
-              <SelectValue<SelectItemType>>{(state) => state.selectedOption().label}</SelectValue>
+              <SelectValue placeholder="Cannot select" />
             </SelectTrigger>
-            <SelectContent />
+            <SelectContent>
+              <SelectGroup>
+                <FieldSelectOptions items={disabledItems} />
+              </SelectGroup>
+            </SelectContent>
           </Select>
           <FieldDescription>This field is currently disabled.</FieldDescription>
         </Field>
@@ -726,7 +720,7 @@ function InputOTPFields() {
         </Field>
         <Field>
           <FieldLabel for="otp-with-desc">Enter OTP</FieldLabel>
-          <InputOTP id="otp-with-desc" maxLength={6} value={value()} onValueChange={setValue}>
+          <InputOTP id="otp-with-desc" maxLength={6} value={value()} onChange={setValue}>
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
@@ -757,7 +751,13 @@ function InputOTPFields() {
         </Field>
         <Field>
           <FieldLabel for="otp-pin">PIN Code</FieldLabel>
-          <InputOTP id="otp-pin" maxLength={4} value={pinValue()} onValueChange={setPinValue}>
+          <InputOTP
+            id="otp-pin"
+            maxLength={4}
+            pattern="^[0-9]*$"
+            value={pinValue()}
+            onChange={setPinValue}
+          >
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
@@ -794,6 +794,78 @@ function InputOTPFields() {
             </InputOTPGroup>
           </InputOTP>
           <FieldDescription>This OTP field is currently disabled.</FieldDescription>
+        </Field>
+      </FieldGroup>
+    </Example>
+  );
+}
+
+function HorizontalFields() {
+  const fruitItems: SelectItemType[] = [
+    { label: "Select a fruit", value: null },
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Orange", value: "orange" },
+  ];
+
+  return (
+    <Example title="Horizontal Fields">
+      <FieldGroup class="**:data-[slot=field-content]:min-w-48">
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel for="horizontal-input">Username</FieldLabel>
+            <FieldDescription>Enter your preferred username.</FieldDescription>
+          </FieldContent>
+          <Input id="horizontal-input" placeholder="johndoe" />
+        </Field>
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel for="horizontal-textarea">Bio</FieldLabel>
+            <FieldDescription>Write a short description about yourself.</FieldDescription>
+          </FieldContent>
+          <Textarea id="horizontal-textarea" placeholder="Tell us about yourself..." />
+        </Field>
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel for="horizontal-switch">Email Notifications</FieldLabel>
+            <FieldDescription>Receive email updates about your account.</FieldDescription>
+          </FieldContent>
+          <Switch id="horizontal-switch" />
+        </Field>
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel for="horizontal-select">Favorite Fruit</FieldLabel>
+            <FieldDescription>Choose your favorite fruit.</FieldDescription>
+          </FieldContent>
+          <Select<string | null> items={fruitItems}>
+            <SelectTrigger id="horizontal-select">
+              <SelectValue placeholder="Select a fruit" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <FieldSelectOptions items={fruitItems} />
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel for="horizontal-native-select">Country</FieldLabel>
+            <FieldDescription>Select your country.</FieldDescription>
+          </FieldContent>
+          <NativeSelect id="horizontal-native-select">
+            <NativeSelectOption value="">Select a country</NativeSelectOption>
+            <NativeSelectOption value="us">United States</NativeSelectOption>
+            <NativeSelectOption value="uk">United Kingdom</NativeSelectOption>
+            <NativeSelectOption value="ca">Canada</NativeSelectOption>
+          </NativeSelect>
+        </Field>
+        <Field orientation="horizontal">
+          <FieldContent>
+            <FieldLabel for="horizontal-slider">Volume</FieldLabel>
+            <FieldDescription>Adjust the volume level.</FieldDescription>
+          </FieldContent>
+          <Slider id="horizontal-slider" defaultValue={[50]} maxValue={100} />
         </Field>
       </FieldGroup>
     </Example>
