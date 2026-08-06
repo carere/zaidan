@@ -21,7 +21,7 @@ export default function CheckboxTable() {
   const selectAll = () => selectedRows().size === tableData.length;
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectedRows(checked ? new Set(tableData.map((row) => row.id)) : new Set());
+    setSelectedRows(checked ? new Set(tableData.map((row) => row.id)) : new Set<string>());
   };
 
   const handleSelectRow = (id: string, checked: boolean) => {

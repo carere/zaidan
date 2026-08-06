@@ -97,7 +97,7 @@ function callEventHandler<T extends HTMLElement, E extends Event>(
 }
 
 function callRef<T>(ref: ((value: T) => void) | T | undefined, value: T) {
-  if (typeof ref === "function") ref(value);
+  if (typeof ref === "function") (ref as (value: T) => void)(value);
 }
 
 function serializeStyles(styles: JSX.CSSProperties) {
@@ -141,7 +141,7 @@ function toCorvuSize(
   const value = size.trim();
   if (value.endsWith("%")) return Number.parseFloat(value) / 100;
   if (/^-?\d+(\.\d+)?$/.test(value)) return Number.parseFloat(value) / 100;
-  if (value.endsWith("px")) return value;
+  if (value.endsWith("px")) return value as CorvuSize;
 
   const unitMatch = value.match(/^(-?\d+(?:\.\d+)?)(em|rem|vh|vw)$/);
   if (unitMatch && typeof window !== "undefined") {
@@ -298,6 +298,7 @@ const ResizablePanelGroup = (props: ResizablePanelGroupProps) => {
     if (size === undefined) return fallback;
     const resolved = toCorvuSize(size, element);
     if (typeof resolved === "number") return resolved * 100;
+    if (resolved === undefined) return fallback;
 
     const pixels = Number.parseFloat(resolved);
     const groupPixels = panelGroupPixelSize();
@@ -446,7 +447,7 @@ const ResizablePanelGroup = (props: ResizablePanelGroupProps) => {
     }
 
     const panelDefaults = ordered.map((panel) => panelConstraints(panel).defaultSize);
-    const assignedTotal = panelDefaults.reduce((total, size) => total + (size ?? 0), 0);
+    const assignedTotal = panelDefaults.reduce<number>((total, size) => total + (size ?? 0), 0);
     const unassignedCount = panelDefaults.filter((size) => size === undefined).length;
     const unassignedSize = unassignedCount > 0 ? (100 - assignedTotal) / unassignedCount : 0;
     const values = panelDefaults.map((size) => size ?? unassignedSize);
@@ -1037,7 +1038,7 @@ const ResizablePanel = (props: ResizablePanelProps) => {
 
   return (
     <Show keyed when={panelConfiguration()}>
-      {() => (
+      {(_configuration) => (
         <Panel
           {...others}
           minSize={toCorvuSize(local.minSize, panelElement())}

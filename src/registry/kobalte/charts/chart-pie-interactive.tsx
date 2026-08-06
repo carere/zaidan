@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal, For } from "solid-js";
 import { Label, Pie, PieChart, type PieSectorShapeProps, Sector } from "solid-recharts";
 import {
   Card,
@@ -69,6 +69,8 @@ const months = desktopData.map((item) => ({
   color: configByKey[item.month]?.color,
 }));
 
+const monthItems = months.map((month) => ({ label: month.label, value: month }));
+
 export function ChartPieInteractive() {
   const id = "pie-interactive";
   const [activeMonth, setActiveMonth] = createSignal(months[0]);
@@ -86,32 +88,31 @@ export function ChartPieInteractive() {
           <CardDescription>January - June 2024</CardDescription>
         </div>
         <Select
-          options={months}
-          optionValue="value"
-          optionTextValue="label"
+          items={monthItems}
           value={activeMonth()}
-          onChange={(value) => value && setActiveMonth(value)}
-          itemComponent={(props) => (
-            <SelectItem item={props.item} class="rounded-lg [&_span]:flex">
-              <div class="flex items-center gap-2 text-xs">
-                <span
-                  class="flex h-3 w-3 shrink-0 rounded-xs"
-                  style={{ "background-color": props.item.rawValue.color }}
-                />
-                {props.item.rawValue.label}
-              </div>
-            </SelectItem>
-          )}
+          onValueChange={(value) => value && setActiveMonth(value)}
         >
           <SelectTrigger
             class="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
             aria-label="Select a value"
           >
-            <SelectValue<(typeof months)[number]>>
-              {(state) => state.selectedOption().label}
-            </SelectValue>
+            <SelectValue />
           </SelectTrigger>
-          <SelectContent class="rounded-xl" />
+          <SelectContent class="rounded-xl">
+            <For each={months}>
+              {(month) => (
+                <SelectItem value={month} class="rounded-lg [&_span]:flex">
+                  <div class="flex items-center gap-2 text-xs">
+                    <span
+                      class="flex h-3 w-3 shrink-0 rounded-xs"
+                      style={{ "background-color": month.color }}
+                    />
+                    {month.label}
+                  </div>
+                </SelectItem>
+              )}
+            </For>
+          </SelectContent>
         </Select>
       </CardHeader>
       <CardContent class="flex flex-1 justify-center pb-0">

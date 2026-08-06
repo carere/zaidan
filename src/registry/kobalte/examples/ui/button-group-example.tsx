@@ -197,14 +197,14 @@ function ButtonGroupWithSelect() {
       <Field>
         <Label for="amount">Amount</Label>
         <ButtonGroup>
-          <Select items={currencyItems} defaultValue={currencyItems[0]}>
+          <Select items={currencyItems} defaultValue={currencyItems[0].value}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <For each={currencyItems}>
-                  {(item) => <SelectItem value={item}>{item.label}</SelectItem>}
+                  {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
                 </For>
               </SelectGroup>
             </SelectContent>

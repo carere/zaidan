@@ -66,7 +66,7 @@ function ToggleGroupBasic() {
 function ToggleGroupOutline() {
   return (
     <Example title="Outline">
-      <ToggleGroup multiple={false} variant="outline" defaultValue="all">
+      <ToggleGroup multiple={false} variant="outline" defaultValue={["all"]}>
         <ToggleGroupItem value="all" aria-label="Toggle all">
           All
         </ToggleGroupItem>
@@ -100,7 +100,7 @@ function ToggleGroupSizes() {
   return (
     <Example title="Sizes">
       <div class="flex flex-col gap-4">
-        <ToggleGroup multiple={false} size="sm" defaultValue="top" variant="outline">
+        <ToggleGroup multiple={false} size="sm" defaultValue={["top"]} variant="outline">
           <ToggleGroupItem value="top" aria-label="Toggle top">
             Top
           </ToggleGroupItem>
@@ -114,7 +114,7 @@ function ToggleGroupSizes() {
             Right
           </ToggleGroupItem>
         </ToggleGroup>
-        <ToggleGroup multiple={false} defaultValue="top" variant="outline">
+        <ToggleGroup multiple={false} defaultValue={["top"]} variant="outline">
           <ToggleGroupItem value="top" aria-label="Toggle top">
             Top
           </ToggleGroupItem>
@@ -136,7 +136,7 @@ function ToggleGroupSizes() {
 function ToggleGroupSpacing() {
   return (
     <Example title="With Spacing">
-      <ToggleGroup multiple={false} size="sm" defaultValue="top" variant="outline" spacing={2}>
+      <ToggleGroup multiple={false} size="sm" defaultValue={["top"]} variant="outline" spacing={2}>
         <ToggleGroupItem value="top" aria-label="Toggle top">
           Top
         </ToggleGroupItem>
@@ -190,7 +190,7 @@ function ToggleGroupWithIcons() {
 function ToggleGroupFilter() {
   return (
     <Example title="Filter">
-      <ToggleGroup multiple={false} defaultValue="all" variant="outline" size="sm">
+      <ToggleGroup multiple={false} defaultValue={["all"]} variant="outline" size="sm">
         <ToggleGroupItem value="all" aria-label="All">
           All
         </ToggleGroupItem>
@@ -214,7 +214,7 @@ function ToggleGroupDateRange() {
       <ToggleGroup
         class="max-w-full flex-wrap"
         multiple={false}
-        defaultValue="today"
+        defaultValue={["today"]}
         variant="outline"
         size="sm"
         spacing={2}
@@ -239,7 +239,7 @@ function ToggleGroupDateRange() {
 function ToggleGroupSort() {
   return (
     <Example title="Sort">
-      <ToggleGroup multiple={false} defaultValue="newest" variant="outline" size="sm">
+      <ToggleGroup multiple={false} defaultValue={["newest"]} variant="outline" size="sm">
         <ToggleGroupItem value="newest" aria-label="Newest">
           <ArrowDown />
           Newest
@@ -267,17 +267,19 @@ function ToggleGroupWithInputAndSelect() {
     <Example title="With Input and Select">
       <div class="flex items-center gap-2">
         <Input type="search" placeholder="Search..." class="flex-1" />
-        <Select<(typeof items)[number]> items={items} defaultValue={items[0]}>
+        <Select items={items} defaultValue={items[0].value}>
           <SelectTrigger aria-label="Filter status" class="w-32">
-            <SelectValue<(typeof items)[number]>>{(item) => item.label}</SelectValue>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <For each={items}>{(item) => <SelectItem value={item}>{item.label}</SelectItem>}</For>
+              <For each={items}>
+                {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
+              </For>
             </SelectGroup>
           </SelectContent>
         </Select>
-        <ToggleGroup multiple={false} defaultValue="grid" variant="outline">
+        <ToggleGroup multiple={false} defaultValue={["grid"]} variant="outline">
           <ToggleGroupItem value="grid" aria-label="Grid view">
             Grid
           </ToggleGroupItem>
@@ -314,7 +316,7 @@ function ToggleGroupVerticalOutline() {
       <ToggleGroup
         multiple={false}
         variant="outline"
-        defaultValue="all"
+        defaultValue={["all"]}
         orientation="vertical"
         size="sm"
       >
@@ -418,7 +420,7 @@ function ToggleGroupVerticalWithSpacing() {
       <ToggleGroup
         multiple={false}
         size="sm"
-        defaultValue="top"
+        defaultValue={["top"]}
         variant="outline"
         orientation="vertical"
         spacing={1}

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { codeToHtml } from "shiki";
 import type { Plugin as VitePlugin } from "vite";
-import { codeThemes } from "../code-highlighting";
+import { codeThemes } from "../code-highlighting.ts";
 
 const highlightedCodeQuery = "highlight-code";
 

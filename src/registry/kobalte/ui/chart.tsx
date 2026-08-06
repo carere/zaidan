@@ -137,7 +137,7 @@ ${colorConfig
 // Use function-form custom content so Solid Recharts can inject the active payload props.
 const ChartTooltip = Tooltip;
 
-export type ChartTooltipContentProps = TooltipContentProps &
+export type ChartTooltipContentProps = Partial<TooltipContentProps> &
   Omit<ComponentProps<"div">, keyof TooltipContentProps> & {
     color?: string;
     hideLabel?: boolean;

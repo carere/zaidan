@@ -3,7 +3,7 @@ import { type ComponentProps, mergeProps, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 import { Button, type ButtonProps } from "@/registry/kobalte/ui/button";
-import { Input } from "@/registry/kobalte/ui/input";
+import { Input, type InputProps } from "@/registry/kobalte/ui/input";
 import { Textarea } from "@/registry/kobalte/ui/textarea";
 
 type InputGroupProps = ComponentProps<"div">;
@@ -112,7 +112,7 @@ const InputGroupText = (props: InputGroupTextProps) => {
   );
 };
 
-type InputGroupInputProps = ComponentProps<"input">;
+type InputGroupInputProps = InputProps;
 
 const InputGroupInput = (props: InputGroupInputProps) => {
   const [local, others] = splitProps(props, ["class"]);

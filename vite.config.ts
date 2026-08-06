@@ -10,10 +10,10 @@ import lucide from "vite-plugin-lucide-preprocess";
 import solid from "vite-plugin-solid";
 import { configDefaults } from "vitest/config";
 import { getPrerenderPages } from "./src/lib/prerender-pages.ts";
-import { highlightCode } from "./src/lib/vite-plugins/highlight-code";
-import mdx from "./src/lib/vite-plugins/mdx";
+import { highlightCode } from "./src/lib/vite-plugins/highlight-code.ts";
+import mdx from "./src/lib/vite-plugins/mdx.ts";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     tsconfigPaths: true,
   },
@@ -27,7 +27,7 @@ export default defineConfig({
       stylePropertyNameCase: "css",
     }),
     devtools(),
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    ...(mode === "test" ? [] : [cloudflare({ viteEnvironment: { name: "ssr" } })]),
     tailwind(),
     tanstackStart({
       prerender: {
@@ -49,10 +49,10 @@ export default defineConfig({
       pages: getPrerenderPages(),
     }),
     solid({ ssr: true, hot: true, extensions: [".tsx", ".mdx"] }),
-    velite(),
+    ...(mode === "test" ? [] : [velite()]),
   ],
   test: {
     environment: "node",
     exclude: [...configDefaults.exclude, ".sandcastle/**"],
   },
-});
+}));

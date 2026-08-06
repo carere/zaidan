@@ -1,5 +1,7 @@
-import { FileCodeIcon, FileTextIcon, type LucideIcon, TableIcon, XIcon } from "lucide-solid";
+import { FileCodeIcon, FileTextIcon, TableIcon, XIcon } from "lucide-solid";
+import type { Component } from "solid-js";
 import { For, Show } from "solid-js";
+import { Dynamic } from "solid-js/web";
 
 import {
   Attachment,
@@ -15,7 +17,7 @@ import {
 type Item = {
   name: string;
   meta: string;
-  icon?: LucideIcon;
+  icon?: Component;
   src?: string;
 };
 
@@ -43,7 +45,7 @@ export default function AttachmentGroupDemo() {
                   <Show when={item.icon}>
                     {(Icon) => (
                       <AttachmentMedia>
-                        <Icon />
+                        <Dynamic component={Icon()} />
                       </AttachmentMedia>
                     )}
                   </Show>

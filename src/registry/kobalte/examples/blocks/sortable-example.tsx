@@ -371,7 +371,10 @@ function SortableWithSwitch() {
                       <p class="font-medium text-sm">{channel.name}</p>
                       <p class="text-muted-foreground text-xs">{channel.description}</p>
                     </div>
-                    <Switch checked={channel.enabled} onChange={() => toggleChannel(channel.id)} />
+                    <Switch
+                      checked={channel.enabled}
+                      onCheckedChange={() => toggleChannel(channel.id)}
+                    />
                   </div>
                 </SortableItem>
               )}

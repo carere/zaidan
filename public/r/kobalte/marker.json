@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "marker",
+  "dependencies": [
+    "class-variance-authority"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/kobalte/ui/marker.tsx",
+      "content": "import type { PolymorphicProps } from \"@kobalte/core/polymorphic\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\nimport { type ComponentProps, mergeProps, splitProps, type ValidComponent } from \"solid-js\";\nimport { Dynamic } from \"solid-js/web\";\n\nimport { cn } from \"@/lib/utils\";\n\nconst markerVariants = cva(\"z-marker group/marker relative flex w-full items-center\", {\n  variants: {\n    variant: {\n      default: \"z-marker-variant-default\",\n      separator: \"z-marker-variant-separator\",\n      border: \"z-marker-variant-border\",\n    },\n  },\n  defaultVariants: {\n    variant: \"default\",\n  },\n});\n\ntype MarkerProps<T extends ValidComponent = \"div\"> = PolymorphicProps<T, ComponentProps<T>> &\n  VariantProps<typeof markerVariants>;\n\nconst Marker = <T extends ValidComponent = \"div\">(rawProps: MarkerProps<T>) => {\n  const props = mergeProps({ as: \"div\" as T, variant: \"default\" as const }, rawProps);\n  const [local, others] = splitProps(props as MarkerProps, [\"as\", \"class\", \"variant\"]);\n\n  return (\n    <Dynamic\n      component={local.as}\n      data-slot=\"marker\"\n      data-variant={local.variant}\n      class={cn(markerVariants({ variant: local.variant }), local.class)}\n      {...others}\n    />\n  );\n};\n\ntype MarkerIconProps = ComponentProps<\"span\">;\n\nconst MarkerIcon = (props: MarkerIconProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <span\n      data-slot=\"marker-icon\"\n      aria-hidden=\"true\"\n      class={cn(\"z-marker-icon shrink-0\", local.class)}\n      {...others}\n    />\n  );\n};\n\ntype MarkerContentProps = ComponentProps<\"span\">;\n\nconst MarkerContent = (props: MarkerContentProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <span\n      data-slot=\"marker-content\"\n      class={cn(\"z-marker-content min-w-0 wrap-break-word\", local.class)}\n      {...others}\n    />\n  );\n};\n\nexport { Marker, MarkerContent, MarkerIcon, markerVariants };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

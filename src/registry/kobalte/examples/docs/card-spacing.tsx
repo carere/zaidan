@@ -46,8 +46,8 @@ export default function CardSpacing() {
     <div class="mx-auto grid w-full max-w-sm gap-4">
       <ToggleGroup
         multiple={false}
-        value={spacing()}
-        onChange={setSpacing}
+        value={[spacing()]}
+        onValueChange={(value) => setSpacing(value[0] ?? "4")}
         variant="outline"
         size="sm"
         class="justify-center"

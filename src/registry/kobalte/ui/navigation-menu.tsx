@@ -298,6 +298,7 @@ type NavigationMenuProps<T extends ValidComponent = "nav", Value = unknown> = Po
     closeDelay?: number;
     defaultValue?: Value | null;
     delay?: number;
+    onKeyDownCapture?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>;
     onValueChange?: (value: Value | null, details: NavigationMenuChangeEventDetails) => void;
     onOpenChangeComplete?: (open: boolean) => void;
     orientation?: NavigationMenuOrientation;
@@ -580,13 +581,13 @@ const NavigationMenu = <Value = unknown, T extends ValidComponent = "nav">(
     activeTrigger,
     cancelClosing: clearCloseTimer,
     close,
-    closeDelay: () => local.closeDelay,
+    closeDelay: () => local.closeDelay ?? 50,
     contentId: (itemValue) => {
       registrationsVersion();
       return contentIds.get(itemValue);
     },
     currentPlacement,
-    delay: () => local.delay,
+    delay: () => local.delay ?? 50,
     focusAfterTrigger,
     hasMountedValue: (itemValue) => {
       const current = mountedValues();
@@ -605,7 +606,7 @@ const NavigationMenu = <Value = unknown, T extends ValidComponent = "nav">(
     },
     isTabStop: (element) => tabStop() === element,
     open,
-    orientation: () => local.orientation,
+    orientation: () => local.orientation ?? "horizontal",
     position,
     popup,
     registerContent: (itemValue, element) => {
@@ -715,6 +716,15 @@ const NavigationMenu = <Value = unknown, T extends ValidComponent = "nav">(
     }
   };
 
+  createEffect(() => {
+    const element = root();
+    if (!element) return;
+    const handleKeyDown = (event: Event) =>
+      onKeyDownCapture(event as KeyboardEvent & { currentTarget: HTMLElement; target: Element });
+    element.addEventListener("keydown", handleKeyDown, true);
+    onCleanup(() => element.removeEventListener("keydown", handleKeyDown, true));
+  });
+
   onCleanup(() => {
     transitionVersion += 1;
     clearCloseTimer();
@@ -751,10 +761,9 @@ const NavigationMenu = <Value = unknown, T extends ValidComponent = "nav">(
             "group/navigation-menu relative z-navigation-menu flex max-w-max flex-1 items-center justify-center",
             local.class,
           )}
-          onKeyDownCapture={onKeyDownCapture}
         >
           {local.children}
-          <NavigationMenuPositioner align={local.align} />
+          <NavigationMenuPositioner align={local.align ?? "start"} />
         </Dynamic>
       </NavigationMenuRootContext.Provider>
     </PopperPrimitive.Root>
@@ -1316,29 +1325,31 @@ const NavigationMenuPositioner = <T extends ValidComponent = "div">(
   const popupId = `navigation-menu-popup-${createUniqueId()}`;
 
   createEffect(() => {
+    const align = local.align ?? "start";
+    const side = local.side ?? "bottom";
     const anchorRect =
       resolveNavigationMenuAnchor(local.anchor)?.getBoundingClientRect() ??
       rootContext.activeTrigger()?.getBoundingClientRect();
     const offsetData: NavigationMenuOffsetData = {
-      align: local.align,
+      align,
       anchor: { height: anchorRect?.height ?? 0, width: anchorRect?.width ?? 0 },
       positioner: popupSize(),
-      side: local.side,
+      side,
     };
     const sideCollision = local.collisionAvoidance?.side ?? "flip";
     const alignCollision = local.collisionAvoidance?.align ?? "flip";
     rootContext.setPosition({
-      align: local.align,
-      alignOffset: resolveNavigationMenuOffset(local.alignOffset, offsetData),
+      align,
+      alignOffset: resolveNavigationMenuOffset(local.alignOffset ?? 0, offsetData),
       anchor: local.anchor,
-      arrowPadding: local.arrowPadding,
-      collisionPadding: local.collisionPadding,
-      flip: navigationMenuFlipPlacements(local.side, local.align, local.collisionAvoidance),
+      arrowPadding: local.arrowPadding ?? 5,
+      collisionPadding: local.collisionPadding ?? 5,
+      flip: navigationMenuFlipPlacements(side, align, local.collisionAvoidance),
       overlap: alignCollision === "shift",
-      positionMethod: local.positionMethod,
-      side: local.side,
-      sideOffset: resolveNavigationMenuOffset(local.sideOffset, offsetData),
-      slide: sideCollision === "shift" || local.sticky,
+      positionMethod: local.positionMethod ?? "absolute",
+      side,
+      sideOffset: resolveNavigationMenuOffset(local.sideOffset ?? 8, offsetData),
+      slide: sideCollision === "shift" || (local.sticky ?? false),
     });
   });
   createEffect(() => {

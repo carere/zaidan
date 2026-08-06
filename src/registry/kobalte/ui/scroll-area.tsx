@@ -569,7 +569,9 @@ const ScrollBar = (rawProps: ScrollBarProps) => {
   const scrolling = () => (vertical() ? context.scrollingY() : context.scrollingX());
   const [trackElement, setTrackElement] = createSignal<HTMLDivElement>();
 
-  const handleTrackPointerDown = (event: PointerEvent) => {
+  const handleTrackPointerDown = (
+    event: PointerEvent & { currentTarget: HTMLDivElement; target: Element },
+  ) => {
     callEventHandler(local.onPointerDown, event);
     if (event.defaultPrevented || event.button !== 0) return;
 

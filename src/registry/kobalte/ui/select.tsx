@@ -213,10 +213,13 @@ function stringifyValue(value: SelectValue, itemToStringValue?: (value: SelectVa
 function flattenItems(items: SelectItems<SelectValue> | undefined) {
   if (!items) return [];
   if (!Array.isArray(items)) {
-    return Object.entries(items).map(([value, label]) => ({ label, value }));
+    return Object.entries(items).map(([value, label]) => ({ disabled: false, label, value }));
   }
 
-  return items.flatMap((item) => ("items" in item ? item.items : [item]));
+  const itemDefinitions = items as ReadonlyArray<
+    SelectItemDefinition<SelectValue> | SelectItemGroup<SelectValue>
+  >;
+  return itemDefinitions.flatMap((item) => ("items" in item ? item.items : [item]));
 }
 
 function labelText(label: JSX.Element) {
@@ -499,7 +502,9 @@ const Select = <Value, Multiple extends boolean | undefined = false>(
         ? trigger()
         : resolvedFocus instanceof HTMLElement
           ? resolvedFocus
-          : resolvedFocus.current;
+          : typeof resolvedFocus === "object"
+            ? resolvedFocus.current
+            : undefined;
     queueMicrotask(() => element?.focus());
   };
 
@@ -898,7 +903,7 @@ const Select = <Value, Multiple extends boolean | undefined = false>(
           id={rootId && (!mergedProps.name || multiple()) ? `${rootId}-hidden-input` : undefined}
           form={mergedProps.form}
           name={multiple() ? undefined : mergedProps.name}
-          autoComplete={mergedProps.autoComplete}
+          autocomplete={mergedProps.autoComplete}
           value={serializedValue()}
           disabled={mergedProps.disabled}
           required={mergedProps.required && selectedValues().length === 0}
@@ -958,6 +963,7 @@ type SelectValueProps<Value = SelectValue, T extends ValidComponent = "span"> = 
 > & {
   as?: T;
   children?: JSX.Element | ((value: Value) => JSX.Element);
+  class?: string;
   placeholder?: JSX.Element;
 };
 
@@ -1332,6 +1338,12 @@ const SelectItem = <T extends ValidComponent = "div", Value = SelectValue>(
     label: () => local.label ?? element()?.textContent?.trim() ?? stringifyLabel(local.value),
     value: () => local.value,
   };
+  createEffect(() => {
+    const currentElement = element();
+    if (!(currentElement instanceof HTMLButtonElement) || !local.nativeButton) return;
+    currentElement.type = "button";
+    currentElement.disabled = disabled();
+  });
   let unregister: (() => void) | undefined;
   onMount(() => {
     unregister = rootContext.registerItem(item);
@@ -1347,10 +1359,6 @@ const SelectItem = <T extends ValidComponent = "div", Value = SelectValue>(
         setElementRef(local.ref, nextElement);
       }}
       id={id}
-      type={local.nativeButton && (local.as ?? "div") === "button" ? "button" : undefined}
-      disabled={
-        local.nativeButton && (local.as ?? "div") === "button" && disabled() ? true : undefined
-      }
       role="option"
       aria-disabled={disabled() || undefined}
       aria-selected={selected()}

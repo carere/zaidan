@@ -7,6 +7,7 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
+  ComboboxList,
 } from "@/registry/kobalte/ui/combobox";
 import {
   Empty,
@@ -17,13 +18,12 @@ import {
 } from "@/registry/kobalte/ui/empty";
 import { InputGroupAddon } from "@/registry/kobalte/ui/input-group";
 import { Kbd } from "@/registry/kobalte/ui/kbd";
-import type { FileRouteTypes } from "@/routeTree.gen";
 
-type Option = {
-  pathname: string;
-  slug: string;
-  route: FileRouteTypes["to"];
-};
+type Option =
+  | { pathname: string; slug: string; route: "/docs" }
+  | { pathname: string; slug: string; route: "/docs/$slug" }
+  | { pathname: string; slug: string; route: "/docs/installation/$slug" }
+  | { pathname: string; slug: string; route: "/docs/components/$primitive/$slug" };
 
 const getOptions = (): Option[] => {
   const docsOptions = docs.map((d) => {
@@ -31,14 +31,14 @@ const getOptions = (): Option[] => {
       return {
         pathname: "/docs",
         slug: d.slug,
-        route: "/docs" as FileRouteTypes["to"],
+        route: "/docs" as const,
       };
     }
 
     return {
       pathname: d.parent ? `/docs/${d.parent}/${d.slug}` : `/docs/${d.slug}`,
       slug: d.slug,
-      route: (d.parent ? "/docs/installation/$slug" : "/docs/$slug") as FileRouteTypes["to"],
+      route: d.parent ? ("/docs/installation/$slug" as const) : ("/docs/$slug" as const),
     };
   });
 
@@ -47,7 +47,7 @@ const getOptions = (): Option[] => {
     .map((u) => ({
       pathname: `/docs/components/kobalte/${u.slug}`,
       slug: u.slug,
-      route: "/docs/components/$primitive/$slug" as FileRouteTypes["to"],
+      route: "/docs/components/$primitive/$slug" as const,
     }));
 
   return [...docsOptions, ...uiOptions];
@@ -67,21 +67,20 @@ export function NotFoundPage() {
       </EmptyHeader>
       <EmptyContent>
         <Combobox<Option>
-          options={options()}
-          optionValue="slug"
-          optionTextValue="pathname"
-          placeholder="Type / to search pages..."
-          class="w-3/4"
-          itemComponent={(props) => (
-            <ComboboxItem item={props.item}>{props.item.rawValue.pathname}</ComboboxItem>
-          )}
-          onChange={(value) => {
+          items={options()}
+          itemToStringLabel={(option) => option.pathname}
+          itemToStringValue={(option) => option.slug}
+          onValueChange={(value) => {
             if (value) {
               if (value.route === "/docs/components/$primitive/$slug") {
                 navigate({
                   to: value.route,
                   params: { primitive: "kobalte", slug: value.slug },
                 });
+                return;
+              }
+              if (value.route === "/docs") {
+                navigate({ to: value.route });
                 return;
               }
               navigate({
@@ -98,6 +97,9 @@ export function NotFoundPage() {
           </ComboboxInput>
           <ComboboxContent class="no-scrollbar max-h-96">
             <ComboboxEmpty>No pages found.</ComboboxEmpty>
+            <ComboboxList>
+              {(option: Option) => <ComboboxItem value={option}>{option.pathname}</ComboboxItem>}
+            </ComboboxList>
           </ComboboxContent>
         </Combobox>
         <EmptyDescription>

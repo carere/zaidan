@@ -334,7 +334,7 @@ function TableWithSelect() {
                 <TableCell>
                   <Select
                     items={people}
-                    defaultValue={people.find((person) => person.value === item.assignee)}
+                    defaultValue={people.find((person) => person.value === item.assignee)?.value}
                   >
                     <SelectTrigger class="w-40" size="sm">
                       <SelectValue />
@@ -342,7 +342,7 @@ function TableWithSelect() {
                     <SelectContent>
                       <SelectGroup>
                         <For each={people}>
-                          {(person) => <SelectItem value={person}>{person.label}</SelectItem>}
+                          {(person) => <SelectItem value={person.value}>{person.label}</SelectItem>}
                         </For>
                       </SelectGroup>
                     </SelectContent>

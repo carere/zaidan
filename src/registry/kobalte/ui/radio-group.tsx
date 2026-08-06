@@ -416,6 +416,9 @@ const RadioGroupItem = <T extends ValidComponent = "span", Value = unknown>(
 
   createEffect(() => {
     if (input) input.checked = checked();
+    if (nativeButton() && control instanceof HTMLButtonElement) {
+      control.disabled = disabled();
+    }
   });
 
   onMount(() => {
@@ -497,11 +500,14 @@ const RadioGroupItem = <T extends ValidComponent = "span", Value = unknown>(
         component={local.as ?? "span"}
         ref={(element: HTMLElement) => {
           control = element;
+          if (nativeButton()) {
+            const button = element as HTMLButtonElement;
+            button.type = "button";
+            button.disabled = disabled();
+          }
           local.ref?.(element);
         }}
         id={nativeButton() ? local.id : rootId}
-        type={nativeButton() ? "button" : undefined}
-        disabled={nativeButton() && disabled() ? true : undefined}
         role="radio"
         aria-checked={checked()}
         aria-disabled={disabled() || undefined}

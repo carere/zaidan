@@ -165,7 +165,7 @@ const Progress = <T extends ValidComponent = "div">(props: ProgressProps<T>) => 
         data-slot="progress"
         {...stateAttributes}
         class={cn("z-progress-root flex flex-wrap gap-3", local.class)}
-        ref={(element) => {
+        ref={(element: HTMLDivElement) => {
           rootElement = element;
           if (typeof local.ref === "function") local.ref(element);
         }}

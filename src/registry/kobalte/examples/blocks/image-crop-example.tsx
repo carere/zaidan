@@ -390,8 +390,8 @@ function StudioCropControls(props: {
             checked={crop.options().original}
             disabled={disabled()}
             id="studio-crop-original"
-            onChange={(checked) =>
-              crop.setOptions((previous) => ({ ...previous, original: Boolean(checked) }))
+            onCheckedChange={(checked) =>
+              crop.setOptions((previous) => ({ ...previous, original: checked }))
             }
           />
         </div>
@@ -403,7 +403,7 @@ function StudioCropControls(props: {
             checked={props.showResizeHandles()}
             disabled={disabled()}
             id="studio-crop-handles"
-            onChange={(checked) => props.onShowResizeHandlesChange(Boolean(checked))}
+            onCheckedChange={(checked) => props.onShowResizeHandlesChange(checked)}
           />
         </div>
       </CardContent>

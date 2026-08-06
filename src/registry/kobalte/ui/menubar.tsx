@@ -23,6 +23,7 @@ import {
   DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  type DropdownMenuRadioItemProps,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
@@ -58,7 +59,7 @@ type MenubarProps<T extends ValidComponent = "div"> = Omit<
   | "onValueChange"
   | "value"
 > &
-  Pick<ComponentProps<T>, "class" | "children"> & {
+  Partial<Pick<ComponentProps<T>, "class" | "children">> & {
     disabled?: boolean;
     loopFocus?: boolean;
     modal?: boolean;
@@ -107,7 +108,7 @@ const Menubar = <T extends ValidComponent = "div">(props: MenubarProps<T>) => {
         loop={local.loopFocus}
         orientation={local.orientation}
         class={cn("z-menubar flex items-center", local.class)}
-        onKeyDown={(event) => {
+        onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLElement; target: Element }) => {
           callEventHandler(
             local.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
             event,
@@ -265,14 +266,15 @@ const MenubarRadioGroup = (props: MenubarRadioGroupProps) => {
   return <DropdownMenuRadioGroup data-slot="menubar-radio-group" {...props} />;
 };
 
-type MenubarRadioItemProps = ComponentProps<typeof DropdownMenuRadioItem>;
+type MenubarRadioItemProps = DropdownMenuRadioItemProps;
 
 const MenubarRadioItem = (props: MenubarRadioItemProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+  const [local, others] = splitProps(props, ["class", "value"]);
   return (
     <DropdownMenuRadioItem
       data-slot="menubar-radio-item"
-      class={cn("z-menubar-radio-item", local.class)}
+      class={cn("z-menubar-radio-item", local.class as string | undefined)}
+      value={local.value}
       {...others}
     />
   );

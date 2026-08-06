@@ -463,7 +463,7 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
         throw error;
       }
     },
-  } as InternalToastManager;
+  } as unknown as InternalToastManager;
 
   const internals: ToastManagerInternals = {
     regionId,
@@ -749,7 +749,7 @@ function ToastViewport(props: ToastViewportProps) {
         aria-live="polite"
         aria-atomic={false}
         aria-relevant="additions text"
-        ref={(element) => {
+        ref={(element: HTMLDivElement) => {
           viewportRef = element;
           context.manager.setViewport(element);
           setElementRef(local.ref, element);
@@ -760,27 +760,31 @@ function ToastViewport(props: ToastViewportProps) {
           },
           local.style,
         )}
-        onPointerEnter={(event) => {
+        onPointerEnter={(
+          event: PointerEvent & { currentTarget: HTMLDivElement; target: Element },
+        ) => {
           callEventHandler(local.onPointerEnter, event);
           context.manager.setHovered(true);
         }}
-        onPointerLeave={(event) => {
+        onPointerLeave={(
+          event: PointerEvent & { currentTarget: HTMLDivElement; target: Element },
+        ) => {
           callEventHandler(local.onPointerLeave, event);
           context.manager.setHovered(false);
         }}
-        onFocusIn={(event) => {
+        onFocusIn={(event: FocusEvent & { currentTarget: HTMLDivElement; target: Element }) => {
           callEventHandler(local.onFocusIn, event);
           if (event.target instanceof HTMLElement && event.target.matches(":focus-visible")) {
             context.manager.setFocused(true);
           }
         }}
-        onFocusOut={(event) => {
+        onFocusOut={(event: FocusEvent & { currentTarget: HTMLDivElement; target: Element }) => {
           callEventHandler(local.onFocusOut, event);
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
             context.manager.setFocused(false);
           }
         }}
-        onKeyDown={(event) => {
+        onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLDivElement; target: Element }) => {
           callEventHandler(local.onKeyDown, event);
           if (event.defaultPrevented || event.key !== "Tab") return;
 
@@ -903,7 +907,7 @@ function ToastRootView(props: ToastRootViewProps) {
     if (!rootRef) return;
 
     const renderKey =
-      "renderKey" in local.toast
+      "renderKey" in local.toast && typeof local.toast.renderKey === "number"
         ? local.toast.renderKey
         : local.manager.getToast(local.toast.id)?.renderKey;
     if (renderKey !== undefined) local.manager.setRootRef(local.toast.id, renderKey, rootRef);
@@ -1050,7 +1054,7 @@ function Toast(props: ToastProps) {
   const toastId = () => provider.manager.resolveToastId(local.toast.id);
   const value: ToastItemContextValue = {
     manager: provider.manager,
-    toast: () => provider.manager.getToast(local.toast.id) ?? local.toast,
+    toast: () => provider.manager.getToast(local.toast.id) ?? (local.toast as InternalToastObject),
   };
 
   return (
@@ -1214,15 +1218,15 @@ function ToastClose<T extends ValidComponent = "button">(props: ToastCloseProps<
       )}
       size={local.size}
       variant={local.variant}
-      onClick={(event) => {
+      onClick={(event: MouseEvent & { currentTarget: HTMLButtonElement; target: Element }) => {
         callEventHandler(local.onClick, event);
         context.manager.notifyClose(context.toast().id);
       }}
-      onFocus={(event) => {
+      onFocus={(event: FocusEvent & { currentTarget: HTMLButtonElement; target: Element }) => {
         callEventHandler(local.onFocus, event);
         setHasFocus(true);
       }}
-      onBlur={(event) => {
+      onBlur={(event: FocusEvent & { currentTarget: HTMLButtonElement; target: Element }) => {
         callEventHandler(local.onBlur, event);
         setHasFocus(false);
       }}

@@ -3,12 +3,13 @@ import { type ComponentProps, mergeProps, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
 
 type NativeSelectProps = ComponentProps<"select"> & {
+  defaultValue?: ComponentProps<"select">["value"];
   size?: "sm" | "default";
 };
 
 function NativeSelect(props: NativeSelectProps) {
   const mergedProps = mergeProps({ size: "default" }, props);
-  const [local, others] = splitProps(mergedProps, ["class", "size"]);
+  const [local, others] = splitProps(mergedProps, ["class", "defaultValue", "size", "value"]);
   return (
     <div
       class={cn(
@@ -22,6 +23,7 @@ function NativeSelect(props: NativeSelectProps) {
         data-slot="native-select"
         data-size={local.size}
         class="z-native-select outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
+        value={local.value ?? local.defaultValue}
         {...others}
       />
       <ChevronDown

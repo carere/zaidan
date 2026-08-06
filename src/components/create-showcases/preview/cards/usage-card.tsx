@@ -54,7 +54,7 @@ function CircularGauge(props: { percentage: number }) {
       fill="none"
       height="16"
       width="16"
-      strokeWidth="2"
+      stroke-width="2"
       viewBox="0 0 100 100"
       class="-rotate-90"
     >
@@ -62,28 +62,28 @@ function CircularGauge(props: { percentage: number }) {
         cx="50"
         cy="50"
         r="42.5"
-        strokeWidth="12"
-        strokeDashoffset="0"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke-width="12"
+        stroke-dashoffset="0"
+        stroke-linecap="round"
+        stroke-linejoin="round"
         class="opacity-20"
         stroke="currentColor"
         style={{
-          strokeDasharray: `${circumference} ${circumference}`,
+          "stroke-dasharray": `${circumference} ${circumference}`,
         }}
       />
       <circle
         cx="50"
         cy="50"
         r="42.5"
-        strokeWidth="12"
-        strokeDashoffset="0"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke-width="12"
+        stroke-dashoffset="0"
+        stroke-linecap="round"
+        stroke-linejoin="round"
         stroke="currentColor"
         class="transition-all duration-300"
         style={{
-          strokeDasharray: `${strokePercent} ${circumference}`,
+          "stroke-dasharray": `${strokePercent} ${circumference}`,
         }}
       />
     </svg>

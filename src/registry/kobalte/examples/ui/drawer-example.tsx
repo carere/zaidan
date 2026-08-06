@@ -382,7 +382,7 @@ function DrawerParagraphs(props: { class?: string; count?: number }) {
       <Index each={Array.from({ length: props.count ?? 10 })}>
         {(_, index) => (
           <p class="mb-4 leading-normal style-lyra:mb-2 style-lyra:leading-relaxed">
-            {PARAGRAPHS[index() % PARAGRAPHS.length]}
+            {PARAGRAPHS[index % PARAGRAPHS.length]}
           </p>
         )}
       </Index>

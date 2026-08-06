@@ -201,7 +201,7 @@ function setExternalRef<T>(ref: ComboboxExternalRef<T> | undefined, value: T) {
     ref(value);
   } else if (ref && "value" in ref) {
     ref.value = value;
-  } else if (ref) {
+  } else if (ref && "current" in ref) {
     ref.current = value;
   }
 }
@@ -269,7 +269,11 @@ function resolveFocusTarget(
   const resolved = typeof target === "function" ? target(interactionType) : target;
 
   if (resolved && typeof resolved === "object" && !(resolved instanceof HTMLElement)) {
-    return "value" in resolved ? resolved.value : resolved.current;
+    return "value" in resolved
+      ? resolved.value
+      : "current" in resolved
+        ? resolved.current
+        : undefined;
   }
 
   return resolved;
@@ -288,7 +292,7 @@ function resolveAnchor(anchor: ComboboxAnchorValue | undefined) {
     return anchor();
   }
 
-  return anchor.current ?? undefined;
+  return "current" in anchor ? (anchor.current ?? undefined) : undefined;
 }
 
 function toPlacement(side: ComboboxSide, align: ComboboxAlign): ComboboxPlacement {
@@ -638,6 +642,7 @@ const Combobox = <Option, Multiple extends boolean | undefined = false>(
     "loopFocus",
     "modal",
     "multiple",
+    "name",
     "onInputValueChange",
     "onItemHighlighted",
     "onOpenChange",
@@ -941,14 +946,14 @@ const Combobox = <Option, Multiple extends boolean | undefined = false>(
 
   return (
     <ComboboxPrimitive.Root<Option, ComboboxGroupOption<Option>>
-      as={ComboboxRootSlot}
+      as={ComboboxRootSlot as unknown as "div"}
       id={local.id}
       name={local.name}
       required={false}
       open={effectiveOpen()}
       forceMount={Boolean(local.actionsRef) && retainContent()}
       modal={local.modal}
-      options={sourceItems()}
+      options={[...sourceItems()]}
       optionValue={itemToStringValue}
       optionTextValue={itemToStringLabel}
       optionLabel={itemToStringLabel}
@@ -961,7 +966,7 @@ const Combobox = <Option, Multiple extends boolean | undefined = false>(
       value={effectiveValue() as Option & Option[]}
       defaultValue={normalizedDefaultValue() as Option & Option[]}
       multiple={local.multiple as true}
-      onChange={(value) => {
+      onChange={(value: Option | Option[]) => {
         const details = consumeChangeDetails("none");
         const normalizedValue = normalizeSelection(value);
         local.onValueChange?.(
@@ -1010,9 +1015,6 @@ const Combobox = <Option, Multiple extends boolean | undefined = false>(
       getAnchorRect={(defaultAnchor) =>
         (resolveAnchor(anchor()) ?? defaultAnchor)?.getBoundingClientRect()
       }
-      onCurrentPlacementChange={(placement) => {
-        setCurrentPlacement(placement);
-      }}
     >
       <ComboboxAdapterContext.Provider value={adapter}>
         <ComboboxStateBridge />
@@ -1094,7 +1096,7 @@ const ComboboxTrigger = <T extends ValidComponent = "button">(props: ComboboxTri
           adapter.setChangeDetails("trigger-press", event, event.currentTarget);
           callEventHandler(local.onPointerDown, event);
         }}
-        onKeyDown={(event) => {
+        onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLElement; target: Element }) => {
           adapter.setChangeDetails("trigger-press", event, event.currentTarget);
           callEventHandler(local.onKeyDown, event);
         }}
@@ -1134,6 +1136,7 @@ const ComboboxClear = (props: ComboboxClearProps) => {
         size="icon-xs"
         data-slot="combobox-clear"
         data-visible={visible() ? "" : undefined}
+        aria-label="Clear"
         class={cn("z-combobox-clear", local.class)}
         disabled={local.disabled || adapter.disabled() || adapter.readOnly()}
         onPointerDown={(event) => {
@@ -1214,6 +1217,10 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
         }}
         form={others.form ?? adapter.form()}
         required={undefined}
+        aria-label={
+          others["aria-label"] ??
+          (others["aria-labelledby"] ? undefined : (others.placeholder as string | undefined))
+        }
         aria-required={adapter.required() || undefined}
         aria-haspopup={adapter.inline() ? undefined : adapter.grid() ? "grid" : "listbox"}
         aria-expanded={adapter.inline() ? undefined : state.isOpen()}
@@ -1487,7 +1494,7 @@ const ComboboxContent = <T extends ValidComponent = "div">(rawProps: ComboboxCon
         adapter.setChangeDetails("focus-out", nativeEvent);
         callEventHandler(local.onFocusOutside, event);
       }}
-      onEscapeKeyDown={(event) => {
+      onEscapeKeyDown={(event: Event) => {
         const nativeEvent = getNativeEvent(event);
         adapter.setChangeDetails("escape-key", nativeEvent);
         callEventHandler(local.onEscapeKeyDown, event);
@@ -1678,8 +1685,9 @@ const ComboboxList = <T extends ValidComponent = "div">(rawProps: ComboboxListPr
       data-virtualized={adapter.externallyVirtualized() ? "" : undefined}
       role={adapter.grid() ? "grid" : "listbox"}
       class={cn("z-combobox-list overflow-y-auto overscroll-contain", local.class)}
-      shouldFocusOnHover={adapter.highlightItemOnHover()}
-      onPointerLeave={(event) => {
+      onPointerLeave={(
+        event: PointerEvent & { currentTarget: HTMLDivElement; target: Element },
+      ) => {
         adapter.setHighlightDetails("pointer", event);
         callEventHandler(local.onPointerLeave, event);
 
@@ -1834,7 +1842,7 @@ const ComboboxGroup = (props: ComboboxGroupProps) => {
           level: 0,
           rawValue: item,
           textValue: adapter.itemToStringLabel(item),
-          type: "item",
+          type: "item" as const,
         }
       );
     });
@@ -1965,7 +1973,7 @@ const ComboboxChips = (props: ComboboxChipsProps) => {
       role={state.selectedOptions().length > 0 ? "toolbar" : undefined}
       data-slot="combobox-chips"
       class={cn("z-combobox-chips", local.class)}
-      onMouseDown={(event) => {
+      onMouseDown={(event: MouseEvent & { currentTarget: HTMLDivElement; target: Element }) => {
         callEventHandler(local.onMouseDown, event);
 
         if (
@@ -2029,7 +2037,7 @@ const ComboboxChip = (rawProps: ComboboxChipProps) => {
         "z-combobox-chip has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50",
         local.class,
       )}
-      onKeyDown={(event) => {
+      onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLDivElement; target: Element }) => {
         callEventHandler(local.onKeyDown, event);
 
         if (event.defaultPrevented || disabled() || readOnly()) {
@@ -2117,6 +2125,10 @@ const ComboboxChipsInput = <T extends ValidComponent = "input">(
       }}
       form={others.form ?? adapter.form()}
       required={undefined}
+      aria-label={
+        others["aria-label"] ??
+        (others["aria-labelledby"] ? undefined : (others.placeholder ?? "Add item"))
+      }
       aria-required={adapter.required() || undefined}
       aria-haspopup={adapter.inline() ? undefined : adapter.grid() ? "grid" : "listbox"}
       aria-expanded={adapter.inline() ? undefined : state.isOpen()}
@@ -2142,7 +2154,7 @@ const ComboboxChipsInput = <T extends ValidComponent = "input">(
         adapter.setChangeDetails("focus-out", event, event.currentTarget);
         callEventHandler(local.onBlur, event);
       }}
-      onKeyDown={(event) => {
+      onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLInputElement; target: Element }) => {
         if (event.key === "Escape") {
           adapter.setChangeDetails("escape-key", event, event.currentTarget);
         } else if (

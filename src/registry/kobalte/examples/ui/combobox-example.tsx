@@ -881,7 +881,7 @@ function ComboboxWithOtherInputs() {
         </ComboboxContent>
       </Combobox>
       <Select items={selectItems}>
-        <SelectTrigger class="w-52">
+        <SelectTrigger class="w-52" aria-label="Select a framework">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

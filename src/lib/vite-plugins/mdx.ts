@@ -14,17 +14,17 @@ import remarkGfm from "remark-gfm";
 import type { Pluggable } from "unified";
 import { VFile } from "vfile";
 import type { Plugin as VitePlugin } from "vite";
-import { codeThemeNames } from "../code-highlighting";
-import { pluginTitledCodeBlocks } from "../expressive-code-plugins/titled-code-blocks";
-import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code";
-import { codeImport as remarkCodeImport } from "../remark-plugins/code-import";
-import { remarkCodeTabs } from "../remark-plugins/code-tabs";
-import { remarkComponentSource } from "../remark-plugins/component-source";
-import { remarkDirectiveContainers } from "../remark-plugins/directives";
-import { remarkGithubAlertsToDirectives } from "../remark-plugins/gh-directives";
-import { remarkAddClass } from "../remark-plugins/kbd";
-import { remarkPackageManagerTabs } from "../remark-plugins/package-manager-tabs";
-import { remarkTabGroup } from "../remark-plugins/tab-group";
+import { codeThemeNames } from "../code-highlighting.ts";
+import { pluginTitledCodeBlocks } from "../expressive-code-plugins/titled-code-blocks.ts";
+import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code.ts";
+import { codeImport as remarkCodeImport } from "../remark-plugins/code-import.ts";
+import { remarkCodeTabs } from "../remark-plugins/code-tabs.ts";
+import { remarkComponentSource } from "../remark-plugins/component-source.ts";
+import { remarkDirectiveContainers } from "../remark-plugins/directives.ts";
+import { remarkGithubAlertsToDirectives } from "../remark-plugins/gh-directives.ts";
+import { remarkAddClass } from "../remark-plugins/kbd.ts";
+import { remarkPackageManagerTabs } from "../remark-plugins/package-manager-tabs.ts";
+import { remarkTabGroup } from "../remark-plugins/tab-group.ts";
 
 async function jsxToES2019(code_jsx: string) {
   // We use `esbuild` ourselves instead of letting Vite doing the esbuild transform,

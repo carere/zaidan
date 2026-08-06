@@ -85,8 +85,8 @@ export function PieChartCard() {
                       <text
                         x={viewBox.cx}
                         y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
                         fill="red"
                       >
                         <tspan
@@ -109,7 +109,7 @@ export function PieChartCard() {
                 }}
               />
             </Pie>
-            <ChartLegend content={<ChartLegendContent nameKey="browser" />} class="translate-y-2" />
+            <ChartLegend content={<ChartLegendContent nameKey="browser" class="translate-y-2" />} />
           </PieChart>
         </ChartContainer>
       </CardContent>

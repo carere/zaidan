@@ -833,7 +833,7 @@ type TooltipTriggerProps<T extends ValidComponent = "button", Payload = unknown>
     payload?: Payload;
   }
 > &
-  Pick<ComponentProps<T>, "class" | "children">;
+  Partial<Pick<ComponentProps<T>, "class" | "children">>;
 
 const TooltipTrigger = <T extends ValidComponent = "button", Payload = unknown>(
   props: TooltipTriggerProps<T, Payload>,
@@ -1003,7 +1003,7 @@ type TooltipContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
   T,
   TooltipPrimitive.TooltipContentProps<T>
 > &
-  Pick<ComponentProps<T>, "class" | "children"> &
+  Partial<Pick<ComponentProps<T>, "class" | "children">> &
   Partial<TooltipPosition>;
 
 const TooltipContent = <T extends ValidComponent = "div">(props: TooltipContentProps<T>) => {
@@ -1245,7 +1245,9 @@ const TooltipContent = <T extends ValidComponent = "div">(props: TooltipContentP
             local.onPointerDownOutside?.(event);
             if (event.defaultPrevented) context.handle._clearChange();
           }}
-          onPointerEnter={(event) => {
+          onPointerEnter={(
+            event: PointerEvent & { currentTarget: HTMLElement; target: Element },
+          ) => {
             callEventHandler(
               local.onPointerEnter as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
               event,
@@ -1253,7 +1255,9 @@ const TooltipContent = <T extends ValidComponent = "div">(props: TooltipContentP
             context.handle._clearChange();
             context.handle._cancelClosing();
           }}
-          onPointerLeave={(event) => {
+          onPointerLeave={(
+            event: PointerEvent & { currentTarget: HTMLElement; target: Element },
+          ) => {
             callEventHandler(
               local.onPointerLeave as JSX.EventHandlerUnion<HTMLElement, PointerEvent> | undefined,
               event,

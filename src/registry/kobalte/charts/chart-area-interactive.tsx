@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal, For } from "solid-js";
 import { Area, AreaChart, CartesianGrid, XAxis } from "solid-recharts";
 import {
   Card,
@@ -139,6 +139,11 @@ const timeRangeLabels: Record<string, string> = {
   "7d": "Last 7 days",
 };
 
+const timeRangeItems = timeRangeOptions.map((value) => ({
+  label: timeRangeLabels[value],
+  value,
+}));
+
 export function ChartAreaInteractive() {
   const [timeRange, setTimeRange] = createSignal("90d");
 
@@ -165,23 +170,26 @@ export function ChartAreaInteractive() {
           <CardTitle>Area Chart - Interactive</CardTitle>
           <CardDescription>Showing total visitors for the last 3 months</CardDescription>
         </div>
-        <Select<string>
+        <Select
           value={timeRange()}
-          onChange={(value) => value && setTimeRange(value)}
-          options={timeRangeOptions}
-          itemComponent={(props) => (
-            <SelectItem item={props.item} class="rounded-lg">
-              {timeRangeLabels[props.item.rawValue]}
-            </SelectItem>
-          )}
+          onValueChange={(value) => value && setTimeRange(value)}
+          items={timeRangeItems}
         >
           <SelectTrigger
             class="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
             aria-label="Select a value"
           >
-            <SelectValue<string>>{(state) => timeRangeLabels[state.selectedOption()]}</SelectValue>
+            <SelectValue />
           </SelectTrigger>
-          <SelectContent class="rounded-xl" />
+          <SelectContent class="rounded-xl">
+            <For each={timeRangeItems}>
+              {(item) => (
+                <SelectItem value={item.value} class="rounded-lg">
+                  {item.label}
+                </SelectItem>
+              )}
+            </For>
+          </SelectContent>
         </Select>
       </CardHeader>
       <CardContent class="px-2 pt-4 sm:px-6 sm:pt-6">

@@ -929,10 +929,10 @@ const scenes = {
 export function KitchenIsland() {
   const [enabled, setEnabled] = createSignal(true);
   const [scene, setScene] = createSignal<keyof typeof scenes>("cooking");
-  const [brightness, setBrightness] = createSignal<readonly number[]>([90]);
-  const [colorTemp, setColorTemp] = createSignal<readonly number[]>([70]);
-  const [volume, setVolume] = createSignal<readonly number[]>([30]);
-  const [fade, setFade] = createSignal<readonly number[]>([0]);
+  const [brightness, setBrightness] = createSignal<number[]>([90]);
+  const [colorTemp, setColorTemp] = createSignal<number[]>([70]);
+  const [volume, setVolume] = createSignal<number[]>([30]);
+  const [fade, setFade] = createSignal<number[]>([0]);
   const applyScene = (value: keyof typeof scenes) => {
     setScene(value);
     const next = scenes[value];
@@ -1001,7 +1001,7 @@ export function KitchenIsland() {
 }
 
 export function RollerShades() {
-  const [position, setPosition] = createSignal<readonly number[]>([50]);
+  const [position, setPosition] = createSignal<number[]>([50]);
   const preset = createMemo(() =>
     position()[0] <= 10 ? "open" : position()[0] >= 90 ? "closed" : "half",
   );
@@ -1098,7 +1098,7 @@ export function StockPerformance() {
               <ComboboxContent>
                 <ComboboxEmpty>No tickers found.</ComboboxEmpty>
                 <ComboboxList>
-                  {(item) => <ComboboxItem value={item}>{item}</ComboboxItem>}
+                  {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
                 </ComboboxList>
               </ComboboxContent>
             </Combobox>

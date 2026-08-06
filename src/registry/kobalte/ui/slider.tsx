@@ -406,7 +406,9 @@ const Slider = <T extends ValidComponent = "div", Value extends SliderValue = Sl
   const values = createMemo(() => {
     const currentValue = rawValue();
     if (Array.isArray(currentValue)) {
-      return currentValue.map((value) => clamp(value, min(), max())).sort((a, b) => a - b);
+      return (currentValue as readonly number[])
+        .map((value) => clamp(value, min(), max()))
+        .sort((a, b) => a - b);
     }
     return [clamp(currentValue as number, min(), max())];
   });

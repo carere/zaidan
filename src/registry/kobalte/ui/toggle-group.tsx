@@ -79,12 +79,15 @@ type ToggleGroupContextValue = {
 };
 
 const ToggleGroupContext = createContext<ToggleGroupContextValue>();
+const ToggleGroupPrimitiveItem = ToggleGroupPrimitive.Item as unknown as (
+  props: Record<string, unknown> & { children?: JSX.Element },
+) => JSX.Element;
 
 type ToggleGroupProps<T extends ValidComponent = "div", Value extends string = string> = Omit<
   PolymorphicProps<T, ToggleGroupRootPrimitiveProps<T>>,
   "defaultValue" | "disabled" | "multiple" | "onChange" | "orientation" | "value"
 > &
-  Pick<ComponentProps<T>, "class" | "children"> &
+  Partial<Pick<ComponentProps<T>, "class" | "children">> &
   VariantProps<typeof toggleVariants> & {
     defaultValue?: readonly Value[];
     disabled?: boolean;
@@ -92,7 +95,9 @@ type ToggleGroupProps<T extends ValidComponent = "div", Value extends string = s
     multiple?: boolean;
     onValueChange?: (value: Value[], details: ToggleGroupChangeDetails) => void;
     orientation?: "horizontal" | "vertical";
+    ref?: (element: HTMLElement) => void;
     spacing?: number;
+    style?: JSX.CSSProperties | string;
     value?: readonly Value[];
   };
 
@@ -295,12 +300,15 @@ type ToggleGroupItemProps<
   "defaultPressed" | "disabled" | "onChange" | "pressed" | "value"
 > &
   VariantProps<typeof toggleVariants> &
-  Pick<ComponentProps<T>, "class" | "children"> & {
+  Partial<Pick<ComponentProps<T>, "class" | "children">> & {
     defaultPressed?: boolean;
     disabled?: boolean;
+    form?: string;
     nativeButton?: boolean;
     onPressedChange?: (pressed: boolean, details: ToggleChangeDetails) => void;
     pressed?: boolean;
+    role?: JSX.AriaAttributes["role"];
+    type?: "button" | "reset" | "submit";
     value?: Value;
   };
 
@@ -406,7 +414,7 @@ const ToggleGroupItem = <T extends ValidComponent = "button", Value extends stri
   };
 
   return (
-    <ToggleGroupPrimitive.Item
+    <ToggleGroupPrimitiveItem
       as={local.as ?? (local.nativeButton === false ? "div" : undefined)}
       value={value()}
       disabled={disabled()}
@@ -431,7 +439,7 @@ const ToggleGroupItem = <T extends ValidComponent = "button", Value extends stri
       {...others}
     >
       {local.children}
-    </ToggleGroupPrimitive.Item>
+    </ToggleGroupPrimitiveItem>
   );
 };
 

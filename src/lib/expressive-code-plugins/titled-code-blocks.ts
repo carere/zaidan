@@ -139,9 +139,11 @@ export function pluginTitledCodeBlocks(): ExpressiveCodePlugin {
           [h("span", { "data-code-collapse-label": "" }, ["Expand"])],
         );
 
-        const copyIndex = blockAst.children.findIndex(
-          (child) => child.type === "element" && child.properties.className?.includes("copy"),
-        );
+        const copyIndex = blockAst.children.findIndex((child) => {
+          if (child.type !== "element") return false;
+          const classNames = child.properties.className;
+          return Array.isArray(classNames) && classNames.includes("copy");
+        });
         blockAst.children.splice(
           copyIndex === -1 ? blockAst.children.length : copyIndex,
           0,

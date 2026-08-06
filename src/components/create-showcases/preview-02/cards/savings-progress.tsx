@@ -49,8 +49,8 @@ export function SavingsProgress() {
                       <text
                         x={viewBox.cx}
                         y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
                       >
                         <tspan
                           x={viewBox.cx}

@@ -414,7 +414,7 @@ type DropdownMenuTriggerProps<T extends ValidComponent = "button"> = Polymorphic
   T,
   DropdownMenuPrimitive.DropdownMenuTriggerProps<T>
 > &
-  Pick<ComponentProps<T>, "class"> & {
+  Partial<Pick<ComponentProps<T>, "class">> & {
     closeDelay?: number;
     delay?: number;
     openOnHover?: boolean;
@@ -519,7 +519,7 @@ type DropdownMenuContentProps<T extends ValidComponent = "div"> = PolymorphicPro
   T,
   DropdownMenuPrimitive.DropdownMenuContentProps<T>
 > &
-  Pick<ComponentProps<T>, "class"> &
+  Partial<Pick<ComponentProps<T>, "class">> &
   Partial<DropdownMenuPositioning> & {
     finalFocus?: DropdownMenuFinalFocus;
   };
@@ -625,7 +625,7 @@ type DropdownMenuGroupProps<T extends ValidComponent = "div"> = PolymorphicProps
   T,
   DropdownMenuPrimitive.DropdownMenuGroupProps<T>
 > &
-  Pick<ComponentProps<T>, "class">;
+  Partial<Pick<ComponentProps<T>, "class">>;
 
 const DropdownMenuGroup = <T extends ValidComponent = "div">(props: DropdownMenuGroupProps<T>) => {
   const [local, others] = splitProps(props as DropdownMenuGroupProps, ["class"]);
@@ -638,7 +638,7 @@ type DropdownMenuLabelProps<T extends ValidComponent = "span"> = PolymorphicProp
   T,
   DropdownMenuPrimitive.DropdownMenuGroupLabelProps<T>
 > &
-  Pick<ComponentProps<T>, "class"> & {
+  Partial<Pick<ComponentProps<T>, "class">> & {
     inset?: boolean;
   };
 
@@ -658,7 +658,7 @@ type DropdownMenuItemProps<T extends ValidComponent = "div"> = Omit<
   PolymorphicProps<T, DropdownMenuPrimitive.DropdownMenuItemProps<T>>,
   "closeOnSelect" | "textValue"
 > &
-  Pick<ComponentProps<T>, "class"> & {
+  Partial<Pick<ComponentProps<T>, "class">> & {
     closeOnClick?: boolean;
     inset?: boolean;
     label?: string;
@@ -835,7 +835,7 @@ type DropdownMenuSubTriggerProps<T extends ValidComponent = "div"> = Polymorphic
   T,
   DropdownMenuPrimitive.DropdownMenuSubTriggerProps<T>
 > &
-  Pick<ComponentProps<T>, "class" | "children"> & {
+  Partial<Pick<ComponentProps<T>, "class" | "children">> & {
     closeDelay?: number;
     delay?: number;
     inset?: boolean;
@@ -951,7 +951,7 @@ type DropdownMenuSubContentProps<T extends ValidComponent = "div"> = Polymorphic
   T,
   DropdownMenuPrimitive.DropdownMenuSubContentProps<T>
 > &
-  Pick<ComponentProps<T>, "class"> &
+  Partial<Pick<ComponentProps<T>, "class">> &
   Partial<DropdownMenuPositioning> & {
     finalFocus?: DropdownMenuFinalFocus;
   };
@@ -1057,7 +1057,7 @@ type DropdownMenuCheckboxItemProps<T extends ValidComponent = "div"> = Omit<
   PolymorphicProps<T, DropdownMenuPrimitive.DropdownMenuCheckboxItemProps<T>>,
   "closeOnSelect" | "textValue"
 > &
-  Pick<ComponentProps<T>, "class" | "children"> & {
+  Partial<Pick<ComponentProps<T>, "class" | "children">> & {
     closeOnClick?: boolean;
     inset?: boolean;
     label?: string;
@@ -1154,7 +1154,7 @@ type DropdownMenuRadioGroupProps<T extends ValidComponent = "div"> = Polymorphic
   T,
   DropdownMenuPrimitive.DropdownMenuRadioGroupProps<T>
 > &
-  Pick<ComponentProps<T>, "class"> & {
+  Partial<Pick<ComponentProps<T>, "class">> & {
     onValueChange?: (value: string, details: DropdownMenuChangeDetails) => void;
   };
 
@@ -1191,11 +1191,11 @@ const DropdownMenuRadioGroup = <T extends ValidComponent = "div">(
   );
 };
 
-type DropdownMenuRadioItemProps<T extends ValidComponent = "div"> = Omit<
+export type DropdownMenuRadioItemProps<T extends ValidComponent = "div"> = Omit<
   PolymorphicProps<T, DropdownMenuPrimitive.DropdownMenuRadioItemProps<T>>,
   "closeOnSelect" | "textValue"
 > &
-  Pick<ComponentProps<T>, "class" | "children"> & {
+  Partial<Pick<ComponentProps<T>, "class" | "children">> & {
     closeOnClick?: boolean;
     inset?: boolean;
     label?: string;
@@ -1276,7 +1276,7 @@ type DropdownMenuSeparatorProps<T extends ValidComponent = "hr"> = PolymorphicPr
   T,
   DropdownMenuPrimitive.DropdownMenuSeparatorProps<T>
 > &
-  Pick<ComponentProps<T>, "class">;
+  Partial<Pick<ComponentProps<T>, "class">>;
 
 const DropdownMenuSeparator = <T extends ValidComponent = "hr">(
   props: DropdownMenuSeparatorProps<T>,

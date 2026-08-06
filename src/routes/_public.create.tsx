@@ -94,15 +94,16 @@ function CreatePage() {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
       if (event.origin !== window.location.origin || event.source !== iframeRef?.contentWindow)
         return;
-      if (event.data.type === "preview-ready") {
+      const message = event.data;
+      if (message.type === "preview-ready") {
         sendPreview();
-      } else if (event.data.type === "showcase-change") {
-        navigate({ search: (previous) => ({ ...previous, item: event.data.data }) });
-      } else if (event.data.type === "dark-mode-forward" || event.data.type === "cmd-k-forward") {
+      } else if (message.type === "showcase-change") {
+        navigate({ search: (previous) => ({ ...previous, item: message.data }) });
+      } else if (message.type === "dark-mode-forward" || message.type === "cmd-k-forward") {
         document.dispatchEvent(
           new KeyboardEvent("keydown", {
-            key: event.data.key,
-            metaKey: event.data.type === "cmd-k-forward",
+            key: message.key,
+            metaKey: message.type === "cmd-k-forward",
             bubbles: true,
           }),
         );

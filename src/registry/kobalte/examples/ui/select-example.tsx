@@ -284,7 +284,7 @@ function SelectLargeList() {
 
 function SelectMultiple() {
   const items = [
-    ...fruitItems.filter((item) => !item.disabled),
+    ...fruitItems,
     { label: "Strawberry", value: "strawberry" },
     { label: "Watermelon", value: "watermelon" },
   ];
