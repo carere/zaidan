@@ -1735,7 +1735,8 @@
         "https://zaidan.carere.dev/r/kobalte/separator.json",
         "https://zaidan.carere.dev/r/kobalte/sheet.json",
         "https://zaidan.carere.dev/r/kobalte/skeleton.json",
-        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json",
+        "https://zaidan.carere.dev/r/kobalte/use-mobile.json"
       ],
       "files": [
         {
