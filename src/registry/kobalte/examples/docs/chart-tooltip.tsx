@@ -32,8 +32,7 @@ function TooltipDemo(props: TooltipDemoProps) {
       "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
       indicator() === "dot" && "h-2.5 w-2.5",
       indicator() === "line" && "w-1",
-      indicator() === "dashed" &&
-        "w-0 border-[1.5px] border-dashed bg-transparent",
+      indicator() === "dashed" && "w-0 border-[1.5px] border-dashed bg-transparent",
       nestLabel() && indicator() === "dashed" && "my-0.5",
     );
 
@@ -52,10 +51,7 @@ function TooltipDemo(props: TooltipDemoProps) {
         <For each={local.payload}>
           {(item) => (
             <div
-              class={cn(
-                "flex w-full items-stretch gap-2",
-                indicator() === "dot" && "items-center",
-              )}
+              class={cn("flex w-full items-stretch gap-2", indicator() === "dot" && "items-center")}
             >
               <Show when={!local.hideIndicator}>
                 <div
@@ -96,9 +92,7 @@ export default function ChartTooltip() {
   return (
     <div class="grid aspect-video w-full max-w-md justify-center text-foreground md:grid-cols-2 [&>div]:relative [&>div]:flex [&>div]:h-[137px] [&>div]:w-[224px] [&>div]:items-center [&>div]:justify-center [&>div]:p-4">
       <div>
-        <span class="absolute top-[45px] left-[-35px] z-10 text-sm font-medium">
-          Label
-        </span>
+        <span class="absolute top-[45px] left-[-35px] z-10 text-sm font-medium">Label</span>
         <svg
           aria-hidden="true"
           viewBox="0 0 193 40"
@@ -122,9 +116,7 @@ export default function ChartTooltip() {
         />
       </div>
       <div class="items-end">
-        <span class="absolute top-0 left-[122px] z-10 text-sm font-medium">
-          Name
-        </span>
+        <span class="absolute top-0 left-[122px] z-10 text-sm font-medium">Name</span>
         <svg
           aria-hidden="true"
           width="35"
@@ -158,9 +150,7 @@ export default function ChartTooltip() {
         />
       </div>
       <div class="items-start! justify-start!">
-        <span class="absolute top-[60px] left-[50px] z-10 text-sm font-medium">
-          Indicator
-        </span>
+        <span class="absolute top-[60px] left-[50px] z-10 text-sm font-medium">Indicator</span>
         <TooltipDemo
           label="Browser"
           hideLabel

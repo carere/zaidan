@@ -68,9 +68,7 @@ export default function ChartDemo() {
       <CardHeader class="flex flex-col items-stretch border-b p-0! sm:flex-row">
         <div class="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:py-0!">
           <CardTitle>Bar Chart - Interactive</CardTitle>
-          <CardDescription>
-            Showing total visitors for the last month
-          </CardDescription>
+          <CardDescription>Showing total visitors for the last month</CardDescription>
         </div>
         <div class="flex">
           <For each={["desktop", "mobile"] as const}>
@@ -82,9 +80,7 @@ export default function ChartDemo() {
                 class="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
                 onClick={() => setActiveChart(chart)}
               >
-                <span class="text-xs text-muted-foreground">
-                  {chartConfig[chart].label}
-                </span>
+                <span class="text-xs text-muted-foreground">{chartConfig[chart].label}</span>
                 <span class="text-lg leading-none font-bold sm:text-3xl">
                   {totals[chart].toLocaleString()}
                 </span>
@@ -94,15 +90,8 @@ export default function ChartDemo() {
         </div>
       </CardHeader>
       <CardContent class="px-2 sm:p-6">
-        <ChartContainer
-          config={chartConfig}
-          class="aspect-auto h-[250px] w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            margin={{ left: 12, right: 12 }}
-          >
+        <ChartContainer config={chartConfig} class="aspect-auto h-[250px] w-full">
+          <BarChart accessibilityLayer data={chartData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
@@ -133,10 +122,7 @@ export default function ChartDemo() {
                 />
               )}
             />
-            <Bar
-              dataKey={activeChart()}
-              fill={`var(--color-${activeChart()})`}
-            />
+            <Bar dataKey={activeChart()} fill={`var(--color-${activeChart()})`} />
           </BarChart>
         </ChartContainer>
       </CardContent>
