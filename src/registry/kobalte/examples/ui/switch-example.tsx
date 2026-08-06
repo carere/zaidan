@@ -14,6 +14,7 @@ export default function SwitchExample() {
     <ExampleWrapper>
       <SwitchBasic />
       <SwitchWithDescription />
+      <SwitchWithLabel />
       <SwitchDisabled />
       <SwitchSizes />
     </ExampleWrapper>
@@ -45,6 +46,17 @@ function SwitchWithDescription() {
           <Switch id="switch-focus-mode" />
         </Field>
       </FieldLabel>
+    </Example>
+  );
+}
+
+function SwitchWithLabel() {
+  return (
+    <Example title="With Label">
+      <div class="flex items-center gap-2">
+        <Switch id="switch-bluetooth" defaultChecked />
+        <Label for="switch-bluetooth">Bluetooth</Label>
+      </div>
     </Example>
   );
 }
