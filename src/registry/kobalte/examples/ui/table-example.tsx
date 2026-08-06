@@ -13,6 +13,7 @@ import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -332,20 +333,19 @@ function TableWithSelect() {
                 <TableCell class="font-medium">{item.task}</TableCell>
                 <TableCell>
                   <Select
-                    options={people}
-                    optionValue="value"
-                    optionTextValue="label"
+                    items={people}
                     defaultValue={people.find((person) => person.value === item.assignee)}
-                    itemComponent={(props) => (
-                      <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
-                    )}
                   >
                     <SelectTrigger class="w-40" size="sm">
-                      <SelectValue<(typeof people)[number]>>
-                        {(state) => state.selectedOption()?.label}
-                      </SelectValue>
+                      <SelectValue />
                     </SelectTrigger>
-                    <SelectContent />
+                    <SelectContent>
+                      <SelectGroup>
+                        <For each={people}>
+                          {(person) => <SelectItem value={person}>{person.label}</SelectItem>}
+                        </For>
+                      </SelectGroup>
+                    </SelectContent>
                   </Select>
                 </TableCell>
                 <TableCell>{item.status}</TableCell>
@@ -381,7 +381,12 @@ function TableWithInput() {
               <TableRow>
                 <TableCell class="font-medium">{product.name}</TableCell>
                 <TableCell>
-                  <Input type="number" value={index() === 1 ? "2" : "1"} class="h-8 w-20" min="0" />
+                  <Input
+                    type="number"
+                    defaultValue={index() === 1 ? "2" : "1"}
+                    class="h-8 w-20"
+                    min="0"
+                  />
                 </TableCell>
                 <TableCell>{product.price}</TableCell>
               </TableRow>
