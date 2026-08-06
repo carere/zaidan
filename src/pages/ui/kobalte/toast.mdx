@@ -1,0 +1,112 @@
+---
+title: Toast
+slug: toast
+description: A succinct message that is displayed temporarily.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/toast
+  api: https://kobalte.dev/docs/core/components/toast#api-reference
+---
+
+The Toast component is built on top of [Kobalte Toast](https://kobalte.dev/docs/core/components/toast), which provides accessible notifications, keyboard navigation, and swipe dismissal.
+
+<ComponentPreview name="toast-demo" />
+
+## Installation
+
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+```package-dlx
+shadcn@latest add @zaidan/toast
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core lucide-solid
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="toast" title="components/ui/toast.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+<Step>Add the Toaster component to your application root.</Step>
+
+```tsx title="app.tsx" showLineNumbers
+import { Toaster } from "~/components/ui/toast";
+
+export default function App() {
+  return (
+    <>
+      <Toaster />
+    </>
+  );
+}
+```
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { toast } from "~/components/ui/toast";
+```
+
+```tsx showLineNumbers
+toast.add({
+  title: "Event created",
+  description: "Sunday, December 3 at 9:00 AM",
+});
+```
+
+## Types
+
+Set the `type` option to render a status icon. The built-in renderer recognizes `success`, `info`, `warning`, `error`, and `loading`.
+
+<ComponentPreview name="toast-types" />
+
+## Action
+
+Pass button props with `actionProps` to render an action.
+
+```tsx showLineNumbers
+const id = toast.add({
+  title: "Event created",
+  actionProps: {
+    children: "Undo",
+    onClick() {
+      toast.close(id);
+    },
+  },
+});
+```
+
+## Promise
+
+Use `toast.promise` to update one toast as an asynchronous task moves through loading, success, and error states.
+
+<ComponentPreview name="toast-promise" />
+
+## API Reference
+
+See the [Kobalte Toast API reference](https://kobalte.dev/docs/core/components/toast#api-reference) for primitive props, stacking, swipe dismissal, and keyboard behavior.
