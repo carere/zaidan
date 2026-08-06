@@ -2,35 +2,59 @@
 title: Dropdown Menu
 slug: dropdown-menu
 description: Displays a menu to the user — such as a set of actions or functions — triggered by a button.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/dropdown-menu
+  api: https://kobalte.dev/docs/core/components/dropdown-menu#api-reference
 ---
 
-# Dropdown Menu
+The Dropdown Menu component is built on top of [Kobalte Dropdown Menu](https://kobalte.dev/docs/core/components/dropdown-menu), which provides accessible menu, keyboard, and focus behavior.
 
-Displays a menu to the user — such as a set of actions or functions — triggered by a button.
+<ComponentPreview name="dropdown-menu-demo" description="A dropdown menu with icons, shortcuts, and submenu items." />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/dropdown-menu
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/dropdown-menu.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core lucide-solid
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="dropdown-menu" title="components/ui/dropdown-menu.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -43,272 +67,126 @@ import {
 } from "~/components/ui/dropdown-menu";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L94-L116
-
+```tsx showLineNumbers
+<DropdownMenu>
+  <DropdownMenuTrigger as={Button} variant="outline">
+    Open
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuGroup>
+      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+      <DropdownMenuItem>Profile</DropdownMenuItem>
+      <DropdownMenuItem>Billing</DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuSeparator />
+    <DropdownMenuGroup>
+      <DropdownMenuItem>Team</DropdownMenuItem>
+      <DropdownMenuItem>Subscription</DropdownMenuItem>
+    </DropdownMenuGroup>
+  </DropdownMenuContent>
+</DropdownMenu>
 ```
 
-### With Icons
+See the [Kobalte Dropdown Menu documentation](https://kobalte.dev/docs/core/components/dropdown-menu) for primitive-level options, accessibility, and keyboard behavior.
 
-```tsx
-import { CreditCard, LogOut, Settings, User } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+## Composition
+
+Use the following composition to build a `DropdownMenu`:
+
+```text
+DropdownMenu
+├── DropdownMenuTrigger
+└── DropdownMenuContent
+    ├── DropdownMenuGroup
+    │   ├── DropdownMenuLabel
+    │   ├── DropdownMenuItem
+    │   └── DropdownMenuItem
+    ├── DropdownMenuSeparator
+    ├── DropdownMenuGroup
+    │   ├── DropdownMenuLabel
+    │   ├── DropdownMenuCheckboxItem
+    │   └── DropdownMenuCheckboxItem
+    ├── DropdownMenuSeparator
+    ├── DropdownMenuGroup
+    │   ├── DropdownMenuLabel
+    │   └── DropdownMenuRadioGroup
+    │       ├── DropdownMenuRadioItem
+    │       └── DropdownMenuRadioItem
+    └── DropdownMenuSub
+        ├── DropdownMenuSubTrigger
+        └── DropdownMenuSubContent
+            └── DropdownMenuGroup
+                ├── DropdownMenuLabel
+                ├── DropdownMenuItem
+                └── DropdownMenuItem
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L118-L147
+## Basic
 
-```
+A basic dropdown menu with labels and separators.
 
-### With Shortcuts
+<ComponentPreview name="dropdown-menu-basic" />
 
-```tsx
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+## Submenu
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L149-L185
+Use `DropdownMenuSub` to nest secondary actions.
 
-```
+<ComponentPreview name="dropdown-menu-submenu" />
 
-### With Submenu
+## Shortcuts
 
-```tsx
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+Add `DropdownMenuShortcut` to show keyboard hints.
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L187-L217
+<ComponentPreview name="dropdown-menu-shortcuts" />
 
-```
+## Icons
 
-### With Checkboxes
+Combine icons with labels for quick scanning.
 
-```tsx
-import { Activity, Layout, PanelLeft } from "lucide-solid";
-import { createSignal } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+<ComponentPreview name="dropdown-menu-icons" />
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L219-L254
+## Checkboxes
 
-```
+Use `DropdownMenuCheckboxItem` for toggles.
 
-### With Radio Group
+<ComponentPreview name="dropdown-menu-checkboxes" />
 
-```tsx
-import { ArrowDown, ArrowRight, ArrowUp } from "lucide-solid";
-import { createSignal } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+## Checkboxes Icons
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L256-L287
+Add icons to checkbox items.
 
-```
+<ComponentPreview name="dropdown-menu-checkboxes-icons" />
 
-### Checkboxes with Icons
+## Radio Group
 
-```tsx
-import { Bell, Mail, MessageSquare } from "lucide-solid";
-import { createSignal } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+Use `DropdownMenuRadioGroup` for exclusive choices.
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L289-L337
+<ComponentPreview name="dropdown-menu-radio-group" />
 
-```
+## Radio Icons
 
-### Radio with Icons
+Show radio options with icons.
 
-```tsx
-import { Building2, CreditCard, Wallet } from "lucide-solid";
-import { createSignal } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+<ComponentPreview name="dropdown-menu-radio-icons" />
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L339-L370
+## Destructive
 
-```
+Use `variant="destructive"` for irreversible actions.
 
-### With Destructive Items
+<ComponentPreview name="dropdown-menu-destructive" />
 
-```tsx
-import { Archive, Pencil, Share, Trash } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+## Avatar
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L372-L401
+An account switcher dropdown triggered by an avatar.
 
-```
+<ComponentPreview name="dropdown-menu-avatar" />
 
-### With Avatar
+## Complex
 
-```tsx
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut } from "lucide-solid";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
+A richer example combining groups, icons, and submenus.
 
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L403-L478
+<ComponentPreview name="dropdown-menu-complex" />
 
-```
+## API Reference
 
-### In Dialog
-
-```tsx
-import { ClipboardPaste, Copy, Scissors, Trash } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L480-L533
-
-```
-
-### Complex
-
-```tsx
-import {
-  Bell,
-  CreditCard,
-  Download,
-  Eye,
-  File,
-  FileCode,
-  FileText,
-  Folder,
-  FolderOpen,
-  FolderSearch,
-  HelpCircle,
-  Keyboard,
-  Languages,
-  Layout,
-  LogOut,
-  Mail,
-  Monitor,
-  Moon,
-  MoreHorizontal,
-  Palette,
-  Save,
-  Settings,
-  Shield,
-  Sun,
-  User,
-} from "lucide-solid";
-import { createSignal } from "solid-js";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/dropdown-menu-example.tsx#L535-L770
-
-```
+See the [Kobalte Dropdown Menu API reference](https://kobalte.dev/docs/core/components/dropdown-menu#api-reference) for primitive props, keyboard behavior, and accessibility details.
