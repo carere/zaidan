@@ -55,13 +55,7 @@ function ProgressControlled() {
     <Example title="Controlled">
       <div class="flex w-full flex-col gap-4">
         <Progress value={value()} class="w-full" />
-        <Slider
-          value={[value()]}
-          onChange={(values) => setValue(values[0])}
-          minValue={0}
-          maxValue={100}
-          step={1}
-        />
+        <Slider value={value()} onValueChange={setValue} min={0} max={100} step={1} />
       </div>
     </Example>
   );
