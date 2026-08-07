@@ -17,6 +17,16 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     tsconfigPaths: true,
   },
+  environments: {
+    ssr: {
+      build: {
+        // Vite leaves server builds unminified by default; the Worker upload
+        // then exceeds Cloudflare's 64 MiB payload cap (~117 MB of route
+        // chunks). Minifying brings it down ~73%.
+        minify: "esbuild",
+      },
+    },
+  },
   plugins: [
     lucide(),
     highlightCode(),
