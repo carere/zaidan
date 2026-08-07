@@ -16,6 +16,7 @@ import { VFile } from "vfile";
 import type { Plugin as VitePlugin } from "vite";
 import { codeThemeNames } from "../code-highlighting.ts";
 import { pluginTitledCodeBlocks } from "../expressive-code-plugins/titled-code-blocks.ts";
+import { rehypeCollapseExpressiveCode } from "../rehype-plugins/collapse-expressive-code.ts";
 import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code.ts";
 import { codeImport as remarkCodeImport } from "../remark-plugins/code-import.ts";
 import { remarkCodeTabs } from "../remark-plugins/code-tabs.ts";
@@ -67,6 +68,7 @@ export const rehypePlugins: Pluggable[] = [
       },
     },
   ],
+  rehypeCollapseExpressiveCode,
   rehypeFixExpressiveCodeJsx,
   [rehypeRaw, { passThrough: nodeTypes }],
   rehypeSlug,

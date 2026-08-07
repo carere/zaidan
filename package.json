@@ -81,6 +81,7 @@
     "@types/bun": "^1.3.14",
     "@velite/plugin-vite": "^0.0.2",
     "happy-dom": "^20.11.1",
+    "hast-util-to-html": "^9.0.5",
     "knip": "^6.31.0",
     "lefthook": "^2.1.10",
     "mdast": "^3.0.0",
