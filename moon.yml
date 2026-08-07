@@ -10,6 +10,11 @@ tasks:
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
     preset: server
+    # Persistent server task: never cached, so skip input hashing entirely.
+    # Without this, moon defaults inputs to the whole project tree and pipes
+    # ~350k files (node_modules, symlinked skills) to `git hash-object`,
+    # stalling startup for 40-60s before vite ever launches.
+    inputs: []
 
   build:
     command: bun vite build
@@ -30,6 +35,8 @@ tasks:
     env:
       CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
     preset: server
+    # Persistent server task: skip input hashing (see `dev` above).
+    inputs: []
 
   r-build-kobalte:
     command: bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte
