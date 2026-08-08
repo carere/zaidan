@@ -1829,6 +1829,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -1848,6 +1849,11 @@
           "path": "src/registry/kobalte/styles/style-luma.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -1857,6 +1863,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -1876,6 +1883,11 @@
           "path": "src/registry/kobalte/styles/style-lyra.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -1885,6 +1897,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -1904,6 +1917,11 @@
           "path": "src/registry/kobalte/styles/style-maia.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -1913,6 +1931,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -1932,6 +1951,11 @@
           "path": "src/registry/kobalte/styles/style-mira.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -1941,6 +1965,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -1960,6 +1985,11 @@
           "path": "src/registry/kobalte/styles/style-nova.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -1969,6 +1999,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -1988,6 +2019,11 @@
           "path": "src/registry/kobalte/styles/style-rhea.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -1997,6 +2033,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -2016,6 +2053,11 @@
           "path": "src/registry/kobalte/styles/style-sera.css",
           "target": "styles/base.css",
           "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
+          "type": "registry:file"
         }
       ]
     },
@@ -2025,6 +2067,7 @@
       "dependencies": [],
       "registryDependencies": [],
       "css": {
+        "@import \"./styles/utilities.css\"": {},
         "@layer base": {
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
@@ -2043,6 +2086,11 @@
         {
           "path": "src/registry/kobalte/styles/style-vega.css",
           "target": "styles/base.css",
+          "type": "registry:file"
+        },
+        {
+          "path": "src/registry/kobalte/styles/utilities.css",
+          "target": "styles/utilities.css",
           "type": "registry:file"
         }
       ]

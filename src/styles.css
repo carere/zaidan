@@ -3,6 +3,7 @@
 
 @import "./styles/expressive-code.css";
 @import "./styles/typeset.css";
+@import "./registry/kobalte/styles/utilities.css";
 
 /* Sans (17) */
 @import "@fontsource-variable/geist";
