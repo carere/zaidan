@@ -1,4 +1,3 @@
-import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@/registry/kobalte/ui/card";
@@ -28,7 +27,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { Toaster } from "@/registry/kobalte/ui/sonner";
+import { Toaster, toast } from "@/registry/kobalte/ui/toast";
 
 const questionnaireItems = [
   {
@@ -346,7 +345,8 @@ function handleSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
     timing: formData.get("timing"),
   };
 
-  toast("Questionnaire submitted", {
+  toast.add({
+    title: "Questionnaire submitted",
     description: `Direction: ${values.direction ?? "None"} · Progress signals: ${values.signals.join(", ") || "None"} · Timing: ${values.timing ?? "None"}`,
   });
 }

@@ -2,31 +2,56 @@
 title: Questionnaire
 slug: questionnaire
 description: A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions.
+component: true
 ---
 
-# Questionnaire
+<ComponentPreview name="questionnaire-demo" align="end" previewClass="min-h-[560px] p-4 sm:p-8" />
 
-A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions. Use it for agent clarification prompts, onboarding, surveys, intake forms, and configuration.
+The `Questionnaire` component renders a multi-step question flow as a single form. Use it for
+agent clarification prompts, onboarding, surveys, intake forms, and configuration.
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/questionnaire
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/questionnaire.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependency:</Step>
+
+```package-install
+lucide-solid
 ```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="questionnaire" title="components/ui/questionnaire.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
 
 ## Usage
 
-```tsx
+```tsx showLineNumbers
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -44,8 +69,6 @@ import {
   QuestionnaireTitle,
 } from "~/components/ui/questionnaire";
 ```
-
-Define the collection once: pass it to `Questionnaire` for progress, actions, and shortcuts, then map it into the parts.
 
 ```tsx showLineNumbers
 const items = [
@@ -82,6 +105,9 @@ const items = [
 ] as const;
 ```
 
+Define the collection once: pass it to `Questionnaire` for progress, actions, and shortcuts, then
+map it into the parts.
+
 ```tsx showLineNumbers
 <Questionnaire items={items} onSubmit={handleSubmit}>
   <QuestionnaireProgress />
@@ -103,10 +129,7 @@ const items = [
           </For>
           <Show when={"input" in question ? question.input : undefined}>
             {(input) => (
-              <QuestionnaireInput
-                aria-label={input().label}
-                placeholder={input().placeholder}
-              />
+              <QuestionnaireInput aria-label={input().label} placeholder={input().placeholder} />
             )}
           </Show>
         </QuestionnaireChoices>
@@ -135,6 +158,8 @@ function handleSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
 
 ## Composition
 
+Use the following composition to build a questionnaire:
+
 ```text
 Questionnaire
 ├── QuestionnaireProgress
@@ -153,136 +178,118 @@ Questionnaire
     └── QuestionnaireSubmit
 ```
 
-`Questionnaire` owns the ordered items, active item, answer state, validation, progress, and navigation. The containing page, card, dialog, or drawer owns close and cancellation behavior, persistence, transport, and branching.
+`Questionnaire` owns the ordered items, active item, answer state, validation, progress, and
+navigation. The containing page, card, dialog, or drawer owns close and cancellation behavior,
+persistence, transport, and branching.
 
-## Behavior
+## Multiple Selection
 
-- **Multiple selection:** Set `multiple` on a `QuestionnaireItem` for an item that accepts more than one fixed answer. Its choices render as checkboxes and submit with `formData.getAll(name)`.
-- **Freeform answer:** Compose `QuestionnaireInput` with fixed choices when the user can provide another answer. Typing into the input selects it; clearing it deselects it.
-- **Explicit skip:** Add `QuestionnaireSkip` when an optional item may be intentionally left unanswered. The Skip action only renders while the active item is not `required`.
-- **Shortcuts:** Assign a letter or number key to each answer with `shortcuts="letters"` or `shortcuts="numbers"` on `Questionnaire`. Pressing a shortcut focuses and toggles the matching choice.
-- **Controlled navigation:** Control the active item from host state with the `item` and `onItemChange` props, for example to return to an invalid step after external validation.
-- **Resume:** Restore a saved active item with `defaultItem` and saved answers with `defaultChecked`/`defaultValue`, then reset changes back to that saved state with a native form reset.
-- **Navigation state:** Read root state with the exported `useQuestionnaire` accessor (`current`, `total`, `first`, `last`, `activeItemStatus`) to build custom progress indicators or disabled navigation.
+Use `multiple` for an item that accepts more than one fixed answer.
+
+<ComponentPreview name="questionnaire-multiple" align="end" previewClass="min-h-[420px] p-4 sm:p-8" />
+
+## Freeform Answer
+
+Compose `QuestionnaireInput` with fixed choices when the user can provide another answer.
+
+<ComponentPreview name="questionnaire-freeform" align="end" previewClass="min-h-[420px] p-4 sm:p-8" />
+
+## Explicit Skip
+
+Add `QuestionnaireSkip` when an optional item may be intentionally left unanswered.
+
+<ComponentPreview name="questionnaire-skip" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Shortcuts
+
+Assign a letter or number key to each answer with `shortcuts`.
+
+<ComponentPreview name="questionnaire-shortcuts" align="end" previewClass="min-h-[480px] p-4 sm:p-8" />
+
+## Custom Validation
+
+Combine controlled navigation with an external schema such as Zod to return to an invalid item
+and present its error.
+
+<ComponentPreview name="questionnaire-validation" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Controlled
+
+Control the active item from host state, such as returning to an invalid step.
+
+<ComponentPreview name="questionnaire-controlled" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Resume
+
+Restore a saved active item and default answers, then reset changes back to that saved state.
+
+<ComponentPreview name="questionnaire-resume" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Conditional Items
+
+Disable items that do not apply to the user's earlier answers.
+
+<ComponentPreview name="questionnaire-conditional" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Navigation State
+
+Read item status to opt into disabled navigation and custom action styling.
+
+<ComponentPreview name="questionnaire-navigation-state" align="end" previewClass="min-h-[480px] p-4 sm:p-8" />
+
+## Custom Progress
+
+Pass a function child to `QuestionnaireProgress` to build a custom progress indicator from the
+root state.
+
+<ComponentPreview name="questionnaire-progress" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Animated Items
+
+Animate the active item while keeping progress and navigation stationary.
+
+<ComponentPreview name="questionnaire-animated" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
+
+## Card
+
+Compose Questionnaire with Card slots while keeping the question title and description semantic.
+
+<ComponentPreview name="questionnaire-card" align="end" previewClass="min-h-[560px] p-4 sm:p-8" />
+
+## Dialog
+
+Compose Questionnaire inside a Dialog while keeping cancellation and dismissal host-owned.
+
+<ComponentPreview name="questionnaire-dialog" align="end" previewClass="min-h-[320px] p-4 sm:p-8" />
 
 ## Keyboard
 
-- <kbd>Enter</kbd> on a filled answer confirms the current item; <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Enter</kbd> confirms from anywhere in the form.
+- <kbd>Enter</kbd> on a filled answer confirms the current item; <kbd>⌘</kbd>/<kbd>Ctrl</kbd> +
+  <kbd>Enter</kbd> confirms from anywhere in the form.
 - <kbd>ArrowUp</kbd> and <kbd>ArrowDown</kbd> move focus between answers of the active item.
-- <kbd>ArrowLeft</kbd> and <kbd>ArrowRight</kbd> move to the previous or next item once the current item is answered.
+- <kbd>ArrowLeft</kbd> and <kbd>ArrowRight</kbd> move to the previous or next item once the
+  current item is answered.
 - With `shortcuts` enabled, single letter or number keys select the matching choice.
 
 ## Accessibility
 
-`QuestionnaireItem` renders a `fieldset`, and `QuestionnaireTitle` renders its `legend`. Descriptions and active errors are associated with the current item, and invalid items and answer controls expose `aria-invalid`.
+`QuestionnaireItem` renders a `fieldset`, and `QuestionnaireTitle` renders its `legend`.
+Descriptions and active errors are associated with the current item, and invalid items and answer
+controls expose `aria-invalid`.
 
-Fixed choices preserve native radio and checkbox behavior. Progress is exposed as a named progressbar, navigation uses real buttons, and inactive items and actions are hidden and inert. Successful navigation focuses the newly active item; failed validation focuses an available answer control.
+Fixed choices preserve native radio and checkbox behavior. Progress is exposed as a named
+progressbar, navigation uses real buttons, and inactive items and actions are hidden and inert.
+Successful navigation focuses the newly active item; failed validation focuses an available
+answer control.
 
-Always give `QuestionnaireInput` an accessible name with a visible label, `aria-label`, or `aria-labelledby`. A placeholder is not a label.
+Always give `QuestionnaireInput` an accessible name with a visible label, `aria-label`, or
+`aria-labelledby`. A placeholder is not a label.
 
-## Examples
+## API Reference
 
-Here are the source code of all the examples from the preview page:
-
-### Standalone
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Questionnaire,
-  QuestionnaireProgress,
-} from "~/components/ui/questionnaire";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L72-L88
-
-```
-
-The `direction`, `signals`, and `timing` questions are shared between examples:
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L268-L326
-
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L328-L337
-
-```
-
-### Card
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import { Card, CardAction, CardContent, CardFooter, CardHeader } from "~/components/ui/card";
-import {
-  Questionnaire,
-  QuestionnaireChoice,
-  QuestionnaireChoiceDescription,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireInput,
-  QuestionnaireItem,
-  QuestionnaireProgress,
-  QuestionnaireTitle,
-} from "~/components/ui/questionnaire";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L90-L103
-
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L164-L266
-
-```
-
-### Dialog
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import { Questionnaire, QuestionnaireProgress } from "~/components/ui/questionnaire";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L105-L136
-
-```
-
-### No Description
-
-```tsx
-import { Example, ExampleWrapper } from "@/components/example";
-import {
-  Questionnaire,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireProgress,
-  QuestionnaireTitle,
-} from "~/components/ui/questionnaire";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L138-L162
-
-```
-
-### Submitting Answers
-
-The examples define their items once and submit answers as form data:
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L33-L56
-
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L339-L352
-
-```
+The state and behavior are implemented in the component file itself: every part exposes its state
+through `data-*` attributes such as `data-active`, `data-status`, `data-checked`, `data-filled`,
+and `data-visible`. Navigation components also accept Button `size` and `variant` props, and
+`QuestionnaireActions` is a styled-only layout helper. Use the exported `useQuestionnaire`
+accessor inside a `Questionnaire` to read `current`, `total`, `first`, `last`, and
+`activeItemStatus` for custom composition.
