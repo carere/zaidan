@@ -462,12 +462,26 @@ const Select = <Value, Multiple extends boolean | undefined = false>(
   const highlightItem = (item: RegisteredSelectItem) => {
     if (!item.disabled()) setHighlightedItem(item);
   };
+  // Scroll the popup only — scrollIntoView would also scroll every ancestor
+  // scrollport (including the page) toward the popup, which jumps the page to
+  // the top when the popup has not been positioned yet.
+  const scrollItemIntoPopupView = (element: HTMLElement) => {
+    const popup = content();
+    if (!popup?.contains(element)) return;
+    const popupRect = popup.getBoundingClientRect();
+    const itemRect = element.getBoundingClientRect();
+    if (itemRect.top < popupRect.top) {
+      popup.scrollTop -= popupRect.top - itemRect.top;
+    } else if (itemRect.bottom > popupRect.bottom) {
+      popup.scrollTop += itemRect.bottom - popupRect.bottom;
+    }
+  };
   const focusItem = (item: RegisteredSelectItem | undefined) => {
     const element = item?.element();
     if (!item || !element || item.disabled()) return;
     highlightItem(item);
     element.focus({ preventScroll: true });
-    element.scrollIntoView({ block: "nearest" });
+    scrollItemIntoPopupView(element);
     updateScrollState();
   };
   const focusInitialItem = (strategy: "first" | "last" | "selected" = "selected") => {
@@ -727,9 +741,20 @@ const Select = <Value, Multiple extends boolean | undefined = false>(
     if (!isOpen()) return;
     const ownerDocument = trigger()?.ownerDocument ?? document;
     const ownerWindow = ownerDocument.defaultView ?? window;
-    const body = ownerDocument.body;
-    const previousOverflow = body.style.overflow;
-    if (mergedProps.modal) body.style.overflow = "hidden";
+
+    // Modal scroll lock. Intentionally implemented with event listeners instead
+    // of `body.style.overflow = "hidden"`: mutating body styles removes the
+    // scrollbar and forces a synchronous style/layout recalculation of the whole
+    // document on open AND close, which is very slow on heavy pages (docs).
+    const preventScroll = (event: Event) => {
+      const target = event.target;
+      if (target instanceof Node && content()?.contains(target)) return;
+      event.preventDefault();
+    };
+    if (mergedProps.modal) {
+      ownerDocument.addEventListener("wheel", preventScroll, { capture: true, passive: false });
+      ownerDocument.addEventListener("touchmove", preventScroll, { capture: true, passive: false });
+    }
 
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target;
@@ -775,7 +800,10 @@ const Select = <Value, Multiple extends boolean | undefined = false>(
       ownerDocument.removeEventListener("focusin", handleFocusIn, true);
       ownerDocument.removeEventListener("keydown", handleEscape, true);
       ownerWindow.removeEventListener("resize", handleResize);
-      if (mergedProps.modal) body.style.overflow = previousOverflow;
+      if (mergedProps.modal) {
+        ownerDocument.removeEventListener("wheel", preventScroll, { capture: true });
+        ownerDocument.removeEventListener("touchmove", preventScroll, { capture: true });
+      }
     });
   });
 

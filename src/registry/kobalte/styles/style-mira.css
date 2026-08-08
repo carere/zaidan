@@ -8,7 +8,7 @@
 }
 
 .z-accordion-trigger {
-  @apply **:data-[slot=accordion-trigger-icon]:text-muted-foreground gap-6 p-2 text-left text-xs/relaxed font-medium hover:underline **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4;
+  @apply [&_[data-slot=accordion-trigger-icon]]:text-muted-foreground gap-6 p-2 text-left text-xs/relaxed font-medium hover:underline [&_[data-slot=accordion-trigger-icon]]:ml-auto [&_[data-slot=accordion-trigger-icon]]:size-4;
 }
 
 .z-accordion-content {
@@ -33,7 +33,7 @@
 }
 
 .z-alert-dialog-media {
-  @apply bg-muted mb-2 inline-flex size-8 items-center justify-center rounded-md sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-4;
+  @apply bg-muted mb-2 inline-flex size-8 items-center justify-center rounded-md sm:group-data-[size=default]/alert-dialog-content:row-span-2 [&>svg:not([class*='size-'])]:size-4;
 }
 
 .z-alert-dialog-title {
@@ -41,12 +41,12 @@
 }
 
 .z-alert-dialog-description {
-  @apply text-muted-foreground *:[a]:hover:text-foreground text-xs/relaxed text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3;
+  @apply text-muted-foreground [&>a:hover]:text-foreground text-xs/relaxed text-balance md:text-pretty [&>a]:underline [&>a]:underline-offset-3;
 }
 
 /* MARK: Alert */
 .z-alert {
-  @apply grid gap-0.5 rounded-lg border px-2 py-1.5 text-left text-xs/relaxed has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-1.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-3.5;
+  @apply grid gap-0.5 rounded-lg border px-2 py-1.5 text-left text-xs/relaxed has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-1.5 [&>svg]:row-span-2 [&>svg]:translate-y-0.5 [&>svg]:text-current [&>svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-alert-variant-default {
@@ -54,7 +54,7 @@
 }
 
 .z-alert-variant-destructive {
-  @apply text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current;
+  @apply text-destructive bg-card [&>[data-slot=alert-description]]:text-destructive/90 [&>svg]:text-current;
 }
 
 .z-alert-title {
@@ -325,7 +325,7 @@
 
 /* MARK: Card */
 .z-card {
-  @apply ring-foreground/10 bg-card text-card-foreground gap-(--card-spacing) overflow-hidden rounded-lg py-(--card-spacing) text-xs/relaxed ring-1 [--card-spacing:--spacing(4)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg;
+  @apply ring-foreground/10 bg-card text-card-foreground gap-(--card-spacing) overflow-hidden rounded-lg py-(--card-spacing) text-xs/relaxed ring-1 [--card-spacing:--spacing(4)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] [&>img:first-child]:rounded-t-lg [&>img:last-child]:rounded-b-lg;
 }
 
 .z-card-header {
@@ -373,7 +373,7 @@
 
 /* MARK: Combobox */
 .z-combobox-content {
-  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 *:data-[slot=input-group]:bg-input/20 max-h-72 min-w-32 overflow-hidden rounded-lg shadow-md ring-1 duration-100 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-7 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:shadow-none dark:bg-popover;
+  @apply bg-popover text-popover-foreground data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 [&>[data-slot=input-group]]:bg-input/20 max-h-72 min-w-32 overflow-hidden rounded-lg shadow-md ring-1 duration-100 [&>[data-slot=input-group]]:m-1 [&>[data-slot=input-group]]:mb-0 [&>[data-slot=input-group]]:h-7 [&>[data-slot=input-group]]:border-none [&>[data-slot=input-group]]:shadow-none dark:bg-popover;
 }
 
 .z-combobox-content-logical {
@@ -385,7 +385,7 @@
 }
 
 .z-combobox-item {
-  @apply data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed [&_svg:not([class*='size-'])]:size-3.5;
+  @apply data-highlighted:bg-accent data-highlighted:text-accent-foreground [&[data-highlighted]:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-combobox-item-indicator {
@@ -462,7 +462,7 @@
 }
 
 .z-command-group {
-  @apply text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 **:[[cmdk-group-heading]]:px-2.5 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium;
+  @apply text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium;
 }
 
 .z-command-separator {
@@ -470,7 +470,7 @@
 }
 
 .z-command-item {
-  @apply data-[selected=true]:bg-muted data-[selected=true]:text-foreground data-[selected=true]:*:[svg]:text-foreground relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none in-data-[slot=dialog-content]:rounded-md [&_svg:not([class*='size-'])]:size-3.5;
+  @apply data-[selected=true]:bg-muted data-[selected=true]:text-foreground data-[selected=true]:[&>svg]:text-foreground relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none in-data-[slot=dialog-content]:rounded-md [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-command-shortcut {
@@ -487,15 +487,15 @@
 }
 
 .z-context-menu-item {
-  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:[&>svg]:text-destructive [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-context-menu-checkbox-item {
-  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus_*]:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-context-menu-radio-item {
-  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus_*]:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-context-menu-item-indicator {
@@ -515,7 +515,7 @@
 }
 
 .z-context-menu-sub-trigger {
-  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-context-menu-sub-content {
@@ -552,7 +552,7 @@
 }
 
 .z-dialog-description {
-  @apply text-muted-foreground *:[a]:hover:text-foreground text-xs/relaxed *:[a]:underline *:[a]:underline-offset-3;
+  @apply text-muted-foreground [&>a:hover]:text-foreground text-xs/relaxed [&>a]:underline [&>a]:underline-offset-3;
 }
 
 /* MARK: Drawer */
@@ -598,15 +598,15 @@
 }
 
 .z-dropdown-menu-item {
-  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:[&>svg]:text-destructive [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-dropdown-menu-checkbox-item {
-  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus_*]:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-dropdown-menu-radio-item {
-  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus_*]:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-8 pl-2 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-dropdown-menu-item-indicator {
@@ -626,7 +626,7 @@
 }
 
 .z-dropdown-menu-sub-trigger {
-  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-dropdown-menu-sub-content {
@@ -680,7 +680,7 @@
 }
 
 .z-field-group {
-  @apply gap-4 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4;
+  @apply gap-4 data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4;
 }
 
 .z-field {
@@ -692,7 +692,7 @@
 }
 
 .z-field-label {
-  @apply has-data-checked:bg-primary/5 dark:has-data-checked:bg-primary/10 gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border *:data-[slot=field]:p-2 peer-data-disabled:opacity-50;
+  @apply has-data-checked:bg-primary/5 dark:has-data-checked:bg-primary/10 gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border [&>[data-slot=field]]:p-2 peer-data-disabled:opacity-50;
 }
 
 .z-field-title {
@@ -855,11 +855,11 @@
 }
 
 .z-menubar-item {
-  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive! not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-disabled:opacity-50 data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:[&>svg]:text-destructive! [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed data-disabled:opacity-50 data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-menubar-checkbox-item {
-  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-7.5 text-xs data-inset:pl-7.5;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus_*]:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-7.5 text-xs data-inset:pl-7.5;
 }
 
 .z-menubar-checkbox-item-indicator,
@@ -868,7 +868,7 @@
 }
 
 .z-menubar-radio-item {
-  @apply focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-7.5 text-xs data-disabled:opacity-50 data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus_*]:text-accent-foreground min-h-7 gap-2 rounded-md py-1.5 pr-2 pl-7.5 text-xs data-disabled:opacity-50 data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-menubar-radio-item-indicator,
@@ -889,7 +889,7 @@
 }
 
 .z-menubar-sub-trigger {
-  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply focus:bg-accent focus:text-accent-foreground data-expanded:bg-accent data-expanded:text-accent-foreground [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs data-inset:pl-7.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-menubar-sub-content {
@@ -1041,7 +1041,7 @@
 
 /* MARK: Select */
 .z-select-trigger {
-  @apply border-input data-placeholder:text-muted-foreground bg-input/20 dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 gap-1.5 rounded-md border px-2 py-1.5 text-xs/relaxed transition-colors focus-visible:ring-2 aria-invalid:ring-2 data-[size=default]:h-7 data-[size=sm]:h-6 *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-3.5;
+  @apply border-input data-placeholder:text-muted-foreground bg-input/20 dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 gap-1.5 rounded-md border px-2 py-1.5 text-xs/relaxed transition-colors focus-visible:ring-2 aria-invalid:ring-2 data-[size=default]:h-7 data-[size=sm]:h-6 [&>[data-slot=select-value]]:flex [&>[data-slot=select-value]]:gap-1.5 [&_svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-select-value {
@@ -1061,7 +1061,7 @@
 }
 
 .z-select-item {
-  @apply focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed [&_svg:not([class*='size-'])]:size-3.5 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2;
+  @apply focus:bg-accent focus:text-accent-foreground [&:focus:not([data-variant=destructive])_*]:text-accent-foreground min-h-7 gap-2 rounded-md px-2 py-1 text-xs/relaxed [&_svg:not([class*='size-'])]:size-3.5 [&>span:last-child]:flex [&>span:last-child]:items-center [&>span:last-child]:gap-2;
 }
 
 .z-select-item-indicator {
@@ -1372,7 +1372,7 @@
 
 /* MARK: Tooltip */
 .z-tooltip-content {
-  @apply data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm;
+  @apply data-expanded:animate-in data-expanded:fade-in-0 data-expanded:zoom-in-95 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs has-data-[slot=kbd]:pr-1.5 [&_[data-slot=kbd]]:relative [&_[data-slot=kbd]]:isolate [&_[data-slot=kbd]]:z-50 [&_[data-slot=kbd]]:rounded-sm;
 }
 
 .z-tooltip-arrow {
@@ -1385,7 +1385,7 @@
 }
 
 .z-input-group-addon {
-  @apply text-muted-foreground **:data-[slot=kbd]:bg-muted-foreground/10 h-auto gap-1 py-2 text-xs/relaxed font-medium group-data-[disabled=true]/input-group:opacity-50 **:data-[slot=kbd]:rounded-[calc(var(--radius-sm)-2px)] **:data-[slot=kbd]:px-1 **:data-[slot=kbd]:text-[0.625rem] [&>svg:not([class*='size-'])]:size-3.5;
+  @apply text-muted-foreground [&_[data-slot=kbd]]:bg-muted-foreground/10 h-auto gap-1 py-2 text-xs/relaxed font-medium group-data-[disabled=true]/input-group:opacity-50 [&_[data-slot=kbd]]:rounded-[calc(var(--radius-sm)-2px)] [&_[data-slot=kbd]]:px-1 [&_[data-slot=kbd]]:text-[0.625rem] [&>svg:not([class*='size-'])]:size-3.5;
 }
 
 .z-input-group-addon-align-inline-start {
@@ -1438,7 +1438,7 @@
 
 /* MARK: Menu Translucent */
 .z-menu-translucent {
-  @apply animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 **:data-[slot$=-item]:focus:bg-foreground/10 **:data-[slot$=-item]:data-highlighted:bg-foreground/10 **:data-[slot$=-separator]:bg-foreground/5 **:data-[slot$=-trigger]:focus:bg-foreground/10 **:data-[slot$=-trigger]:aria-expanded:bg-foreground/10! **:data-[variant=destructive]:focus:bg-foreground/10! **:data-[variant=destructive]:text-accent-foreground! **:data-[variant=destructive]:**:text-accent-foreground!;
+  @apply animate-none! relative bg-popover/70 before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:rounded-[inherit] before:backdrop-blur-2xl before:backdrop-saturate-150 [&_[data-slot$=-item]:focus]:bg-foreground/10 [&_[data-slot$=-item][data-highlighted]]:bg-foreground/10 [&_[data-slot$=-separator]]:bg-foreground/5 [&_[data-slot$=-trigger]:focus]:bg-foreground/10 [&_[data-slot$=-trigger][aria-expanded=true]]:bg-foreground/10! [&_[data-variant=destructive]:focus]:bg-foreground/10! [&_[data-variant=destructive]]:text-accent-foreground! [&_[data-variant=destructive]_*]:text-accent-foreground!;
 }
 
 /* MARK: Bubble */
@@ -1451,31 +1451,31 @@
 }
 
 .z-bubble-variant-default {
-  @apply *:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80;
+  @apply [&>[data-slot=bubble-content]]:bg-primary [&>[data-slot=bubble-content]]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80;
 }
 
 .z-bubble-variant-secondary {
-  @apply *:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)];
+  @apply [&>[data-slot=bubble-content]]:bg-secondary [&>[data-slot=bubble-content]]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)];
 }
 
 .z-bubble-variant-muted {
-  @apply *:data-[slot=bubble-content]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)];
+  @apply [&>[data-slot=bubble-content]]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)];
 }
 
 .z-bubble-variant-tinted {
-  @apply *:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)] dark:*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.3_calc(c*0.4)_h)] *:data-[slot=bubble-content]:text-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.88_calc(c*0.5)_h)] dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.35_calc(c*0.5)_h)];
+  @apply [&>[data-slot=bubble-content]]:bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)] dark:[&>[data-slot=bubble-content]]:bg-[oklch(from_var(--primary)_0.3_calc(c*0.4)_h)] [&>[data-slot=bubble-content]]:text-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.88_calc(c*0.5)_h)] dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.35_calc(c*0.5)_h)];
 }
 
 .z-bubble-variant-outline {
-  @apply *:data-[slot=bubble-content]:bg-background *:data-[slot=bubble-content]:border-border [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30;
+  @apply [&>[data-slot=bubble-content]]:bg-background [&>[data-slot=bubble-content]]:border-border [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-input/30;
 }
 
 .z-bubble-variant-ghost {
-  @apply *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50 border-none;
+  @apply [&>[data-slot=bubble-content]]:rounded-none [&>[data-slot=bubble-content]]:bg-transparent [&>[data-slot=bubble-content]]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50 border-none;
 }
 
 .z-bubble-variant-destructive {
-  @apply *:data-[slot=bubble-content]:bg-destructive/10 dark:*:data-[slot=bubble-content]:bg-destructive/20 *:data-[slot=bubble-content]:text-destructive [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30;
+  @apply [&>[data-slot=bubble-content]]:bg-destructive/10 dark:[&>[data-slot=bubble-content]]:bg-destructive/20 [&>[data-slot=bubble-content]]:text-destructive [&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/20 dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-destructive/30;
 }
 
 .z-bubble-reactions {
@@ -1528,7 +1528,7 @@
 }
 
 .z-attachment-media {
-  @apply bg-muted text-foreground w-10 rounded-md group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=xs]/attachment:rounded-sm [&_svg:not([class*='size-'])]:size-4 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5 group-data-[orientation=vertical]/attachment:w-full group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[orientation=vertical]/attachment:*:data-[slot=spinner]:size-6!;
+  @apply bg-muted text-foreground w-10 rounded-md group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=xs]/attachment:rounded-sm [&_svg:not([class*='size-'])]:size-4 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5 group-data-[orientation=vertical]/attachment:w-full group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[orientation=vertical]/attachment:[&>[data-slot=spinner]]:size-6!;
 }
 
 .z-attachment-media-variant-image {
@@ -1577,7 +1577,7 @@
 }
 
 .z-marker-content {
-  @apply group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center *:[a]:hover:text-foreground *:[a]:underline *:[a]:underline-offset-3;
+  @apply group-data-[variant=separator]/marker:flex-none group-data-[variant=separator]/marker:text-center [&>a:hover]:text-foreground [&>a]:underline [&>a]:underline-offset-3;
 }
 
 /* MARK: Message Scroller */
@@ -1595,7 +1595,7 @@
 }
 
 .z-message-content {
-  @apply gap-2 group-data-[align=end]/message:*:data-slot:self-end;
+  @apply gap-2 group-data-[align=end]/message:[&>[data-slot]]:self-end;
 }
 
 .z-message-header {
