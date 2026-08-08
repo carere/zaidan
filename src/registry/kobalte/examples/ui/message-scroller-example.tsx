@@ -1,5 +1,6 @@
 import { ArrowUp, Square } from "lucide-solid";
 import { createSignal, For, onCleanup, Show } from "solid-js";
+import { createStore, produce } from "solid-js/store";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Bubble, BubbleContent } from "@/registry/kobalte/ui/bubble";
 import {
@@ -76,7 +77,9 @@ export default function MessageScrollerExample() {
 }
 
 function MessageScrollerDemo() {
-  const [messages, setMessages] = createSignal(initialMessages);
+  // A store keeps each message's DOM node stable while its text streams in;
+  // replacing the array objects would tear down and recreate the live bubble.
+  const [messages, setMessages] = createStore(initialMessages.slice());
   const [nextTurn, setNextTurn] = createSignal(0);
   const [status, setStatus] = createSignal<"ready" | "submitted" | "streaming">("ready");
   let responseTimer: ReturnType<typeof setTimeout> | undefined;
@@ -95,16 +98,16 @@ function MessageScrollerDemo() {
     let chunkIndex = 0;
     const messageId = `answer-${turnNumber}`;
 
-    setMessages((current) => [...current, { id: messageId, role: "assistant", text: "" }]);
+    setMessages(produce((current) => current.push({ id: messageId, role: "assistant", text: "" })));
     setStatus("streaming");
 
     streamTimer = setInterval(() => {
       const chunk = chunks[chunkIndex];
       if (chunk) {
-        setMessages((current) =>
-          current.map((message) =>
-            message.id === messageId ? { ...message, text: `${message.text}${chunk}` } : message,
-          ),
+        setMessages(
+          (message) => message.id === messageId,
+          "text",
+          (text) => `${text}${chunk}`,
         );
         chunkIndex += 1;
       }
@@ -122,10 +125,11 @@ function MessageScrollerDemo() {
     if (!turn || isBusy()) return;
 
     const turnNumber = nextTurn() + 1;
-    setMessages((current) => [
-      ...current,
-      { id: `question-${turnNumber}`, role: "user", text: turn.question },
-    ]);
+    setMessages(
+      produce((current) =>
+        current.push({ id: `question-${turnNumber}`, role: "user", text: turn.question }),
+      ),
+    );
     setNextTurn(turnNumber);
     setStatus("submitted");
 
@@ -151,11 +155,11 @@ function MessageScrollerDemo() {
           <CardDescription>Status: {status()}</CardDescription>
         </CardHeader>
         <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
-          <MessageScrollerProvider>
+          <MessageScrollerProvider autoScroll>
             <MessageScroller>
               <MessageScrollerViewport>
                 <MessageScrollerContent aria-busy={isBusy()} class="gap-4 p-(--card-spacing)">
-                  <For each={messages()}>
+                  <For each={messages}>
                     {(message) => (
                       <MessageScrollerItem
                         messageId={message.id}

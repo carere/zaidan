@@ -122,6 +122,7 @@ type MessageScrollerControllerState = {
   scrollEdgeThreshold: number;
   scrollMargin: number;
   scrollPreviousItemPeek: number;
+  seenItems: WeakSet<HTMLElement>;
   spacer: HTMLDivElement | null;
   spacerGap: number;
   spacerHeight: number;
@@ -224,8 +225,15 @@ function getNewScrollAnchor(items: HTMLElement[], previousItemCount: number) {
   return null;
 }
 
-function getUnanchoredScrollAnchor(items: HTMLElement[], handledAnchors: WeakSet<HTMLElement>) {
-  for (const item of items) {
+/**
+ * Finds a scroll anchor among elements that just entered the list. Solid's
+ * `For` recreates an item's DOM node whenever its backing object is replaced,
+ * so unlike React the childList can churn without the list truly changing;
+ * restricting the scan to newly seen elements keeps long-lived anchors from
+ * re-capturing the scroll position on unrelated mutations.
+ */
+function getUnanchoredScrollAnchor(newItems: HTMLElement[], handledAnchors: WeakSet<HTMLElement>) {
+  for (const item of newItems) {
     if (item.dataset.scrollAnchor === "true" && !handledAnchors.has(item)) return item;
   }
 
@@ -514,6 +522,7 @@ function createMessageScrollerController(
     scrollEdgeThreshold: props.scrollEdgeThreshold,
     scrollMargin: props.scrollMargin,
     scrollPreviousItemPeek: props.scrollPreviousItemPeek,
+    seenItems: new WeakSet(),
     spacer: null,
     spacerGap: 0,
     spacerHeight: 0,
@@ -860,6 +869,8 @@ function createMessageScrollerController(
     if (!state.content) return;
 
     const items = getMessageScrollerItems(state.content, state.spacer);
+    const newItems = items.filter((item) => !state.seenItems.has(item));
+    for (const item of newItems) state.seenItems.add(item);
     const previousItemCount = state.itemCount;
     const previousFirstItem = state.firstItem;
     state.itemCount = items.length;
@@ -911,7 +922,7 @@ function createMessageScrollerController(
     }
 
     if (items.length === previousItemCount) {
-      const anchor = getUnanchoredScrollAnchor(items, state.handledScrollAnchors);
+      const anchor = getUnanchoredScrollAnchor(newItems, state.handledScrollAnchors);
 
       if (anchor) {
         scrollToElement(anchor, { align: "start" }, { keepPreviousPeek: true });
