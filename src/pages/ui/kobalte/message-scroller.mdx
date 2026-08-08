@@ -1,7 +1,7 @@
 ---
 title: Message Scroller
 slug: message-scroller
-description: A chat transcript container that anchors turns, follows streamed responses, preserves history position, and jumps to messages.
+description: A chat scroll container that anchors turns, opens saved transcripts, follows streamed responses, loads history without jumping, and jumps to any message.
 component: true
 ---
 
@@ -23,6 +23,14 @@ Streaming changes a simple message list into a scroll-state problem. New content
 8. Keep the transcript navigable without noisy announcements.
 
 **Never move the reader against their intent.**
+
+## MessageScroller
+
+`MessageScroller` is a chat transcript scroller built for these behaviors. `MessageScrollerProvider` owns the scroll state and transcript-row behavior: opening position, streamed output, new-turn anchoring, prepended history, visibility, and scroll controls. `MessageScroller` is the styled frame that renders inside it.
+
+`MessageScroller` is scoped to the scroll viewport. It does not own messages, AI state, transport, persistence, branching, or model state. Your product code stays focused on composing messages, markers, tools, attachments, and prompt inputs.
+
+It gives you the scroll behavior that chat needs, without taking over the rest of the chat UI. And it stays fast, even in long conversations with rich markdown.
 
 ## Installation
 
@@ -204,6 +212,73 @@ scrollToMessage("message-id", { align: "start", behavior: "smooth" });
 The scroll hot path is imperative: transcript rows do not rerender for each scroll event. The root and viewport mirror relevant state through data attributes, and each item uses `content-visibility: auto` with an intrinsic size so far-off rows can avoid paint work while remaining present for selection, find-in-page, server rendering, and assistive technology.
 
 For the expected range of hundreds to low thousands of rich transcript rows, real DOM items preserve the best selection and accessibility behavior. When a much larger transcript needs virtualization, use `MessageScrollerViewport` as the virtualizer's scroll element and let the virtualizer own the rows.
+
+## Virtualization
+
+Virtualization is intentionally left outside the primitive. `MessageScroller` renders real DOM rows and stays fast well into the thousands of turns (see [Performance](#performance)), so most transcripts never need it.
+
+When a transcript is large enough to need virtualization, use `MessageScrollerViewport` as the scroll element and let the virtualizer own the rows.
+
+```tsx showLineNumbers
+import { createVirtualizer } from "@tanstack/solid-virtual";
+import type { JSX } from "solid-js";
+import { For, Show } from "solid-js";
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "~/components/ui/message-scroller";
+
+function VirtualizedTranscript(props: { messages: { id: string; content: JSX.Element }[] }) {
+  let viewportRef: HTMLDivElement | undefined;
+
+  const virtualizer = createVirtualizer({
+    get count() {
+      return props.messages.length;
+    },
+    getScrollElement: () => viewportRef ?? null,
+    estimateSize: () => 86,
+    getItemKey: (index) => props.messages[index]?.id ?? index,
+    overscan: 8,
+  });
+
+  return (
+    <MessageScrollerProvider>
+      <MessageScroller>
+        <MessageScrollerViewport ref={(element) => (viewportRef = element)}>
+          <MessageScrollerContent class="block min-h-full">
+            <div class="relative w-full" style={{ height: `${virtualizer.getTotalSize()}px` }}>
+              <For each={virtualizer.getVirtualItems()}>
+                {(virtualItem) => {
+                  const message = () => props.messages[virtualItem.index];
+
+                  return (
+                    <Show when={message()}>
+                      {(item) => (
+                        <div
+                          data-index={virtualItem.index}
+                          ref={virtualizer.measureElement}
+                          class="absolute start-0 top-0 w-full"
+                          style={{ transform: `translateY(${virtualItem.start}px)` }}
+                        >
+                          <Bubble>{item().content}</Bubble>
+                        </div>
+                      )}
+                    </Show>
+                  );
+                }}
+              </For>
+            </div>
+          </MessageScrollerContent>
+        </MessageScrollerViewport>
+        <MessageScrollerButton />
+      </MessageScroller>
+    </MessageScrollerProvider>
+  );
+}
+```
 
 ## Accessibility
 

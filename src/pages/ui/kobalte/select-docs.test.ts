@@ -18,8 +18,8 @@ describe("Select documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
     const page = await readFile(pagePath, "utf8");
 
-    expect(page).toContain("Kobalte Select");
-    expect(page).toContain("https://kobalte.dev/docs/core/components/select#api-reference");
+    expect(page).toContain("Kobalte Popper");
+    expect(page).toContain("https://kobalte.dev/docs/core/components/popper#api-reference");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);

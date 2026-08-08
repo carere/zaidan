@@ -2,91 +2,53 @@
 title: Empty
 slug: empty
 description: Use the Empty component to display an empty state.
+component: true
 ---
 
-# Empty
-
-Use the Empty component to display an empty state.
+<ComponentPreview name="empty-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/empty
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/empty.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+class-variance-authority
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="empty" title="components/ui/empty.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
-import { ArrowUpRight } from "lucide-solid";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { Button } from "~/components/ui/button";
-```
+</Steps>
 
-```tsx file=../../../registry/kobalte/examples/ui/empty-example.tsx#L29-L53
+</TabsContent>
 
-```
+</CodeTabs>
 
-### With Muted Background
+## Usage
 
-```tsx
-import { ArrowUpRight } from "lucide-solid";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { Button } from "~/components/ui/button";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/empty-example.tsx#L55-L74
-
-```
-
-### With Border
-
-```tsx
-import { CircleDashed } from "lucide-solid";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
-import { Kbd } from "~/components/ui/kbd";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/empty-example.tsx#L76-L104
-
-```
-
-### With Icon
-
-```tsx
-import { Folder, Plus } from "lucide-solid";
+```tsx showLineNumbers
 import {
   Empty,
   EmptyContent,
@@ -95,47 +57,157 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { Button } from "~/components/ui/button";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/empty-example.tsx#L106-L128
-
+```tsx showLineNumbers
+<Empty>
+  <EmptyHeader>
+    <EmptyMedia variant="icon">
+      <Icon />
+    </EmptyMedia>
+    <EmptyTitle>No data</EmptyTitle>
+    <EmptyDescription>No data found</EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>
+    <Button>Add data</Button>
+  </EmptyContent>
+</Empty>
 ```
 
-### With Muted Background Alt
+## Composition
+
+Use the following composition to build an `Empty` state:
+
+```text
+Empty
+├── EmptyHeader
+│   ├── EmptyMedia
+│   ├── EmptyTitle
+│   └── EmptyDescription
+└── EmptyContent
+```
+
+## Outline
+
+Use the `border` utility class to create an outline empty state.
+
+<ComponentPreview name="empty-outline" />
+
+## Background
+
+Use the `bg-*` and `bg-gradient-*` utilities to add a background to the empty state.
+
+<ComponentPreview name="empty-background" previewClass="p-0" />
+
+## Avatar
+
+Use the `EmptyMedia` component to display an avatar in the empty state.
+
+<ComponentPreview name="empty-avatar" />
+
+## Avatar Group
+
+Use the `EmptyMedia` component to display an avatar group in the empty state.
+
+<ComponentPreview name="empty-avatar-group" />
+
+## InputGroup
+
+You can add an `InputGroup` component to the `EmptyContent` component.
+
+<ComponentPreview name="empty-input-group" />
+
+## API Reference
+
+### Empty
+
+The main component of the empty state. Wraps the `EmptyHeader` and `EmptyContent` components.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` | ``      |
 
 ```tsx
-import { CircleDashed } from "lucide-solid";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
-import { Kbd } from "~/components/ui/kbd";
+<Empty>
+  <EmptyHeader />
+  <EmptyContent />
+</Empty>
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/empty-example.tsx#L130-L158
+### EmptyHeader
 
-```
+The `EmptyHeader` component wraps the empty media, title, and description.
 
-### In Card
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` | ``      |
 
 ```tsx
-import { ArrowUpRight, Folder } from "lucide-solid";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { Button } from "~/components/ui/button";
+<EmptyHeader>
+  <EmptyMedia />
+  <EmptyTitle />
+  <EmptyDescription />
+</EmptyHeader>
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/empty-example.tsx#L160-L187
+### EmptyMedia
 
+Use the `EmptyMedia` component to display the media of the empty state such as an icon or an image. You can also use it to display other components such as an avatar.
+
+| Prop      | Type                  | Default   |
+| --------- | --------------------- | --------- |
+| `variant` | `"default" \| "icon"` | `default` |
+| `class`   | `string`              | ``        |
+
+```tsx
+<EmptyMedia variant="icon">
+  <Icon />
+</EmptyMedia>
+```
+
+```tsx
+<EmptyMedia>
+  <Avatar>
+    <AvatarImage src="..." />
+    <AvatarFallback>CN</AvatarFallback>
+  </Avatar>
+</EmptyMedia>
+```
+
+### EmptyTitle
+
+Use the `EmptyTitle` component to display the title of the empty state.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` | ``      |
+
+```tsx
+<EmptyTitle>No data</EmptyTitle>
+```
+
+### EmptyDescription
+
+Use the `EmptyDescription` component to display the description of the empty state.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` | ``      |
+
+```tsx
+<EmptyDescription>You do not have any notifications.</EmptyDescription>
+```
+
+### EmptyContent
+
+Use the `EmptyContent` component to display the content of the empty state such as a button, input or a link.
+
+| Prop    | Type     | Default |
+| ------- | -------- | ------- |
+| `class` | `string` | ``      |
+
+```tsx
+<EmptyContent>
+  <Button>Add Project</Button>
+</EmptyContent>
 ```

@@ -3,13 +3,9 @@ title: Radio Group
 slug: radio-group
 description: A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.
 component: true
-foundation: kobalte
-links:
-  doc: https://kobalte.dev/docs/core/components/radio-group
-  api: https://kobalte.dev/docs/core/components/radio-group#api-reference
 ---
 
-The Radio Group component follows the accessible radio-group semantics of [Kobalte Radio Group](https://kobalte.dev/docs/core/components/radio-group). Its Zaidan wrapper is implemented with native Solid primitives to preserve the pinned Base UI value, form, and cancellation contract.
+`RadioGroup` is a native Solid composition that implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), preserving the pinned Base UI value, form, and cancellation contract.
 
 <ComponentPreview name="radio-group-demo" />
 
@@ -96,7 +92,7 @@ Use `FieldSet` and `FieldLegend` to group radio items with a label and descripti
 
 ## Disabled
 
-Use the `disabled` prop on `RadioGroupItem` to disable an individual item.
+Use the `disabled` prop on `RadioGroup` to disable all items, or on `RadioGroupItem` to disable an individual item.
 
 <ComponentPreview name="radio-group-disabled" />
 
@@ -108,4 +104,33 @@ Use `aria-invalid` on `RadioGroupItem` and `data-invalid` on `Field` to show val
 
 ## API Reference
 
-For primitive props and keyboard behavior, see the [Kobalte Radio Group API reference](https://kobalte.dev/docs/core/components/radio-group#api-reference).
+`RadioGroup` and `RadioGroupItem` are a native Solid composition that implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), including roving-tabindex keyboard navigation, disabled, read-only, and form reset behavior.
+
+### RadioGroup
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `value` | `Value` | - |
+| `defaultValue` | `Value` | - |
+| `onValueChange` | `(value: Value, details: RadioGroupChangeDetails) => void` | - |
+| `disabled` | `boolean` | `false` |
+| `readOnly` | `boolean` | `false` |
+| `required` | `boolean` | `false` |
+| `name` | `string` | - |
+| `form` | `string` | - |
+| `inputRef` | `(element: HTMLInputElement \| undefined) => void` | - |
+| `as` | `ValidComponent` | `"div"` |
+| `class` | `string` | - |
+
+### RadioGroupItem
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `value` | `Value` | - |
+| `disabled` | `boolean` | `false` |
+| `readOnly` | `boolean` | `false` |
+| `required` | `boolean` | `false` |
+| `nativeButton` | `boolean` | `false` |
+| `inputRef` | `(element: HTMLInputElement \| undefined) => void` | - |
+| `as` | `ValidComponent` | `"span"` |
+| `class` | `string` | - |

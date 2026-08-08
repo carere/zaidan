@@ -17,8 +17,8 @@ describe("Radio Group documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
     const page = await readFile(pagePath, "utf8");
 
-    expect(page).toContain("Kobalte Radio Group");
-    expect(page).toContain("https://kobalte.dev/docs/core/components/radio-group#api-reference");
+    expect(page).toContain("## API Reference");
+    expect(page).toContain("### RadioGroupItem");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);

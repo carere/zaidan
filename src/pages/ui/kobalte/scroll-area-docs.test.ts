@@ -10,7 +10,8 @@ describe("Scroll Area documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
     const page = await readFile(pagePath, "utf8");
 
-    expect(page).toContain("https://base-ui.com/react/components/scroll-area#api-reference");
+    expect(page).toContain("### ScrollArea");
+    expect(page).toContain("`overflowEdgeThreshold`");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);

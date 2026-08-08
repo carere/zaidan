@@ -1,77 +1,82 @@
-import { Bot, Check } from "lucide-solid";
-
-import { Example, ExampleWrapper } from "@/components/example";
-import { Avatar, AvatarFallback } from "@/registry/kobalte/ui/avatar";
-import { Bubble, BubbleContent, BubbleGroup } from "@/registry/kobalte/ui/bubble";
+import { Avatar, AvatarFallback, AvatarImage } from "@/registry/kobalte/ui/avatar";
+import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "@/registry/kobalte/ui/bubble";
+import { Marker, MarkerContent } from "@/registry/kobalte/ui/marker";
 import {
   Message,
   MessageAvatar,
   MessageContent,
   MessageFooter,
-  MessageGroup,
-  MessageHeader,
 } from "@/registry/kobalte/ui/message";
 
 export default function MessageDemo() {
   return (
-    <ExampleWrapper>
-      <Example title="Message">
-        <div class="flex w-full max-w-md flex-col gap-6">
-          <Message align="end">
-            <MessageContent>
-              <Bubble>
-                <BubbleContent>Deploying to prod real quick.</BubbleContent>
-              </Bubble>
-            </MessageContent>
-          </Message>
-          <Message>
-            <MessageAvatar>
-              <Avatar>
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            </MessageAvatar>
-            <MessageContent>
-              <Bubble variant="muted">
-                <BubbleContent>Something went wrong. Any idea?</BubbleContent>
-              </Bubble>
-            </MessageContent>
-          </Message>
-        </div>
-      </Example>
-      <Example title="Group">
-        <MessageGroup>
-          <Message>
-            <MessageContent>
-              <BubbleGroup>
-                <Bubble variant="muted">
-                  <BubbleContent>I checked the registry addresses.</BubbleContent>
-                </Bubble>
-                <Bubble variant="muted">
-                  <BubbleContent>The component is ready to install.</BubbleContent>
-                </Bubble>
-              </BubbleGroup>
-            </MessageContent>
-          </Message>
-        </MessageGroup>
-      </Example>
-      <Example title="Header and footer">
-        <Message>
-          <MessageAvatar>
-            <span class="flex size-8 items-center justify-center rounded-full bg-muted">
-              <Bot class="size-4" />
-            </span>
-          </MessageAvatar>
-          <MessageContent>
-            <MessageHeader>Assistant</MessageHeader>
-            <Bubble variant="ghost">
-              <BubbleContent>The deployment looks healthy.</BubbleContent>
+    <div class="flex w-full max-w-sm flex-col gap-6 py-12">
+      <Message align="end">
+        <MessageAvatar>
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt="@me" />
+            <AvatarFallback>ME</AvatarFallback>
+          </Avatar>
+        </MessageAvatar>
+        <MessageContent>
+          <Bubble>
+            <BubbleContent>Deploying to prod real quick.</BubbleContent>
+          </Bubble>
+        </MessageContent>
+      </Message>
+      <Message>
+        <MessageAvatar>
+          <Avatar>
+            <AvatarImage src="https://github.com/evilrabbit.png" alt="@rabbit" />
+            <AvatarFallback>R</AvatarFallback>
+          </Avatar>
+        </MessageAvatar>
+        <MessageContent>
+          <Bubble variant="muted">
+            <BubbleContent>It's 4:55 PM. On a Friday.</BubbleContent>
+          </Bubble>
+        </MessageContent>
+      </Message>
+      <Message align="end">
+        <MessageAvatar>
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt="@me" />
+            <AvatarFallback>ME</AvatarFallback>
+          </Avatar>
+        </MessageAvatar>
+        <MessageContent>
+          <Bubble>
+            <BubbleContent>It's a one-line change.</BubbleContent>
+          </Bubble>
+          <MessageFooter>Delivered</MessageFooter>
+        </MessageContent>
+      </Message>
+      <Message>
+        <MessageAvatar>
+          <Avatar>
+            <AvatarImage src="https://github.com/evilrabbit.png" alt="@rabbit" />
+            <AvatarFallback>R</AvatarFallback>
+          </Avatar>
+        </MessageAvatar>
+        <MessageContent>
+          <BubbleGroup>
+            <Bubble variant="muted">
+              <BubbleContent>It's always a one-line change 😭.</BubbleContent>
             </Bubble>
-            <MessageFooter>
-              Just now <Check class="ml-2 size-3" />
-            </MessageFooter>
-          </MessageContent>
-        </Message>
-      </Example>
-    </ExampleWrapper>
+            <Bubble variant="muted">
+              <BubbleContent>Alright, let me take a look.</BubbleContent>
+              <BubbleReactions aria-label="Reactions: thumbs up">
+                <span>👍</span>
+              </BubbleReactions>
+            </Bubble>
+          </BubbleGroup>
+        </MessageContent>
+      </Message>
+      <Marker role="status">
+        <MarkerContent class="shimmer">
+          <span class="font-medium">Oliver</span> is typing...
+        </MarkerContent>
+      </Marker>
+    </div>
   );
 }

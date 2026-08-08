@@ -2,133 +2,88 @@
 title: Kbd
 slug: kbd
 description: Used to display textual user input from keyboard.
+component: true
 ---
 
-# Kbd
-
-Used to display textual user input from keyboard.
+<ComponentPreview name="kbd-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/kbd
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/kbd.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
-```
+<Step>Copy and paste the following code into your project.</Step>
 
-## Examples
+<ComponentSource name="kbd" title="components/ui/kbd.tsx" />
 
-Here are the source code of all the examples from the preview page:
+<Step>Update the import paths to match your project setup.</Step>
 
-### Basic
+</Steps>
 
-```tsx
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Kbd } from "~/components/ui/kbd";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L24-L34
-
+```tsx showLineNumbers
+<Kbd>Ctrl</Kbd>
 ```
 
-### Modifier Keys
+## Composition
 
-```tsx
-import { Kbd } from "~/components/ui/kbd";
+Use the following composition to build `Kbd` and `KbdGroup`:
+
+```text
+Kbd
+KbdGroup
+├── Kbd
+└── Kbd
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L36-L45
-
-```
-
-### KbdGroup
+## Group
 
 Use the `KbdGroup` component to group keyboard keys together.
 
-```tsx
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-```
+<ComponentPreview name="kbd-group" />
 
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L47-L57
+## Button
 
-```
+Use the `Kbd` component inside a `Button` component to display a keyboard key inside a button.
 
-### Arrow Keys
+<ComponentPreview name="kbd-button" />
 
-```tsx
-import { Kbd } from "~/components/ui/kbd";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L59-L70
-
-```
-
-### With Icons
-
-```tsx
-import { ArrowLeft, ArrowRight, CircleDashed } from "lucide-solid";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L72-L88
-
-```
-
-### With Icons and Text
-
-```tsx
-import { ArrowLeft, CircleDashed } from "lucide-solid";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L90-L105
-
-```
-
-### InputGroup
-
-You can use the `Kbd` component inside a `InputGroupAddon` component to display a keyboard key inside an input group.
-
-```tsx
-import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
-import { Kbd } from "~/components/ui/kbd";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L107-L118
-
-```
-
-### Tooltip
+## Tooltip
 
 You can use the `Kbd` component inside a `Tooltip` component to display a tooltip with a keyboard key.
 
-```tsx
-import { Save } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { Kbd } from "~/components/ui/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
+<ComponentPreview name="kbd-tooltip" />
 
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L120-L135
+## Input Group
 
-```
+You can use the `Kbd` component inside a `InputGroupAddon` component to display a keyboard key inside an input group.
 
-### With samp
-
-```tsx
-import { Kbd } from "~/components/ui/kbd";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/kbd-example.tsx#L137-L145
-
-```
+<ComponentPreview name="kbd-input-group" />
 
 ## API Reference
 

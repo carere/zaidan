@@ -9,7 +9,7 @@ component: true
 
 The `Bubble` component displays framed conversational content. Use it for chat text, short structured output, quoted replies, suggestions, and reactions.
 
-For full-featured chat interfaces, use Bubble as the message surface and place avatars, names, timestamps, metadata, and message-level actions in the surrounding conversation UI.
+For full-featured chat interfaces, use the [`Message`](/docs/components/kobalte/message) component. `Bubble` is intentionally scoped to the bubble surface. Place avatars, names, timestamps, metadata, and message-level actions in [`Message`](/docs/components/kobalte/message).
 
 ## Installation
 
@@ -155,19 +155,19 @@ Use `BubbleReactions` for bubble reactions or quick action buttons. Use `side` a
 
 ## Show More / Collapsible
 
-Long bubble content can be composed with `Collapsible` to provide a show more or show less interaction.
+Long bubble content can be composed with [`Collapsible`](/docs/components/kobalte/collapsible) to provide a show more or show less interaction.
 
 <ComponentPreview name="bubble-collapsible" previewClass="h-auto style-rhea" />
 
 ## Tooltip
 
-Wrap a bubble action in a `Tooltip` to reveal metadata on hover or keyboard focus, such as when a message was read.
+Wrap a bubble action in a [`Tooltip`](/docs/components/kobalte/tooltip) to reveal metadata on hover or keyboard focus, such as when a message was read.
 
 <ComponentPreview name="bubble-tooltip" previewClass="h-auto style-rhea" />
 
 ## Popover
 
-Pair a bubble action with a `Popover` to surface more information on demand, such as the full error message for a failed action.
+Pair a bubble action with a [`Popover`](/docs/components/kobalte/popover) to surface more information on demand, such as the full error message for a failed action.
 
 <ComponentPreview name="bubble-popover" previewClass="h-auto style-rhea" />
 

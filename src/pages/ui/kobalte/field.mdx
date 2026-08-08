@@ -234,3 +234,149 @@ Stack `Field` components with `FieldGroup`. Add `FieldSeparator` to divide them.
 ## API Reference
 
 For primitive label props and keyboard behavior, see the [Kobalte Label API reference](https://kobalte.dev/docs/core/components/label#api-reference).
+
+### FieldSet
+
+Container that renders a semantic `fieldset` with spacing presets.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<FieldSet>
+  <FieldLegend>Delivery</FieldLegend>
+  <FieldGroup>{/* Fields */}</FieldGroup>
+</FieldSet>
+```
+
+### FieldLegend
+
+Legend element for a `FieldSet`. Switch to the `label` variant to align with label sizing.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `variant` | `"legend" \| "label"` | `"legend"` |
+| `class` | `string` | - |
+
+```tsx
+<FieldLegend variant="label">Notification Preferences</FieldLegend>
+```
+
+The `FieldLegend` has two variants: `legend` and `label`. The `label` variant applies label sizing and alignment. Handy if you have a nested `FieldSet`.
+
+### FieldGroup
+
+Layout wrapper that stacks `Field` components and enables container queries for responsive orientations.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<FieldGroup class="@container/field-group flex flex-col gap-6">
+  <Field>{/* ... */}</Field>
+  <Field>{/* ... */}</Field>
+</FieldGroup>
+```
+
+### Field
+
+The core wrapper for a single field. Provides orientation control, invalid state styling, and spacing.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` |
+| `data-invalid` | `boolean` | - |
+| `class` | `string` | - |
+
+```tsx
+<Field orientation="horizontal">
+  <FieldLabel for="remember">Remember me</FieldLabel>
+  <Switch id="remember" />
+</Field>
+```
+
+### FieldContent
+
+Flex column that groups control and descriptions when the label sits beside the control. Not required if you have no description.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<Field>
+  <Checkbox id="notifications" />
+  <FieldContent>
+    <FieldLabel for="notifications">Notifications</FieldLabel>
+    <FieldDescription>Email, SMS, and push options.</FieldDescription>
+  </FieldContent>
+</Field>
+```
+
+### FieldLabel
+
+Label styled for both direct inputs and nested `Field` children.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<FieldLabel for="email">Email</FieldLabel>
+```
+
+### FieldTitle
+
+Renders a title with label styling inside `FieldContent`.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<FieldContent>
+  <FieldTitle>Enable Touch ID</FieldTitle>
+  <FieldDescription>Unlock your device faster.</FieldDescription>
+</FieldContent>
+```
+
+### FieldDescription
+
+Helper text slot that automatically balances long lines in horizontal layouts.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<FieldDescription>We never share your email with anyone.</FieldDescription>
+```
+
+### FieldSeparator
+
+Visual divider to separate sections inside a `FieldGroup`. Accepts optional inline content.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+
+```tsx
+<FieldSeparator>Or continue with</FieldSeparator>
+```
+
+### FieldError
+
+Accessible error container that accepts children or an `errors` array (e.g., from a form library).
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `errors` | `Array<{ message?: string } \| undefined>` | - |
+| `class` | `string` | - |
+
+```tsx
+<FieldError errors={errors.username} />
+```
+
+When the `errors` array contains multiple messages, the component renders a list automatically.

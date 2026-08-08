@@ -5,12 +5,11 @@ description: Displays a list of options for the user to pick from—triggered by
 component: true
 foundation: kobalte
 links:
-  doc: https://kobalte.dev/docs/core/components/select
-  api: https://kobalte.dev/docs/core/components/select#api-reference
-example: select-example.tsx
+  doc: https://kobalte.dev/docs/core/components/popper
+  api: https://kobalte.dev/docs/core/components/popper#api-reference
 ---
 
-The Select component is built on top of [Kobalte Select](https://kobalte.dev/docs/core/components/select), which provides the accessible listbox primitive and keyboard navigation.
+The Select component uses a custom listbox and keyboard-navigation implementation, positioned with [Kobalte Popper](https://kobalte.dev/docs/core/components/popper).
 
 <ComponentPreview name="select-demo" description="A select with a list of fruits." />
 
@@ -86,7 +85,7 @@ const items = [
 </Select>
 ```
 
-See the [Kobalte Select documentation](https://kobalte.dev/docs/core/components/select) for primitive-level options, accessibility, and keyboard behavior.
+See the [Kobalte Popper documentation](https://kobalte.dev/docs/core/components/popper) for the positioning primitive used by `SelectContent`.
 
 ## Composition
 
@@ -150,4 +149,4 @@ Add the `data-invalid` attribute to the `Field` component and the `aria-invalid`
 
 ## API Reference
 
-See the [Kobalte Select API reference](https://kobalte.dev/docs/core/components/select#api-reference) for primitive props, keyboard behavior, and accessibility details.
+See the [Kobalte Popper API reference](https://kobalte.dev/docs/core/components/popper#api-reference) for the positioning props used by `SelectContent`.

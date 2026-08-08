@@ -1,54 +1,60 @@
 ---
 title: Input OTP
 slug: input-otp
-description: Accessible one-time password component with copy paste functionality.
+description: Accessible one-time password component with copy-paste functionality.
+component: true
+foundation: corvu
+links:
+  doc: https://corvu.dev/docs/primitives/otp-field
+  api: https://corvu.dev/docs/primitives/otp-field#api-reference
 ---
 
-# Input OTP
+The Input OTP component is built on top of [Corvu OTP Field](https://corvu.dev/docs/primitives/otp-field), which provides the accessible one-time password input primitive with copy-paste support.
 
-Accessible one-time password component with copy paste functionality.
+<ComponentPreview name="input-otp-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/input-otp
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
 
 ```package-install
-@corvu/otp-field
+@corvu/otp-field lucide-solid
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/input-otp.tsx showLineNumbers
+<ComponentSource name="input-otp" title="components/ui/input-otp.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Form
+</CodeTabs>
 
-```tsx
-import { RefreshCcw } from "lucide-solid";
-import { Example } from "~/components/example";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
+## Usage
+
+```tsx showLineNumbers
 import {
   InputOTP,
   InputOTPGroup,
@@ -57,117 +63,95 @@ import {
 } from "~/components/ui/input-otp";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L205-L259
-
+```tsx showLineNumbers
+<InputOTP maxLength={6}>
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+    <InputOTPSlot index={2} />
+  </InputOTPGroup>
+  <InputOTPSeparator />
+  <InputOTPGroup>
+    <InputOTPSlot index={3} />
+    <InputOTPSlot index={4} />
+    <InputOTPSlot index={5} />
+  </InputOTPGroup>
+</InputOTP>
 ```
 
-### Simple
+## Composition
 
-```tsx
-import { Example } from "~/components/example";
-import { Field, FieldLabel } from "~/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "~/components/ui/input-otp";
+Use the following composition to build an `InputOTP`:
+
+```text
+InputOTP
+├── InputOTPGroup
+│   ├── InputOTPSlot
+│   ├── InputOTPSlot
+│   └── InputOTPSlot
+├── InputOTPSeparator
+├── InputOTPGroup
+│   ├── InputOTPSlot
+│   ├── InputOTPSlot
+│   └── InputOTPSlot
+├── InputOTPSeparator
+└── InputOTPGroup
+    ├── InputOTPSlot
+    └── InputOTPSlot
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L38-L59
+## Pattern
 
+Use the `pattern` prop to define a custom regex pattern for the OTP input. Pass `null` to allow all characters.
+
+```tsx showLineNumbers
+<InputOTP maxLength={6} pattern="^\d*$">
+  ...
+</InputOTP>
 ```
 
-### Digits Only
+<ComponentPreview name="input-otp-pattern" />
 
-```tsx
-import { Example } from "~/components/example";
-import { Field, FieldLabel } from "~/components/ui/field";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "~/components/ui/input-otp";
-```
+## Separator
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L61-L79
+Use the `<InputOTPSeparator />` component to add a separator between input groups.
 
-```
+<ComponentPreview name="input-otp-separator" />
 
-### With Separator
+## Disabled
 
-```tsx
-import { createSignal } from "solid-js";
-import { Example } from "~/components/example";
-import { Field, FieldLabel } from "~/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "~/components/ui/input-otp";
-```
+Use the `disabled` prop to disable the input.
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L81-L107
+<ComponentPreview name="input-otp-disabled" />
 
-```
+## Controlled
 
-### Alphanumeric
+Use the `value` and `onChange` props to control the input value.
 
-```tsx
-import { Example } from "~/components/example";
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "~/components/ui/input-otp";
-```
+<ComponentPreview name="input-otp-controlled" />
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L109-L131
+## Invalid
 
-```
+Use `aria-invalid` on the slots to show an error state.
 
-### Disabled
+<ComponentPreview name="input-otp-invalid" />
 
-```tsx
-import { Example } from "~/components/example";
-import { Field, FieldLabel } from "~/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "~/components/ui/input-otp";
-```
+## Four Digits
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L133-L154
+A common pattern for PIN codes. This uses the `pattern="^\d*$"` prop.
 
-```
+<ComponentPreview name="input-otp-four-digits" />
 
-### 4 Digits
+## Alphanumeric
 
-```tsx
-import { Example } from "~/components/example";
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "~/components/ui/input-otp";
-```
+Use `pattern="^[a-zA-Z0-9]*$"` to accept both letters and numbers.
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L156-L173
+<ComponentPreview name="input-otp-alphanumeric" />
 
-```
+## Form
 
-### Invalid State
+<ComponentPreview name="input-otp-form" previewClass="h-[30rem]" />
 
-```tsx
-import { createSignal } from "solid-js";
-import { Example } from "~/components/example";
-import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "~/components/ui/input-otp";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/input-otp-example.tsx#L175-L203
-
-```
+See the [Corvu OTP Field API reference](https://corvu.dev/docs/primitives/otp-field#api-reference) for primitive props, keyboard interactions, and accessibility details.
