@@ -999,6 +999,75 @@
   @apply text-muted-foreground ml-auto text-sm tabular-nums;
 }
 
+/* MARK: Questionnaire */
+.z-questionnaire {
+  @apply gap-6;
+}
+
+.z-questionnaire-progress {
+  @apply text-xs uppercase tracking-wide;
+}
+
+.z-questionnaire-item {
+  @apply flex flex-col gap-5;
+}
+
+.z-questionnaire-title {
+  @apply text-xs font-semibold uppercase tracking-wide [&:not(:has(~[data-slot=questionnaire-description]))]:mb-5;
+}
+
+.z-questionnaire-description {
+  @apply text-sm normal-case tracking-normal;
+}
+
+.z-questionnaire-choices {
+  @apply gap-3;
+}
+
+.z-questionnaire-choice {
+  @apply hover:bg-muted/50 data-checked:bg-primary/5 data-checked:border-primary/30 dark:data-checked:border-primary/20 dark:data-checked:bg-primary/10 data-invalid:border-destructive has-[>input:focus-visible]:ring-ring/30 gap-3 rounded-none border border-input bg-transparent px-4 py-4 text-sm has-[>input:focus-visible]:ring-2;
+}
+
+.z-questionnaire-choice-indicator {
+  @apply border-input group-data-checked/questionnaire-choice:border-foreground group-data-[type=checkbox]/questionnaire-choice:group-data-checked/questionnaire-choice:bg-primary group-data-[type=checkbox]/questionnaire-choice:group-data-checked/questionnaire-choice:text-primary-foreground group-data-[type=checkbox]/questionnaire-choice:group-data-checked/questionnaire-choice:border-primary size-4.5 translate-y-[--spacing(0.45)] group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5;
+}
+
+.z-questionnaire-choice-indicator-dot {
+  @apply bg-foreground size-2;
+}
+
+.z-questionnaire-choice-indicator-check {
+  @apply size-3.5;
+}
+
+.z-questionnaire-choice-content {
+  @apply gap-1;
+}
+
+.z-questionnaire-choice-description {
+  @apply text-muted-foreground;
+}
+
+.z-questionnaire-shortcut {
+  @apply border-input bg-background text-muted-foreground size-5 translate-y-[--spacing(0.45)] group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 items-center justify-center rounded-none border font-mono text-[0.625rem] font-medium leading-none;
+}
+
+.z-questionnaire-input-wrapper {
+  @apply w-full;
+}
+
+.z-questionnaire-input {
+  @apply border-transparent border-b-input bg-transparent focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 h-10 border px-0 py-1 text-base md:text-sm;
+}
+
+.z-questionnaire-error {
+  @apply mt-2 text-sm;
+}
+
+.z-questionnaire-actions {
+  @apply gap-2 sm:min-h-10;
+}
+
 /* MARK: Radio */
 .z-radio-group {
   @apply grid gap-3;
