@@ -20,6 +20,14 @@ type ComponentPreviewProps = ParentProps<{
   class?: string;
   previewClass?: string;
   hideCode?: boolean;
+  /**
+   * Contain full-app demos (e.g. sidebar) whose components use
+   * `position: fixed` inside the preview frame. `contain-layout` turns the
+   * preview into the containing block of fixed descendants so they stop
+   * escaping to the page viewport, and the data-slot overrides size the
+   * sidebar primitives to the frame instead of the viewport.
+   */
+  contained?: boolean;
 }>;
 
 export function ComponentPreview(props: ComponentPreviewProps) {
@@ -29,6 +37,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     "class",
     "previewClass",
     "hideCode",
+    "contained",
     "children",
   ]);
   const [expanded, setExpanded] = createSignal(false);
@@ -50,6 +59,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         data-align={local.align ?? "center"}
         class={cn(
           "preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start",
+          local.contained && [
+            "overflow-hidden contain-layout",
+            "[&_[data-slot=sidebar-container]]:h-full",
+            "[&_[data-slot=sidebar-wrapper]]:h-full [&_[data-slot=sidebar-wrapper]]:min-h-0",
+          ],
           local.previewClass,
         )}
       >
