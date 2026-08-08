@@ -1,0 +1,288 @@
+---
+title: Questionnaire
+slug: questionnaire
+description: A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions.
+---
+
+# Questionnaire
+
+A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions. Use it for agent clarification prompts, onboarding, surveys, intake forms, and configuration.
+
+## Installation
+
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/questionnaire
+```
+
+### Manual
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/questionnaire.tsx showLineNumbers
+
+```
+
+## Usage
+
+```tsx
+import {
+  Questionnaire,
+  QuestionnaireActions,
+  QuestionnaireChoice,
+  QuestionnaireChoices,
+  QuestionnaireDescription,
+  QuestionnaireError,
+  QuestionnaireInput,
+  QuestionnaireItem,
+  QuestionnaireNext,
+  QuestionnairePrevious,
+  QuestionnaireProgress,
+  QuestionnaireSkip,
+  QuestionnaireSubmit,
+  QuestionnaireTitle,
+} from "~/components/ui/questionnaire";
+```
+
+Define the collection once: pass it to `Questionnaire` for progress, actions, and shortcuts, then map it into the parts.
+
+```tsx showLineNumbers
+const items = [
+  {
+    name: "direction",
+    required: true,
+    prompt: "What should we prototype next?",
+    description: "Choose a direction or write your own.",
+    choices: [
+      {
+        value: "delegation",
+        label: "Delegation",
+        description: "Show how work moves to a specialist.",
+      },
+      {
+        value: "questions",
+        label: "Question prompts",
+        description: "Show choices while the interface waits.",
+      },
+      { value: "both", label: "Both together" },
+    ],
+    input: { label: "Another answer", placeholder: "Type another answer…" },
+  },
+  {
+    name: "detail",
+    required: false,
+    prompt: "How much detail should it include?",
+    description: "Skip this if you are not sure yet.",
+    choices: [
+      { value: "focused", label: "Focused" },
+      { value: "complete", label: "Complete flow" },
+    ],
+  },
+] as const;
+```
+
+```tsx showLineNumbers
+<Questionnaire items={items} onSubmit={handleSubmit}>
+  <QuestionnaireProgress />
+  <For each={items}>
+    {(question) => (
+      <QuestionnaireItem name={question.name} required={question.required}>
+        <QuestionnaireTitle>{question.prompt}</QuestionnaireTitle>
+        <QuestionnaireDescription>{question.description}</QuestionnaireDescription>
+        <QuestionnaireChoices>
+          <For each={question.choices}>
+            {(choice) => (
+              <QuestionnaireChoice value={choice.value}>
+                <span class="font-medium">{choice.label}</span>
+                <Show when={"description" in choice ? choice.description : undefined}>
+                  <span class="text-muted-foreground">{choice.description}</span>
+                </Show>
+              </QuestionnaireChoice>
+            )}
+          </For>
+          <Show when={"input" in question ? question.input : undefined}>
+            {(input) => (
+              <QuestionnaireInput
+                aria-label={input().label}
+                placeholder={input().placeholder}
+              />
+            )}
+          </Show>
+        </QuestionnaireChoices>
+        <QuestionnaireError />
+      </QuestionnaireItem>
+    )}
+  </For>
+  <QuestionnaireActions>
+    <QuestionnairePrevious />
+    <QuestionnaireSkip />
+    <QuestionnaireNext />
+    <QuestionnaireSubmit />
+  </QuestionnaireActions>
+</Questionnaire>
+```
+
+The answers submit as regular form data:
+
+```tsx showLineNumbers
+function handleSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
+  event.preventDefault();
+  const answers = new FormData(event.currentTarget);
+  // answers.get("direction"), answers.getAll(...) for multiple items.
+}
+```
+
+## Composition
+
+```text
+Questionnaire
+├── QuestionnaireProgress
+├── QuestionnaireItem
+│   ├── QuestionnaireTitle
+│   ├── QuestionnaireDescription
+│   ├── QuestionnaireChoices
+│   │   ├── QuestionnaireChoice
+│   │   │   └── QuestionnaireChoiceDescription
+│   │   └── QuestionnaireInput
+│   └── QuestionnaireError
+└── QuestionnaireActions
+    ├── QuestionnairePrevious
+    ├── QuestionnaireSkip
+    ├── QuestionnaireNext
+    └── QuestionnaireSubmit
+```
+
+`Questionnaire` owns the ordered items, active item, answer state, validation, progress, and navigation. The containing page, card, dialog, or drawer owns close and cancellation behavior, persistence, transport, and branching.
+
+## Behavior
+
+- **Multiple selection:** Set `multiple` on a `QuestionnaireItem` for an item that accepts more than one fixed answer. Its choices render as checkboxes and submit with `formData.getAll(name)`.
+- **Freeform answer:** Compose `QuestionnaireInput` with fixed choices when the user can provide another answer. Typing into the input selects it; clearing it deselects it.
+- **Explicit skip:** Add `QuestionnaireSkip` when an optional item may be intentionally left unanswered. The Skip action only renders while the active item is not `required`.
+- **Shortcuts:** Assign a letter or number key to each answer with `shortcuts="letters"` or `shortcuts="numbers"` on `Questionnaire`. Pressing a shortcut focuses and toggles the matching choice.
+- **Controlled navigation:** Control the active item from host state with the `item` and `onItemChange` props, for example to return to an invalid step after external validation.
+- **Resume:** Restore a saved active item with `defaultItem` and saved answers with `defaultChecked`/`defaultValue`, then reset changes back to that saved state with a native form reset.
+- **Navigation state:** Read root state with the exported `useQuestionnaire` accessor (`current`, `total`, `first`, `last`, `activeItemStatus`) to build custom progress indicators or disabled navigation.
+
+## Keyboard
+
+- <kbd>Enter</kbd> on a filled answer confirms the current item; <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Enter</kbd> confirms from anywhere in the form.
+- <kbd>ArrowUp</kbd> and <kbd>ArrowDown</kbd> move focus between answers of the active item.
+- <kbd>ArrowLeft</kbd> and <kbd>ArrowRight</kbd> move to the previous or next item once the current item is answered.
+- With `shortcuts` enabled, single letter or number keys select the matching choice.
+
+## Accessibility
+
+`QuestionnaireItem` renders a `fieldset`, and `QuestionnaireTitle` renders its `legend`. Descriptions and active errors are associated with the current item, and invalid items and answer controls expose `aria-invalid`.
+
+Fixed choices preserve native radio and checkbox behavior. Progress is exposed as a named progressbar, navigation uses real buttons, and inactive items and actions are hidden and inert. Successful navigation focuses the newly active item; failed validation focuses an available answer control.
+
+Always give `QuestionnaireInput` an accessible name with a visible label, `aria-label`, or `aria-labelledby`. A placeholder is not a label.
+
+## Examples
+
+Here are the source code of all the examples from the preview page:
+
+### Standalone
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Questionnaire,
+  QuestionnaireProgress,
+} from "~/components/ui/questionnaire";
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L72-L88
+
+```
+
+The `direction`, `signals`, and `timing` questions are shared between examples:
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L268-L326
+
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L328-L337
+
+```
+
+### Card
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import { Card, CardAction, CardContent, CardFooter, CardHeader } from "~/components/ui/card";
+import {
+  Questionnaire,
+  QuestionnaireChoice,
+  QuestionnaireChoiceDescription,
+  QuestionnaireChoices,
+  QuestionnaireDescription,
+  QuestionnaireError,
+  QuestionnaireInput,
+  QuestionnaireItem,
+  QuestionnaireProgress,
+  QuestionnaireTitle,
+} from "~/components/ui/questionnaire";
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L90-L103
+
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L164-L266
+
+```
+
+### Dialog
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Questionnaire, QuestionnaireProgress } from "~/components/ui/questionnaire";
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L105-L136
+
+```
+
+### No Description
+
+```tsx
+import { Example, ExampleWrapper } from "@/components/example";
+import {
+  Questionnaire,
+  QuestionnaireChoice,
+  QuestionnaireChoices,
+  QuestionnaireError,
+  QuestionnaireItem,
+  QuestionnaireProgress,
+  QuestionnaireTitle,
+} from "~/components/ui/questionnaire";
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L138-L162
+
+```
+
+### Submitting Answers
+
+The examples define their items once and submit answers as form data:
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L33-L56
+
+```
+
+```tsx file=../../../registry/kobalte/examples/ui/questionnaire-example.tsx#L339-L352
+
+```

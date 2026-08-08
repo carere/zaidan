@@ -1681,6 +1681,18 @@
       ]
     },
     {
+      "name": "questionnaire",
+      "type": "registry:ui",
+      "dependencies": ["lucide-solid"],
+      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "files": [
+        {
+          "path": "src/registry/kobalte/ui/questionnaire.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "radio-group",
       "type": "registry:ui",
       "dependencies": [],

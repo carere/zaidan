@@ -228,4 +228,5 @@ export const UPDATED_ITEMS: UpdatedItem[] = [
   { kind: "docs", slug: "changelog" },
   { kind: "docs", slug: "zaidan-agent" },
   { kind: "blocks", slug: "image-crop" },
+  { kind: "ui", slug: "questionnaire" },
 ];
