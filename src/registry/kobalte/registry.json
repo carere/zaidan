@@ -1835,13 +1835,6 @@
           ".z-font-heading": {
             "@apply": "font-heading"
           }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
-          }
         }
       },
       "files": [
@@ -1868,13 +1861,6 @@
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
             "@apply": "font-heading"
-          }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
           }
         }
       },
@@ -1903,13 +1889,6 @@
           ".z-font-heading": {
             "@apply": "font-heading"
           }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
-          }
         }
       },
       "files": [
@@ -1936,13 +1915,6 @@
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
             "@apply": "font-heading"
-          }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
           }
         }
       },
@@ -1971,13 +1943,6 @@
           ".z-font-heading": {
             "@apply": "font-heading"
           }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
-          }
         }
       },
       "files": [
@@ -2004,13 +1969,6 @@
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
             "@apply": "font-heading"
-          }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
           }
         }
       },
@@ -2039,13 +1997,6 @@
           ".z-font-heading": {
             "@apply": "font-heading"
           }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
-          }
         }
       },
       "files": [
@@ -2072,13 +2023,6 @@
           "@import \"./styles/base.css\"": {},
           ".z-font-heading": {
             "@apply": "font-heading"
-          }
-        },
-        "@utility no-scrollbar": {
-          "-ms-overflow-style": "none",
-          "scrollbar-width": "none",
-          "&::-webkit-scrollbar": {
-            "display": "none"
           }
         }
       },

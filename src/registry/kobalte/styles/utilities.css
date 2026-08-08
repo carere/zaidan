@@ -1,19 +1,27 @@
 /*
- * Scroll-fade and shimmer utilities.
+ * Shared Tailwind utilities.
  *
  * Ported verbatim from shadcn@4.16.2 (`node_modules/shadcn/dist/tailwind.css`,
- * lines 97-629) so Zaidan does not depend on the `shadcn` package at runtime.
+ * lines 88-629) so Zaidan does not depend on the `shadcn` package at runtime.
  *
  * Deliberately excluded from that file:
  * - the leading `@theme inline` accordion keyframes, which resolve height from
  *   Radix/Base UI variables only and would shadow the Kobalte-aware keyframes
  *   `tw-animate-css` provides;
- * - the `@custom-variant data-*` blocks, which key off Radix `data-state`;
- * - `@utility no-scrollbar`, already defined in `src/styles.css`.
+ * - the `@custom-variant data-*` blocks, which key off Radix `data-state`.
  *
  * `@utility` is only valid at the top level, so this file must be imported
  * outside `@layer base` - never from `style-*.css`.
  */
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
 
 /* scroll-fade */
 @property --scroll-fade-t {
