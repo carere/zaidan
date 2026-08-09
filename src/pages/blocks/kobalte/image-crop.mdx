@@ -1,32 +1,57 @@
 ---
 title: Image Crop
 slug: image-crop
-description: Composable image crop primitives with a provider, canvas, drag handles, and canvas export.
+description: Composable image crop primitives with a provider, canvas, drag handles, keyboard nudging, and canvas export.
 ---
 
 # Image Crop
 
-Composable primitives for building image crop flows. The block ships only the provider, canvas, hook, and types; upload controls, dialogs, action buttons, previews, and persistence are intentionally composed in userland.
+<ComponentPreview name="image-crop-demo" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-10" />
+
+Image Crop is a set of composable Solid primitives for building crop flows. `ImageCropProvider` owns the image, the crop geometry, and canvas export. `ImageCropCanvas` renders the image with a draggable, resizable, keyboard-accessible selection. `useImageCrop` exposes the same state to your own controls.
+
+The block intentionally ships only the provider, canvas, hook, and types. Upload inputs, dialogs, action buttons, previews, and persistence stay in userland, so the installable surface remains small and your product composition stays free.
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/image-crop
 ```
 
-### Manual
+</TabsContent>
 
-Copy the image-crop folder into your project.
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Copy the image-crop folder into your project.</Step>
 
 ```tsx file=../../../registry/kobalte/blocks/image-crop/index.tsx showLineNumbers
 
 ```
 
+<Step>Install the components used by your crop UI, such as Button and Dialog.</Step>
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
 ## Usage
 
-```tsx
+```tsx showLineNumbers
 import {
   ImageCropCanvas,
   ImageCropProvider,
@@ -34,109 +59,83 @@ import {
 } from "~/components/blocks/image-crop";
 ```
 
-```tsx
-function CropDialog() {
-  return (
-    <ImageCropProvider
-      defaultImage={{ src: "/avatar.png", name: "avatar.png" }}
-      onCrop={(result) => {
-        // Upload result.blob, preview result.url, or download result.dataUrl.
-      }}
-    >
-      <ImageCropCanvas />
-      <CropActions />
-    </ImageCropProvider>
-  );
-}
+```tsx showLineNumbers
+<ImageCropProvider
+  defaultImage={{ src: "/avatar.png", name: "avatar.png" }}
+  onCrop={(result) => {
+    // Upload result.blob, preview result.url, or store result.dataUrl.
+  }}
+>
+  <ImageCropCanvas />
+  <CropActions />
+</ImageCropProvider>
+```
 
+Controls read the crop state through `useImageCrop` from anywhere inside the provider.
+
+```tsx showLineNumbers
 function CropActions() {
   const crop = useImageCrop();
 
   return (
-    <button type="button" onClick={() => void crop.cropImage()}>
-      Save crop
+    <button
+      type="button"
+      disabled={!crop.image() || crop.isCropping()}
+      onClick={() => void crop.cropImage()}
+    >
+      {crop.isCropping() ? "Cropping..." : "Save crop"}
     </button>
   );
 }
 ```
+
+## Composition
+
+```text
+ImageCropProvider
+├── ImageCropCanvas
+└── Your controls (useImageCrop)
+```
+
+- `ImageCropProvider` is the headless root. It loads images, clamps crop geometry, scales the stage to the viewport, and exports the crop through an offscreen canvas.
+- `ImageCropCanvas` is the interactive stage. It measures itself with a `ResizeObserver`, renders the image at display scale, and hosts the draggable and resizable selection.
+- `useImageCrop` returns the context value for custom controls: upload buttons, geometry inputs, crop actions, and result previews.
+
+The selection is a focusable button: arrow keys nudge the crop by one display pixel, and holding <kbd>Shift</kbd> nudges by ten.
 
 ## Examples
 
-Here are the source code of all the examples from the preview page:
+### Aspect Ratio
 
-### Avatar Crop
+`aspectRatio` locks the selection shape. It defaults to `1` for square avatar crops; pass any positive ratio such as `16 / 9`, or `null` for a freeform selection. The ratio applies to pointer resizing and to every `setOptions` update. Call `resetCrop` after changing the ratio to re-center the selection with the new shape.
 
-```tsx
-import {
-  ImageCropCanvas,
-  ImageCropProvider,
-  useImageCrop,
-} from "~/components/blocks/image-crop";
-```
+<ComponentPreview name="image-crop-aspect-ratio" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-10" />
 
-```tsx file=../../../registry/kobalte/examples/blocks/image-crop-example.tsx#L114-L232
+### Loading Images
 
-```
+Load images three ways: declaratively with `defaultImage` when the provider mounts, from an upload with `setImageFromFile`, or from any URL-like source with `setImageFromSource`. Files are read through object URLs that the provider revokes when the image is replaced or the provider unmounts. Non-image files are ignored by `setImageFromFile`.
 
-### Image Cropper
+<ComponentPreview name="image-crop-upload" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-10" />
 
-```tsx
-import {
-  ImageCropCanvas,
-  ImageCropProvider,
-  useImageCrop,
-} from "~/components/blocks/image-crop";
-```
+Because export draws the image onto a canvas, remote sources must be same-origin or CORS-readable; blob and data URLs always work.
 
-```tsx file=../../../registry/kobalte/examples/blocks/image-crop-example.tsx#L234-L528
+### Controlled Crop Geometry
 
-```
+`options` exposes the crop rectangle in display pixels, and `setOptions` updates it with automatic clamping to the stage bounds and the active aspect ratio. Use the functional form to derive the next geometry from the previous one. `resetCrop` restores the centered default selection.
 
-## Controlled Export
+<ComponentPreview name="image-crop-controlled" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-10" />
 
-Use `onCrop` when the cropped blob should be uploaded, previewed, or handled by application code.
+### Output Handling
 
-```tsx
-import { createSignal, onCleanup, Show } from "solid-js";
-import {
-  ImageCropCanvas,
-  ImageCropProvider,
-  type ImageCropResult,
-  useImageCrop,
-} from "~/components/blocks/image-crop";
+`cropImage` draws the selected region to a canvas and resolves an `ImageCropResult` with a `blob`, a `dataUrl`, and an object `url` for previews. The same result is passed to `onCrop`. `outputType` and `outputQuality` control the encoding, and the `original` flag on the crop options switches between source-resolution output and display-resolution output.
 
-function AvatarCropper() {
-  const [preview, setPreview] = createSignal<ImageCropResult | null>(null);
+<ComponentPreview name="image-crop-output" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-10" />
 
-  onCleanup(() => preview()?.revoke());
+Every result holds an object URL. Call `result.revoke()` once the preview or upload is done to release it.
 
-  return (
-    <ImageCropProvider
-      defaultImage={{ src: "/avatar.png", name: "avatar.png" }}
-      onCrop={(result) => {
-        preview()?.revoke();
-        setPreview(result);
-      }}
-    >
-      <ImageCropCanvas />
-      <SaveCropButton />
-      <Show when={preview()}>
-        {(result) => <img src={result().url} alt="Cropped avatar preview" />}
-      </Show>
-    </ImageCropProvider>
-  );
-}
+## Accessibility
 
-function SaveCropButton() {
-  const crop = useImageCrop();
-
-  return (
-    <button type="button" onClick={() => void crop.cropImage()}>
-      Save avatar
-    </button>
-  );
-}
-```
+The crop selection is rendered as a `button` labelled "Crop area". It participates in the tab order, shows a visible focus ring, and supports keyboard nudging with the arrow keys (<kbd>Shift</kbd> for larger steps). Resize handles are pointer affordances and stay hidden from assistive technology.
 
 ## API Reference
 
@@ -146,45 +145,71 @@ Provides crop state, image loading, crop generation, and configuration to child 
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `aspectRatio` | `number \| null` | `1` | Crop aspect ratio. The default locks the crop to a square for avatars. Use `null` for freeform crops. |
-| `defaultImage` | `{ src: string; name?: string; type?: string }` | - | Optional image loaded when the provider mounts. Use same-origin, blob, or data URLs for canvas export. |
-| `onCrop` | `(result: ImageCropResult) => void` | - | Called after the canvas crop has been generated. |
-| `outputQuality` | `number` | `0.92` | Quality passed to `canvas.toDataURL` for JPEG/WebP outputs. |
+| `aspectRatio` | `number \| null` | `1` | Crop aspect ratio. The default locks the crop to a square. Use `null` (or any non-positive value) for freeform crops. |
+| `defaultImage` | `ImageCropInitialImage` | - | Optional image loaded when the provider mounts. Use same-origin, blob, or data URLs so canvas export stays readable. |
+| `onCrop` | `(result: ImageCropResult) => void` | - | Called after `cropImage` generates a result. |
+| `outputQuality` | `number` | `0.92` | Quality passed to `canvas.toDataURL` for JPEG and WebP outputs. |
 | `outputType` | `"image/png" \| "image/jpeg" \| "image/webp"` | `"image/png"` | MIME type used for the generated crop. |
 
 ### ImageCropCanvas
 
-Renders the current image, crop selection, drag interaction, resize handles, and keyboard nudging. It must be rendered inside `ImageCropProvider`.
+Renders the current image, crop selection, drag interaction, resize handles, and keyboard nudging. It accepts all `div` props and must be rendered inside `ImageCropProvider`. Nothing renders until an image is loaded.
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `showResizeHandles` | `boolean` | `true` | Shows or hides the visible resize handles around the crop selection. The full border remains resizable either way. |
+| `showResizeHandles` | `boolean` | `true` | Shows or hides the visible corner and edge handles. The selection border stays resizable either way. |
+
+Data attributes for styling: `data-slot="image-crop-canvas"` on the viewport, `data-slot="image-crop-stage"` on the scaled image wrapper, and `data-slot="image-crop-selection"` on the selection button.
 
 ### useImageCrop
 
-Returns the crop context for custom controls and persistence flows.
+Returns the crop context for custom controls and persistence flows. Throws when called outside `ImageCropProvider`.
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `aspectRatio` | `Accessor<number \| null>` | The active aspect ratio. |
-| `cropImage` | `() => Promise<ImageCropResult \| null>` | Generates the crop from the canvas. |
-| `displaySize` | `Accessor<{ height: number; width: number }>` | Current rendered image dimensions. |
+| `aspectRatio` | `Accessor<number \| null>` | The active aspect ratio, normalized to `null` when freeform. |
+| `cropImage` | `() => Promise<ImageCropResult \| null>` | Generates the crop. Resolves `null` without an image or while a crop is already running. |
+| `displaySize` | `Accessor<{ height: number; width: number }>` | Rendered image size in display pixels. |
 | `image` | `Accessor<ImageCropImage \| null>` | The loaded image metadata. |
 | `isCropping` | `Accessor<boolean>` | Whether a crop is currently being generated. |
-| `options` | `Accessor<ImageCropOptions>` | Current crop geometry. |
+| `options` | `Accessor<ImageCropOptions>` | Current crop geometry in display pixels. |
 | `resetCrop` | `() => void` | Re-centers the crop using the current image and aspect ratio. |
-| `setImageFromFile` | `(file: File) => Promise<void>` | Loads an uploaded file. |
-| `setImageFromSource` | `(source: ImageCropInitialImage) => Promise<void>` | Loads an image source object. |
-| `setOptions` | `(value: ImageCropOptions \| ((previous: ImageCropOptions) => ImageCropOptions)) => void` | Updates crop geometry with bounds clamping. |
+| `setImageFromFile` | `(file: File) => Promise<void>` | Loads an uploaded image file. Non-image files are ignored. |
+| `setImageFromSource` | `(source: ImageCropInitialImage) => Promise<void>` | Loads an image from a source object. |
+| `setOptions` | `(value: ImageCropOptions \| ((previous: ImageCropOptions) => ImageCropOptions)) => void` | Updates crop geometry with bounds and aspect-ratio clamping. |
+
+### ImageCropOptions
+
+The crop rectangle, expressed in display pixels of the scaled stage.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `height` | `number` | Selection height. |
+| `original` | `boolean` | When `true` (the default), `cropImage` exports at the source image resolution; when `false`, it exports at the display-pixel selection size. |
+| `width` | `number` | Selection width. |
+| `x` | `number` | Selection offset from the left edge of the stage. |
+| `y` | `number` | Selection offset from the top edge of the stage. |
+
+### ImageCropInitialImage
+
+Source object accepted by `defaultImage` and `setImageFromSource`.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Optional display name. Defaults to `"image"`. |
+| `src` | `string` | Image URL. Same-origin, blob, or data URLs keep the export canvas readable. |
+| `type` | `string` | Optional MIME type. Defaults to `"image/png"`. |
 
 ### ImageCropResult
 
+Resolved by `cropImage` and passed to `onCrop`.
+
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `blob` | `Blob` | The generated image blob. |
+| `blob` | `Blob` | The generated image blob, encoded as `outputType`. |
 | `dataUrl` | `string` | Base64 data URL from the crop canvas. |
-| `height` | `number` | Output image height. |
+| `height` | `number` | Output image height in pixels. |
 | `options` | `ImageCropOptions` | Crop geometry at the moment of export. |
-| `revoke` | `() => void` | Revokes the object URL held by `url`. |
-| `url` | `string` | Object URL for previewing the generated blob. |
-| `width` | `number` | Output image width. |
+| `revoke` | `() => void` | Revokes the object URL held by `url`. Call it when the result is no longer displayed. |
+| `url` | `string` | Object URL for previewing or downloading the generated blob. |
+| `width` | `number` | Output image width in pixels. |
