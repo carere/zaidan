@@ -4,21 +4,20 @@ import { describe, expect, it } from "vitest";
 
 import { getDocsExample } from "@/lib/docs-examples";
 
-const pagePath = fileURLToPath(new URL("./select.mdx", import.meta.url));
+const pagePath = fileURLToPath(new URL("./input-otp.mdx", import.meta.url));
 const demoNames = [
-  "select-demo",
-  "select-groups",
-  "select-scrollable",
-  "select-disabled",
-  "select-invalid",
+  "input-otp-demo",
+  "input-otp-separator",
+  "input-otp-disabled",
+  "input-otp-controlled",
+  "input-otp-invalid",
+  "input-otp-four-digits",
+  "input-otp-form",
 ];
 
-describe("Select documentation", () => {
+describe("Input OTP documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
     const page = await readFile(pagePath, "utf8");
-
-    expect(page).toContain("Kobalte Select");
-    expect(page).toContain("https://kobalte.dev/docs/core/components/select#api-reference");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);
@@ -29,10 +28,8 @@ describe("Select documentation", () => {
       const demo = await readFile(demoPath, "utf8");
 
       expect(demo).toContain("export default function");
-      expect(demo).toContain('from "@/registry/kobalte/ui/');
       expect(demo).not.toContain('from "react"');
       expect(demo).not.toContain('from "lucide-react"');
-      expect(demo).not.toContain('from "next/');
     }
 
     for (const name of demoNames) {
@@ -41,12 +38,9 @@ describe("Select documentation", () => {
       expect(getDocsExample(name)).toBe(resolvedExample);
     }
 
-    expect(page).not.toContain("select-rtl");
-    expect(page).not.toContain("## RTL");
-    expect(page).not.toContain("Direction");
-    expect(page).not.toContain("Sonner");
-    expect(page).not.toContain("select-align-item");
-    expect(page).not.toContain("## Align Item With Trigger");
-    expect(page).not.toContain("alignItemWithTrigger");
+    expect(page).not.toContain("input-otp-pattern");
+    expect(page).not.toContain("input-otp-alphanumeric");
+    expect(page).not.toContain("## Pattern");
+    expect(page).not.toContain("## Alphanumeric");
   });
 });

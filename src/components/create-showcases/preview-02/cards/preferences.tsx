@@ -1,5 +1,4 @@
 import { X } from "lucide-solid";
-import { For } from "solid-js";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Card,
@@ -21,7 +20,6 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -51,17 +49,21 @@ export function Preferences() {
         <FieldGroup>
           <Field>
             <FieldLabel for="default-currency">Default Currency</FieldLabel>
-            <Select items={CURRENCIES} defaultValue="usd">
+            <Select
+              options={CURRENCIES}
+              optionValue="value"
+              optionTextValue="label"
+              defaultValue={CURRENCIES[0]}
+              itemComponent={(itemProps) => (
+                <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+              )}
+            >
               <SelectTrigger id="default-currency" class="w-full">
-                <SelectValue />
+                <SelectValue<(typeof CURRENCIES)[number]>>
+                  {(state) => state.selectedOption().label}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <For each={CURRENCIES}>
-                    {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                  </For>
-                </SelectGroup>
-              </SelectContent>
+              <SelectContent />
             </Select>
           </Field>
           <FieldSeparator class="-my-4 style-sera:hidden" />

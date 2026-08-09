@@ -18,7 +18,6 @@ import {
   UserRoundX,
   VolumeX,
 } from "lucide-solid";
-import { For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/registry/kobalte/ui/button-group";
@@ -37,7 +36,6 @@ import { Label } from "@/registry/kobalte/ui/label";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -197,17 +195,21 @@ function ButtonGroupWithSelect() {
       <Field>
         <Label for="amount">Amount</Label>
         <ButtonGroup>
-          <Select items={currencyItems} defaultValue={currencyItems[0].value}>
+          <Select
+            options={currencyItems}
+            optionValue="value"
+            optionTextValue="label"
+            defaultValue={currencyItems[0]}
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue<(typeof currencyItems)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <For each={currencyItems}>
-                  {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                </For>
-              </SelectGroup>
-            </SelectContent>
+            <SelectContent />
           </Select>
           <Input placeholder="Enter amount to send" />
           <Button variant="outline">
@@ -306,17 +308,21 @@ function ButtonGroupWithSelectAndInput() {
   return (
     <Example title="With Select and Input">
       <ButtonGroup>
-        <Select items={durationItems} defaultValue={durationItems[0].value}>
+        <Select
+          options={durationItems}
+          optionValue="value"
+          optionTextValue="label"
+          defaultValue={durationItems[0]}
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
           <SelectTrigger id="duration">
-            <SelectValue />
+            <SelectValue<(typeof durationItems)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent align="start">
-            <SelectGroup>
-              <For each={durationItems}>
-                {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-              </For>
-            </SelectGroup>
-          </SelectContent>
+          <SelectContent />
         </Select>
         <Input />
       </ButtonGroup>

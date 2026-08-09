@@ -85,7 +85,7 @@ function InputOTPWithSeparator() {
     <Example title="With Separator">
       <Field>
         <FieldLabel for="with-separator">With Separator</FieldLabel>
-        <InputOTP id="with-separator" maxLength={6} value={value()} onChange={setValue}>
+        <InputOTP id="with-separator" maxLength={6} value={value()} onValueChange={setValue}>
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
@@ -180,7 +180,7 @@ function InputOTPInvalid() {
       <Field>
         <FieldLabel for="invalid">Invalid State</FieldLabel>
         <FieldDescription>Example showing the invalid error state.</FieldDescription>
-        <InputOTP id="invalid" maxLength={6} value={value()} onChange={setValue}>
+        <InputOTP id="invalid" maxLength={6} value={value()} onValueChange={setValue}>
           <InputOTPGroup>
             <InputOTPSlot index={0} aria-invalid />
             <InputOTPSlot index={1} aria-invalid />

@@ -1,39 +1,36 @@
-import { For } from "solid-js";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/registry/kobalte/ui/select";
 
 const items = [
-  { label: "Select a fruit", value: null },
-  { label: "Apple", value: "apple" },
-  { label: "Banana", value: "banana" },
-  { label: "Blueberry", value: "blueberry" },
+  { label: "Apple", value: "apple", disabled: false },
+  { label: "Banana", value: "banana", disabled: false },
+  { label: "Blueberry", value: "blueberry", disabled: false },
   { label: "Grapes", value: "grapes", disabled: true },
-  { label: "Pineapple", value: "pineapple" },
+  { label: "Pineapple", value: "pineapple", disabled: false },
 ];
 
 export default function SelectDisabled() {
   return (
-    <Select items={items} disabled>
+    <Select
+      options={items}
+      optionValue="value"
+      optionTextValue="label"
+      optionDisabled="disabled"
+      placeholder="Select a fruit"
+      disabled
+      itemComponent={(props) => (
+        <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+      )}
+    >
       <SelectTrigger aria-label="Fruit" class="w-full max-w-48">
-        <SelectValue />
+        <SelectValue<(typeof items)[number]>>{(state) => state.selectedOption().label}</SelectValue>
       </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <For each={items}>
-            {(item) => (
-              <SelectItem value={item.value} disabled={item.disabled}>
-                {item.label}
-              </SelectItem>
-            )}
-          </For>
-        </SelectGroup>
-      </SelectContent>
+      <SelectContent />
     </Select>
   );
 }

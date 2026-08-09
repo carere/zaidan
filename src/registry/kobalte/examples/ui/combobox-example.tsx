@@ -1,5 +1,5 @@
 import { ChevronDown, Globe } from "lucide-solid";
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -36,7 +36,6 @@ import { Item, ItemContent, ItemDescription, ItemTitle } from "@/registry/kobalt
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -632,17 +631,21 @@ function ComboboxWithOtherInputs() {
           <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
-      <Select items={selectItems} defaultValue={selectItems[0].value}>
+      <Select
+        options={selectItems}
+        optionValue="value"
+        optionTextValue="label"
+        defaultValue={selectItems[0]}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
         <SelectTrigger class="w-52">
-          <SelectValue />
+          <SelectValue<(typeof selectItems)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <For each={selectItems}>
-              {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-            </For>
-          </SelectGroup>
-        </SelectContent>
+        <SelectContent />
       </Select>
       <Button variant="outline" class="w-52 justify-between font-normal text-muted-foreground">
         Select a framework

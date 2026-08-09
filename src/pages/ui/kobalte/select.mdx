@@ -5,11 +5,11 @@ description: Displays a list of options for the user to pick from—triggered by
 component: true
 foundation: kobalte
 links:
-  doc: https://kobalte.dev/docs/core/components/popper
-  api: https://kobalte.dev/docs/core/components/popper#api-reference
+  doc: https://kobalte.dev/docs/core/components/select
+  api: https://kobalte.dev/docs/core/components/select#api-reference
 ---
 
-The Select component uses a custom listbox and keyboard-navigation implementation, positioned with [Kobalte Popper](https://kobalte.dev/docs/core/components/popper).
+The Select component wraps [Kobalte's Select](https://kobalte.dev/docs/core/components/select) primitive. It is data-driven rather than compositional: pass an `options` array plus `optionValue` / `optionTextValue` accessors, and render each option through `itemComponent`.
 
 <ComponentPreview name="select-demo" description="A select with a list of fruits." />
 
@@ -55,11 +55,9 @@ shadcn@latest add @zaidan/select
 ## Usage
 
 ```tsx showLineNumbers
-import { For } from "solid-js";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -73,74 +71,67 @@ const items = [
 ```
 
 ```tsx showLineNumbers
-<Select items={items}>
+<Select
+  options={items}
+  optionValue="value"
+  optionTextValue="label"
+  placeholder="Theme"
+  itemComponent={(props) => (
+    <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+  )}
+>
   <SelectTrigger aria-label="Theme" class="w-45">
-    <SelectValue placeholder="Theme" />
+    <SelectValue<(typeof items)[number]>>{(state) => state.selectedOption().label}</SelectValue>
   </SelectTrigger>
-  <SelectContent>
-    <SelectGroup>
-      <For each={items}>{(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}</For>
-    </SelectGroup>
-  </SelectContent>
+  <SelectContent />
 </Select>
 ```
 
-See the [Kobalte Popper documentation](https://kobalte.dev/docs/core/components/popper) for the positioning primitive used by `SelectContent`.
+See the [Kobalte Select documentation](https://kobalte.dev/docs/core/components/select) for the full set of data-driven props (`multiple`, `value` / `onChange`, `optionGroupChildren`, etc.) supported by the root.
 
 ## Composition
 
-Use the following composition to build a `Select`:
+`Select` is data-driven: options are supplied once on the root, and `SelectContent` renders them internally through `itemComponent`. Use the following composition to build a `Select`:
 
 ```text
-Select
+Select (options, optionValue, optionTextValue, itemComponent, sectionComponent?)
 ├── SelectTrigger
 │   └── SelectValue
 └── SelectContent
-    ├── SelectGroup
-    │   ├── SelectLabel
-    │   ├── SelectItem
-    │   └── SelectItem
-    ├── SelectSeparator
-    └── SelectGroup
-        ├── SelectLabel
-        ├── SelectItem
-        └── SelectItem
 ```
 
-## Align Item With Trigger
-
-Use `alignItemWithTrigger` on `SelectContent` to control whether the selected item aligns with the trigger. When `true` (default), the popup positions so the selected item appears over the trigger. When `false`, the popup aligns to the trigger edge.
-
-<ComponentPreview name="select-align-item" />
+`itemComponent` renders a `SelectItem` for each option. `sectionComponent`, used together with `optionGroupChildren`, renders a `SelectGroup` (with a `SelectLabel` and, optionally, a `SelectSeparator`) for each group of options.
 
 ## Groups
 
-Use `SelectGroup`, `SelectLabel`, and `SelectSeparator` to organize items.
+Pass grouped data with `optionGroupChildren` and render a `SelectGroup` / `SelectLabel` per section from `sectionComponent`.
 
 <ComponentPreview name="select-groups" />
 
 ## Scrollable
 
-A select with many items that scrolls.
+A select with many items, grouped by region, that scrolls.
 
 <ComponentPreview name="select-scrollable" />
 
 ## Disabled
 
+Pass `disabled` on `Select` to disable the whole control, or `optionDisabled` to disable individual options.
+
 <ComponentPreview name="select-disabled" />
 
 ## Invalid
 
-Add the `data-invalid` attribute to the `Field` component and the `aria-invalid` attribute to the `SelectTrigger` component to show an error state.
+Add the `data-invalid` attribute to the `Field` component, set `validationState="invalid"` on `Select`, and add the `aria-invalid` attribute to the `SelectTrigger` component to show an error state.
 
-```tsx showLineNumbers /data-invalid/ /aria-invalid/
+```tsx showLineNumbers /data-invalid/ /validationState="invalid"/ /aria-invalid/
 <Field data-invalid>
   <FieldLabel for="fruit">Fruit</FieldLabel>
-  <Select>
+  <Select validationState="invalid" /* options, itemComponent, ... */>
     <SelectTrigger id="fruit" aria-invalid>
       <SelectValue />
     </SelectTrigger>
-    {/* SelectContent */}
+    <SelectContent />
   </Select>
 </Field>
 ```
@@ -149,4 +140,48 @@ Add the `data-invalid` attribute to the `Field` component and the `aria-invalid`
 
 ## API Reference
 
-See the [Kobalte Popper API reference](https://kobalte.dev/docs/core/components/popper#api-reference) for the positioning props used by `SelectContent`.
+The Select component uses Kobalte's Select primitive under the hood. Here are the main props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `T[]` | - | The array of options (or option groups) to display |
+| `optionValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's value |
+| `optionTextValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's text |
+| `optionLabel` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's display label |
+| `optionDisabled` | `keyof T \| ((option: T) => boolean)` | - | Key or function to determine if an option is disabled |
+| `optionGroupChildren` | `keyof T` | - | Key on a group item that holds its child options |
+| `itemComponent` | `(props: { item }) => JSX.Element` | - | Renders a `SelectItem` for each option |
+| `sectionComponent` | `(props: { section }) => JSX.Element` | - | Renders a `SelectGroup` for each option group |
+| `value` | `T` | - | The controlled value of the select |
+| `defaultValue` | `T` | - | The default value of the select |
+| `onChange` | `(value: T) => void` | - | Handler called when the value changes |
+| `placeholder` | `JSX.Element` | - | Placeholder content when no value is selected |
+| `disabled` | `boolean` | `false` | Whether the select is disabled |
+| `validationState` | `"valid" \| "invalid"` | - | The validation state of the select |
+| `multiple` | `boolean` | `false` | Whether multiple options can be selected |
+| `sameWidth` | `boolean` | `true` | Whether the content has the same width as the trigger |
+| `gutter` | `number` | `4` | Distance between the trigger and content |
+| `placement` | `Placement` | `"bottom"` | Preferred placement of the content |
+
+### SelectTrigger
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `size` | `"sm" \| "default"` | `"default"` | The size variant of the trigger |
+| `class` | `string` | - | Additional CSS classes |
+
+### SelectContent
+
+Renders the dropdown portal and listbox. It takes no children—options are rendered internally from the root's `options` and `itemComponent`.
+
+### SelectItem
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `item` | the `item` passed to `itemComponent` | - | The item object from Kobalte |
+
+### SelectGroup / SelectLabel / SelectSeparator
+
+Used inside `sectionComponent` to render a labeled group of options, optionally separated from the previous group by a `SelectSeparator`.
+
+See the [Kobalte Select API reference](https://kobalte.dev/docs/core/components/select#api-reference) for the complete prop list.

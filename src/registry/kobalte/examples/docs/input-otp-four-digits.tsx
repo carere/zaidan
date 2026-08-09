@@ -2,7 +2,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/registry/kobalte/ui/inp
 
 export default function InputOTPFourDigits() {
   return (
-    <InputOTP maxLength={4} pattern="^\d*$">
+    <InputOTP maxLength={4}>
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />

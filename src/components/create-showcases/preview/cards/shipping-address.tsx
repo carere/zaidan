@@ -13,11 +13,22 @@ import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/registry/kobalte/ui/select";
+
+const STATES = [
+  { label: "California", value: "CA" },
+  { label: "New York", value: "NY" },
+  { label: "Texas", value: "TX" },
+];
+
+const COUNTRIES = [
+  { label: "United States", value: "US" },
+  { label: "Canada", value: "CA" },
+  { label: "United Kingdom", value: "UK" },
+];
 
 export function ShippingAddress() {
   return (
@@ -44,23 +55,20 @@ export function ShippingAddress() {
             <Field>
               <FieldLabel for="shipping-state">State</FieldLabel>
               <Select
-                items={[
-                  { label: "California", value: "CA" },
-                  { label: "New York", value: "NY" },
-                  { label: "Texas", value: "TX" },
-                ]}
-                defaultValue="CA"
+                options={STATES}
+                optionValue="value"
+                optionTextValue="label"
+                defaultValue={STATES[0]}
+                itemComponent={(itemProps) => (
+                  <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+                )}
               >
                 <SelectTrigger id="shipping-state" class="w-full">
-                  <SelectValue />
+                  <SelectValue<(typeof STATES)[number]>>
+                    {(state) => state.selectedOption().label}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="CA">California</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="TX">Texas</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
+                <SelectContent />
               </Select>
             </Field>
           </FieldGroup>
@@ -72,23 +80,20 @@ export function ShippingAddress() {
             <Field>
               <FieldLabel for="shipping-country">Country</FieldLabel>
               <Select
-                items={[
-                  { label: "United States", value: "US" },
-                  { label: "Canada", value: "CA" },
-                  { label: "United Kingdom", value: "UK" },
-                ]}
-                defaultValue="US"
+                options={COUNTRIES}
+                optionValue="value"
+                optionTextValue="label"
+                defaultValue={COUNTRIES[0]}
+                itemComponent={(itemProps) => (
+                  <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+                )}
               >
                 <SelectTrigger id="shipping-country" class="w-full">
-                  <SelectValue />
+                  <SelectValue<(typeof COUNTRIES)[number]>>
+                    {(state) => state.selectedOption().label}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="US">United States</SelectItem>
-                    <SelectItem value="CA">Canada</SelectItem>
-                    <SelectItem value="UK">United Kingdom</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
+                <SelectContent />
               </Select>
             </Field>
           </FieldGroup>

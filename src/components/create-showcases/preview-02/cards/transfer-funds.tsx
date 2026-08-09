@@ -1,5 +1,4 @@
 import { X } from "lucide-solid";
-import { For } from "solid-js";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Card,
@@ -21,7 +20,6 @@ import { Item, ItemContent } from "@/registry/kobalte/ui/item";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -68,32 +66,40 @@ export function TransferFunds() {
           </Field>
           <Field>
             <FieldLabel for="from-account">From Account</FieldLabel>
-            <Select items={FROM_ACCOUNTS} defaultValue="checking">
+            <Select
+              options={FROM_ACCOUNTS}
+              optionValue="value"
+              optionTextValue="label"
+              defaultValue={FROM_ACCOUNTS[0]}
+              itemComponent={(itemProps) => (
+                <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+              )}
+            >
               <SelectTrigger id="from-account" class="w-full">
-                <SelectValue />
+                <SelectValue<(typeof FROM_ACCOUNTS)[number]>>
+                  {(state) => state.selectedOption().label}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <For each={FROM_ACCOUNTS}>
-                    {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                  </For>
-                </SelectGroup>
-              </SelectContent>
+              <SelectContent />
             </Select>
           </Field>
           <Field>
             <FieldLabel for="to-account">To Account</FieldLabel>
-            <Select items={TO_ACCOUNTS} defaultValue="savings">
+            <Select
+              options={TO_ACCOUNTS}
+              optionValue="value"
+              optionTextValue="label"
+              defaultValue={TO_ACCOUNTS[0]}
+              itemComponent={(itemProps) => (
+                <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+              )}
+            >
               <SelectTrigger id="to-account" class="w-full">
-                <SelectValue />
+                <SelectValue<(typeof TO_ACCOUNTS)[number]>>
+                  {(state) => state.selectedOption().label}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <For each={TO_ACCOUNTS}>
-                    {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                  </For>
-                </SelectGroup>
-              </SelectContent>
+              <SelectContent />
             </Select>
           </Field>
           <Item variant="muted" class="flex-col items-stretch">

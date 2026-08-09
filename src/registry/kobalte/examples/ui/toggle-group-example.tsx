@@ -9,14 +9,13 @@ import {
   TrendingUp,
   Underline,
 } from "lucide-solid";
-import { createSignal, For } from "solid-js";
+import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Field, FieldDescription, FieldLabel } from "@/registry/kobalte/ui/field";
 import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -267,17 +266,21 @@ function ToggleGroupWithInputAndSelect() {
     <Example title="With Input and Select">
       <div class="flex items-center gap-2">
         <Input type="search" placeholder="Search..." class="flex-1" />
-        <Select items={items} defaultValue={items[0].value}>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          defaultValue={items[0]}
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
           <SelectTrigger aria-label="Filter status" class="w-32">
-            <SelectValue />
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <For each={items}>
-                {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-              </For>
-            </SelectGroup>
-          </SelectContent>
+          <SelectContent />
         </Select>
         <ToggleGroup multiple={false} defaultValue="grid" variant="outline">
           <ToggleGroupItem value="grid" aria-label="Grid view">

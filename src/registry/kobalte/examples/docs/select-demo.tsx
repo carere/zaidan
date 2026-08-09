@@ -1,16 +1,12 @@
-import { For } from "solid-js";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/registry/kobalte/ui/select";
 
 const items = [
-  { label: "Select a fruit", value: null },
   { label: "Apple", value: "apple" },
   { label: "Banana", value: "banana" },
   { label: "Blueberry", value: "blueberry" },
@@ -20,18 +16,19 @@ const items = [
 
 export default function SelectDemo() {
   return (
-    <Select items={items}>
+    <Select
+      options={items}
+      optionValue="value"
+      optionTextValue="label"
+      placeholder="Select a fruit"
+      itemComponent={(props) => (
+        <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+      )}
+    >
       <SelectTrigger aria-label="Fruit" class="w-full max-w-48">
-        <SelectValue />
+        <SelectValue<(typeof items)[number]>>{(state) => state.selectedOption().label}</SelectValue>
       </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Fruits</SelectLabel>
-          <For each={items}>
-            {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-          </For>
-        </SelectGroup>
-      </SelectContent>
+      <SelectContent />
     </Select>
   );
 }

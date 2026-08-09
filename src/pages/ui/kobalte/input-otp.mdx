@@ -100,17 +100,7 @@ InputOTP
     └── InputOTPSlot
 ```
 
-## Pattern
-
-Use the `pattern` prop to define a custom regex pattern for the OTP input. Pass `null` to allow all characters.
-
-```tsx showLineNumbers
-<InputOTP maxLength={6} pattern="^\d*$">
-  ...
-</InputOTP>
-```
-
-<ComponentPreview name="input-otp-pattern" />
+The input only accepts digits by default (Corvu OTP Field's built-in pattern). The character set is not currently configurable through this component.
 
 ## Separator
 
@@ -126,7 +116,7 @@ Use the `disabled` prop to disable the input.
 
 ## Controlled
 
-Use the `value` and `onChange` props to control the input value.
+Use the `value` and `onValueChange` props to control the input value.
 
 <ComponentPreview name="input-otp-controlled" />
 
@@ -138,15 +128,9 @@ Use `aria-invalid` on the slots to show an error state.
 
 ## Four Digits
 
-A common pattern for PIN codes. This uses the `pattern="^\d*$"` prop.
+A common pattern for PIN codes: set `maxLength={4}`.
 
 <ComponentPreview name="input-otp-four-digits" />
-
-## Alphanumeric
-
-Use `pattern="^[a-zA-Z0-9]*$"` to accept both letters and numbers.
-
-<ComponentPreview name="input-otp-alphanumeric" />
 
 ## Form
 

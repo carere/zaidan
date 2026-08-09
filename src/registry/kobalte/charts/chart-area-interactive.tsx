@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
 import { Area, AreaChart, CartesianGrid, XAxis } from "solid-recharts";
 import {
   Card,
@@ -171,25 +171,26 @@ export function ChartAreaInteractive() {
           <CardDescription>Showing total visitors for the last 3 months</CardDescription>
         </div>
         <Select
-          value={timeRange()}
-          onValueChange={(value) => value && setTimeRange(value)}
-          items={timeRangeItems}
+          options={timeRangeItems}
+          optionValue="value"
+          optionTextValue="label"
+          value={timeRangeItems.find((item) => item.value === timeRange())}
+          onChange={(item) => item && setTimeRange(item.value)}
+          itemComponent={(props) => (
+            <SelectItem item={props.item} class="rounded-lg">
+              {props.item.rawValue.label}
+            </SelectItem>
+          )}
         >
           <SelectTrigger
             class="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
             aria-label="Select a value"
           >
-            <SelectValue />
+            <SelectValue<(typeof timeRangeItems)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent class="rounded-xl">
-            <For each={timeRangeItems}>
-              {(item) => (
-                <SelectItem value={item.value} class="rounded-lg">
-                  {item.label}
-                </SelectItem>
-              )}
-            </For>
-          </SelectContent>
+          <SelectContent class="rounded-xl" />
         </Select>
       </CardHeader>
       <CardContent class="px-2 pt-4 sm:px-6 sm:pt-6">

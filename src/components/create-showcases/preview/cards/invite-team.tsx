@@ -20,12 +20,17 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/registry/kobalte/ui/select";
 import { Separator } from "@/registry/kobalte/ui/separator";
+
+const ROLES = [
+  { label: "Admin", value: "admin" },
+  { label: "Editor", value: "editor" },
+  { label: "Viewer", value: "viewer" },
+];
 
 export function InviteTeam() {
   return (
@@ -50,23 +55,21 @@ export function InviteTeam() {
                   class="flex-1"
                 />
                 <Select
-                  items={[
-                    { label: "Admin", value: "admin" },
-                    { label: "Editor", value: "editor" },
-                    { label: "Viewer", value: "viewer" },
-                  ]}
-                  defaultValue={invite.role.toLowerCase()}
+                  options={ROLES}
+                  optionValue="value"
+                  optionTextValue="label"
+                  placeholder={invite.role}
+                  defaultValue={ROLES.find((role) => role.value === invite.role.toLowerCase())}
+                  itemComponent={(itemProps) => (
+                    <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+                  )}
                 >
                   <SelectTrigger class="w-24" aria-label={`Role for ${invite.email}`}>
-                    <SelectValue placeholder={invite.role} />
+                    <SelectValue<(typeof ROLES)[number]>>
+                      {(state) => state.selectedOption().label}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false} align="end">
-                    <SelectGroup>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="editor">Editor</SelectItem>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
+                  <SelectContent />
                 </Select>
               </div>
             )}

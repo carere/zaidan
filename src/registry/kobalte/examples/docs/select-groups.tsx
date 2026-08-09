@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { Show } from "solid-js";
 import {
   Select,
   SelectContent,
@@ -10,39 +10,61 @@ import {
   SelectValue,
 } from "@/registry/kobalte/ui/select";
 
-const fruits = [
-  { label: "Apple", value: "apple" },
-  { label: "Banana", value: "banana" },
-  { label: "Blueberry", value: "blueberry" },
+type FoodOption = {
+  label: string;
+  value: string;
+};
+
+type Food = {
+  label: string;
+  options: FoodOption[];
+};
+
+const foods: Food[] = [
+  {
+    label: "Fruits",
+    options: [
+      { label: "Apple", value: "apple" },
+      { label: "Banana", value: "banana" },
+      { label: "Blueberry", value: "blueberry" },
+    ],
+  },
+  {
+    label: "Vegetables",
+    options: [
+      { label: "Carrot", value: "carrot" },
+      { label: "Broccoli", value: "broccoli" },
+      { label: "Spinach", value: "spinach" },
+    ],
+  },
 ];
-const vegetables = [
-  { label: "Carrot", value: "carrot" },
-  { label: "Broccoli", value: "broccoli" },
-  { label: "Spinach", value: "spinach" },
-];
-const items = [{ label: "Select a fruit", value: null }, ...fruits, ...vegetables];
 
 export default function SelectGroups() {
   return (
-    <Select items={items}>
+    <Select<FoodOption, Food>
+      options={foods}
+      optionValue="value"
+      optionTextValue="label"
+      optionGroupChildren="options"
+      placeholder="Select a food"
+      itemComponent={(props) => (
+        <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+      )}
+      sectionComponent={(props) => (
+        <>
+          <Show when={props.section.index !== 0}>
+            <SelectSeparator />
+          </Show>
+          <SelectGroup>
+            <SelectLabel>{props.section.rawValue.label}</SelectLabel>
+          </SelectGroup>
+        </>
+      )}
+    >
       <SelectTrigger aria-label="Food" class="w-full max-w-48">
-        <SelectValue />
+        <SelectValue<FoodOption>>{(state) => state.selectedOption().label}</SelectValue>
       </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Fruits</SelectLabel>
-          <For each={fruits}>
-            {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-          </For>
-        </SelectGroup>
-        <SelectSeparator />
-        <SelectGroup>
-          <SelectLabel>Vegetables</SelectLabel>
-          <For each={vegetables}>
-            {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-          </For>
-        </SelectGroup>
-      </SelectContent>
+      <SelectContent />
     </Select>
   );
 }

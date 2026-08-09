@@ -1,10 +1,7 @@
-import { For } from "solid-js";
-
 import { Field, FieldDescription, FieldLabel } from "@/registry/kobalte/ui/field";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -25,17 +22,21 @@ export default function FieldSelect() {
   return (
     <Field class="w-full max-w-xs">
       <FieldLabel for="field-department">Department</FieldLabel>
-      <Select<string> items={items}>
+      <Select
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Choose department"
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
         <SelectTrigger id="field-department">
-          <SelectValue placeholder="Choose department" />
+          <SelectValue<(typeof items)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <For each={items}>
-              {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-            </For>
-          </SelectGroup>
-        </SelectContent>
+        <SelectContent />
       </Select>
       <FieldDescription>Select your department or area of work.</FieldDescription>
     </Field>

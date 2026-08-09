@@ -101,7 +101,6 @@ import { Progress } from "@/registry/kobalte/ui/progress";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -421,17 +420,21 @@ export function PayoutThresholdCard() {
         <FieldGroup>
           <Field>
             <FieldLabel for="preferred-currency">Preferred Currency</FieldLabel>
-            <Select items={payoutCurrencies} defaultValue="usd">
+            <Select
+              options={payoutCurrencies}
+              optionValue="value"
+              optionTextValue="label"
+              defaultValue={payoutCurrencies[0]}
+              itemComponent={(itemProps) => (
+                <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+              )}
+            >
               <SelectTrigger id="preferred-currency" class="w-full">
-                <SelectValue />
+                <SelectValue<(typeof payoutCurrencies)[number]>>
+                  {(state) => state.selectedOption().label}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <For each={payoutCurrencies}>
-                    {(currency) => <SelectItem value={currency.value}>{currency.label}</SelectItem>}
-                  </For>
-                </SelectGroup>
-              </SelectContent>
+              <SelectContent />
             </Select>
           </Field>
           <Field>
@@ -881,19 +884,21 @@ export function TypographySpecimen(props: { config: DesignSystemConfig }) {
               </div>
               <Field>
                 <FieldLabel for="feedback-category">Category</FieldLabel>
-                <Select items={categories} defaultValue="general">
+                <Select
+                  options={categories}
+                  optionValue="value"
+                  optionTextValue="label"
+                  defaultValue={categories[0]}
+                  itemComponent={(itemProps) => (
+                    <SelectItem item={itemProps.item}>{itemProps.item.rawValue.label}</SelectItem>
+                  )}
+                >
                   <SelectTrigger id="feedback-category" class="w-full">
-                    <SelectValue />
+                    <SelectValue<(typeof categories)[number]>>
+                      {(state) => state.selectedOption().label}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <For each={categories}>
-                        {(category) => (
-                          <SelectItem value={category.value}>{category.label}</SelectItem>
-                        )}
-                      </For>
-                    </SelectGroup>
-                  </SelectContent>
+                  <SelectContent />
                 </Select>
               </Field>
               <Field>

@@ -10,7 +10,7 @@ export default function InputOTPInvalid() {
   const [value, setValue] = createSignal("000000");
 
   return (
-    <InputOTP maxLength={6} value={value()} onChange={setValue}>
+    <InputOTP maxLength={6} value={value()} onValueChange={setValue}>
       <InputOTPGroup>
         <InputOTPSlot index={0} aria-invalid />
         <InputOTPSlot index={1} aria-invalid />

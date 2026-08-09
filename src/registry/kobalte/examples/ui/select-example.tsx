@@ -1,6 +1,6 @@
 import { ChartBar, ChartLine, ChartPie } from "lucide-solid";
-import { For } from "solid-js";
-
+import { Show } from "solid-js";
+import { match } from "ts-pattern";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -26,105 +26,10 @@ import {
   SelectValue,
 } from "@/registry/kobalte/ui/select";
 
-type LabeledItem<Value = string> = {
-  disabled?: boolean;
-  label: string;
-  value: Value;
-};
-
-const fruitItems = [
-  { label: "Apple", value: "apple" },
-  { label: "Banana", value: "banana" },
-  { label: "Blueberry", value: "blueberry" },
-  { label: "Grapes", value: "grapes" },
-  { label: "Pineapple", value: "pineapple" },
-] satisfies LabeledItem[];
-
-const fruitItemsWithPlaceholder = [
-  { label: "Select a fruit", value: null },
-  ...fruitItems,
-] satisfies LabeledItem<string | null>[];
-
-const fruitItemsWithDisabledGrapes = fruitItemsWithPlaceholder.map((item) =>
-  item.value === "grapes" ? { ...item, disabled: true } : item,
-);
-
-const chartItems = ["line", "bar", "pie"] as const;
-
-const plans = [
-  {
-    name: "Starter",
-    description: "Perfect for individuals getting started.",
-  },
-  {
-    name: "Professional",
-    description: "Ideal for growing teams and businesses.",
-  },
-  {
-    name: "Enterprise",
-    description: "Advanced features for large organizations.",
-  },
-];
-
-function LabeledSelectItems<Value>(props: { items: LabeledItem<Value>[] }) {
-  return (
-    <For each={props.items}>
-      {(item) => (
-        <SelectItem value={item.value} disabled={item.disabled}>
-          {item.label}
-        </SelectItem>
-      )}
-    </For>
-  );
-}
-
-function LabeledSelectGroup<Value>(props: { items: LabeledItem<Value>[] }) {
-  return (
-    <SelectGroup>
-      <LabeledSelectItems items={props.items} />
-    </SelectGroup>
-  );
-}
-
-function getChartLabel(item: (typeof chartItems)[number]) {
-  if (item === "line") {
-    return (
-      <>
-        <ChartLine />
-        Line
-      </>
-    );
-  }
-  if (item === "bar") {
-    return (
-      <>
-        <ChartBar />
-        Bar
-      </>
-    );
-  }
-  return (
-    <>
-      <ChartPie />
-      Pie
-    </>
-  );
-}
-
-function ChartTypeLabel() {
-  return (
-    <>
-      <ChartLine />
-      Chart Type
-    </>
-  );
-}
-
 export default function SelectExample() {
   return (
     <ExampleWrapper>
       <SelectBasic />
-      <SelectSides />
       <SelectWithIcons />
       <SelectWithGroups />
       <SelectLargeList />
@@ -143,140 +48,187 @@ export default function SelectExample() {
 }
 
 function SelectBasic() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes", disabled: true },
+    { label: "Pineapple", value: "pineapple" },
+  ];
+
   return (
     <Example title="Basic">
-      <Select<string | null> items={fruitItemsWithPlaceholder}>
+      <Select
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Select a fruit"
+        itemComponent={(props) => (
+          <SelectItem item={props.item} data-disabled={props.item.rawValue.disabled}>
+            {props.item.rawValue.label}
+          </SelectItem>
+        )}
+      >
         <SelectTrigger>
-          <SelectValue />
+          <SelectValue<(typeof items)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <LabeledSelectGroup items={fruitItemsWithPlaceholder} />
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
 }
 
-function SelectSides() {
-  const items = [
-    { label: "Select", value: null },
-    { label: "Apple", value: "apple" },
-    { label: "Banana", value: "banana" },
-    { label: "Blueberry", value: "blueberry" },
-  ] satisfies LabeledItem<string | null>[];
-  const sides = ["inline-start", "left", "top", "bottom", "right", "inline-end"] as const;
-
-  return (
-    <Example title="Sides" containerClass="col-span-2">
-      <div class="flex flex-wrap justify-center gap-2">
-        <For each={sides}>
-          {(side) => (
-            <Select<string | null> items={items}>
-              <SelectTrigger class="w-28 capitalize">
-                <SelectValue placeholder={side.replace("-", " ")} />
-              </SelectTrigger>
-              <SelectContent side={side} alignItemWithTrigger={false}>
-                <LabeledSelectGroup items={items} />
-              </SelectContent>
-            </Select>
-          )}
-        </For>
-      </div>
-    </Example>
-  );
-}
-
 function SelectWithIcons() {
-  const items = [
-    { label: <ChartTypeLabel />, value: null },
-    ...chartItems.map((value) => ({ label: getChartLabel(value), value })),
-  ];
+  const getLabel = (item: string) => {
+    return match(item)
+      .with("line", () => (
+        <>
+          <ChartLine />
+          Line
+        </>
+      ))
+      .with("bar", () => (
+        <>
+          <ChartBar />
+          Bar
+        </>
+      ))
+      .otherwise(() => (
+        <>
+          <ChartPie />
+          Pie
+        </>
+      ));
+  };
 
   return (
     <Example title="With Icons">
       <div class="flex flex-col gap-4">
-        <For each={["sm", "default"] as const}>
-          {(size) => (
-            <Select<string | null> items={items}>
-              <SelectTrigger size={size}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value={null}>
-                    <ChartTypeLabel />
-                  </SelectItem>
-                  <For each={chartItems}>
-                    {(item) => <SelectItem value={item}>{getChartLabel(item)}</SelectItem>}
-                  </For>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+        <Select
+          options={["line", "bar", "pie"]}
+          placeholder={
+            <>
+              <ChartLine />
+              Chart Type
+            </>
+          }
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{getLabel(props.item.rawValue)}</SelectItem>
           )}
-        </For>
+        >
+          <SelectTrigger size="sm">
+            <SelectValue<string>>{(state) => getLabel(state.selectedOption())}</SelectValue>
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Select
+          options={["line", "bar", "pie"]}
+          placeholder={
+            <>
+              <ChartLine />
+              Chart Type
+            </>
+          }
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{getLabel(props.item.rawValue)}</SelectItem>
+          )}
+        >
+          <SelectTrigger size="default">
+            <SelectValue<string>>{(state) => getLabel(state.selectedOption())}</SelectValue>
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
       </div>
     </Example>
   );
 }
 
 function SelectWithGroups() {
-  const fruits = [
-    { label: "Apple", value: "apple" },
-    { label: "Banana", value: "banana" },
-    { label: "Blueberry", value: "blueberry" },
-  ] satisfies LabeledItem[];
-  const vegetables = [
-    { label: "Carrot", value: "carrot" },
-    { label: "Broccoli", value: "broccoli" },
-    { label: "Spinach", value: "spinach" },
-  ] satisfies LabeledItem[];
-  const allItems = [
-    { label: "Select a fruit", value: null },
-    ...fruits,
-    ...vegetables,
-  ] satisfies LabeledItem<string | null>[];
+  type FoodOption = {
+    label: string;
+    value: string;
+  };
+
+  type Food = {
+    label: string;
+    options: FoodOption[];
+  };
+
+  const foods: Food[] = [
+    {
+      label: "Fruits",
+      options: [
+        { label: "Apple", value: "apple" },
+        { label: "Banana", value: "banana" },
+        { label: "Blueberry", value: "blueberry" },
+      ],
+    },
+    {
+      label: "Vegetables",
+      options: [
+        { label: "Carrot", value: "carrot" },
+        { label: "Broccoli", value: "broccoli" },
+        { label: "Spinach", value: "spinach" },
+      ],
+    },
+  ];
 
   return (
     <Example title="With Groups & Labels">
-      <Select<string | null> items={allItems}>
+      <Select<FoodOption, Food>
+        options={foods}
+        optionValue="value"
+        optionTextValue="label"
+        optionGroupChildren="options"
+        placeholder="Select a food"
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+        sectionComponent={(props) => (
+          <>
+            <Show when={props.section.index !== 0}>
+              <SelectSeparator />
+            </Show>
+            <SelectGroup>
+              <SelectLabel>{props.section.rawValue.label}</SelectLabel>
+            </SelectGroup>
+          </>
+        )}
+      >
         <SelectTrigger>
-          <SelectValue />
+          <SelectValue<FoodOption>>{(state) => state.selectedOption().label}</SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Fruits</SelectLabel>
-            <LabeledSelectItems items={fruits} />
-          </SelectGroup>
-          <SelectSeparator />
-          <SelectGroup>
-            <SelectLabel>Vegetables</SelectLabel>
-            <LabeledSelectItems items={vegetables} />
-          </SelectGroup>
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
 }
 
 function SelectLargeList() {
-  const items = Array.from({ length: 100 }, (_, index) => ({
-    label: `Item ${index}`,
-    value: `item-${index}`,
+  const items = Array.from({ length: 100 }).map((_, i) => ({
+    label: `Item ${i}`,
+    value: `item-${i}`,
   }));
-  const itemsWithPlaceholder = [
-    { label: "Select an item", value: null },
-    ...items,
-  ] satisfies LabeledItem<string | null>[];
 
   return (
     <Example title="Large List">
-      <Select<string | null> items={itemsWithPlaceholder}>
+      <Select
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Select an item"
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
         <SelectTrigger>
-          <SelectValue />
+          <SelectValue<(typeof items)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <LabeledSelectGroup items={itemsWithPlaceholder} />
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
@@ -284,26 +236,39 @@ function SelectLargeList() {
 
 function SelectMultiple() {
   const items = [
-    ...fruitItems,
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
     { label: "Strawberry", value: "strawberry" },
     { label: "Watermelon", value: "watermelon" },
   ];
 
   return (
     <Example title="Multiple Selection">
-      <Select<string, true> items={items} multiple defaultValue={[]}>
+      <Select<(typeof items)[number]>
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Select fruits"
+        multiple
+        defaultValue={[]}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
         <SelectTrigger class="w-72">
-          <SelectValue<string[]> placeholder="Select fruits">
-            {(values) =>
-              values.length === 1
-                ? items.find((item) => item.value === values[0])?.label
-                : `${values.length} fruits selected`
-            }
+          <SelectValue<(typeof items)[number]>>
+            {(state) => {
+              if (state.selectedOptions().length === 1) {
+                return state.selectedOptions()[0].label;
+              }
+              return `${state.selectedOptions().length} fruits selected`;
+            }}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <LabeledSelectGroup items={items} />
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
@@ -311,34 +276,45 @@ function SelectMultiple() {
 
 function SelectSizes() {
   const items = [
-    { label: "Select a fruit", value: null },
     { label: "Apple", value: "apple" },
     { label: "Banana", value: "banana" },
     { label: "Blueberry", value: "blueberry" },
-  ] satisfies LabeledItem<string | null>[];
-
+  ];
   return (
     <Example title="Sizes">
       <div class="flex flex-col gap-4">
-        <For
-          each={
-            [
-              { label: "Small", size: "sm" },
-              { label: "Default", size: "default" },
-            ] as const
-          }
-        >
-          {(example) => (
-            <Select<string | null> items={items}>
-              <SelectTrigger size={example.size}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <LabeledSelectGroup items={items} />
-              </SelectContent>
-            </Select>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Small"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
           )}
-        </For>
+        >
+          <SelectTrigger size="sm">
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Default"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
+          <SelectTrigger size="default">
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent />
+        </Select>
       </div>
     </Example>
   );
@@ -346,64 +322,114 @@ function SelectSizes() {
 
 function SelectWithButton() {
   const items = [
-    { label: "Select a fruit", value: null },
     { label: "Apple", value: "apple" },
     { label: "Banana", value: "banana" },
     { label: "Blueberry", value: "blueberry" },
-  ] satisfies LabeledItem<string | null>[];
-
+  ];
   return (
     <Example title="With Button">
       <div class="flex flex-col gap-4">
-        <For each={["sm", "default"] as const}>
-          {(size) => (
-            <div class="flex items-center gap-2">
-              <Select<string | null> items={items}>
-                <SelectTrigger size={size}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <LabeledSelectGroup items={items} />
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size={size === "sm" ? "sm" : "default"}>
-                Submit
-              </Button>
-            </div>
-          )}
-        </For>
+        <div class="flex items-center gap-2">
+          <Select
+            options={items}
+            optionValue="value"
+            optionTextValue="label"
+            placeholder="Select a fruit"
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue<(typeof items)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent />
+          </Select>
+          <Button variant="outline" size="sm">
+            Submit
+          </Button>
+        </div>
+        <div class="flex items-center gap-2">
+          <Select
+            options={items}
+            optionValue="value"
+            optionTextValue="label"
+            placeholder="Select a fruit"
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
+            <SelectTrigger>
+              <SelectValue<(typeof items)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent />
+          </Select>
+          <Button variant="outline">Submit</Button>
+        </div>
       </div>
     </Example>
   );
 }
 
 function SelectItemAligned() {
+  const items = [
+    { label: "Apple", value: "apple", disabled: false },
+    { label: "Banana", value: "banana", disabled: false },
+    { label: "Blueberry", value: "blueberry", disabled: false },
+    { label: "Grapes", value: "grapes", disabled: true },
+    { label: "Pineapple", value: "pineapple", disabled: false },
+  ];
   return (
     <Example title="Item Aligned">
-      <Select<string | null> items={fruitItemsWithDisabledGrapes}>
+      <Select
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        optionDisabled="disabled"
+        placeholder="Select a fruit"
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
         <SelectTrigger>
-          <SelectValue />
+          <SelectValue<(typeof items)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent alignItemWithTrigger>
-          <LabeledSelectGroup items={fruitItemsWithDisabledGrapes} />
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
 }
 
 function SelectWithField() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
+  ];
   return (
     <Example title="With Field">
       <Field>
         <FieldLabel for="select-fruit">Favorite Fruit</FieldLabel>
-        <Select<string | null> items={fruitItemsWithPlaceholder}>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Select a fruit"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
           <SelectTrigger id="select-fruit">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <LabeledSelectGroup items={fruitItemsWithPlaceholder} />
-          </SelectContent>
+          <SelectContent />
         </Select>
         <FieldDescription>Choose your favorite fruit from the list.</FieldDescription>
       </Field>
@@ -412,26 +438,51 @@ function SelectWithField() {
 }
 
 function SelectInvalid() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
+  ];
   return (
     <Example title="Invalid">
       <div class="flex flex-col gap-4">
-        <Select<string | null> items={fruitItemsWithPlaceholder}>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Select a fruit"
+          validationState="invalid"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
           <SelectTrigger aria-invalid="true">
-            <SelectValue />
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            <LabeledSelectGroup items={fruitItemsWithPlaceholder} />
-          </SelectContent>
+          <SelectContent />
         </Select>
         <Field data-invalid>
           <FieldLabel for="select-fruit-invalid">Favorite Fruit</FieldLabel>
-          <Select<string | null> items={fruitItemsWithPlaceholder}>
-            <SelectTrigger id="select-fruit-invalid" aria-invalid="true">
-              <SelectValue />
+          <Select
+            options={items}
+            optionValue="value"
+            optionTextValue="label"
+            placeholder="Select a fruit"
+            validationState="invalid"
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
+            <SelectTrigger id="select-fruit-invalid" aria-invalid>
+              <SelectValue<(typeof items)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <LabeledSelectGroup items={fruitItemsWithPlaceholder} />
-            </SelectContent>
+            <SelectContent />
           </Select>
           <FieldError errors={[{ message: "Please select a valid fruit." }]} />
         </Field>
@@ -442,23 +493,29 @@ function SelectInvalid() {
 
 function SelectInline() {
   const items = [
-    { label: "Filter", value: null },
     { label: "All", value: "all" },
     { label: "Active", value: "active" },
     { label: "Inactive", value: "inactive" },
-  ] satisfies LabeledItem<string | null>[];
-
+  ];
   return (
     <Example title="Inline with Input & NativeSelect">
       <div class="flex items-center gap-2">
         <Input placeholder="Search..." class="flex-1" />
-        <Select<string | null> items={items}>
+        <Select
+          options={items}
+          optionValue="value"
+          optionTextValue="label"
+          placeholder="Filter"
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
           <SelectTrigger class="w-[140px]">
-            <SelectValue />
+            <SelectValue<(typeof items)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            <LabeledSelectGroup items={items} />
-          </SelectContent>
+          <SelectContent />
         </Select>
         <NativeSelect class="w-[140px]">
           <NativeSelectOption value="">Sort by</NativeSelectOption>
@@ -472,46 +529,72 @@ function SelectInline() {
 }
 
 function SelectDisabled() {
+  const items = [
+    { label: "Apple", value: "apple", disabled: false },
+    { label: "Banana", value: "banana", disabled: false },
+    { label: "Blueberry", value: "blueberry", disabled: false },
+    { label: "Grapes", value: "grapes", disabled: true },
+    { label: "Pineapple", value: "pineapple", disabled: false },
+  ];
   return (
     <Example title="Disabled">
-      <Select<string | null> items={fruitItemsWithDisabledGrapes} disabled>
+      <Select
+        options={items}
+        optionValue="value"
+        optionTextValue="label"
+        optionDisabled="disabled"
+        placeholder="Select a fruit"
+        disabled
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+        )}
+      >
         <SelectTrigger>
-          <SelectValue />
+          <SelectValue<(typeof items)[number]>>
+            {(state) => state.selectedOption().label}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <LabeledSelectGroup items={fruitItemsWithDisabledGrapes} />
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
 }
 
-function SelectPlan() {
-  const items = plans.map((plan) => ({ label: plan.name, value: plan }));
+const plans = [
+  {
+    name: "Starter",
+    description: "Perfect for individuals getting started.",
+  },
+  {
+    name: "Professional",
+    description: "Ideal for growing teams and businesses.",
+  },
+  {
+    name: "Enterprise",
+    description: "Advanced features for large organizations.",
+  },
+];
 
+function SelectPlan() {
   return (
     <Example title="Subscription Plan">
-      <Select<(typeof plans)[number]>
-        items={items}
+      <Select
+        options={plans}
+        optionValue="name"
+        optionTextValue="name"
         defaultValue={plans[0]}
-        itemToStringValue={(plan) => plan.name}
+        itemComponent={(props) => (
+          <SelectItem item={props.item}>
+            <SelectPlanItem plan={props.item.rawValue} />
+          </SelectItem>
+        )}
       >
         <SelectTrigger class="h-auto! w-72">
           <SelectValue<(typeof plans)[number]>>
-            {(plan) => <SelectPlanItem plan={plan} />}
+            {(state) => <SelectPlanItem plan={state.selectedOption()} />}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <For each={plans}>
-              {(plan) => (
-                <SelectItem value={plan} label={plan.name}>
-                  <SelectPlanItem plan={plan} />
-                </SelectItem>
-              )}
-            </For>
-          </SelectGroup>
-        </SelectContent>
+        <SelectContent />
       </Select>
     </Example>
   );
@@ -520,17 +603,22 @@ function SelectPlan() {
 function SelectPlanItem(props: { plan: (typeof plans)[number] }) {
   return (
     <Item size="xs" class="w-full p-0">
-      <ItemContent class="gap-0 normal-case">
-        <ItemTitle class="font-sans">{props.plan.name}</ItemTitle>
-        <ItemDescription class="text-xs font-normal tracking-normal">
-          {props.plan.description}
-        </ItemDescription>
+      <ItemContent class="gap-0">
+        <ItemTitle>{props.plan.name}</ItemTitle>
+        <ItemDescription class="text-xs">{props.plan.description}</ItemDescription>
       </ItemContent>
     </Item>
   );
 }
 
 function SelectInDialog() {
+  const items = [
+    { label: "Apple", value: "apple" },
+    { label: "Banana", value: "banana" },
+    { label: "Blueberry", value: "blueberry" },
+    { label: "Grapes", value: "grapes" },
+    { label: "Pineapple", value: "pineapple" },
+  ];
   return (
     <Example title="In Dialog">
       <Dialog>
@@ -542,13 +630,21 @@ function SelectInDialog() {
             <DialogTitle>Select Example</DialogTitle>
             <DialogDescription>Use the select below to choose a fruit.</DialogDescription>
           </DialogHeader>
-          <Select<string | null> items={fruitItemsWithPlaceholder}>
+          <Select
+            options={items}
+            optionValue="value"
+            optionTextValue="label"
+            placeholder="Select a fruit"
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+            )}
+          >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue<(typeof items)[number]>>
+                {(state) => state.selectedOption().label}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <LabeledSelectGroup items={fruitItemsWithPlaceholder} />
-            </SelectContent>
+            <SelectContent />
           </Select>
         </DialogContent>
       </Dialog>

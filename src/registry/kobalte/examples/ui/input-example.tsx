@@ -130,15 +130,21 @@ function InputWithSelect() {
     <Example title="With Select">
       <div class="flex w-full gap-2">
         <Input type="text" placeholder="Enter amount" class="flex-1" />
-        <Select items={currencies} defaultValue={currencies[0].value}>
+        <Select
+          options={currencies}
+          optionValue="value"
+          optionTextValue="label"
+          defaultValue={currencies[0]}
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+          )}
+        >
           <SelectTrigger class="w-32">
-            <SelectValue />
+            <SelectValue<(typeof currencies)[number]>>
+              {(state) => state.selectedOption().label}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            <For each={currencies}>
-              {(currency) => <SelectItem value={currency.value}>{currency.label}</SelectItem>}
-            </For>
-          </SelectContent>
+          <SelectContent />
         </Select>
       </div>
     </Example>
@@ -198,15 +204,21 @@ function InputForm() {
             </Field>
             <Field>
               <FieldLabel for="form-country">Country</FieldLabel>
-              <Select items={countries} defaultValue={countries[0].value}>
+              <Select
+                options={countries}
+                optionValue="value"
+                optionTextValue="label"
+                defaultValue={countries[0]}
+                itemComponent={(props) => (
+                  <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                )}
+              >
                 <SelectTrigger id="form-country">
-                  <SelectValue />
+                  <SelectValue<(typeof countries)[number]>>
+                    {(state) => state.selectedOption().label}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
-                  <For each={countries}>
-                    {(country) => <SelectItem value={country.value}>{country.label}</SelectItem>}
-                  </For>
-                </SelectContent>
+                <SelectContent />
               </Select>
             </Field>
           </div>
@@ -225,5 +237,3 @@ function InputForm() {
     </Example>
   );
 }
-
-import { For } from "solid-js";

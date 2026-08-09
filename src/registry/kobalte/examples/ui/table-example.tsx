@@ -13,7 +13,6 @@ import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -333,19 +332,20 @@ function TableWithSelect() {
                 <TableCell class="font-medium">{item.task}</TableCell>
                 <TableCell>
                   <Select
-                    items={people}
-                    defaultValue={people.find((person) => person.value === item.assignee)?.value}
+                    options={people}
+                    optionValue="value"
+                    optionTextValue="label"
+                    defaultValue={people.find((person) => person.value === item.assignee)}
+                    itemComponent={(props) => (
+                      <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                    )}
                   >
                     <SelectTrigger class="w-40" size="sm">
-                      <SelectValue />
+                      <SelectValue<(typeof people)[number]>>
+                        {(state) => state.selectedOption().label}
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <For each={people}>
-                          {(person) => <SelectItem value={person.value}>{person.label}</SelectItem>}
-                        </For>
-                      </SelectGroup>
-                    </SelectContent>
+                    <SelectContent />
                   </Select>
                 </TableCell>
                 <TableCell>{item.status}</TableCell>

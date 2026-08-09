@@ -9,29 +9,29 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/registry/kobalte/ui/select";
+
+const pageSizes = [10, 25, 50, 100];
 
 export default function PaginationIconsOnly() {
   return (
     <div class="flex items-center justify-between gap-4">
       <Field orientation="horizontal" class="w-fit">
         <FieldLabel for="select-rows-per-page">Rows per page</FieldLabel>
-        <Select defaultValue="25">
+        <Select
+          options={pageSizes}
+          defaultValue={25}
+          itemComponent={(props) => (
+            <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
+          )}
+        >
           <SelectTrigger class="w-20" id="select-rows-per-page">
-            <SelectValue />
+            <SelectValue<number>>{(state) => state.selectedOption()}</SelectValue>
           </SelectTrigger>
-          <SelectContent align="start">
-            <SelectGroup>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="25">25</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectGroup>
-          </SelectContent>
+          <SelectContent />
         </Select>
       </Field>
       <Pagination class="mx-0 w-auto">

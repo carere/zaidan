@@ -1,12 +1,9 @@
-import { For } from "solid-js";
-
 import { Button } from "@/registry/kobalte/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/registry/kobalte/ui/field";
 import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -38,17 +35,21 @@ export default function InputForm() {
           </Field>
           <Field>
             <FieldLabel for="form-country">Country</FieldLabel>
-            <Select<string> items={countries} defaultValue="us">
+            <Select
+              options={countries}
+              optionValue="value"
+              optionTextValue="label"
+              defaultValue={countries[0]}
+              itemComponent={(props) => (
+                <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+              )}
+            >
               <SelectTrigger id="form-country">
-                <SelectValue />
+                <SelectValue<(typeof countries)[number]>>
+                  {(state) => state.selectedOption().label}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <For each={countries}>
-                    {(country) => <SelectItem value={country.value}>{country.label}</SelectItem>}
-                  </For>
-                </SelectGroup>
-              </SelectContent>
+              <SelectContent />
             </Select>
           </Field>
         </div>

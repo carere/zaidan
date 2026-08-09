@@ -1,5 +1,3 @@
-import { For } from "solid-js";
-
 import { Button } from "@/registry/kobalte/ui/button";
 import { Checkbox } from "@/registry/kobalte/ui/checkbox";
 import {
@@ -15,7 +13,6 @@ import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -67,32 +64,40 @@ export default function FieldDemo() {
               <div class="grid grid-cols-3 gap-4">
                 <Field>
                   <FieldLabel for="checkout-exp-month">Month</FieldLabel>
-                  <Select<string> items={months}>
+                  <Select
+                    options={months}
+                    optionValue="value"
+                    optionTextValue="label"
+                    placeholder="MM"
+                    itemComponent={(props) => (
+                      <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                    )}
+                  >
                     <SelectTrigger id="checkout-exp-month">
-                      <SelectValue placeholder="MM" />
+                      <SelectValue<(typeof months)[number]>>
+                        {(state) => state.selectedOption().label}
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <For each={months}>
-                          {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                        </For>
-                      </SelectGroup>
-                    </SelectContent>
+                    <SelectContent />
                   </Select>
                 </Field>
                 <Field>
                   <FieldLabel for="checkout-exp-year">Year</FieldLabel>
-                  <Select<string> items={years}>
+                  <Select
+                    options={years}
+                    optionValue="value"
+                    optionTextValue="label"
+                    placeholder="YYYY"
+                    itemComponent={(props) => (
+                      <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                    )}
+                  >
                     <SelectTrigger id="checkout-exp-year">
-                      <SelectValue placeholder="YYYY" />
+                      <SelectValue<(typeof years)[number]>>
+                        {(state) => state.selectedOption().label}
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <For each={years}>
-                          {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                        </For>
-                      </SelectGroup>
-                    </SelectContent>
+                    <SelectContent />
                   </Select>
                 </Field>
                 <Field>

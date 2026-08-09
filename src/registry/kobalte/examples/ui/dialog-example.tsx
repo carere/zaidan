@@ -283,36 +283,42 @@ function DialogChatSettings() {
                       <Field orientation="horizontal">
                         <FieldLabel for="theme">Theme</FieldLabel>
                         <Select
-                          items={themes}
-                          value={theme()}
-                          onValueChange={(value) => value && setTheme(value)}
+                          options={themes}
+                          optionValue="value"
+                          optionTextValue="label"
+                          value={themes.find((item) => item.value === theme())}
+                          onChange={(item) => item && setTheme(item.value)}
+                          itemComponent={(props) => (
+                            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                          )}
                         >
                           <SelectTrigger id="theme">
-                            <SelectValue />
+                            <SelectValue<(typeof themes)[number]>>
+                              {(state) => state.selectedOption().label}
+                            </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
-                            <For each={themes}>
-                              {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                            </For>
-                          </SelectContent>
+                          <SelectContent />
                         </Select>
                       </Field>
                       <FieldSeparator />
                       <Field orientation="horizontal">
                         <FieldLabel for="accent-color">Accent Color</FieldLabel>
                         <Select
-                          items={accents}
-                          value={accentColor()}
-                          onValueChange={(value) => value && setAccentColor(value)}
+                          options={accents}
+                          optionValue="value"
+                          optionTextValue="label"
+                          value={accents.find((item) => item.value === accentColor())}
+                          onChange={(item) => item && setAccentColor(item.value)}
+                          itemComponent={(props) => (
+                            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                          )}
                         >
                           <SelectTrigger id="accent-color">
-                            <SelectValue />
+                            <SelectValue<(typeof accents)[number]>>
+                              {(state) => state.selectedOption().label}
+                            </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
-                            <For each={accents}>
-                              {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                            </For>
-                          </SelectContent>
+                          <SelectContent />
                         </Select>
                       </Field>
                       <FieldSeparator />
@@ -325,36 +331,42 @@ function DialogChatSettings() {
                           </FieldDescription>
                         </FieldContent>
                         <Select
-                          items={spokenLanguages}
-                          value={spokenLanguage()}
-                          onValueChange={(value) => value && setSpokenLanguage(value)}
+                          options={spokenLanguages}
+                          optionValue="value"
+                          optionTextValue="label"
+                          value={spokenLanguages.find((item) => item.value === spokenLanguage())}
+                          onChange={(item) => item && setSpokenLanguage(item.value)}
+                          itemComponent={(props) => (
+                            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                          )}
                         >
                           <SelectTrigger id="spoken-language">
-                            <SelectValue />
+                            <SelectValue<(typeof spokenLanguages)[number]>>
+                              {(state) => state.selectedOption().label}
+                            </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
-                            <For each={spokenLanguages}>
-                              {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                            </For>
-                          </SelectContent>
+                          <SelectContent />
                         </Select>
                       </Field>
                       <FieldSeparator />
                       <Field orientation="horizontal">
                         <FieldLabel for="voice">Voice</FieldLabel>
                         <Select
-                          items={voices}
-                          value={voice()}
-                          onValueChange={(value) => value && setVoice(value)}
+                          options={voices}
+                          optionValue="value"
+                          optionTextValue="label"
+                          value={voices.find((item) => item.value === voice())}
+                          onChange={(item) => item && setVoice(item.value)}
+                          itemComponent={(props) => (
+                            <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+                          )}
                         >
                           <SelectTrigger id="voice">
-                            <SelectValue />
+                            <SelectValue<(typeof voices)[number]>>
+                              {(state) => state.selectedOption().label}
+                            </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
-                            <For each={voices}>
-                              {(item) => <SelectItem value={item.value}>{item.label}</SelectItem>}
-                            </For>
-                          </SelectContent>
+                          <SelectContent />
                         </Select>
                       </Field>
                     </FieldGroup>

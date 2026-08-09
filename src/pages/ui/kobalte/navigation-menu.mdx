@@ -60,66 +60,35 @@ import {
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu";
 ```
 
 ```tsx showLineNumbers
 <NavigationMenu>
-  <NavigationMenuList>
-    <NavigationMenuItem>
-      <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-      <NavigationMenuContent>
-        <NavigationMenuLink href="/docs">Link</NavigationMenuLink>
-      </NavigationMenuContent>
-    </NavigationMenuItem>
-  </NavigationMenuList>
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <NavigationMenuLink href="/docs">Link</NavigationMenuLink>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
 </NavigationMenu>
 ```
 
 ## Composition
 
+`NavigationMenu` renders its own list wrapper internally, so items are placed directly inside it.
 Use the following composition to build a `NavigationMenu`:
 
 ```text
 NavigationMenu
-├── NavigationMenuList
-│   ├── NavigationMenuItem
-│   │   ├── NavigationMenuTrigger
-│   │   └── NavigationMenuContent
-│   │       ├── NavigationMenuLink
-│   │       └── NavigationMenuLink
-│   └── NavigationMenuItem
+├── NavigationMenuItem
+│   ├── NavigationMenuTrigger
+│   └── NavigationMenuContent
+│       ├── NavigationMenuLink
 │       └── NavigationMenuLink
-└── NavigationMenuIndicator
-```
-
-## Link Component
-
-Use `NavigationMenuLink` with its default anchor element or the `as` prop to compose a custom Solid link component.
-
-```tsx showLineNumbers
-import type { ComponentProps } from "solid-js";
-import {
-  NavigationMenuItem,
-  NavigationMenuLink,
-  navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
-
-function DocsLink(props: ComponentProps<"a">) {
-  return <a {...props} />;
-}
-
-export function NavigationMenuLinkDemo() {
-  return (
-    <NavigationMenuItem>
-      <NavigationMenuLink as={DocsLink} href="/docs" class={navigationMenuTriggerStyle()}>
-        Documentation
-      </NavigationMenuLink>
-    </NavigationMenuItem>
-  );
-}
+└── NavigationMenuItem
+    └── NavigationMenuLink
 ```
 
 ## API Reference
