@@ -1,19 +1,6 @@
 import { createMemo, createSignal } from "solid-js";
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function QuestionnaireConditional() {
@@ -44,64 +31,66 @@ export default function QuestionnaireConditional() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="runtime"
         items={items()}
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
 
-        <QuestionnaireItem name="runtime" required>
-          <QuestionnaireTitle>Where should the agent run?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="runtime" required>
+          <Questionnaire.Title>Where should the agent run?</Questionnaire.Title>
+          <Questionnaire.Description>
             Cloud runs add an environment question to this flow.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice
               checked={runtime() === "local"}
               value="local"
               onChange={() => setRuntime("local")}
             >
               Local workspace
-            </QuestionnaireChoice>
-            <QuestionnaireChoice
+            </Questionnaire.Choice>
+            <Questionnaire.Choice
               checked={runtime() === "cloud"}
               value="cloud"
               onChange={() => setRuntime("cloud")}
             >
               Cloud workspace
-            </QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+            </Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem disabled={runtime() !== "cloud"} name="environment" required>
-          <QuestionnaireTitle>Which cloud environment should it use?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="preview">Preview</QuestionnaireChoice>
-            <QuestionnaireChoice value="staging">Staging</QuestionnaireChoice>
-            <QuestionnaireChoice value="isolated">Isolated sandbox</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item disabled={runtime() !== "cloud"} name="environment" required>
+          <Questionnaire.Title>Which cloud environment should it use?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="preview">Preview</Questionnaire.Choice>
+            <Questionnaire.Choice value="staging">Staging</Questionnaire.Choice>
+            <Questionnaire.Choice value="isolated">Isolated sandbox</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="approval" required>
-          <QuestionnaireTitle>When should the agent request approval?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="writes">Before writing files</QuestionnaireChoice>
-            <QuestionnaireChoice value="commands">Before running commands</QuestionnaireChoice>
-            <QuestionnaireChoice value="sensitive">Only for sensitive actions</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="approval" required>
+          <Questionnaire.Title>When should the agent request approval?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="writes">Before writing files</Questionnaire.Choice>
+            <Questionnaire.Choice value="commands">Before running commands</Questionnaire.Choice>
+            <Questionnaire.Choice value="sensitive">
+              Only for sensitive actions
+            </Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnairePrevious />
-          <QuestionnaireNext>Next</QuestionnaireNext>
-          <QuestionnaireSubmit>Save execution plan</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Previous />
+          <Questionnaire.Next>Next</Questionnaire.Next>
+          <Questionnaire.Submit>Save execution plan</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </>
   );
 }

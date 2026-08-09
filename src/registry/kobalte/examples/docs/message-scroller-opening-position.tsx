@@ -1,10 +1,6 @@
 import { type Accessor, createEffect, createSignal, onCleanup } from "solid-js";
+import { MessageScroller, useMessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import {
-  MessageScroller,
-  MessageScrollerProvider,
-  useMessageScroller,
-} from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard, Transcript } from "./message-scroller-utils";
 
 type Position = "end" | "last-anchor" | "start";
@@ -13,7 +9,7 @@ export default function MessageScrollerOpeningPosition() {
   const [position, setPosition] = createSignal<Position>("last-anchor");
 
   return (
-    <MessageScrollerProvider defaultScrollPosition="last-anchor">
+    <MessageScroller.Provider defaultScrollPosition="last-anchor">
       <DemoCard
         title="Opening Position"
         description="Choose where a saved transcript opens. Reopen a thread with the selected position in your product."
@@ -41,11 +37,11 @@ export default function MessageScrollerOpeningPosition() {
           </fieldset>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <OpeningTranscript position={position} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }
 

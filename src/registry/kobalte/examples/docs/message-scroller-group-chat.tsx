@@ -1,15 +1,8 @@
 import { RotateCwIcon } from "lucide-solid";
 import { createSignal, For } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Bubble, BubbleContent } from "@/registry/kobalte/ui/bubble";
 import { Button } from "@/registry/kobalte/ui/button";
-import {
-  MessageScroller,
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-} from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard } from "./message-scroller-utils";
 
 type GroupItem = {
@@ -43,7 +36,7 @@ export default function MessageScrollerGroupChat() {
   const [count, setCount] = createSignal(0);
   const items = () => [...baseItems, ...rockyItems.slice(0, count())];
   return (
-    <MessageScrollerProvider>
+    <MessageScroller.Provider>
       <DemoCard
         title="Group Chat"
         description="A marker can be the turn anchor, not just a message."
@@ -68,12 +61,12 @@ export default function MessageScrollerGroupChat() {
           </div>
         }
       >
-        <MessageScroller>
-          <MessageScrollerViewport>
-            <MessageScrollerContent class="gap-4 p-(--card-spacing)">
+        <MessageScroller.Root>
+          <MessageScroller.Viewport>
+            <MessageScroller.Content class="gap-4 p-(--card-spacing)">
               <For each={items()}>
                 {(item) => (
-                  <MessageScrollerItem
+                  <MessageScroller.Item
                     messageId={item.id}
                     scrollAnchor={item.anchor}
                     class={item.sender === "Grace" ? "flex justify-end" : undefined}
@@ -94,14 +87,14 @@ export default function MessageScrollerGroupChat() {
                         </Bubble>
                       </div>
                     )}
-                  </MessageScrollerItem>
+                  </MessageScroller.Item>
                 )}
               </For>
-            </MessageScrollerContent>
-            <MessageScrollerButton />
-          </MessageScrollerViewport>
-        </MessageScroller>
+            </MessageScroller.Content>
+            <MessageScroller.Button />
+          </MessageScroller.Viewport>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }

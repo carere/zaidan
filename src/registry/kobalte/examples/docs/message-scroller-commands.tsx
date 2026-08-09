@@ -1,4 +1,5 @@
 import { For } from "solid-js";
+import { MessageScroller, useMessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   DropdownMenu,
@@ -7,26 +8,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/registry/kobalte/ui/dropdown-menu";
-import {
-  MessageScroller,
-  MessageScrollerProvider,
-  useMessageScroller,
-} from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard, Transcript, transcript } from "./message-scroller-utils";
 
 export default function MessageScrollerCommands() {
   return (
-    <MessageScrollerProvider defaultScrollPosition="end">
+    <MessageScroller.Provider defaultScrollPosition="end">
       <DemoCard
         title="Commands"
         description="Drive the transcript from controls outside the message list."
       >
         <CommandMenu />
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript anchor={(message) => message.role === "user"} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }
 

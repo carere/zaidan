@@ -1,18 +1,10 @@
 import { createSignal } from "solid-js";
 import { toast } from "solid-sonner";
-import { NativeSelect, NativeSelectOption } from "@/registry/kobalte/ui/native-select";
 import {
   Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
   type QuestionnaireShortcutMode,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+} from "@/registry/kobalte/blocks/questionnaire";
+import { NativeSelect, NativeSelectOption } from "@/registry/kobalte/ui/native-select";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -53,24 +45,29 @@ export default function QuestionnaireShortcuts() {
         <NativeSelectOption value="numbers">Numbers</NativeSelectOption>
       </NativeSelect>
 
-      <Questionnaire class="mt-auto" items={items} shortcuts={shortcuts()} onSubmit={handleSubmit}>
-        <QuestionnaireItem name="action" required>
-          <QuestionnaireTitle>What should the agent do next?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+      <Questionnaire.Root
+        class="mt-auto"
+        items={items}
+        shortcuts={shortcuts()}
+        onSubmit={handleSubmit}
+      >
+        <Questionnaire.Item name="action" required>
+          <Questionnaire.Title>What should the agent do next?</Questionnaire.Title>
+          <Questionnaire.Description>
             Use the displayed shortcut or navigate with the keyboard.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="inspect">Inspect the implementation</QuestionnaireChoice>
-            <QuestionnaireChoice value="tests">Run the relevant tests</QuestionnaireChoice>
-            <QuestionnaireChoice value="patch">Prepare the patch</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="inspect">Inspect the implementation</Questionnaire.Choice>
+            <Questionnaire.Choice value="tests">Run the relevant tests</Questionnaire.Choice>
+            <Questionnaire.Choice value="patch">Prepare the patch</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnaireSubmit>Confirm action</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Submit>Confirm action</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </div>
   );
 }

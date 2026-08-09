@@ -1,7 +1,7 @@
 import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
 import { createSignal } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { MessageScroller, MessageScrollerProvider } from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
 
 const nextTurn: DemoMessage[] = [
@@ -9,7 +9,7 @@ const nextTurn: DemoMessage[] = [
   {
     id: "new-answer",
     role: "assistant",
-    text: "Use MessageScrollerButton. It stays out of the tab order until there is content below the reader, then returns them to the live edge.",
+    text: "Use MessageScroller.Button. It stays out of the tab order until there is content below the reader, then returns them to the live edge.",
   },
 ];
 
@@ -18,7 +18,7 @@ export default function MessageScrollerDemo() {
   const send = () => setMessages((current) => [...current, ...nextTurn]);
 
   return (
-    <MessageScrollerProvider autoScroll>
+    <MessageScroller.Provider autoScroll>
       <DemoCard
         title="New Chat"
         description="A transcript that follows only while you are at the live edge."
@@ -39,10 +39,10 @@ export default function MessageScrollerDemo() {
           </div>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript messages={messages()} anchor={(message) => message.role === "user"} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }

@@ -1,18 +1,5 @@
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -38,55 +25,55 @@ export default function QuestionnaireAnimated() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="task"
         items={items}
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
 
-        <QuestionnaireItem class={itemClass} name="task" required>
-          <QuestionnaireTitle>What should the agent do?</QuestionnaireTitle>
-          <QuestionnaireDescription>Choose the task for this run.</QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="implement">
+        <Questionnaire.Item class={itemClass} name="task" required>
+          <Questionnaire.Title>What should the agent do?</Questionnaire.Title>
+          <Questionnaire.Description>Choose the task for this run.</Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="implement">
               Implement the requested change
-            </QuestionnaireChoice>
-            <QuestionnaireChoice value="debug">Debug the current behavior</QuestionnaireChoice>
-            <QuestionnaireChoice value="review">Review the implementation</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+            </Questionnaire.Choice>
+            <Questionnaire.Choice value="debug">Debug the current behavior</Questionnaire.Choice>
+            <Questionnaire.Choice value="review">Review the implementation</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem class={itemClass} name="review" required>
-          <QuestionnaireTitle>How should the work be reviewed?</QuestionnaireTitle>
-          <QuestionnaireDescription>Select the verification depth.</QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="targeted">Targeted checks</QuestionnaireChoice>
-            <QuestionnaireChoice value="complete">Complete test suite</QuestionnaireChoice>
-            <QuestionnaireChoice value="manual">Tests and manual QA</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item class={itemClass} name="review" required>
+          <Questionnaire.Title>How should the work be reviewed?</Questionnaire.Title>
+          <Questionnaire.Description>Select the verification depth.</Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="targeted">Targeted checks</Questionnaire.Choice>
+            <Questionnaire.Choice value="complete">Complete test suite</Questionnaire.Choice>
+            <Questionnaire.Choice value="manual">Tests and manual QA</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem class={itemClass} name="delivery" required>
-          <QuestionnaireTitle>How should the result be delivered?</QuestionnaireTitle>
-          <QuestionnaireDescription>Choose the final handoff format.</QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="summary">Concise summary</QuestionnaireChoice>
-            <QuestionnaireChoice value="diff">Summary and changed files</QuestionnaireChoice>
-            <QuestionnaireChoice value="handoff">Detailed review handoff</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item class={itemClass} name="delivery" required>
+          <Questionnaire.Title>How should the result be delivered?</Questionnaire.Title>
+          <Questionnaire.Description>Choose the final handoff format.</Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="summary">Concise summary</Questionnaire.Choice>
+            <Questionnaire.Choice value="diff">Summary and changed files</Questionnaire.Choice>
+            <Questionnaire.Choice value="handoff">Detailed review handoff</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnairePrevious />
-          <QuestionnaireNext>Next</QuestionnaireNext>
-          <QuestionnaireSubmit>Save workflow</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Previous />
+          <Questionnaire.Next>Next</Questionnaire.Next>
+          <Questionnaire.Submit>Save workflow</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </>
   );
 }

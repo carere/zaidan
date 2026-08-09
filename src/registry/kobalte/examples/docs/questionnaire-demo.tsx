@@ -1,21 +1,6 @@
 import { For, Show } from "solid-js";
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireInput,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSkip,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const questionnaireItems = [
@@ -91,56 +76,56 @@ export default function QuestionnaireDemo() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="direction"
         items={questionnaireItems}
         shortcuts="letters"
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
         <For each={questionnaireItems}>
           {(question) => (
-            <QuestionnaireItem
+            <Questionnaire.Item
               multiple={"multiple" in question && question.multiple}
               name={question.name}
               required={question.required}
             >
-              <QuestionnaireTitle>{question.title}</QuestionnaireTitle>
-              <QuestionnaireDescription>{question.description}</QuestionnaireDescription>
-              <QuestionnaireChoices>
+              <Questionnaire.Title>{question.title}</Questionnaire.Title>
+              <Questionnaire.Description>{question.description}</Questionnaire.Description>
+              <Questionnaire.Choices>
                 <For each={question.choices}>
                   {(choice) => (
-                    <QuestionnaireChoice value={choice.value}>
+                    <Questionnaire.Choice value={choice.value}>
                       <span class="font-medium">{choice.label}</span>
                       <Show when={"description" in choice ? choice.description : undefined}>
                         {(description) => (
                           <span class="text-muted-foreground">{description()}</span>
                         )}
                       </Show>
-                    </QuestionnaireChoice>
+                    </Questionnaire.Choice>
                   )}
                 </For>
                 <Show when={"input" in question ? question.input : undefined}>
                   {(input) => (
-                    <QuestionnaireInput
+                    <Questionnaire.Input
                       aria-label={input().label}
                       placeholder={input().placeholder}
                     />
                   )}
                 </Show>
-              </QuestionnaireChoices>
-              <QuestionnaireError />
-            </QuestionnaireItem>
+              </Questionnaire.Choices>
+              <Questionnaire.Error />
+            </Questionnaire.Item>
           )}
         </For>
-        <QuestionnaireActions>
-          <QuestionnairePrevious />
-          <QuestionnaireSkip />
-          <QuestionnaireNext>Next</QuestionnaireNext>
-          <QuestionnaireSubmit>Save plan</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Previous />
+          <Questionnaire.Skip />
+          <Questionnaire.Next>Next</Questionnaire.Next>
+          <Questionnaire.Submit>Save plan</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </>
   );
 }

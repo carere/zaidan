@@ -1,21 +1,8 @@
 import { createSignal } from "solid-js";
 import { toast } from "solid-sonner";
 import { z } from "zod";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@/registry/kobalte/ui/card";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -43,13 +30,13 @@ type QuestionnaireErrors = Partial<Record<QuestionnaireItemName, string>>;
 
 function ValidationProgress() {
   return (
-    <QuestionnaireProgress class="min-w-0">
+    <Questionnaire.Progress class="min-w-0">
       {(state) => (
         <>
           {state.current} / {state.total}
         </>
       )}
-    </QuestionnaireProgress>
+    </Questionnaire.Progress>
   );
 }
 
@@ -106,7 +93,7 @@ export default function QuestionnaireValidation() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         item={item()}
         items={items}
@@ -114,59 +101,59 @@ export default function QuestionnaireValidation() {
         onSubmit={handleSubmit}
       >
         <Card class="w-full">
-          <QuestionnaireItem invalid={Boolean(errors().detail)} name="detail" required>
+          <Questionnaire.Item invalid={Boolean(errors().detail)} name="detail" required>
             <CardHeader>
-              <QuestionnaireTitle>How much detail should the answer include?</QuestionnaireTitle>
-              <QuestionnaireDescription>Choose the response depth.</QuestionnaireDescription>
+              <Questionnaire.Title>How much detail should the answer include?</Questionnaire.Title>
+              <Questionnaire.Description>Choose the response depth.</Questionnaire.Description>
               <CardAction>
                 <ValidationProgress />
               </CardAction>
             </CardHeader>
             <CardContent>
-              <QuestionnaireChoices>
-                <QuestionnaireChoice value="summary" onChange={() => clearError("detail")}>
+              <Questionnaire.Choices>
+                <Questionnaire.Choice value="summary" onChange={() => clearError("detail")}>
                   Concise summary
-                </QuestionnaireChoice>
-                <QuestionnaireChoice value="complete" onChange={() => clearError("detail")}>
+                </Questionnaire.Choice>
+                <Questionnaire.Choice value="complete" onChange={() => clearError("detail")}>
                   Complete answer
-                </QuestionnaireChoice>
-              </QuestionnaireChoices>
-              <QuestionnaireError>{errors().detail}</QuestionnaireError>
+                </Questionnaire.Choice>
+              </Questionnaire.Choices>
+              <Questionnaire.Error>{errors().detail}</Questionnaire.Error>
             </CardContent>
-          </QuestionnaireItem>
+          </Questionnaire.Item>
 
-          <QuestionnaireItem invalid={Boolean(errors().audience)} name="audience" required>
+          <Questionnaire.Item invalid={Boolean(errors().audience)} name="audience" required>
             <CardHeader>
-              <QuestionnaireTitle>Who will read the answer?</QuestionnaireTitle>
-              <QuestionnaireDescription>
+              <Questionnaire.Title>Who will read the answer?</Questionnaire.Title>
+              <Questionnaire.Description>
                 Public answers require complete context.
-              </QuestionnaireDescription>
+              </Questionnaire.Description>
               <CardAction>
                 <ValidationProgress />
               </CardAction>
             </CardHeader>
             <CardContent>
-              <QuestionnaireChoices>
-                <QuestionnaireChoice value="team" onChange={() => clearError("audience")}>
+              <Questionnaire.Choices>
+                <Questionnaire.Choice value="team" onChange={() => clearError("audience")}>
                   My team
-                </QuestionnaireChoice>
-                <QuestionnaireChoice value="public" onChange={() => clearError("audience")}>
+                </Questionnaire.Choice>
+                <Questionnaire.Choice value="public" onChange={() => clearError("audience")}>
                   Public audience
-                </QuestionnaireChoice>
-              </QuestionnaireChoices>
-              <QuestionnaireError>{errors().audience}</QuestionnaireError>
+                </Questionnaire.Choice>
+              </Questionnaire.Choices>
+              <Questionnaire.Error>{errors().audience}</Questionnaire.Error>
             </CardContent>
-          </QuestionnaireItem>
+          </Questionnaire.Item>
 
           <CardFooter>
-            <QuestionnaireActions>
-              <QuestionnairePrevious />
-              <QuestionnaireNext>Next</QuestionnaireNext>
-              <QuestionnaireSubmit>Validate answers</QuestionnaireSubmit>
-            </QuestionnaireActions>
+            <Questionnaire.Actions>
+              <Questionnaire.Previous />
+              <Questionnaire.Next>Next</Questionnaire.Next>
+              <Questionnaire.Submit>Validate answers</Questionnaire.Submit>
+            </Questionnaire.Actions>
           </CardFooter>
         </Card>
-      </Questionnaire>
+      </Questionnaire.Root>
     </>
   );
 }

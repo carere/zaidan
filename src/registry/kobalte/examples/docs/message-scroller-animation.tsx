@@ -1,7 +1,7 @@
 import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
 import { createSignal } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { MessageScroller, MessageScrollerProvider } from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
 
 const animations = {
@@ -19,7 +19,7 @@ export default function MessageScrollerAnimation() {
   const [preset, setPreset] = createSignal<keyof typeof animations>("fade");
   const [messages, setMessages] = createSignal(transcript.slice(0, 2));
   return (
-    <MessageScrollerProvider>
+    <MessageScroller.Provider>
       <DemoCard
         title="Animation"
         description="Animate a new row with transform and opacity."
@@ -58,7 +58,7 @@ export default function MessageScrollerAnimation() {
           </div>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript
             messages={messages()}
             anchor={(message) => message.role === "user"}
@@ -66,8 +66,8 @@ export default function MessageScrollerAnimation() {
               message.id === newMessage.id ? animations[preset()] : undefined
             }
           />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }

@@ -1,5 +1,6 @@
 import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@/registry/kobalte/ui/card";
 import {
@@ -11,23 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/registry/kobalte/ui/dialog";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoiceDescription,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireInput,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSkip,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const questionnaireItems = [
@@ -72,17 +56,17 @@ export default function QuestionnaireExample() {
 function QuestionnaireStandalone() {
   return (
     <Example title="Standalone" containerClass="md:col-span-2">
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-lg"
         defaultItem="direction"
         items={questionnaireItems}
         shortcuts="letters"
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
         <QuestionnaireQuestions />
         <QuestionnaireNavigation />
-      </Questionnaire>
+      </Questionnaire.Root>
     </Example>
   );
 }
@@ -90,14 +74,14 @@ function QuestionnaireStandalone() {
 function QuestionnaireCard() {
   return (
     <Example title="Card" containerClass="md:col-span-2">
-      <Questionnaire
+      <Questionnaire.Root
         defaultItem="direction"
         items={questionnaireItems}
         shortcuts="numbers"
         onSubmit={handleSubmit}
       >
         <QuestionnaireCardQuestions />
-      </Questionnaire>
+      </Questionnaire.Root>
     </Example>
   );
 }
@@ -110,25 +94,29 @@ function QuestionnaireDialog() {
           Open questionnaire
         </DialogTrigger>
         <DialogContent>
-          <Questionnaire defaultItem="direction" items={questionnaireItems} onSubmit={handleSubmit}>
+          <Questionnaire.Root
+            defaultItem="direction"
+            items={questionnaireItems}
+            onSubmit={handleSubmit}
+          >
             <DialogHeader>
               <DialogTitle class="sr-only">Plan an agent interface</DialogTitle>
               <DialogDescription class="sr-only">
                 Answer three questions to shape the next prototype.
               </DialogDescription>
-              <QuestionnaireProgress class="font-semibold text-foreground uppercase tracking-widest">
+              <Questionnaire.Progress class="font-semibold text-foreground uppercase tracking-widest">
                 {(state) => (
                   <>
                     Question {state.current} of {state.total}
                   </>
                 )}
-              </QuestionnaireProgress>
+              </Questionnaire.Progress>
             </DialogHeader>
             <QuestionnaireQuestions />
             <DialogFooter>
               <QuestionnaireNavigation />
             </DialogFooter>
-          </Questionnaire>
+          </Questionnaire.Root>
         </DialogContent>
       </Dialog>
     </Example>
@@ -138,25 +126,25 @@ function QuestionnaireDialog() {
 function QuestionnaireNoDescription() {
   return (
     <Example title="No description" containerClass="md:col-span-2">
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-lg"
         defaultItem="task"
         items={taskItems}
         shortcuts="letters"
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
-        <QuestionnaireItem name="task" required>
-          <QuestionnaireTitle>What should the agent do next?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="inspect">Inspect the codebase</QuestionnaireChoice>
-            <QuestionnaireChoice value="implement">Implement the change</QuestionnaireChoice>
-            <QuestionnaireChoice value="review">Review the result</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Progress />
+        <Questionnaire.Item name="task" required>
+          <Questionnaire.Title>What should the agent do next?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="inspect">Inspect the codebase</Questionnaire.Choice>
+            <Questionnaire.Choice value="implement">Implement the change</Questionnaire.Choice>
+            <Questionnaire.Choice value="review">Review the result</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
         <QuestionnaireNavigation />
-      </Questionnaire>
+      </Questionnaire.Root>
     </Example>
   );
 }
@@ -164,103 +152,103 @@ function QuestionnaireNoDescription() {
 function QuestionnaireCardQuestions() {
   return (
     <>
-      <QuestionnaireItem name="direction" required>
+      <Questionnaire.Item name="direction" required>
         <Card class="mx-auto w-full max-w-lg">
           <CardHeader>
-            <QuestionnaireTitle class="z-card-title z-font-heading">
+            <Questionnaire.Title class="z-card-title z-font-heading">
               What should we prototype next?
-            </QuestionnaireTitle>
-            <QuestionnaireDescription class="z-card-description">
+            </Questionnaire.Title>
+            <Questionnaire.Description class="z-card-description">
               Choose one direction or write another answer.
-            </QuestionnaireDescription>
+            </Questionnaire.Description>
             <CardAction>
-              <QuestionnaireProgress />
+              <Questionnaire.Progress />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <QuestionnaireChoices>
-              <QuestionnaireChoice value="delegation">
+            <Questionnaire.Choices>
+              <Questionnaire.Choice value="delegation">
                 <span class="font-medium">Sub-agent delegation</span>
-                <QuestionnaireChoiceDescription>
+                <Questionnaire.ChoiceDescription>
                   Show when work is delegated and what comes back.
-                </QuestionnaireChoiceDescription>
-              </QuestionnaireChoice>
-              <QuestionnaireChoice value="questions">
+                </Questionnaire.ChoiceDescription>
+              </Questionnaire.Choice>
+              <Questionnaire.Choice value="questions">
                 <span class="font-medium">Question prompts</span>
-                <QuestionnaireChoiceDescription>
+                <Questionnaire.ChoiceDescription>
                   Show choices while the agent waits for input.
-                </QuestionnaireChoiceDescription>
-              </QuestionnaireChoice>
-              <QuestionnaireChoice value="both">
+                </Questionnaire.ChoiceDescription>
+              </Questionnaire.Choice>
+              <Questionnaire.Choice value="both">
                 <span class="font-medium">Both together</span>
-                <QuestionnaireChoiceDescription>
+                <Questionnaire.ChoiceDescription>
                   Explore one unified interaction pattern.
-                </QuestionnaireChoiceDescription>
-              </QuestionnaireChoice>
-              <QuestionnaireInput
+                </Questionnaire.ChoiceDescription>
+              </Questionnaire.Choice>
+              <Questionnaire.Input
                 aria-label="Another direction"
                 placeholder="Type another direction…"
               />
-            </QuestionnaireChoices>
-            <QuestionnaireError />
+            </Questionnaire.Choices>
+            <Questionnaire.Error />
           </CardContent>
           <CardFooter>
             <QuestionnaireNavigation />
           </CardFooter>
         </Card>
-      </QuestionnaireItem>
-      <QuestionnaireItem name="signals" multiple>
+      </Questionnaire.Item>
+      <Questionnaire.Item name="signals" multiple>
         <Card class="mx-auto w-full max-w-lg">
           <CardHeader>
-            <QuestionnaireTitle class="z-card-title z-font-heading">
+            <Questionnaire.Title class="z-card-title z-font-heading">
               What should every progress update include?
-            </QuestionnaireTitle>
-            <QuestionnaireDescription class="z-card-description">
+            </Questionnaire.Title>
+            <Questionnaire.Description class="z-card-description">
               Select all that apply, or skip this question.
-            </QuestionnaireDescription>
+            </Questionnaire.Description>
             <CardAction>
-              <QuestionnaireProgress />
+              <Questionnaire.Progress />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <QuestionnaireChoices>
-              <QuestionnaireChoice value="progress">Progress</QuestionnaireChoice>
-              <QuestionnaireChoice value="decisions">Decisions</QuestionnaireChoice>
-              <QuestionnaireChoice value="risks">Risks</QuestionnaireChoice>
-            </QuestionnaireChoices>
-            <QuestionnaireError />
+            <Questionnaire.Choices>
+              <Questionnaire.Choice value="progress">Progress</Questionnaire.Choice>
+              <Questionnaire.Choice value="decisions">Decisions</Questionnaire.Choice>
+              <Questionnaire.Choice value="risks">Risks</Questionnaire.Choice>
+            </Questionnaire.Choices>
+            <Questionnaire.Error />
           </CardContent>
           <CardFooter>
             <QuestionnaireNavigation />
           </CardFooter>
         </Card>
-      </QuestionnaireItem>
-      <QuestionnaireItem name="timing" required>
+      </Questionnaire.Item>
+      <Questionnaire.Item name="timing" required>
         <Card class="mx-auto w-full max-w-lg">
           <CardHeader>
-            <QuestionnaireTitle class="z-card-title z-font-heading">
+            <Questionnaire.Title class="z-card-title z-font-heading">
               When should this be revisited?
-            </QuestionnaireTitle>
-            <QuestionnaireDescription class="z-card-description">
+            </Questionnaire.Title>
+            <Questionnaire.Description class="z-card-description">
               Choose when this should be revisited.
-            </QuestionnaireDescription>
+            </Questionnaire.Description>
             <CardAction>
-              <QuestionnaireProgress />
+              <Questionnaire.Progress />
             </CardAction>
           </CardHeader>
           <CardContent>
-            <QuestionnaireChoices>
-              <QuestionnaireChoice value="week">This week</QuestionnaireChoice>
-              <QuestionnaireChoice value="cycle">Next cycle</QuestionnaireChoice>
-              <QuestionnaireChoice value="later">Revisit later</QuestionnaireChoice>
-            </QuestionnaireChoices>
-            <QuestionnaireError />
+            <Questionnaire.Choices>
+              <Questionnaire.Choice value="week">This week</Questionnaire.Choice>
+              <Questionnaire.Choice value="cycle">Next cycle</Questionnaire.Choice>
+              <Questionnaire.Choice value="later">Revisit later</Questionnaire.Choice>
+            </Questionnaire.Choices>
+            <Questionnaire.Error />
           </CardContent>
           <CardFooter>
             <QuestionnaireNavigation />
           </CardFooter>
         </Card>
-      </QuestionnaireItem>
+      </Questionnaire.Item>
     </>
   );
 }
@@ -268,71 +256,71 @@ function QuestionnaireCardQuestions() {
 function QuestionnaireQuestions() {
   return (
     <>
-      <QuestionnaireItem name="direction" required>
-        <QuestionnaireTitle>What should we prototype next?</QuestionnaireTitle>
-        <QuestionnaireDescription>
+      <Questionnaire.Item name="direction" required>
+        <Questionnaire.Title>What should we prototype next?</Questionnaire.Title>
+        <Questionnaire.Description>
           Choose one direction or write another answer.
-        </QuestionnaireDescription>
-        <QuestionnaireChoices>
-          <QuestionnaireChoice value="delegation">
+        </Questionnaire.Description>
+        <Questionnaire.Choices>
+          <Questionnaire.Choice value="delegation">
             <span class="font-medium">Sub-agent delegation</span>
-            <QuestionnaireChoiceDescription>
+            <Questionnaire.ChoiceDescription>
               Show when work is delegated and what comes back.
-            </QuestionnaireChoiceDescription>
-          </QuestionnaireChoice>
-          <QuestionnaireChoice value="questions">
+            </Questionnaire.ChoiceDescription>
+          </Questionnaire.Choice>
+          <Questionnaire.Choice value="questions">
             <span class="font-medium">Question prompts</span>
-            <QuestionnaireChoiceDescription>
+            <Questionnaire.ChoiceDescription>
               Show choices while the agent waits for input.
-            </QuestionnaireChoiceDescription>
-          </QuestionnaireChoice>
-          <QuestionnaireChoice value="both">
+            </Questionnaire.ChoiceDescription>
+          </Questionnaire.Choice>
+          <Questionnaire.Choice value="both">
             <span class="font-medium">Both together</span>
-            <QuestionnaireChoiceDescription>
+            <Questionnaire.ChoiceDescription>
               Explore one unified interaction pattern.
-            </QuestionnaireChoiceDescription>
-          </QuestionnaireChoice>
-          <QuestionnaireInput
+            </Questionnaire.ChoiceDescription>
+          </Questionnaire.Choice>
+          <Questionnaire.Input
             aria-label="Another direction"
             placeholder="Type another direction…"
           />
-        </QuestionnaireChoices>
-        <QuestionnaireError />
-      </QuestionnaireItem>
-      <QuestionnaireItem name="signals" multiple>
-        <QuestionnaireTitle>What should every progress update include?</QuestionnaireTitle>
-        <QuestionnaireDescription>
+        </Questionnaire.Choices>
+        <Questionnaire.Error />
+      </Questionnaire.Item>
+      <Questionnaire.Item name="signals" multiple>
+        <Questionnaire.Title>What should every progress update include?</Questionnaire.Title>
+        <Questionnaire.Description>
           Select all that apply, or skip this question.
-        </QuestionnaireDescription>
-        <QuestionnaireChoices>
-          <QuestionnaireChoice value="progress">Progress</QuestionnaireChoice>
-          <QuestionnaireChoice value="decisions">Decisions</QuestionnaireChoice>
-          <QuestionnaireChoice value="risks">Risks</QuestionnaireChoice>
-        </QuestionnaireChoices>
-        <QuestionnaireError />
-      </QuestionnaireItem>
-      <QuestionnaireItem name="timing" required>
-        <QuestionnaireTitle>When should this be revisited?</QuestionnaireTitle>
-        <QuestionnaireDescription>Choose when this should be revisited.</QuestionnaireDescription>
-        <QuestionnaireChoices>
-          <QuestionnaireChoice value="week">This week</QuestionnaireChoice>
-          <QuestionnaireChoice value="cycle">Next cycle</QuestionnaireChoice>
-          <QuestionnaireChoice value="later">Revisit later</QuestionnaireChoice>
-        </QuestionnaireChoices>
-        <QuestionnaireError />
-      </QuestionnaireItem>
+        </Questionnaire.Description>
+        <Questionnaire.Choices>
+          <Questionnaire.Choice value="progress">Progress</Questionnaire.Choice>
+          <Questionnaire.Choice value="decisions">Decisions</Questionnaire.Choice>
+          <Questionnaire.Choice value="risks">Risks</Questionnaire.Choice>
+        </Questionnaire.Choices>
+        <Questionnaire.Error />
+      </Questionnaire.Item>
+      <Questionnaire.Item name="timing" required>
+        <Questionnaire.Title>When should this be revisited?</Questionnaire.Title>
+        <Questionnaire.Description>Choose when this should be revisited.</Questionnaire.Description>
+        <Questionnaire.Choices>
+          <Questionnaire.Choice value="week">This week</Questionnaire.Choice>
+          <Questionnaire.Choice value="cycle">Next cycle</Questionnaire.Choice>
+          <Questionnaire.Choice value="later">Revisit later</Questionnaire.Choice>
+        </Questionnaire.Choices>
+        <Questionnaire.Error />
+      </Questionnaire.Item>
     </>
   );
 }
 
 function QuestionnaireNavigation() {
   return (
-    <QuestionnaireActions class="w-full">
-      <QuestionnairePrevious />
-      <QuestionnaireSkip />
-      <QuestionnaireNext>Next</QuestionnaireNext>
-      <QuestionnaireSubmit>Save answers</QuestionnaireSubmit>
-    </QuestionnaireActions>
+    <Questionnaire.Actions class="w-full">
+      <Questionnaire.Previous />
+      <Questionnaire.Skip />
+      <Questionnaire.Next>Next</Questionnaire.Next>
+      <Questionnaire.Submit>Save answers</Questionnaire.Submit>
+    </Questionnaire.Actions>
   );
 }
 

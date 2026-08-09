@@ -1,28 +1,27 @@
 import { For } from "solid-js";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/registry/kobalte/ui/hover-card";
 import {
   MessageScroller,
-  MessageScrollerProvider,
   useMessageScroller,
   useMessageScrollerVisibility,
-} from "@/registry/kobalte/ui/message-scroller";
+} from "@/registry/kobalte/blocks/message-scroller";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/registry/kobalte/ui/hover-card";
 import { DemoCard, Transcript, transcript } from "./message-scroller-utils";
 
 export default function MessageScrollerVisibility() {
   return (
-    <MessageScrollerProvider scrollMargin={12}>
+    <MessageScroller.Provider scrollMargin={12}>
       <DemoCard
         title="Transcript Outline"
         description="Track and jump to the current anchored turn."
       >
         <div class="relative h-full">
-          <MessageScroller>
+          <MessageScroller.Root>
             <Transcript anchor={(message) => message.role === "user"} />
-          </MessageScroller>
+          </MessageScroller.Root>
           <TranscriptOutline />
         </div>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }
 

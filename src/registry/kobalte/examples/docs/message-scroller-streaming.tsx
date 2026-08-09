@@ -1,8 +1,8 @@
 import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
 import { createSignal, onCleanup } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { MessageScroller, MessageScrollerProvider } from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
 
 const answer =
@@ -42,7 +42,7 @@ export default function MessageScrollerStreaming() {
     }, 60);
   };
   return (
-    <MessageScrollerProvider autoScroll>
+    <MessageScroller.Provider autoScroll>
       <DemoCard
         title="Streaming Messages"
         description="The live edge follows streamed output until the reader opts out."
@@ -64,10 +64,10 @@ export default function MessageScrollerStreaming() {
           </div>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript messages={messages} anchor={(message) => message.role === "user"} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }

@@ -2,21 +2,8 @@ import { createSignal } from "solid-js";
 import { toast } from "solid-sonner";
 import {
   Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireInput,
-  QuestionnaireItem,
   type QuestionnaireItemStatus,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSkip,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+} from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -50,67 +37,69 @@ export default function QuestionnaireSkipDemo() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="task"
         items={items}
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
 
-        <QuestionnaireItem name="task" required>
-          <QuestionnaireTitle>What kind of change is this?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="task" required>
+          <Questionnaire.Title>What kind of change is this?</Questionnaire.Title>
+          <Questionnaire.Description>
             Choose the category that best describes the work.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="feature">New feature</QuestionnaireChoice>
-            <QuestionnaireChoice value="fix">Bug fix</QuestionnaireChoice>
-            <QuestionnaireChoice value="refactor">Refactor</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="feature">New feature</Questionnaire.Choice>
+            <Questionnaire.Choice value="fix">Bug fix</Questionnaire.Choice>
+            <Questionnaire.Choice value="refactor">Refactor</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="constraints" onStatusChange={setConstraintStatus}>
-          <QuestionnaireTitle>Are there any implementation constraints?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="constraints" onStatusChange={setConstraintStatus}>
+          <Questionnaire.Title>Are there any implementation constraints?</Questionnaire.Title>
+          <Questionnaire.Description>
             Answer if needed, or intentionally skip this question.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="no-dependencies">
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="no-dependencies">
               Do not add dependencies
-            </QuestionnaireChoice>
-            <QuestionnaireChoice value="no-migrations">
+            </Questionnaire.Choice>
+            <Questionnaire.Choice value="no-migrations">
               Do not change the database
-            </QuestionnaireChoice>
-            <QuestionnaireChoice value="preserve-api">Preserve the public API</QuestionnaireChoice>
-            <QuestionnaireInput
+            </Questionnaire.Choice>
+            <Questionnaire.Choice value="preserve-api">
+              Preserve the public API
+            </Questionnaire.Choice>
+            <Questionnaire.Input
               aria-label="Another implementation constraint"
               placeholder="Describe another constraint…"
             />
-          </QuestionnaireChoices>
-        </QuestionnaireItem>
+          </Questionnaire.Choices>
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="review" required>
-          <QuestionnaireTitle>How should the work be reviewed?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="review" required>
+          <Questionnaire.Title>How should the work be reviewed?</Questionnaire.Title>
+          <Questionnaire.Description>
             Choose the checks the agent should complete before handoff.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="tests">Run the test suite</QuestionnaireChoice>
-            <QuestionnaireChoice value="diff">Review the final diff</QuestionnaireChoice>
-            <QuestionnaireChoice value="both">Tests and diff review</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="tests">Run the test suite</Questionnaire.Choice>
+            <Questionnaire.Choice value="diff">Review the final diff</Questionnaire.Choice>
+            <Questionnaire.Choice value="both">Tests and diff review</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnairePrevious />
-          <QuestionnaireSkip />
-          <QuestionnaireNext>Next</QuestionnaireNext>
-          <QuestionnaireSubmit>Submit brief</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Previous />
+          <Questionnaire.Skip />
+          <Questionnaire.Next>Next</Questionnaire.Next>
+          <Questionnaire.Submit>Submit brief</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </>
   );
 }

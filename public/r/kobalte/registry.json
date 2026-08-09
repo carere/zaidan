@@ -1583,13 +1583,56 @@
     },
     {
       "name": "message-scroller",
-      "type": "registry:ui",
+      "type": "registry:block",
+      "title": "Message Scroller",
+      "description": "A chat scroll container that anchors turns, opens saved transcripts, follows streamed responses, loads history without jumping, and jumps to any message.",
       "dependencies": ["lucide-solid"],
       "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
-          "path": "src/registry/kobalte/ui/message-scroller.tsx",
-          "type": "registry:ui"
+          "path": "src/registry/kobalte/blocks/message-scroller/index.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/index.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/components.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/components.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/geometry.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/geometry.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/stores.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/stores.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/types.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/use-message-scroller-commands.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/use-message-scroller-commands.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/use-message-scroller-controller.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/use-message-scroller-controller.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/use-message-scroller-refs.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/use-message-scroller-refs.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/message-scroller/utils.ts",
+          "type": "registry:component",
+          "target": "components/blocks/message-scroller/utils.ts"
         }
       ]
     },
@@ -1679,13 +1722,61 @@
     },
     {
       "name": "questionnaire",
-      "type": "registry:ui",
+      "type": "registry:block",
+      "title": "Questionnaire",
+      "description": "A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions.",
       "dependencies": ["lucide-solid"],
       "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
       "files": [
         {
-          "path": "src/registry/kobalte/ui/questionnaire.tsx",
-          "type": "registry:ui"
+          "path": "src/registry/kobalte/blocks/questionnaire/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/collection.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/collection.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/components.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/components.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/context.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/context.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/types.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/use-questionnaire-choice.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/use-questionnaire-choice.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/use-questionnaire-input.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/use-questionnaire-input.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/use-questionnaire-item.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/use-questionnaire-item.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/use-questionnaire-root.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/use-questionnaire-root.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/questionnaire/utils.ts",
+          "type": "registry:component",
+          "target": "components/blocks/questionnaire/utils.ts"
         }
       ]
     },

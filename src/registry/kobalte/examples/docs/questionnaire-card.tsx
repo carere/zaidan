@@ -1,19 +1,6 @@
 import { toast } from "solid-sonner";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@/registry/kobalte/ui/card";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -43,7 +30,7 @@ export default function QuestionnaireCard() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="task"
         items={items}
@@ -51,59 +38,63 @@ export default function QuestionnaireCard() {
         onSubmit={handleSubmit}
       >
         <Card>
-          <QuestionnaireItem name="task" required>
+          <Questionnaire.Item name="task" required>
             <CardHeader>
-              <QuestionnaireTitle class="z-card-title z-font-heading">
+              <Questionnaire.Title class="z-card-title z-font-heading">
                 What should the agent work on?
-              </QuestionnaireTitle>
-              <QuestionnaireDescription class="z-card-description">
+              </Questionnaire.Title>
+              <Questionnaire.Description class="z-card-description">
                 Choose the task that should be handled next.
-              </QuestionnaireDescription>
+              </Questionnaire.Description>
               <CardAction>
-                <QuestionnaireProgress />
+                <Questionnaire.Progress />
               </CardAction>
             </CardHeader>
             <CardContent>
-              <QuestionnaireChoices>
-                <QuestionnaireChoice value="fix">Fix the failing tests</QuestionnaireChoice>
-                <QuestionnaireChoice value="refactor">Refactor the data layer</QuestionnaireChoice>
-                <QuestionnaireChoice value="docs">Update the integration guide</QuestionnaireChoice>
-              </QuestionnaireChoices>
-              <QuestionnaireError />
+              <Questionnaire.Choices>
+                <Questionnaire.Choice value="fix">Fix the failing tests</Questionnaire.Choice>
+                <Questionnaire.Choice value="refactor">
+                  Refactor the data layer
+                </Questionnaire.Choice>
+                <Questionnaire.Choice value="docs">
+                  Update the integration guide
+                </Questionnaire.Choice>
+              </Questionnaire.Choices>
+              <Questionnaire.Error />
             </CardContent>
-          </QuestionnaireItem>
+          </Questionnaire.Item>
 
-          <QuestionnaireItem name="output" required>
+          <Questionnaire.Item name="output" required>
             <CardHeader>
-              <QuestionnaireTitle class="z-card-title z-font-heading">
+              <Questionnaire.Title class="z-card-title z-font-heading">
                 What should the final handoff include?
-              </QuestionnaireTitle>
-              <QuestionnaireDescription class="z-card-description">
+              </Questionnaire.Title>
+              <Questionnaire.Description class="z-card-description">
                 Pick the level of detail needed for review.
-              </QuestionnaireDescription>
+              </Questionnaire.Description>
               <CardAction>
-                <QuestionnaireProgress />
+                <Questionnaire.Progress />
               </CardAction>
             </CardHeader>
             <CardContent>
-              <QuestionnaireChoices>
-                <QuestionnaireChoice value="summary">Summary only</QuestionnaireChoice>
-                <QuestionnaireChoice value="files">Summary and changed files</QuestionnaireChoice>
-                <QuestionnaireChoice value="review">Full review handoff</QuestionnaireChoice>
-              </QuestionnaireChoices>
-              <QuestionnaireError />
+              <Questionnaire.Choices>
+                <Questionnaire.Choice value="summary">Summary only</Questionnaire.Choice>
+                <Questionnaire.Choice value="files">Summary and changed files</Questionnaire.Choice>
+                <Questionnaire.Choice value="review">Full review handoff</Questionnaire.Choice>
+              </Questionnaire.Choices>
+              <Questionnaire.Error />
             </CardContent>
-          </QuestionnaireItem>
+          </Questionnaire.Item>
 
           <CardFooter>
-            <QuestionnaireActions class="w-full">
-              <QuestionnairePrevious />
-              <QuestionnaireNext>Next</QuestionnaireNext>
-              <QuestionnaireSubmit>Create task</QuestionnaireSubmit>
-            </QuestionnaireActions>
+            <Questionnaire.Actions class="w-full">
+              <Questionnaire.Previous />
+              <Questionnaire.Next>Next</Questionnaire.Next>
+              <Questionnaire.Submit>Create task</Questionnaire.Submit>
+            </Questionnaire.Actions>
           </CardFooter>
         </Card>
-      </Questionnaire>
+      </Questionnaire.Root>
     </>
   );
 }

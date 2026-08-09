@@ -1,5 +1,6 @@
 import { createSignal } from "solid-js";
 import { toast } from "solid-sonner";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Dialog,
@@ -9,20 +10,6 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/registry/kobalte/ui/dialog";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -52,58 +39,60 @@ export default function QuestionnaireDialog() {
           Open clarification
         </DialogTrigger>
         <DialogContent>
-          <Questionnaire defaultItem="scope" items={items} onSubmit={handleSubmit}>
-            <QuestionnaireItem name="scope" required>
+          <Questionnaire.Root defaultItem="scope" items={items} onSubmit={handleSubmit}>
+            <Questionnaire.Item name="scope" required>
               <DialogHeader>
-                <QuestionnaireProgress />
-                <QuestionnaireTitle class="z-dialog-title z-font-heading">
+                <Questionnaire.Progress />
+                <Questionnaire.Title class="z-dialog-title z-font-heading">
                   Which files are in scope?
-                </QuestionnaireTitle>
-                <QuestionnaireDescription class="z-dialog-description">
+                </Questionnaire.Title>
+                <Questionnaire.Description class="z-dialog-description">
                   Choose how broadly the agent can update the workspace.
-                </QuestionnaireDescription>
+                </Questionnaire.Description>
               </DialogHeader>
-              <QuestionnaireChoices>
-                <QuestionnaireChoice value="component">Component only</QuestionnaireChoice>
-                <QuestionnaireChoice value="feature">
+              <Questionnaire.Choices>
+                <Questionnaire.Choice value="component">Component only</Questionnaire.Choice>
+                <Questionnaire.Choice value="feature">
                   Complete feature directory
-                </QuestionnaireChoice>
-                <QuestionnaireChoice value="workspace">
+                </Questionnaire.Choice>
+                <Questionnaire.Choice value="workspace">
                   Any related workspace file
-                </QuestionnaireChoice>
-              </QuestionnaireChoices>
-              <QuestionnaireError />
-            </QuestionnaireItem>
+                </Questionnaire.Choice>
+              </Questionnaire.Choices>
+              <Questionnaire.Error />
+            </Questionnaire.Item>
 
-            <QuestionnaireItem name="tests" required>
+            <Questionnaire.Item name="tests" required>
               <DialogHeader>
-                <QuestionnaireProgress />
-                <QuestionnaireTitle class="z-dialog-title z-font-heading">
+                <Questionnaire.Progress />
+                <Questionnaire.Title class="z-dialog-title z-font-heading">
                   How much verification is needed?
-                </QuestionnaireTitle>
-                <QuestionnaireDescription class="z-dialog-description">
+                </Questionnaire.Title>
+                <Questionnaire.Description class="z-dialog-description">
                   Choose the checks the agent should run before handoff.
-                </QuestionnaireDescription>
+                </Questionnaire.Description>
               </DialogHeader>
-              <QuestionnaireChoices>
-                <QuestionnaireChoice value="targeted">Targeted tests</QuestionnaireChoice>
-                <QuestionnaireChoice value="package">Package tests</QuestionnaireChoice>
-                <QuestionnaireChoice value="full">Full workspace verification</QuestionnaireChoice>
-              </QuestionnaireChoices>
-              <QuestionnaireError />
-            </QuestionnaireItem>
+              <Questionnaire.Choices>
+                <Questionnaire.Choice value="targeted">Targeted tests</Questionnaire.Choice>
+                <Questionnaire.Choice value="package">Package tests</Questionnaire.Choice>
+                <Questionnaire.Choice value="full">
+                  Full workspace verification
+                </Questionnaire.Choice>
+              </Questionnaire.Choices>
+              <Questionnaire.Error />
+            </Questionnaire.Item>
 
             <DialogFooter>
               <DialogClose as={Button} type="button" variant="outline">
                 Cancel
               </DialogClose>
-              <QuestionnaireActions>
-                <QuestionnairePrevious />
-                <QuestionnaireNext>Next</QuestionnaireNext>
-                <QuestionnaireSubmit>Send answer</QuestionnaireSubmit>
-              </QuestionnaireActions>
+              <Questionnaire.Actions>
+                <Questionnaire.Previous />
+                <Questionnaire.Next>Next</Questionnaire.Next>
+                <Questionnaire.Submit>Send answer</Questionnaire.Submit>
+              </Questionnaire.Actions>
             </DialogFooter>
-          </Questionnaire>
+          </Questionnaire.Root>
         </DialogContent>
       </Dialog>
     </>

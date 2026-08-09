@@ -2,6 +2,7 @@ import { ArrowUp, Square } from "lucide-solid";
 import { createSignal, For, onCleanup, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { Example, ExampleWrapper } from "@/components/example";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Bubble, BubbleContent } from "@/registry/kobalte/ui/bubble";
 import {
   Card,
@@ -17,14 +18,6 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/registry/kobalte/ui/input-group";
-import {
-  MessageScroller,
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-} from "@/registry/kobalte/ui/message-scroller";
 import { Spinner } from "@/registry/kobalte/ui/spinner";
 
 type ChatMessage = {
@@ -155,13 +148,13 @@ function MessageScrollerDemo() {
           <CardDescription>Status: {status()}</CardDescription>
         </CardHeader>
         <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
-          <MessageScrollerProvider autoScroll>
-            <MessageScroller>
-              <MessageScrollerViewport>
-                <MessageScrollerContent aria-busy={isBusy()} class="gap-4 p-(--card-spacing)">
+          <MessageScroller.Provider autoScroll>
+            <MessageScroller.Root>
+              <MessageScroller.Viewport>
+                <MessageScroller.Content aria-busy={isBusy()} class="gap-4 p-(--card-spacing)">
                   <For each={messages}>
                     {(message) => (
-                      <MessageScrollerItem
+                      <MessageScroller.Item
                         messageId={message.id}
                         scrollAnchor={message.role === "user"}
                         class={message.role === "user" ? "flex justify-end" : undefined}
@@ -172,11 +165,11 @@ function MessageScrollerDemo() {
                         >
                           <BubbleContent class="whitespace-pre-wrap">{message.text}</BubbleContent>
                         </Bubble>
-                      </MessageScrollerItem>
+                      </MessageScroller.Item>
                     )}
                   </For>
                   <Show when={status() === "submitted"}>
-                    <MessageScrollerItem scrollAnchor={false}>
+                    <MessageScroller.Item scrollAnchor={false}>
                       <div
                         class="flex items-center gap-2 text-muted-foreground text-sm"
                         role="status"
@@ -184,13 +177,13 @@ function MessageScrollerDemo() {
                         <Spinner />
                         Thinking...
                       </div>
-                    </MessageScrollerItem>
+                    </MessageScroller.Item>
                   </Show>
-                </MessageScrollerContent>
-              </MessageScrollerViewport>
-              <MessageScrollerButton />
-            </MessageScroller>
-          </MessageScrollerProvider>
+                </MessageScroller.Content>
+              </MessageScroller.Viewport>
+              <MessageScroller.Button />
+            </MessageScroller.Root>
+          </MessageScroller.Provider>
         </CardContent>
         <CardFooter>
           <form

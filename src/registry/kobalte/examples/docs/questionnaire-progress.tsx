@@ -1,18 +1,6 @@
 import { Index } from "solid-js";
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -36,13 +24,13 @@ export default function QuestionnaireProgressDemo() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="scope"
         items={items}
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress class="w-full">
+        <Questionnaire.Progress class="w-full">
           {(state) => (
             <>
               <div class="mb-2 flex gap-1.5" aria-hidden="true">
@@ -63,54 +51,54 @@ export default function QuestionnaireProgressDemo() {
               </span>
             </>
           )}
-        </QuestionnaireProgress>
+        </Questionnaire.Progress>
 
-        <QuestionnaireItem name="scope" required>
-          <QuestionnaireTitle>How large is the change?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="small">Small patch</QuestionnaireChoice>
-            <QuestionnaireChoice value="medium">Feature-sized change</QuestionnaireChoice>
-            <QuestionnaireChoice value="large">Cross-package change</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="scope" required>
+          <Questionnaire.Title>How large is the change?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="small">Small patch</Questionnaire.Choice>
+            <Questionnaire.Choice value="medium">Feature-sized change</Questionnaire.Choice>
+            <Questionnaire.Choice value="large">Cross-package change</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="strategy" required>
-          <QuestionnaireTitle>How should commits be organized?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="single">Single commit</QuestionnaireChoice>
-            <QuestionnaireChoice value="logical">Logical commits</QuestionnaireChoice>
-            <QuestionnaireChoice value="squash">Squash before review</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="strategy" required>
+          <Questionnaire.Title>How should commits be organized?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="single">Single commit</Questionnaire.Choice>
+            <Questionnaire.Choice value="logical">Logical commits</Questionnaire.Choice>
+            <Questionnaire.Choice value="squash">Squash before review</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="tests" required>
-          <QuestionnaireTitle>Which tests should run?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="targeted">Targeted tests</QuestionnaireChoice>
-            <QuestionnaireChoice value="package">Package suite</QuestionnaireChoice>
-            <QuestionnaireChoice value="workspace">Full workspace</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="tests" required>
+          <Questionnaire.Title>Which tests should run?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="targeted">Targeted tests</Questionnaire.Choice>
+            <Questionnaire.Choice value="package">Package suite</Questionnaire.Choice>
+            <Questionnaire.Choice value="workspace">Full workspace</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="delivery" required>
-          <QuestionnaireTitle>How should the work be delivered?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="patch">Patch only</QuestionnaireChoice>
-            <QuestionnaireChoice value="commit">Committed locally</QuestionnaireChoice>
-            <QuestionnaireChoice value="branch">Push a review branch</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="delivery" required>
+          <Questionnaire.Title>How should the work be delivered?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="patch">Patch only</Questionnaire.Choice>
+            <Questionnaire.Choice value="commit">Committed locally</Questionnaire.Choice>
+            <Questionnaire.Choice value="branch">Push a review branch</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnairePrevious />
-          <QuestionnaireNext>Next</QuestionnaireNext>
-          <QuestionnaireSubmit>Finish plan</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Previous />
+          <Questionnaire.Next>Next</Questionnaire.Next>
+          <Questionnaire.Submit>Finish plan</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </>
   );
 }

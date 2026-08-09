@@ -2,72 +2,41 @@
 title: Questionnaire
 slug: questionnaire
 description: A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions.
-component: true
 ---
+
+# Questionnaire
+
+The Questionnaire block renders a multi-step question flow as a single form. Use it for
+agent clarification prompts, onboarding, surveys, intake forms, and configuration.
 
 <ComponentPreview name="questionnaire-demo" align="end" previewClass="min-h-[560px] p-4 sm:p-8" />
 
-The `Questionnaire` component renders a multi-step question flow as a single form. Use it for
-agent clarification prompts, onboarding, surveys, intake forms, and configuration.
-
 ## Installation
 
-<CodeTabs>
-
-<TabsList variant="line" class="gap-6">
-  <TabsTrigger value="cli">Command</TabsTrigger>
-  <TabsTrigger value="manual">Manual</TabsTrigger>
-</TabsList>
-
-<TabsContent value="cli">
+### CLI
 
 ```package-dlx
 shadcn@latest add @zaidan/questionnaire
 ```
 
-</TabsContent>
+### Manual
 
-<TabsContent value="manual">
-
-<Steps class="mb-0 pt-2">
-
-<Step>Install the following dependency:</Step>
+Install the following dependency:
 
 ```package-install
 lucide-solid
 ```
 
-<Step>Copy and paste the following code into your project.</Step>
+Copy the questionnaire folder into your project.
 
-<ComponentSource name="questionnaire" title="components/ui/questionnaire.tsx" />
+```tsx file=../../../registry/kobalte/blocks/questionnaire/index.tsx showLineNumbers
 
-<Step>Update the import paths to match your project setup.</Step>
-
-</Steps>
-
-</TabsContent>
-
-</CodeTabs>
+```
 
 ## Usage
 
 ```tsx showLineNumbers
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireInput,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSkip,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "~/components/ui/questionnaire";
+import { Questionnaire } from "~/components/blocks/questionnaire";
 ```
 
 ```tsx showLineNumbers
@@ -105,45 +74,45 @@ const items = [
 ] as const;
 ```
 
-Define the collection once: pass it to `Questionnaire` for progress, actions, and shortcuts, then
-map it into the parts.
+Define the collection once: pass it to `Questionnaire.Root` for progress, actions, and shortcuts,
+then map it into the parts.
 
 ```tsx showLineNumbers
-<Questionnaire items={items} onSubmit={handleSubmit}>
-  <QuestionnaireProgress />
+<Questionnaire.Root items={items} onSubmit={handleSubmit}>
+  <Questionnaire.Progress />
   <For each={items}>
     {(question) => (
-      <QuestionnaireItem name={question.name} required={question.required}>
-        <QuestionnaireTitle>{question.prompt}</QuestionnaireTitle>
-        <QuestionnaireDescription>{question.description}</QuestionnaireDescription>
-        <QuestionnaireChoices>
+      <Questionnaire.Item name={question.name} required={question.required}>
+        <Questionnaire.Title>{question.prompt}</Questionnaire.Title>
+        <Questionnaire.Description>{question.description}</Questionnaire.Description>
+        <Questionnaire.Choices>
           <For each={question.choices}>
             {(choice) => (
-              <QuestionnaireChoice value={choice.value}>
+              <Questionnaire.Choice value={choice.value}>
                 <span class="font-medium">{choice.label}</span>
                 <Show when={"description" in choice ? choice.description : undefined}>
                   <span class="text-muted-foreground">{choice.description}</span>
                 </Show>
-              </QuestionnaireChoice>
+              </Questionnaire.Choice>
             )}
           </For>
           <Show when={"input" in question ? question.input : undefined}>
             {(input) => (
-              <QuestionnaireInput aria-label={input().label} placeholder={input().placeholder} />
+              <Questionnaire.Input aria-label={input().label} placeholder={input().placeholder} />
             )}
           </Show>
-        </QuestionnaireChoices>
-        <QuestionnaireError />
-      </QuestionnaireItem>
+        </Questionnaire.Choices>
+        <Questionnaire.Error />
+      </Questionnaire.Item>
     )}
   </For>
-  <QuestionnaireActions>
-    <QuestionnairePrevious />
-    <QuestionnaireSkip />
-    <QuestionnaireNext />
-    <QuestionnaireSubmit />
-  </QuestionnaireActions>
-</Questionnaire>
+  <Questionnaire.Actions>
+    <Questionnaire.Previous />
+    <Questionnaire.Skip />
+    <Questionnaire.Next />
+    <Questionnaire.Submit />
+  </Questionnaire.Actions>
+</Questionnaire.Root>
 ```
 
 The answers submit as regular form data:
@@ -161,26 +130,30 @@ function handleSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
 Use the following composition to build a questionnaire:
 
 ```text
-Questionnaire
-├── QuestionnaireProgress
-├── QuestionnaireItem
-│   ├── QuestionnaireTitle
-│   ├── QuestionnaireDescription
-│   ├── QuestionnaireChoices
-│   │   ├── QuestionnaireChoice
-│   │   │   └── QuestionnaireChoiceDescription
-│   │   └── QuestionnaireInput
-│   └── QuestionnaireError
-└── QuestionnaireActions
-    ├── QuestionnairePrevious
-    ├── QuestionnaireSkip
-    ├── QuestionnaireNext
-    └── QuestionnaireSubmit
+Questionnaire.Root
+├── Questionnaire.Progress
+├── Questionnaire.Item
+│   ├── Questionnaire.Title
+│   ├── Questionnaire.Description
+│   ├── Questionnaire.Choices
+│   │   ├── Questionnaire.Choice
+│   │   │   └── Questionnaire.ChoiceDescription
+│   │   └── Questionnaire.Input
+│   └── Questionnaire.Error
+└── Questionnaire.Actions
+    ├── Questionnaire.Previous
+    ├── Questionnaire.Skip
+    ├── Questionnaire.Next
+    └── Questionnaire.Submit
 ```
 
-`Questionnaire` owns the ordered items, active item, answer state, validation, progress, and
+`Questionnaire.Root` owns the ordered items, active item, answer state, validation, progress, and
 navigation. The containing page, card, dialog, or drawer owns close and cancellation behavior,
 persistence, transport, and branching.
+
+`Questionnaire.Choice` renders its native input, indicator, label, and shortcut parts by default.
+The `Questionnaire.ChoiceInput`, `Questionnaire.ChoiceLabel`, and `Questionnaire.ChoiceShortcut`
+sub-parts are also exported for custom compositions that read the choice state.
 
 ## Multiple Selection
 
@@ -190,13 +163,13 @@ Use `multiple` for an item that accepts more than one fixed answer.
 
 ## Freeform Answer
 
-Compose `QuestionnaireInput` with fixed choices when the user can provide another answer.
+Compose `Questionnaire.Input` with fixed choices when the user can provide another answer.
 
 <ComponentPreview name="questionnaire-freeform" align="end" previewClass="min-h-[420px] p-4 sm:p-8" />
 
 ## Explicit Skip
 
-Add `QuestionnaireSkip` when an optional item may be intentionally left unanswered.
+Add `Questionnaire.Skip` when an optional item may be intentionally left unanswered.
 
 <ComponentPreview name="questionnaire-skip" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
 
@@ -239,7 +212,7 @@ Read item status to opt into disabled navigation and custom action styling.
 
 ## Custom Progress
 
-Pass a function child to `QuestionnaireProgress` to build a custom progress indicator from the
+Pass a function child to `Questionnaire.Progress` to build a custom progress indicator from the
 root state.
 
 <ComponentPreview name="questionnaire-progress" align="end" previewClass="min-h-[520px] p-4 sm:p-8" />
@@ -273,7 +246,7 @@ Compose Questionnaire inside a Dialog while keeping cancellation and dismissal h
 
 ## Accessibility
 
-`QuestionnaireItem` renders a `fieldset`, and `QuestionnaireTitle` renders its `legend`.
+`Questionnaire.Item` renders a `fieldset`, and `Questionnaire.Title` renders its `legend`.
 Descriptions and active errors are associated with the current item, and invalid items and answer
 controls expose `aria-invalid`.
 
@@ -282,14 +255,14 @@ progressbar, navigation uses real buttons, and inactive items and actions are hi
 Successful navigation focuses the newly active item; failed validation focuses an available
 answer control.
 
-Always give `QuestionnaireInput` an accessible name with a visible label, `aria-label`, or
+Always give `Questionnaire.Input` an accessible name with a visible label, `aria-label`, or
 `aria-labelledby`. A placeholder is not a label.
 
 ## API Reference
 
-The state and behavior are implemented in the component file itself: every part exposes its state
+The state and behavior are implemented in the block itself: every part exposes its state
 through `data-*` attributes such as `data-active`, `data-status`, `data-checked`, `data-filled`,
 and `data-visible`. Navigation components also accept Button `size` and `variant` props, and
-`QuestionnaireActions` is a styled-only layout helper. Use the exported `useQuestionnaire`
-accessor inside a `Questionnaire` to read `current`, `total`, `first`, `last`, and
+`Questionnaire.Actions` is a styled-only layout helper. Use the exported `useQuestionnaire`
+accessor inside a `Questionnaire.Root` to read `current`, `total`, `first`, `last`, and
 `activeItemStatus` for custom composition.

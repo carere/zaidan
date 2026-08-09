@@ -1,8 +1,7 @@
 import {
   MessageScroller,
-  MessageScrollerProvider,
   useMessageScrollerScrollable,
-} from "@/registry/kobalte/ui/message-scroller";
+} from "@/registry/kobalte/blocks/message-scroller";
 import { DemoCard, type DemoMessage, Transcript } from "./message-scroller-utils";
 
 const messages: DemoMessage[] = Array.from({ length: 12 }, (_, index) => ({
@@ -16,17 +15,17 @@ const messages: DemoMessage[] = Array.from({ length: 12 }, (_, index) => ({
 
 export default function MessageScrollerScrollable() {
   return (
-    <MessageScrollerProvider defaultScrollPosition="start">
+    <MessageScroller.Provider defaultScrollPosition="start">
       <DemoCard
         title="Scroll Status"
         description="Read which edge the viewport can still scroll toward."
         footer={<ScrollStatus />}
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript messages={messages} anchor={(message) => message.role === "user"} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }
 

@@ -34,7 +34,7 @@ describe("Questionnaire documentation", () => {
       const demo = await readFile(demoPath, "utf8");
 
       expect(demo).toContain("export default function");
-      expect(demo).toContain('from "@/registry/kobalte/ui/questionnaire"');
+      expect(demo).toContain('from "@/registry/kobalte/blocks/questionnaire"');
       expect(demo).not.toContain('from "react"');
       expect(demo).not.toContain('from "lucide-react"');
       expect(demo).not.toContain('from "sonner"');

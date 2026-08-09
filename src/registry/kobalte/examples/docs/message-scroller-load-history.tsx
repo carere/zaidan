@@ -1,7 +1,7 @@
 import { RotateCwIcon } from "lucide-solid";
 import { createSignal } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { MessageScroller, MessageScrollerProvider } from "@/registry/kobalte/ui/message-scroller";
 import { DemoCard, Transcript, transcript } from "./message-scroller-utils";
 
 export default function MessageScrollerLoadHistory() {
@@ -9,7 +9,7 @@ export default function MessageScrollerLoadHistory() {
   const visible = () => transcript.slice(-visibleCount());
   const loaded = () => visibleCount() === transcript.length;
   return (
-    <MessageScrollerProvider>
+    <MessageScroller.Provider>
       <DemoCard
         title="Load History"
         description="Prepending rows preserves the conversation already in view."
@@ -35,10 +35,10 @@ export default function MessageScrollerLoadHistory() {
           </div>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript messages={visible()} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }

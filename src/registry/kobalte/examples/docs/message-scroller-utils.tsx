@@ -1,4 +1,5 @@
 import { children, For, type JSX, type ParentProps } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Bubble, BubbleContent } from "@/registry/kobalte/ui/bubble";
 import {
   Card,
@@ -8,12 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/kobalte/ui/card";
-import {
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerViewport,
-} from "@/registry/kobalte/ui/message-scroller";
 
 export type DemoMessage = {
   id: string;
@@ -76,8 +71,8 @@ export function Transcript(props: {
   messages?: DemoMessage[];
 }) {
   return (
-    <MessageScrollerViewport>
-      <MessageScrollerContent class="gap-4 p-(--card-spacing)">
+    <MessageScroller.Viewport>
+      <MessageScroller.Content class="gap-4 p-(--card-spacing)">
         <For each={props.messages ?? transcript}>
           {(message) => (
             <TranscriptItem
@@ -87,9 +82,9 @@ export function Transcript(props: {
             />
           )}
         </For>
-      </MessageScrollerContent>
-      <MessageScrollerButton />
-    </MessageScrollerViewport>
+      </MessageScroller.Content>
+      <MessageScroller.Button />
+    </MessageScroller.Viewport>
   );
 }
 
@@ -102,7 +97,7 @@ export function TranscriptItem(props: {
   const isUser = () => props.message.role === "user";
 
   return (
-    <MessageScrollerItem
+    <MessageScroller.Item
       messageId={props.message.id}
       scrollAnchor={props.scrollAnchor}
       class={isUser() ? `flex justify-end ${props.class ?? ""}` : props.class}
@@ -114,6 +109,6 @@ export function TranscriptItem(props: {
           </For>
         </BubbleContent>
       </Bubble>
-    </MessageScrollerItem>
+    </MessageScroller.Item>
   );
 }

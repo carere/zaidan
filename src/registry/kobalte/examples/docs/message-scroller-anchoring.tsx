@@ -1,7 +1,7 @@
 import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
 import { createSignal } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { MessageScroller, MessageScrollerProvider } from "@/registry/kobalte/ui/message-scroller";
 import { ToggleGroup, ToggleGroupItem } from "@/registry/kobalte/ui/toggle-group";
 import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
 
@@ -19,7 +19,7 @@ export default function MessageScrollerAnchoring() {
   const [messages, setMessages] = createSignal(transcript.slice(0, 2));
 
   return (
-    <MessageScrollerProvider>
+    <MessageScroller.Provider>
       <DemoCard
         title="Anchoring Turns"
         description="Choose which role starts the next visible turn."
@@ -58,10 +58,10 @@ export default function MessageScrollerAnchoring() {
           </div>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript messages={messages()} anchor={(message) => message.role === anchorRole()} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }

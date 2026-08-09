@@ -1,19 +1,5 @@
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-  useQuestionnaire,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire, useQuestionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -26,17 +12,17 @@ function NavigationActions() {
   const unanswered = () => state.activeItemStatus === "unanswered";
 
   return (
-    <QuestionnaireActions>
-      <QuestionnairePrevious />
-      <QuestionnaireNext
+    <Questionnaire.Actions>
+      <Questionnaire.Previous />
+      <Questionnaire.Next
         class="data-[status=unanswered]:opacity-50"
         disabled={unanswered()}
         variant="secondary"
       >
         Next ({state.current} of {state.total})
-      </QuestionnaireNext>
-      <QuestionnaireSubmit disabled={unanswered()}>Save permissions</QuestionnaireSubmit>
-    </QuestionnaireActions>
+      </Questionnaire.Next>
+      <Questionnaire.Submit disabled={unanswered()}>Save permissions</Questionnaire.Submit>
+    </Questionnaire.Actions>
   );
 }
 
@@ -54,41 +40,41 @@ export default function QuestionnaireNavigationState() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         defaultItem="permission"
         items={items}
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
 
-        <QuestionnaireItem name="permission" required>
-          <QuestionnaireTitle>What may the agent modify?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="permission" required>
+          <Questionnaire.Title>What may the agent modify?</Questionnaire.Title>
+          <Questionnaire.Description>
             Next is disabled until useQuestionnaire() reports the active item as answered.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="files">Project files</QuestionnaireChoice>
-            <QuestionnaireChoice value="tests">Project files and tests</QuestionnaireChoice>
-            <QuestionnaireChoice value="config">
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="files">Project files</Questionnaire.Choice>
+            <Questionnaire.Choice value="tests">Project files and tests</Questionnaire.Choice>
+            <Questionnaire.Choice value="config">
               Files, tests, and configuration
-            </QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+            </Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="verification" required>
-          <QuestionnaireTitle>What must pass before completion?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="tests">Tests</QuestionnaireChoice>
-            <QuestionnaireChoice value="types">Tests and types</QuestionnaireChoice>
-            <QuestionnaireChoice value="all">Tests, types, and visual QA</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="verification" required>
+          <Questionnaire.Title>What must pass before completion?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="tests">Tests</Questionnaire.Choice>
+            <Questionnaire.Choice value="types">Tests and types</Questionnaire.Choice>
+            <Questionnaire.Choice value="all">Tests, types, and visual QA</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
         <NavigationActions />
-      </Questionnaire>
+      </Questionnaire.Root>
     </>
   );
 }

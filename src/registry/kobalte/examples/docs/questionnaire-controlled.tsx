@@ -1,19 +1,6 @@
 import { createSignal } from "solid-js";
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireItem,
-  QuestionnaireNext,
-  QuestionnairePrevious,
-  QuestionnaireProgress,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -48,56 +35,56 @@ export default function QuestionnaireControlled() {
         Current checkpoint: {itemLabels[item()]}
       </p>
 
-      <Questionnaire
+      <Questionnaire.Root
         class="mt-auto"
         item={item()}
         items={items}
         onItemChange={setItem}
         onSubmit={handleSubmit}
       >
-        <QuestionnaireProgress />
+        <Questionnaire.Progress />
 
-        <QuestionnaireItem name="scope" required>
-          <QuestionnaireTitle>What may the agent change?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="scope" required>
+          <Questionnaire.Title>What may the agent change?</Questionnaire.Title>
+          <Questionnaire.Description>
             The host stores the active checkpoint while Questionnaire navigates.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="component">Only the target component</QuestionnaireChoice>
-            <QuestionnaireChoice value="tests">Component and related tests</QuestionnaireChoice>
-            <QuestionnaireChoice value="feature">The complete feature area</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="component">Only the target component</Questionnaire.Choice>
+            <Questionnaire.Choice value="tests">Component and related tests</Questionnaire.Choice>
+            <Questionnaire.Choice value="feature">The complete feature area</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="checks" required>
-          <QuestionnaireTitle>Which verification level should it use?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="targeted">Targeted tests</QuestionnaireChoice>
-            <QuestionnaireChoice value="package">Package tests and typecheck</QuestionnaireChoice>
-            <QuestionnaireChoice value="full">Full workspace verification</QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+        <Questionnaire.Item name="checks" required>
+          <Questionnaire.Title>Which verification level should it use?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="targeted">Targeted tests</Questionnaire.Choice>
+            <Questionnaire.Choice value="package">Package tests and typecheck</Questionnaire.Choice>
+            <Questionnaire.Choice value="full">Full workspace verification</Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireItem name="output" required>
-          <QuestionnaireTitle>What should the agent return when finished?</QuestionnaireTitle>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="summary">Concise summary</QuestionnaireChoice>
-            <QuestionnaireChoice value="diff">Summary with changed files</QuestionnaireChoice>
-            <QuestionnaireChoice value="handoff">
+        <Questionnaire.Item name="output" required>
+          <Questionnaire.Title>What should the agent return when finished?</Questionnaire.Title>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="summary">Concise summary</Questionnaire.Choice>
+            <Questionnaire.Choice value="diff">Summary with changed files</Questionnaire.Choice>
+            <Questionnaire.Choice value="handoff">
               Detailed implementation handoff
-            </QuestionnaireChoice>
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+            </Questionnaire.Choice>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnairePrevious />
-          <QuestionnaireNext>Next</QuestionnaireNext>
-          <QuestionnaireSubmit>Save workflow</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Previous />
+          <Questionnaire.Next>Next</Questionnaire.Next>
+          <Questionnaire.Submit>Save workflow</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </div>
   );
 }

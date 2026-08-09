@@ -1,16 +1,5 @@
 import { toast } from "solid-sonner";
-import {
-  Questionnaire,
-  QuestionnaireActions,
-  QuestionnaireChoice,
-  QuestionnaireChoices,
-  QuestionnaireDescription,
-  QuestionnaireError,
-  QuestionnaireInput,
-  QuestionnaireItem,
-  QuestionnaireSubmit,
-  QuestionnaireTitle,
-} from "@/registry/kobalte/ui/questionnaire";
+import { Questionnaire } from "@/registry/kobalte/blocks/questionnaire";
 import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
@@ -35,37 +24,39 @@ export default function QuestionnaireFreeform() {
   return (
     <>
       <Toaster />
-      <Questionnaire
+      <Questionnaire.Root
         class="mx-auto max-w-md"
         items={items}
         shortcuts="letters"
         onSubmit={handleSubmit}
       >
-        <QuestionnaireItem name="approach" required>
-          <QuestionnaireTitle>How should the agent approach this refactor?</QuestionnaireTitle>
-          <QuestionnaireDescription>
+        <Questionnaire.Item name="approach" required>
+          <Questionnaire.Title>How should the agent approach this refactor?</Questionnaire.Title>
+          <Questionnaire.Description>
             Choose a strategy or write a more specific instruction.
-          </QuestionnaireDescription>
-          <QuestionnaireChoices>
-            <QuestionnaireChoice value="incremental">
+          </Questionnaire.Description>
+          <Questionnaire.Choices>
+            <Questionnaire.Choice value="incremental">
               Make the smallest safe change
-            </QuestionnaireChoice>
-            <QuestionnaireChoice value="module">Refactor one module at a time</QuestionnaireChoice>
-            <QuestionnaireChoice value="rewrite">
+            </Questionnaire.Choice>
+            <Questionnaire.Choice value="module">
+              Refactor one module at a time
+            </Questionnaire.Choice>
+            <Questionnaire.Choice value="rewrite">
               Replace the implementation completely
-            </QuestionnaireChoice>
-            <QuestionnaireInput
+            </Questionnaire.Choice>
+            <Questionnaire.Input
               aria-label="Another refactoring approach"
               placeholder="Describe another approach…"
             />
-          </QuestionnaireChoices>
-          <QuestionnaireError />
-        </QuestionnaireItem>
+          </Questionnaire.Choices>
+          <Questionnaire.Error />
+        </Questionnaire.Item>
 
-        <QuestionnaireActions>
-          <QuestionnaireSubmit>Use this approach</QuestionnaireSubmit>
-        </QuestionnaireActions>
-      </Questionnaire>
+        <Questionnaire.Actions>
+          <Questionnaire.Submit>Use this approach</Questionnaire.Submit>
+        </Questionnaire.Actions>
+      </Questionnaire.Root>
     </>
   );
 }

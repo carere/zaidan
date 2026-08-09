@@ -1,7 +1,7 @@
 import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
 import { createSignal } from "solid-js";
+import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { MessageScroller, MessageScrollerProvider } from "@/registry/kobalte/ui/message-scroller";
 import { Slider } from "@/registry/kobalte/ui/slider";
 import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
 
@@ -18,7 +18,7 @@ export default function MessageScrollerPreviousContext() {
   const [peek, setPeek] = createSignal(64);
   const [messages, setMessages] = createSignal(transcript.slice(0, 4));
   return (
-    <MessageScrollerProvider scrollPreviousItemPeek={peek()}>
+    <MessageScroller.Provider scrollPreviousItemPeek={peek()}>
       <DemoCard
         title="Keeping Context Visible"
         description="Adjust the previous-turn peek, then append a new turn."
@@ -56,10 +56,10 @@ export default function MessageScrollerPreviousContext() {
           </div>
         }
       >
-        <MessageScroller>
+        <MessageScroller.Root>
           <Transcript messages={messages()} anchor={(message) => message.role === "user"} />
-        </MessageScroller>
+        </MessageScroller.Root>
       </DemoCard>
-    </MessageScrollerProvider>
+    </MessageScroller.Provider>
   );
 }
