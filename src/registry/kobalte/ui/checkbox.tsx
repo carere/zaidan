@@ -21,6 +21,7 @@ const Checkbox = <T extends ValidComponent = "div">(props: CheckboxProps<T>) => 
     >
       <CheckboxPrimitive.Input data-slot="checkbox-input" class="peer sr-only" id={local.id} />
       <CheckboxPrimitive.Control
+        onClick={(e) => e.preventDefault()}
         class={cn(
           "relative z-checkbox shrink-0 outline-none after:absolute after:-inset-x-3 after:-inset-y-2",
           local.class,

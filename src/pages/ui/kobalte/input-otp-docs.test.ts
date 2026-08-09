@@ -7,6 +7,8 @@ import { getDocsExample } from "@/lib/docs-examples";
 const pagePath = fileURLToPath(new URL("./input-otp.mdx", import.meta.url));
 const demoNames = [
   "input-otp-demo",
+  "input-otp-pattern",
+  "input-otp-alphanumeric",
   "input-otp-separator",
   "input-otp-disabled",
   "input-otp-controlled",
@@ -38,9 +40,7 @@ describe("Input OTP documentation", () => {
       expect(getDocsExample(name)).toBe(resolvedExample);
     }
 
-    expect(page).not.toContain("input-otp-pattern");
-    expect(page).not.toContain("input-otp-alphanumeric");
-    expect(page).not.toContain("## Pattern");
-    expect(page).not.toContain("## Alphanumeric");
+    expect(page).toContain("## Pattern");
+    expect(page).toContain("## Alphanumeric");
   });
 });

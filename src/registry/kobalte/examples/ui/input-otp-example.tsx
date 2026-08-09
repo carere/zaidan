@@ -63,7 +63,7 @@ function InputOTPPattern() {
     <Example title="Digits Only">
       <Field>
         <FieldLabel for="digits-only">Digits Only</FieldLabel>
-        <InputOTP id="digits-only" maxLength={6}>
+        <InputOTP id="digits-only" maxLength={6} pattern="^\d*$">
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
@@ -112,7 +112,7 @@ function InputOTPAlphanumeric() {
       <Field>
         <FieldLabel for="alphanumeric">Alphanumeric</FieldLabel>
         <FieldDescription>Accepts both letters and numbers.</FieldDescription>
-        <InputOTP id="alphanumeric" maxLength={6}>
+        <InputOTP id="alphanumeric" maxLength={6} pattern="^[a-zA-Z0-9]*$">
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />

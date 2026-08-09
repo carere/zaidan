@@ -96,9 +96,9 @@ function RootComponent() {
       <head>
         <HydrationScript />
         <ScriptOnce>{colorModeScript}</ScriptOnce>
-        <HeadContent />
       </head>
       <body class="style-vega">
+        <HeadContent />
         <ColorModeProvider initialColorMode={colorMode}>
           <Suspense>
             <Outlet />

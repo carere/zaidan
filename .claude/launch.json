@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "zaidan-dev",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["vite", "dev"],
+      "port": 5173
+    }
+  ]
+}

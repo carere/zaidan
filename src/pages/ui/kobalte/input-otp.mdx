@@ -100,7 +100,19 @@ InputOTP
     └── InputOTPSlot
 ```
 
-The input only accepts digits by default (Corvu OTP Field's built-in pattern). The character set is not currently configurable through this component.
+The input only accepts digits by default (Corvu OTP Field's built-in `^\d*$` pattern). Use the `pattern` prop to customize the accepted characters.
+
+## Pattern
+
+Use the `pattern` prop to define a custom regex for the accepted characters. The default only accepts digits; this example also accepts letters. Pass `null` to allow all characters.
+
+<ComponentPreview name="input-otp-pattern" />
+
+## Alphanumeric
+
+Accept both letters and numbers with an alphanumeric pattern.
+
+<ComponentPreview name="input-otp-alphanumeric" />
 
 ## Separator
 
