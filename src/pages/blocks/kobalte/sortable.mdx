@@ -106,6 +106,10 @@ Arrange items with grid classes on the root; dragging reorders across columns an
 - The `PointerSensor` covers both mouse and touch input.
 - When a `SortableItemHandle` is present, only the handle initiates a drag, so interactive controls inside the item (switches, buttons, links) stay usable.
 
+## Server-Side Rendering
+
+`@dnd-kit/solid` is browser-only, so `Sortable` renders purely presentational markup during SSR and hydration, then engages drag and drop one tick after mount. The server HTML is visually identical, but drag handles are not focusable and carry no drag-related ARIA attributes until hydration completes — keep this in mind when asserting on SSR output or querying for `tabindex`/`aria-*` attributes in tests that don't run a browser.
+
 ## API Reference
 
 ### Sortable
