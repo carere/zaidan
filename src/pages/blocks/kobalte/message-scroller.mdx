@@ -159,6 +159,8 @@ With `autoScroll`, streamed output remains visible only while the reader is alre
 
 <ComponentPreview name="message-scroller-streaming" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-10" />
 
+Calling `scrollToEnd`, or pressing `MessageScroller.Button`, re-engages follow-output when `autoScroll` is enabled. The root and viewport expose `data-autoscrolling` while that programmatic scroll to the latest message runs, so you can apply styles during the transition.
+
 ### Opening Saved Threads
 
 Use `defaultScrollPosition="last-anchor"` to reopen at the last meaningful turn. It falls back to the end when no anchor exists or the final anchored turn already fits in view. Use `"start"` or `"end"` when those positions better match the product.
@@ -282,15 +284,119 @@ function VirtualizedTranscript(props: { messages: { id: string; content: JSX.Ele
 
 ## API Reference
 
-This is native Solid composition rather than a wrapped primitive. The complete public API is documented in the [Message Scroller source](https://github.com/carere/zaidan/tree/main/src/registry/kobalte/blocks/message-scroller).
+This is native Solid composition rather than a wrapped primitive. The full implementation lives in the [Message Scroller source](https://github.com/carere/zaidan/tree/main/src/registry/kobalte/blocks/message-scroller).
 
-| Part | Purpose |
-| --- | --- |
-| `MessageScroller.Provider` | `autoScroll`, default opening position, anchors, scroll margins, and visibility state. |
-| `MessageScroller.Viewport` | Scroll container; `preserveScrollOnPrepend` defaults to `true`. |
-| `MessageScroller.Content` | Transcript log with configurable role, live-region, and spacer class. |
-| `MessageScroller.Item` | Addressable row with `messageId` and `scrollAnchor`. |
-| `MessageScroller.Button` | Start or end scroll control with a configurable behavior and direction. |
-| `useMessageScroller` | `scrollToStart`, `scrollToEnd`, and `scrollToMessage`. |
-| `useMessageScrollerScrollable` | Start/end scrollability state. |
-| `useMessageScrollerVisibility` | Current anchor id and visible message ids. |
+### MessageScroller.Provider
+
+The headless root. It owns scroll state and the behavior props, provides them to the parts and hooks, and renders no DOM of its own.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `autoScroll` | `boolean` | `false` | Follow new content only while the reader is already at the live edge. Wheel, touch, keyboard scroll, and explicit jumps release it. |
+| `defaultScrollPosition` | `"start" \| "end" \| "last-anchor"` | `"end"` | Opening position on the first non-empty render, applied once. `"last-anchor"` opens at the last `scrollAnchor` row and falls back to `"end"` when the turn fits or no anchor exists. |
+| `scrollEdgeThreshold` | `number` | `8` | Distance from either edge that still counts as being at the start or end. Drives state attributes and scroll-button visibility. |
+| `scrollMargin` | `number` | `0` | Margin applied to the aligned edge for `scrollToMessage`, visibility, and programmatic targets. |
+| `scrollPreviousItemPeek` | `number` | `64` | Extra margin added to `scrollMargin` when a newly appended `scrollAnchor` item is positioned, so part of the previous item stays visible. |
+
+### MessageScroller.Root
+
+The styled frame and layout container. It fills its parent, so use it inside a height-constrained layout, within a `MessageScroller.Provider`. Remaining props spread onto the frame `div`.
+
+The root mirrors the scroll-state attributes below (the viewport carries them too), so you can style the container by scroll state, such as edge fades on the frame.
+
+| Data attribute | Value | Description |
+| --- | --- | --- |
+| `data-scrollable` | `"start"` \| `"end"` \| `"start end"` \| _absent_ | Edges the viewport can scroll toward. Query one with `[data-scrollable~="end"]`; absent means the content fits. |
+| `data-autoscrolling` | present | Present while the viewport is programmatically scrolling to the latest message. |
+
+### MessageScroller.Viewport
+
+The scrollable viewport. Remaining props spread onto the viewport `div`, and it carries the same data attributes as the root.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `preserveScrollOnPrepend` | `boolean` | `true` | Keep the first visible message row stable when older rows are prepended. |
+| `role` | `string` | `"region"` | Landmark role for the labelled scrollable transcript viewport. |
+| `aria-label` | `string` | `"Messages"` | Accessible name for the scrollable chat transcript. |
+| `tabIndex` | `number` | `0` | Makes the transcript viewport keyboard-scrollable. |
+
+### MessageScroller.Content
+
+The transcript content element. Every direct child should be a `MessageScroller.Item`. Remaining props spread onto the content `div`.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `role` | `string` | `"log"` | ARIA role applied to the message list for live announcements. |
+| `aria-relevant` | `string` | `"additions"` | Live-region updates to announce. Defaults to new transcript rows only. |
+| `aria-busy` | `boolean` | - | Marks the live region busy while a turn streams, if needed. |
+| `spacerClassName` | `string` | - | Class for the internal spacer used to make room for anchored rows. |
+
+### MessageScroller.Item
+
+One transcript row: a message, marker, typing row, separator, or load-more row. Remaining props spread onto the item `div`.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `messageId` | `string` | - | Stable row id used by `scrollToMessage`, visibility, and prepend preservation. |
+| `scrollAnchor` | `boolean` | `false` | Marks this row as a turn boundary that can anchor newly appended turns. |
+
+| Data attribute | Value | Description |
+| --- | --- | --- |
+| `data-message-id` | `string` | Mirrors `messageId` when provided. |
+| `data-scroll-anchor` | `"true"` \| `"false"` | Mirrors `scrollAnchor`. |
+
+### MessageScroller.Button
+
+A button that scrolls to the start or end of the transcript. It is inert and removed from the tab order when there is nothing to scroll toward. Remaining props are forwarded to the underlying [Button](/docs/ui/kobalte/button), including `variant` (default `"secondary"`) and `size` (default `"icon-sm"`).
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `behavior` | `ScrollBehavior` | `"smooth"` | Native scroll behavior used when the button scrolls to its target edge. |
+| `direction` | `"start" \| "end"` | `"end"` | Transcript edge the button scrolls toward. |
+| `children` | `JSX.Element` | - | Custom button content. Defaults to the scroll icon and accessible label. |
+| `render` | `(props, state) => JSX.Element` | - | Custom render target. Solid JSX elements are real DOM nodes, so pass a render function instead of an element. |
+
+| Data attribute | Value | Description |
+| --- | --- | --- |
+| `data-direction` | `"start"` \| `"end"` | Mirrors `direction`. |
+| `data-active` | `"true"` \| `"false"` | Whether this button can currently scroll. |
+
+### useMessageScroller
+
+Imperative transcript commands, available anywhere inside the provider.
+
+| Method | Type | Description |
+| --- | --- | --- |
+| `scrollToMessage` | `(messageId: string, options?) => boolean` | Scroll to a message row by id. |
+| `scrollToEnd` | `(options?) => boolean` | Scroll to the latest message. |
+| `scrollToStart` | `(options?) => boolean` | Scroll to the top. |
+
+All commands return `false` when the command could not be applied. `scrollToStart` and `scrollToEnd` return `false` only when the viewport is not mounted yet. `scrollToMessage` returns `false` when the target is not mounted and cannot be queued.
+
+Command options:
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `align` | `"start"` \| `"center"` \| `"end"` \| `"nearest"` | `"start"` | How a message target aligns in the viewport. |
+| `behavior` | `ScrollBehavior` | `"auto"` | Native scroll behavior for the command. |
+| `scrollMargin` | `number` | provider `scrollMargin` | Margin applied to the aligned edge for this command. |
+
+### useMessageScrollerScrollable
+
+Which edges the viewport can scroll toward, for sibling UI that needs the values in JavaScript. Prefer the `data-scrollable` attribute for styling the scroller itself.
+
+| Value | Type | Description |
+| --- | --- | --- |
+| `start` | `boolean` | Whether the viewport can scroll toward the start. Content is hidden above (`!start` means at the top). |
+| `end` | `boolean` | Whether the viewport can scroll toward the end. Content is hidden below (`!end` means at the bottom). Stays `false` while follow-output keeps the reader at the live edge. |
+
+### useMessageScrollerVisibility
+
+Visibility state for outline, search, and active-turn UI. It subscribes separately from `useMessageScrollerScrollable`, so visibility work is only paid for when a consumer needs it.
+
+| Value | Type | Description |
+| --- | --- | --- |
+| `currentAnchorId` | `string \| null` | The current anchored turn, based on the last `scrollAnchor` item at or above the reading line. |
+| `visibleMessageIds` | `string[]` | Message ids intersecting the viewport, in document order. |
+
+Filter `visibleMessageIds` in your app when you need a narrower outline, such as user messages, anchored turns, or search hits.
