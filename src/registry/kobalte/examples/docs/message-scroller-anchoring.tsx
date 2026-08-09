@@ -1,67 +1,151 @@
-import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
-import { createSignal } from "solid-js";
+import { ArrowUpIcon, MessageCircleDashedIcon, RotateCwIcon } from "lucide-solid";
+import { createSignal, For, Show } from "solid-js";
 import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/registry/kobalte/ui/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/registry/kobalte/ui/empty";
 import { ToggleGroup, ToggleGroupItem } from "@/registry/kobalte/ui/toggle-group";
-import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
+import { createScript, type DemoMessage, MessageAnimated } from "./message-scroller-utils";
 
-const extraTurns: DemoMessage[] = [
-  { id: "anchor-question", role: "user", text: "What changes when the other role starts a turn?" },
+type AnchorRole = DemoMessage["role"];
+
+const anchorScript = createScript("anchor", [
   {
-    id: "anchor-answer",
-    role: "assistant",
-    text: "The next appended item with the selected role settles near the top edge of the viewport.",
+    question: "Can you show me how anchoring behaves when a new prompt starts the turn?",
+    answer:
+      "Append the user prompt first, then append the assistant response. With User selected, the prompt settles near the top and the assistant response fills in below it.",
   },
-];
+  {
+    question: "What changes when assistant messages are the anchor?",
+    answer:
+      "Now each assistant response is the item `MessageScroller` keeps in view. This is useful when the reply is the moment you want readers to land on after each turn.",
+  },
+  {
+    question: "Can I switch roles and keep adding turns?",
+    answer:
+      "Yes. The next appended message with the selected role becomes the anchor, so you can compare user and assistant anchoring without resetting the demo.",
+  },
+]);
 
 export default function MessageScrollerAnchoring() {
-  const [anchorRole, setAnchorRole] = createSignal<DemoMessage["role"]>("user");
-  const [messages, setMessages] = createSignal(transcript.slice(0, 2));
+  const [anchorRole, setAnchorRole] = createSignal<AnchorRole>("user");
+  const [messages, setMessages] = createSignal<DemoMessage[]>([]);
+  const [messageIndex, setMessageIndex] = createSignal(0);
+  const nextMessage = () => anchorScript.messages[messageIndex()];
+
+  const reset = () => {
+    setMessages([]);
+    setMessageIndex(0);
+  };
 
   return (
-    <MessageScroller.Provider>
-      <DemoCard
-        title="Anchoring Turns"
-        description="Choose which role starts the next visible turn."
-        footer={
-          <div class="flex w-full items-center gap-2">
-            <ToggleGroup
-              aria-label="Select scroll anchor role"
-              value={anchorRole()}
-              onChange={(value) => {
-                if (value === "user" || value === "assistant") {
-                  setAnchorRole(value);
-                  setMessages(transcript.slice(0, 2));
-                }
-              }}
-            >
-              <ToggleGroupItem value="user">User</ToggleGroupItem>
-              <ToggleGroupItem value="assistant">Assistant</ToggleGroupItem>
-            </ToggleGroup>
+    <div class="relative flex flex-col gap-4">
+      <Card class="mx-auto h-140 w-full max-w-sm gap-0">
+        <CardHeader class="border-b">
+          <CardTitle>Anchoring Turns</CardTitle>
+          <CardDescription>Choose which role settles near the top edge.</CardDescription>
+          <CardAction>
             <Button
-              class="ml-auto"
               variant="outline"
               size="icon"
               aria-label="Reset anchored turns"
-              onClick={() => setMessages(transcript.slice(0, 2))}
+              disabled={messages().length === 0}
+              onClick={reset}
             >
               <RotateCwIcon />
             </Button>
-            <Button
-              size="icon"
-              disabled={messages().length > 2}
-              onClick={() => setMessages((current) => [...current, ...extraTurns])}
-            >
-              <ArrowUpIcon />
-              <span class="sr-only">Send Message</span>
-            </Button>
-          </div>
-        }
-      >
-        <MessageScroller.Root>
-          <Transcript messages={messages()} anchor={(message) => message.role === anchorRole()} />
-        </MessageScroller.Root>
-      </DemoCard>
-    </MessageScroller.Provider>
+          </CardAction>
+        </CardHeader>
+        <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
+          <Show
+            when={messages().length > 0}
+            fallback={
+              <Empty class="h-full">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <MessageCircleDashedIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>No anchored messages yet</EmptyTitle>
+                  <EmptyDescription>
+                    Send the first message to see the selected role anchor.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            }
+          >
+            <MessageScroller.Provider>
+              <MessageScroller.Root>
+                <MessageScroller.Viewport>
+                  <MessageScroller.Content class="p-(--card-spacing)">
+                    <For each={messages()}>
+                      {(message) => (
+                        <MessageAnimated
+                          message={message}
+                          scrollAnchor={message.role === anchorRole()}
+                          userVariant="muted"
+                          assistantVariant="ghost"
+                        />
+                      )}
+                    </For>
+                  </MessageScroller.Content>
+                </MessageScroller.Viewport>
+                <MessageScroller.Button />
+              </MessageScroller.Root>
+            </MessageScroller.Provider>
+          </Show>
+        </CardContent>
+        <CardFooter>
+          <ToggleGroup
+            aria-label="Select scroll anchor role"
+            value={anchorRole()}
+            onChange={(value) => {
+              if (value === "user" || value === "assistant") {
+                setAnchorRole(value);
+                reset();
+              }
+            }}
+          >
+            <ToggleGroupItem value="user" aria-label="Anchor user messages">
+              User
+            </ToggleGroupItem>
+            <ToggleGroupItem value="assistant" aria-label="Anchor assistant messages">
+              Assistant
+            </ToggleGroupItem>
+          </ToggleGroup>
+          <Button
+            size="icon"
+            class="ml-auto"
+            disabled={!nextMessage()}
+            onClick={() => {
+              const message = nextMessage();
+              if (!message) return;
+
+              setMessages((current) => [...current, message]);
+              setMessageIndex((index) => index + 1);
+            }}
+          >
+            <ArrowUpIcon />
+            <span class="sr-only">Send Message</span>
+          </Button>
+        </CardFooter>
+      </Card>
+      <div class="mx-auto max-w-xs px-0.5 text-center text-muted-foreground text-xs">
+        Toggle the anchor role, then send messages to compare where turns settle.
+      </div>
+    </div>
   );
 }

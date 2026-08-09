@@ -1,73 +1,190 @@
-import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
-import { createSignal, onCleanup } from "solid-js";
-import { createStore, produce, reconcile } from "solid-js/store";
+import {
+  ArrowUpIcon,
+  GlobeIcon,
+  ImageIcon,
+  MessageCircleDashedIcon,
+  PaperclipIcon,
+  PlusIcon,
+  RotateCwIcon,
+  TelescopeIcon,
+} from "lucide-solid";
+import { For, Show } from "solid-js";
 import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
-
-const answer =
-  "Auto-scroll follows this reply only while the reader remains at the live edge. Scroll away, and new chunks arrive without moving the viewport.";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/registry/kobalte/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/registry/kobalte/ui/dropdown-menu";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/registry/kobalte/ui/empty";
+import { InputGroup, InputGroupAddon, InputGroupButton } from "@/registry/kobalte/ui/input-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
+import {
+  createScriptedChat,
+  MessageAnimated,
+  scrollBehaviorScript,
+} from "./message-scroller-utils";
 
 export default function MessageScrollerStreaming() {
-  // A store keeps each message's DOM node stable while its text streams in;
-  // replacing the array objects would tear down and recreate the live bubble.
-  const [messages, setMessages] = createStore<DemoMessage[]>(transcript.slice(0, 2));
-  const [streaming, setStreaming] = createSignal(false);
-  let timer: number | undefined;
-  onCleanup(() => timer && window.clearInterval(timer));
-  const stream = () => {
-    if (streaming()) return;
-    setStreaming(true);
-    setMessages(
-      produce((current) => {
-        current.push(
-          {
-            id: "stream-question",
-            role: "user",
-            text: "Show me a live response without pulling me away from what I am reading.",
-          },
-          { id: "stream-answer", role: "assistant", text: "" },
-        );
-      }),
-    );
-    let index = 0;
-    timer = window.setInterval(() => {
-      index += 8;
-      setMessages((message) => message.id === "stream-answer", "text", answer.slice(0, index));
-      if (index >= answer.length) {
-        window.clearInterval(timer);
-        timer = undefined;
-        setStreaming(false);
-      }
-    }, 60);
-  };
+  const chat = createScriptedChat({
+    delayMs: 20,
+    initialCount: 0,
+    script: scrollBehaviorScript,
+  });
+
   return (
     <MessageScroller.Provider autoScroll>
-      <DemoCard
-        title="Streaming Messages"
-        description="The live edge follows streamed output until the reader opts out."
-        footer={
-          <div class="flex w-full justify-between">
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Reset stream"
-              disabled={streaming()}
-              onClick={() => setMessages(reconcile(transcript.slice(0, 2)))}
+      <div class="relative flex flex-col gap-4">
+        <Card class="mx-auto h-140 w-full max-w-sm gap-0">
+          <CardHeader class="gap-1 border-b">
+            <CardTitle>Streaming Messages</CardTitle>
+            <CardDescription>
+              Auto-scroll follows the live edge of the conversation.
+            </CardDescription>
+            <CardAction>
+              <Tooltip>
+                <TooltipTrigger as="span" class="inline-block w-fit">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Reset stream"
+                    disabled={chat.messages.length === 0 || chat.isBusy()}
+                    onClick={chat.reset}
+                  >
+                    <RotateCwIcon />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Reset</p>
+                </TooltipContent>
+              </Tooltip>
+            </CardAction>
+          </CardHeader>
+          <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
+            <Show
+              when={chat.messages.length > 0}
+              fallback={
+                <Empty class="h-full">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <MessageCircleDashedIcon />
+                    </EmptyMedia>
+                    <EmptyTitle>Ready to Stream</EmptyTitle>
+                    <EmptyDescription>
+                      Press send to stream a scripted launch summary.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              }
             >
-              <RotateCwIcon />
-            </Button>
-            <Button disabled={streaming()} onClick={stream}>
-              <ArrowUpIcon />
-              <span class="sr-only">Send</span>
-            </Button>
-          </div>
-        }
-      >
-        <MessageScroller.Root>
-          <Transcript messages={messages} anchor={(message) => message.role === "user"} />
-        </MessageScroller.Root>
-      </DemoCard>
+              <MessageScroller.Root>
+                <MessageScroller.Viewport>
+                  <MessageScroller.Content aria-busy={chat.isBusy()} class="p-(--card-spacing)">
+                    <For each={chat.messages}>
+                      {(message) => (
+                        <MessageAnimated message={message} scrollAnchor={message.role === "user"} />
+                      )}
+                    </For>
+                  </MessageScroller.Content>
+                </MessageScroller.Viewport>
+                <MessageScroller.Button />
+              </MessageScroller.Root>
+            </Show>
+          </CardContent>
+          <CardFooter class="flex-col gap-2">
+            <form
+              class="w-full"
+              onSubmit={(event) => {
+                event.preventDefault();
+                chat.send();
+              }}
+            >
+              <InputGroup>
+                <div class="h-14 w-full px-3 py-2.5">
+                  <span
+                    class="line-clamp-2 opacity-60 data-[status=ready]:opacity-100"
+                    data-status={chat.status()}
+                  >
+                    <Show
+                      when={chat.nextMessage()}
+                      keyed
+                      fallback={
+                        <span class="text-muted-foreground">
+                          No messages queued. Reset the stream.
+                        </span>
+                      }
+                    >
+                      {(message) => message.text}
+                    </Show>
+                  </span>
+                </div>
+                <InputGroupAddon align="block-end" class="pt-1">
+                  <DropdownMenu placement="top-start">
+                    <DropdownMenuTrigger
+                      as={InputGroupButton}
+                      aria-label="Add files"
+                      type="button"
+                      size="icon-sm"
+                      variant="outline"
+                    >
+                      <PlusIcon />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent class="w-44">
+                      <DropdownMenuItem>
+                        <PaperclipIcon />
+                        Add Photos & Files
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <ImageIcon />
+                        Create Image
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <TelescopeIcon />
+                        Deep Research
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <GlobeIcon />
+                        Web Search
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <InputGroupButton
+                    type="submit"
+                    variant="default"
+                    size="icon-sm"
+                    disabled={!chat.nextMessage() || chat.isBusy()}
+                    class="ml-auto"
+                  >
+                    <ArrowUpIcon />
+                    <span class="sr-only">Send</span>
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
+            </form>
+          </CardFooter>
+        </Card>
+        <div class="px-0.5 text-center text-muted-foreground text-xs">
+          Streaming is simulated. `autoScroll` is enabled.
+        </div>
+      </div>
     </MessageScroller.Provider>
   );
 }

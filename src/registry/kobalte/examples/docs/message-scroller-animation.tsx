@@ -1,73 +1,155 @@
-import { ArrowUpIcon, RotateCwIcon } from "lucide-solid";
-import { createSignal } from "solid-js";
+import { ArrowUpIcon, MessageCircleDashedIcon, RotateCwIcon } from "lucide-solid";
+import { createSignal, For, Show } from "solid-js";
 import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Button } from "@/registry/kobalte/ui/button";
-import { DemoCard, type DemoMessage, Transcript, transcript } from "./message-scroller-utils";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/registry/kobalte/ui/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/registry/kobalte/ui/empty";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/registry/kobalte/ui/select";
+import {
+  createScript,
+  createScriptedChat,
+  MESSAGE_ANIMATIONS,
+  MessageAnimated,
+  type MessageAnimationId,
+  type MessageAnimationPreset,
+} from "./message-scroller-utils";
 
-const animations = {
-  fade: "opacity-0 animate-in fade-in duration-300",
-  pop: "scale-75 animate-in zoom-in-75 duration-300",
-  rise: "translate-y-4 animate-in slide-in-from-bottom-4 duration-300",
-};
-const newMessage: DemoMessage = {
-  id: "animated-message",
-  role: "user",
-  text: "This message entered with transform and opacity, without changing the row layout.",
-};
+const animationScript = createScript("animation", [
+  {
+    question: "Can user messages pop in like iMessage without breaking anchoring?",
+    answer:
+      "Yes. Animate the user row with transform and opacity, and let the assistant response stream normally below it.\n\nThat keeps the row measurement predictable while still giving the newly sent bubble a more tactile entrance.",
+  },
+  {
+    question: "What makes the animation feel more like iMessage?",
+    answer:
+      "Use a quick spring from the trailing edge: a little scale, a small upward move, and no layout animation.\n\nThe bubble feels tactile, but the measured row stays predictable, so anchoring and auto-scroll do not have to fight a changing layout.",
+  },
+  {
+    question: "Can I switch between presets while testing the same thread?",
+    answer:
+      "Yes. Keep the conversation in place while you change the preset, then send the next message to compare the new entrance against the same context.\n\nThat makes it easier to judge the difference between a subtle fade, a snappy pop, and a more dramatic 3D tilt without rebuilding the scenario each time.",
+  },
+]);
+
+const animationPresets = Object.values(MESSAGE_ANIMATIONS);
 
 export default function MessageScrollerAnimation() {
-  const [preset, setPreset] = createSignal<keyof typeof animations>("fade");
-  const [messages, setMessages] = createSignal(transcript.slice(0, 2));
+  const chat = createScriptedChat({ delayMs: 15, initialCount: 0, script: animationScript });
+  const [presetId, setPresetId] = createSignal<MessageAnimationId>("fade");
+  const preset = () => MESSAGE_ANIMATIONS[presetId()];
+
   return (
-    <MessageScroller.Provider>
-      <DemoCard
-        title="Animation"
-        description="Animate a new row with transform and opacity."
-        footer={
-          <div class="flex w-full items-center gap-2">
-            <label class="sr-only" for="animation-preset">
-              Animation preset
-            </label>
-            <select
-              id="animation-preset"
-              class="h-9 rounded-md border bg-background px-2 text-sm"
-              value={preset()}
-              onChange={(event) => setPreset(event.currentTarget.value as keyof typeof animations)}
-            >
-              <option value="fade">Fade</option>
-              <option value="pop">Pop</option>
-              <option value="rise">Rise</option>
-            </select>
+    <div class="relative flex flex-col gap-4">
+      <Card class="mx-auto h-140 w-full max-w-sm gap-0">
+        <CardHeader class="border-b">
+          <CardTitle>Animation</CardTitle>
+          <CardDescription>
+            Choose how user messages are animated when they are added to the conversation.
+          </CardDescription>
+          <CardAction class="flex items-center gap-2">
             <Button
-              class="ml-auto"
               variant="outline"
               size="icon"
               aria-label="Reset animated messages"
-              onClick={() => setMessages(transcript.slice(0, 2))}
+              disabled={chat.messages.length === 0 || chat.isBusy()}
+              onClick={chat.reset}
             >
               <RotateCwIcon />
             </Button>
-            <Button
-              size="icon"
-              disabled={messages().length > 2}
-              onClick={() => setMessages((current) => [...current, newMessage])}
-            >
-              <ArrowUpIcon />
-              <span class="sr-only">Send Message</span>
-            </Button>
-          </div>
-        }
-      >
-        <MessageScroller.Root>
-          <Transcript
-            messages={messages()}
-            anchor={(message) => message.role === "user"}
-            itemClass={(message) =>
-              message.id === newMessage.id ? animations[preset()] : undefined
+          </CardAction>
+        </CardHeader>
+        <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
+          <Show
+            when={chat.messages.length > 0}
+            fallback={
+              <Empty class="h-full">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <MessageCircleDashedIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>No Messages Yet</EmptyTitle>
+                  <EmptyDescription>
+                    Click the button below to send the first message.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             }
-          />
-        </MessageScroller.Root>
-      </DemoCard>
-    </MessageScroller.Provider>
+          >
+            <MessageScroller.Provider>
+              <MessageScroller.Root>
+                <MessageScroller.Viewport>
+                  <MessageScroller.Content aria-busy={chat.isBusy()} class="p-(--card-spacing)">
+                    <For each={chat.messages}>
+                      {(message) => (
+                        <MessageAnimated
+                          message={message}
+                          animationPreset={preset()}
+                          userVariant="muted"
+                          assistantVariant="ghost"
+                        />
+                      )}
+                    </For>
+                  </MessageScroller.Content>
+                </MessageScroller.Viewport>
+                <MessageScroller.Button />
+              </MessageScroller.Root>
+            </MessageScroller.Provider>
+          </Show>
+        </CardContent>
+        <CardFooter class="border-t">
+          <Select<MessageAnimationPreset>
+            options={animationPresets}
+            optionValue="id"
+            optionTextValue="name"
+            placement="top-start"
+            value={preset()}
+            onChange={(value) => setPresetId(value?.id ?? "fade")}
+            itemComponent={(props) => (
+              <SelectItem item={props.item}>{props.item.rawValue.name}</SelectItem>
+            )}
+          >
+            <SelectTrigger aria-label="Animation preset">
+              <SelectValue<MessageAnimationPreset>>
+                {(state) => state.selectedOption().name}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent />
+          </Select>
+          <Button
+            size="icon"
+            class="ml-auto"
+            disabled={!chat.nextMessage() || chat.isBusy()}
+            onClick={chat.send}
+          >
+            <ArrowUpIcon />
+            <span class="sr-only">Send Message</span>
+          </Button>
+        </CardFooter>
+      </Card>
+      <div class="mx-auto max-w-sm text-balance px-0.5 text-center text-muted-foreground text-xs">
+        Select an animation then click send to see it in action.
+      </div>
+    </div>
   );
 }

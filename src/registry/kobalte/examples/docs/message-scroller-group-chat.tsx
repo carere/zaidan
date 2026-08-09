@@ -1,100 +1,206 @@
 import { RotateCwIcon } from "lucide-solid";
-import { createSignal, For } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { MessageScroller } from "@/registry/kobalte/blocks/message-scroller";
 import { Bubble, BubbleContent } from "@/registry/kobalte/ui/bubble";
 import { Button } from "@/registry/kobalte/ui/button";
-import { DemoCard } from "./message-scroller-utils";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/registry/kobalte/ui/card";
+import { Marker, MarkerContent } from "@/registry/kobalte/ui/marker";
+import { Message, MessageContent, MessageHeader } from "@/registry/kobalte/ui/message";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
+import type { BubbleVariant } from "./message-scroller-utils";
 
-type GroupItem = {
-  id: string;
-  sender?: string;
-  text: string;
-  type: "event" | "message";
-  anchor?: boolean;
-};
-const baseItems: GroupItem[] = [
-  { id: "grace", sender: "Grace", text: "Can you check my astrophage math?", type: "message" },
+type GroupChatItem =
+  | {
+      id: string;
+      type: "event";
+      text: string;
+      scrollAnchor?: boolean;
+    }
+  | {
+      id: string;
+      type: "message";
+      sender: string;
+      role: "assistant" | "participant";
+      text: string;
+      scrollAnchor?: boolean;
+    };
+
+const currentUser = "Grace";
+
+const initialItems = [
   {
-    id: "mary",
+    id: "group-1",
+    type: "message",
+    sender: "Grace",
+    role: "participant",
+    text: "@mary, the astrophage line keeps matching Venus energy output. Can you check my math?",
+  },
+  {
+    id: "group-2",
+    type: "message",
     sender: "Mary (Agent)",
-    text: "Confirmed. The curve points to a microorganism harvesting stellar energy.",
-    type: "message",
+    role: "assistant",
+    text: "Yes. Confirmed. The curve points to a microorganism harvesting stellar energy and breeding near carbon dioxide. If @rocky agrees, this is the clue we need.",
   },
-  { id: "ping", sender: "Grace", text: "ping @rocky", type: "message", anchor: true },
-];
-const rockyItems: GroupItem[] = [
-  { id: "joined", text: "Rocky has joined the chat", type: "event", anchor: true },
   {
-    id: "rocky",
-    sender: "Rocky",
-    text: "Amaze. Astrophage eats light, makes heat, goes to carbon dioxide.",
+    id: "group-3",
     type: "message",
+    sender: "Grace",
+    role: "participant",
+    text: "ping @rocky",
+    scrollAnchor: true,
   },
-];
+] satisfies GroupChatItem[];
+
+const rockyMarker = {
+  id: "group-4",
+  type: "event",
+  text: "Rocky has joined the chat",
+  scrollAnchor: true,
+} satisfies GroupChatItem;
+
+const rockyMessage = {
+  id: "group-5",
+  type: "message",
+  sender: "Rocky",
+  role: "participant",
+  text: "Amaze. Astrophage eats light, makes heat, goes to carbon dioxide. Rocky has fuel model. Grace is smart.",
+} satisfies GroupChatItem;
+
+type RockyTurn = "idle" | "marker" | "message";
 
 export default function MessageScrollerGroupChat() {
-  const [count, setCount] = createSignal(0);
-  const items = () => [...baseItems, ...rockyItems.slice(0, count())];
+  // Solid has no `key` prop; bumping this value re-creates the keyed `Show`
+  // subtree below, which is how the upstream demo resets scroller state.
+  const [demoKey, setDemoKey] = createSignal(1);
+  const [rockyTurn, setRockyTurn] = createSignal<RockyTurn>("idle");
+  const items = (): GroupChatItem[] => {
+    if (rockyTurn() === "message") return [...initialItems, rockyMarker, rockyMessage];
+    if (rockyTurn() === "marker") return [...initialItems, rockyMarker];
+    return initialItems;
+  };
+  const buttonLabel = () => (rockyTurn() === "idle" ? "Add Rocky" : "Send Message as Rocky");
+  const isComplete = () => rockyTurn() === "message";
+
   return (
     <MessageScroller.Provider>
-      <DemoCard
-        title="Group Chat"
-        description="A marker can be the turn anchor, not just a message."
-        footer={
-          <div class="flex w-full gap-2">
-            <Button
-              class="flex-1"
-              variant="secondary"
-              disabled={count() >= 2}
-              onClick={() => setCount((value) => value + 1)}
-            >
-              {count() === 0 ? "Add Rocky" : "Send Message as Rocky"}
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Reset conversation"
-              onClick={() => setCount(0)}
-            >
-              <RotateCwIcon />
-            </Button>
-          </div>
-        }
-      >
-        <MessageScroller.Root>
-          <MessageScroller.Viewport>
-            <MessageScroller.Content class="gap-4 p-(--card-spacing)">
-              <For each={items()}>
-                {(item) => (
-                  <MessageScroller.Item
-                    messageId={item.id}
-                    scrollAnchor={item.anchor}
-                    class={item.sender === "Grace" ? "flex justify-end" : undefined}
+      <div class="relative flex flex-col gap-4">
+        <Card class="mx-auto h-140 w-full max-w-sm gap-0">
+          <CardHeader class="gap-1 border-b">
+            <CardTitle>Group Chat</CardTitle>
+            <CardDescription>
+              A group chat with several participants and an assistant. The Marker is marked as a
+              turn.
+            </CardDescription>
+            <CardAction>
+              <Tooltip>
+                <TooltipTrigger as="span" class="inline-block w-fit">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label="Reset conversation"
+                    disabled={rockyTurn() === "idle"}
+                    onClick={() => {
+                      setRockyTurn("idle");
+                      setDemoKey((key) => key + 1);
+                    }}
                   >
-                    {item.type === "event" ? (
-                      <p class="flex items-center gap-2 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-                        {item.text}
-                      </p>
-                    ) : (
-                      <div class="space-y-1">
-                        {item.sender !== "Grace" && (
-                          <p class="px-3 text-xs font-medium text-muted-foreground">
-                            {item.sender}
-                          </p>
-                        )}
-                        <Bubble variant={item.sender === "Grace" ? "muted" : "ghost"}>
-                          <BubbleContent>{item.text}</BubbleContent>
-                        </Bubble>
-                      </div>
-                    )}
-                  </MessageScroller.Item>
-                )}
-              </For>
-            </MessageScroller.Content>
-            <MessageScroller.Button />
-          </MessageScroller.Viewport>
-        </MessageScroller.Root>
-      </DemoCard>
+                    <RotateCwIcon />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Reset</p>
+                </TooltipContent>
+              </Tooltip>
+            </CardAction>
+          </CardHeader>
+          <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
+            <Show when={demoKey()} keyed>
+              <MessageScroller.Root>
+                <MessageScroller.Viewport>
+                  <MessageScroller.Content class="p-(--card-spacing)">
+                    <For each={items()}>
+                      {(item) =>
+                        item.type === "message" ? (
+                          <GroupChatMessage item={item} />
+                        ) : (
+                          <GroupChatMarker item={item} scrollAnchor={item.scrollAnchor} />
+                        )
+                      }
+                    </For>
+                  </MessageScroller.Content>
+                </MessageScroller.Viewport>
+                <MessageScroller.Button />
+              </MessageScroller.Root>
+            </Show>
+          </CardContent>
+          <CardFooter class="flex flex-col items-center gap-2 border-t">
+            <Button
+              type="button"
+              disabled={isComplete()}
+              onClick={() => setRockyTurn((turn) => (turn === "idle" ? "marker" : "message"))}
+              class="w-full"
+              variant="secondary"
+            >
+              {buttonLabel()}
+            </Button>
+            <p class="text-muted-foreground text-xs">
+              {rockyTurn() === "idle"
+                ? "This will create a marker and make it the anchor"
+                : "Now send Rocky's reply into the conversation"}
+            </p>
+          </CardFooter>
+        </Card>
+        <div class="mx-auto max-w-sm px-0.5 text-balance text-center text-muted-foreground text-xs">
+          When a user joins, a marker is created. scrollAnchor on the marker marks it as the next
+          turn
+        </div>
+      </div>
     </MessageScroller.Provider>
+  );
+}
+
+function GroupChatMessage(props: { item: Extract<GroupChatItem, { type: "message" }> }) {
+  const isCurrentUser = () => props.item.sender === currentUser;
+  const variant = (): BubbleVariant => {
+    if (isCurrentUser()) return "muted";
+    return props.item.role === "assistant" ? "ghost" : "tinted";
+  };
+
+  return (
+    <MessageScroller.Item messageId={props.item.id} scrollAnchor={props.item.scrollAnchor}>
+      <Message align={isCurrentUser() ? "end" : "start"}>
+        <MessageContent>
+          <Show when={!isCurrentUser()}>
+            <MessageHeader>{props.item.sender}</MessageHeader>
+          </Show>
+          <Bubble variant={variant()}>
+            <BubbleContent>{props.item.text}</BubbleContent>
+          </Bubble>
+        </MessageContent>
+      </Message>
+    </MessageScroller.Item>
+  );
+}
+
+function GroupChatMarker(props: {
+  item: Extract<GroupChatItem, { type: "event" }>;
+  scrollAnchor?: boolean;
+}) {
+  return (
+    <MessageScroller.Item scrollAnchor={props.scrollAnchor ?? false}>
+      <Marker variant="separator">
+        <MarkerContent>{props.item.text}</MarkerContent>
+      </Marker>
+    </MessageScroller.Item>
   );
 }

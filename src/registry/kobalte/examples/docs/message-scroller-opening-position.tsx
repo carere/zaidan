@@ -1,63 +1,139 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import { MessageScroller, useMessageScroller } from "@/registry/kobalte/blocks/message-scroller";
-import { Button } from "@/registry/kobalte/ui/button";
-import { DemoCard, Transcript } from "./message-scroller-utils";
+import { Bubble, BubbleContent } from "@/registry/kobalte/ui/bubble";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/registry/kobalte/ui/card";
+import { Message, MessageContent } from "@/registry/kobalte/ui/message";
+import { Tabs, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
+import { type DemoMessage, splitParagraphs } from "./message-scroller-utils";
 
 type Position = "end" | "last-anchor" | "start";
+
+const messages: DemoMessage[] = [
+  {
+    id: "open-1",
+    role: "user",
+    text: "This is the first message the user sent in the conversation.",
+  },
+  {
+    id: "open-2",
+    role: "assistant",
+    text: "Workspace creation rose 8%, but first invite completion only rose 2%.",
+  },
+  {
+    id: "open-3",
+    role: "user",
+    text: "This is the last message the user sent in the conversation.",
+  },
+  {
+    id: "open-4",
+    role: "assistant",
+    text: "Start with the invite step. Teams are creating workspaces but waiting to add collaborators.\n\nRecommended follow-up:\n\n1. Compare invite drop-off by account size.\n2. Check whether users who skip invites still return within 24 hours.\n3. Review the empty-state copy on the first project screen.\n4. Segment activation by template, since template users may not need invites right away.\n\nIf that pattern holds, the next experiment should make collaboration useful earlier instead of prompting for invites harder.",
+  },
+];
+
+const positions: { label: string; value: Position }[] = [
+  { label: "start", value: "start" },
+  { label: "end", value: "end" },
+  { label: "last-anchor", value: "last-anchor" },
+];
 
 export default function MessageScrollerOpeningPosition() {
   const [position, setPosition] = createSignal<Position>("last-anchor");
 
   return (
-    <MessageScroller.Provider defaultScrollPosition="last-anchor">
-      <DemoCard
-        title="Opening Position"
-        description="Choose where a saved transcript opens. Reopen a thread with the selected position in your product."
-        footer={
-          <fieldset class="flex w-full justify-center gap-1">
-            <legend class="sr-only">Opening position</legend>
-            <Button
-              variant={position() === "start" ? "default" : "outline"}
-              onClick={() => setPosition("start")}
-            >
-              start
-            </Button>
-            <Button
-              variant={position() === "end" ? "default" : "outline"}
-              onClick={() => setPosition("end")}
-            >
-              end
-            </Button>
-            <Button
-              variant={position() === "last-anchor" ? "default" : "outline"}
-              onClick={() => setPosition("last-anchor")}
-            >
-              last-anchor
-            </Button>
-          </fieldset>
-        }
-      >
-        <MessageScroller.Root>
-          <OpeningTranscript position={position} />
-        </MessageScroller.Root>
-      </DemoCard>
-    </MessageScroller.Provider>
+    <div class="relative flex flex-col gap-4">
+      <Card class="mx-auto h-140 w-full max-w-sm gap-0">
+        <CardHeader class="gap-1 border-b">
+          <CardTitle>Opening Position</CardTitle>
+          <CardDescription>Choose where a saved transcript opens.</CardDescription>
+        </CardHeader>
+        <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
+          <MessageScroller.Provider>
+            {/* Keyed so switching tabs recreates the scroller and genuinely
+                re-opens the thread at the new position. */}
+            <Show when={position()} keyed>
+              {(current) => <OpeningPositionScroller position={current} />}
+            </Show>
+          </MessageScroller.Provider>
+        </CardContent>
+        <CardFooter class="flex items-center justify-center border-t">
+          <Tabs
+            value={position()}
+            onChange={(value) => setPosition(value as Position)}
+            class="w-full"
+          >
+            <TabsList class="w-full">
+              <For each={positions}>
+                {(option) => <TabsTrigger value={option.value}>{option.label}</TabsTrigger>}
+              </For>
+            </TabsList>
+          </Tabs>
+        </CardFooter>
+      </Card>
+      <div class="mx-auto max-w-sm px-0.5 text-center text-muted-foreground text-xs">
+        Toggle the defaultScrollPosition to see where the transcript starts when you open the thread
+      </div>
+    </div>
   );
 }
 
-function OpeningTranscript(props: { position: Accessor<Position> }) {
+function OpeningPositionScroller(props: { position: Position }) {
   const { scrollToEnd, scrollToMessage, scrollToStart } = useMessageScroller();
 
   createEffect(() => {
-    const position = props.position();
+    const position = props.position;
     const frame = window.requestAnimationFrame(() => {
-      if (position === "start") scrollToStart({ behavior: "auto" });
-      else if (position === "end") scrollToEnd({ behavior: "auto" });
-      else scrollToMessage("impact", { align: "start", behavior: "auto", scrollMargin: 64 });
+      if (position === "start") {
+        scrollToStart({ behavior: "auto" });
+        return;
+      }
+
+      if (position === "end") {
+        scrollToEnd({ behavior: "auto" });
+        return;
+      }
+
+      scrollToMessage("open-3", { align: "start", behavior: "auto", scrollMargin: 64 });
     });
 
     onCleanup(() => window.cancelAnimationFrame(frame));
   });
 
-  return <Transcript anchor={(message) => message.role === "user"} />;
+  return (
+    <MessageScroller.Root>
+      <MessageScroller.Viewport>
+        <MessageScroller.Content class="p-(--card-spacing)">
+          <For each={messages}>
+            {(message) => {
+              const isUser = message.role === "user";
+
+              return (
+                <MessageScroller.Item messageId={message.id} scrollAnchor={isUser}>
+                  <Message align={isUser ? "end" : "start"}>
+                    <MessageContent>
+                      <Bubble variant={isUser ? "muted" : "ghost"}>
+                        <BubbleContent class="space-y-2">
+                          <For each={splitParagraphs(message.text)}>
+                            {(paragraph) => <p class="whitespace-pre-wrap">{paragraph}</p>}
+                          </For>
+                        </BubbleContent>
+                      </Bubble>
+                    </MessageContent>
+                  </Message>
+                </MessageScroller.Item>
+              );
+            }}
+          </For>
+        </MessageScroller.Content>
+      </MessageScroller.Viewport>
+      <MessageScroller.Button />
+    </MessageScroller.Root>
+  );
 }
