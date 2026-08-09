@@ -4,7 +4,13 @@ import { describe, expect, it } from "vitest";
 import { getDocsExample } from "@/lib/docs-examples";
 
 const pagePath = fileURLToPath(new URL("./progress.mdx", import.meta.url));
-const demoNames = ["progress-demo", "progress-label", "progress-controlled"];
+const demoNames = [
+  "progress-demo",
+  "progress-label",
+  "progress-controlled",
+  "progress-indeterminate",
+  "progress-range",
+];
 
 describe("Progress documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {

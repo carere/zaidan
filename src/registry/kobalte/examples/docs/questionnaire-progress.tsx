@@ -1,4 +1,5 @@
 import { Index } from "solid-js";
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -12,9 +13,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "scope", required: true },
@@ -29,15 +28,14 @@ export default function QuestionnaireProgressDemo() {
 
     const formData = new FormData(event.currentTarget);
 
-    toastManager.add({
-      title: "Pull request plan ready",
+    toast("Pull request plan ready", {
       description: `Scope: ${formData.get("scope") ?? "None"} · Commits: ${formData.get("strategy") ?? "None"} · Tests: ${formData.get("tests") ?? "None"} · Delivery: ${formData.get("delivery") ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="scope"

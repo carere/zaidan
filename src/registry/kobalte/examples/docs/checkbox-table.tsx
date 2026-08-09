@@ -41,7 +41,7 @@ export default function CheckboxTable() {
               name="select-all-checkbox"
               aria-label="Select all rows"
               checked={selectAll()}
-              onCheckedChange={handleSelectAll}
+              onChange={handleSelectAll}
             />
           </TableHead>
           <TableHead>Name</TableHead>
@@ -59,7 +59,7 @@ export default function CheckboxTable() {
                   name={`row-${row.id}-checkbox`}
                   aria-label={`Select ${row.name}`}
                   checked={selectedRows().has(row.id)}
-                  onCheckedChange={(checked) => handleSelectRow(row.id, checked)}
+                  onChange={(checked) => handleSelectRow(row.id, checked)}
                 />
               </TableCell>
               <TableCell class="font-medium">{row.name}</TableCell>

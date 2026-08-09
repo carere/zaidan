@@ -49,7 +49,7 @@ export function RecentTransactions() {
                 <span class="text-sm font-semibold tabular-nums">-$6.50</span>
               </TableCell>
               <TableCell class="w-8">
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -58,7 +58,7 @@ export function RecentTransactions() {
                   >
                     <MoreHorizontal />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent>
                     <DropdownMenuItem>View details</DropdownMenuItem>
                     <DropdownMenuItem>Add note</DropdownMenuItem>
                     <DropdownMenuItem>Categorize</DropdownMenuItem>
@@ -85,7 +85,7 @@ export function RecentTransactions() {
                 <span class="text-sm font-semibold tabular-nums">-$142.30</span>
               </TableCell>
               <TableCell class="w-8">
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -94,7 +94,7 @@ export function RecentTransactions() {
                   >
                     <MoreHorizontal />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent>
                     <DropdownMenuItem>View details</DropdownMenuItem>
                     <DropdownMenuItem>Add note</DropdownMenuItem>
                     <DropdownMenuItem>Categorize</DropdownMenuItem>
@@ -123,7 +123,7 @@ export function RecentTransactions() {
                 </span>
               </TableCell>
               <TableCell class="w-8">
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -132,7 +132,7 @@ export function RecentTransactions() {
                   >
                     <MoreHorizontal />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent>
                     <DropdownMenuItem>View details</DropdownMenuItem>
                     <DropdownMenuItem>Add note</DropdownMenuItem>
                     <DropdownMenuItem>Categorize</DropdownMenuItem>
@@ -159,7 +159,7 @@ export function RecentTransactions() {
                 <span class="text-sm font-semibold tabular-nums">-$24.10</span>
               </TableCell>
               <TableCell class="w-8">
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -168,7 +168,7 @@ export function RecentTransactions() {
                   >
                     <MoreHorizontal />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent>
                     <DropdownMenuItem>View details</DropdownMenuItem>
                     <DropdownMenuItem>Add note</DropdownMenuItem>
                     <DropdownMenuItem>Categorize</DropdownMenuItem>
@@ -195,7 +195,7 @@ export function RecentTransactions() {
                 <span class="text-sm font-semibold tabular-nums">-$19.99</span>
               </TableCell>
               <TableCell class="w-8">
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -204,7 +204,7 @@ export function RecentTransactions() {
                   >
                     <MoreHorizontal />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent>
                     <DropdownMenuItem>View details</DropdownMenuItem>
                     <DropdownMenuItem>Add note</DropdownMenuItem>
                     <DropdownMenuItem>Categorize</DropdownMenuItem>

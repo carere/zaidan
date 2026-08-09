@@ -1,4 +1,5 @@
 import type { JSX } from "solid-js";
+import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/registry/kobalte/hooks/use-mobile";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -15,7 +16,14 @@ import {
 function DrawerPanel(props: { children?: JSX.Element }) {
   return (
     <div class="flex-1 p-4">
-      <div class="bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full">
+      <div
+        class={cn(
+          "bg-muted",
+          "group-data-[side=bottom]/drawer-content:aspect-video",
+          "group-data-[side=bottom]/drawer-content:w-full",
+          "group-data-[side=right]/drawer-content:size-full",
+        )}
+      >
         {props.children}
       </div>
     </div>
@@ -24,10 +32,10 @@ function DrawerPanel(props: { children?: JSX.Element }) {
 
 export default function DrawerNested() {
   const isMobile = useIsMobile();
-  const swipeDirection = () => (isMobile() ? "down" : "right");
+  const side = () => (isMobile() ? "bottom" : "right");
 
   return (
-    <Drawer showSwipeHandle={isMobile()} swipeDirection={swipeDirection()}>
+    <Drawer side={side()}>
       <DrawerTrigger as={Button} variant="secondary">
         Open Drawer
       </DrawerTrigger>
@@ -38,7 +46,7 @@ export default function DrawerNested() {
         </DrawerHeader>
         <DrawerPanel />
         <DrawerFooter>
-          <Drawer showSwipeHandle={isMobile()} swipeDirection={swipeDirection()}>
+          <Drawer side={side()}>
             <DrawerTrigger as={Button} variant="outline">
               Open Nested Drawer
             </DrawerTrigger>
@@ -51,7 +59,7 @@ export default function DrawerNested() {
               </DrawerHeader>
               <DrawerPanel />
               <DrawerFooter>
-                <Drawer showSwipeHandle={isMobile()} swipeDirection={swipeDirection()}>
+                <Drawer side={side()}>
                   <DrawerTrigger as={Button} variant="outline">
                     Open Third Drawer
                   </DrawerTrigger>
@@ -64,7 +72,7 @@ export default function DrawerNested() {
                     </DrawerHeader>
                     <DrawerPanel />
                     <DrawerFooter>
-                      <Drawer showSwipeHandle={isMobile()} swipeDirection={swipeDirection()}>
+                      <Drawer side={side()}>
                         <DrawerTrigger as={Button} variant="outline">
                           Open Fourth Drawer
                         </DrawerTrigger>

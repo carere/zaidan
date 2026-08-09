@@ -2,7 +2,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/registry/kobalte/ui/toggle-group
 
 export default function ToggleGroupOutline() {
   return (
-    <ToggleGroup variant="outline" defaultValue={["all"]}>
+    <ToggleGroup variant="outline" defaultValue="all">
       <ToggleGroupItem value="all" aria-label="Toggle all">
         All
       </ToggleGroupItem>

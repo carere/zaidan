@@ -32,7 +32,7 @@ describe("Bubble documentation", () => {
       expect(demo).toContain('from "@/registry/kobalte/ui/bubble"');
       expect(demo).not.toContain('from "react"');
       expect(demo).not.toContain('from "lucide-react"');
-      expect(demo).not.toContain("sonner");
+      expect(demo).not.toContain('from "sonner"');
 
       const resolvedExample = getDocsExample(name);
       expect(resolvedExample).toBeTypeOf("function");

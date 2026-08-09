@@ -7,7 +7,6 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
-  ComboboxList,
 } from "@/registry/kobalte/ui/combobox";
 import {
   Empty,
@@ -67,10 +66,14 @@ export function NotFoundPage() {
       </EmptyHeader>
       <EmptyContent>
         <Combobox<Option>
-          items={options()}
-          itemToStringLabel={(option) => option.pathname}
-          itemToStringValue={(option) => option.slug}
-          onValueChange={(value) => {
+          options={options()}
+          optionValue={(option) => option.pathname}
+          optionTextValue={(option) => option.pathname}
+          optionLabel={(option) => option.pathname}
+          itemComponent={(itemProps) => (
+            <ComboboxItem item={itemProps.item}>{itemProps.item.rawValue.pathname}</ComboboxItem>
+          )}
+          onChange={(value) => {
             if (value) {
               if (value.route === "/docs/components/$primitive/$slug") {
                 navigate({
@@ -97,9 +100,6 @@ export function NotFoundPage() {
           </ComboboxInput>
           <ComboboxContent class="no-scrollbar max-h-96">
             <ComboboxEmpty>No pages found.</ComboboxEmpty>
-            <ComboboxList>
-              {(option: Option) => <ComboboxItem value={option}>{option.pathname}</ComboboxItem>}
-            </ComboboxList>
           </ComboboxContent>
         </Combobox>
         <EmptyDescription>

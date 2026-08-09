@@ -28,17 +28,11 @@ function HoverCardSides() {
       <div class="flex flex-wrap items-center justify-center gap-4">
         <For each={HOVER_CARD_SIDES}>
           {(side) => (
-            <HoverCard>
-              <HoverCardTrigger
-                as={Button}
-                variant="outline"
-                class="capitalize"
-                delay={100}
-                closeDelay={100}
-              >
+            <HoverCard openDelay={100} closeDelay={100} placement={side}>
+              <HoverCardTrigger as={Button} variant="outline" class="capitalize">
                 {side}
               </HoverCardTrigger>
-              <HoverCardContent side={side}>
+              <HoverCardContent>
                 <div class="flex flex-col gap-1.5">
                   <h4 class="font-medium">Hover Card</h4>
                   <p>This hover card appears on the {side} side of the trigger.</p>
@@ -66,14 +60,8 @@ function HoverCardInDialog() {
               Hover over the button below to see the hover card.
             </DialogDescription>
           </DialogHeader>
-          <HoverCard>
-            <HoverCardTrigger
-              as={Button}
-              variant="outline"
-              class="w-fit"
-              delay={100}
-              closeDelay={100}
-            >
+          <HoverCard openDelay={100} closeDelay={100}>
+            <HoverCardTrigger as={Button} variant="outline" class="w-fit">
               Hover me
             </HoverCardTrigger>
             <HoverCardContent>

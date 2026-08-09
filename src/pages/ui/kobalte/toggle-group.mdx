@@ -59,7 +59,7 @@ import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
 ```
 
 ```tsx showLineNumbers
-<ToggleGroup defaultValue={["a"]}>
+<ToggleGroup defaultValue="a">
   <ToggleGroupItem value="a">A</ToggleGroupItem>
   <ToggleGroupItem value="b">B</ToggleGroupItem>
   <ToggleGroupItem value="c">C</ToggleGroupItem>
@@ -110,12 +110,21 @@ A custom toggle group example.
 
 <ComponentPreview name="toggle-group-font-weight-selector" previewClass="*:data-[slot=field]:max-w-xs" />
 
+## Single vs. multiple selection
+
+By default `ToggleGroup` only allows a single item to be pressed at a time. In that mode
+`value`/`defaultValue` are a single `string | null` and `onChange` receives `string | null`.
+Pass `multiple` to allow several items to be pressed at once — in that mode `value`/`defaultValue`
+are a `string[]` and `onChange` receives `string[]`.
+
+```tsx showLineNumbers
+// single (default)
+<ToggleGroup defaultValue="bold" onChange={(value) => console.log(value)}>
+
+// multiple
+<ToggleGroup multiple defaultValue={["bold"]} onChange={(value) => console.log(value)}>
+```
+
 ## API Reference
 
 For primitive props, keyboard behavior, and accessibility details, see the [Kobalte Toggle Group API reference](https://kobalte.dev/docs/core/components/toggle-group#api-reference).
-
-## Changelog
-
-### 2026-05-17 Default Spacing
-
-Changed the default `spacing` from `0` to `2` so toggle groups render with space between items by default. Use `spacing={0}` for connected items.

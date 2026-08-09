@@ -54,7 +54,6 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
-  ComboboxList,
 } from "@/registry/kobalte/ui/combobox";
 import {
   Dialog,
@@ -225,7 +224,7 @@ export function CodespacesCard() {
                   </TooltipTrigger>
                   <TooltipContent side="bottom">Create a codespace on main</TooltipContent>
                 </Tooltip>
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -234,7 +233,7 @@ export function CodespacesCard() {
                   >
                     <MoreHorizontal />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" class="w-56">
+                  <DropdownMenuContent class="w-56">
                     <DropdownMenuGroup>
                       <DropdownMenuItem>
                         <Plus /> New with options...
@@ -951,15 +950,11 @@ export function KitchenIsland() {
       <CardContent class="flex flex-col gap-5">
         <div class="flex items-center justify-between">
           <span class="font-medium text-sm">Power</span>
-          <Switch
-            aria-label="Kitchen island power"
-            checked={enabled()}
-            onCheckedChange={setEnabled}
-          />
+          <Switch aria-label="Kitchen island power" checked={enabled()} onChange={setEnabled} />
         </div>
         <ToggleGroup
-          value={[scene()]}
-          onValueChange={(value) => applyScene((value[0] ?? "cooking") as keyof typeof scenes)}
+          value={scene()}
+          onChange={(value) => applyScene((value ?? "cooking") as keyof typeof scenes)}
           class="grid grid-cols-2"
         >
           <For each={Object.keys(scenes) as (keyof typeof scenes)[]}>
@@ -989,7 +984,7 @@ export function KitchenIsland() {
               <Slider
                 aria-label={label}
                 value={value()}
-                onValueChange={(next) => setter(Array.isArray(next) ? next : [next])}
+                onChange={(next) => setter(next)}
                 disabled={!enabled()}
               />
             </Field>
@@ -1021,12 +1016,12 @@ export function RollerShades() {
         <Slider
           aria-label="Shade position"
           value={position()}
-          onValueChange={(value) => setPosition(Array.isArray(value) ? value : [value])}
+          onChange={(value) => setPosition(value)}
         />
         <ToggleGroup
-          value={[preset()]}
-          onValueChange={(value) =>
-            setPosition([positions[(value[0] ?? "half") as keyof typeof positions]])
+          value={preset()}
+          onChange={(value) =>
+            setPosition([positions[(value ?? "half") as keyof typeof positions]])
           }
           class="flex"
         >
@@ -1090,16 +1085,16 @@ export function StockPerformance() {
           <Field>
             <FieldLabel for="ticker-select">Ticker</FieldLabel>
             <Combobox
-              items={tickers}
+              options={tickers}
               value={ticker()}
-              onValueChange={(value) => value && setTicker(value)}
+              onChange={(value) => value && setTicker(value)}
+              itemComponent={(itemProps) => (
+                <ComboboxItem item={itemProps.item}>{itemProps.item.rawValue}</ComboboxItem>
+              )}
             >
               <ComboboxInput id="ticker-select" placeholder="Search ticker..." />
               <ComboboxContent>
                 <ComboboxEmpty>No tickers found.</ComboboxEmpty>
-                <ComboboxList>
-                  {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-                </ComboboxList>
               </ComboboxContent>
             </Combobox>
           </Field>

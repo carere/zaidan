@@ -55,10 +55,10 @@ const GOALS_QUESTIONS = [
 
 function QuestionList(props: { questions: { q: string; a: string }[] }) {
   return (
-    <Accordion defaultValue={[0]}>
+    <Accordion defaultValue={["0"]}>
       <For each={props.questions}>
         {(item, index) => (
-          <AccordionItem value={index()}>
+          <AccordionItem value={String(index())}>
             <AccordionTrigger>{item.q}</AccordionTrigger>
             <AccordionContent>{item.a}</AccordionContent>
           </AccordionItem>

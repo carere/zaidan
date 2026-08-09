@@ -110,9 +110,9 @@ function CardCustomSpacing() {
     <Example title="Custom Spacing">
       <div class="mx-auto grid w-full max-w-sm gap-4">
         <ToggleGroup
-          value={[spacing()]}
-          onValueChange={(value) => {
-            if (value[0]) setSpacing(value[0]);
+          value={spacing()}
+          onChange={(value) => {
+            if (value) setSpacing(value);
           }}
           variant="outline"
           size="sm"

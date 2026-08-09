@@ -10,8 +10,8 @@ export default function ToggleGroupFontWeightSelector() {
     <Field>
       <FieldLabel>Font Weight</FieldLabel>
       <ToggleGroup
-        value={[fontWeight()]}
-        onValueChange={(value) => setFontWeight(value[0] ?? "normal")}
+        value={fontWeight()}
+        onChange={(value) => setFontWeight(value ?? "normal")}
         variant="outline"
         spacing={2}
         size="lg"

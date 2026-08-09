@@ -1,4 +1,5 @@
 import { createMemo, createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -13,9 +14,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function QuestionnaireConditional() {
   const [runtime, setRuntime] = createSignal("local");
@@ -37,15 +36,14 @@ export default function QuestionnaireConditional() {
 
     const formData = new FormData(event.currentTarget);
 
-    toastManager.add({
-      title: "Execution plan saved",
+    toast("Execution plan saved", {
       description: `Runtime: ${formData.get("runtime") ?? "None"} · Environment: ${formData.get("environment") ?? "Not applicable"} · Approval: ${formData.get("approval") ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="runtime"

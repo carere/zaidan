@@ -39,7 +39,7 @@ export default function SelectAlignItem() {
           aria-label="Align item with trigger"
           id="align-item"
           checked={alignItemWithTrigger()}
-          onCheckedChange={setAlignItemWithTrigger}
+          onChange={setAlignItemWithTrigger}
         />
       </Field>
       <Field>

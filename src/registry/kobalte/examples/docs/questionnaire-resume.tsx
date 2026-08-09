@@ -1,3 +1,4 @@
+import { toast } from "solid-sonner";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Questionnaire,
@@ -14,9 +15,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "change", required: true },
@@ -35,20 +34,19 @@ export default function QuestionnaireResume() {
       notes: formData.get("notes"),
     };
 
-    toastManager.add({
-      title: "Draft updated",
+    toast("Draft updated", {
       description: `Migration: ${answers.change ?? "None"} · Verification: ${answers.verification.join(", ") || "None"} · Notes: ${answers.notes || "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="verification"
         items={items}
-        onReset={() => toastManager.add({ title: "Saved answers restored" })}
+        onReset={() => toast("Saved answers restored")}
         onSubmit={handleSubmit}
       >
         <QuestionnaireProgress />

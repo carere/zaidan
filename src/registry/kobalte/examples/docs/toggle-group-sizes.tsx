@@ -3,7 +3,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/registry/kobalte/ui/toggle-group
 export default function ToggleGroupSizes() {
   return (
     <div class="flex flex-col gap-4">
-      <ToggleGroup size="sm" defaultValue={["top"]} variant="outline">
+      <ToggleGroup size="sm" defaultValue="top" variant="outline">
         <ToggleGroupItem value="top" aria-label="Toggle top">
           Top
         </ToggleGroupItem>
@@ -17,7 +17,7 @@ export default function ToggleGroupSizes() {
           Right
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup defaultValue={["top"]} variant="outline">
+      <ToggleGroup defaultValue="top" variant="outline">
         <ToggleGroupItem value="top" aria-label="Toggle top">
           Top
         </ToggleGroupItem>

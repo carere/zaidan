@@ -19,7 +19,7 @@ export default function InputGroupDropdown() {
       <InputGroup>
         <InputGroupInput placeholder="Enter file name" />
         <InputGroupAddon align="inline-end">
-          <DropdownMenu>
+          <DropdownMenu placement="bottom-end" gutter={8}>
             <DropdownMenuTrigger
               as={InputGroupButton}
               variant="ghost"
@@ -28,7 +28,7 @@ export default function InputGroupDropdown() {
             >
               <MoreHorizontalIcon />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={8} alignOffset={-4}>
+            <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Copy path</DropdownMenuItem>
@@ -41,11 +41,11 @@ export default function InputGroupDropdown() {
       <InputGroup>
         <InputGroupInput placeholder="Enter search query" />
         <InputGroupAddon align="inline-end">
-          <DropdownMenu>
+          <DropdownMenu placement="bottom-end" gutter={8}>
             <DropdownMenuTrigger as={InputGroupButton} variant="ghost" class="pr-1.5! text-xs">
               Search In... <ChevronDownIcon class="size-3" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={8} alignOffset={-4}>
+            <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuItem>Documentation</DropdownMenuItem>
                 <DropdownMenuItem>Blog Posts</DropdownMenuItem>

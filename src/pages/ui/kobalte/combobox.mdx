@@ -66,20 +66,22 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
-  ComboboxList,
 } from "~/components/ui/combobox";
 
 const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 ```
 
 ```tsx showLineNumbers
-<Combobox items={frameworks}>
-  <ComboboxInput placeholder="Select a framework" />
+<Combobox
+  options={frameworks}
+  placeholder="Select a framework..."
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+  )}
+>
+  <ComboboxInput placeholder="Select a framework..." />
   <ComboboxContent>
-    <ComboboxEmpty>No items found.</ComboboxEmpty>
-    <ComboboxList>
-      {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-    </ComboboxList>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
   </ComboboxContent>
 </Combobox>
 ```
@@ -90,61 +92,34 @@ See the [Kobalte Combobox documentation](https://kobalte.dev/docs/core/component
 
 ### Simple
 
-A single-line input and a flat list (see [Basic](#basic)).
+A single-line input and a flat list rendered from `options` via `itemComponent` (see [Basic](#basic)).
 
 ```text
 Combobox
 ├── ComboboxInput
 └── ComboboxContent
-    ├── ComboboxEmpty
-    └── ComboboxList
-        ├── ComboboxItem
-        └── ComboboxItem
+    └── ComboboxEmpty
 ```
 
-### With Chips
+### With Groups
 
-Multi-select with `multiple`, chips, and a chips input (see [Multiple](#multiple)).
-
-```text
-Combobox
-├── ComboboxChips
-│   ├── ComboboxValue
-│   │   └── ComboboxChip
-│   └── ComboboxChipsInput
-└── ComboboxContent
-    ├── ComboboxEmpty
-    └── ComboboxList
-        ├── ComboboxItem
-        └── ComboboxItem
-```
-
-### With Groups and Collection
-
-Nest items per group using `ComboboxCollection` inside each `ComboboxGroup`, with a separator between groups (see [Groups](#groups)).
+Group `options` with `optionGroupChildren`, and render a section heading (and an optional separator) from `sectionComponent` (see [Groups](#groups)).
 
 ```text
 Combobox
 ├── ComboboxInput
 └── ComboboxContent
-    ├── ComboboxEmpty
-    └── ComboboxList
-        ├── ComboboxGroup
-        │   ├── ComboboxLabel
-        │   └── ComboboxCollection
-        │       ├── ComboboxItem
-        │       └── ComboboxItem
-        ├── ComboboxSeparator
-        └── ComboboxGroup
-            ├── ComboboxLabel
-            └── ComboboxCollection
-                ├── ComboboxItem
-                └── ComboboxItem
+    └── ComboboxEmpty
+
+sectionComponent renders, per group:
+├── ComboboxSeparator (optional, skipped for the first group)
+└── ComboboxSection
+    └── ComboboxSectionLabel
 ```
 
 ## Custom Items
 
-Use `itemToStringValue` and `itemToStringLabel` when your items are objects.
+Use `optionValue` and `optionTextValue` when your options are objects.
 
 ```tsx showLineNumbers
 type Framework = {
@@ -159,61 +134,46 @@ const frameworks: Framework[] = [
 ];
 
 <Combobox
-  items={frameworks}
-  itemToStringLabel={(framework) => framework.label}
-  itemToStringValue={(framework) => framework.value}
+  options={frameworks}
+  optionValue="value"
+  optionTextValue="label"
+  placeholder="Select a framework..."
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+  )}
 >
-  <ComboboxInput placeholder="Select a framework" />
+  <ComboboxInput placeholder="Select a framework..." />
   <ComboboxContent>
-    <ComboboxEmpty>No items found.</ComboboxEmpty>
-    <ComboboxList>
-      {(framework: Framework) => (
-        <ComboboxItem value={framework}>{framework.label}</ComboboxItem>
-      )}
-    </ComboboxList>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
   </ComboboxContent>
 </Combobox>
 ```
 
 ## Multiple Selection
 
-Use `multiple` with chips for multi-select behavior.
+Use `multiple` (with a `T[]` `value`/`defaultValue`) for multi-select behavior. The input text reflects the selection the same way single-select does.
 
 ```tsx showLineNumbers
-import { For } from "solid-js";
 import {
   Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
   ComboboxContent,
   ComboboxEmpty,
+  ComboboxInput,
   ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
 } from "~/components/ui/combobox";
 
-const anchor = useComboboxAnchor();
-
-<Combobox items={frameworks} multiple defaultValue={[frameworks[0]]}>
-  <ComboboxChips ref={anchor}>
-    <ComboboxValue>
-      {(values) => (
-        <>
-          <For each={values as string[]}>
-            {(value) => <ComboboxChip>{value}</ComboboxChip>}
-          </For>
-          <ComboboxChipsInput placeholder="Add framework" />
-        </>
-      )}
-    </ComboboxValue>
-  </ComboboxChips>
-  <ComboboxContent anchor={anchor}>
-    <ComboboxEmpty>No items found.</ComboboxEmpty>
-    <ComboboxList>
-      {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-    </ComboboxList>
+<Combobox
+  options={frameworks}
+  placeholder="Select frameworks..."
+  multiple
+  defaultValue={[frameworks[0]]}
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+  )}
+>
+  <ComboboxInput placeholder="Select frameworks..." />
+  <ComboboxContent>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
   </ComboboxContent>
 </Combobox>
 ```
@@ -226,7 +186,7 @@ A simple combobox with a list of frameworks.
 
 ## Multiple
 
-A combobox with multiple selection using `multiple` and `ComboboxChips`.
+A combobox with multiple selection using `multiple`.
 
 <ComponentPreview name="combobox-multiple" />
 
@@ -238,19 +198,19 @@ Use the `showClear` prop to show a clear button.
 
 ## Groups
 
-Use `ComboboxGroup` and `ComboboxSeparator` to group items.
+Use `optionGroupChildren` with a `sectionComponent` rendering `ComboboxSection`, `ComboboxSectionLabel`, and `ComboboxSeparator` to group items.
 
 <ComponentPreview name="combobox-groups" />
 
 ## Custom Items
 
-You can render a custom component inside `ComboboxItem`.
+You can render a custom component inside `ComboboxItem` via `itemComponent`.
 
 <ComponentPreview name="combobox-custom" />
 
 ## Invalid
 
-Use the `aria-invalid` prop to make the combobox invalid.
+Use the `validationState="invalid"` prop to make the combobox invalid.
 
 <ComponentPreview name="combobox-invalid" />
 
@@ -260,15 +220,9 @@ Use the `disabled` prop to disable the combobox.
 
 <ComponentPreview name="combobox-disabled" />
 
-## Auto Highlight
-
-Use the `autoHighlight` prop to automatically highlight the first item on filter.
-
-<ComponentPreview name="combobox-auto-highlight" />
-
 ## Popup
 
-Use `ComboboxTrigger` to open a combobox from a button, then move `ComboboxInput` inside `ComboboxContent`.
+Use `ComboboxTrigger` to open a combobox from a button instead of a text input.
 
 <ComponentPreview name="combobox-popup" />
 

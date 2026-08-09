@@ -1,3 +1,4 @@
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -10,9 +11,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   {
@@ -28,15 +27,14 @@ export default function QuestionnaireFreeform() {
 
     const approach = new FormData(event.currentTarget).get("approach");
 
-    toastManager.add({
-      title: "Approach selected",
+    toast("Approach selected", {
       description: `Approach: ${approach ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         items={items}

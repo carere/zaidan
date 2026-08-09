@@ -1,4 +1,5 @@
 import { For, Show } from "solid-js";
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -15,9 +16,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const questionnaireItems = [
   {
@@ -84,15 +83,14 @@ export default function QuestionnaireDemo() {
       timing: formData.get("timing"),
     };
 
-    toastManager.add({
-      title: "Agent plan saved",
+    toast("Agent plan saved", {
       description: `Direction: ${answers.direction ?? "None"} · Progress signals: ${answers.signals.join(", ") || "None"} · Timing: ${answers.timing ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="direction"

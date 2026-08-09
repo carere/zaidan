@@ -83,28 +83,25 @@ HoverCard
 
 ## Trigger Delays
 
-Use `delay` and `closeDelay` on the trigger to control when the card opens and
-closes.
+Use `openDelay` and `closeDelay` on `HoverCard` to control when the card opens
+and closes.
 
 ```tsx showLineNumbers
-<HoverCard>
-  <HoverCardTrigger delay={100} closeDelay={200}>
-    Hover
-  </HoverCardTrigger>
+<HoverCard openDelay={100} closeDelay={200}>
+  <HoverCardTrigger>Hover</HoverCardTrigger>
   <HoverCardContent>Content</HoverCardContent>
 </HoverCard>
 ```
 
 ## Positioning
 
-Use the `side` and `align` props on `HoverCardContent` to control placement.
+Use the `placement` prop on `HoverCard` to control where the content appears
+relative to the trigger.
 
 ```tsx showLineNumbers
-<HoverCard>
+<HoverCard placement="top-start">
   <HoverCardTrigger>Hover</HoverCardTrigger>
-  <HoverCardContent side="top" align="start">
-    Content
-  </HoverCardContent>
+  <HoverCardContent>Content</HoverCardContent>
 </HoverCard>
 ```
 

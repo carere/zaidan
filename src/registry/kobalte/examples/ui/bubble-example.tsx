@@ -1,17 +1,16 @@
 import { ChevronDown, ThumbsDown, ThumbsUp } from "lucide-solid";
 import { createSignal, For, type JSX, Show } from "solid-js";
+import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from "@/registry/kobalte/ui/bubble";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Collapsible, CollapsibleTrigger } from "@/registry/kobalte/ui/collapsible";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function BubbleExample() {
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <ExampleWrapper>
         <BubbleSizes />
         <BubbleVariants />
@@ -303,7 +302,7 @@ function BubbleWithReactions() {
 }
 
 function BubbleReactionsButtons() {
-  const notify = (description: string) => toastManager.add({ description, type: "success" });
+  const notify = (description: string) => toast.success(description);
 
   return (
     <Example title="Reactions Buttons">
@@ -391,7 +390,7 @@ const quickReplies = [
 ];
 
 function BubbleButtonLinks() {
-  const notify = (description: string) => toastManager.add({ description, type: "success" });
+  const notify = (description: string) => toast.success(description);
 
   return (
     <Example title="Button & Links">

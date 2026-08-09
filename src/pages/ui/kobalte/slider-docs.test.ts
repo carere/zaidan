@@ -20,8 +20,8 @@ describe("Slider documentation", () => {
       readFile(docsExamplesPath, "utf8"),
     ]);
 
-    expect(page).toContain("solid-js");
-    expect(page).toContain("https://base-ui.com/react/components/slider#api-reference");
+    expect(page).toContain("@kobalte/core");
+    expect(page).toContain("https://kobalte.dev/docs/core/components/slider#api-reference");
     expect(docsExamples).toContain(
       'import.meta.glob<ExampleModule>("../registry/kobalte/examples/docs/*.tsx")',
     );

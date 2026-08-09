@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -13,9 +14,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "scope", required: true },
@@ -37,15 +36,14 @@ export default function QuestionnaireControlled() {
 
     const formData = new FormData(event.currentTarget);
 
-    toastManager.add({
-      title: "Agent workflow configured",
+    toast("Agent workflow configured", {
       description: `Scope: ${formData.get("scope") ?? "None"} · Verification: ${formData.get("checks") ?? "None"} · Output: ${formData.get("output") ?? "None"}`,
     });
   }
 
   return (
     <div class="relative mx-auto flex h-full w-full max-w-md flex-col">
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <p class="absolute end-0 top-0 text-muted-foreground text-sm" role="status">
         Current checkpoint: {itemLabels[item()]}
       </p>

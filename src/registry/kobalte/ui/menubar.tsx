@@ -1,232 +1,118 @@
 import * as MenubarPrimitive from "@kobalte/core/menubar";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
-import type { ComponentProps, JSX, ValidComponent } from "solid-js";
-import {
-  createContext,
-  createEffect,
-  createSignal,
-  createUniqueId,
-  mergeProps,
-  onCleanup,
-  splitProps,
-  useContext,
-} from "solid-js";
+import { Check, ChevronRight } from "lucide-solid";
+import type { Component, ComponentProps, ValidComponent } from "solid-js";
+import { mergeProps, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  type DropdownMenuRadioItemProps,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/registry/kobalte/ui/dropdown-menu";
 
-type MenubarContextValue = {
-  disabled: () => boolean;
-  modal: () => boolean;
-  orientation: () => "horizontal" | "vertical";
-  setMenuOpen: (id: string, open: boolean) => void;
-};
-
-const MenubarContext = createContext<MenubarContextValue>();
-
-function callEventHandler<T extends Element, E extends Event>(
-  handler: JSX.EventHandlerUnion<T, E> | undefined,
-  event: E & { currentTarget: T; target: Element },
-) {
-  if (typeof handler === "function") handler(event);
-  else handler?.[0](handler[1], event);
-}
-
-type MenubarProps<T extends ValidComponent = "div"> = Omit<
-  PolymorphicProps<T, MenubarPrimitive.MenubarRootProps<T>>,
-  | "autoFocusMenu"
-  | "defaultValue"
-  | "focusOnAlt"
-  | "loop"
-  | "onAutoFocusMenuChange"
-  | "onValueChange"
-  | "value"
+type MenubarProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarRootProps<T>
 > &
-  Partial<Pick<ComponentProps<T>, "class" | "children">> & {
-    disabled?: boolean;
-    loopFocus?: boolean;
-    modal?: boolean;
-  };
+  Pick<ComponentProps<T>, "class" | "children">;
 
 const Menubar = <T extends ValidComponent = "div">(props: MenubarProps<T>) => {
-  const mergedProps = mergeProps(
-    {
-      disabled: false,
-      loopFocus: true,
-      modal: true,
-      orientation: "horizontal",
-    } as MenubarProps<T>,
-    props,
-  );
-  const [local, others] = splitProps(mergedProps as MenubarProps, [
-    "children",
-    "class",
-    "disabled",
-    "loopFocus",
-    "modal",
-    "onKeyDown",
-    "orientation",
-  ]);
-  const [openMenus, setOpenMenus] = createSignal<Set<string>>(new Set());
-  const context: MenubarContextValue = {
-    disabled: () => local.disabled ?? false,
-    modal: () => local.modal ?? true,
-    orientation: () => local.orientation ?? "horizontal",
-    setMenuOpen: (id, open) => {
-      setOpenMenus((current) => {
-        const next = new Set(current);
-        if (open) next.add(id);
-        else next.delete(id);
-        return next;
-      });
-    },
-  };
-
+  const [local, others] = splitProps(props as MenubarProps, ["class"]);
   return (
-    <MenubarContext.Provider value={context}>
-      <MenubarPrimitive.Root
-        data-has-submenu-open={openMenus().size > 0 ? "" : undefined}
-        data-modal={local.modal ? "" : undefined}
-        data-slot="menubar"
-        loop={local.loopFocus}
-        orientation={local.orientation}
-        class={cn("z-menubar flex items-center", local.class)}
-        onKeyDown={(event: KeyboardEvent & { currentTarget: HTMLElement; target: Element }) => {
-          callEventHandler(
-            local.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
-            event,
-          );
-          if (event.defaultPrevented || (event.key !== "Home" && event.key !== "End")) return;
-
-          const triggers = Array.from(
-            event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"][aria-haspopup]'),
-          ).filter(
-            (trigger) =>
-              !trigger.hasAttribute("disabled") &&
-              trigger.getAttribute("aria-disabled") !== "true" &&
-              trigger.closest('[role="menubar"]') === event.currentTarget,
-          );
-          const target = event.key === "Home" ? triggers[0] : triggers.at(-1);
-          if (!target) return;
-
-          event.preventDefault();
-          target.focus();
-        }}
-        {...others}
-      >
-        {local.children}
-      </MenubarPrimitive.Root>
-    </MenubarContext.Provider>
+    <MenubarPrimitive.Root
+      data-slot="menubar"
+      class={cn("z-menubar flex items-center", local.class)}
+      {...others}
+    />
   );
 };
 
-type MenubarMenuProps = ComponentProps<typeof DropdownMenu>;
+const MenubarMenu = (props: MenubarPrimitive.MenubarMenuProps) => {
+  const mergedProps = mergeProps({ gutter: 8 }, props);
+  return <MenubarPrimitive.Menu data-slot="menubar-menu" {...mergedProps} />;
+};
 
-const MenubarMenu = (props: MenubarMenuProps) => {
-  const id = createUniqueId();
-  const rootContext = useContext(MenubarContext);
-  const [local, others] = splitProps(props, [
-    "children",
-    "defaultOpen",
-    "disabled",
-    "modal",
-    "onOpenChange",
-    "open",
-    "orientation",
-    "value",
-  ]);
+type MenubarTriggerProps<T extends ValidComponent = "button"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarTriggerProps<T>
+> &
+  Pick<ComponentProps<T>, "class" | "children">;
 
-  createEffect(() => {
-    rootContext?.setMenuOpen(id, local.open ?? local.defaultOpen ?? false);
-  });
-  onCleanup(() => rootContext?.setMenuOpen(id, false));
-
+const MenubarTrigger = <T extends ValidComponent = "button">(props: MenubarTriggerProps<T>) => {
+  const [local, others] = splitProps(props as MenubarTriggerProps, ["class", "children"]);
   return (
-    <DropdownMenu
-      data-slot="menubar-menu"
-      defaultOpen={local.defaultOpen}
-      disabled={(rootContext?.disabled() ?? false) || (local.disabled ?? false)}
-      modal={rootContext?.modal() ?? local.modal}
-      open={local.open}
-      orientation={
-        local.orientation ?? (rootContext?.orientation() === "vertical" ? "horizontal" : "vertical")
-      }
-      value={local.value ?? id}
-      onOpenChange={(open, details) => {
-        local.onOpenChange?.(open, details);
-        if (!details.isCanceled && local.open === undefined) rootContext?.setMenuOpen(id, open);
-      }}
+    <MenubarPrimitive.Trigger
+      data-slot="menubar-trigger"
+      class={cn("z-menubar-trigger flex select-none items-center outline-hidden", local.class)}
       {...others}
     >
       {local.children}
-    </DropdownMenu>
+    </MenubarPrimitive.Trigger>
   );
 };
 
-type MenubarGroupProps = ComponentProps<typeof DropdownMenuGroup>;
-
-const MenubarGroup = (props: MenubarGroupProps) => {
-  return <DropdownMenuGroup data-slot="menubar-group" {...props} />;
+const MenubarPortal: Component<MenubarPrimitive.MenubarPortalProps> = (props) => {
+  return <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} />;
 };
 
-type MenubarPortalProps = ComponentProps<typeof DropdownMenuPortal>;
+type MenubarContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarContentProps<T>
+> &
+  Pick<ComponentProps<T>, "class">;
 
-const MenubarPortal = (props: MenubarPortalProps) => {
-  const [local, others] = splitProps(props, ["ref"]);
+const MenubarContent = <T extends ValidComponent = "div">(props: MenubarContentProps<T>) => {
+  const [local, others] = splitProps(props as MenubarContentProps, ["class"]);
   return (
-    <DropdownMenuPortal
-      ref={(element) => {
-        element.dataset.slot = "menubar-portal";
-        if (typeof local.ref === "function") local.ref(element);
-      }}
+    <MenubarPortal>
+      <MenubarPrimitive.Content
+        data-slot="menubar-content"
+        class={cn("z-50 z-menu-target z-menubar-content min-w-48 overflow-hidden", local.class)}
+        {...others}
+      />
+    </MenubarPortal>
+  );
+};
+
+type MenubarGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarGroupProps<T>
+> &
+  Pick<ComponentProps<T>, "class">;
+
+const MenubarGroup = <T extends ValidComponent = "div">(props: MenubarGroupProps<T>) => {
+  const [local, others] = splitProps(props as MenubarGroupProps, ["class"]);
+  return (
+    <MenubarPrimitive.Group
+      data-slot="menubar-group"
+      class={cn("z-menubar-group", local.class)}
       {...others}
     />
   );
 };
 
-type MenubarTriggerProps = ComponentProps<typeof DropdownMenuTrigger>;
+type MenubarItemProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarItemProps<T>
+> &
+  Pick<ComponentProps<T>, "class"> & {
+    inset?: boolean;
+    variant?: "default" | "destructive";
+  };
 
-const MenubarTrigger = (props: MenubarTriggerProps) => {
-  const [local, others] = splitProps(props, ["class"]);
-  return (
-    <DropdownMenuTrigger
-      data-slot="menubar-trigger"
-      class={cn("z-menubar-trigger flex items-center outline-hidden select-none", local.class)}
-      {...others}
-    />
-  );
-};
-
-type MenubarContentProps = ComponentProps<typeof DropdownMenuContent>;
-
-const MenubarContent = (props: MenubarContentProps) => {
+const MenubarItem = <T extends ValidComponent = "div">(props: MenubarItemProps<T>) => {
   const mergedProps = mergeProps(
-    { align: "start", alignOffset: -4, sideOffset: 8 } as const,
+    { variant: "default", inset: false } as MenubarItemProps<T>,
     props,
   );
-  const [local, others] = splitProps(mergedProps, ["class"]);
+  const [local, others] = splitProps(mergedProps as MenubarItemProps, [
+    "class",
+    "inset",
+    "variant",
+  ]);
   return (
-    <DropdownMenuContent
-      data-slot="menubar-content"
+    <MenubarPrimitive.Item
+      data-slot="menubar-item"
+      data-inset={local.inset || undefined}
+      data-variant={local.variant}
       class={cn(
-        "z-menubar-content z-menubar-content-logical z-menu-target z-menu-translucent",
+        "group/menubar-item relative z-menubar-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class,
       )}
       {...others}
@@ -234,71 +120,110 @@ const MenubarContent = (props: MenubarContentProps) => {
   );
 };
 
-type MenubarItemProps = ComponentProps<typeof DropdownMenuItem>;
+type MenubarCheckboxItemProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarCheckboxItemProps<T>
+> &
+  Pick<ComponentProps<T>, "class" | "children">;
 
-const MenubarItem = (props: MenubarItemProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+const MenubarCheckboxItem = <T extends ValidComponent = "div">(
+  props: MenubarCheckboxItemProps<T>,
+) => {
+  const [local, others] = splitProps(props as MenubarCheckboxItemProps, ["class", "children"]);
   return (
-    <DropdownMenuItem
-      data-slot="menubar-item"
-      class={cn("z-menubar-item group/menubar-item", local.class)}
-      {...others}
-    />
-  );
-};
-
-type MenubarCheckboxItemProps = ComponentProps<typeof DropdownMenuCheckboxItem>;
-
-const MenubarCheckboxItem = (props: MenubarCheckboxItemProps) => {
-  const [local, others] = splitProps(props, ["class"]);
-  return (
-    <DropdownMenuCheckboxItem
+    <MenubarPrimitive.CheckboxItem
       data-slot="menubar-checkbox-item"
-      class={cn("z-menubar-checkbox-item", local.class)}
+      class={cn(
+        "relative z-menubar-checkbox-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        local.class,
+      )}
+      {...others}
+    >
+      <span class="pointer-events-none absolute z-menubar-checkbox-item-indicator flex items-center justify-center">
+        <MenubarPrimitive.ItemIndicator>
+          <Check />
+        </MenubarPrimitive.ItemIndicator>
+      </span>
+      {local.children}
+    </MenubarPrimitive.CheckboxItem>
+  );
+};
+
+type MenubarRadioGroupProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarRadioGroupProps<T>
+> &
+  Pick<ComponentProps<T>, "class">;
+
+const MenubarRadioGroup = <T extends ValidComponent = "div">(props: MenubarRadioGroupProps<T>) => {
+  const [local, others] = splitProps(props as MenubarRadioGroupProps, ["class"]);
+  return (
+    <MenubarPrimitive.RadioGroup
+      data-slot="menubar-radio-group"
+      class={cn("z-menubar-radio-group", local.class)}
       {...others}
     />
   );
 };
 
-type MenubarRadioGroupProps = ComponentProps<typeof DropdownMenuRadioGroup>;
+type MenubarRadioItemProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarRadioItemProps<T>
+> &
+  Pick<ComponentProps<T>, "class" | "children">;
 
-const MenubarRadioGroup = (props: MenubarRadioGroupProps) => {
-  return <DropdownMenuRadioGroup data-slot="menubar-radio-group" {...props} />;
-};
-
-type MenubarRadioItemProps = DropdownMenuRadioItemProps;
-
-const MenubarRadioItem = (props: MenubarRadioItemProps) => {
-  const [local, others] = splitProps(props, ["class", "value"]);
+const MenubarRadioItem = <T extends ValidComponent = "div">(props: MenubarRadioItemProps<T>) => {
+  const [local, others] = splitProps(props as MenubarRadioItemProps, ["class", "children"]);
   return (
-    <DropdownMenuRadioItem
+    <MenubarPrimitive.RadioItem
       data-slot="menubar-radio-item"
-      class={cn("z-menubar-radio-item", local.class as string | undefined)}
-      value={local.value}
+      class={cn(
+        "relative z-menubar-radio-item flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        local.class,
+      )}
       {...others}
-    />
+    >
+      <span class="pointer-events-none absolute z-menubar-radio-item-indicator flex items-center justify-center">
+        <MenubarPrimitive.ItemIndicator>
+          <Check />
+        </MenubarPrimitive.ItemIndicator>
+      </span>
+      {local.children}
+    </MenubarPrimitive.RadioItem>
   );
 };
 
-type MenubarLabelProps = ComponentProps<typeof DropdownMenuLabel>;
+type MenubarGroupLabelProps<T extends ValidComponent = "span"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarGroupLabelProps<T>
+> &
+  Pick<ComponentProps<T>, "class"> & {
+    inset?: boolean;
+  };
 
-const MenubarLabel = (props: MenubarLabelProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+const MenubarLabel = <T extends ValidComponent = "span">(props: MenubarGroupLabelProps<T>) => {
+  const mergedProps = mergeProps({ inset: false } as MenubarGroupLabelProps<T>, props);
+  const [local, others] = splitProps(mergedProps as MenubarGroupLabelProps, ["class", "inset"]);
   return (
-    <DropdownMenuLabel
+    <MenubarPrimitive.GroupLabel
       data-slot="menubar-label"
+      data-inset={local.inset || undefined}
       class={cn("z-menubar-label", local.class)}
       {...others}
     />
   );
 };
 
-type MenubarSeparatorProps = ComponentProps<typeof DropdownMenuSeparator>;
+type MenubarSeparatorProps<T extends ValidComponent = "hr"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarSeparatorProps<T>
+> &
+  Pick<ComponentProps<T>, "class">;
 
-const MenubarSeparator = (props: MenubarSeparatorProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+const MenubarSeparator = <T extends ValidComponent = "hr">(props: MenubarSeparatorProps<T>) => {
+  const [local, others] = splitProps(props as MenubarSeparatorProps, ["class"]);
   return (
-    <DropdownMenuSeparator
+    <MenubarPrimitive.Separator
       data-slot="menubar-separator"
       class={cn("z-menubar-separator -mx-1 my-1 h-px", local.class)}
       {...others}
@@ -306,12 +231,12 @@ const MenubarSeparator = (props: MenubarSeparatorProps) => {
   );
 };
 
-type MenubarShortcutProps = ComponentProps<typeof DropdownMenuShortcut>;
+type MenubarShortcutProps = ComponentProps<"span">;
 
 const MenubarShortcut = (props: MenubarShortcutProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <DropdownMenuShortcut
+    <span
       data-slot="menubar-shortcut"
       class={cn("z-menubar-shortcut ml-auto", local.class)}
       {...others}
@@ -319,35 +244,57 @@ const MenubarShortcut = (props: MenubarShortcutProps) => {
   );
 };
 
-type MenubarSubProps = ComponentProps<typeof DropdownMenuSub>;
-
-const MenubarSub = (props: MenubarSubProps) => {
-  return <DropdownMenuSub data-slot="menubar-sub" {...props} />;
+const MenubarSub: Component<MenubarPrimitive.MenubarSubProps> = (props) => {
+  return <MenubarPrimitive.Sub data-slot="menubar-sub" {...props} />;
 };
 
-type MenubarSubTriggerProps = ComponentProps<typeof DropdownMenuSubTrigger>;
+type MenubarSubTriggerProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarSubTriggerProps<T>
+> &
+  Pick<ComponentProps<T>, "class" | "children"> & {
+    inset?: boolean;
+  };
 
-const MenubarSubTrigger = (props: MenubarSubTriggerProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+const MenubarSubTrigger = <T extends ValidComponent = "div">(props: MenubarSubTriggerProps<T>) => {
+  const mergedProps = mergeProps({ inset: false } as MenubarSubTriggerProps<T>, props);
+  const [local, others] = splitProps(mergedProps as MenubarSubTriggerProps, [
+    "class",
+    "inset",
+    "children",
+  ]);
   return (
-    <DropdownMenuSubTrigger
+    <MenubarPrimitive.SubTrigger
       data-slot="menubar-sub-trigger"
-      class={cn("z-menubar-sub-trigger", local.class)}
+      data-inset={local.inset || undefined}
+      class={cn(
+        "z-menubar-sub-trigger flex cursor-default select-none items-center outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        local.class,
+      )}
       {...others}
-    />
+    >
+      {local.children}
+      <ChevronRight class="ml-auto" />
+    </MenubarPrimitive.SubTrigger>
   );
 };
 
-type MenubarSubContentProps = ComponentProps<typeof DropdownMenuSubContent>;
+type MenubarSubContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
+  T,
+  MenubarPrimitive.MenubarSubContentProps<T>
+> &
+  Pick<ComponentProps<T>, "class">;
 
-const MenubarSubContent = (props: MenubarSubContentProps) => {
-  const [local, others] = splitProps(props, ["class"]);
+const MenubarSubContent = <T extends ValidComponent = "div">(props: MenubarSubContentProps<T>) => {
+  const [local, others] = splitProps(props as MenubarSubContentProps, ["class"]);
   return (
-    <DropdownMenuSubContent
-      data-slot="menubar-sub-content"
-      class={cn("z-menubar-sub-content z-menu-target z-menu-translucent", local.class)}
-      {...others}
-    />
+    <MenubarPrimitive.Portal>
+      <MenubarPrimitive.SubContent
+        data-slot="menubar-sub-content"
+        class={cn("z-50 z-menubar-sub-content min-w-32 overflow-hidden", local.class)}
+        {...others}
+      />
+    </MenubarPrimitive.Portal>
   );
 };
 

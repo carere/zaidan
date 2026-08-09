@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import { NativeSelect, NativeSelectOption } from "@/registry/kobalte/ui/native-select";
 import {
   Questionnaire,
@@ -12,9 +13,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   {
@@ -32,15 +31,14 @@ export default function QuestionnaireShortcuts() {
 
     const action = new FormData(event.currentTarget).get("action");
 
-    toastManager.add({
-      title: "Next action selected",
+    toast("Next action selected", {
       description: `Action: ${action ?? "None"} · Shortcuts: ${shortcuts() ?? "none"}`,
     });
   }
 
   return (
     <div class="relative mx-auto flex h-full w-full max-w-md flex-col">
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <NativeSelect
         aria-label="Shortcut style"
         class="absolute end-0 top-0"

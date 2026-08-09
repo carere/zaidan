@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -16,9 +17,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "task", required: true },
@@ -41,8 +40,7 @@ export default function QuestionnaireSkipDemo() {
       review: formData.get("review"),
     };
 
-    toastManager.add({
-      title: "Agent brief submitted",
+    toast("Agent brief submitted", {
       description: `Task: ${answers.task ?? "None"} · Constraints: ${
         answers.constraintStatus === "skipped" ? "Skipped" : (answers.constraints ?? "None")
       } · Review: ${answers.review ?? "None"}`,
@@ -51,7 +49,7 @@ export default function QuestionnaireSkipDemo() {
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="task"

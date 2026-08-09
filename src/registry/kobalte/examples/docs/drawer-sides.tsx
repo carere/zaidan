@@ -12,7 +12,7 @@ import {
 
 export default function DrawerSides() {
   return (
-    <Drawer swipeDirection="left">
+    <Drawer side="left">
       <DrawerTrigger as={Button} variant="secondary">
         Open Left Drawer
       </DrawerTrigger>

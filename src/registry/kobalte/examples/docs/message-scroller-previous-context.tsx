@@ -29,9 +29,9 @@ export default function MessageScrollerPreviousContext() {
               class="w-28"
               aria-label="Previous context peek"
               value={[peek()]}
-              min={32}
-              max={128}
-              onValueChange={(value) => setPeek(value[0] ?? 64)}
+              minValue={32}
+              maxValue={128}
+              onChange={(value) => setPeek(value[0] ?? 64)}
             />
             <Button
               class="ml-auto"

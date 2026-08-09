@@ -11,7 +11,7 @@ import {
 
 export default function DrawerNonModal() {
   return (
-    <Drawer modal={false} disablePointerDismissal swipeDirection="right">
+    <Drawer modal={false} closeOnOutsidePointer={false} side="right">
       <DrawerTrigger as={Button} variant="outline">
         Non Modal
       </DrawerTrigger>
@@ -20,7 +20,7 @@ export default function DrawerNonModal() {
           <DrawerTitle>Non Modal Drawer</DrawerTitle>
         </DrawerHeader>
         <div class="flex-1 p-4">
-          <div class="rounded-2xl bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-80 group-data-[swipe-axis=y]/drawer-popup:w-full" />
+          <div class="size-full rounded-2xl bg-muted" />
         </div>
         <DrawerFooter>
           <DrawerClose as={Button}>Close</DrawerClose>

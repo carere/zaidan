@@ -1,21 +1,26 @@
 import { GlobeIcon } from "lucide-solid";
+import { Show } from "solid-js";
 import {
   Combobox,
-  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
-  ComboboxGroup,
   ComboboxInput,
   ComboboxItem,
-  ComboboxLabel,
-  ComboboxList,
+  ComboboxSection,
+  ComboboxSectionLabel,
+  ComboboxSeparator,
 } from "@/registry/kobalte/ui/combobox";
 import { InputGroupAddon } from "@/registry/kobalte/ui/input-group";
 
-const timezones = [
+type TimezoneGroup = {
+  label: string;
+  options: string[];
+};
+
+const timezones: TimezoneGroup[] = [
   {
-    value: "Americas",
-    items: [
+    label: "Americas",
+    options: [
       "(GMT-5) New York",
       "(GMT-8) Los Angeles",
       "(GMT-6) Chicago",
@@ -25,8 +30,8 @@ const timezones = [
     ],
   },
   {
-    value: "Europe",
-    items: [
+    label: "Europe",
+    options: [
       "(GMT+0) London",
       "(GMT+1) Paris",
       "(GMT+1) Berlin",
@@ -36,8 +41,8 @@ const timezones = [
     ],
   },
   {
-    value: "Asia/Pacific",
-    items: [
+    label: "Asia/Pacific",
+    options: [
       "(GMT+9) Tokyo",
       "(GMT+8) Shanghai",
       "(GMT+8) Singapore",
@@ -50,24 +55,33 @@ const timezones = [
 
 export default function ComboboxInputGroup() {
   return (
-    <Combobox items={timezones}>
-      <ComboboxInput placeholder="Select a timezone">
-        <InputGroupAddon align="inline-start">
-          <GlobeIcon />
+    <Combobox<string, TimezoneGroup>
+      options={timezones}
+      optionValue={(option) => option}
+      optionTextValue={(option) => option}
+      optionGroupChildren="options"
+      placeholder="Select a timezone..."
+      itemComponent={(props) => (
+        <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+      )}
+      sectionComponent={(props) => (
+        <>
+          <Show when={props.section.index !== 0}>
+            <ComboboxSeparator />
+          </Show>
+          <ComboboxSection>
+            <ComboboxSectionLabel>{props.section.rawValue.label}</ComboboxSectionLabel>
+          </ComboboxSection>
+        </>
+      )}
+    >
+      <ComboboxInput placeholder="Select a timezone...">
+        <InputGroupAddon>
+          <GlobeIcon class="size-4" />
         </InputGroupAddon>
       </ComboboxInput>
-      <ComboboxContent alignOffset={-28} class="w-60">
+      <ComboboxContent class="w-60">
         <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-        <ComboboxList>
-          {(group: (typeof timezones)[number]) => (
-            <ComboboxGroup items={group.items}>
-              <ComboboxLabel>{group.value}</ComboboxLabel>
-              <ComboboxCollection>
-                {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-              </ComboboxCollection>
-            </ComboboxGroup>
-          )}
-        </ComboboxList>
       </ComboboxContent>
     </Combobox>
   );

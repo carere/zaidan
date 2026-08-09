@@ -1,3 +1,4 @@
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -9,9 +10,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   {
@@ -27,15 +26,14 @@ export default function QuestionnaireMultiple() {
 
     const context = new FormData(event.currentTarget).getAll("context");
 
-    toastManager.add({
-      title: "Context selected",
+    toast("Context selected", {
       description: `Context: ${context.join(", ") || "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         items={items}

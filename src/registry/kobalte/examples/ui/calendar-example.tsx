@@ -331,7 +331,7 @@ function DatePickerSimple() {
               {(value) => format(value, "PPP")}
             </Show>
           </PopoverTrigger>
-          <PopoverContent align="start" class="w-auto p-0">
+          <PopoverContent class="w-auto p-0">
             <Calendar mode="single" selected={date()} onSelect={(value) => setDate(value)} />
           </PopoverContent>
         </Popover>
@@ -360,7 +360,7 @@ function DatePickerWithDropdowns() {
             </Show>
             <ChevronDown data-icon="inline-end" class="ml-auto" />
           </PopoverTrigger>
-          <PopoverContent align="start" class="w-auto p-0">
+          <PopoverContent class="w-auto p-0">
             <Calendar
               mode="single"
               selected={date()}
@@ -409,7 +409,7 @@ function DatePickerWithRange() {
               )}
             </Show>
           </PopoverTrigger>
-          <PopoverContent align="start" class="w-auto p-0">
+          <PopoverContent class="w-auto p-0">
             <Calendar
               mode="range"
               defaultMonth={date()?.from}
@@ -444,7 +444,7 @@ function CalendarInPopover() {
           <CalendarIcon data-icon="inline-start" />
           Open Calendar
         </PopoverTrigger>
-        <PopoverContent align="start" class="w-auto p-0">
+        <PopoverContent class="w-auto p-0">
           <Calendar mode="single" />
         </PopoverContent>
       </Popover>

@@ -26,12 +26,12 @@ export default function BreadcrumbDropdown() {
           <DotIcon />
         </BreadcrumbSeparator>
         <BreadcrumbItem>
-          <DropdownMenu>
+          <DropdownMenu placement="bottom-start">
             <DropdownMenuTrigger class="flex items-center gap-1">
               Components
               <ChevronDownIcon data-icon="inline-end" class="size-3.5" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuItem>Documentation</DropdownMenuItem>
                 <DropdownMenuItem>Themes</DropdownMenuItem>

@@ -10,8 +10,8 @@ describe("Toast documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
     const page = await readFile(pagePath, "utf8");
 
-    expect(page).toContain("Kobalte Toast");
-    expect(page).toContain("https://kobalte.dev/docs/core/components/toast#api-reference");
+    expect(page).toContain("solid-sonner");
+    expect(page).toContain("https://github.com/wobsoriano/solid-sonner");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);
@@ -23,9 +23,11 @@ describe("Toast documentation", () => {
 
       expect(demo).toContain("export default function");
       expect(demo).toContain('from "@/registry/kobalte/ui/toast"');
+      expect(demo).toContain('from "solid-sonner"');
       expect(demo).not.toContain('from "react"');
       expect(demo).not.toContain('from "lucide-react"');
-      expect(demo).not.toContain("Sonner");
+      expect(demo).not.toContain("createToastManager");
+      expect(demo).not.toContain("toastManager");
 
       const resolvedExample = getDocsExample(name);
       expect(resolvedExample).toBeTypeOf("function");
@@ -35,6 +37,7 @@ describe("Toast documentation", () => {
     expect(page).not.toContain("toast-rtl");
     expect(page).not.toContain("## RTL");
     expect(page).not.toContain("Direction");
-    expect(page).not.toContain("Sonner");
+    expect(page).not.toContain("createToastManager");
+    expect(page).not.toContain("actionProps");
   });
 });

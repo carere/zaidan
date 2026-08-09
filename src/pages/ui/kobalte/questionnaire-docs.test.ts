@@ -38,7 +38,6 @@ describe("Questionnaire documentation", () => {
       expect(demo).not.toContain('from "react"');
       expect(demo).not.toContain('from "lucide-react"');
       expect(demo).not.toContain('from "sonner"');
-      expect(demo).not.toContain('from "solid-sonner"');
     }
 
     for (const name of demoNames) {

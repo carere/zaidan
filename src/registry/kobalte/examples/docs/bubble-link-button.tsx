@@ -1,14 +1,13 @@
+import { toast } from "solid-sonner";
 import { Bubble, BubbleContent, BubbleGroup } from "@/registry/kobalte/ui/bubble";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function BubbleLinkButton() {
-  const notify = (description: string) => toastManager.add({ description, type: "success" });
+  const notify = (description: string) => toast.success(description);
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <div class="flex w-full max-w-sm flex-col gap-8 py-12">
         <Bubble variant="muted">
           <BubbleContent>How can I help you today?</BubbleContent>

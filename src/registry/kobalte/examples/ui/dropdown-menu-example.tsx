@@ -103,18 +103,18 @@ function DropdownMenuBasic() {
 }
 
 function DropdownMenuSides() {
-  const sides = ["inline-start", "left", "top", "bottom", "right", "inline-end"] as const;
+  const placements = ["top", "right", "bottom", "left"] as const;
 
   return (
     <Example title="Sides" containerClass="col-span-2">
       <div class="flex flex-wrap justify-center gap-2">
-        <For each={sides}>
-          {(side) => (
-            <DropdownMenu>
+        <For each={placements}>
+          {(placement) => (
+            <DropdownMenu placement={placement}>
               <DropdownMenuTrigger as={Button} variant="outline" class="w-fit capitalize">
-                {side.replace("-", " ")}
+                {placement}
               </DropdownMenuTrigger>
-              <DropdownMenuContent side={side}>
+              <DropdownMenuContent>
                 <DropdownMenuGroup>
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Billing</DropdownMenuItem>
@@ -418,7 +418,7 @@ function DropdownMenuWithAvatar() {
   return (
     <Example title="With Avatar">
       <div class="flex items-center justify-between gap-4">
-        <DropdownMenu>
+        <DropdownMenu placement="top-end">
           <DropdownMenuTrigger
             as={Button}
             variant="outline"
@@ -463,7 +463,7 @@ function DropdownMenuWithAvatar() {
               <AvatarFallback>LR</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top">
+          <DropdownMenuContent>
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
@@ -572,10 +572,10 @@ function DropdownMenuWithInset() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuLabel inset>Appearance</DropdownMenuLabel>
-            <DropdownMenuCheckboxItem inset checked={showBookmarks()} onChange={setShowBookmarks}>
+            <DropdownMenuCheckboxItem checked={showBookmarks()} onChange={setShowBookmarks}>
               Bookmarks
             </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem inset checked={showUrls()} onChange={setShowUrls}>
+            <DropdownMenuCheckboxItem checked={showUrls()} onChange={setShowUrls}>
               Full URLs
             </DropdownMenuCheckboxItem>
           </DropdownMenuGroup>
@@ -583,15 +583,9 @@ function DropdownMenuWithInset() {
           <DropdownMenuGroup>
             <DropdownMenuLabel inset>Theme</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={theme()} onChange={setTheme}>
-              <DropdownMenuRadioItem inset value="light">
-                Light
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem inset value="dark">
-                Dark
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem inset value="system">
-                System
-              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

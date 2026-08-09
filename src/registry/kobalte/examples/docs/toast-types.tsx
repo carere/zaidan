@@ -1,62 +1,28 @@
+import { toast } from "solid-sonner";
 import { Button } from "@/registry/kobalte/ui/button";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function ToastTypes() {
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <div class="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          onClick={() => toastManager.add({ description: "Event has been created." })}
-        >
+        <Button variant="outline" onClick={() => toast("Event has been created.")}>
           Default
         </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            toastManager.add({
-              type: "success",
-              description: "Event has been created.",
-            })
-          }
-        >
+        <Button variant="outline" onClick={() => toast.success("Event has been created.")}>
           Success
         </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            toastManager.add({
-              type: "info",
-              description: "Arrive 10 minutes before the event.",
-            })
-          }
-        >
+        <Button variant="outline" onClick={() => toast.info("Arrive 10 minutes before the event.")}>
           Info
         </Button>
         <Button
           variant="outline"
-          onClick={() =>
-            toastManager.add({
-              type: "warning",
-              description: "The event cannot start before 8:00 AM.",
-            })
-          }
+          onClick={() => toast.warning("The event cannot start before 8:00 AM.")}
         >
           Warning
         </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            toastManager.add({
-              type: "error",
-              description: "The event could not be created.",
-              priority: "high",
-            })
-          }
-        >
+        <Button variant="outline" onClick={() => toast.error("The event could not be created.")}>
           Error
         </Button>
       </div>

@@ -68,7 +68,7 @@ export default function MenubarExample() {
 }
 
 function MenubarSides() {
-  const sides = ["inline-start", "left", "top", "bottom", "right", "inline-end"] as const;
+  const sides = ["top", "left", "bottom", "right"] as const;
 
   return (
     <Example title="Sides" containerClass="col-span-2">
@@ -76,9 +76,9 @@ function MenubarSides() {
         <For each={sides}>
           {(side) => (
             <Menubar>
-              <MenubarMenu>
-                <MenubarTrigger class="capitalize">{side.replace("-", " ")}</MenubarTrigger>
-                <MenubarContent side={side}>
+              <MenubarMenu placement={side}>
+                <MenubarTrigger class="capitalize">{side}</MenubarTrigger>
+                <MenubarContent>
                   <MenubarGroup>
                     <MenubarItem>New Tab</MenubarItem>
                     <MenubarItem>New Window</MenubarItem>
@@ -567,10 +567,10 @@ function MenubarWithInset() {
             <MenubarSeparator />
             <MenubarGroup>
               <MenubarLabel inset>Appearance</MenubarLabel>
-              <MenubarCheckboxItem inset checked={showBookmarks()} onChange={setShowBookmarks}>
+              <MenubarCheckboxItem checked={showBookmarks()} onChange={setShowBookmarks}>
                 Bookmarks
               </MenubarCheckboxItem>
-              <MenubarCheckboxItem inset checked={showUrls()} onChange={setShowUrls}>
+              <MenubarCheckboxItem checked={showUrls()} onChange={setShowUrls}>
                 Full URLs
               </MenubarCheckboxItem>
             </MenubarGroup>
@@ -578,15 +578,9 @@ function MenubarWithInset() {
             <MenubarGroup>
               <MenubarLabel inset>Theme</MenubarLabel>
               <MenubarRadioGroup value={theme()} onChange={setTheme}>
-                <MenubarRadioItem inset value="light">
-                  Light
-                </MenubarRadioItem>
-                <MenubarRadioItem inset value="dark">
-                  Dark
-                </MenubarRadioItem>
-                <MenubarRadioItem inset value="system">
-                  System
-                </MenubarRadioItem>
+                <MenubarRadioItem value="light">Light</MenubarRadioItem>
+                <MenubarRadioItem value="dark">Dark</MenubarRadioItem>
+                <MenubarRadioItem value="system">System</MenubarRadioItem>
               </MenubarRadioGroup>
             </MenubarGroup>
             <MenubarSeparator />

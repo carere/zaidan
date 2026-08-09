@@ -275,7 +275,7 @@ function ContextMenuWithRadio() {
         <ContextMenuContent>
           <ContextMenuGroup>
             <ContextMenuLabel>People</ContextMenuLabel>
-            <ContextMenuRadioGroup value={user()} onValueChange={setUser}>
+            <ContextMenuRadioGroup value={user()} onChange={setUser}>
               <ContextMenuRadioItem value="pedro">Pedro Duarte</ContextMenuRadioItem>
               <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
             </ContextMenuRadioGroup>
@@ -283,7 +283,7 @@ function ContextMenuWithRadio() {
           <ContextMenuSeparator />
           <ContextMenuGroup>
             <ContextMenuLabel>Theme</ContextMenuLabel>
-            <ContextMenuRadioGroup value={theme()} onValueChange={setTheme}>
+            <ContextMenuRadioGroup value={theme()} onChange={setTheme}>
               <ContextMenuRadioItem value="light">Light</ContextMenuRadioItem>
               <ContextMenuRadioItem value="dark">Dark</ContextMenuRadioItem>
               <ContextMenuRadioItem value="system">System</ContextMenuRadioItem>
@@ -331,18 +331,18 @@ function ContextMenuWithDestructive() {
 }
 
 function ContextMenuWithSides() {
-  const sides = ["inline-start", "left", "top", "bottom", "right", "inline-end"] as const;
+  const sides = ["top", "right", "bottom", "left"] as const;
 
   return (
     <Example title="With Sides" containerClass="col-span-2">
       <div class="flex flex-wrap justify-center gap-2">
         <For each={sides}>
           {(side) => (
-            <ContextMenu>
+            <ContextMenu placement={side}>
               <ContextMenuTrigger class="flex aspect-[2/0.5] items-center justify-center rounded-lg border p-4 text-sm capitalize">
-                {side.replace("-", " ")}
+                Right click ({side})
               </ContextMenuTrigger>
-              <ContextMenuContent side={side}>
+              <ContextMenuContent>
                 <ContextMenuGroup>
                   <ContextMenuItem>Back</ContextMenuItem>
                   <ContextMenuItem>Forward</ContextMenuItem>
@@ -447,30 +447,20 @@ function ContextMenuWithInset() {
           <ContextMenuSeparator />
           <ContextMenuGroup>
             <ContextMenuLabel inset>Appearance</ContextMenuLabel>
-            <ContextMenuCheckboxItem
-              checked={showBookmarks()}
-              inset
-              onCheckedChange={setShowBookmarks}
-            >
+            <ContextMenuCheckboxItem checked={showBookmarks()} onChange={setShowBookmarks}>
               Bookmarks
             </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem checked={showUrls()} inset onCheckedChange={setShowUrls}>
+            <ContextMenuCheckboxItem checked={showUrls()} onChange={setShowUrls}>
               Full URLs
             </ContextMenuCheckboxItem>
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuGroup>
             <ContextMenuLabel inset>Theme</ContextMenuLabel>
-            <ContextMenuRadioGroup value={theme()} onValueChange={setTheme}>
-              <ContextMenuRadioItem inset value="light">
-                Light
-              </ContextMenuRadioItem>
-              <ContextMenuRadioItem inset value="dark">
-                Dark
-              </ContextMenuRadioItem>
-              <ContextMenuRadioItem inset value="system">
-                System
-              </ContextMenuRadioItem>
+            <ContextMenuRadioGroup value={theme()} onChange={setTheme}>
+              <ContextMenuRadioItem value="light">Light</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="dark">Dark</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="system">System</ContextMenuRadioItem>
             </ContextMenuRadioGroup>
           </ContextMenuGroup>
           <ContextMenuSeparator />

@@ -24,14 +24,14 @@ export default function ButtonGroupDropdown() {
   return (
     <ButtonGroup>
       <Button variant="outline">Follow</Button>
-      <DropdownMenu>
+      <DropdownMenu placement="bottom-end">
         <DropdownMenuTrigger
           class={`${buttonVariants({ variant: "outline" })} pl-2!`}
           aria-label="More options"
         >
           <ChevronDown />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="w-44">
+        <DropdownMenuContent class="w-44">
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <VolumeOff />

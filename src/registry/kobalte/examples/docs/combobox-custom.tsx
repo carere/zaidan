@@ -4,12 +4,10 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
-  ComboboxList,
 } from "@/registry/kobalte/ui/combobox";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/registry/kobalte/ui/item";
 
 const countries = [
-  { code: "", value: "", continent: "", label: "Select country" },
   { code: "ar", value: "argentina", label: "Argentina", continent: "South America" },
   { code: "au", value: "australia", label: "Australia", continent: "Oceania" },
   { code: "br", value: "brazil", label: "Brazil", continent: "South America" },
@@ -33,28 +31,27 @@ const countries = [
 
 export default function ComboboxCustom() {
   return (
-    <Combobox
-      items={countries.filter((country) => country.code !== "")}
-      itemToStringLabel={(country) => country.label}
-      itemToStringValue={(country) => country.value}
+    <Combobox<(typeof countries)[number]>
+      options={countries}
+      optionValue="value"
+      optionTextValue="label"
+      placeholder="Search countries..."
+      itemComponent={(props) => (
+        <ComboboxItem item={props.item}>
+          <Item size="xs" class="p-0">
+            <ItemContent>
+              <ItemTitle class="whitespace-nowrap">{props.item.rawValue.label}</ItemTitle>
+              <ItemDescription>
+                {props.item.rawValue.continent} ({props.item.rawValue.code})
+              </ItemDescription>
+            </ItemContent>
+          </Item>
+        </ComboboxItem>
+      )}
     >
       <ComboboxInput placeholder="Search countries..." />
       <ComboboxContent>
         <ComboboxEmpty>No countries found.</ComboboxEmpty>
-        <ComboboxList>
-          {(country: (typeof countries)[number]) => (
-            <ComboboxItem value={country}>
-              <Item size="xs" class="p-0">
-                <ItemContent>
-                  <ItemTitle class="whitespace-nowrap">{country.label}</ItemTitle>
-                  <ItemDescription>
-                    {country.continent} ({country.code})
-                  </ItemDescription>
-                </ItemContent>
-              </Item>
-            </ComboboxItem>
-          )}
-        </ComboboxList>
       </ComboboxContent>
     </Combobox>
   );

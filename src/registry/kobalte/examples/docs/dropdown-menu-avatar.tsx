@@ -12,14 +12,14 @@ import {
 
 export default function DropdownMenuAvatar() {
   return (
-    <DropdownMenu>
+    <DropdownMenu placement="bottom-end">
       <DropdownMenuTrigger as={Button} variant="ghost" size="icon" class="rounded-full">
         <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
           <AvatarFallback>LR</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <BadgeCheckIcon />

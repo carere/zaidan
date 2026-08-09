@@ -281,7 +281,7 @@ function AccordionWithDisabled() {
             <AccordionItem
               value={item.value}
               disabled={item.disabled}
-              class="p-1 data-open:bg-muted/50"
+              class="p-1 data-expanded:bg-muted/50"
             >
               <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4">
                 {item.trigger}

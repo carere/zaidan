@@ -40,7 +40,7 @@ export default function TableActions() {
               <TableCell class="font-medium">{product.name}</TableCell>
               <TableCell>{product.price}</TableCell>
               <TableCell class="text-right">
-                <DropdownMenu>
+                <DropdownMenu placement="bottom-end">
                   <DropdownMenuTrigger
                     as={Button}
                     variant="ghost"
@@ -50,7 +50,7 @@ export default function TableActions() {
                   >
                     <MoreHorizontalIcon />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent>
                     <DropdownMenuItem>Edit</DropdownMenuItem>
                     <DropdownMenuItem>Duplicate</DropdownMenuItem>
                     <DropdownMenuSeparator />

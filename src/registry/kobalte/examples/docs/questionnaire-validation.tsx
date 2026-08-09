@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import { z } from "zod";
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@/registry/kobalte/ui/card";
 import {
@@ -15,9 +16,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "detail", required: true },
@@ -79,8 +78,7 @@ export default function QuestionnaireValidation() {
 
     if (result.success) {
       setErrors({});
-      toastManager.add({
-        title: "Agent response configured",
+      toast("Agent response configured", {
         description: `Detail: ${result.data.detail} · Audience: ${result.data.audience}`,
       });
       return;
@@ -107,7 +105,7 @@ export default function QuestionnaireValidation() {
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         item={item()}

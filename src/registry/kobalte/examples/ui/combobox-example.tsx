@@ -1,25 +1,18 @@
 import { ChevronDown, Globe } from "lucide-solid";
-import { createSignal, For } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
+import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Card, CardContent, CardFooter } from "@/registry/kobalte/ui/card";
 import {
   Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
-  ComboboxGroup,
   ComboboxInput,
   ComboboxItem,
-  ComboboxLabel,
-  ComboboxList,
+  ComboboxSection,
+  ComboboxSectionLabel,
   ComboboxSeparator,
-  ComboboxTrigger,
-  ComboboxValue,
-  useComboboxAnchor,
 } from "@/registry/kobalte/ui/combobox";
 import {
   Dialog,
@@ -48,347 +41,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/registry/kobalte/ui/select";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
-
-const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
-
-const continentNames = {
-  A: "Asia",
-  E: "Europe",
-  F: "Africa",
-  N: "North America",
-  O: "Oceania",
-  S: "South America",
-} as const;
-
-const countries = `||Select country|
-af|afghanistan|Afghanistan|A
-al|albania|Albania|E
-dz|algeria|Algeria|F
-ad|andorra|Andorra|E
-ao|angola|Angola|F
-ar|argentina|Argentina|S
-am|armenia|Armenia|A
-au|australia|Australia|O
-at|austria|Austria|E
-az|azerbaijan|Azerbaijan|A
-bs|bahamas|Bahamas|N
-bh|bahrain|Bahrain|A
-bd|bangladesh|Bangladesh|A
-bb|barbados|Barbados|N
-by|belarus|Belarus|E
-be|belgium|Belgium|E
-bz|belize|Belize|N
-bj|benin|Benin|F
-bt|bhutan|Bhutan|A
-bo|bolivia|Bolivia|S
-ba|bosnia-and-herzegovina|Bosnia and Herzegovina|E
-bw|botswana|Botswana|F
-br|brazil|Brazil|S
-bn|brunei|Brunei|A
-bg|bulgaria|Bulgaria|E
-bf|burkina-faso|Burkina Faso|F
-bi|burundi|Burundi|F
-kh|cambodia|Cambodia|A
-cm|cameroon|Cameroon|F
-ca|canada|Canada|N
-cv|cape-verde|Cape Verde|F
-cf|central-african-republic|Central African Republic|F
-td|chad|Chad|F
-cl|chile|Chile|S
-cn|china|China|A
-co|colombia|Colombia|S
-km|comoros|Comoros|F
-cg|congo|Congo|F
-cr|costa-rica|Costa Rica|N
-hr|croatia|Croatia|E
-cu|cuba|Cuba|N
-cy|cyprus|Cyprus|A
-cz|czech-republic|Czech Republic|E
-dk|denmark|Denmark|E
-dj|djibouti|Djibouti|F
-dm|dominica|Dominica|N
-do|dominican-republic|Dominican Republic|N
-ec|ecuador|Ecuador|S
-eg|egypt|Egypt|F
-sv|el-salvador|El Salvador|N
-gq|equatorial-guinea|Equatorial Guinea|F
-er|eritrea|Eritrea|F
-ee|estonia|Estonia|E
-et|ethiopia|Ethiopia|F
-fj|fiji|Fiji|O
-fi|finland|Finland|E
-fr|france|France|E
-ga|gabon|Gabon|F
-gm|gambia|Gambia|F
-ge|georgia|Georgia|A
-de|germany|Germany|E
-gh|ghana|Ghana|F
-gr|greece|Greece|E
-gd|grenada|Grenada|N
-gt|guatemala|Guatemala|N
-gn|guinea|Guinea|F
-gw|guinea-bissau|Guinea-Bissau|F
-gy|guyana|Guyana|S
-ht|haiti|Haiti|N
-hn|honduras|Honduras|N
-hu|hungary|Hungary|E
-is|iceland|Iceland|E
-in|india|India|A
-id|indonesia|Indonesia|A
-ir|iran|Iran|A
-iq|iraq|Iraq|A
-ie|ireland|Ireland|E
-il|israel|Israel|A
-it|italy|Italy|E
-jm|jamaica|Jamaica|N
-jp|japan|Japan|A
-jo|jordan|Jordan|A
-kz|kazakhstan|Kazakhstan|A
-ke|kenya|Kenya|F
-kw|kuwait|Kuwait|A
-kg|kyrgyzstan|Kyrgyzstan|A
-la|laos|Laos|A
-lv|latvia|Latvia|E
-lb|lebanon|Lebanon|A
-ls|lesotho|Lesotho|F
-lr|liberia|Liberia|F
-ly|libya|Libya|F
-li|liechtenstein|Liechtenstein|E
-lt|lithuania|Lithuania|E
-lu|luxembourg|Luxembourg|E
-mg|madagascar|Madagascar|F
-mw|malawi|Malawi|F
-my|malaysia|Malaysia|A
-mv|maldives|Maldives|A
-ml|mali|Mali|F
-mt|malta|Malta|E
-mh|marshall-islands|Marshall Islands|O
-mr|mauritania|Mauritania|F
-mu|mauritius|Mauritius|F
-mx|mexico|Mexico|N
-fm|micronesia|Micronesia|O
-md|moldova|Moldova|E
-mc|monaco|Monaco|E
-mn|mongolia|Mongolia|A
-me|montenegro|Montenegro|E
-ma|morocco|Morocco|F
-mz|mozambique|Mozambique|F
-mm|myanmar|Myanmar|A
-na|namibia|Namibia|F
-nr|nauru|Nauru|O
-np|nepal|Nepal|A
-nl|netherlands|Netherlands|E
-nz|new-zealand|New Zealand|O
-ni|nicaragua|Nicaragua|N
-ne|niger|Niger|F
-ng|nigeria|Nigeria|F
-kp|north-korea|North Korea|A
-mk|north-macedonia|North Macedonia|E
-no|norway|Norway|E
-om|oman|Oman|A
-pk|pakistan|Pakistan|A
-pw|palau|Palau|O
-ps|palestine|Palestine|A
-pa|panama|Panama|N
-pg|papua-new-guinea|Papua New Guinea|O
-py|paraguay|Paraguay|S
-pe|peru|Peru|S
-ph|philippines|Philippines|A
-pl|poland|Poland|E
-pt|portugal|Portugal|E
-qa|qatar|Qatar|A
-ro|romania|Romania|E
-ru|russia|Russia|E
-rw|rwanda|Rwanda|F
-ws|samoa|Samoa|O
-sm|san-marino|San Marino|E
-sa|saudi-arabia|Saudi Arabia|A
-sn|senegal|Senegal|F
-rs|serbia|Serbia|E
-sc|seychelles|Seychelles|F
-sl|sierra-leone|Sierra Leone|F
-sg|singapore|Singapore|A
-sk|slovakia|Slovakia|E
-si|slovenia|Slovenia|E
-sb|solomon-islands|Solomon Islands|O
-so|somalia|Somalia|F
-za|south-africa|South Africa|F
-kr|south-korea|South Korea|A
-ss|south-sudan|South Sudan|F
-es|spain|Spain|E
-lk|sri-lanka|Sri Lanka|A
-sd|sudan|Sudan|F
-sr|suriname|Suriname|S
-se|sweden|Sweden|E
-ch|switzerland|Switzerland|E
-sy|syria|Syria|A
-tw|taiwan|Taiwan|A
-tj|tajikistan|Tajikistan|A
-tz|tanzania|Tanzania|F
-th|thailand|Thailand|A
-tl|timor-leste|Timor-Leste|A
-tg|togo|Togo|F
-to|tonga|Tonga|O
-tt|trinidad-and-tobago|Trinidad and Tobago|N
-tn|tunisia|Tunisia|F
-tr|turkey|Turkey|A
-tm|turkmenistan|Turkmenistan|A
-tv|tuvalu|Tuvalu|O
-ug|uganda|Uganda|F
-ua|ukraine|Ukraine|E
-ae|united-arab-emirates|United Arab Emirates|A
-gb|united-kingdom|United Kingdom|E
-us|united-states|United States|N
-uy|uruguay|Uruguay|S
-uz|uzbekistan|Uzbekistan|A
-vu|vanuatu|Vanuatu|O
-va|vatican-city|Vatican City|E
-ve|venezuela|Venezuela|S
-vn|vietnam|Vietnam|A
-ye|yemen|Yemen|A
-zm|zambia|Zambia|F
-zw|zimbabwe|Zimbabwe|F`
-  .split("\n")
-  .map((row) => {
-    const [code, value, label, continent] = row.split("|");
-
-    return {
-      code,
-      value,
-      label,
-      continent: continent ? continentNames[continent as keyof typeof continentNames] : "",
-    };
-  });
-
-const timezones = [
-  {
-    value: "Americas",
-    items: [
-      "(GMT-5) New York",
-      "(GMT-8) Los Angeles",
-      "(GMT-6) Chicago",
-      "(GMT-5) Toronto",
-      "(GMT-8) Vancouver",
-      "(GMT-3) São Paulo",
-    ],
-  },
-  {
-    value: "Europe",
-    items: [
-      "(GMT+0) London",
-      "(GMT+1) Paris",
-      "(GMT+1) Berlin",
-      "(GMT+1) Rome",
-      "(GMT+1) Madrid",
-      "(GMT+1) Amsterdam",
-    ],
-  },
-  {
-    value: "Asia/Pacific",
-    items: [
-      "(GMT+9) Tokyo",
-      "(GMT+8) Shanghai",
-      "(GMT+8) Singapore",
-      "(GMT+4) Dubai",
-      "(GMT+11) Sydney",
-      "(GMT+9) Seoul",
-    ],
-  },
-];
-
-const disabledFrameworks = ["Nuxt.js", "Remix"];
-const largeListItems = Array.from({ length: 100 }, (_, index) => `Item ${index + 1}`);
-const selectItems = [
-  { label: "Select a framework", value: null },
-  { label: "React", value: "react" },
-  { label: "Vue", value: "vue" },
-  { label: "Angular", value: "angular" },
-  { label: "Svelte", value: "svelte" },
-  { label: "Solid", value: "solid" },
-  { label: "Preact", value: "preact" },
-  { label: "Next.js", value: "next.js" },
-];
 
 export default function ComboboxExample() {
   return (
-    <>
-      <Toaster toastManager={toastManager} />
-      <ExampleWrapper>
-        <ComboboxBasic />
-        <ComboboxDisabled />
-        <ComboboxSides />
-        <ComboboxInvalid />
-        <ComboboxWithClear />
-        <ComboboxAutoHighlight />
-        <ComboboxWithGroups />
-        <ComboboxWithGroupsAndSeparator />
-        <ComboboxLargeList />
-        <ComboboxInputAddon />
-        <ComboboxInPopup />
-        <ComboboxWithForm />
-        <ComboboxMultiple />
-        <ComboboxMultipleDisabled />
-        <ComboboxMultipleInvalid />
-        <ComboboxMultipleNoRemove />
-        <ComboboxWithCustomItems />
-        <ComboboxInDialog />
-        <ComboboxWithOtherInputs />
-        <ComboboxDisabledItems />
-      </ExampleWrapper>
-    </>
+    <ExampleWrapper>
+      <ComboboxBasic />
+      <ComboboxDisabled />
+      <ComboboxInvalid />
+      <ComboboxWithClear />
+      <ComboboxWithGroups />
+      <ComboboxWithGroupsAndSeparator />
+      <ComboboxLargeList />
+      <ComboboxWithIconAddon />
+      <ComboboxWithForm />
+      <ComboboxMultiple />
+      <ComboboxMultipleDisabled />
+      <ComboboxMultipleInvalid />
+      <ComboboxWithCustomItems />
+      <ComboboxWithField />
+      <ComboboxInDialog />
+      <ComboboxWithOtherInputs />
+    </ExampleWrapper>
   );
 }
 
-function FrameworkList(props: { disabledItems?: readonly string[] }) {
-  return (
-    <ComboboxList>
-      {(item: string) => (
-        <ComboboxItem value={item} disabled={props.disabledItems?.includes(item)}>
-          {item}
-        </ComboboxItem>
-      )}
-    </ComboboxList>
-  );
-}
+const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
 function ComboboxBasic() {
   return (
     <Example title="Basic">
-      <Combobox items={frameworks}>
-        <ComboboxInput placeholder="Select a framework" />
+      <Combobox
+        options={frameworks}
+        placeholder="Select a framework..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+      >
+        <ComboboxInput placeholder="Select a framework..." />
         <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
+          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
-    </Example>
-  );
-}
-
-function ComboboxSides() {
-  const sides = ["inline-start", "left", "top", "bottom", "right", "inline-end"] as const;
-
-  return (
-    <Example title="Sides" containerClass="col-span-2">
-      <div class="flex flex-wrap justify-center gap-2">
-        <For each={sides}>
-          {(side) => (
-            <Combobox items={frameworks}>
-              <ComboboxInput
-                placeholder={side.replace("-", " ")}
-                class="w-32 **:data-[slot=input-group-control]:capitalize"
-              />
-              <ComboboxContent side={side}>
-                <ComboboxEmpty>No items found.</ComboboxEmpty>
-                <FrameworkList />
-              </ComboboxContent>
-            </Combobox>
-          )}
-        </For>
-      </div>
     </Example>
   );
 }
@@ -396,25 +89,17 @@ function ComboboxSides() {
 function ComboboxDisabled() {
   return (
     <Example title="Disabled">
-      <Combobox items={frameworks}>
-        <ComboboxInput placeholder="Select a framework" disabled />
+      <Combobox
+        options={frameworks}
+        placeholder="Select a framework..."
+        disabled
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+      >
+        <ComboboxInput placeholder="Select a framework..." disabled />
         <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
-        </ComboboxContent>
-      </Combobox>
-    </Example>
-  );
-}
-
-function ComboboxDisabledItems() {
-  return (
-    <Example title="Disabled Items">
-      <Combobox items={frameworks}>
-        <ComboboxInput placeholder="Select a framework" />
-        <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList disabledItems={disabledFrameworks} />
+          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </Example>
@@ -425,24 +110,36 @@ function ComboboxInvalid() {
   return (
     <Example title="Invalid">
       <div class="flex flex-col gap-4">
-        <Combobox items={frameworks}>
-          <ComboboxInput placeholder="Select a framework" aria-invalid="true" />
+        <Combobox
+          options={frameworks}
+          placeholder="Select a framework..."
+          validationState="invalid"
+          itemComponent={(props) => (
+            <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+          )}
+        >
+          <ComboboxInput placeholder="Select a framework..." aria-invalid="true" />
           <ComboboxContent>
-            <ComboboxEmpty>No items found.</ComboboxEmpty>
-            <FrameworkList />
+            <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
           </ComboboxContent>
         </Combobox>
-        <Field data-invalid="true">
+        <Field data-invalid>
           <FieldLabel for="combobox-framework-invalid">Framework</FieldLabel>
-          <Combobox items={frameworks}>
+          <Combobox
+            options={frameworks}
+            placeholder="Select a framework..."
+            validationState="invalid"
+            itemComponent={(props) => (
+              <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+            )}
+          >
             <ComboboxInput
               id="combobox-framework-invalid"
-              placeholder="Select a framework"
+              placeholder="Select a framework..."
               aria-invalid="true"
             />
             <ComboboxContent>
-              <ComboboxEmpty>No items found.</ComboboxEmpty>
-              <FrameworkList />
+              <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
             </ComboboxContent>
           </Combobox>
           <FieldDescription>Please select a valid framework.</FieldDescription>
@@ -456,34 +153,87 @@ function ComboboxInvalid() {
 function ComboboxWithClear() {
   return (
     <Example title="With Clear Button">
-      <Combobox items={frameworks} defaultValue={frameworks[0]}>
-        <ComboboxInput placeholder="Select a framework" showClear />
+      <Combobox
+        options={frameworks}
+        placeholder="Select a framework..."
+        defaultValue={frameworks[0]}
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+      >
+        <ComboboxInput placeholder="Select a framework..." showClear />
         <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
+          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </Example>
   );
 }
 
+type TimezoneOption = string;
+
+type TimezoneGroup = {
+  label: string;
+  options: TimezoneOption[];
+};
+
+const timezones: TimezoneGroup[] = [
+  {
+    label: "Americas",
+    options: [
+      "(GMT-5) New York",
+      "(GMT-8) Los Angeles",
+      "(GMT-6) Chicago",
+      "(GMT-5) Toronto",
+      "(GMT-8) Vancouver",
+      "(GMT-3) São Paulo",
+    ],
+  },
+  {
+    label: "Europe",
+    options: [
+      "(GMT+0) London",
+      "(GMT+1) Paris",
+      "(GMT+1) Berlin",
+      "(GMT+1) Rome",
+      "(GMT+1) Madrid",
+      "(GMT+1) Amsterdam",
+    ],
+  },
+  {
+    label: "Asia/Pacific",
+    options: [
+      "(GMT+9) Tokyo",
+      "(GMT+8) Shanghai",
+      "(GMT+8) Singapore",
+      "(GMT+4) Dubai",
+      "(GMT+11) Sydney",
+      "(GMT+9) Seoul",
+    ],
+  },
+];
+
 function ComboboxWithGroups() {
   return (
     <Example title="With Groups">
-      <Combobox items={timezones}>
-        <ComboboxInput placeholder="Select a timezone" />
+      <Combobox<TimezoneOption, TimezoneGroup>
+        options={timezones}
+        optionValue={(opt) => opt}
+        optionTextValue={(opt) => opt}
+        optionGroupChildren="options"
+        placeholder="Select a timezone..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+        sectionComponent={(props) => (
+          <ComboboxSection>
+            <ComboboxSectionLabel>{props.section.rawValue.label}</ComboboxSectionLabel>
+          </ComboboxSection>
+        )}
+      >
+        <ComboboxInput placeholder="Select a timezone..." />
         <ComboboxContent>
           <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-          <ComboboxList>
-            {(group: (typeof timezones)[number]) => (
-              <ComboboxGroup items={group.items}>
-                <ComboboxLabel>{group.value}</ComboboxLabel>
-                <ComboboxCollection>
-                  {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-                </ComboboxCollection>
-              </ComboboxGroup>
-            )}
-          </ComboboxList>
         </ComboboxContent>
       </Combobox>
     </Example>
@@ -493,21 +243,91 @@ function ComboboxWithGroups() {
 function ComboboxWithGroupsAndSeparator() {
   return (
     <Example title="With Groups and Separator">
-      <Combobox items={timezones}>
-        <ComboboxInput placeholder="Select a timezone" />
+      <Combobox<TimezoneOption, TimezoneGroup>
+        options={timezones}
+        optionValue={(opt) => opt}
+        optionTextValue={(opt) => opt}
+        optionGroupChildren="options"
+        placeholder="Select a timezone..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+        sectionComponent={(props) => (
+          <>
+            <Show when={props.section.index !== 0}>
+              <ComboboxSeparator />
+            </Show>
+            <ComboboxSection>
+              <ComboboxSectionLabel>{props.section.rawValue.label}</ComboboxSectionLabel>
+            </ComboboxSection>
+          </>
+        )}
+      >
+        <ComboboxInput placeholder="Select a timezone..." />
         <ComboboxContent>
           <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-          <ComboboxList>
-            {(group: (typeof timezones)[number]) => (
-              <ComboboxGroup items={group.items}>
-                <ComboboxLabel>{group.value}</ComboboxLabel>
-                <ComboboxCollection>
-                  {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-                </ComboboxCollection>
-                <ComboboxSeparator />
-              </ComboboxGroup>
-            )}
-          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </Example>
+  );
+}
+
+const largeList = Array.from({ length: 100 }, (_, i) => ({
+  label: `Item ${i + 1}`,
+  value: `item-${i + 1}`,
+}));
+
+function ComboboxLargeList() {
+  return (
+    <Example title="Large List (100 items)">
+      <Combobox
+        options={largeList}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Search from 100 items..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+        )}
+      >
+        <ComboboxInput placeholder="Search from 100 items..." />
+        <ComboboxContent>
+          <ComboboxEmpty>No items found.</ComboboxEmpty>
+        </ComboboxContent>
+      </Combobox>
+    </Example>
+  );
+}
+
+function ComboboxWithIconAddon() {
+  return (
+    <Example title="With Icon Addon">
+      <Combobox<TimezoneOption, TimezoneGroup>
+        options={timezones}
+        optionValue={(opt) => opt}
+        optionTextValue={(opt) => opt}
+        optionGroupChildren="options"
+        placeholder="Select a timezone..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+        sectionComponent={(props) => (
+          <>
+            <Show when={props.section.index !== 0}>
+              <ComboboxSeparator />
+            </Show>
+            <ComboboxSection>
+              <ComboboxSectionLabel>{props.section.rawValue.label}</ComboboxSectionLabel>
+            </ComboboxSection>
+          </>
+        )}
+      >
+        <ComboboxInput placeholder="Select a timezone...">
+          <InputGroupAddon>
+            <Globe class="size-4" />
+          </InputGroupAddon>
+        </ComboboxInput>
+        <ComboboxContent class="w-60">
+          <ComboboxEmpty>No timezones found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </Example>
@@ -517,8 +337,9 @@ function ComboboxWithGroupsAndSeparator() {
 function ComboboxWithForm() {
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
-    const framework = new FormData(event.currentTarget as HTMLFormElement).get("framework");
-    toastManager.add({ title: `You selected ${framework} as your framework.` });
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const framework = formData.get("framework") as string;
+    toast(`You selected ${framework} as your framework.`);
   };
 
   return (
@@ -529,16 +350,20 @@ function ComboboxWithForm() {
             <FieldGroup>
               <Field>
                 <FieldLabel for="framework">Framework</FieldLabel>
-                <Combobox items={frameworks}>
+                <Combobox
+                  options={frameworks}
+                  placeholder="Select a framework..."
+                  itemComponent={(props) => (
+                    <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+                  )}
+                >
                   <ComboboxInput
                     id="framework"
                     name="framework"
-                    placeholder="Select a framework"
-                    required
+                    placeholder="Select a framework..."
                   />
                   <ComboboxContent>
                     <ComboboxEmpty>No items found.</ComboboxEmpty>
-                    <FrameworkList />
                   </ComboboxContent>
                 </Combobox>
               </Field>
@@ -555,108 +380,21 @@ function ComboboxWithForm() {
   );
 }
 
-function ComboboxLargeList() {
-  return (
-    <Example title="Large List (100 items)">
-      <Combobox items={largeListItems}>
-        <ComboboxInput placeholder="Search from 100 items" />
-        <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
-        </ComboboxContent>
-      </Combobox>
-    </Example>
-  );
-}
-
-function ComboboxAutoHighlight() {
-  return (
-    <Example title="With Auto Highlight">
-      <Combobox items={frameworks} autoHighlight>
-        <ComboboxInput placeholder="Select a framework" />
-        <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
-        </ComboboxContent>
-      </Combobox>
-    </Example>
-  );
-}
-
-function ComboboxInputAddon() {
-  return (
-    <Example title="With Icon Addon">
-      <Combobox items={timezones}>
-        <ComboboxInput placeholder="Select a timezone">
-          <InputGroupAddon>
-            <Globe />
-          </InputGroupAddon>
-        </ComboboxInput>
-        <ComboboxContent alignOffset={-28} class="w-60">
-          <ComboboxEmpty>No timezones found.</ComboboxEmpty>
-          <ComboboxList>
-            {(group: (typeof timezones)[number]) => (
-              <ComboboxGroup items={group.items}>
-                <ComboboxLabel>{group.value}</ComboboxLabel>
-                <ComboboxCollection>
-                  {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-                </ComboboxCollection>
-              </ComboboxGroup>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </Example>
-  );
-}
-
-function ComboboxInPopup() {
-  return (
-    <Example title="Combobox in Popup">
-      <Combobox items={countries} defaultValue={countries[0]}>
-        <ComboboxTrigger as={Button} variant="outline" class="w-64 justify-between font-normal">
-          <ComboboxValue />
-        </ComboboxTrigger>
-        <ComboboxContent>
-          <ComboboxInput showTrigger={false} placeholder="Search" />
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <ComboboxList>
-            {(item: (typeof countries)[number]) => (
-              <ComboboxItem value={item}>{item.label}</ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </Example>
-  );
-}
-
 function ComboboxMultiple() {
-  const anchor = useComboboxAnchor();
-
   return (
-    <Example title="Combobox Multiple">
-      <Combobox<string, true>
+    <Example title="Multiple Selection">
+      <Combobox<(typeof frameworks)[number]>
+        options={frameworks}
+        placeholder="Select frameworks..."
         multiple
-        autoHighlight
-        items={frameworks}
         defaultValue={[frameworks[0]]}
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
       >
-        <ComboboxChips ref={anchor}>
-          <ComboboxValue>
-            {(values) => (
-              <>
-                <For each={values as string[]}>
-                  {(value) => <ComboboxChip>{value}</ComboboxChip>}
-                </For>
-                <ComboboxChipsInput />
-              </>
-            )}
-          </ComboboxValue>
-        </ComboboxChips>
-        <ComboboxContent anchor={anchor}>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
+        <ComboboxInput placeholder="Select frameworks..." />
+        <ComboboxContent>
+          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </Example>
@@ -664,32 +402,21 @@ function ComboboxMultiple() {
 }
 
 function ComboboxMultipleDisabled() {
-  const anchor = useComboboxAnchor();
-
   return (
-    <Example title="Combobox Multiple Disabled">
-      <Combobox<string, true>
+    <Example title="Multiple Selection Disabled">
+      <Combobox<(typeof frameworks)[number]>
+        options={frameworks}
+        placeholder="Select frameworks..."
         multiple
-        autoHighlight
-        items={frameworks}
-        defaultValue={[frameworks[0], frameworks[1]]}
         disabled
+        defaultValue={[frameworks[0], frameworks[1]]}
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
       >
-        <ComboboxChips ref={anchor}>
-          <ComboboxValue>
-            {(values) => (
-              <>
-                <For each={values as string[]}>
-                  {(value) => <ComboboxChip>{value}</ComboboxChip>}
-                </For>
-                <ComboboxChipsInput disabled />
-              </>
-            )}
-          </ComboboxValue>
-        </ComboboxChips>
-        <ComboboxContent anchor={anchor}>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
+        <ComboboxInput placeholder="Select frameworks..." disabled />
+        <ComboboxContent>
+          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </Example>
@@ -697,58 +424,43 @@ function ComboboxMultipleDisabled() {
 }
 
 function ComboboxMultipleInvalid() {
-  const standaloneInvalidAnchor = useComboboxAnchor();
-  const fieldInvalidAnchor = useComboboxAnchor();
-
   return (
-    <Example title="Combobox Multiple Invalid">
+    <Example title="Multiple Selection Invalid">
       <div class="flex flex-col gap-4">
-        <Combobox<string, true>
+        <Combobox<(typeof frameworks)[number]>
+          options={frameworks}
+          placeholder="Select frameworks..."
           multiple
-          autoHighlight
-          items={frameworks}
+          validationState="invalid"
           defaultValue={[frameworks[0], frameworks[1]]}
+          itemComponent={(props) => (
+            <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+          )}
         >
-          <ComboboxChips ref={standaloneInvalidAnchor}>
-            <ComboboxValue>
-              {(values) => (
-                <>
-                  <For each={values as string[]}>
-                    {(value) => <ComboboxChip>{value}</ComboboxChip>}
-                  </For>
-                  <ComboboxChipsInput aria-invalid="true" />
-                </>
-              )}
-            </ComboboxValue>
-          </ComboboxChips>
-          <ComboboxContent anchor={standaloneInvalidAnchor}>
-            <ComboboxEmpty>No items found.</ComboboxEmpty>
-            <FrameworkList />
+          <ComboboxInput placeholder="Select frameworks..." aria-invalid="true" />
+          <ComboboxContent>
+            <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
           </ComboboxContent>
         </Combobox>
-        <Field data-invalid="true">
+        <Field data-invalid>
           <FieldLabel for="combobox-multiple-invalid">Frameworks</FieldLabel>
-          <Combobox<string, true>
+          <Combobox<(typeof frameworks)[number]>
+            options={frameworks}
+            placeholder="Select frameworks..."
             multiple
-            autoHighlight
-            items={frameworks}
+            validationState="invalid"
             defaultValue={[frameworks[0], frameworks[1], frameworks[2]]}
+            itemComponent={(props) => (
+              <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+            )}
           >
-            <ComboboxChips ref={fieldInvalidAnchor}>
-              <ComboboxValue>
-                {(values) => (
-                  <>
-                    <For each={values as string[]}>
-                      {(value) => <ComboboxChip>{value}</ComboboxChip>}
-                    </For>
-                    <ComboboxChipsInput id="combobox-multiple-invalid" aria-invalid="true" />
-                  </>
-                )}
-              </ComboboxValue>
-            </ComboboxChips>
-            <ComboboxContent anchor={fieldInvalidAnchor}>
-              <ComboboxEmpty>No items found.</ComboboxEmpty>
-              <FrameworkList />
+            <ComboboxInput
+              id="combobox-multiple-invalid"
+              placeholder="Select frameworks..."
+              aria-invalid="true"
+            />
+            <ComboboxContent>
+              <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
             </ComboboxContent>
           </Combobox>
           <FieldDescription>Please select at least one framework.</FieldDescription>
@@ -759,65 +471,84 @@ function ComboboxMultipleInvalid() {
   );
 }
 
-function ComboboxMultipleNoRemove() {
-  const anchor = useComboboxAnchor();
+const countries = [
+  { code: "af", value: "afghanistan", label: "Afghanistan", continent: "Asia" },
+  { code: "al", value: "albania", label: "Albania", continent: "Europe" },
+  { code: "dz", value: "algeria", label: "Algeria", continent: "Africa" },
+  { code: "ad", value: "andorra", label: "Andorra", continent: "Europe" },
+  { code: "ao", value: "angola", label: "Angola", continent: "Africa" },
+  { code: "ar", value: "argentina", label: "Argentina", continent: "South America" },
+  { code: "am", value: "armenia", label: "Armenia", continent: "Asia" },
+  { code: "au", value: "australia", label: "Australia", continent: "Oceania" },
+  { code: "at", value: "austria", label: "Austria", continent: "Europe" },
+  { code: "az", value: "azerbaijan", label: "Azerbaijan", continent: "Asia" },
+  { code: "bs", value: "bahamas", label: "Bahamas", continent: "North America" },
+  { code: "bh", value: "bahrain", label: "Bahrain", continent: "Asia" },
+  { code: "bd", value: "bangladesh", label: "Bangladesh", continent: "Asia" },
+  { code: "bb", value: "barbados", label: "Barbados", continent: "North America" },
+  { code: "by", value: "belarus", label: "Belarus", continent: "Europe" },
+  { code: "be", value: "belgium", label: "Belgium", continent: "Europe" },
+  { code: "br", value: "brazil", label: "Brazil", continent: "South America" },
+  { code: "ca", value: "canada", label: "Canada", continent: "North America" },
+  { code: "cn", value: "china", label: "China", continent: "Asia" },
+  { code: "fr", value: "france", label: "France", continent: "Europe" },
+  { code: "de", value: "germany", label: "Germany", continent: "Europe" },
+  { code: "in", value: "india", label: "India", continent: "Asia" },
+  { code: "jp", value: "japan", label: "Japan", continent: "Asia" },
+  { code: "mx", value: "mexico", label: "Mexico", continent: "North America" },
+  { code: "gb", value: "united-kingdom", label: "United Kingdom", continent: "Europe" },
+  { code: "us", value: "united-states", label: "United States", continent: "North America" },
+];
 
+function ComboboxWithCustomItems() {
   return (
-    <Example title="Combobox Multiple (No Remove)">
-      <Combobox<string, true>
-        multiple
-        autoHighlight
-        items={frameworks}
-        defaultValue={[frameworks[0], frameworks[1]]}
+    <Example title="With Custom Item Rendering">
+      <Combobox<(typeof countries)[number]>
+        options={countries}
+        optionValue="value"
+        optionTextValue="label"
+        placeholder="Search countries..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>
+            <Item size="xs" class="p-0">
+              <ItemContent>
+                <ItemTitle class="whitespace-nowrap">{props.item.rawValue.label}</ItemTitle>
+                <ItemDescription>
+                  {props.item.rawValue.continent} ({props.item.rawValue.code})
+                </ItemDescription>
+              </ItemContent>
+            </Item>
+          </ComboboxItem>
+        )}
       >
-        <ComboboxChips ref={anchor}>
-          <ComboboxValue>
-            {(values) => (
-              <>
-                <For each={values as string[]}>
-                  {(value) => <ComboboxChip showRemove={false}>{value}</ComboboxChip>}
-                </For>
-                <ComboboxChipsInput />
-              </>
-            )}
-          </ComboboxValue>
-        </ComboboxChips>
-        <ComboboxContent anchor={anchor}>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
+        <ComboboxInput placeholder="Search countries..." />
+        <ComboboxContent>
+          <ComboboxEmpty>No countries found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
     </Example>
   );
 }
 
-function ComboboxWithCustomItems() {
+function ComboboxWithField() {
   return (
-    <Example title="With Custom Item Rendering">
-      <Combobox
-        items={countries.filter((country) => country.code !== "")}
-        itemToStringLabel={(country) => country.label}
-        itemToStringValue={(country) => country.label}
-      >
-        <ComboboxInput placeholder="Search countries..." />
-        <ComboboxContent>
-          <ComboboxEmpty>No countries found.</ComboboxEmpty>
-          <ComboboxList>
-            {(country: (typeof countries)[number]) => (
-              <ComboboxItem value={country}>
-                <Item size="xs" class="p-0">
-                  <ItemContent>
-                    <ItemTitle class="whitespace-nowrap">{country.label}</ItemTitle>
-                    <ItemDescription>
-                      {country.continent} ({country.code})
-                    </ItemDescription>
-                  </ItemContent>
-                </Item>
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
+    <Example title="With Field">
+      <Field>
+        <FieldLabel for="combobox-framework">Favorite Framework</FieldLabel>
+        <Combobox
+          options={frameworks}
+          placeholder="Select a framework..."
+          itemComponent={(props) => (
+            <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+          )}
+        >
+          <ComboboxInput id="combobox-framework" placeholder="Select a framework..." />
+          <ComboboxContent>
+            <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
+          </ComboboxContent>
+        </Combobox>
+        <FieldDescription>Choose your favorite JavaScript framework.</FieldDescription>
+      </Field>
     </Example>
   );
 }
@@ -826,7 +557,7 @@ function ComboboxInDialog() {
   const [open, setOpen] = createSignal(false);
 
   return (
-    <Example title="Combobox in Dialog">
+    <Example title="In Dialog">
       <Dialog open={open()} onOpenChange={setOpen}>
         <DialogTrigger as={Button} variant="outline">
           Open Dialog
@@ -842,11 +573,16 @@ function ComboboxInDialog() {
             <FieldLabel for="framework-dialog" class="sr-only">
               Framework
             </FieldLabel>
-            <Combobox items={frameworks}>
-              <ComboboxInput id="framework-dialog" placeholder="Select a framework" />
+            <Combobox
+              options={frameworks}
+              placeholder="Select a framework..."
+              itemComponent={(props) => (
+                <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+              )}
+            >
+              <ComboboxInput id="framework-dialog" placeholder="Select a framework..." />
               <ComboboxContent>
-                <ComboboxEmpty>No items found.</ComboboxEmpty>
-                <FrameworkList />
+                <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
               </ComboboxContent>
             </Combobox>
           </Field>
@@ -857,7 +593,7 @@ function ComboboxInDialog() {
             <Button
               type="button"
               onClick={() => {
-                toastManager.add({ title: "Framework selected." });
+                toast("Framework selected.");
                 setOpen(false);
               }}
             >
@@ -870,18 +606,34 @@ function ComboboxInDialog() {
   );
 }
 
+const selectItems = [
+  { label: "Select a framework", value: "" },
+  { label: "React", value: "react" },
+  { label: "Vue", value: "vue" },
+  { label: "Angular", value: "angular" },
+  { label: "Svelte", value: "svelte" },
+  { label: "Solid", value: "solid" },
+  { label: "Preact", value: "preact" },
+  { label: "Next.js", value: "next.js" },
+];
+
 function ComboboxWithOtherInputs() {
   return (
     <Example title="With Other Inputs">
-      <Combobox items={frameworks}>
-        <ComboboxInput placeholder="Select a framework" class="w-52" />
+      <Combobox
+        options={frameworks}
+        placeholder="Select a framework..."
+        itemComponent={(props) => (
+          <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+        )}
+      >
+        <ComboboxInput class="w-52" placeholder="Select a framework..." />
         <ComboboxContent>
-          <ComboboxEmpty>No items found.</ComboboxEmpty>
-          <FrameworkList />
+          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
-      <Select items={selectItems}>
-        <SelectTrigger class="w-52" aria-label="Select a framework">
+      <Select items={selectItems} defaultValue={selectItems[0].value}>
+        <SelectTrigger class="w-52">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -894,13 +646,13 @@ function ComboboxWithOtherInputs() {
       </Select>
       <Button variant="outline" class="w-52 justify-between font-normal text-muted-foreground">
         Select a framework
-        <ChevronDown />
+        <ChevronDown class="size-4" />
       </Button>
       <Input placeholder="Select a framework" class="w-52" />
       <InputGroup class="w-52">
         <InputGroupInput placeholder="Select a framework" />
         <InputGroupAddon align="inline-end">
-          <ChevronDown />
+          <ChevronDown class="size-4" />
         </InputGroupAddon>
       </InputGroup>
     </Example>

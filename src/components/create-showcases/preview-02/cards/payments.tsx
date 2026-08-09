@@ -36,12 +36,12 @@ export function Payments() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <DropdownMenu>
+              <DropdownMenu placement="bottom-start">
                 <DropdownMenuTrigger as={Button} size="icon-sm" variant="ghost">
                   <MoreHorizontal />
                   <span class="sr-only">Account options</span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent>
                   <DropdownMenuGroup>
                     <DropdownMenuItem>Profile</DropdownMenuItem>
                     <DropdownMenuItem>Statements</DropdownMenuItem>

@@ -3,9 +3,6 @@ title: Slider
 slug: slider
 description: An input where the user selects a value from within a given range.
 component: true
-links:
-  doc: https://base-ui.com/react/components/slider
-  api: https://base-ui.com/react/components/slider#api-reference
 ---
 
 <ComponentPreview name="slider-demo" />
@@ -34,7 +31,7 @@ shadcn@latest add @zaidan/slider
 <Step>Install the following dependencies:</Step>
 
 ```package-install
-solid-js
+@kobalte/core
 ```
 
 <Step>Copy and paste the following code into your project.</Step>
@@ -56,7 +53,7 @@ import { Slider } from "~/components/ui/slider";
 ```
 
 ```tsx showLineNumbers
-<Slider defaultValue={[33]} max={100} step={1} />
+<Slider defaultValue={[33]} maxValue={100} step={1} />
 ```
 
 ## Range
@@ -89,4 +86,4 @@ Use the `disabled` prop to disable the slider.
 
 ## API Reference
 
-See the [Base UI Slider API reference](https://base-ui.com/react/components/slider#api-reference) for the pinned public API, keyboard behavior, and accessibility contract.
+See the [Kobalte Slider API reference](https://kobalte.dev/docs/core/components/slider#api-reference) for the pinned public API, keyboard behavior, and accessibility contract.

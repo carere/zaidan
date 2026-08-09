@@ -20,7 +20,7 @@ export default function DropdownMenuDemo() {
       <DropdownMenuTrigger as={Button} variant="outline" class="w-fit">
         Open
       </DropdownMenuTrigger>
-      <DropdownMenuContent class="w-40" align="start">
+      <DropdownMenuContent class="w-40">
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuItem>

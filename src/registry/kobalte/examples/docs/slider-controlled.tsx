@@ -14,9 +14,9 @@ export default function SliderControlled() {
       <Slider
         id="slider-demo-temperature"
         value={value()}
-        onValueChange={(nextValue) => setValue(nextValue as number[])}
-        min={0}
-        max={1}
+        onChange={(nextValue) => setValue(nextValue)}
+        minValue={0}
+        maxValue={1}
         step={0.1}
       />
     </div>

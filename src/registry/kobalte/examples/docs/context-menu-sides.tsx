@@ -14,12 +14,12 @@ export default function ContextMenuSides() {
     <div class="grid w-full max-w-sm grid-cols-2 gap-4">
       <For each={sides}>
         {(side) => (
-          <ContextMenu>
+          <ContextMenu placement={side}>
             <ContextMenuTrigger class="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
               <span class="pointer-fine:inline-block hidden">Right click ({side})</span>
               <span class="pointer-coarse:inline-block hidden">Long press ({side})</span>
             </ContextMenuTrigger>
-            <ContextMenuContent side={side}>
+            <ContextMenuContent>
               <ContextMenuGroup>
                 <ContextMenuItem>Back</ContextMenuItem>
                 <ContextMenuItem>Forward</ContextMenuItem>

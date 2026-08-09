@@ -2,7 +2,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/registry/kobalte/ui/toggle-group
 
 export default function ToggleGroupSpacing() {
   return (
-    <ToggleGroup size="sm" defaultValue={["top"]} variant="outline" spacing={2}>
+    <ToggleGroup size="sm" defaultValue="top" variant="outline" spacing={2}>
       <ToggleGroupItem value="top" aria-label="Toggle top">
         Top
       </ToggleGroupItem>

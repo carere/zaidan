@@ -34,15 +34,15 @@ const people = [
 
 export default function ItemDropdown() {
   return (
-    <DropdownMenu>
+    <DropdownMenu placement="bottom-end">
       <DropdownMenuTrigger class={buttonVariants({ variant: "outline" })}>
         Select <ChevronDown />
       </DropdownMenuTrigger>
-      <DropdownMenuContent class="w-48" align="end">
+      <DropdownMenuContent class="w-48">
         <DropdownMenuGroup>
           <For each={people}>
             {(person) => (
-              <DropdownMenuItem label={person.username}>
+              <DropdownMenuItem textValue={person.username}>
                 <Item size="xs" class="w-full p-2">
                   <ItemMedia>
                     <Avatar class="size-[--spacing(6.5)]">

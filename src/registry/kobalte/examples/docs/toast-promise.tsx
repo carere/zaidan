@@ -1,11 +1,10 @@
+import { toast } from "solid-sonner";
 import { Button } from "@/registry/kobalte/ui/button";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function ToastPromise() {
-  const showToast = () => {
-    void toastManager.promise(
+  const showToast = () =>
+    toast.promise(
       new Promise<{ name: string }>((resolve) => {
         window.setTimeout(() => resolve({ name: "Event" }), 2000);
       }),
@@ -15,11 +14,10 @@ export default function ToastPromise() {
         error: "Could not create event.",
       },
     );
-  };
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Button variant="outline" onClick={showToast}>
         Create Event
       </Button>

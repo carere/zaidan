@@ -9,10 +9,10 @@ export default function ProgressControlled() {
     <div class="flex w-full max-w-sm flex-col gap-4">
       <Progress value={value()} class="w-full" />
       <Slider
-        value={value()}
-        onValueChange={(nextValue) => setValue(nextValue as number)}
-        min={0}
-        max={100}
+        value={[value()]}
+        onChange={(values) => setValue(values[0])}
+        minValue={0}
+        maxValue={100}
         step={1}
         aria-label="Progress value"
       />

@@ -3,23 +3,12 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { getDocsExample } from "@/lib/docs-examples";
 
-const pagePath = fileURLToPath(new URL("./checkbox.mdx", import.meta.url));
-const demoNames = [
-  "checkbox-demo",
-  "checkbox-invalid",
-  "checkbox-basic",
-  "checkbox-description",
-  "checkbox-disabled",
-  "checkbox-group",
-  "checkbox-table",
-];
+const pagePath = fileURLToPath(new URL("./hover-card.mdx", import.meta.url));
+const demoNames = ["hover-card-demo", "hover-card-sides"];
 
-describe("Checkbox documentation", () => {
+describe("Hover Card documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
     const page = await readFile(pagePath, "utf8");
-
-    expect(page).toContain("## API Reference");
-    expect(page).toContain("`onChange`");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);
@@ -30,21 +19,15 @@ describe("Checkbox documentation", () => {
       const demo = await readFile(demoPath, "utf8");
 
       expect(demo).toContain("export default function");
-      expect(demo).toContain('from "@/registry/kobalte/ui/checkbox"');
       expect(demo).not.toContain('from "react"');
       expect(demo).not.toContain('from "lucide-react"');
-      expect(demo).not.toContain('from "next/');
-    }
 
-    for (const name of demoNames) {
       const resolvedExample = getDocsExample(name);
       expect(resolvedExample).toBeTypeOf("function");
       expect(getDocsExample(name)).toBe(resolvedExample);
     }
 
-    expect(page).not.toContain("checkbox-rtl");
-    expect(page).not.toContain("## RTL");
-    expect(page).not.toContain("Direction");
-    expect(page).not.toContain("Sonner");
+    expect(page).toContain("Kobalte Hover Card");
+    expect(page).toContain("Kobalte Hover Card API reference");
   });
 });

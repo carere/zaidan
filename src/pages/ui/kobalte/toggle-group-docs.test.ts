@@ -21,7 +21,7 @@ describe("Toggle Group documentation", () => {
 
     expect(page).toContain("Kobalte Toggle Group");
     expect(page).toContain("https://kobalte.dev/docs/core/components/toggle-group");
-    expect(page).toContain("### 2026-05-17 Default Spacing");
+    expect(page).toContain("Single vs. multiple selection");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);

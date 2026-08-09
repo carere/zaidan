@@ -10,11 +10,11 @@ import {
   DrawerTrigger,
 } from "@/registry/kobalte/ui/drawer";
 
-const SNAP_POINTS: (number | `${number}rem`)[] = ["31rem", 1];
+const SNAP_POINTS: (number | `${number}px`)[] = ["480px", 1];
 
 export default function DrawerSnapPoints() {
   return (
-    <Drawer snapPoints={SNAP_POINTS} showSwipeHandle>
+    <Drawer snapPoints={SNAP_POINTS}>
       <DrawerTrigger as={Button} variant="outline">
         Open Snap Drawer
       </DrawerTrigger>
@@ -26,7 +26,7 @@ export default function DrawerSnapPoints() {
           </DrawerDescription>
         </DrawerHeader>
         <div class="flex-1 p-4">
-          <div class="rounded-2xl bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-80 group-data-[swipe-axis=y]/drawer-popup:w-full" />
+          <div class="h-80 w-full rounded-2xl bg-muted" />
         </div>
         <DrawerFooter>
           <DrawerClose as={Button}>Close</DrawerClose>

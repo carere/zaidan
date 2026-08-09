@@ -25,12 +25,12 @@ export default function BreadcrumbDemo() {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <DropdownMenu>
+          <DropdownMenu placement="bottom-start">
             <DropdownMenuTrigger as={Button} size="icon-sm" variant="ghost" class="size-7">
               <BreadcrumbEllipsis />
               <span class="sr-only">Toggle menu</span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuItem>Documentation</DropdownMenuItem>
                 <DropdownMenuItem>Themes</DropdownMenuItem>

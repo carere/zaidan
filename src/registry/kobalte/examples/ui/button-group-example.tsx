@@ -127,11 +127,11 @@ function ButtonGroupWithDropdown() {
       <div class="flex flex-col gap-4">
         <ButtonGroup>
           <Button variant="outline">Update</Button>
-          <DropdownMenu>
+          <DropdownMenu placement="bottom-end">
             <DropdownMenuTrigger as={Button} variant="outline" size="icon">
               <ChevronDown />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent>
               <DropdownMenuItem>Disable</DropdownMenuItem>
               <DropdownMenuItem variant="destructive">Uninstall</DropdownMenuItem>
             </DropdownMenuContent>

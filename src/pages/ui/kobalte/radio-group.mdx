@@ -5,7 +5,7 @@ description: A set of checkable buttons—known as radio buttons—where no more
 component: true
 ---
 
-`RadioGroup` is a native Solid composition that implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), preserving the pinned Base UI value, form, and cancellation contract.
+`RadioGroup` wraps [Kobalte's Radio Group](https://kobalte.dev/docs/core/components/radio-group) primitive, which implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/) with roving-tabindex keyboard navigation and native form participation.
 
 <ComponentPreview name="radio-group-demo" />
 
@@ -104,21 +104,22 @@ Use `aria-invalid` on `RadioGroupItem` and `data-invalid` on `Field` to show val
 
 ## API Reference
 
-`RadioGroup` and `RadioGroupItem` are a native Solid composition that implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), including roving-tabindex keyboard navigation, disabled, read-only, and form reset behavior.
+`RadioGroup` and `RadioGroupItem` wrap [Kobalte's Radio Group](https://kobalte.dev/docs/core/components/radio-group) primitive, which implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), including roving-tabindex keyboard navigation, disabled, read-only, and form reset behavior.
 
 ### RadioGroup
 
 | Prop | Type | Default |
 | --- | --- | --- |
-| `value` | `Value` | - |
-| `defaultValue` | `Value` | - |
-| `onValueChange` | `(value: Value, details: RadioGroupChangeDetails) => void` | - |
+| `value` | `string` | - |
+| `defaultValue` | `string` | - |
+| `onChange` | `(value: string) => void` | - |
+| `orientation` | `"horizontal" \| "vertical"` | `"vertical"` |
 | `disabled` | `boolean` | `false` |
 | `readOnly` | `boolean` | `false` |
 | `required` | `boolean` | `false` |
+| `validationState` | `"valid" \| "invalid"` | - |
 | `name` | `string` | - |
-| `form` | `string` | - |
-| `inputRef` | `(element: HTMLInputElement \| undefined) => void` | - |
+| `id` | `string` | - |
 | `as` | `ValidComponent` | `"div"` |
 | `class` | `string` | - |
 
@@ -126,11 +127,8 @@ Use `aria-invalid` on `RadioGroupItem` and `data-invalid` on `Field` to show val
 
 | Prop | Type | Default |
 | --- | --- | --- |
-| `value` | `Value` | - |
+| `value` | `string` | - |
 | `disabled` | `boolean` | `false` |
-| `readOnly` | `boolean` | `false` |
-| `required` | `boolean` | `false` |
-| `nativeButton` | `boolean` | `false` |
-| `inputRef` | `(element: HTMLInputElement \| undefined) => void` | - |
-| `as` | `ValidComponent` | `"span"` |
+| `id` | `string` | - |
+| `as` | `ValidComponent` | `"div"` |
 | `class` | `string` | - |

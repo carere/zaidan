@@ -3,6 +3,10 @@ title: Switch
 slug: switch
 description: A control that allows the user to toggle between checked and not checked.
 component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/switch
+  api: https://kobalte.dev/docs/core/components/switch#api-reference
 ---
 
 <ComponentPreview name="switch-demo" />
@@ -27,6 +31,12 @@ shadcn@latest add @zaidan/switch
 <TabsContent value="manual">
 
 <Steps class="mb-0 pt-2">
+
+<Step>Install the following dependency:</Step>
+
+```package-install
+@kobalte/core
+```
 
 <Step>Copy and paste the following code into your project.</Step>
 
@@ -84,4 +94,4 @@ Use the `size` prop to change the size of the switch.
 
 ## API Reference
 
-`Switch` is a native Solid composition that implements the [WAI-ARIA switch role](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/switch_role), including keyboard, disabled, and form behavior.
+`Switch` wraps [`@kobalte/core/switch`](https://kobalte.dev/docs/core/components/switch), which implements the [WAI-ARIA switch role](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/switch_role), including keyboard, disabled, and form behavior. See the [Kobalte API reference](https://kobalte.dev/docs/core/components/switch#api-reference) for the full set of props, such as `checked`, `defaultChecked`, `onChange`, `disabled`, `required`, `readOnly`, `name`, and `value`.

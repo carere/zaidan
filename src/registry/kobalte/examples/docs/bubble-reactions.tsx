@@ -1,13 +1,12 @@
+import { toast } from "solid-sonner";
 import { Bubble, BubbleContent, BubbleReactions } from "@/registry/kobalte/ui/bubble";
 import { Button } from "@/registry/kobalte/ui/button";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function BubbleReactionsDemo() {
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <div class="flex w-full max-w-sm flex-col gap-12 py-12">
         <Bubble variant="muted" align="end">
           <BubbleContent>I don&apos;t need tests, I know my code works.</BubbleContent>
@@ -46,12 +45,7 @@ export default function BubbleReactionsDemo() {
             <Button
               variant="ghost"
               size="xs"
-              onClick={() =>
-                toastManager.add({
-                  description: "You clicked yes, running command...",
-                  type: "success",
-                })
-              }
+              onClick={() => toast.success("You clicked yes, running command...")}
             >
               Yes, run it
             </Button>

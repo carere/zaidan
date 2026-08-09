@@ -208,7 +208,7 @@ function TeamSwitcher(props: {
       {(team) => (
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
+            <DropdownMenu placement={isMobile() ? "bottom-start" : "right-start"}>
               <DropdownMenuTrigger
                 as={SidebarMenuButton}
                 size="lg"
@@ -223,12 +223,7 @@ function TeamSwitcher(props: {
                 </div>
                 <ChevronsUpDown class="ml-auto" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                class="w-(--kb-popper-anchor-width) min-w-56 rounded-lg"
-                align="start"
-                side={isMobile() ? "bottom" : "right"}
-                sideOffset={4}
-              >
+              <DropdownMenuContent class="w-(--kb-popper-anchor-width) min-w-56 rounded-lg">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel class="text-muted-foreground text-xs">Teams</DropdownMenuLabel>
                   <For each={props.teams}>
@@ -328,16 +323,12 @@ function NavProjects(props: {
                 <item.icon />
                 <span>{item.name}</span>
               </SidebarMenuButton>
-              <DropdownMenu>
-                <DropdownMenuTrigger as={SidebarMenuAction} showOnHover>
+              <DropdownMenu placement={isMobile() ? "bottom-end" : "right-start"}>
+                <DropdownMenuTrigger as={SidebarMenuAction} showOnHover class="">
                   <MoreHorizontal />
                   <span class="sr-only">More</span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  class="w-48 rounded-lg"
-                  side={isMobile() ? "bottom" : "right"}
-                  align={isMobile() ? "end" : "start"}
-                >
+                <DropdownMenuContent class="w-48 rounded-lg">
                   <DropdownMenuItem>
                     <Folder class="text-muted-foreground" />
                     <span>View Project</span>
@@ -379,7 +370,7 @@ function NavUser(props: {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu placement={isMobile() ? "bottom-end" : "right-end"}>
           <DropdownMenuTrigger
             as={SidebarMenuButton}
             size="lg"
@@ -395,12 +386,7 @@ function NavUser(props: {
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            class="w-(--kb-popper-anchor-width) min-w-56 rounded-lg"
-            side={isMobile() ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
+          <DropdownMenuContent class="w-(--kb-popper-anchor-width) min-w-56 rounded-lg">
             <DropdownMenuGroup>
               <DropdownMenuLabel class="p-0 font-normal">
                 <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">

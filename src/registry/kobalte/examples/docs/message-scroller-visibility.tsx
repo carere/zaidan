@@ -32,7 +32,7 @@ function TranscriptOutline() {
   const questions = transcript.filter((message) => message.role === "user");
   return (
     <div class="absolute top-3 right-3">
-      <HoverCard>
+      <HoverCard placement="bottom-end">
         <HoverCardTrigger
           as="button"
           type="button"
@@ -46,7 +46,7 @@ function TranscriptOutline() {
             />
           ))}
         </HoverCardTrigger>
-        <HoverCardContent align="end" side="bottom" class="flex w-64 flex-col gap-1 rounded-xl p-1">
+        <HoverCardContent class="flex w-64 flex-col gap-1 rounded-xl p-1">
           <For each={questions}>
             {(message) => (
               <button

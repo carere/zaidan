@@ -27,11 +27,10 @@ export default function MessageScrollerAnchoring() {
           <div class="flex w-full items-center gap-2">
             <ToggleGroup
               aria-label="Select scroll anchor role"
-              value={[anchorRole()]}
-              onValueChange={(value) => {
-                const role = value[0];
-                if (role === "user" || role === "assistant") {
-                  setAnchorRole(role);
+              value={anchorRole()}
+              onChange={(value) => {
+                if (value === "user" || value === "assistant") {
+                  setAnchorRole(value);
                   setMessages(transcript.slice(0, 2));
                 }
               }}

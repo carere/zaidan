@@ -42,7 +42,7 @@ export default function ButtonGroupDemo() {
       </ButtonGroup>
       <ButtonGroup>
         <Button variant="outline">Snooze</Button>
-        <DropdownMenu>
+        <DropdownMenu placement="bottom-end">
           <DropdownMenuTrigger
             as={Button}
             variant="outline"
@@ -52,7 +52,7 @@ export default function ButtonGroupDemo() {
           >
             <MoreHorizontalIcon />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" class="w-40">
+          <DropdownMenuContent class="w-40">
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <MailCheckIcon />

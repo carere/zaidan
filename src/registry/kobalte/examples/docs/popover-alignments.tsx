@@ -4,29 +4,23 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/registry/kobalte/ui/p
 export default function PopoverAlignments() {
   return (
     <div class="flex gap-6">
-      <Popover>
+      <Popover placement="bottom-start">
         <PopoverTrigger as={Button} variant="outline" size="sm">
           Start
         </PopoverTrigger>
-        <PopoverContent align="start" class="w-40">
-          Aligned to start
-        </PopoverContent>
+        <PopoverContent class="w-40">Aligned to start</PopoverContent>
       </Popover>
-      <Popover>
+      <Popover placement="bottom">
         <PopoverTrigger as={Button} variant="outline" size="sm">
           Center
         </PopoverTrigger>
-        <PopoverContent align="center" class="w-40">
-          Aligned to center
-        </PopoverContent>
+        <PopoverContent class="w-40">Aligned to center</PopoverContent>
       </Popover>
-      <Popover>
+      <Popover placement="bottom-end">
         <PopoverTrigger as={Button} variant="outline" size="sm">
           End
         </PopoverTrigger>
-        <PopoverContent align="end" class="w-40">
-          Aligned to end
-        </PopoverContent>
+        <PopoverContent class="w-40">Aligned to end</PopoverContent>
       </Popover>
     </div>
   );

@@ -19,7 +19,7 @@ export default function SliderExample() {
 function SliderBasic() {
   return (
     <Example title="Basic">
-      <Slider defaultValue={[50]} max={100} step={1} />
+      <Slider defaultValue={[50]} maxValue={100} step={1} />
     </Example>
   );
 }
@@ -27,7 +27,7 @@ function SliderBasic() {
 function SliderRange() {
   return (
     <Example title="Range">
-      <Slider defaultValue={[25, 50]} max={100} step={5} />
+      <Slider defaultValue={[25, 50]} maxValue={100} step={5} />
     </Example>
   );
 }
@@ -35,7 +35,7 @@ function SliderRange() {
 function SliderMultiple() {
   return (
     <Example title="Multiple Thumbs">
-      <Slider defaultValue={[10, 20, 70]} max={100} step={10} />
+      <Slider defaultValue={[10, 20, 70]} maxValue={100} step={10} />
     </Example>
   );
 }
@@ -44,8 +44,8 @@ function SliderVertical() {
   return (
     <Example title="Vertical">
       <div class="flex items-center gap-6">
-        <Slider defaultValue={[50]} max={100} step={1} orientation="vertical" class="h-40" />
-        <Slider defaultValue={[25]} max={100} step={1} orientation="vertical" class="h-40" />
+        <Slider defaultValue={[50]} maxValue={100} step={1} orientation="vertical" class="h-40" />
+        <Slider defaultValue={[25]} maxValue={100} step={1} orientation="vertical" class="h-40" />
       </div>
     </Example>
   );
@@ -64,9 +64,9 @@ function SliderControlled() {
         <Slider
           id="slider-demo-temperature"
           value={value()}
-          onValueChange={(value) => setValue(value as number[])}
-          min={0}
-          max={1}
+          onChange={(v) => setValue(v)}
+          minValue={0}
+          maxValue={1}
           step={0.1}
         />
       </div>
@@ -77,7 +77,7 @@ function SliderControlled() {
 function SliderDisabled() {
   return (
     <Example title="Disabled">
-      <Slider defaultValue={[50]} max={100} step={1} disabled />
+      <Slider defaultValue={[50]} maxValue={100} step={1} disabled />
     </Example>
   );
 }

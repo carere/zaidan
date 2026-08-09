@@ -58,14 +58,14 @@ import { Checkbox } from "~/components/ui/checkbox";
 
 ## Checked State
 
-Use `defaultChecked` for uncontrolled checkboxes, or `checked` and `onCheckedChange` to control the state.
+Use `defaultChecked` for uncontrolled checkboxes, or `checked` and `onChange` to control the state.
 
 ```tsx showLineNumbers
 import { createSignal } from "solid-js";
 
 const [checked, setChecked] = createSignal(false);
 
-<Checkbox checked={checked()} onCheckedChange={setChecked} />;
+<Checkbox checked={checked()} onChange={setChecked} />;
 ```
 
 ## Invalid State
@@ -104,7 +104,7 @@ Use multiple fields to create a checkbox list.
 
 ## API Reference
 
-`Checkbox` is a native Solid composition that implements the [WAI-ARIA checkbox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/), including keyboard, disabled, indeterminate, and form behavior.
+`Checkbox` is built on top of [`@kobalte/core/checkbox`](https://kobalte.dev/docs/core/components/checkbox), which implements the [WAI-ARIA checkbox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/), including keyboard, disabled, indeterminate, and form behavior.
 
 ### Checkbox
 
@@ -112,15 +112,21 @@ Use multiple fields to create a checkbox list.
 | --- | --- | --- |
 | `checked` | `boolean` | - |
 | `defaultChecked` | `boolean` | `false` |
-| `onCheckedChange` | `(checked: boolean, details: CheckboxChangeDetails) => void` | - |
+| `onChange` | `(checked: boolean) => void` | - |
 | `indeterminate` | `boolean` | `false` |
 | `disabled` | `boolean` | `false` |
 | `readOnly` | `boolean` | `false` |
 | `required` | `boolean` | `false` |
 | `name` | `string` | - |
 | `value` | `string` | `"on"` |
-| `uncheckedValue` | `string` | - |
-| `form` | `string` | - |
-| `nativeButton` | `boolean` | `false` |
-| `parent` | `boolean` | `false` |
+| `validationState` | `"valid" \| "invalid"` | - |
 | `class` | `string` | - |
+
+### CheckboxLabel
+
+Renders a `<label>` associated with the checkbox's hidden input. Place it as a sibling of `Checkbox` inside the same `Field`.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `class` | `string` | - |
+| `children` | `JSX.Element` | - |

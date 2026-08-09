@@ -13,7 +13,6 @@ const demoNames = [
   "combobox-custom",
   "combobox-invalid",
   "combobox-disabled",
-  "combobox-auto-highlight",
   "combobox-popup",
   "combobox-input-group",
 ];

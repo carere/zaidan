@@ -3,8 +3,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/registry/kobalt
 
 export default function HoverCardDemo() {
   return (
-    <HoverCard>
-      <HoverCardTrigger as={Button} variant="link" delay={10} closeDelay={100}>
+    <HoverCard openDelay={10} closeDelay={100}>
+      <HoverCardTrigger as={Button} variant="link">
         Hover Here
       </HoverCardTrigger>
       <HoverCardContent class="flex w-64 flex-col gap-0.5">

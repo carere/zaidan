@@ -7,13 +7,13 @@ import {
 export default function ResizableHandleDemo() {
   return (
     <ResizablePanelGroup orientation="horizontal" class="min-h-[200px] max-w-sm rounded-lg border">
-      <ResizablePanel defaultSize="25%">
+      <ResizablePanel initialSize={0.25}>
         <div class="flex h-full items-center justify-center p-6">
           <span class="font-semibold">Sidebar</span>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize="75%">
+      <ResizablePanel initialSize={0.75}>
         <div class="flex h-full items-center justify-center p-6">
           <span class="font-semibold">Content</span>
         </div>

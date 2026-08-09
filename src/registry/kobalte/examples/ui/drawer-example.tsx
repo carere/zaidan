@@ -27,16 +27,16 @@ const PARAGRAPHS = [
   "Our design team rebuilt the checkout flow last quarter after interviews with forty-two customers. The biggest friction point was surprise fees at the final step, so we moved shipping and tax estimates earlier in the process. Early tests show a twelve percent drop in cart abandonment. We're still rolling out the update region by region, and you may see the old flow until your account is migrated.",
 ];
 
-const DRAWER_SIDES = ["up", "right", "down", "left"] as const;
-const SNAP_POINTS = ["31rem", 1] as const;
+const DRAWER_SIDES = ["top", "right", "bottom", "left"] as const;
+const SNAP_POINTS: (number | `${number}px`)[] = ["480px", 1];
 
 export default function DrawerExample() {
   return (
     <ExampleWrapper>
       <DrawerDemo />
       <DrawerSwipeHandleExample />
-      <DrawerPosition />
       <DrawerCustomWidthAndHeight />
+      <DrawerPosition />
       <DrawerScrollable />
       <DrawerSnapPoints />
       <DrawerNested />
@@ -130,22 +130,20 @@ function DrawerSwipeHandleExample() {
   return (
     <Example title="Swipe Handle">
       <div class="flex flex-wrap gap-2">
-        <For each={DRAWER_SIDES}>
-          {(side) => (
-            <Drawer swipeDirection={side} showSwipeHandle>
-              <DrawerTrigger as={Button} variant="outline" class="capitalize">
-                {side}
-              </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle class="capitalize">Drawer</DrawerTitle>
-                  <DrawerDescription>Drawer with a swipe handle.</DrawerDescription>
-                </DrawerHeader>
-                <DrawerFill />
-              </DrawerContent>
-            </Drawer>
-          )}
-        </For>
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Open Drawer
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Drawer</DrawerTitle>
+              <DrawerDescription>
+                A drawer opening from the bottom shows a swipe handle.
+              </DrawerDescription>
+            </DrawerHeader>
+            <DrawerFill />
+          </DrawerContent>
+        </Drawer>
       </div>
     </Example>
   );
@@ -155,37 +153,37 @@ function DrawerCustomWidthAndHeight() {
   return (
     <Example title="Custom Width and Height">
       <div class="flex flex-wrap gap-2">
-        <Drawer swipeDirection="down">
+        <Drawer side="bottom">
           <DrawerTrigger as={Button} variant="outline">
-            Down
+            Bottom
           </DrawerTrigger>
-          <DrawerContent class="data-[swipe-direction=down]:h-64">
+          <DrawerContent class="data-[side=bottom]:h-64">
             <DrawerHeader>
-              <DrawerTitle>Down drawer</DrawerTitle>
+              <DrawerTitle>Bottom drawer</DrawerTitle>
               <DrawerDescription>Drawer with a custom height.</DrawerDescription>
             </DrawerHeader>
             <DrawerParagraphs class="scrollbar-thin" />
             <DrawerCloseFooter />
           </DrawerContent>
         </Drawer>
-        <Drawer swipeDirection="up">
+        <Drawer side="top">
           <DrawerTrigger as={Button} variant="outline">
-            Up
+            Top
           </DrawerTrigger>
-          <DrawerContent class="data-[swipe-direction=up]:h-[50vh]">
+          <DrawerContent class="data-[side=top]:h-[50vh]">
             <DrawerHeader>
-              <DrawerTitle>Up drawer</DrawerTitle>
+              <DrawerTitle>Top drawer</DrawerTitle>
               <DrawerDescription>Drawer with a custom height.</DrawerDescription>
             </DrawerHeader>
             <DrawerParagraphs />
             <DrawerCloseFooter />
           </DrawerContent>
         </Drawer>
-        <Drawer swipeDirection="left">
+        <Drawer side="left">
           <DrawerTrigger as={Button} variant="outline">
             Left
           </DrawerTrigger>
-          <DrawerContent class="data-[swipe-direction=left]:w-xl">
+          <DrawerContent class="data-[side=left]:w-xl">
             <DrawerHeader>
               <DrawerTitle>Left drawer</DrawerTitle>
               <DrawerDescription>Drawer with a custom width.</DrawerDescription>
@@ -194,11 +192,11 @@ function DrawerCustomWidthAndHeight() {
             <DrawerCloseFooter />
           </DrawerContent>
         </Drawer>
-        <Drawer swipeDirection="right">
+        <Drawer side="right">
           <DrawerTrigger as={Button} variant="outline">
             Right
           </DrawerTrigger>
-          <DrawerContent class="data-[swipe-direction=right]:w-xs">
+          <DrawerContent class="data-[side=right]:w-xs">
             <DrawerHeader>
               <DrawerTitle>Right drawer</DrawerTitle>
               <DrawerDescription>Drawer with a custom width.</DrawerDescription>
@@ -218,7 +216,7 @@ function DrawerPosition() {
       <div class="flex flex-wrap gap-2">
         <For each={DRAWER_SIDES}>
           {(side) => (
-            <Drawer swipeDirection={side}>
+            <Drawer side={side}>
               <DrawerTrigger as={Button} variant="outline" class="capitalize">
                 {side}
               </DrawerTrigger>
@@ -244,7 +242,7 @@ function DrawerScrollable() {
       <div class="flex flex-wrap gap-2">
         <For each={DRAWER_SIDES}>
           {(side) => (
-            <Drawer swipeDirection={side}>
+            <Drawer side={side}>
               <DrawerTrigger as={Button} variant="outline" class="capitalize">
                 {side}
               </DrawerTrigger>
@@ -267,7 +265,7 @@ function DrawerScrollable() {
 function DrawerSnapPoints() {
   return (
     <Example title="Snap Points">
-      <Drawer snapPoints={[...SNAP_POINTS]} showSwipeHandle>
+      <Drawer snapPoints={[...SNAP_POINTS]}>
         <DrawerTrigger as={Button} variant="outline">
           Open Snap Drawer
         </DrawerTrigger>
@@ -293,7 +291,7 @@ function DrawerNested() {
       <div class="flex flex-wrap gap-2">
         <For each={DRAWER_SIDES}>
           {(side) => (
-            <Drawer swipeDirection={side} showSwipeHandle>
+            <Drawer side={side}>
               <DrawerTrigger as={Button} variant="outline" class="capitalize">
                 {side}
               </DrawerTrigger>
@@ -306,7 +304,7 @@ function DrawerNested() {
                 </DrawerHeader>
                 <DrawerFill />
                 <DrawerFooter>
-                  <Drawer swipeDirection={side}>
+                  <Drawer side={side}>
                     <DrawerTrigger as={Button}>Open nested drawer</DrawerTrigger>
                     <DrawerContent>
                       <DrawerHeader>
@@ -317,7 +315,7 @@ function DrawerNested() {
                       </DrawerHeader>
                       <DrawerFill />
                       <DrawerFooter>
-                        <Drawer swipeDirection={side}>
+                        <Drawer side={side}>
                           <DrawerTrigger as={Button}>Open third drawer</DrawerTrigger>
                           <DrawerContent>
                             <DrawerHeader>
@@ -352,7 +350,7 @@ function DrawerNested() {
 function DrawerNonModal() {
   return (
     <Example title="Non Modal">
-      <Drawer modal={false} disablePointerDismissal swipeDirection="right">
+      <Drawer modal={false} closeOnOutsidePointer={false} side="right">
         <DrawerTrigger as={Button} variant="outline">
           Non Modal
         </DrawerTrigger>
@@ -371,7 +369,7 @@ function DrawerNonModal() {
 function DrawerFill() {
   return (
     <div class="flex-1 p-4">
-      <div class="bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-80 group-data-[swipe-axis=y]/drawer-popup:w-full" />
+      <div class="h-80 w-full bg-muted" />
     </div>
   );
 }

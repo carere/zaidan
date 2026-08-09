@@ -1,5 +1,6 @@
 import { Check, Copy } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup } from "solid-js";
+import { toast } from "solid-sonner";
 import { DEFAULT_CONFIG } from "@/lib/config";
 import { encodeDesignSystemPreset } from "@/lib/preset";
 import type { DesignSystemConfig } from "@/lib/types";
@@ -16,7 +17,7 @@ import {
 } from "@/registry/kobalte/ui/dialog";
 import { FieldGroup } from "@/registry/kobalte/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/tabs";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
+import { Toaster } from "@/registry/kobalte/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 type PackageManager = "pnpm" | "npm" | "yarn" | "bun";
@@ -33,7 +34,6 @@ export function CliButton(
 ) {
   const [packageManager, setPackageManager] = createSignal<PackageManager>("bun");
   const [hasCopied, setHasCopied] = createSignal(false);
-  const toastManager = createToastManager();
 
   createEffect(() => {
     if (hasCopied()) {
@@ -84,20 +84,16 @@ export function CliButton(
     try {
       await navigator.clipboard.writeText(commands()[packageManager()]);
       setHasCopied(true);
-      toastManager.add({ type: "success", title: "Command copied to clipboard" });
+      toast.success("Command copied to clipboard");
     } catch (err) {
       console.error("Failed to copy command:", err);
-      toastManager.add({
-        type: "error",
-        title: "Failed to copy command",
-        priority: "high",
-      });
+      toast.error("Failed to copy command");
     }
   };
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Dialog>
         <DialogTrigger as={Button} size="sm" class={props.class}>
           <span>{props.label ?? "Setup Project"}</span>

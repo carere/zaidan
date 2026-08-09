@@ -4,20 +4,22 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
-  ComboboxList,
 } from "@/registry/kobalte/ui/combobox";
 
 const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
 export default function ComboboxBasic() {
   return (
-    <Combobox items={frameworks}>
-      <ComboboxInput placeholder="Select a framework" />
+    <Combobox
+      options={frameworks}
+      placeholder="Select a framework..."
+      itemComponent={(props) => (
+        <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+      )}
+    >
+      <ComboboxInput placeholder="Select a framework..." />
       <ComboboxContent>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-        </ComboboxList>
+        <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
       </ComboboxContent>
     </Combobox>
   );

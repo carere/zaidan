@@ -11,7 +11,9 @@ describe("Scroll Area documentation", () => {
     const page = await readFile(pagePath, "utf8");
 
     expect(page).toContain("### ScrollArea");
-    expect(page).toContain("`overflowEdgeThreshold`");
+    expect(page).toContain("### ScrollBar");
+    expect(page).not.toContain("overflowEdgeThreshold");
+    expect(page).not.toContain("keepMounted");
 
     for (const name of demoNames) {
       expect(page).toContain(`<ComponentPreview name="${name}"`);

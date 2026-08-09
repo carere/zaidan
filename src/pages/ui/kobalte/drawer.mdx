@@ -105,31 +105,31 @@ Drawer
     └── DrawerFooter
 ```
 
-`DrawerContent` composes the portal, overlay, viewport, and popup from Corvu. For lower-level control, `DrawerPortal`, `DrawerOverlay`, and `DrawerSwipeHandle` are also exported.
+`DrawerContent` composes the portal and overlay from Corvu, and renders a swipe handle automatically when the drawer opens from the bottom. For lower-level control, `DrawerOverlay` is also exported.
 
 ## Custom Sizes
 
-A vertical drawer sizes itself to its content and is capped at `calc(100dvh - 6rem)` by default. A side drawer spans `75%` of the viewport width, or `24rem` on larger screens.
+A vertical drawer (`top` or `bottom`) sizes itself to its content. A side drawer (`left` or `right`) spans the width of its content plus padding.
 
-To customize the height of a vertical drawer, use the `h-*` and `max-h-*` utilities on `DrawerContent`.
-
-```tsx
-<DrawerContent class="h-[50vh]" />
-```
-
-To customize the width of a side drawer, use the `w-*` and `max-w-*` utilities on `DrawerContent`.
+To cap the height of a vertical drawer, scope `h-*` and `max-h-*` utilities to its side with the `data-[side=*]` variant on `DrawerContent`.
 
 ```tsx
-<DrawerContent class="w-96" />
+<DrawerContent class="data-[side=bottom]:h-64" />
 ```
 
-When the same component renders in multiple directions, scope an override to one axis using the `data-[swipe-axis=*]` variants.
+To customize the width of a side drawer, scope `w-*` and `max-w-*` utilities the same way.
 
 ```tsx
-<DrawerContent class="data-[swipe-axis=y]:max-h-[50vh] data-[swipe-axis=x]:w-96" />
+<DrawerContent class="data-[side=right]:w-96" />
 ```
 
-To make a region of the drawer scrollable, make the scroll container a flex item. Avoid `h-full`, which does not resolve inside a content-sized drawer.
+When the same component renders in multiple directions, scope an override to a specific side using the `data-[side=*]` variant, or target descendants with `group-data-[side=*]/drawer-content:`.
+
+```tsx
+<DrawerContent class="data-[side=top]:max-h-[50vh] data-[side=bottom]:max-h-[50vh]" />
+```
+
+To make a region of the drawer scrollable, make the scroll container a flex item.
 
 ```tsx
 <DrawerContent>
@@ -139,30 +139,21 @@ To make a region of the drawer scrollable, make the scroll container a flex item
 </DrawerContent>
 ```
 
-## Styling
+## Data Attributes
 
-The drawer exposes CSS variables for style-level customization. Set sizing variables on `DrawerContent`. Set the overlay variable on `[data-slot=drawer-overlay]` in your CSS.
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `--drawer-inset` | `0px` | Floats the drawer from the viewport edges. |
-| `--drawer-bleed-background` | `var(--color-popover)` | Fills the gap behind the drawer on swipe overshoot. |
-| `--drawer-overlay-min-opacity` | `0` | Minimum overlay opacity. Defaults to `0.5` when snap points are active. |
-
-The drawer also sets data attributes you can target with variants such as `data-[swipe-direction=down]:` on `DrawerContent`, or `group-data-[swipe-axis=y]/drawer-popup:` on its descendants.
+The drawer sets data attributes on `DrawerContent` and `DrawerOverlay` you can target with variants such as `data-[side=bottom]:` directly, or `group-data-[side=bottom]/drawer-content:` on descendants.
 
 | Attribute | Values | Set when |
 | --- | --- | --- |
-| `data-swipe-direction` | `up`, `right`, `down`, `left` | Always. |
-| `data-swipe-axis` | `x`, `y` | Always. |
-| `data-snap-points` | Present | The drawer has snap points. |
-| `data-expanded` | Present | The drawer is at the full snap point. |
-| `data-swiping` | Present | A swipe is in progress. |
-| `data-nested-drawer-open` | Present | A nested drawer is open on top. |
+| `data-side` | `top`, `right`, `bottom`, `left` | Always. |
+| `data-open` / `data-closed` | Present | The drawer is open or closed. |
+| `data-opening` / `data-closing` | Present | The drawer is in the open or close transition. |
+| `data-snapping` | Present | The drawer is transitioning after the user stops dragging. |
+| `data-transitioning` | Present | The drawer is opening, closing, or snapping. |
 
 ## Position
 
-Use the `swipeDirection` prop to set the side of the drawer. Available options are `up`, `right`, `down`, and `left`.
+Use the `side` prop to set the side the drawer opens from. Available options are `top`, `right`, `bottom`, and `left`. Defaults to `bottom`.
 
 <ClientOnly>
   <ComponentPreview name="drawer-sides" />
@@ -170,7 +161,7 @@ Use the `swipeDirection` prop to set the side of the drawer. Available options a
 
 ## Swipe Handle
 
-Use `showSwipeHandle` on `Drawer` to render a swipe handle.
+`DrawerContent` renders a swipe handle automatically when the drawer opens from the `bottom`, the default side. Other sides render no handle.
 
 <ClientOnly>
   <ComponentPreview name="drawer-swipe-handle" />
@@ -186,7 +177,7 @@ Open drawers from inside another drawer. Parent drawers stay mounted and stack b
 
 ## Non Modal
 
-Set `modal={false}` to allow interaction with the rest of the page while the drawer is open. Combine with `disablePointerDismissal` to prevent the drawer from closing on outside presses. Use `modal="trap-focus"` to keep focus inside the drawer while leaving scroll and pointer interaction unrestricted.
+Set `modal={false}` to allow interaction with the rest of the page while the drawer is open. Combine with `closeOnOutsidePointer={false}` to prevent the drawer from closing on outside presses.
 
 <ClientOnly>
   <ComponentPreview name="drawer-non-modal" />
@@ -194,9 +185,9 @@ Set `modal={false}` to allow interaction with the rest of the page while the dra
 
 ## Snap Points
 
-Use `snapPoints` to snap a drawer to preset heights. Numbers between `0` and `1` represent fractions of the viewport. Numbers greater than `1` are treated as pixel values. String values support `px` and `rem` units. Snap points apply to vertical drawers.
+Use `snapPoints` to snap a drawer to preset heights. Numbers between `0` and `1` represent fractions of the viewport. Numbers greater than `1`, or strings suffixed with `px`, are treated as pixel values. Snap points apply to vertical drawers (`top` and `bottom`).
 
-Track the active snap point with the controlled `snapPoint` and `onSnapPointChange` props. At the full snap point, the drawer gets a `data-expanded` attribute you can style with the `data-expanded:` variant.
+Track the active snap point with the controlled `activeSnapPoint` and `onActiveSnapPointChange` props. While the drawer is transitioning between snap points, it carries a `data-snapping` attribute you can style with the `data-snapping:` variant.
 
 <ClientOnly>
   <ComponentPreview name="drawer-snap-points" />
@@ -209,6 +200,24 @@ You can combine the `Dialog` and `Drawer` components to create a responsive dial
 <ClientOnly>
   <ComponentPreview name="drawer-dialog" />
 </ClientOnly>
+
+## Props
+
+The Drawer component uses Corvu's Drawer primitive under the hood. Here are the main props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `side` | `"top" \| "right" \| "bottom" \| "left"` | `"bottom"` | The side the drawer opens from |
+| `open` | `boolean` | - | The controlled open state |
+| `initialOpen` | `boolean` | `false` | The default open state |
+| `onOpenChange` | `(open: boolean) => void` | - | Handler called when open state changes |
+| `modal` | `boolean` | `true` | Whether the drawer should be rendered as a modal |
+| `snapPoints` | `Size[]` | `[0, 1]` | Positions to snap to |
+| `activeSnapPoint` | `Size` | - | The controlled active snap point |
+| `onActiveSnapPointChange` | `(activeSnapPoint: Size) => void` | - | Handler called when the active snap point changes |
+| `allowSkippingSnapPoints` | `boolean` | `true` | Whether to allow skipping snap points |
+| `closeOnOutsidePointer` | `boolean` | `true` if `modal` | Whether to close on an outside pointer interaction |
+| `closeOnEscapeKeyDown` | `boolean` | `true` | Whether to close on escape key |
 
 ## API Reference
 

@@ -1,3 +1,4 @@
+import { toast } from "solid-sonner";
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@/registry/kobalte/ui/card";
 import {
   Questionnaire,
@@ -13,9 +14,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   {
@@ -36,15 +35,14 @@ export default function QuestionnaireCard() {
 
     const formData = new FormData(event.currentTarget);
 
-    toastManager.add({
-      title: "Agent task created",
+    toast("Agent task created", {
       description: `Task: ${formData.get("task") ?? "None"} · Handoff: ${formData.get("output") ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="task"

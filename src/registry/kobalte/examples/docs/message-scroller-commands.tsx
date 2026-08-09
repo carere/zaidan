@@ -35,16 +35,16 @@ function CommandMenu() {
   const questions = transcript.filter((message) => message.role === "user");
   return (
     <div class="absolute z-10 mt-3 ml-3">
-      <DropdownMenu>
+      <DropdownMenu placement="bottom-start">
         <DropdownMenuTrigger as={Button} variant="secondary" class="w-fit">
           Jump to...
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" class="w-64">
+        <DropdownMenuContent class="w-64">
           <DropdownMenuLabel>Conversation</DropdownMenuLabel>
           <For each={questions}>
             {(message) => (
               <DropdownMenuItem
-                onClick={() => scrollToMessage(message.id, { align: "start", behavior: "smooth" })}
+                onSelect={() => scrollToMessage(message.id, { align: "start", behavior: "smooth" })}
               >
                 {message.text}
               </DropdownMenuItem>

@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { toast } from "solid-sonner";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Dialog,
@@ -22,9 +23,7 @@ import {
   QuestionnaireSubmit,
   QuestionnaireTitle,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "scope", required: true },
@@ -40,15 +39,14 @@ export default function QuestionnaireDialog() {
     const formData = new FormData(event.currentTarget);
 
     setOpen(false);
-    toastManager.add({
-      title: "Clarification sent",
+    toast("Clarification sent", {
       description: `Scope: ${formData.get("scope") ?? "None"} · Verification: ${formData.get("tests") ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Dialog open={open()} onOpenChange={setOpen}>
         <DialogTrigger as={Button} variant="outline">
           Open clarification

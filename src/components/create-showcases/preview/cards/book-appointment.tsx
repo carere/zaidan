@@ -22,7 +22,7 @@ export function BookAppointment() {
         <FieldGroup>
           <Field>
             <FieldLabel>Available on March 18, 2026</FieldLabel>
-            <ToggleGroup spacing={2} defaultValue={["slot-0"]}>
+            <ToggleGroup spacing={2} defaultValue="slot-0">
               <For each={["9:00 AM", "10:30 AM", "11:00 AM", "1:30 PM"]}>
                 {(time, index) => (
                   <ToggleGroupItem value={`slot-${index()}`}>{time}</ToggleGroupItem>

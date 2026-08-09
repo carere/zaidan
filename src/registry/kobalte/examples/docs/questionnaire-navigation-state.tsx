@@ -1,3 +1,4 @@
+import { toast } from "solid-sonner";
 import {
   Questionnaire,
   QuestionnaireActions,
@@ -13,9 +14,7 @@ import {
   QuestionnaireTitle,
   useQuestionnaire,
 } from "@/registry/kobalte/ui/questionnaire";
-import { createToastManager, Toaster } from "@/registry/kobalte/ui/toast";
-
-const toastManager = createToastManager();
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 const items = [
   { name: "permission", required: true },
@@ -47,15 +46,14 @@ export default function QuestionnaireNavigationState() {
 
     const formData = new FormData(event.currentTarget);
 
-    toastManager.add({
-      title: "Permissions saved",
+    toast("Permissions saved", {
       description: `Permission: ${formData.get("permission") ?? "None"} · Verification: ${formData.get("verification") ?? "None"}`,
     });
   }
 
   return (
     <>
-      <Toaster toastManager={toastManager} />
+      <Toaster />
       <Questionnaire
         class="mx-auto max-w-md"
         defaultItem="permission"

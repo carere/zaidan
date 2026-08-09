@@ -64,8 +64,7 @@ export default function DrawerDemo() {
     <Drawer
       open={open()}
       onOpenChange={(nextOpen) => setOpen(nextOpen)}
-      showSwipeHandle={isMobile()}
-      swipeDirection={isMobile() ? "down" : "right"}
+      side={isMobile() ? "bottom" : "right"}
     >
       <DrawerTrigger as={Button} variant="secondary">
         Open Drawer
@@ -76,7 +75,7 @@ export default function DrawerDemo() {
           <DrawerDescription>We'll prepare your order as soon as possible.</DrawerDescription>
         </DrawerHeader>
         <div class="flex-1 overflow-y-auto p-4">
-          <RadioGroup value={deliveryTime()} onValueChange={setDeliveryTime} class="gap-2">
+          <RadioGroup value={deliveryTime()} onChange={setDeliveryTime} class="gap-2">
             <For each={deliveryTimes}>
               {(time) => (
                 <FieldLabel for={time.id}>

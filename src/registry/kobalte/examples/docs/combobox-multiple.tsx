@@ -1,44 +1,27 @@
-import { For } from "solid-js";
 import {
   Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
   ComboboxContent,
   ComboboxEmpty,
+  ComboboxInput,
   ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
 } from "@/registry/kobalte/ui/combobox";
 
 const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
 export default function ComboboxMultiple() {
-  const anchor = useComboboxAnchor();
-
   return (
-    <Combobox<string, true>
-      items={frameworks}
+    <Combobox<(typeof frameworks)[number]>
+      options={frameworks}
+      placeholder="Select frameworks..."
       multiple
-      autoHighlight
       defaultValue={[frameworks[0]]}
+      itemComponent={(props) => (
+        <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+      )}
     >
-      <ComboboxChips ref={anchor} class="w-full max-w-xs">
-        <ComboboxValue>
-          {(values) => (
-            <>
-              <For each={values as string[]}>{(value) => <ComboboxChip>{value}</ComboboxChip>}</For>
-              <ComboboxChipsInput />
-            </>
-          )}
-        </ComboboxValue>
-      </ComboboxChips>
-      <ComboboxContent anchor={anchor}>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item: string) => <ComboboxItem value={item}>{item}</ComboboxItem>}
-        </ComboboxList>
+      <ComboboxInput placeholder="Select frameworks..." />
+      <ComboboxContent>
+        <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
       </ComboboxContent>
     </Combobox>
   );

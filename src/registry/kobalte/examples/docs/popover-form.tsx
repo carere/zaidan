@@ -16,7 +16,7 @@ export default function PopoverForm() {
       <PopoverTrigger as={Button} variant="outline">
         Open Popover
       </PopoverTrigger>
-      <PopoverContent class="w-64" align="start">
+      <PopoverContent class="w-64">
         <PopoverHeader>
           <PopoverTitle>Dimensions</PopoverTitle>
           <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
