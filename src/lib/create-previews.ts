@@ -3,14 +3,7 @@ import type { Component } from "solid-js";
 export const CREATE_SHOWCASES = ["preview-02", "preview"] as const;
 export type CreateShowcase = (typeof CREATE_SHOWCASES)[number];
 
-const EXCLUDED_CREATE_ITEMS = new Set([
-  "component-example",
-  "direction",
-  "sidebar-floating",
-  "sidebar-icon",
-  "sidebar-inset",
-  "sonner",
-]);
+const EXCLUDED_CREATE_ITEMS = new Set(["component-example", "direction", "sonner"]);
 
 type PreviewModule = { default: Component };
 type PreviewKind = "blocks" | "ui";

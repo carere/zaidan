@@ -187,6 +187,28 @@ When using the `inset` variant, wrap the primary content in `SidebarInset`.
 </SidebarProvider>
 ```
 
+## Variants
+
+Every visual treatment is a prop on the single `Sidebar` component — there are no separate variant components.
+
+### Floating
+
+Set `variant="floating"` for a card-like panel with rounded corners and padding from the window edges.
+
+<ComponentPreview name="sidebar-floating" align="start" contained previewClass="h-[42rem] p-0" />
+
+### Inset
+
+Set `variant="inset"` and wrap the primary content in `SidebarInset`.
+
+<ComponentPreview name="sidebar-inset" align="start" contained previewClass="h-[42rem] p-0" />
+
+### Icon collapse
+
+Set `collapsible="icon"` to collapse the sidebar to its icon rail instead of hiding it.
+
+<ComponentPreview name="sidebar-icon" align="start" contained previewClass="h-[42rem] p-0" />
+
 ## useSidebar
 
 Use `useSidebar` inside a provider to inspect and control state.

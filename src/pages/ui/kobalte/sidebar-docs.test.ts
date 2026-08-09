@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getDocsExample } from "@/lib/docs-examples";
 
 const pagePath = fileURLToPath(new URL("./sidebar.mdx", import.meta.url));
-const demoNames = ["sidebar-demo"];
+const demoNames = ["sidebar-demo", "sidebar-floating", "sidebar-inset", "sidebar-icon"];
 
 describe("Sidebar documentation", () => {
   it("links every approved focused demo to a default-export Solid module", async () => {
