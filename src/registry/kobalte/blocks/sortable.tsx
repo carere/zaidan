@@ -1,7 +1,15 @@
 import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from "@dnd-kit/solid";
 import { isSortable, useSortable } from "@dnd-kit/solid/sortable";
-import type { ComponentProps, JSX, ParentProps, ValidComponent } from "solid-js";
-import { createContext, createSignal, mergeProps, Show, splitProps, useContext } from "solid-js";
+import type { ComponentProps, JSX, ValidComponent } from "solid-js";
+import {
+  createContext,
+  createSignal,
+  mergeProps,
+  onMount,
+  Show,
+  splitProps,
+  useContext,
+} from "solid-js";
 import { Dynamic } from "solid-js/web";
 
 import { cn } from "@/lib/utils";
@@ -26,11 +34,15 @@ type SortableInternalContextValue = {
   activeId: () => string | null;
   // Returns the index of `id` in the current sortable list, or -1 if missing.
   indexOf: (id: string) => number;
+  // `@dnd-kit/solid` is browser-only. The root renders presentational markup
+  // during SSR/hydration and flips `live` after mount to engage drag and drop.
+  live: () => boolean;
 };
 
 const SortableInternalContext = createContext<SortableInternalContextValue>({
   activeId: () => null,
   indexOf: () => -1,
+  live: () => true,
 });
 
 // ---------- Drop animation defaults ----------
@@ -70,6 +82,13 @@ export type SortableRootProps<T> = Omit<
   onValueChange: (value: T[]) => void;
   getItemValue: (item: T) => string;
   children?: JSX.Element;
+  /**
+   * Fired once per completed drop, after `onValueChange`, with the reordered
+   * array and a `previousValue` snapshot. Use it for backend persistence with
+   * rollback: mutate the server, and restore `previousValue` on failure. Not
+   * called when `onMove` handles the reorder.
+   */
+  onValueCommit?: (value: T[], meta: { previousValue: T[] }) => void;
   onMove?: (event: {
     activeIndex: number;
     overIndex: number;
@@ -98,12 +117,11 @@ export type SortableItemHandleProps = JSX.HTMLAttributes<HTMLDivElement> & {
   as?: ValidComponent;
 };
 
-export type SortableOverlayProps = ParentProps<
-  {
-    dropAnimation?: DropAnimationConfig | null;
-    style?: JSX.CSSProperties;
-  } & Omit<ComponentProps<"div">, "style">
->;
+export type SortableOverlayProps = Omit<ComponentProps<"div">, "style" | "children"> & {
+  children?: JSX.Element | ((params: { value: string }) => JSX.Element);
+  dropAnimation?: DropAnimationConfig | null;
+  style?: JSX.CSSProperties;
+};
 
 // ---------- Sortable root ----------
 
@@ -116,6 +134,7 @@ function Sortable<T>(props: SortableRootProps<T>) {
   const [local, others] = splitProps(props, [
     "value",
     "onValueChange",
+    "onValueCommit",
     "getItemValue",
     "class",
     "onMove",
@@ -128,6 +147,11 @@ function Sortable<T>(props: SortableRootProps<T>) {
   ]);
 
   const [activeId, setActiveId] = createSignal<string | null>(null);
+  // `@dnd-kit/solid` cannot run during SSR: the server renders the same
+  // markup without the drag-and-drop context, and the interactive provider
+  // mounts client-side only.
+  const [live, setLive] = createSignal(false);
+  onMount(() => setLive(true));
 
   const handleDragStart = (event: { operation: { source: { id: unknown } } }) => {
     const id = String(event.operation.source.id);
@@ -191,31 +215,39 @@ function Sortable<T>(props: SortableRootProps<T>) {
     const [moved] = next.splice(activeIndex, 1);
     next.splice(overIndex, 0, moved);
     local.onValueChange(next);
+    local.onValueCommit?.(next, { previousValue: items });
   };
 
   const internalContextValue: SortableInternalContextValue = {
     activeId,
     indexOf: (id) => local.value.findIndex((item) => local.getItemValue(item) === id),
+    live,
   };
+
+  const container = () => (
+    <Dynamic
+      component={local.as ?? "div"}
+      data-slot="sortable"
+      data-dragging={activeId() !== null ? "" : undefined}
+      class={cn(activeId() !== null && "cursor-grabbing!", local.class)}
+      {...others}
+    >
+      {local.children}
+    </Dynamic>
+  );
 
   return (
     <SortableInternalContext.Provider value={internalContextValue}>
-      <DragDropProvider
-        sensors={[PointerSensor, KeyboardSensor]}
-        modifiers={local.modifiers as never}
-        onDragStart={handleDragStart as never}
-        onDragEnd={handleDragEnd as never}
-      >
-        <Dynamic
-          component={local.as ?? "div"}
-          data-slot="sortable"
-          data-dragging={activeId() !== null ? "" : undefined}
-          class={cn(activeId() !== null && "cursor-grabbing!", local.class)}
-          {...others}
+      <Show when={live()} fallback={container()}>
+        <DragDropProvider
+          sensors={[PointerSensor, KeyboardSensor]}
+          modifiers={local.modifiers as never}
+          onDragStart={handleDragStart as never}
+          onDragEnd={handleDragEnd as never}
         >
-          {local.children}
-        </Dynamic>
-      </DragDropProvider>
+          {container()}
+        </DragDropProvider>
+      </Show>
     </SortableInternalContext.Provider>
   );
 }
@@ -234,6 +266,58 @@ function SortableItem(props: SortableItemProps) {
   const isOverlay = useContext(IsOverlayContext);
   const internal = useContext(SortableInternalContext);
 
+  if (isOverlay) {
+    return <StaticSortableItem {...props} dragging />;
+  }
+
+  return (
+    <Show when={internal.live()} fallback={<StaticSortableItem {...props} />}>
+      <RegisteredSortableItem {...props} />
+    </Show>
+  );
+}
+
+/**
+ * Presentational item markup, used inside `<SortableOverlay />` and during
+ * SSR/hydration before the drag-and-drop manager is live.
+ */
+function StaticSortableItem(props: SortableItemProps & { dragging?: boolean }) {
+  const [local, others] = splitProps(props, [
+    "value",
+    "class",
+    "disabled",
+    "dragging",
+    "as",
+    "children",
+    "ref",
+  ]);
+
+  return (
+    <SortableItemContext.Provider
+      value={{
+        setHandleRef: () => undefined,
+        isDragging: () => Boolean(local.dragging),
+        disabled: () => local.disabled,
+      }}
+    >
+      <Dynamic
+        component={local.as ?? "div"}
+        data-slot="sortable-item"
+        data-value={local.value}
+        data-dragging={local.dragging ? "" : undefined}
+        data-disabled={local.disabled ? "" : undefined}
+        class={cn(local.class, { "opacity-50": local.disabled && !local.dragging })}
+        {...others}
+      >
+        {local.children}
+      </Dynamic>
+    </SortableItemContext.Provider>
+  );
+}
+
+function RegisteredSortableItem(props: SortableItemProps) {
+  const internal = useContext(SortableInternalContext);
+
   const [local, others] = splitProps(props, [
     "value",
     "class",
@@ -242,29 +326,6 @@ function SortableItem(props: SortableItemProps) {
     "children",
     "ref",
   ]);
-
-  if (isOverlay) {
-    return (
-      <SortableItemContext.Provider
-        value={{
-          setHandleRef: () => undefined,
-          isDragging: () => true,
-          disabled: () => false,
-        }}
-      >
-        <Dynamic
-          component={local.as ?? "div"}
-          data-slot="sortable-item"
-          data-value={local.value}
-          data-dragging=""
-          class={local.class}
-          {...others}
-        >
-          {local.children}
-        </Dynamic>
-      </SortableItemContext.Provider>
-    );
-  }
 
   const sortable = useSortable({
     get id() {
@@ -350,17 +411,26 @@ function SortableOverlay(props: SortableOverlayProps) {
   const [local] = splitProps(props, ["children", "class", "dropAnimation", "style"]);
 
   return (
-    <DragOverlay
-      dropAnimation={local.dropAnimation === undefined ? defaultDropAnimation : local.dropAnimation}
-      class={cn("z-50", internal.activeId() && "cursor-grabbing", local.class)}
-      style={local.style}
-    >
-      {() => (
-        <IsOverlayContext.Provider value={true}>
-          <Show when={internal.activeId() && local.children}>{local.children}</Show>
-        </IsOverlayContext.Provider>
-      )}
-    </DragOverlay>
+    <Show when={internal.live()}>
+      <DragOverlay
+        dropAnimation={
+          local.dropAnimation === undefined ? defaultDropAnimation : local.dropAnimation
+        }
+        class={cn("z-50", internal.activeId() && "cursor-grabbing", local.class)}
+        style={local.style}
+      >
+        {() => (
+          <IsOverlayContext.Provider value={true}>
+            <Show when={internal.activeId()}>
+              {(value) => {
+                const children = local.children;
+                return typeof children === "function" ? children({ value: value() }) : children;
+              }}
+            </Show>
+          </IsOverlayContext.Provider>
+        )}
+      </DragOverlay>
+    </Show>
   );
 }
 
