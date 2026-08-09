@@ -28,18 +28,18 @@ const Questionnaire = {
   Description: QuestionnaireDescription,
   Choices: QuestionnaireChoices,
   Choice: QuestionnaireChoice,
-  ChoiceInput: QuestionnaireChoiceInput,
-  ChoiceLabel: QuestionnaireChoiceLabel,
-  ChoiceShortcut: QuestionnaireChoiceShortcut,
+  ChoiceDescription: QuestionnaireChoiceDescription,
   Input: QuestionnaireInput,
   Error: QuestionnaireError,
+  Actions: QuestionnaireActions,
   Previous: QuestionnairePrevious,
   Skip: QuestionnaireSkip,
   Next: QuestionnaireNext,
   Submit: QuestionnaireSubmit,
-  // Zaidan additions over the upstream API.
-  Actions: QuestionnaireActions,
-  ChoiceDescription: QuestionnaireChoiceDescription,
+  // Headless choice sub-parts for custom compositions.
+  ChoiceInput: QuestionnaireChoiceInput,
+  ChoiceLabel: QuestionnaireChoiceLabel,
+  ChoiceShortcut: QuestionnaireChoiceShortcut,
 };
 
 export type {

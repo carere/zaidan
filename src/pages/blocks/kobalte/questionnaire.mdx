@@ -155,6 +155,17 @@ persistence, transport, and branching.
 The `Questionnaire.ChoiceInput`, `Questionnaire.ChoiceLabel`, and `Questionnaire.ChoiceShortcut`
 sub-parts are also exported for custom compositions that read the choice state.
 
+## Item Definitions
+
+The `items` prop on `Questionnaire.Root` is the collection of record. It drives the progress
+count, decides when Previous, Skip, Next, and Submit are visible, and assigns shortcut keys in
+definition order, independently of when the rendered parts mount.
+
+Keep the definitions and the rendered `Questionnaire.Item` and `Questionnaire.Choice` elements in
+sync: `name`, `required`, `disabled`, and choice `value` order must match. In development the
+block logs a console warning for every drift it detects, such as an item defined but never
+rendered or a choice missing from the definitions.
+
 ## Multiple Selection
 
 Use `multiple` for an item that accepts more than one fixed answer.
