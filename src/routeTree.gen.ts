@@ -21,11 +21,13 @@ import { Route as PublicDocsIndexRouteImport } from './routes/_public.docs.index
 import { Route as PublicDocsSlugRouteImport } from './routes/_public.docs.$slug'
 import { Route as PreviewChartsNameRouteImport } from './routes/preview.charts.$name'
 import { Route as RPrimitiveNameRouteImport } from './routes/r.$primitive.$name'
+import { Route as PublicDocsBlocksIndexRouteImport } from './routes/_public.docs.blocks.index'
 import { Route as PublicDocsChangelogIndexRouteImport } from './routes/_public.docs.changelog.index'
 import { Route as PublicDocsChangelogSlugRouteImport } from './routes/_public.docs.changelog.$slug'
 import { Route as PublicDocsComponentsIndexRouteImport } from './routes/_public.docs.components.index'
 import { Route as PublicDocsInstallationSlugRouteImport } from './routes/_public.docs.installation.$slug'
 import { Route as PreviewKindPrimitiveSlugRouteImport } from './routes/preview.$kind.$primitive.$slug'
+import { Route as PublicDocsBlocksPrimitiveSlugRouteImport } from './routes/_public.docs.blocks.$primitive.$slug'
 import { Route as PublicDocsComponentsPrimitiveSlugRouteImport } from './routes/_public.docs.components.$primitive.$slug'
 
 const PublicRoute = PublicRouteImport.update({
@@ -87,6 +89,11 @@ const RPrimitiveNameRoute = RPrimitiveNameRouteImport.update({
   path: '/r/$primitive/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicDocsBlocksIndexRoute = PublicDocsBlocksIndexRouteImport.update({
+  id: '/blocks/',
+  path: '/blocks/',
+  getParentRoute: () => PublicDocsRoute,
+} as any)
 const PublicDocsChangelogIndexRoute =
   PublicDocsChangelogIndexRouteImport.update({
     id: '/changelog/',
@@ -116,6 +123,12 @@ const PreviewKindPrimitiveSlugRoute =
     path: '/preview/$kind/$primitive/$slug',
     getParentRoute: () => rootRouteImport,
   } as any)
+const PublicDocsBlocksPrimitiveSlugRoute =
+  PublicDocsBlocksPrimitiveSlugRouteImport.update({
+    id: '/blocks/$primitive/$slug',
+    path: '/blocks/$primitive/$slug',
+    getParentRoute: () => PublicDocsRoute,
+  } as any)
 const PublicDocsComponentsPrimitiveSlugRoute =
   PublicDocsComponentsPrimitiveSlugRouteImport.update({
     id: '/components/$primitive/$slug',
@@ -138,8 +151,10 @@ export interface FileRoutesByFullPath {
   '/docs/changelog/$slug': typeof PublicDocsChangelogSlugRoute
   '/docs/installation/$slug': typeof PublicDocsInstallationSlugRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
+  '/docs/blocks/': typeof PublicDocsBlocksIndexRoute
   '/docs/changelog/': typeof PublicDocsChangelogIndexRoute
   '/docs/components/': typeof PublicDocsComponentsIndexRoute
+  '/docs/blocks/$primitive/$slug': typeof PublicDocsBlocksPrimitiveSlugRoute
   '/docs/components/$primitive/$slug': typeof PublicDocsComponentsPrimitiveSlugRoute
 }
 export interface FileRoutesByTo {
@@ -155,8 +170,10 @@ export interface FileRoutesByTo {
   '/docs/changelog/$slug': typeof PublicDocsChangelogSlugRoute
   '/docs/installation/$slug': typeof PublicDocsInstallationSlugRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
+  '/docs/blocks': typeof PublicDocsBlocksIndexRoute
   '/docs/changelog': typeof PublicDocsChangelogIndexRoute
   '/docs/components': typeof PublicDocsComponentsIndexRoute
+  '/docs/blocks/$primitive/$slug': typeof PublicDocsBlocksPrimitiveSlugRoute
   '/docs/components/$primitive/$slug': typeof PublicDocsComponentsPrimitiveSlugRoute
 }
 export interface FileRoutesById {
@@ -176,8 +193,10 @@ export interface FileRoutesById {
   '/_public/docs/changelog/$slug': typeof PublicDocsChangelogSlugRoute
   '/_public/docs/installation/$slug': typeof PublicDocsInstallationSlugRoute
   '/preview/$kind/$primitive/$slug': typeof PreviewKindPrimitiveSlugRoute
+  '/_public/docs/blocks/': typeof PublicDocsBlocksIndexRoute
   '/_public/docs/changelog/': typeof PublicDocsChangelogIndexRoute
   '/_public/docs/components/': typeof PublicDocsComponentsIndexRoute
+  '/_public/docs/blocks/$primitive/$slug': typeof PublicDocsBlocksPrimitiveSlugRoute
   '/_public/docs/components/$primitive/$slug': typeof PublicDocsComponentsPrimitiveSlugRoute
 }
 export interface FileRouteTypes {
@@ -197,8 +216,10 @@ export interface FileRouteTypes {
     | '/docs/changelog/$slug'
     | '/docs/installation/$slug'
     | '/preview/$kind/$primitive/$slug'
+    | '/docs/blocks/'
     | '/docs/changelog/'
     | '/docs/components/'
+    | '/docs/blocks/$primitive/$slug'
     | '/docs/components/$primitive/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -214,8 +235,10 @@ export interface FileRouteTypes {
     | '/docs/changelog/$slug'
     | '/docs/installation/$slug'
     | '/preview/$kind/$primitive/$slug'
+    | '/docs/blocks'
     | '/docs/changelog'
     | '/docs/components'
+    | '/docs/blocks/$primitive/$slug'
     | '/docs/components/$primitive/$slug'
   id:
     | '__root__'
@@ -234,8 +257,10 @@ export interface FileRouteTypes {
     | '/_public/docs/changelog/$slug'
     | '/_public/docs/installation/$slug'
     | '/preview/$kind/$primitive/$slug'
+    | '/_public/docs/blocks/'
     | '/_public/docs/changelog/'
     | '/_public/docs/components/'
+    | '/_public/docs/blocks/$primitive/$slug'
     | '/_public/docs/components/$primitive/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -333,6 +358,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof RPrimitiveNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_public/docs/blocks/': {
+      id: '/_public/docs/blocks/'
+      path: '/blocks'
+      fullPath: '/docs/blocks/'
+      preLoaderRoute: typeof PublicDocsBlocksIndexRouteImport
+      parentRoute: typeof PublicDocsRoute
+    }
     '/_public/docs/changelog/': {
       id: '/_public/docs/changelog/'
       path: '/changelog'
@@ -368,6 +400,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof PreviewKindPrimitiveSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_public/docs/blocks/$primitive/$slug': {
+      id: '/_public/docs/blocks/$primitive/$slug'
+      path: '/blocks/$primitive/$slug'
+      fullPath: '/docs/blocks/$primitive/$slug'
+      preLoaderRoute: typeof PublicDocsBlocksPrimitiveSlugRouteImport
+      parentRoute: typeof PublicDocsRoute
+    }
     '/_public/docs/components/$primitive/$slug': {
       id: '/_public/docs/components/$primitive/$slug'
       path: '/components/$primitive/$slug'
@@ -397,8 +436,10 @@ interface PublicDocsRouteChildren {
   PublicDocsIndexRoute: typeof PublicDocsIndexRoute
   PublicDocsChangelogSlugRoute: typeof PublicDocsChangelogSlugRoute
   PublicDocsInstallationSlugRoute: typeof PublicDocsInstallationSlugRoute
+  PublicDocsBlocksIndexRoute: typeof PublicDocsBlocksIndexRoute
   PublicDocsChangelogIndexRoute: typeof PublicDocsChangelogIndexRoute
   PublicDocsComponentsIndexRoute: typeof PublicDocsComponentsIndexRoute
+  PublicDocsBlocksPrimitiveSlugRoute: typeof PublicDocsBlocksPrimitiveSlugRoute
   PublicDocsComponentsPrimitiveSlugRoute: typeof PublicDocsComponentsPrimitiveSlugRoute
 }
 
@@ -407,8 +448,10 @@ const PublicDocsRouteChildren: PublicDocsRouteChildren = {
   PublicDocsIndexRoute: PublicDocsIndexRoute,
   PublicDocsChangelogSlugRoute: PublicDocsChangelogSlugRoute,
   PublicDocsInstallationSlugRoute: PublicDocsInstallationSlugRoute,
+  PublicDocsBlocksIndexRoute: PublicDocsBlocksIndexRoute,
   PublicDocsChangelogIndexRoute: PublicDocsChangelogIndexRoute,
   PublicDocsComponentsIndexRoute: PublicDocsComponentsIndexRoute,
+  PublicDocsBlocksPrimitiveSlugRoute: PublicDocsBlocksPrimitiveSlugRoute,
   PublicDocsComponentsPrimitiveSlugRoute:
     PublicDocsComponentsPrimitiveSlugRoute,
 }

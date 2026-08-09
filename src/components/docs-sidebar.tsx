@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/solid-router";
-import { docs, ui } from "@velite";
+import { blocks, docs, ui } from "@velite";
 import { createEffect, For, onCleanup, onMount, Show } from "solid-js";
 import { hasUpdate } from "@/lib/registry-entries";
 import {
@@ -18,6 +18,7 @@ const SCROLL_STORAGE_KEY = "docs-sidebar-scroll";
 const sections = [
   { name: "Introduction", to: "/docs" },
   { name: "Components", to: "/docs/components" },
+  { name: "Blocks", to: "/docs/blocks" },
   { name: "Installation", to: "/docs/installation" },
   { name: "Customization", to: "/docs/customization" },
   { name: "Dark Mode", to: "/docs/dark-mode" },
@@ -32,6 +33,8 @@ const installationPages = [...docs]
   .sort((a, b) => a.title.localeCompare(b.title));
 
 const componentPages = [...ui].sort((a, b) => a.title.localeCompare(b.title));
+
+const blockPages = [...blocks].sort((a, b) => a.title.localeCompare(b.title));
 
 function readScrollState() {
   try {
@@ -159,6 +162,38 @@ export function DocsSidebar() {
                     >
                       <span class="absolute inset-0 flex w-(--sidebar-menu-width) bg-transparent" />
                       {page.title}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </For>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel class="font-medium text-muted-foreground">Blocks</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu class="gap-0.5">
+              <For each={blockPages}>
+                {(page) => (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      as={Link}
+                      to="/docs/blocks/$primitive/$slug"
+                      // @ts-expect-error Kobalte's polymorphic wrapper cannot infer TanStack route params.
+                      params={{ primitive: "kobalte", slug: page.slug }}
+                      isActive={location().pathname === `/docs/blocks/kobalte/${page.slug}`}
+                      class={menuButtonClass}
+                    >
+                      <span class="absolute inset-0 flex w-(--sidebar-menu-width) bg-transparent" />
+                      {page.title}
+                      <Show when={hasUpdate(page.slug, "blocks")}>
+                        <span
+                          role="status"
+                          aria-label="Has updates"
+                          class="ml-1.5 size-1.5 shrink-0 rounded-full bg-sky-500"
+                        />
+                      </Show>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}

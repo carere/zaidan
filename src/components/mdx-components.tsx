@@ -12,6 +12,7 @@ import {
   splitProps,
 } from "solid-js";
 import { isServer } from "solid-js/web";
+import { BlocksList } from "@/components/blocks-list";
 import { CliButton } from "@/components/cli-button";
 import { CodeTabs, ComponentPreview, ComponentSource } from "@/components/component-preview";
 import { ComponentsList } from "@/components/components-list";
@@ -143,6 +144,7 @@ function MdxTabsContent(props: ComponentProps<typeof TabsContent>) {
 }
 
 export const sharedComponents = {
+  BlocksList,
   ComponentsList,
   table: MdxTable,
   pre: MdxPre,

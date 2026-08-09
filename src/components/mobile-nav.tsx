@@ -8,7 +8,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/registry/kobalte/ui/p
 
 const topLevelDocs = [...docs]
   .filter(
-    (item) => item.parent === undefined && item.slug !== "index" && item.slug !== "components",
+    (item) =>
+      item.parent === undefined &&
+      item.slug !== "index" &&
+      item.slug !== "components" &&
+      item.slug !== "blocks",
   )
   .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 
@@ -145,8 +149,8 @@ export function MobileNav(props: MobileNavProps) {
                 <For each={blockPages}>
                   {(item) => (
                     <Link
-                      to="/create"
-                      search={{ item: item.slug }}
+                      to="/docs/blocks/$primitive/$slug"
+                      params={{ primitive: "kobalte", slug: item.slug }}
                       class={mobileLinkClass}
                       onClick={() => setOpen(false)}
                     >
