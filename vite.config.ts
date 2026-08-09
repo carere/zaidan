@@ -1,3 +1,5 @@
+/// <reference types="vitest/config" />
+
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -8,7 +10,7 @@ import lucide from "vite-plugin-lucide-preprocess";
 import solid from "vite-plugin-solid";
 import mdx from "./src/lib/vite-plugins/mdx";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     tsconfigPaths: true,
   },
@@ -21,10 +23,13 @@ export default defineConfig({
       stylePropertyNameCase: "css",
     }),
     devtools(),
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    ...(mode === "test" ? [] : [cloudflare({ viteEnvironment: { name: "ssr" } })]),
     tailwind(),
     tanstackStart(),
     solid({ ssr: true, hot: true, extensions: [".tsx", ".mdx"] }),
-    velite(),
+    ...(mode === "test" ? [] : [velite()]),
   ],
-});
+  test: {
+    environment: "node",
+  },
+}));
