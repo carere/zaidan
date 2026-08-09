@@ -5,7 +5,9 @@ import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import {
   createContext,
   createEffect,
+  createMemo,
   createSignal,
+  For,
   Index,
   Match,
   mergeProps,
@@ -86,7 +88,7 @@ interface UseToastManagerReturnValue<Data extends object = Record<string, unknow
   promise: ToastManager<Data>["promise"];
 }
 
-type InternalToastObject = ToastObject<object> & { kobalteId: number; renderKey: number };
+type InternalToastObject = ToastObject<object> & { renderKey: number };
 
 interface ToastMetadata {
   behind: boolean;
@@ -99,6 +101,7 @@ interface ToastMetadata {
 interface ToastManagerInternals {
   readonly regionId: string;
   expanded: () => boolean;
+  finalizeClose: (id: string, renderKey: number) => void;
   focused: () => boolean;
   getMetadata: (id: string) => ToastMetadata;
   getToast: (id: string) => InternalToastObject | undefined;
@@ -134,7 +137,9 @@ type InternalToastManager = ToastManager<object> & {
 
 let managerCount = 0;
 let toastCount = 0;
-let toastRenderCount = 0;
+// Render keys double as the numeric toastId handed to Kobalte's Toast.Root and
+// resolved through resolveToastId, where 0 would read as "no toast" — start at 1.
+let toastRenderCount = 1;
 
 function resolvePromiseOptions<Data extends object, Value>(
   option:
@@ -168,7 +173,6 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
   const listeners = new Set<(data: ToastManagerEvent) => void>();
   const closeFallbacks = new Map<string, ReturnType<typeof setTimeout>>();
   const closedToasts = new Set<string>();
-  const retiredToasts = new Map<number, InternalToastObject>();
   const rootRefs = new Map<string, { element: HTMLElement; renderKey: number }>();
   const timers = new Map<string, ToastTimer>();
   let previousFocusElement: HTMLElement | null = null;
@@ -314,25 +318,6 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
     );
   };
 
-  const renderToast = (id: string, renderKey: number): ToastPrimitive.ToastComponent => {
-    return (rootProps) => {
-      const item = () => {
-        const toastItem = getToast(id);
-        return toastItem?.renderKey === renderKey ? toastItem : retiredToasts.get(renderKey);
-      };
-
-      onCleanup(() => internals.handleUnmount(id, renderKey));
-
-      return (
-        <Show when={item()}>
-          {(toastItem) => (
-            <ManagedToast manager={internals} toast={toastItem()} toastId={rootProps.toastId} />
-          )}
-        </Show>
-      );
-    };
-  };
-
   const update = (
     id: string,
     updates: ToastManagerUpdateOptions<object>,
@@ -394,7 +379,6 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
       const item: InternalToastObject = {
         ...options,
         id,
-        kobalteId: -1,
         renderKey,
         transitionStatus: "starting",
         updateKey: 0,
@@ -405,16 +389,9 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
         if (fallback) clearTimeout(fallback);
         closeFallbacks.delete(id);
         closedToasts.delete(id);
-        retiredToasts.set(existing.renderKey, existing);
       }
 
       setToasts((items) => [item, ...items.filter((toastItem) => toastItem.id !== id)]);
-      const kobalteId = ToastPrimitive.toaster.show(renderToast(id, renderKey), {
-        region: regionId,
-      });
-      setToasts((items) =>
-        items.map((toastItem) => (toastItem.id === id ? { ...toastItem, kobalteId } : toastItem)),
-      );
       const duration = item.timeout ?? defaultTimeout();
       if (item.type !== "loading" && duration > 0) scheduleTimer(id, duration);
       emit({ action: "add", options: { ...options, id } });
@@ -423,6 +400,9 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
     close: (id?: string) => {
       const items = id ? toasts().filter((item) => item.id === id) : toasts();
 
+      // Flag the toast as ending and let the rendered root run its exit animation;
+      // removal happens on animationend (finalizeClose), with a timer as fallback
+      // for environments where the animation never runs.
       for (const item of items) {
         if (closedToasts.has(item.id)) continue;
         clearTimer(item.id);
@@ -431,7 +411,6 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
           item.id,
           setTimeout(() => removeToast(item.id), 1000),
         );
-        ToastPrimitive.toaster.dismiss(item.kobalteId);
       }
 
       emit({ action: "close", options: { id } });
@@ -468,6 +447,10 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
   const internals: ToastManagerInternals = {
     regionId,
     expanded: () => hovered() || focused(),
+    finalizeClose: (id, renderKey) => {
+      const item = getToast(id);
+      if (item?.renderKey === renderKey && item.transitionStatus === "ending") removeToast(id);
+    },
     focused,
     getMetadata: (id) => {
       const activeToasts = toasts().filter((item) => item.transitionStatus !== "ending");
@@ -496,11 +479,10 @@ function createToastManager<Data extends object = Record<string, unknown>>(): To
     },
     handleUnmount: (id, renderKey) => {
       if (getToast(id)?.renderKey === renderKey) removeToast(id);
-      else retiredToasts.delete(renderKey);
     },
     notifyClose,
     notifyOpen,
-    resolveToastId: (id) => getToast(id)?.kobalteId,
+    resolveToastId: (id) => getToast(id)?.renderKey,
     restorePreviousFocus,
     savePreviousFocus: (element) => {
       previousFocusElement = element;
@@ -877,6 +859,11 @@ function ToastRootView(props: ToastRootViewProps) {
   };
   const currentToast = () =>
     isCurrentToast() ? (local.manager.getToast(local.toast.id) ?? local.toast) : local.toast;
+  const ending = () => currentToast().transitionStatus === "ending";
+  const renderKey = () =>
+    "renderKey" in local.toast && typeof local.toast.renderKey === "number"
+      ? local.toast.renderKey
+      : local.manager.getToast(local.toast.id)?.renderKey;
   const metadata = () => {
     const toastMetadata = local.manager.getMetadata(local.toast.id);
     return isCurrentToast() ? toastMetadata : { ...toastMetadata, limited: true };
@@ -906,30 +893,58 @@ function ToastRootView(props: ToastRootViewProps) {
     local.manager.notifyOpen(local.toast.id);
     if (!rootRef) return;
 
-    const renderKey =
-      "renderKey" in local.toast && typeof local.toast.renderKey === "number"
-        ? local.toast.renderKey
-        : local.manager.getToast(local.toast.id)?.renderKey;
-    if (renderKey !== undefined) local.manager.setRootRef(local.toast.id, renderKey, rootRef);
+    const mountedRenderKey = renderKey();
+    if (mountedRenderKey !== undefined) {
+      local.manager.setRootRef(local.toast.id, mountedRenderKey, rootRef);
+    }
 
     const resizeObserver =
       typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measure);
     resizeObserver?.observe(rootRef);
 
-    const closeObserver =
-      typeof MutationObserver === "undefined"
-        ? undefined
-        : new MutationObserver(() => {
-            if (isCurrentToast() && rootRef?.hasAttribute("data-closed")) {
-              local.manager.notifyClose(local.toast.id);
-            }
-          });
-    closeObserver?.observe(rootRef, { attributeFilter: ["data-closed"] });
+    // The manager keeps ending toasts in its list until the exit finishes; the
+    // slide-out is transition-driven (transitionend), while Kobalte-internal
+    // closes can also end on the exit keyframe animation (animationend). The
+    // fallback timer in close() covers environments where neither ever fires.
+    const finalizeIfEnding = () => {
+      if (!rootRef?.isConnected || mountedRenderKey === undefined || !ending()) return;
+      local.manager.finalizeClose(local.toast.id, mountedRenderKey);
+    };
+    const handleAnimationEnd = (event: AnimationEvent) => {
+      if (event.target === rootRef) finalizeIfEnding();
+    };
+    const handleTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === rootRef && event.propertyName === "transform") finalizeIfEnding();
+    };
+    rootRef.addEventListener("animationend", handleAnimationEnd);
+    rootRef.addEventListener("animationcancel", handleAnimationEnd);
+    rootRef.addEventListener("transitionend", handleTransitionEnd);
 
     onCleanup(() => {
-      if (renderKey !== undefined) local.manager.setRootRef(local.toast.id, renderKey);
+      if (mountedRenderKey !== undefined)
+        local.manager.setRootRef(local.toast.id, mountedRenderKey);
       resizeObserver?.disconnect();
-      closeObserver?.disconnect();
+      rootRef?.removeEventListener("animationend", handleAnimationEnd);
+      rootRef?.removeEventListener("animationcancel", handleAnimationEnd);
+      rootRef?.removeEventListener("transitionend", handleTransitionEnd);
+    });
+  });
+
+  // Remove immediately when an ending toast has nothing running to wait for
+  // (e.g. reduced motion), instead of leaving it to the close() fallback timer.
+  createEffect(() => {
+    if (!ending()) return;
+
+    const element = rootRef;
+    const endingRenderKey = renderKey();
+    if (!element || endingRenderKey === undefined) return;
+
+    requestAnimationFrame(() => {
+      if (typeof element.getAnimations !== "function") return;
+      const running = element
+        .getAnimations()
+        .some((animation) => animation.playState === "running" || animation.pending);
+      if (!running) local.manager.finalizeClose(local.toast.id, endingRenderKey);
     });
   });
 
@@ -955,6 +970,11 @@ function ToastRootView(props: ToastRootViewProps) {
       data-slot="toast"
       data-toast-id={local.toast.id}
       data-type={currentToast().type}
+      // The manager's ending status forces data-closed (Kobalte only sets it for
+      // its internal closes: escape and swipe), so timer and programmatic closes
+      // render the exit state too. data-opened may remain during those exits —
+      // the slide-out is transition-driven, so the enter animation is inert.
+      data-closed={ending() ? "" : undefined}
       data-expanded={local.manager.expanded() ? "" : undefined}
       data-limited={metadata().limited ? "" : undefined}
       inert={metadata().limited ? true : undefined}
@@ -1264,9 +1284,61 @@ function ToastIcon(props: { type?: string }) {
   );
 }
 
+// The manager's list drives rendering (instead of Kobalte's toaster store), so
+// toasts flagged as ending stay mounted through their exit animation and are
+// only dropped once finalizeClose removes them. Iterating over render keys —
+// stable primitives — keeps DOM nodes intact across the manager's immutable
+// list updates; renderKey doubles as the numeric toastId Kobalte's root expects.
 function ToastList() {
+  const context = useToastProviderContext();
+  // Reversed so DOM order stays oldest-first, matching the previous
+  // toaster-store order (the manager list is newest-first).
+  const renderKeys = createMemo(() =>
+    context.manager
+      .getToasts()
+      .map((item) => item.renderKey)
+      .reverse(),
+  );
+
   return (
-    <ToastPrimitive.List as="div" data-slot="toast-list" class="m-0 list-none p-0 outline-none" />
+    <div data-slot="toast-list" class="m-0 list-none p-0 outline-none">
+      <For each={renderKeys()}>
+        {(renderKey) => <ManagedToastItem manager={context.manager} renderKey={renderKey} />}
+      </For>
+    </div>
+  );
+}
+
+function ManagedToastItem(props: { manager: ToastManagerInternals; renderKey: number }) {
+  // The last-seen snapshot keeps `toast` readable during teardown and from
+  // lingering DOM event handlers (e.g. animationcancel after removal) — a keyed
+  // <Show> accessor would throw on those late reads and abort the update that
+  // unmounts the toast.
+  let lastSeen: InternalToastObject | undefined;
+  const item = createMemo(() => {
+    const value = props.manager
+      .getToasts()
+      .find((toastItem) => toastItem.renderKey === props.renderKey);
+    if (value) lastSeen = value;
+    return value;
+  });
+  const toast = () => item() ?? lastSeen;
+
+  onCleanup(() => {
+    const current = toast();
+    if (current) props.manager.handleUnmount(current.id, props.renderKey);
+  });
+
+  // toast() falls back to the lastSeen snapshot, so it is always defined while
+  // this subtree exists — hence the cast instead of a keyed <Show> accessor.
+  return (
+    <Show when={item()}>
+      <ManagedToast
+        manager={props.manager}
+        toast={toast() as InternalToastObject}
+        toastId={props.renderKey}
+      />
+    </Show>
   );
 }
 
