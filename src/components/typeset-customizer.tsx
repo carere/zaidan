@@ -1,4 +1,4 @@
-import { createMemo, For, type JSX, Show } from "solid-js";
+import { createMemo, createSignal, For, type JSX, Show } from "solid-js";
 import {
   findTypesetFont,
   type LockableParam,
@@ -24,8 +24,11 @@ import {
 } from "@/registry/kobalte/ui/dropdown-menu";
 import { FieldGroup, FieldSeparator } from "@/registry/kobalte/ui/field";
 
+// `data-closed:hidden` is load-bearing: Kobalte applies `data-closed` but the
+// content never unmounts here (its exit animation is assigned yet never
+// completes), so a menu closed on select would otherwise stay on screen.
 const pickerContentClass =
-  "dark no-scrollbar max-h-96 w-[calc(100svw-var(--spacing)*6)] min-w-32 overflow-y-auto rounded-xl border-0 bg-neutral-950/80 p-1.5 text-neutral-100 ring-1 ring-neutral-950/80 shadow-xl backdrop-blur-xl md:w-52 dark:bg-neutral-800/90 dark:ring-neutral-700/50";
+  "dark data-closed:hidden no-scrollbar max-h-96 w-[calc(100svw-var(--spacing)*6)] min-w-32 overflow-y-auto rounded-xl border-0 bg-neutral-950/80 p-1.5 text-neutral-100 ring-1 ring-neutral-950/80 shadow-xl backdrop-blur-xl md:w-52 dark:bg-neutral-800/90 dark:ring-neutral-700/50";
 const pickerTriggerClass =
   "relative w-36 shrink-0 touch-manipulation rounded-xl p-3 ring-1 ring-foreground/10 select-none hover:bg-muted focus-visible:ring-foreground/50 focus-visible:outline-none disabled:opacity-50 data-expanded:bg-muted md:w-full md:rounded-lg md:px-2.5 md:py-2";
 const radioItemClass =
@@ -175,6 +178,7 @@ function OptionPicker(props: {
   onPreview: (key: LockableParam, value?: string) => void;
   onToggleLock: (key: LockableParam) => void;
 }) {
+  const [open, setOpen] = createSignal(false);
   const current = createMemo(() =>
     props.options.find((option) => String(option.value) === props.value),
   );
@@ -184,7 +188,11 @@ function OptionPicker(props: {
       <DropdownMenu
         placement={props.isMobile ? "top" : "right-start"}
         gutter={props.isMobile ? 16 : 20}
-        onOpenChange={(open) => !open && props.onPreview(props.param)}
+        open={open()}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) props.onPreview(props.param);
+        }}
       >
         <DropdownMenuTrigger class={pickerTriggerClass}>
           <span class="flex min-w-0 flex-col justify-start pr-8 text-left">
@@ -201,7 +209,13 @@ function OptionPicker(props: {
         >
           <DropdownMenuRadioGroup
             value={props.value}
-            onChange={(value) => props.onCommit(props.param, value)}
+            // Kobalte's `closeOnSelect` is a no-op on radio items here, so the
+            // menu's open state is controlled and closed explicitly to match
+            // upstream's picker.
+            onChange={(value) => {
+              props.onCommit(props.param, value);
+              setOpen(false);
+            }}
           >
             <For each={props.options}>
               {(option) => (
@@ -241,6 +255,7 @@ function FontPicker(props: {
   onPreview: (key: LockableParam, value?: string) => void;
   onToggleLock: (key: LockableParam) => void;
 }) {
+  const [open, setOpen] = createSignal(false);
   const currentValue = createMemo(() => props.params[props.param]);
   const bodyFont = createMemo(() => findTypesetFont(props.params.body) ?? TYPESET_FONTS[0]);
   // Heading defaults to "inherit", which reads as "same as body".
@@ -262,7 +277,11 @@ function FontPicker(props: {
       <DropdownMenu
         placement={props.isMobile ? "top" : "right-start"}
         gutter={props.isMobile ? 16 : 20}
-        onOpenChange={(open) => !open && props.onPreview(props.param)}
+        open={open()}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) props.onPreview(props.param);
+        }}
       >
         <DropdownMenuTrigger class={pickerTriggerClass}>
           <span class="flex flex-col justify-start text-left">
@@ -284,7 +303,10 @@ function FontPicker(props: {
         >
           <DropdownMenuRadioGroup
             value={currentValue()}
-            onChange={(value) => props.onCommit(props.param, value)}
+            onChange={(value) => {
+              props.onCommit(props.param, value);
+              setOpen(false);
+            }}
           >
             <Show when={props.param === "heading"}>
               <DropdownMenuGroup>
