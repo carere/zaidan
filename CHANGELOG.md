@@ -1,3 +1,35 @@
+## 1.2.0 (2026-08-11)
+
+### Features
+
+- port shadcn/typeset with its stylesheet, docs, and builder
+- serve typeset codes as installable `@zaidan/typeset-<code>` registry items
+- add a blocks section with image-crop, message-scroller, questionnaire, and sortable
+- add a chart gallery of 70 solid-recharts blocks
+- rebuild the create page around shareable `@zaidan/preset-<code>` design systems
+- fold chart palettes into the design system preset
+- rebuild the docs site: routing, layout, mdx presentation, and prerendering
+- redesign the homepage with the shadcn layout
+- synchronize 50 components with shadcn@4.16.2
+- replace sonner with a first-party toast
+- add attachment, bubble, marker, and message components
+- add the rhea style and sync the eight-theme baseline
+- port the shimmer and scroll-fade utilities
+- expose the input-otp pattern prop
+- restore external registry support in the sync command
+- ship the agent as zaidan, shadcn-to-zaidan, and react-to-solid skills
+
+### Fixes
+
+- keep streamed message-scroller nodes stable and pinned to the live edge
+- animate toast exits and match sonner's swipe dismissal
+- remove select open/close jank and scroll the selected item into view
+- make switch clicks toggle across the whole track
+- restore the gray color option
+- keep chart previews hydration-safe
+- align the create galleries with their shadcn originals
+- minify the ssr bundle to fit cloudflare's upload cap
+
 ## 1.1.0 (2026-05-01)
 
 ### Features
