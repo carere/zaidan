@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/solid-router";
+import { SquareArrowOutUpRight } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, on, onCleanup, onMount } from "solid-js";
 import { TypesetCodePanel } from "@/components/typeset-code-panel";
 import { TypesetCustomizer } from "@/components/typeset-customizer";
@@ -290,13 +291,16 @@ function TypesetPage() {
               </For>
             </div>
             <div class="dark flex items-center gap-1 rounded-xl bg-card/90 p-1 shadow-xl backdrop-blur-xl">
+              {/* The label has no room next to the specimen pills on narrow
+                  screens, so it collapses to the icon below md. */}
               <a
                 href={openInNewTabHref()}
                 target="_blank"
                 rel="noreferrer"
-                class="flex h-7 cursor-pointer items-center rounded-lg px-2.5 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground"
+                class="flex h-7 cursor-pointer items-center whitespace-nowrap rounded-lg px-2.5 font-medium text-muted-foreground text-xs transition-colors hover:text-foreground"
               >
-                Open in New Tab
+                <SquareArrowOutUpRight class="size-3.5 md:hidden" />
+                <span class="max-md:sr-only">Open in New Tab</span>
               </a>
             </div>
           </div>
