@@ -17,6 +17,7 @@ const navItems = [
   { label: "Components", to: "/docs/components" },
   { label: "Blocks", to: "/docs/blocks" },
   { label: "Charts", to: "/charts/area" },
+  { label: "Typeset", to: "/typeset" },
   { label: "Create", to: "/create" },
 ] as const;
 

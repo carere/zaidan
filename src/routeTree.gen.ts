@@ -14,12 +14,14 @@ import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as PublicChartsRouteImport } from './routes/_public.charts'
 import { Route as PublicCreateRouteImport } from './routes/_public.create'
 import { Route as PublicDocsRouteImport } from './routes/_public.docs'
+import { Route as PublicTypesetRouteImport } from './routes/_public.typeset'
 import { Route as PreviewCreateRouteImport } from './routes/preview.create'
 import { Route as PublicChartsIndexRouteImport } from './routes/_public.charts.index'
 import { Route as PublicChartsTypeRouteImport } from './routes/_public.charts.$type'
 import { Route as PublicDocsIndexRouteImport } from './routes/_public.docs.index'
 import { Route as PublicDocsSlugRouteImport } from './routes/_public.docs.$slug'
 import { Route as PreviewChartsNameRouteImport } from './routes/preview.charts.$name'
+import { Route as PreviewTypesetItemRouteImport } from './routes/preview.typeset.$item'
 import { Route as RPrimitiveNameRouteImport } from './routes/r.$primitive.$name'
 import { Route as PublicDocsBlocksIndexRouteImport } from './routes/_public.docs.blocks.index'
 import { Route as PublicDocsChangelogIndexRouteImport } from './routes/_public.docs.changelog.index'
@@ -54,6 +56,11 @@ const PublicDocsRoute = PublicDocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicTypesetRoute = PublicTypesetRouteImport.update({
+  id: '/typeset',
+  path: '/typeset',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PreviewCreateRoute = PreviewCreateRouteImport.update({
   id: '/preview/create',
   path: '/preview/create',
@@ -82,6 +89,11 @@ const PublicDocsSlugRoute = PublicDocsSlugRouteImport.update({
 const PreviewChartsNameRoute = PreviewChartsNameRouteImport.update({
   id: '/preview/charts/$name',
   path: '/preview/charts/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewTypesetItemRoute = PreviewTypesetItemRouteImport.update({
+  id: '/preview/typeset/$item',
+  path: '/preview/typeset/$item',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RPrimitiveNameRoute = RPrimitiveNameRouteImport.update({
@@ -141,10 +153,12 @@ export interface FileRoutesByFullPath {
   '/charts': typeof PublicChartsRouteWithChildren
   '/create': typeof PublicCreateRoute
   '/docs': typeof PublicDocsRouteWithChildren
+  '/typeset': typeof PublicTypesetRoute
   '/preview/create': typeof PreviewCreateRoute
   '/charts/$type': typeof PublicChartsTypeRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
   '/preview/charts/$name': typeof PreviewChartsNameRoute
+  '/preview/typeset/$item': typeof PreviewTypesetItemRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/charts/': typeof PublicChartsIndexRoute
   '/docs/': typeof PublicDocsIndexRoute
@@ -159,11 +173,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/create': typeof PublicCreateRoute
+  '/typeset': typeof PublicTypesetRoute
   '/preview/create': typeof PreviewCreateRoute
   '/': typeof PublicIndexRoute
   '/charts/$type': typeof PublicChartsTypeRoute
   '/docs/$slug': typeof PublicDocsSlugRoute
   '/preview/charts/$name': typeof PreviewChartsNameRoute
+  '/preview/typeset/$item': typeof PreviewTypesetItemRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/charts': typeof PublicChartsIndexRoute
   '/docs': typeof PublicDocsIndexRoute
@@ -182,11 +198,13 @@ export interface FileRoutesById {
   '/_public/charts': typeof PublicChartsRouteWithChildren
   '/_public/create': typeof PublicCreateRoute
   '/_public/docs': typeof PublicDocsRouteWithChildren
+  '/_public/typeset': typeof PublicTypesetRoute
   '/preview/create': typeof PreviewCreateRoute
   '/_public/': typeof PublicIndexRoute
   '/_public/charts/$type': typeof PublicChartsTypeRoute
   '/_public/docs/$slug': typeof PublicDocsSlugRoute
   '/preview/charts/$name': typeof PreviewChartsNameRoute
+  '/preview/typeset/$item': typeof PreviewTypesetItemRoute
   '/r/$primitive/$name': typeof RPrimitiveNameRoute
   '/_public/charts/': typeof PublicChartsIndexRoute
   '/_public/docs/': typeof PublicDocsIndexRoute
@@ -206,10 +224,12 @@ export interface FileRouteTypes {
     | '/charts'
     | '/create'
     | '/docs'
+    | '/typeset'
     | '/preview/create'
     | '/charts/$type'
     | '/docs/$slug'
     | '/preview/charts/$name'
+    | '/preview/typeset/$item'
     | '/r/$primitive/$name'
     | '/charts/'
     | '/docs/'
@@ -224,11 +244,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/create'
+    | '/typeset'
     | '/preview/create'
     | '/'
     | '/charts/$type'
     | '/docs/$slug'
     | '/preview/charts/$name'
+    | '/preview/typeset/$item'
     | '/r/$primitive/$name'
     | '/charts'
     | '/docs'
@@ -246,11 +268,13 @@ export interface FileRouteTypes {
     | '/_public/charts'
     | '/_public/create'
     | '/_public/docs'
+    | '/_public/typeset'
     | '/preview/create'
     | '/_public/'
     | '/_public/charts/$type'
     | '/_public/docs/$slug'
     | '/preview/charts/$name'
+    | '/preview/typeset/$item'
     | '/r/$primitive/$name'
     | '/_public/charts/'
     | '/_public/docs/'
@@ -268,6 +292,7 @@ export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   PreviewCreateRoute: typeof PreviewCreateRoute
   PreviewChartsNameRoute: typeof PreviewChartsNameRoute
+  PreviewTypesetItemRoute: typeof PreviewTypesetItemRoute
   RPrimitiveNameRoute: typeof RPrimitiveNameRoute
   PreviewKindPrimitiveSlugRoute: typeof PreviewKindPrimitiveSlugRoute
 }
@@ -307,6 +332,13 @@ declare module '@tanstack/solid-router' {
       path: '/docs'
       fullPath: '/docs'
       preLoaderRoute: typeof PublicDocsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/typeset': {
+      id: '/_public/typeset'
+      path: '/typeset'
+      fullPath: '/typeset'
+      preLoaderRoute: typeof PublicTypesetRouteImport
       parentRoute: typeof PublicRoute
     }
     '/preview/create': {
@@ -349,6 +381,13 @@ declare module '@tanstack/solid-router' {
       path: '/preview/charts/$name'
       fullPath: '/preview/charts/$name'
       preLoaderRoute: typeof PreviewChartsNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/typeset/$item': {
+      id: '/preview/typeset/$item'
+      path: '/preview/typeset/$item'
+      fullPath: '/preview/typeset/$item'
+      preLoaderRoute: typeof PreviewTypesetItemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/r/$primitive/$name': {
@@ -464,6 +503,7 @@ interface PublicRouteChildren {
   PublicChartsRoute: typeof PublicChartsRouteWithChildren
   PublicCreateRoute: typeof PublicCreateRoute
   PublicDocsRoute: typeof PublicDocsRouteWithChildren
+  PublicTypesetRoute: typeof PublicTypesetRoute
   PublicIndexRoute: typeof PublicIndexRoute
 }
 
@@ -471,6 +511,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicChartsRoute: PublicChartsRouteWithChildren,
   PublicCreateRoute: PublicCreateRoute,
   PublicDocsRoute: PublicDocsRouteWithChildren,
+  PublicTypesetRoute: PublicTypesetRoute,
   PublicIndexRoute: PublicIndexRoute,
 }
 
@@ -481,6 +522,7 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   PreviewCreateRoute: PreviewCreateRoute,
   PreviewChartsNameRoute: PreviewChartsNameRoute,
+  PreviewTypesetItemRoute: PreviewTypesetItemRoute,
   RPrimitiveNameRoute: RPrimitiveNameRoute,
   PreviewKindPrimitiveSlugRoute: PreviewKindPrimitiveSlugRoute,
 }

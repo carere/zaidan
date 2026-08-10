@@ -6,7 +6,10 @@
     {
       "name": "accordion",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -18,7 +21,10 @@
     {
       "name": "alert",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -30,8 +36,12 @@
     {
       "name": "alert-dialog",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/alert-dialog.tsx",
@@ -54,8 +64,12 @@
     {
       "name": "attachment",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/attachment.tsx",
@@ -66,7 +80,9 @@
     {
       "name": "avatar",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -78,7 +94,10 @@
     {
       "name": "badge",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -90,7 +109,10 @@
     {
       "name": "breadcrumb",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -102,7 +124,9 @@
     {
       "name": "bubble",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -114,7 +138,10 @@
     {
       "name": "button",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -126,8 +153,12 @@
     {
       "name": "button-group",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/separator.json"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/separator.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/button-group.tsx",
@@ -138,8 +169,15 @@
     {
       "name": "calendar",
       "type": "registry:ui",
-      "dependencies": ["@corvu/calendar", "@date-fns/tz", "date-fns", "lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "@corvu/calendar",
+        "@date-fns/tz",
+        "date-fns",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/calendar.tsx",
@@ -162,8 +200,14 @@
     {
       "name": "carousel",
       "type": "registry:ui",
-      "dependencies": ["embla-carousel", "embla-carousel-solid", "lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "embla-carousel",
+        "embla-carousel-solid",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/carousel.tsx",
@@ -174,7 +218,9 @@
     {
       "name": "chart",
       "type": "registry:ui",
-      "dependencies": ["solid-recharts@1.0.1"],
+      "dependencies": [
+        "solid-recharts@1.0.1"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -186,7 +232,9 @@
     {
       "name": "chart-area-axes",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -197,12 +245,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-default",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -213,12 +266,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-gradient",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -229,12 +287,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-icons",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -245,7 +308,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-interactive",
@@ -262,12 +328,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-legend",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -278,12 +349,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-linear",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -294,12 +370,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-stacked-expand",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -310,12 +391,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-stacked",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -326,12 +412,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-area-step",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -342,12 +433,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-area"]
+      "categories": [
+        "charts",
+        "charts-area"
+      ]
     },
     {
       "name": "chart-bar-active",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -358,12 +454,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-default",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -374,12 +475,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-horizontal",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -390,7 +496,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-interactive",
@@ -406,12 +515,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-label-custom",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -422,12 +536,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-label",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -438,12 +557,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-mixed",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -454,12 +578,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-multiple",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -470,12 +599,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-negative",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -486,12 +620,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-bar-stacked",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -502,12 +641,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-bar"]
+      "categories": [
+        "charts",
+        "charts-bar"
+      ]
     },
     {
       "name": "chart-line-default",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -518,12 +662,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-dots-colors",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -534,12 +683,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-dots-custom",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -550,12 +704,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-dots",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -566,7 +725,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-interactive",
@@ -582,12 +744,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-label-custom",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -598,12 +765,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-label",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -614,12 +786,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-linear",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -630,12 +807,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-multiple",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -646,12 +828,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-line-step",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -662,12 +849,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-line"]
+      "categories": [
+        "charts",
+        "charts-line"
+      ]
     },
     {
       "name": "chart-pie-donut-active",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -678,12 +870,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-donut-text",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -694,12 +891,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-donut",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -710,7 +912,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-interactive",
@@ -727,12 +932,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-label-custom",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -743,12 +953,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-label-list",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -759,12 +974,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-label",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -775,7 +995,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-legend",
@@ -791,12 +1014,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-separator-none",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -807,12 +1035,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-simple",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -823,12 +1056,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-pie-stacked",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -839,12 +1077,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-pie"]
+      "categories": [
+        "charts",
+        "charts-pie"
+      ]
     },
     {
       "name": "chart-radar-default",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -855,12 +1098,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-dots",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -871,12 +1119,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-grid-circle-fill",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -887,12 +1140,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-grid-circle-no-lines",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -903,12 +1161,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-grid-circle",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -919,12 +1182,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-grid-custom",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -935,12 +1203,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-grid-fill",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -951,12 +1224,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-grid-none",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -967,12 +1245,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-icons",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -983,12 +1266,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-label-custom",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -999,12 +1287,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-legend",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1015,12 +1308,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-lines-only",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1031,12 +1329,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-multiple",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1047,12 +1350,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radar-radius",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1063,12 +1371,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radar"]
+      "categories": [
+        "charts",
+        "charts-radar"
+      ]
     },
     {
       "name": "chart-radial-grid",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1079,12 +1392,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radial"]
+      "categories": [
+        "charts",
+        "charts-radial"
+      ]
     },
     {
       "name": "chart-radial-label",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1095,12 +1413,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radial"]
+      "categories": [
+        "charts",
+        "charts-radial"
+      ]
     },
     {
       "name": "chart-radial-shape",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1111,12 +1434,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radial"]
+      "categories": [
+        "charts",
+        "charts-radial"
+      ]
     },
     {
       "name": "chart-radial-simple",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1127,12 +1455,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radial"]
+      "categories": [
+        "charts",
+        "charts-radial"
+      ]
     },
     {
       "name": "chart-radial-stacked",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1143,12 +1476,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radial"]
+      "categories": [
+        "charts",
+        "charts-radial"
+      ]
     },
     {
       "name": "chart-radial-text",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1159,7 +1497,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-radial"]
+      "categories": [
+        "charts",
+        "charts-radial"
+      ]
     },
     {
       "name": "chart-tooltip-advanced",
@@ -1175,7 +1516,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-default",
@@ -1191,7 +1535,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-formatter",
@@ -1207,12 +1554,17 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-icons",
       "type": "registry:block",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/card.json",
         "https://zaidan.carere.dev/r/kobalte/chart.json"
@@ -1223,7 +1575,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-indicator-line",
@@ -1239,7 +1594,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-indicator-none",
@@ -1255,7 +1613,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-label-custom",
@@ -1271,7 +1632,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-label-formatter",
@@ -1287,7 +1651,10 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "chart-tooltip-label-none",
@@ -1303,12 +1670,18 @@
           "type": "registry:block"
         }
       ],
-      "categories": ["charts", "charts-tooltip"]
+      "categories": [
+        "charts",
+        "charts-tooltip"
+      ]
     },
     {
       "name": "checkbox",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1320,7 +1693,9 @@
     {
       "name": "collapsible",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1332,8 +1707,13 @@
     {
       "name": "combobox",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/input-group.json"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/input-group.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/combobox.tsx",
@@ -1344,7 +1724,10 @@
     {
       "name": "command",
       "type": "registry:ui",
-      "dependencies": ["cmdk-solid", "lucide-solid"],
+      "dependencies": [
+        "cmdk-solid",
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/dialog.json",
         "https://zaidan.carere.dev/r/kobalte/input-group.json"
@@ -1359,7 +1742,10 @@
     {
       "name": "context-menu",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1371,8 +1757,13 @@
     {
       "name": "dialog",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/dialog.tsx",
@@ -1383,7 +1774,9 @@
     {
       "name": "drawer",
       "type": "registry:ui",
-      "dependencies": ["@corvu/drawer"],
+      "dependencies": [
+        "@corvu/drawer"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1395,7 +1788,10 @@
     {
       "name": "dropdown-menu",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1407,7 +1803,9 @@
     {
       "name": "empty",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1419,7 +1817,9 @@
     {
       "name": "field",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/label.json",
         "https://zaidan.carere.dev/r/kobalte/separator.json"
@@ -1434,7 +1834,9 @@
     {
       "name": "hover-card",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1508,7 +1910,9 @@
     {
       "name": "input-group",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/button.json",
         "https://zaidan.carere.dev/r/kobalte/input.json",
@@ -1524,7 +1928,10 @@
     {
       "name": "input-otp",
       "type": "registry:ui",
-      "dependencies": ["@corvu/otp-field", "lucide-solid"],
+      "dependencies": [
+        "@corvu/otp-field",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1536,8 +1943,12 @@
     {
       "name": "item",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/separator.json"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/separator.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/item.tsx",
@@ -1572,7 +1983,9 @@
     {
       "name": "marker",
       "type": "registry:ui",
-      "dependencies": ["class-variance-authority"],
+      "dependencies": [
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1586,8 +1999,12 @@
       "type": "registry:block",
       "title": "Message Scroller",
       "description": "A chat scroll container that anchors turns, opens saved transcripts, follows streamed responses, loads history without jumping, and jumps to any message.",
-      "dependencies": ["lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/blocks/message-scroller/index.ts",
@@ -1651,8 +2068,12 @@
     {
       "name": "menubar",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/dropdown-menu.json"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/menubar.tsx",
@@ -1663,7 +2084,9 @@
     {
       "name": "native-select",
       "type": "registry:ui",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1675,7 +2098,11 @@
     {
       "name": "navigation-menu",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1687,8 +2114,12 @@
     {
       "name": "pagination",
       "type": "registry:ui",
-      "dependencies": ["lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/pagination.tsx",
@@ -1699,7 +2130,9 @@
     {
       "name": "popover",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1711,7 +2144,9 @@
     {
       "name": "progress",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1725,8 +2160,12 @@
       "type": "registry:block",
       "title": "Questionnaire",
       "description": "A multi-step questionnaire with single-choice, multiple-choice, freeform, and skippable questions.",
-      "dependencies": ["lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/blocks/questionnaire/index.tsx",
@@ -1783,7 +2222,10 @@
     {
       "name": "radio-group",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1795,7 +2237,10 @@
     {
       "name": "resizable",
       "type": "registry:ui",
-      "dependencies": ["@corvu/resizable", "@kobalte/core"],
+      "dependencies": [
+        "@corvu/resizable",
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1819,7 +2264,10 @@
     {
       "name": "select",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1831,7 +2279,9 @@
     {
       "name": "separator",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1843,8 +2293,13 @@
     {
       "name": "sheet",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "lucide-solid"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/button.json"],
+      "dependencies": [
+        "@kobalte/core",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/sheet.tsx",
@@ -1855,7 +2310,11 @@
     {
       "name": "sidebar",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority", "lucide-solid"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority",
+        "lucide-solid"
+      ],
       "registryDependencies": [
         "https://zaidan.carere.dev/r/kobalte/button.json",
         "https://zaidan.carere.dev/r/kobalte/input.json",
@@ -1887,7 +2346,9 @@
     {
       "name": "slider",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1901,7 +2362,9 @@
       "type": "registry:block",
       "title": "Sortable",
       "description": "A drag-and-drop sortable component for reordering items in vertical, grid, and nested layouts. Built on @dnd-kit/solid.",
-      "dependencies": ["@dnd-kit/solid"],
+      "dependencies": [
+        "@dnd-kit/solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -1914,7 +2377,9 @@
     {
       "name": "spinner",
       "type": "registry:ui",
-      "dependencies": ["lucide-solid"],
+      "dependencies": [
+        "lucide-solid"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -2142,7 +2607,9 @@
     {
       "name": "switch",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -2166,7 +2633,10 @@
     {
       "name": "tabs",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -2190,8 +2660,13 @@
     {
       "name": "toast",
       "type": "registry:ui",
-      "dependencies": ["lucide-solid", "solid-sonner"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/color-mode.json"],
+      "dependencies": [
+        "lucide-solid",
+        "solid-sonner"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/color-mode.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/toast.tsx",
@@ -2202,7 +2677,10 @@
     {
       "name": "toggle",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -2214,8 +2692,13 @@
     {
       "name": "toggle-group",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core", "class-variance-authority"],
-      "registryDependencies": ["https://zaidan.carere.dev/r/kobalte/toggle.json"],
+      "dependencies": [
+        "@kobalte/core",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/toggle.json"
+      ],
       "files": [
         {
           "path": "src/registry/kobalte/ui/toggle-group.tsx",
@@ -2226,7 +2709,9 @@
     {
       "name": "tooltip",
       "type": "registry:ui",
-      "dependencies": ["@kobalte/core"],
+      "dependencies": [
+        "@kobalte/core"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -2238,7 +2723,9 @@
     {
       "name": "color-mode",
       "type": "registry:component",
-      "dependencies": ["solid-js"],
+      "dependencies": [
+        "solid-js"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -3466,6 +3953,22 @@
       }
     },
     {
+      "name": "typeset",
+      "type": "registry:theme",
+      "dependencies": [],
+      "registryDependencies": [],
+      "css": {
+        "@import \"./styles/typeset.css\"": {}
+      },
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/typeset.css",
+          "target": "styles/typeset.css",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
       "name": "font-geist",
       "title": "Geist",
       "type": "registry:font",
@@ -3473,7 +3976,9 @@
         "family": "'Geist Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Geist"
       }
     },
@@ -3485,7 +3990,9 @@
         "family": "'Inter Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Inter"
       }
     },
@@ -3497,7 +4004,9 @@
         "family": "'Noto Sans Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Noto_Sans"
       }
     },
@@ -3509,7 +4018,9 @@
         "family": "'Nunito Sans Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Nunito_Sans"
       }
     },
@@ -3521,7 +4032,9 @@
         "family": "'Figtree Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Figtree"
       }
     },
@@ -3533,7 +4046,9 @@
         "family": "'Roboto Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Roboto"
       }
     },
@@ -3545,7 +4060,9 @@
         "family": "'Raleway Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Raleway"
       }
     },
@@ -3557,7 +4074,9 @@
         "family": "'DM Sans Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "DM_Sans"
       }
     },
@@ -3569,7 +4088,9 @@
         "family": "'Public Sans Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Public_Sans"
       }
     },
@@ -3581,7 +4102,9 @@
         "family": "'Outfit Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Outfit"
       }
     },
@@ -3593,7 +4116,9 @@
         "family": "'Oxanium Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Oxanium"
       }
     },
@@ -3605,7 +4130,9 @@
         "family": "'Manrope Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Manrope"
       }
     },
@@ -3617,7 +4144,9 @@
         "family": "'Space Grotesk Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Space_Grotesk"
       }
     },
@@ -3629,7 +4158,9 @@
         "family": "'Montserrat Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Montserrat"
       }
     },
@@ -3641,7 +4172,9 @@
         "family": "'IBM Plex Sans Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "IBM_Plex_Sans"
       }
     },
@@ -3653,7 +4186,9 @@
         "family": "'Source Sans 3 Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Source_Sans_3"
       }
     },
@@ -3665,7 +4200,9 @@
         "family": "'Instrument Sans Variable', sans-serif",
         "provider": "google",
         "variable": "--font-sans",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Instrument_Sans"
       }
     },
@@ -3677,7 +4214,9 @@
         "family": "'JetBrains Mono Variable', monospace",
         "provider": "google",
         "variable": "--font-mono",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "JetBrains_Mono"
       }
     },
@@ -3689,7 +4228,9 @@
         "family": "'Geist Mono Variable', monospace",
         "provider": "google",
         "variable": "--font-mono",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Geist_Mono"
       }
     },
@@ -3701,7 +4242,9 @@
         "family": "'Noto Serif Variable', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Noto_Serif"
       }
     },
@@ -3713,7 +4256,9 @@
         "family": "'Roboto Slab Variable', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Roboto_Slab"
       }
     },
@@ -3725,7 +4270,9 @@
         "family": "'Merriweather Variable', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Merriweather"
       }
     },
@@ -3737,7 +4284,9 @@
         "family": "'Lora Variable', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Lora"
       }
     },
@@ -3749,7 +4298,9 @@
         "family": "'Playfair Display Variable', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Playfair_Display"
       }
     },
@@ -3761,7 +4312,9 @@
         "family": "'EB Garamond Variable', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "EB_Garamond"
       }
     },
@@ -3773,9 +4326,13 @@
         "family": "'Instrument Serif', serif",
         "provider": "google",
         "variable": "--font-serif",
-        "subsets": ["latin"],
+        "subsets": [
+          "latin"
+        ],
         "import": "Instrument_Serif",
-        "weight": ["400"]
+        "weight": [
+          "400"
+        ]
       }
     }
   ]

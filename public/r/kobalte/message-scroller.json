@@ -12,7 +12,7 @@
   "files": [
     {
       "path": "src/registry/kobalte/blocks/message-scroller/index.ts",
-      "content": "import {\n  MessageScrollerButton as Button,\n  MessageScrollerContent as Content,\n  MessageScrollerItem as Item,\n  MessageScrollerProvider as Provider,\n  MessageScroller as Root,\n  MessageScrollerViewport as Viewport,\n} from \"./components\";\n\nconst MessageScroller = {\n  Provider,\n  Root,\n  Viewport,\n  Content,\n  Item,\n  Button,\n};\n\nexport {\n  useMessageScroller,\n  useMessageScrollerScrollable,\n  useMessageScrollerVisibility,\n} from \"./components\";\nexport type {\n  MessageScrollerDefaultScrollPosition,\n  MessageScrollerScrollAlign,\n  MessageScrollerScrollable,\n  MessageScrollerScrollOptions,\n  MessageScrollerVisibilityState,\n} from \"./types\";\nexport { MessageScroller };\n",
+      "content": "import {\n  MessageScrollerButton as Button,\n  MessageScrollerContent as Content,\n  MessageScrollerItem as Item,\n  MessageScrollerProvider as Provider,\n  MessageScroller as Root,\n  MessageScrollerViewport as Viewport,\n} from \"./components\";\n\nconst MessageScroller = {\n  Provider,\n  Root,\n  Viewport,\n  Content,\n  Item,\n  Button,\n};\n\nexport {\n  useMessageScroller,\n  useMessageScrollerScrollable,\n  useMessageScrollerVisibility,\n} from \"./components\";\n\nexport type {\n  MessageScrollerDefaultScrollPosition,\n  MessageScrollerScrollAlign,\n  MessageScrollerScrollable,\n  MessageScrollerScrollOptions,\n  MessageScrollerVisibilityState,\n} from \"./types\";\n\nexport { MessageScroller };\n",
       "type": "registry:component",
       "target": "components/blocks/message-scroller/index.ts"
     },

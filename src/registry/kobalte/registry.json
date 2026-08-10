@@ -3466,6 +3466,22 @@
       }
     },
     {
+      "name": "typeset",
+      "type": "registry:theme",
+      "dependencies": [],
+      "registryDependencies": [],
+      "css": {
+        "@import \"./styles/typeset.css\"": {}
+      },
+      "files": [
+        {
+          "path": "src/registry/kobalte/styles/typeset.css",
+          "target": "styles/typeset.css",
+          "type": "registry:file"
+        }
+      ]
+    },
+    {
       "name": "font-geist",
       "title": "Geist",
       "type": "registry:font",

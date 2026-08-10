@@ -22,6 +22,7 @@ const sections = [
   { name: "Installation", to: "/docs/installation" },
   { name: "Customization", to: "/docs/customization" },
   { name: "Dark Mode", to: "/docs/dark-mode" },
+  { name: "Typeset", to: "/docs/typeset" },
   { name: "Zaidan Skills", to: "/docs/zaidan-agent" },
   { name: "FAQ", to: "/docs/faq" },
   { name: "Roadmap", to: "/docs/roadmap" },

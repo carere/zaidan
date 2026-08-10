@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @import "./styles/expressive-code.css";
+@import "./registry/kobalte/styles/typeset.css";
 @import "./styles/typeset.css";
 @import "./registry/kobalte/styles/utilities.css";
 
