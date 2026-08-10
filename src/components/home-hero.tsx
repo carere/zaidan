@@ -11,10 +11,12 @@ export function HomeHero() {
     >
       <Link
         to="/changelog/$slug"
-        params={{ slug: "image-crop-and-agent-docs" }}
+        params={{ slug: "typeset-blocks-and-charts" }}
         class="group inline-flex items-center gap-1.5 rounded-full border bg-muted px-3 py-1 font-medium text-muted-foreground text-xs transition-colors hover:bg-muted/80"
       >
-        <span>New: Image Crop and simpler Zaidan Agent</span>
+        <span>
+          New: Charts, Typeset, Blocks<span class="hidden sm:inline"> and a new docs site</span>
+        </span>
         <ArrowRightIcon class="size-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
