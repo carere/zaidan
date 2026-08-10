@@ -5,6 +5,8 @@ description: Beautiful and responsive charts built with Apache ECharts and SVG r
 example: chart-example.tsx
 ---
 
+# Chart
+
 A collection of chart components built on [Apache ECharts](https://echarts.apache.org/) with SVG rendering for crisp graphics at any resolution.
 
 ## Overview
@@ -19,14 +21,24 @@ Unlike shadcn's Recharts-based implementation, this chart component uses Apache 
 
 ## Installation
 
-```bash
-bunx shadcn@latest add @zaidan/chart
+### CLI
+
+```package-dlx
+shadcn@latest add @zaidan/chart
 ```
 
-You'll also need to install the ECharts dependency:
+### Manual
 
-```bash
-bun add echarts
+Install the following dependencies:
+
+```package-install
+echarts
+```
+
+Copy and paste the following code into your project.
+
+```tsx file=../../../registry/kobalte/ui/chart.tsx showLineNumbers
+
 ```
 
 ## Chart Configuration
@@ -34,7 +46,7 @@ bun add echarts
 The `ChartConfig` type allows you to define labels, colors, and icons for each data series:
 
 ```tsx
-import type { ChartConfig } from "@/registry/kobalte/ui/chart"
+import type { ChartConfig } from "~/components/ui/chart"
 
 const chartConfig: ChartConfig = {
   desktop: {
@@ -71,7 +83,7 @@ The component exports several preset configurations to quickly style your charts
 ### Colors
 
 ```tsx
-import { chartColors } from "@/registry/kobalte/ui/chart"
+import { chartColors } from "~/components/ui/chart"
 
 // Uses --chart-1 through --chart-5 CSS variables
 const option = {
@@ -83,7 +95,7 @@ const option = {
 ### Tooltip
 
 ```tsx
-import { chartTooltipDefaults } from "@/registry/kobalte/ui/chart"
+import { chartTooltipDefaults } from "~/components/ui/chart"
 
 const option = {
   tooltip: {
@@ -97,7 +109,7 @@ const option = {
 ### Axes
 
 ```tsx
-import { chartXAxisDefaults, chartYAxisDefaults } from "@/registry/kobalte/ui/chart"
+import { chartXAxisDefaults, chartYAxisDefaults } from "~/components/ui/chart"
 
 const option = {
   xAxis: {
@@ -116,7 +128,7 @@ const option = {
 ### Grid
 
 ```tsx
-import { chartGridDefaults } from "@/registry/kobalte/ui/chart"
+import { chartGridDefaults } from "~/components/ui/chart"
 
 const option = {
   grid: chartGridDefaults,
@@ -127,7 +139,7 @@ const option = {
 ### Legend
 
 ```tsx
-import { chartLegendDefaults } from "@/registry/kobalte/ui/chart"
+import { chartLegendDefaults } from "~/components/ui/chart"
 
 const option = {
   legend: {
