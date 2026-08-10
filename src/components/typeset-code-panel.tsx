@@ -1,12 +1,8 @@
 import { Link } from "@tanstack/solid-router";
 import { Check, Copy } from "lucide-solid";
 import { createEffect, createMemo, createSignal, onCleanup, Show } from "solid-js";
-import {
-  findTypesetFontDefinition,
-  TYPESET_MEASURES,
-  type TypesetParams,
-  typesetPresetCss,
-} from "@/lib/typeset";
+import { TYPESET_MEASURES, type TypesetParams, typesetPresetCss } from "@/lib/typeset";
+import { encodeTypesetCode } from "@/lib/typeset-code";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
   Dialog,
@@ -27,19 +23,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/registry/kobalte/ui/
  * step 1 is a CLI command instead of a file dump.
  */
 
-function fontItems(params: TypesetParams) {
-  const heading = params.heading === "inherit" ? params.body : params.heading;
-  return [...new Set([params.body, heading, params.mono])]
-    .map((id) => findTypesetFontDefinition(id))
-    .filter((definition) => definition !== undefined);
-}
-
+/**
+ * One item installs the lot: `@zaidan/typeset-<code>` is a virtual registry
+ * item that pulls in `@zaidan/typeset`, the faces this design uses, and the
+ * `.typeset-<item>` preset class.
+ */
 function installCommand(params: TypesetParams) {
-  const items = [
-    "@zaidan/typeset",
-    ...fontItems(params).map((font) => `@zaidan/font-${font.name}`),
-  ];
-  return `bunx --bun shadcn@latest add ${items.join(" ")}`;
+  return `bunx --bun shadcn@latest add @zaidan/typeset-${encodeTypesetCode(params)}`;
 }
 
 function wrapperSnippet(params: TypesetParams) {
@@ -51,21 +41,18 @@ function wrapperSnippet(params: TypesetParams) {
 
 function agentPrompt(params: TypesetParams) {
   const preset = typesetPresetCss(params);
-  const fonts = fontItems(params)
-    .map((font) => `@zaidan/font-${font.name}`)
-    .join(" ");
 
   return `Install Zaidan's typeset in this project.
 
 Typeset is a single stylesheet that styles rendered markdown: wrap the output in a \`typeset\` container and everything inside (headings, lists, tables, code, blockquotes, math) is styled. Everything outside is untouched.
 
-1. Add the stylesheet and the fonts it needs:
+1. Add the stylesheet, the fonts it needs, and the preset:
 
-bunx --bun shadcn@latest add @zaidan/typeset ${fonts}
+${installCommand(params)}
 
-This writes styles/typeset.css and adds the @import to the project's main CSS file.
+This writes styles/typeset.css, adds the @import to the project's main CSS file, installs the fonts, and appends the .typeset-${params.item} preset below.
 
-2. Add this preset to the main CSS file, after the typeset import. If a class named .typeset-${params.item} already exists, update its values in place. Leave any other typeset-* presets untouched: they are separate surfaces:
+2. Check the result. If a class named .typeset-${params.item} already existed, merge the values by hand so only these remain. Leave any other typeset-* presets untouched: they are separate surfaces:
 
 ${preset}
 
@@ -145,18 +132,19 @@ function PanelBody(props: { params: TypesetParams }) {
       </div>
       <div class="no-scrollbar min-h-0 flex-1 scroll-fade overflow-y-auto p-4 md:p-6">
         <TabsContent value="docs" class="flex flex-col gap-6">
-          <Step step={1} title="Install typeset and its fonts">
+          <Step step={1} title="Install your typeset">
             <p class="text-muted-foreground text-sm">
-              Adds <code class="font-mono">styles/typeset.css</code> and the{" "}
-              <code class="font-mono">@import</code> to your main CSS file.
+              Adds <code class="font-mono">styles/typeset.css</code>, the{" "}
+              <code class="font-mono">@import</code> to your main CSS file, the fonts, and the
+              preset below.
             </p>
             <CodeBlock>{install()}</CodeBlock>
             <CopyButton value={install()} label="Copy command" />
           </Step>
-          <Step step={2} title="Add your preset">
+          <Step step={2} title="Your preset">
             <p class="text-muted-foreground text-sm">
-              Paste this after the typeset import. Other <code class="font-mono">typeset-*</code>{" "}
-              presets are separate surfaces — leave them alone.
+              The command writes this for you. Paste it after the typeset import instead if you'd
+              rather not run the CLI.
             </p>
             <CodeBlock>{preset()}</CodeBlock>
             <CopyButton value={preset()} label="Copy CSS" />

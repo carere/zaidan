@@ -1,6 +1,15 @@
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/solid-router";
 import { SquareArrowOutUpRight } from "lucide-solid";
-import { createEffect, createMemo, createSignal, For, on, onCleanup, onMount } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+  onCleanup,
+  onMount,
+  untrack,
+} from "solid-js";
 import { TypesetCodePanel } from "@/components/typeset-code-panel";
 import { TypesetCustomizer } from "@/components/typeset-customizer";
 import { createPageHead } from "@/lib/seo";
@@ -19,9 +28,22 @@ import {
   TYPESET_SIZES,
   type TypesetItem,
   type TypesetParams,
-  validateTypesetSearch,
 } from "@/lib/typeset";
+import {
+  encodeTypesetCode,
+  typesetParamsFromSearch,
+  validateTypesetCodeSearch,
+} from "@/lib/typeset-code";
 import { useColorMode } from "@/registry/kobalte/components/color-mode";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/registry/kobalte/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 /**
@@ -32,8 +54,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/t
  */
 const PREVIEW_DEBOUNCE_MS = 50;
 
+/** The design the URL describes when it carries no code at all. */
+const DEFAULT_CODE = encodeTypesetCode(TYPESET_DEFAULTS);
+
 export const Route = createFileRoute("/_public/typeset")({
-  validateSearch: validateTypesetSearch,
+  validateSearch: validateTypesetCodeSearch,
   head: () =>
     createPageHead({
       title: "Typeset",
@@ -58,25 +83,29 @@ function TypesetPage() {
   // Kept out of the URL on purpose: the URL is what history snapshots, so
   // committing hovers would record a phantom undo entry per hovered item.
   const [override, setOverride] = createSignal<Partial<TypesetParams> | null>(null);
+  const [pickerOpen, setPickerOpen] = createSignal(false);
   let previewTimer: ReturnType<typeof setTimeout> | undefined;
   let iframeRef: HTMLIFrameElement | undefined;
 
-  const params = createMemo(() => search());
+  // The whole design lives in one search param, `?typeset=<code>`, the way
+  // `?preset=` works on the create page. An absent code means the defaults.
+  const params = createMemo(() => typesetParamsFromSearch(search()));
+  const code = createMemo(() => search().typeset ?? DEFAULT_CODE);
   const merged = createMemo<TypesetParams>(() => {
     const current = override();
     return current ? { ...params(), ...current } : params();
   });
 
   // ---------------------------------------------------------------- history
-  // A history entry is a snapshot of every typeset param. Restoring writes
-  // them all back, so absent keys return to their defaults.
+  // A history entry is a typeset code — a snapshot of every param. Restoring
+  // writes it back whole, so the empty entry returns to the defaults.
   const entries: string[] = [];
   let index = 0;
   let maxIndex = 0;
   let isNavigating = false;
   let seeded = false;
 
-  const snapshot = createMemo(() => JSON.stringify(params()));
+  const snapshot = createMemo(() => search().typeset ?? "");
 
   createEffect(
     on(snapshot, (next) => {
@@ -100,12 +129,19 @@ function TypesetPage() {
 
   /** Single write path to the URL; also clears any live hover preview. */
   const apply = (next: TypesetParams, options: { replace?: boolean } = {}) => {
+    const nextCode = encodeTypesetCode(next);
     setOverride(null);
-    navigate({ replace: options.replace, search: () => next });
+    navigate({
+      replace: options.replace,
+      // The default design carries no code, so a fresh page and a reset both
+      // leave `/typeset` clean.
+      search: () => ({ typeset: nextCode === DEFAULT_CODE ? undefined : nextCode }),
+    });
   };
 
   const restore = (entry: string) => {
-    apply(validateTypesetSearch(JSON.parse(entry) as Record<string, unknown>), { replace: true });
+    setOverride(null);
+    navigate({ replace: true, search: () => ({ typeset: entry || undefined }) });
   };
 
   const goBack = () => {
@@ -124,7 +160,7 @@ function TypesetPage() {
 
   // ------------------------------------------------------------- mutations
   // Pickers hand back the raw radio value (always a string); coerce restores
-  // the param's real type before it reaches the URL.
+  // the param's real type before it reaches the code.
   const commit = (key: LockableParam, value: string) => {
     const coerced = coerceTypesetValue(key, value);
     if (coerced === null) return;
@@ -183,10 +219,24 @@ function TypesetPage() {
     apply({ ...TYPESET_DEFAULTS, item: params().item }, { replace: true });
   };
 
+  const openCode = (next: string) => {
+    setOverride(null);
+    navigate({ search: () => ({ typeset: next }) });
+  };
+
+  const copyCode = async () => {
+    await navigator.clipboard.writeText(`@zaidan/typeset-${code()}`);
+  };
+
   // ------------------------------------------------------------ preview I/O
-  const previewUrl = createMemo(() =>
-    serializeTypesetSearch(`/preview/typeset/${params().item}`, params()),
-  );
+  // The iframe only reloads when the specimen changes; every other change
+  // reaches it over postMessage. Params are read untracked so a reload still
+  // starts from the current design instead of the one the page loaded with.
+  const item = createMemo(() => params().item);
+  const previewUrl = createMemo(() => {
+    const current = item();
+    return untrack(() => serializeTypesetSearch(`/preview/typeset/${current}`, params()));
+  });
 
   const sendParams = () => {
     iframeRef?.contentWindow?.postMessage(
@@ -228,7 +278,10 @@ function TypesetPage() {
         return;
       }
       const key = event.key.toLowerCase();
-      if ((key === "z" && event.shiftKey) || (key === "y" && event.ctrlKey)) {
+      if (key === "k" || key === "p") {
+        event.preventDefault();
+        setPickerOpen(true);
+      } else if ((key === "z" && event.shiftKey) || (key === "y" && event.ctrlKey)) {
         event.preventDefault();
         goForward();
       } else if (key === "z") {
@@ -307,14 +360,45 @@ function TypesetPage() {
         </section>
         <TypesetCustomizer
           params={merged()}
+          code={code()}
           locks={locks()}
           onCommit={commit}
           onPreview={preview}
           onToggleLock={toggleLock}
+          onNavigate={() => setPickerOpen(true)}
+          onOpenCode={openCode}
           onShuffle={shuffle}
-          footerAction={<TypesetCodePanel params={params()} variant="drawer" />}
+          onToggleMode={toggleColorMode}
+          onCopyCode={copyCode}
+          onReset={reset}
+          onUndo={goBack}
+          onRedo={goForward}
+          setupAction={<TypesetCodePanel params={params()} variant="drawer" />}
         />
       </div>
+      <CommandDialog open={pickerOpen()} onOpenChange={setPickerOpen}>
+        <Command autofocus={false}>
+          <CommandInput placeholder="Search specimens..." />
+          <CommandList>
+            <CommandEmpty>No specimens found.</CommandEmpty>
+            <CommandGroup heading="Specimen">
+              <For each={TYPESET_CONTENT_OPTIONS}>
+                {(option) => (
+                  <CommandItem
+                    value={option.label}
+                    onSelect={() => {
+                      setItem(option.value);
+                      setPickerOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </CommandItem>
+                )}
+              </For>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
     </div>
   );
 }

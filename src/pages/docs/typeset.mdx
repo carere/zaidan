@@ -51,7 +51,13 @@ So everything condenses into three controls: size, leading, and flow. Everything
 
 Create your typeset in the [typeset builder](/typeset). Pick your fonts and rhythm, then preview them on docs, chat, articles, and other real content.
 
-The panel gives you the install command, a preset class with your choices, and the wrapper to add around your content — plus a single prompt you can hand to a coding agent.
+Every pick lands in the URL as a typeset code, so the design you are looking at is the design you can share. That code is also an installable registry item — it pulls in the stylesheet, the fonts you picked, and your preset class in one go:
+
+```package-dlx
+shadcn@latest add @zaidan/typeset-a1JbnM
+```
+
+The panel gives you that command, the preset class with your choices, and the wrapper to add around your content — plus a single prompt you can hand to a coding agent.
 
 To wire it up by hand instead, add the stylesheet to your project:
 
