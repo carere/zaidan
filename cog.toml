@@ -1,5 +1,12 @@
 branch_whitelist = ["main"]
 
+# A merge commit is not a conventional commit and never will be. Without this,
+# `cog verify` rejects the commit-msg hook's own merge message and `cog check`
+# fails on any merge already in history. Detection is by parent count for real
+# commits, and by git's default "Merge …" message in the hook — so let git
+# write the merge message rather than passing -m.
+ignore_merge_commits = true
+
 pre_bump_hooks = [
   "bun pm version {{version}} --no-git-tag-version",
   "git add package.json",
