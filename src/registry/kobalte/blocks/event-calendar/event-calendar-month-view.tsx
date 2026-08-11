@@ -264,7 +264,7 @@ function EventCalendarMonthView(props: EventCalendarMonthViewProps) {
           <div
             ref={slotProbeEl}
             aria-hidden
-            class="pointer-events-none invisible absolute h-[var(--ec-month-bar-h,1.75rem)] w-0"
+            class="pointer-events-none invisible absolute h-(--ec-month-bar-h,1.75rem) w-0"
           />
         </Show>
       </div>

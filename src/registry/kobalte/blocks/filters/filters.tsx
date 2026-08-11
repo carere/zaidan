@@ -54,7 +54,7 @@ import {
 } from "./utils";
 
 // Sera is an underline style: its group text and input group carry only a
-// bottom border. Normalise the boxed segments (the operator, value and remove
+// bottom border. Normalize the boxed segments (the operator, value and remove
 // buttons) to the same treatment so the whole chip reads as one underlined
 // group instead of mixing boxes and rules.
 const FILTER_CHIP_CLASS =
@@ -367,7 +367,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                 <DropdownMenuTrigger as={trigger() as ValidComponent} class={undefined} />
               )}
             </Show>
-            <DropdownMenuContent class={cn("w-[220px]", props.menuPopupClassName)}>
+            <DropdownMenuContent class={cn("w-55", props.menuPopupClassName)}>
               <Show when={props.showSearchInput}>
                 <div class="relative">
                   <Input
@@ -521,7 +521,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                                   {renderIcon(field.icon)}
                                   <span>{field.label}</span>
                                 </DropdownMenuSubTrigger>
-                                <DropdownMenuSubContent class="w-[200px]">
+                                <DropdownMenuSubContent class="w-50">
                                   <FilterSubmenuContent<T>
                                     field={field}
                                     currentValues={currentValues()}
@@ -607,13 +607,12 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
 
         <For each={filterIds()}>
           {(filterId) => {
-            const filter = () => props.filters.find((entry) => entry.id === filterId);
             // Read once at creation: the chip is mounted the moment its filter
             // is added, so this mirrors React's mount-time `autoFocus`.
             const autofocus = filterId === lastAddedFilterId();
 
             return (
-              <Show when={filter()}>
+              <Show when={props.filters.find((entry) => entry.id === filterId)}>
                 {(currentFilter) => (
                   <Show when={fieldsMap()[currentFilter().field]}>
                     {(field) => (

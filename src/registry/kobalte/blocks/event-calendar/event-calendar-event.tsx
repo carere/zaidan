@@ -385,7 +385,7 @@ function EventCalendarEvent<TData = unknown>(props: EventCalendarEventProps<TDat
           data-slot="event-calendar-resize-handle"
           data-edge="start"
           class={cn(
-            "absolute inset-y-0 start-0 flex w-2 cursor-ew-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
+            "absolute inset-y-0 inset-s-0 flex w-2 cursor-ew-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
             viewConfig.classNames?.resizeHandle,
           )}
           onPointerDown={(e) => gestures.beginResize(e, segment(), "start")}
@@ -398,7 +398,7 @@ function EventCalendarEvent<TData = unknown>(props: EventCalendarEventProps<TDat
           data-slot="event-calendar-resize-handle"
           data-edge="end"
           class={cn(
-            "absolute inset-y-0 end-0 flex w-2 cursor-ew-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
+            "absolute inset-y-0 inset-e-0 flex w-2 cursor-ew-resize items-center justify-center opacity-0 transition-opacity duration-150 group-hover/ec-event:opacity-100",
             viewConfig.classNames?.resizeHandle,
           )}
           onPointerDown={(e) => gestures.beginResize(e, segment(), "end")}

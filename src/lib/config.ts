@@ -234,7 +234,7 @@ export const UPDATED_ITEMS: UpdatedItem[] = [
   { kind: "blocks", slug: "event-calendar" },
   { kind: "blocks", slug: "filters" },
   { kind: "blocks", slug: "gantt" },
-  { kind: "blocks", slug: "image-crop" },
+  { kind: "blocks", slug: "message-scroller" },
   { kind: "blocks", slug: "kanban" },
   { kind: "blocks", slug: "questionnaire" },
 ];

@@ -242,7 +242,7 @@ const SelectOptionsPopover = <T = unknown>(props: SelectOptionsPopoverProps<T>) 
               }
             </Match>
             <Match when={true}>
-              <ScrollArea class="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 [&_[data-slot=scroll-area-viewport]]:h-full [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
+              <ScrollArea class="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain">
                 {/* Selected items */}
                 <Show when={filteredSelectedOptions().length > 0}>
                   <DropdownMenuGroup class="px-1">
@@ -330,7 +330,7 @@ const SelectOptionsPopover = <T = unknown>(props: SelectOptionsPopoverProps<T>) 
             </Show>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class={cn("w-[200px] px-0", props.field.class)}>
+        <DropdownMenuContent class={cn("w-50 px-0", props.field.class)}>
           <MenuContent />
         </DropdownMenuContent>
       </DropdownMenu>

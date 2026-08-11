@@ -216,7 +216,7 @@ const FilterSubmenuContent = <T = unknown>(props: FilterSubmenuContentProps<T>) 
               }
             </Match>
             <Match when={true}>
-              <ScrollArea class="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 [&_[data-slot=scroll-area-viewport]]:h-full [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
+              <ScrollArea class="size-full min-h-0 **:data-[slot=scroll-area-scrollbar]:m-0 **:data-[slot=scroll-area-viewport]:h-full **:data-[slot=scroll-area-viewport]:overscroll-contain">
                 <DropdownMenuGroup>
                   <For each={filteredOptions()}>
                     {(option, index) => renderOptionRow(option, index)}

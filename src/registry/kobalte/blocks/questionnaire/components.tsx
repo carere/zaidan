@@ -110,7 +110,7 @@ const QuestionnaireProgress = (props: QuestionnaireProgressProps) => {
       data-last={context.last ? "" : undefined}
       data-total={context.total}
       class={cn(
-        "z-questionnaire-progress min-h-[1lh] w-fit min-w-[14ch] font-medium text-muted-foreground tabular-nums",
+        "z-questionnaire-progress min-h-lh w-fit min-w-[14ch] font-medium text-muted-foreground tabular-nums",
         local.class,
       )}
       {...others}
@@ -314,7 +314,7 @@ const QuestionnaireChoiceShortcut = (props: QuestionnaireChoiceShortcutProps) =>
       data-shortcut={choiceContext.state.shortcut ?? undefined}
       hidden={choiceContext.state.shortcut === null}
       class={cn(
-        "pointer-events-none z-questionnaire-choice-shortcut z-questionnaire-shortcut ms-auto hidden shrink-0 group-data-[shortcut]/questionnaire-choice:inline-flex",
+        "pointer-events-none z-questionnaire-choice-shortcut z-questionnaire-shortcut ms-auto hidden shrink-0 group-data-shortcut/questionnaire-choice:inline-flex",
         local.class,
       )}
       {...others}
