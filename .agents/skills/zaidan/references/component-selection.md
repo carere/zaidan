@@ -11,6 +11,7 @@ an install command.
 - [Overlays and Contextual Surfaces](#overlays-and-contextual-surfaces)
 - [Navigation and Commands](#navigation-and-commands)
 - [Content and Layout](#content-and-layout)
+- [Conversation and Chat](#conversation-and-chat)
 - [Rich and Specialized Interfaces](#rich-and-specialized-interfaces)
 - [Common Compositions](#common-compositions)
 
@@ -86,6 +87,21 @@ an install command.
 | Visual division | `separator` | Prefer whitespace when a visible boundary adds no meaning. |
 | Repeating person or entity identity | `avatar` | Pair with text when identity cannot rely on imagery alone. |
 | Repeating content row | `item` | Useful for lists with media, metadata, and actions. |
+| Keyboard shortcut hint | `kbd` | Display only; the application still owns the key handler. |
+| Styled markdown or rendered prose | `typeset` | A stylesheet, not a component. Wrap the rendered output in `typeset` plus a preset class. |
+
+## Conversation and Chat
+
+Chat surfaces split across four components and a block. Compose them; do not
+reach for one where another owns the concern.
+
+| Need | Prefer | Distinction |
+| --- | --- | --- |
+| The bubble surface itself | `bubble` | Variants, alignment, grouping, reactions, collapsible content. Scoped to the bubble. |
+| A full turn in a conversation | `message` | Owns the avatar, alignment, header, and footer around the bubble. |
+| Inline status or system note in a thread | `marker` | Status updates, system notes, bordered rows, labeled separators. |
+| A file or image in a composer or thread | `attachment` | Media, name, metadata, upload state, and actions. |
+| The scroll container for a transcript | `message-scroller` | A block; anchors turns, follows streamed output at the live edge, prepends history without displacing the visible row. |
 
 ## Rich and Specialized Interfaces
 
@@ -95,6 +111,7 @@ an install command.
 | Data visualization | `chart` plus a `chart-*` block | Choose area, bar, line, pie, radar, radial, or tooltip examples from the data question. |
 | Reordering items | `sortable` | A block; application code owns persistence and domain constraints. |
 | Image cropping | `image-crop` | A block; application code owns upload, preview, and storage. |
+| Multi-step question flow | `questionnaire` | A block; single-choice, multiple-choice, freeform, and skippable questions as one form. Use for clarification prompts, onboarding, surveys, and intake. |
 
 ## Common Compositions
 
@@ -107,6 +124,11 @@ an install command.
   `dropdown-menu`.
 - Command palette: `command` inside `dialog`.
 - Dashboard: `card` + appropriate `chart-*` blocks + `skeleton`/`empty` states.
+- Chat thread: `message-scroller` + `message` + `bubble` + `marker`, with
+  `attachment` in the composer and `typeset` around rendered markdown.
+- Dark mode: `color-mode` supplies `ColorModeProvider` and `useColorMode`; every
+  theme item already ships its dark variant, so no second palette is needed.
+- Responsive branching in application code: `use-mobile` (`useIsMobile`).
 
 Recommend application-owned composition when no single component represents
 the requested product pattern. Zaidan components supply UI behavior and source;

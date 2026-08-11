@@ -70,6 +70,45 @@ Add multiple independently requested items in one command when the CLI accepts
 them. Trust registry metadata for transitive Zaidan dependencies, then inspect
 the output rather than assuming every requested file was written directly.
 
+## Apply a Design System
+
+Look and feel ships as registry items too, not as CSS to write by hand:
+
+```text
+<runner> add @zaidan/style-vega @zaidan/gray @zaidan/blue @zaidan/radius-medium @zaidan/font-inter
+```
+
+- `style-<name>` writes `styles/base.css` and `styles/utilities.css` and adds
+  their imports. Eight exist: `vega`, `nova`, `maia`, `lyra`, `mira`, `luma`,
+  `sera`, `rhea`.
+- A base color (`neutral`, `stone`, `zinc`, `gray`, `mauve`, `olive`, `mist`,
+  `taupe`) sets the full light and dark palette; a theme (`blue`, `green`,
+  `amber`, …) overrides primary, secondary, and the chart colors on top of it.
+- `chart-<name>` overrides `chart-1` … `chart-5` alone.
+- `radius-none|small|medium|large` sets `--radius`; Tailwind's `rounded-*`
+  scale derives from it.
+- `font-<name>` sets `--font-sans`, `--font-serif`, or `--font-mono`. Headings
+  read `--font-heading`.
+
+When the user wants the whole design system at once, send them to
+`https://zaidan.carere.dev/create`, then install the code it produces as one
+item:
+
+```text
+<runner> add @zaidan/preset-<code>
+```
+
+The preset also writes `components.json` values (`style`, `iconLibrary`,
+`menuAccent`, `menuColor`, Tailwind base color), so review the file afterwards.
+
+`@zaidan/typeset` adds `styles/typeset.css` for styling rendered markdown, and
+`@zaidan/typeset-<code>` — a code from `https://zaidan.carere.dev/typeset` —
+adds the stylesheet, the fonts a design uses, and its `.typeset-<item>` preset
+class in one item.
+
+Neither `preset-<code>` nor `typeset-<code>` appears in the registry listing;
+both are generated from the code on request.
+
 ## Verify
 
 Check that:

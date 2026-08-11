@@ -19,6 +19,37 @@ maintain a shadcn-style React component inside the Zaidan registry.
 - Read `references/component-selection.md` when recommending components or
   deciding how to compose a requested interface.
 
+## What the Registry Holds
+
+One `@zaidan` registry serves several kinds of item. Knowing which kind a name
+is tells you what the CLI will write.
+
+| Kind | Names | What lands in the project |
+| --- | --- | --- |
+| Components | `button`, `dialog`, `sidebar`, … | Source files under the `ui` alias |
+| Blocks | `sortable`, `image-crop`, `message-scroller`, `questionnaire`, and the chart examples (`chart-bar-default`, `chart-line-interactive`, …) | Larger compositions plus the components they use |
+| Hook | `use-mobile` | Source file under the `hooks` alias |
+| Shared component | `color-mode` | Source file under the `components` alias |
+| Styles | `style-vega`, `style-nova`, `style-maia`, `style-lyra`, `style-mira`, `style-luma`, `style-sera`, `style-rhea` | `styles/base.css` and `styles/utilities.css`, plus their imports |
+| Base colors and themes | `neutral`, `stone`, `zinc`, `gray`, `mauve`, `olive`, `mist`, `taupe`; `blue`, `green`, … | Light and dark CSS variables |
+| Chart palettes | `chart-blue`, `chart-neutral`, … | `chart-1` … `chart-5` only |
+| Radius | `radius-none`, `radius-small`, `radius-medium`, `radius-large` | `--radius` |
+| Fonts | `font-inter`, `font-geist-mono`, … | The face, wired to `--font-sans`, `--font-serif`, or `--font-mono` |
+| Typeset | `typeset` | `styles/typeset.css` and its import |
+
+Two items are generated from a code rather than listed in the registry:
+
+- `@zaidan/preset-<code>` — a whole design system (style, base color, theme,
+  chart palette, fonts, radius, menu accent) from a code produced by
+  `https://zaidan.carere.dev/create`.
+- `@zaidan/typeset-<code>` — the typeset stylesheet, the fonts a design uses,
+  and its `.typeset-<item>` preset class, from a code produced by
+  `https://zaidan.carere.dev/typeset`.
+
+Both resolve over the CLI even though no listing entry exists for them. Prefer
+a preset over a hand-assembled list of style, color, radius, and font items
+when the user wants a full design system.
+
 ## Workflow
 
 1. Inspect `package.json`, the lockfile, framework configuration, TypeScript
@@ -32,7 +63,9 @@ maintain a shadcn-style React component inside the Zaidan registry.
 3. Verify recommended item names against the current registry before presenting
    an install command. In this repository, inspect
    `src/registry/kobalte/registry.json`; elsewhere, resolve the corresponding
-   `https://zaidan.carere.dev/r/kobalte/<name>.json` item.
+   `https://zaidan.carere.dev/r/kobalte/<name>.json` item. `@zaidan/preset-<code>`
+   and `@zaidan/typeset-<code>` are the exception: they are generated on demand
+   from the code, so they resolve without appearing in the registry listing.
 4. Configure only missing prerequisites. Preserve the project's package
    manager, framework conventions, aliases, CSS entry point, theme choices, and
    existing `components.json` values.
