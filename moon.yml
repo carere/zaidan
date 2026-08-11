@@ -68,10 +68,6 @@ tasks:
       - "~:r-validate-kobalte"
     inputs:
       - "src/registry/kobalte/**/*"
-    # Caveat: the directory also holds 25 committed chart-*.json palettes that
-    # no longer have an entry in registry.json, so this task does not write
-    # them. They ride along in the cache archive because they are on disk when
-    # it runs; a run that starts without them would bake their absence in.
     outputs:
       - "public/r/kobalte/"
     type: build
