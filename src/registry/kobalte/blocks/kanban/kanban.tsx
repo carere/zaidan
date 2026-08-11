@@ -1,6 +1,6 @@
 import type { DragDropProviderProps } from "@dnd-kit/solid";
 import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from "@dnd-kit/solid";
-import { useSortable } from "@dnd-kit/solid/sortable";
+import { isSortable, useSortable } from "@dnd-kit/solid/sortable";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import {
   createContext,
@@ -187,6 +187,46 @@ function moveItem<T>(
   nextOver.splice(overIndex, 0, moved);
 
   return { ...columns, [activeContainer]: nextActive, [overContainer]: nextOver };
+}
+
+type SortableDrop = {
+  /** Group the drag started in. `undefined` for columns, which have no group. */
+  fromGroup: string | undefined;
+  fromIndex: number;
+  /** Group the drag landed in. */
+  toGroup: string | undefined;
+  toIndex: number;
+};
+
+/**
+ * Resolves where a drag actually landed, from the drag source itself.
+ *
+ * `event.operation.target` cannot answer this at drop time. dnd-kit's
+ * `OptimisticSortingPlugin` re-parents the dragged element as the pointer
+ * moves, so on release the droppable under the pointer is normally the dragged
+ * element in its own new slot — making `target.id` equal `source.id` and any
+ * position derived from it equal to where the drag started.
+ *
+ * A sortable source tracks this itself: `index`/`group` are the live optimistic
+ * position, `initialIndex`/`initialGroup` the position at drag start. Returns
+ * `null` for a non-sortable source, so callers can fall back to target ids.
+ */
+function resolveSortableDrop(source: unknown): SortableDrop | null {
+  if (!isSortable(source as Parameters<typeof isSortable>[0])) return null;
+
+  const sortable = source as {
+    index: number;
+    initialIndex: number;
+    group?: string | number;
+    initialGroup?: string | number;
+  };
+
+  return {
+    fromGroup: sortable.initialGroup === undefined ? undefined : String(sortable.initialGroup),
+    fromIndex: sortable.initialIndex,
+    toGroup: sortable.group === undefined ? undefined : String(sortable.group),
+    toIndex: sortable.index,
+  };
 }
 
 /** Reorders the column keys, preserving each column's items. */
@@ -421,23 +461,28 @@ function Kanban<T>(props: KanbanRootProps<T>) {
 
     if (!activeValue) return;
 
-    if (!overValue) {
+    const activeIsColumn = isColumn(activeValue);
+
+    if (!overValue && !activeIsColumn) {
       // Released over nothing. The live preview during dragOver may already have
       // moved the item, so commit the current value.
       commitChange(local.value, event, "item", activeValue, null, origin);
       return;
     }
 
-    const activeIsColumn = isColumn(activeValue);
-
     if (local.onMove && !activeIsColumn) {
       const location = locations().get(activeValue);
-      const overIsColumn = isColumn(overValue);
-      const overContainer = overIsColumn ? overValue : locations().get(overValue)?.group;
-      if (location && overContainer) {
-        const overIndex = overIsColumn
-          ? local.value[overContainer].length
-          : (locations().get(overValue)?.index ?? -1);
+      if (!location) return;
+
+      // Preferred: ask the sortable source where it landed. In `onMove` mode the
+      // board is never reshuffled during the drag, so `local.value` still holds
+      // the pre-drag layout and target ids resolve back to the drag source.
+      const drop = resolveSortableDrop(source);
+      if (drop?.toGroup !== undefined) {
+        const overContainer = drop.toGroup;
+        if (!(overContainer in local.value)) return;
+        const overIndex = Math.min(drop.toIndex, local.value[overContainer].length);
+        if (overContainer === location.group && overIndex === location.index) return;
         local.onMove({
           event,
           activeValue,
@@ -446,21 +491,54 @@ function Kanban<T>(props: KanbanRootProps<T>) {
           overContainer,
           overIndex,
         });
+        return;
       }
+
+      // Fallback for a non-sortable source (custom draggable, no optimistic
+      // sorting): infer from the drop target instead.
+      if (!overValue) return;
+      const overIsColumn = isColumn(overValue);
+      const overContainer = overIsColumn ? overValue : locations().get(overValue)?.group;
+      if (!overContainer) return;
+      const overIndex = overIsColumn
+        ? local.value[overContainer].length
+        : (locations().get(overValue)?.index ?? -1);
+      if (overIndex === -1) return;
+      if (overContainer === location.group && overIndex === location.index) return;
+      local.onMove({
+        event,
+        activeValue,
+        activeContainer: location.group,
+        activeIndex: location.index,
+        overContainer,
+        overIndex,
+      });
       return;
     }
 
     if (activeIsColumn) {
-      // A column drag that ends over a non-column droppable is not an item move.
-      if (!isColumn(overValue)) return;
       const activeIndex = columnIds().indexOf(activeValue);
-      const overIndex = columnIds().indexOf(overValue);
-      if (activeIndex === -1 || overIndex === -1 || activeIndex === overIndex) return;
+      if (activeIndex === -1) return;
+
+      // Column drags are never previewed during `dragOver`, so the reorder is
+      // applied here. The destination comes from the sortable source: on drop
+      // the target under the pointer is the dragged column itself, which would
+      // otherwise read as "no movement".
+      const drop = resolveSortableDrop(source);
+      const overIndex = drop
+        ? Math.min(Math.max(drop.toIndex, 0), columnIds().length - 1)
+        : overValue
+          ? columnIds().indexOf(overValue)
+          : -1;
+      if (overIndex === -1 || activeIndex === overIndex) return;
+
       const next = moveColumn(local.value, activeIndex, overIndex);
       local.onValueChange(next);
       commitChange(next, event, "column", activeValue, overValue, origin);
       return;
     }
+
+    if (!overValue) return;
 
     const next = moveItem(local.value, local.getItemValue, columnIds(), activeValue, overValue);
     if (next) {
