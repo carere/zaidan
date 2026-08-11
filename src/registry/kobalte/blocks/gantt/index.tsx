@@ -48,6 +48,8 @@ export {
   useGanttState,
   useGanttViewConfig,
 } from "./gantt";
+export type { GanttBarContextValue, GanttBarProps } from "./gantt-bar";
+export { GANTT_COLORS, GanttBar, useGanttBarContext } from "./gantt-bar";
 export type { GanttGestures, GanttPointerEvent } from "./gantt-dnd";
 export {
   cancelActiveGanttGestures,
@@ -90,6 +92,24 @@ export {
   toZoned,
   zonedStartOfDay,
 } from "./gantt-lib";
+export type {
+  GanttDatePickerProps,
+  GanttNavProps,
+  GanttScaleSwitcherProps,
+  GanttTitleProps,
+  GanttToolbarProps,
+} from "./gantt-nav";
+export {
+  GANTT_SCALES,
+  GanttDatePicker,
+  GanttNav,
+  GanttNavNext,
+  GanttNavPrev,
+  GanttNavToday,
+  GanttScaleSwitcher,
+  GanttTitle,
+  GanttToolbar,
+} from "./gantt-nav";
 export {
   expandRecurrence,
   formatRRuleString,
@@ -124,3 +144,5 @@ export type {
   GanttUpdateResult,
   GanttWeekday,
 } from "./gantt-types";
+export type { GanttViewProps } from "./gantt-view";
+export { GanttView } from "./gantt-view";
