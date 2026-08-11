@@ -539,6 +539,46 @@
   @apply text-primary underline-offset-4 hover:underline;
 }
 
+.z-badge-variant-primary-light {
+  @apply border-primary/15 bg-primary/10 text-primary dark:border-primary/25 dark:bg-primary/20 [a]:hover:bg-primary/20;
+}
+
+.z-badge-variant-destructive-light {
+  @apply border-destructive/15 bg-destructive/10 text-destructive dark:border-destructive/25 dark:bg-destructive/20 [a]:hover:bg-destructive/20;
+}
+
+.z-badge-variant-success-light {
+  @apply border-success-foreground/15 bg-success text-success-foreground dark:border-success-foreground/25 [a]:hover:bg-success/80;
+}
+
+.z-badge-variant-warning-light {
+  @apply border-warning-foreground/15 bg-warning text-warning-foreground dark:border-warning-foreground/25 [a]:hover:bg-warning/80;
+}
+
+.z-badge-variant-info-light {
+  @apply border-info-foreground/15 bg-info text-info-foreground dark:border-info-foreground/25 [a]:hover:bg-info/80;
+}
+
+.z-badge-variant-primary-outline {
+  @apply border-border text-primary [a]:hover:bg-muted;
+}
+
+.z-badge-variant-destructive-outline {
+  @apply border-border text-destructive [a]:hover:bg-muted;
+}
+
+.z-badge-variant-success-outline {
+  @apply border-border text-success-foreground [a]:hover:bg-muted;
+}
+
+.z-badge-variant-warning-outline {
+  @apply border-border text-warning-foreground [a]:hover:bg-muted;
+}
+
+.z-badge-variant-info-outline {
+  @apply border-border text-info-foreground [a]:hover:bg-muted;
+}
+
 /* MARK: Breadcrumb */
 .z-breadcrumb-list {
   @apply text-muted-foreground gap-1.5 text-sm sm:gap-2.5;

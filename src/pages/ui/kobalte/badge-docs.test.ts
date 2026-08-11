@@ -7,6 +7,7 @@ const pagePath = fileURLToPath(new URL("./badge.mdx", import.meta.url));
 const demoNames = [
   "badge-demo",
   "badge-variants",
+  "badge-status",
   "badge-icon",
   "badge-spinner",
   "badge-link",
@@ -44,5 +45,30 @@ describe("Badge documentation", () => {
     expect(page).not.toContain("## RTL");
     expect(page).not.toContain("Direction");
     expect(page).not.toContain("Sonner");
+  });
+
+  it("backs every declared variant with a rule in all eight styles", async () => {
+    const sourcePath = fileURLToPath(
+      new URL("../../../registry/kobalte/ui/badge.tsx", import.meta.url),
+    );
+    const source = await readFile(sourcePath, "utf8");
+
+    const variantClasses = [...source.matchAll(/"(z-badge-variant-[a-z-]+)"/g)].map((m) => m[1]);
+    expect(variantClasses.length).toBeGreaterThanOrEqual(16);
+
+    const styles = ["vega", "nova", "lyra", "maia", "mira", "luma", "rhea", "sera"];
+
+    for (const style of styles) {
+      const stylePath = fileURLToPath(
+        new URL(`../../../registry/kobalte/styles/style-${style}.css`, import.meta.url),
+      );
+      const css = await readFile(stylePath, "utf8");
+
+      for (const variantClass of variantClasses) {
+        expect(css, `style-${style}.css is missing .${variantClass}`).toContain(
+          `.${variantClass} {`,
+        );
+      }
+    }
   });
 });
