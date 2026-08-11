@@ -1,0 +1,291 @@
+---
+title: Filters
+slug: filters
+description: A comprehensive filtering system with multiple filter types, operators, and visual indicators for data organization.
+---
+
+# Filters
+
+<ComponentPreview name="filters-demo" align="start" previewClass="h-auto" />
+
+`Filters` renders a row of active filter chips plus an "Add Filter" menu. Each chip is a segmented control: the field label, an operator dropdown, a value editor, and a remove button. You own the `Filter[]` array — the component never mutates it, it calls `onChange` with the next array.
+
+## Installation
+
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+```package-dlx
+shadcn@latest add @zaidan/filters
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies.</Step>
+
+```package-install
+class-variance-authority lucide-solid
+```
+
+<Step>Add the `button`, `button-group`, `dropdown-menu`, `input`, `input-group`, `kbd`, `scroll-area` and `tooltip` components.</Step>
+
+```package-dlx
+shadcn@latest add @zaidan/button @zaidan/button-group @zaidan/dropdown-menu @zaidan/input @zaidan/input-group @zaidan/kbd @zaidan/scroll-area @zaidan/tooltip
+```
+
+<Step>Copy the whole `filters` folder into your project. Its entry point re-exports everything.</Step>
+
+```tsx file=../../../registry/kobalte/blocks/filters/index.tsx showLineNumbers
+
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+import {
+  createFilter,
+  Filters,
+  type Filter,
+  type FilterFieldConfig,
+} from "~/components/blocks/filters";
+```
+
+```tsx showLineNumbers
+const [filters, setFilters] = createSignal<Filter[]>([
+  createFilter("priority", "is_any_of", ["low", "medium"]),
+]);
+
+const fields: FilterFieldConfig[] = [
+  {
+    key: "priority",
+    label: "Priority",
+    type: "multiselect",
+    options: [
+      { value: "low", label: "Low" },
+      { value: "medium", label: "Medium" },
+      { value: "high", label: "High" },
+    ],
+  },
+];
+
+return <Filters filters={filters()} fields={fields} onChange={setFilters} />;
+```
+
+Fields can be flat, or grouped by wrapping them in `{ group, fields }` entries. A field of type `select` or `multiselect` with options gets a sub-menu in the "Add Filter" list, so a value can be picked without leaving the menu.
+
+### Icons
+
+Pass field and option icons as a **function**, not as an element:
+
+```tsx showLineNumbers
+{ key: "priority", label: "Priority", icon: () => <Ban class="size-3.5" /> }
+```
+
+Solid evaluates JSX eagerly, so `icon: <Ban />` inside a config object creates the element while the config is built — long before it is inserted (most icons live inside a closed menu). Under SSR that consumes a hydration key for a node the server never wrote into the HTML, and hydration fails with `Hydration Mismatch`. A thunk defers creation to insert time; Solid resolves function children on insert, so both forms render identically on the client and only the thunk is safe when the page is server-rendered.
+
+
+
+## Examples
+
+### Validation
+
+A field's `validation` returns either a boolean or `{ valid, message }`. Invalid input is reported on blur through an inline icon whose tooltip carries the message; typing clears it again. Any schema library works — this example wraps Zod schemas.
+
+<ComponentPreview name="filters-validation" align="start" />
+
+### Trigger Button
+
+Pass `trigger` to replace the default "Filter" button. Solid has no `cloneElement`, so `trigger` takes a **component**, not an element: Kobalte renders it through its polymorphic `as` and hands it the trigger props (ref, `aria-expanded`, handlers) to spread.
+
+```tsx showLineNumbers
+function IconTrigger(props: ComponentProps<typeof Button>) {
+  return (
+    <Button variant="outline" size="icon" {...props}>
+      <ListFilter />
+    </Button>
+  );
+}
+
+<Filters filters={filters()} fields={fields} onChange={setFilters} trigger={IconTrigger} />;
+```
+
+<ComponentPreview name="filters-trigger" align="start" />
+
+### Small Size
+
+`size` scales the chips, the value editors and the gap between them. It does not size the custom `trigger` — that stays yours to match.
+
+<ComponentPreview name="filters-small" align="start" />
+
+### Large Size
+
+<ComponentPreview name="filters-large" align="start" />
+
+### Custom Controls
+
+A field of type `custom` renders whatever `customRenderer` returns in place of the value editor. The renderer receives `{ field, values, operator, onChange }` and owns its own editing UI — a dialog, a popover calendar, a slider. The props are lazy getters, so reading `values` inside the control keeps it reactive without recreating it on every change.
+
+<ComponentPreview name="filters-custom-controls" align="start" previewClass="h-auto" />
+
+### Data Table
+
+The filter bar is independent of what it filters. Here it drives a table through a simulated server round trip: the bar stays interactive while the rows show skeletons.
+
+<ComponentPreview name="filters-table" align="start" previewClass="h-auto" />
+
+### With i18n Support
+
+`i18n` takes a `Partial<FilterI18nConfig>` that is deep-merged onto the English defaults, so a locale only declares what it changes. Operator labels come from `operators`, input placeholders from `placeholders`.
+
+<ComponentPreview name="filters-i18n" align="start" />
+
+### Virtualized Large Lists
+
+The block ships no windowing dependency. Pass `renderOptionList` to render the option list yourself — it receives `{ options, highlightedIndex, renderOption }`, and calling `renderOption(option, index)` keeps each row bound to the block's selection state, highlight and toggle handler.
+
+<ComponentPreview name="filters-virtualized" align="start" />
+
+### Prefetched Async Options
+
+`loadOptions(query)` replaces a static `options` list. Returning the same cached array for every query prefetches the whole remote list once and filters it locally, so the loading state only shows on the first open.
+
+<ComponentPreview name="filters-async-prefetch" align="start" />
+
+### Async Server-side Search
+
+When the list is too large to prefetch, filter by `query` server-side and return a bounded page. Calls are debounced, out-of-order responses are discarded, and an internal value-to-label cache keeps already-selected chips labelled even when they fall outside the current page. `options` still seeds the initial view.
+
+<ComponentPreview name="filters-async-search" align="start" />
+
+## Keyboard
+
+- With `enableShortcut`, pressing `shortcutKey` (default <kbd>F</kbd>) anywhere outside a text field opens the "Add Filter" menu, and `shortcutLabel` renders as a hint inside the search input.
+- The menu search input is a combobox: <kbd>↓</kbd> / <kbd>↑</kbd> move the highlight, <kbd>Enter</kbd> adds the highlighted field, <kbd>→</kbd> opens its sub-menu, <kbd>←</kbd> closes it, and <kbd>Esc</kbd> closes the menu.
+- Inside an options list the same keys move and toggle; `aria-activedescendant` follows the highlight, which is why a virtualized list must keep the highlighted row mounted.
+
+## API Reference
+
+### Filters
+
+The main component for displaying and managing a collection of active filters.
+
+| Prop                 | Type                             | Default     | Description                                                                                      |
+| :------------------- | :------------------------------- | :---------- | :----------------------------------------------------------------------------------------------- |
+| `filters`            | `Filter<T>[]`                    | -           | **Required**. The array of active filters.                                                       |
+| `fields`             | `FilterFieldsConfig<T>`          | -           | **Required**. The configuration for available filter fields.                                     |
+| `onChange`           | `(filters: Filter<T>[]) => void` | -           | **Required**. Fired when filters are added, updated, or removed.                                 |
+| `size`               | `"sm" \| "default" \| "lg"`      | `"default"` | The size of the filter chips and controls.                                                       |
+| `variant`            | `"solid" \| "default"`           | `"default"` | Spacing variant of the container.                                                                |
+| `trigger`            | `ValidComponent`                 | -           | Component rendered as the "Add Filter" trigger. A component, not an element — Solid has no `cloneElement`. |
+| `showSearchInput`    | `boolean`                        | `true`      | Whether to show the search input in the "Add Filter" menu.                                       |
+| `allowMultiple`      | `boolean`                        | `true`      | Whether to allow multiple filters for the same field.                                            |
+| `enableShortcut`     | `boolean`                        | `false`     | Whether to enable the keyboard shortcut that opens the filter menu.                              |
+| `shortcutKey`        | `string`                         | `"f"`       | The key used for the shortcut (e.g. `"f"`).                                                      |
+| `shortcutLabel`      | `string`                         | `"F"`       | The label displayed in the shortcut indicator.                                                   |
+| `i18n`               | `Partial<FilterI18nConfig>`      | -           | Custom labels and operators for internationalization.                                            |
+| `class`              | `string`                         | -           | Additional CSS classes for the container.                                                        |
+| `menuPopupClassName` | `string`                         | -           | Additional CSS classes for the "Add Filter" dropdown menu.                                       |
+
+`radius` is accepted and threaded into context but not read by any part yet, matching upstream.
+
+### FiltersContent
+
+Renders only the chips for the current filters, without the "Add Filter" menu. It reads its size, variant and i18n from context, so it must be rendered inside a `Filters` provider.
+
+| Prop       | Type                             | Description                            |
+| :--------- | :------------------------------- | :--------------------------------------- |
+| `filters`  | `Filter<T>[]`                    | **Required**. The array of active filters. |
+| `fields`   | `FilterFieldsConfig<T>`          | **Required**. The field configuration.     |
+| `onChange` | `(filters: Filter<T>[]) => void` | **Required**. Fired on any chip edit.      |
+
+### FilterFieldConfig
+
+Configuration for an individual filterable field.
+
+| Property              | Type                                                                  | Description                                                                                                                                                                                   |
+| :-------------------- | :-------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`                 | `string`                                                              | **Required**. Unique identifier for the field.                                                                                                                                                |
+| `label`               | `string`                                                              | **Required**. Human-readable label for the field.                                                                                                                                             |
+| `type`                | `"text" \| "select" \| "multiselect" \| "custom" \| "separator"`      | The type of filter input to use.                                                                                                                                                              |
+| `icon`                | `FilterIcon` (`JSX.Element \| (() => JSX.Element)`)                    | Optional icon displayed next to the field label. Pass a thunk — see [Icons](#icons).                                                                                                          |
+| `options`             | `FilterOption<T>[]`                                                   | List of options for `select` and `multiselect` fields.                                                                                                                                        |
+| `loadOptions`         | `(query: string) => FilterOption<T>[] \| Promise<FilterOption<T>[]>`  | Async options loader for large or remote lists. Debounced, with loading/error states and a value-to-label cache. `options` still seeds the initial view.                                       |
+| `renderOptionList`    | `(props: FilterOptionListRenderProps<T>) => JSX.Element`              | Bring-your-own rendering for the options list, e.g. virtualization. Receives `{ options, highlightedIndex, renderOption }` as lazy getters; render the scrollable list and call `renderOption`. |
+| `operators`           | `FilterOperator[]`                                                    | Custom operators for this specific field.                                                                                                                                                      |
+| `defaultOperator`     | `string`                                                              | The operator selected by default when adding this field.                                                                                                                                       |
+| `placeholder`         | `string`                                                              | Placeholder text for text inputs.                                                                                                                                                              |
+| `searchable`          | `boolean`                                                             | Whether the options list shows a search input.                                                                                                                                                 |
+| `maxSelections`       | `number`                                                              | Maximum number of items allowed in a `multiselect`.                                                                                                                                            |
+| `prefix`              | `string \| JSX.Element`                                               | Prefix element for the input field.                                                                                                                                                            |
+| `suffix`              | `string \| JSX.Element`                                               | Suffix element for the input field.                                                                                                                                                            |
+| `pattern`             | `string`                                                              | Regex pattern for text input validation.                                                                                                                                                       |
+| `validation`          | `(value: unknown) => boolean \| { valid: boolean; message?: string }` | Custom validation function, run on blur.                                                                                                                                                       |
+| `customRenderer`      | `(props: CustomRendererProps<T>) => JSX.Element`                      | Custom renderer for the filter value editor.                                                                                                                                                   |
+| `customValueRenderer` | `(values: T[], options: FilterOption<T>[]) => JSX.Element`            | Custom renderer for the active filter value display.                                                                                                                                           |
+| `fields`              | `FilterFieldConfig<T>[]`                                              | Nested fields when this entry is a group.                                                                                                                                                      |
+| `group`               | `string`                                                              | Group label when this entry is a group.                                                                                                                                                        |
+| `class`               | `string`                                                              | Additional CSS classes for the field's editor.                                                                                                                                                 |
+
+### FilterOption
+
+Structure for options in `select` and `multiselect` fields.
+
+| Property | Type          | Description                                       |
+| :------- | :------------ | :-------------------------------------------------- |
+| `value`  | `T`           | **Required**. The internal value of the option.   |
+| `label`  | `string`      | **Required**. Human-readable label for the option. |
+| `icon`   | `FilterIcon`  | Optional icon displayed next to the option. Pass a thunk — see [Icons](#icons). |
+| `class`  | `string`      | Additional CSS classes for the option row.         |
+
+### Filter
+
+The structure of an active filter object.
+
+| Property   | Type     | Description                                       |
+| :--------- | :------- | :-------------------------------------------------- |
+| `id`       | `string` | Unique identifier for the filter instance.        |
+| `field`    | `string` | The `key` of the associated field configuration.  |
+| `operator` | `string` | The selected operator (e.g. `"is"`, `"contains"`). |
+| `values`   | `T[]`    | The current value(s) of the filter.                |
+
+### FilterI18nConfig
+
+Configuration for internationalization and custom labels. Pass a partial — omitted keys fall back to the English defaults exported as `DEFAULT_I18N`.
+
+| Property       | Type     | Description                                |
+| :------------- | :------- | :------------------------------------------- |
+| `addFilter`    | `string` | Label for the "Add Filter" button.         |
+| `searchFields` | `string` | Placeholder for the field search input.    |
+| `operators`    | `object` | Map of operator keys to localized strings. |
+| `validation`   | `object` | Map of validation error messages.          |
+| `placeholders` | `object` | Map of dynamic placeholder templates.      |
+
+### Helpers
+
+| Function            | Signature                                             | Description                                   |
+| :------------------ | :---------------------------------------------------- | :---------------------------------------------- |
+| `createFilter`      | `(field, operator?, values?) => Filter`               | Creates a new filter object with a unique id. |
+| `createFilterGroup` | `(id, label, fields, initialFilters?) => FilterGroup` | Creates a filter group configuration.         |
+| `getOperatorsForField` | `(field, values, i18n) => FilterOperator[]`        | Resolves the operator list shown for a field. |
+| `mergeI18n`         | `(i18n?) => FilterI18nConfig`                         | Deep-merges an override onto `DEFAULT_I18N`.  |
+
+`DEFAULT_I18N` and `DEFAULT_OPERATORS` are exported too, so a consumer can start from the defaults instead of retyping them.

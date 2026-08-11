@@ -33,15 +33,20 @@ const createFieldOptions = <T = unknown>(
   const isAsync = () => typeof field().loadOptions === "function";
 
   // Seed the shared cache from any static options an async field also provides
-  // (static fields never read this cache, so skip the work for them).
-  createEffect(() => {
-    const current = field();
+  // (static fields never read this cache, so skip the work for them). This runs
+  // synchronously, like upstream's render-time seeding: deferring it to an
+  // effect would let the first paint fall back to `String(value)` for a
+  // pre-selected chip.
+  const seedCache = () => {
+    const current = untrack(field);
     if (typeof current.loadOptions !== "function" || !current.options) return;
     const cache = getFieldOptionCache(current);
     for (const option of current.options) {
       cache.set(option.value, option);
     }
-  });
+  };
+
+  seedCache();
 
   const [asyncOptions, setAsyncOptions] = createSignal<FilterOption<T>[]>(
     untrack(field).options ?? [],
@@ -97,6 +102,7 @@ const createFieldOptions = <T = unknown>(
   );
 
   const resolveSelected = (values: T[]): FilterOption<T>[] => {
+    seedCache();
     const cache = getFieldOptionCache(untrack(field));
     return values.map((value) => cache.get(value) ?? { value, label: String(value) });
   };

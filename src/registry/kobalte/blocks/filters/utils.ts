@@ -1,11 +1,14 @@
 import { cva } from "class-variance-authority";
 
+import type { JSX } from "solid-js";
+
 import type {
   Filter,
   FilterFieldConfig,
   FilterFieldGroup,
   FilterFieldsConfig,
   FilterGroup,
+  FilterIcon,
 } from "./types";
 
 // Container variant for filters wrapper
@@ -26,6 +29,13 @@ const filtersContainerVariants = cva("flex flex-wrap items-center", {
     size: "default",
   },
 });
+
+// Icons may be given as JSX or as a thunk. Solid resolves function children on
+// insert, but `JSX.Element` does not include functions in its type, so unwrap
+// at the render site. Called from a JSX expression, the thunk still runs inside
+// the insert effect, which is what keeps it lazy (and hydration-safe).
+const renderIcon = (icon?: FilterIcon): JSX.Element =>
+  typeof icon === "function" ? (icon() as JSX.Element) : (icon as JSX.Element);
 
 // Helper functions to handle both flat and grouped field configurations
 const isFieldGroup = <T = unknown>(
@@ -111,4 +121,5 @@ export {
   getFieldsMap,
   isFieldGroup,
   isGroupLevelField,
+  renderIcon,
 };

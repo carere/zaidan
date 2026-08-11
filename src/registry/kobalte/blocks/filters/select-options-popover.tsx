@@ -19,6 +19,7 @@ import { FilterInput } from "./filter-input";
 import { DEFAULT_I18N } from "./i18n";
 import type { FilterOption, FilterValueSelectorProps, SelectOptionsPopoverProps } from "./types";
 import { createFieldOptions } from "./use-field-options";
+import { renderIcon } from "./utils";
 
 const SelectOptionsPopover = <T = unknown>(props: SelectOptionsPopoverProps<T>) => {
   const [open, setOpen] = createSignal(false);
@@ -137,7 +138,7 @@ const SelectOptionsPopover = <T = unknown>(props: SelectOptionsPopoverProps<T>) 
         )}
         onChange={() => toggleOption(option)}
       >
-        {option.icon}
+        {renderIcon(option.icon)}
         <span class="truncate">{option.label}</span>
       </DropdownMenuCheckboxItem>
     );
@@ -225,9 +226,17 @@ const SelectOptionsPopover = <T = unknown>(props: SelectOptionsPopoverProps<T>) 
             </Match>
             <Match when={props.field.renderOptionList}>
               {(renderOptionList) =>
+                // Getters, not eager reads: reading `options` / `highlightedIndex`
+                // here would make this `Match` re-run — and re-create the
+                // consumer's list component — on every keystroke and every
+                // highlight move. The public shape stays `FilterOptionListRenderProps`.
                 renderOptionList()({
-                  options: allFilteredOptions(),
-                  highlightedIndex: highlightedIndex(),
+                  get options() {
+                    return allFilteredOptions();
+                  },
+                  get highlightedIndex() {
+                    return highlightedIndex();
+                  },
                   renderOption: renderOptionItem,
                 })
               }
@@ -298,7 +307,7 @@ const SelectOptionsPopover = <T = unknown>(props: SelectOptionsPopoverProps<T>) 
                   <Show when={selectedOptions().length > 0}>
                     <div class="-space-x-1.5 flex items-center">
                       <For each={selectedOptions().slice(0, 3)}>
-                        {(option) => <div>{option.icon}</div>}
+                        {(option) => <div>{renderIcon(option.icon)}</div>}
                       </For>
                     </div>
                   </Show>
@@ -344,11 +353,20 @@ const FilterValueSelector = <T = unknown>(props: FilterValueSelectorProps<T>): J
         <Match when={props.field.customRenderer}>
           {(customRenderer) => (
             <ButtonGroupText class="whitespace-nowrap bg-background text-start outline-hidden hover:bg-accent aria-expanded:bg-accent dark:bg-input/30">
+              {/* Getters again: an eager `props.values` read would re-run this
+                  `Match` on every value change and blow away the custom
+                  control's internal state (open popover, draft selection). */}
               {customRenderer()({
-                field: props.field,
-                values: props.values,
-                onChange: props.onChange,
-                operator: props.operator,
+                get field() {
+                  return props.field;
+                },
+                get values() {
+                  return props.values;
+                },
+                get operator() {
+                  return props.operator;
+                },
+                onChange: (values) => props.onChange(values),
               })}
             </ButtonGroupText>
           )}

@@ -50,6 +50,7 @@ import {
   filtersContainerVariants,
   flattenFields,
   getFieldsMap,
+  renderIcon,
 } from "./utils";
 
 // Sera is an underline style: its group text and input group carry only a
@@ -65,6 +66,12 @@ const hasSubMenu = <T,>(field: FilterFieldConfig<T>): boolean =>
 const FiltersContent = <T = unknown>(props: FiltersContentProps<T>) => {
   const context = useFilterContext();
   const fieldsMap = createMemo(() => getFieldsMap(props.fields));
+  // `<For>` diffs by reference and every update replaces the filter object, so
+  // iterating the filters directly would tear down and rebuild a chip on each
+  // keystroke (losing input focus and any custom control's internal state).
+  // Iterate the stable string ids instead — the React `key={filter.id}` this
+  // was ported from behaves the same way.
+  const filterIds = createMemo(() => props.filters.map((filter) => filter.id));
 
   const updateFilter = (filterId: string, updates: Partial<Filter<T>>) => {
     props.onChange(
@@ -92,36 +99,44 @@ const FiltersContent = <T = unknown>(props: FiltersContentProps<T>) => {
         context.class,
       )}
     >
-      <For each={props.filters}>
-        {(filter) => (
-          <Show when={fieldsMap()[filter.field]}>
-            {(field) => (
-              <ButtonGroup class={FILTER_CHIP_CLASS}>
-                <ButtonGroupText>
-                  {field().icon}
-                  {field().label}
-                </ButtonGroupText>
+      <For each={filterIds()}>
+        {(filterId) => {
+          const filter = () => props.filters.find((entry) => entry.id === filterId);
 
-                <FilterOperatorDropdown<T>
-                  field={field()}
-                  operator={filter.operator}
-                  values={filter.values}
-                  onChange={(operator) => updateFilter(filter.id, { operator })}
-                />
+          return (
+            <Show when={filter()}>
+              {(currentFilter) => (
+                <Show when={fieldsMap()[currentFilter().field]}>
+                  {(field) => (
+                    <ButtonGroup class={FILTER_CHIP_CLASS}>
+                      <ButtonGroupText>
+                        {renderIcon(field().icon)}
+                        {field().label}
+                      </ButtonGroupText>
 
-                <FilterValueSelector<T>
-                  field={field()}
-                  values={filter.values}
-                  onChange={(values) => updateFilter(filter.id, { values })}
-                  operator={filter.operator}
-                  autofocus={false}
-                />
+                      <FilterOperatorDropdown<T>
+                        field={field()}
+                        operator={currentFilter().operator}
+                        values={currentFilter().values}
+                        onChange={(operator) => updateFilter(filterId, { operator })}
+                      />
 
-                <FilterRemoveButton onClick={() => removeFilter(filter.id)} />
-              </ButtonGroup>
-            )}
-          </Show>
-        )}
+                      <FilterValueSelector<T>
+                        field={field()}
+                        values={currentFilter().values}
+                        onChange={(values) => updateFilter(filterId, { values })}
+                        operator={currentFilter().operator}
+                        autofocus={false}
+                      />
+
+                      <FilterRemoveButton onClick={() => removeFilter(filterId)} />
+                    </ButtonGroup>
+                  )}
+                </Show>
+              )}
+            </Show>
+          );
+        }}
       </For>
     </div>
   );
@@ -142,6 +157,9 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
     rawProps,
   );
 
+  // See `FiltersContent`: iterate stable ids so a chip survives its filter
+  // object being replaced by an update.
+  const filterIds = createMemo(() => props.filters.map((filter) => filter.id));
   const [addFilterOpen, setAddFilterOpen] = createSignal(false);
   const [menuSearchInput, setMenuSearchInput] = createSignal("");
   const [activeMenu, setActiveMenu] = createSignal<string>("root");
@@ -191,12 +209,6 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
       if (activeMenu() === "root") element.focus();
     }, 0);
   };
-
-  createEffect(
-    on(menuSearchInput, () => {
-      setHighlightedIndex(-1);
-    }),
-  );
 
   createEffect(() => {
     if (highlightedIndex() >= 0 && addFilterOpen()) {
@@ -270,11 +282,16 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
     ),
   );
 
-  createEffect(() => {
-    if (addFilterOpen() && filteredFields().length > 0) {
-      setHighlightedIndex(0);
-    }
-  });
+  // Upstream splits this across two effects — one resetting to -1 whenever the
+  // query changes, one re-highlighting the first row when the match count
+  // changes. In Solid both would land in the same flush and race, so keep a
+  // single deterministic rule: the first match is highlighted, or nothing when
+  // the menu is closed or nothing matches.
+  createEffect(
+    on([menuSearchInput, addFilterOpen, filteredFields], ([, isOpen, fields]) => {
+      setHighlightedIndex(isOpen && fields.length > 0 ? 0 : -1);
+    }),
+  );
 
   const toggleSubMenu = (fieldKey: string) => {
     if (openSubMenu() === fieldKey) {
@@ -474,7 +491,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                                   onSelect={() => field.key && addFilter(field.key)}
                                   class="data-highlighted:bg-accent data-highlighted:text-accent-foreground"
                                 >
-                                  {field.icon}
+                                  {renderIcon(field.icon)}
                                   <span>{field.label}</span>
                                 </DropdownMenuItem>
                               }
@@ -501,7 +518,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                                   }}
                                   class="data-expanded:bg-accent data-expanded:text-accent-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground"
                                 >
-                                  {field.icon}
+                                  {renderIcon(field.icon)}
                                   <span>{field.label}</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent class="w-[200px]">
@@ -588,33 +605,44 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
           </DropdownMenu>
         </Show>
 
-        <For each={props.filters}>
-          {(filter) => (
-            <Show when={fieldsMap()[filter.field]}>
-              {(field) => (
-                <ButtonGroup class={FILTER_CHIP_CLASS}>
-                  <ButtonGroupText class="bg-background dark:bg-input/30">
-                    {field().icon}
-                    {field().label}
-                  </ButtonGroupText>
-                  <FilterOperatorDropdown<T>
-                    field={field()}
-                    operator={filter.operator}
-                    values={filter.values}
-                    onChange={(operator) => updateFilter(filter.id, { operator })}
-                  />
-                  <FilterValueSelector<T>
-                    field={field()}
-                    values={filter.values}
-                    operator={filter.operator}
-                    onChange={(values) => updateFilter(filter.id, { values })}
-                    autofocus={filter.id === lastAddedFilterId()}
-                  />
-                  <FilterRemoveButton onClick={() => removeFilter(filter.id)} />
-                </ButtonGroup>
-              )}
-            </Show>
-          )}
+        <For each={filterIds()}>
+          {(filterId) => {
+            const filter = () => props.filters.find((entry) => entry.id === filterId);
+            // Read once at creation: the chip is mounted the moment its filter
+            // is added, so this mirrors React's mount-time `autoFocus`.
+            const autofocus = filterId === lastAddedFilterId();
+
+            return (
+              <Show when={filter()}>
+                {(currentFilter) => (
+                  <Show when={fieldsMap()[currentFilter().field]}>
+                    {(field) => (
+                      <ButtonGroup class={FILTER_CHIP_CLASS}>
+                        <ButtonGroupText class="bg-background dark:bg-input/30">
+                          {renderIcon(field().icon)}
+                          {field().label}
+                        </ButtonGroupText>
+                        <FilterOperatorDropdown<T>
+                          field={field()}
+                          operator={currentFilter().operator}
+                          values={currentFilter().values}
+                          onChange={(operator) => updateFilter(filterId, { operator })}
+                        />
+                        <FilterValueSelector<T>
+                          field={field()}
+                          values={currentFilter().values}
+                          operator={currentFilter().operator}
+                          onChange={(values) => updateFilter(filterId, { values })}
+                          autofocus={autofocus}
+                        />
+                        <FilterRemoveButton onClick={() => removeFilter(filterId)} />
+                      </ButtonGroup>
+                    )}
+                  </Show>
+                )}
+              </Show>
+            );
+          }}
         </For>
       </div>
     </FilterContext.Provider>

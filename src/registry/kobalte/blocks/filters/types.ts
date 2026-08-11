@@ -77,6 +77,15 @@ type FilterI18nConfig = {
   };
 };
 
+// Solid evaluates JSX eagerly, so `icon: <Mail />` inside a config object is
+// created while the config is built — before it is ever inserted. During
+// hydration that consumes a hydration key for a node the server never wrote
+// into the HTML, and the next polymorphic element fails with
+// "Hydration Mismatch". Passing a thunk (`icon: () => <Mail />`) defers
+// creation to insert time; Solid resolves function children on insert, so both
+// forms render identically. Prefer the thunk in any SSR/hydrated app.
+type FilterIcon = JSX.Element | (() => JSX.Element);
+
 type FilterVariant = "solid" | "default";
 type FilterSize = "sm" | "default" | "lg";
 type FilterRadius = "default" | "full";
@@ -97,7 +106,7 @@ type FilterContextValue = {
 type FilterOption<T = unknown> = {
   value: T;
   label: string;
-  icon?: JSX.Element;
+  icon?: FilterIcon;
   metadata?: Record<string, unknown>;
   class?: string;
 };
@@ -144,7 +153,7 @@ type FilterFieldsConfig<T = unknown> = FilterFieldConfig<T>[] | FilterFieldGroup
 type FilterFieldConfig<T = unknown> = {
   key?: string;
   label?: string;
-  icon?: JSX.Element;
+  icon?: FilterIcon;
   type?: "select" | "multiselect" | "text" | "custom" | "separator";
   // Group-level configuration
   group?: string;
@@ -299,6 +308,7 @@ export type {
   FilterFieldsConfig,
   FilterGroup,
   FilterI18nConfig,
+  FilterIcon,
   FilterInputProps,
   FilterOperator,
   FilterOperatorDropdownProps,

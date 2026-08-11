@@ -12,6 +12,7 @@ import { ScrollArea } from "@/registry/kobalte/ui/scroll-area";
 import { DEFAULT_I18N } from "./i18n";
 import type { FilterOption, FilterSubmenuContentProps } from "./types";
 import { createFieldOptions } from "./use-field-options";
+import { renderIcon } from "./utils";
 
 const FilterSubmenuContent = <T = unknown>(props: FilterSubmenuContentProps<T>) => {
   const [searchInput, setSearchInput] = createSignal("");
@@ -34,12 +35,6 @@ const FilterSubmenuContent = <T = unknown>(props: FilterSubmenuContentProps<T>) 
       listbox?.focus();
     }
   });
-
-  createEffect(
-    on(searchInput, () => {
-      setHighlightedIndex(-1);
-    }),
-  );
 
   createEffect(() => {
     if (highlightedIndex() >= 0 && props.isActive) {
@@ -87,7 +82,7 @@ const FilterSubmenuContent = <T = unknown>(props: FilterSubmenuContentProps<T>) 
         )}
         onChange={() => props.onToggle(option.value as T, isSelected())}
       >
-        {option.icon}
+        {renderIcon(option.icon)}
         <span class="truncate">{option.label}</span>
       </DropdownMenuCheckboxItem>
     );
@@ -96,11 +91,14 @@ const FilterSubmenuContent = <T = unknown>(props: FilterSubmenuContentProps<T>) 
   const renderOptionItem = (option: FilterOption<T>, index: number) =>
     renderOptionRow(option, () => index);
 
-  createEffect(() => {
-    if (props.isActive && filteredOptions().length > 0) {
-      setHighlightedIndex(0);
-    }
-  });
+  // One deterministic rule instead of upstream's reset-then-rehighlight pair
+  // (see the same note in filters.tsx): the first row is highlighted whenever
+  // this submenu is active and something matches.
+  createEffect(
+    on([searchInput, () => props.isActive, filteredOptions], ([, isActive, options]) => {
+      setHighlightedIndex(isActive && options.length > 0 ? 0 : -1);
+    }),
+  );
 
   const selectHighlighted = () => {
     const option = filteredOptions()[highlightedIndex()];
@@ -204,9 +202,15 @@ const FilterSubmenuContent = <T = unknown>(props: FilterSubmenuContentProps<T>) 
             </Match>
             <Match when={props.field.renderOptionList}>
               {(renderOptionList) =>
+                // Getters keep this `Match` from re-running (and re-creating the
+                // consumer's list component) on every keystroke / highlight move.
                 renderOptionList()({
-                  options: filteredOptions(),
-                  highlightedIndex: highlightedIndex(),
+                  get options() {
+                    return filteredOptions();
+                  },
+                  get highlightedIndex() {
+                    return highlightedIndex();
+                  },
                   renderOption: renderOptionItem,
                 })
               }

@@ -19,6 +19,7 @@ export type {
   FilterFieldsConfig,
   FilterGroup,
   FilterI18nConfig,
+  FilterIcon,
   FilterOperator,
   FilterOption,
   FilterOptionListRenderProps,
