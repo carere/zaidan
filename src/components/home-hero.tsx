@@ -12,9 +12,11 @@ import { Button } from "@/registry/kobalte/ui/button";
 export function HomeHero() {
   return (
     <PageHeader class="md:**:[.container]:pb-8 lg:**:[.container]:pb-12">
-      <Link to="/docs/changelog/$slug" params={{ slug: "image-crop-and-agent-docs" }} class="group">
+      <Link to="/docs/changelog/$slug" params={{ slug: "typeset-blocks-and-charts" }} class="group">
         <Badge variant="secondary" class="bg-muted">
-          <span>New: Image Crop and simpler Zaidan Agent</span>
+          <span>
+            New: Charts, Typeset, Blocks<span class="hidden sm:inline"> and a new docs site</span>
+          </span>
           <ArrowRightIcon class="transition-transform group-hover:translate-x-0.5" />
         </Badge>
       </Link>
