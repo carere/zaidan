@@ -1,0 +1,267 @@
+---
+title: Kanban
+slug: kanban
+description: A drag-and-drop kanban component designed for seamless item organization across customizable columns.
+---
+
+# Kanban
+
+<ComponentPreview name="kanban-demo" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-6" />
+
+`Kanban` moves cards within and between columns, and reorders the columns themselves, with pointer, touch, and keyboard input. It is built on `@dnd-kit/solid`: the root wraps the board in a `DragDropProvider`, each `KanbanColumn` and `KanbanItem` registers itself with the sortable manager, and you keep full ownership of the card markup and the `Record<string, T[]>` board state.
+
+## Installation
+
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+```package-dlx
+shadcn@latest add @zaidan/kanban
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependency.</Step>
+
+```package-install
+@dnd-kit/solid
+```
+
+<Step>Copy the following into `components/blocks/kanban/kanban.tsx`.</Step>
+
+```tsx file=../../../registry/kobalte/blocks/kanban/kanban.tsx showLineNumbers
+
+```
+
+<Step>Copy the barrel into `components/blocks/kanban/index.tsx`, so the folder can be imported as `~/components/blocks/kanban`.</Step>
+
+```tsx file=../../../registry/kobalte/blocks/kanban/index.tsx showLineNumbers
+
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import { For } from "solid-js";
+import {
+  Kanban,
+  KanbanBoard,
+  KanbanColumn,
+  KanbanColumnContent,
+  KanbanColumnHandle,
+  KanbanItem,
+  KanbanItemHandle,
+  KanbanOverlay,
+} from "~/components/blocks/kanban";
+```
+
+```tsx showLineNumbers
+<Kanban value={columns()} onValueChange={setColumns} getItemValue={(item) => item.id}>
+  <KanbanBoard>
+    <For each={Object.keys(columns())}>
+      {(columnValue) => (
+        <KanbanColumn value={columnValue}>
+          <KanbanColumnHandle>
+            <h3>{columnValue}</h3>
+          </KanbanColumnHandle>
+          <KanbanColumnContent value={columnValue}>
+            <For each={columns()[columnValue]}>
+              {(item) => (
+                <KanbanItem value={item.id}>
+                  <KanbanItemHandle>{item.title}</KanbanItemHandle>
+                </KanbanItem>
+              )}
+            </For>
+          </KanbanColumnContent>
+        </KanbanColumn>
+      )}
+    </For>
+  </KanbanBoard>
+  <KanbanOverlay class="size-full rounded-md bg-muted" />
+</Kanban>
+```
+
+Iterate over `Object.keys(columns())` rather than `Object.entries(...)`: column keys are stable strings, so `<For>` reuses the existing column nodes when the board reshuffles instead of recreating them mid-drag.
+
+## Examples
+
+### Drag Overlay
+
+`KanbanOverlay` renders a floating preview that follows the cursor. Pass a render function to receive `{ value, variant }` — `variant` is `"column"` when a column header is being dragged and `"item"` when a card is. Rendering a `KanbanColumn` or `KanbanItem` inside the overlay reuses your own markup; overlay children skip drag registration and render presentational markup only.
+
+<ComponentPreview name="kanban-overlay" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-6" />
+
+### Persist to a Backend
+
+<ComponentPreview name="kanban-persistence" previewClass="h-auto bg-surface p-4 dark:bg-background sm:p-6" />
+
+## Persisting Moves
+
+Keep `value` and `onValueChange` so the board reshuffles live while dragging, and use `onValueCommit` to save. It fires once per completed drag (never during the hover preview) with the final board and a `previousValue` snapshot, so you can update optimistically and roll back on error. Its `meta.kind` tells you whether a card moved (`"item"`) or a column was reordered (`"column"`), and `meta.activeValue` is the id of whatever was dragged.
+
+```tsx showLineNumbers
+<Kanban
+  value={columns()}
+  onValueChange={setColumns}
+  getItemValue={(task) => task.id}
+  onValueCommit={(next, meta) => {
+    if (meta.kind === "column") {
+      reorderColumns({ order: Object.keys(next) });
+      return;
+    }
+
+    moveCard({
+      id: meta.activeValue,
+      to: meta.overContainer,
+      index: meta.overIndex,
+    }).catch(() => {
+      setColumns(meta.previousValue); // roll back
+    });
+  }}
+>
+  {/* ... */}
+</Kanban>
+```
+
+If a user might start another drag before the mutation settles, prefer a refetch on failure instead of restoring the snapshot, so a newer arrangement is not clobbered.
+
+If you do not need the live cross-column preview, `onMove` is a simpler alternative: it fires once on drop for item moves and lets you apply the move yourself. Column reorders still arrive through `onValueChange`.
+
+## Accessibility
+
+- Columns and cards are keyboard sortable via the `KeyboardSensor`: focus a handle, pick it up with <kbd>Space</kbd> or <kbd>Enter</kbd>, move it with the arrow keys, drop it with <kbd>Space</kbd> or <kbd>Enter</kbd>, and cancel with <kbd>Esc</kbd>.
+- The `PointerSensor` covers both mouse and touch input.
+- `@dnd-kit/solid` installs its accessibility plugin automatically, so handles receive `role="button"`, `tabindex`, `aria-roledescription="draggable"`, and a live-region description. There is no `accessibility` prop to configure — unlike React dnd-kit v6, announcements are owned by the library.
+- When a `KanbanColumnHandle` or `KanbanItemHandle` is present, only the handle initiates a drag, so interactive controls inside a card stay usable.
+
+## Server-Side Rendering
+
+`@dnd-kit/solid` is browser-only, so `Kanban` renders purely presentational markup during SSR and hydration, then engages drag and drop one tick after mount. The server HTML is visually identical, but handles are not focusable and carry no drag-related ARIA attributes until hydration completes — keep this in mind when asserting on SSR output or querying for `tabindex`/`aria-*` attributes in tests that don't run a browser.
+
+## API Reference
+
+### Kanban
+
+The root component that provides the kanban context and manages the board state.
+
+| Prop              | Type                                                              | Default | Description                                                                                                                                                                        |
+| :---------------- | :---------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `value`           | `Record<string, T[]>`                                             | -       | **Required**. The current state of columns and their items.                                                                                                                        |
+| `onValueChange`   | `(value: Record<string, T[]>) => void`                            | -       | **Required**. Fired when items move within or between columns. In the default mode it also fires during the drag to render the live preview, so avoid persisting from here directly. |
+| `getItemValue`    | `(item: T) => string`                                             | -       | **Required**. Extracts a unique string id from an item. Ids must be unique across all columns.                                                                                      |
+| `onValueCommit`   | `(value: Record<string, T[]>, meta: KanbanCommitMeta<T>) => void` | -       | Fired once per completed drag with the final board and a `previousValue` snapshot. Use it to persist moves to a backend. See [Persisting Moves](#persisting-moves).                 |
+| `onMove`          | `(event: KanbanMoveEvent) => void`                                | -       | Opt-in single commit point for item moves. When set, the live preview is disabled and you apply the move yourself.                                                                  |
+| `restoreOnCancel` | `boolean`                                                         | `false` | When `true`, cancelling a drag (for example pressing <kbd>Esc</kbd>) restores the board to its pre-drag arrangement.                                                                |
+| `onDragStart`     | `(event: KanbanDragStartEvent) => void`                           | -       | Raw `@dnd-kit/solid` passthrough, fired when a drag starts.                                                                                                                         |
+| `onDragEnd`       | `(event: KanbanDragEndEvent) => void`                             | -       | Raw passthrough, fired after internal cleanup and before the final `onValueChange`/`onMove` call. In the default mode, `onValueChange` has already fired during dragOver.            |
+| `onDragCancel`    | `(event: KanbanDragEndEvent) => void`                             | -       | Fired when a drag is cancelled. `@dnd-kit/solid` has no separate cancel event, so this is dispatched from `dragend` when `event.canceled` is `true`.                                 |
+| `modifiers`       | `unknown[]`                                                       | -       | Modifiers forwarded to `DragDropProvider`. Typed loosely because `@dnd-kit/solid` does not re-export the modifier type.                                                              |
+| `as`              | `ValidComponent`                                                  | `"div"` | The element or component to render as.                                                                                                                                              |
+| `class`           | `string`                                                          | -       | Additional CSS classes for the container.                                                                                                                                           |
+
+The root exposes `data-slot="kanban"` and sets `data-dragging` while a drag is active.
+
+`KanbanCommitMeta<T>` is `{ kind: "item" | "column"; event: KanbanDragEndEvent; activeValue: string; activeContainer: string; activeIndex: number; overContainer: string; overIndex: number; previousValue: Record<string, T[]> }`. `KanbanMoveEvent` is the same shape without `kind` and `previousValue`.
+
+### KanbanBoard
+
+The container for the kanban columns. Purely presentational — ordering comes from each column's index in `value`.
+
+| Prop    | Type             | Default | Description                            |
+| :------ | :--------------- | :------ | :------------------------------------- |
+| `as`    | `ValidComponent` | `"div"` | The element or component to render as. |
+| `class` | `string`         | -       | Additional CSS classes for the board.  |
+
+Exposes `data-slot="kanban-board"`.
+
+### KanbanColumn
+
+An individual column within the kanban board. Registers itself as a droppable that accepts both columns (for reordering) and cards (for dropping onto empty space).
+
+| Prop       | Type             | Default | Description                                         |
+| :--------- | :--------------- | :------ | :-------------------------------------------------- |
+| `value`    | `string`         | -       | **Required**. The unique identifier for the column. |
+| `disabled` | `boolean`        | `false` | Whether the column is disabled (not draggable).     |
+| `as`       | `ValidComponent` | `"div"` | The element or component to render as.              |
+| `class`    | `string`         | -       | Additional CSS classes for the column.              |
+
+Exposes `data-slot="kanban-column"`, `data-value`, and sets `data-dragging` / `data-disabled` when applicable.
+
+### KanbanColumnHandle
+
+The drag handle for a column. When present, only the handle starts a column drag instead of the whole column.
+
+| Prop     | Type             | Default | Description                                                                           |
+| :------- | :--------------- | :------ | :------------------------------------------------------------------------------------ |
+| `cursor` | `boolean`        | `true`  | Whether to apply `cursor-grab` / `cursor-grabbing` styles to the handle automatically. |
+| `as`     | `ValidComponent` | `"div"` | The element or component to render as. Also widens the accepted props.                 |
+| `class`  | `string`         | -       | Additional CSS classes for the handle.                                                 |
+
+`as` replaces upstream's `render` prop: `<KanbanColumnHandle as={Button} variant="ghost" size="icon-xs">` renders a `Button` and forwards its props.
+
+Exposes `data-slot="kanban-column-handle"` and mirrors `data-dragging` / `data-disabled` from its column. The handle fades in on column hover by default.
+
+### KanbanColumnContent
+
+The area within a column that holds its cards.
+
+| Prop    | Type             | Default | Description                                                         |
+| :------ | :--------------- | :------ | :------------------------------------------------------------------ |
+| `value` | `string`         | -       | **Required**. The identifier of the column this content belongs to. |
+| `as`    | `ValidComponent` | `"div"` | The element or component to render as.                              |
+| `class` | `string`         | -       | Additional CSS classes for the content area.                        |
+
+Throws when `value` is not a key of the root's `value`, which catches typos early. Exposes `data-slot="kanban-column-content"`.
+
+### KanbanItem
+
+An individual draggable card within a column. When rendered inside `<KanbanOverlay />`, registration is skipped and only presentational markup is rendered.
+
+| Prop       | Type             | Default | Description                                       |
+| :--------- | :--------------- | :------ | :------------------------------------------------ |
+| `value`    | `string`         | -       | **Required**. The unique identifier for the item. |
+| `disabled` | `boolean`        | `false` | Whether the item is disabled (not draggable).     |
+| `as`       | `ValidComponent` | `"div"` | The element or component to render as.            |
+| `class`    | `string`         | -       | Additional CSS classes for the item.              |
+
+Exposes `data-slot="kanban-item"`, `data-value`, and sets `data-dragging` / `data-disabled` when applicable.
+
+### KanbanItemHandle
+
+The drag handle for a card. When present, only the handle starts a card drag instead of the whole card.
+
+| Prop     | Type             | Default | Description                                                                           |
+| :------- | :--------------- | :------ | :------------------------------------------------------------------------------------ |
+| `cursor` | `boolean`        | `true`  | Whether to apply `cursor-grab` / `cursor-grabbing` styles to the handle automatically. |
+| `as`     | `ValidComponent` | `"div"` | The element or component to render as. Also widens the accepted props.                 |
+| `class`  | `string`         | -       | Additional CSS classes for the handle.                                                 |
+
+Exposes `data-slot="kanban-item-handle"` and mirrors `data-dragging` / `data-disabled` from its item.
+
+### KanbanOverlay
+
+The ghost element displayed during a drag. Pass either static JSX (rendered whenever a drag is active) or a render function `({ value, variant }) => JSX`. `DragOverlay` self-portals — no `<Portal>` wrapper is needed.
+
+| Prop            | Type                                                                                       | Default                                                            | Description                                                       |
+| :-------------- | :----------------------------------------------------------------------------------------- | :------------------------------------------------------------------ | :----------------------------------------------------------------- |
+| `children`      | `JSX.Element \| ((params: { value: string; variant: "column" \| "item" }) => JSX.Element)` | -                                                                  | Static JSX or a render function that receives the active drag.    |
+| `dropAnimation` | `{ duration: number; easing: string } \| null`                                             | `{ duration: 250, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }` | Drop animation config. Pass `null` to disable.                    |
+| `class`         | `string`                                                                                   | -                                                                  | Additional CSS classes for the overlay container.                 |
