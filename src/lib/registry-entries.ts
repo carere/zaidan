@@ -1,6 +1,6 @@
 import { blocks, docs, ui } from "@velite";
 import { UPDATED_ITEMS, type UpdatedItem } from "@/lib/config";
-import type { FileRouteTypes } from "@/routeTree.gen";
+import { hasPreviewModule } from "@/lib/create-previews";
 
 export type MergedItem = {
   slug: string;
@@ -13,7 +13,6 @@ export type Entry = {
   title: string;
   items: MergedItem[];
   kind: "docs" | "ui" | "blocks";
-  route: FileRouteTypes["to"];
 };
 
 const CHANGELOG_ENTRY: MergedItem = {
@@ -40,24 +39,31 @@ export function getEntries(): Entry[] {
       title: "Getting Started",
       items: [
         ...docs
-          .filter((d) => d.parent === undefined)
+          .filter((d) => d.parent === undefined && d.slug !== "index" && d.slug !== "components")
           .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
         CHANGELOG_ENTRY,
       ],
       kind: "docs",
-      route: "/$slug",
     },
     {
       title: "Blocks",
       items: getAllBlocks(),
       kind: "blocks",
-      route: "/blocks/{-$slug}",
     },
     {
       title: "UI",
       items: getAllUI(),
       kind: "ui",
-      route: "/ui/{-$slug}",
     },
   ];
+}
+
+export function getPreviewEntries(): Entry[] {
+  return getEntries()
+    .filter((entry): entry is Entry & { kind: "blocks" | "ui" } => entry.kind !== "docs")
+    .map((entry) => ({
+      ...entry,
+      items: entry.items.filter((item) => hasPreviewModule(entry.kind, "kobalte", item.slug)),
+    }))
+    .filter((entry) => entry.items.length > 0);
 }

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-taupe",
+  "title": "Chart Color Taupe",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.868 0.007 39.5)",
+      "chart-2": "oklch(0.547 0.021 43.1)",
+      "chart-3": "oklch(0.438 0.017 39.3)",
+      "chart-4": "oklch(0.367 0.016 35.7)",
+      "chart-5": "oklch(0.268 0.011 36.5)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.868 0.007 39.5)",
+      "chart-2": "oklch(0.547 0.021 43.1)",
+      "chart-3": "oklch(0.438 0.017 39.3)",
+      "chart-4": "oklch(0.367 0.016 35.7)",
+      "chart-5": "oklch(0.268 0.011 36.5)"
+    }
+  },
+  "type": "registry:theme"
+}

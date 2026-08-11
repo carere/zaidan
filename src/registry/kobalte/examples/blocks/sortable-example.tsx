@@ -11,8 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/registry/kobalte/ui/card";
-import { Toaster } from "@/registry/kobalte/ui/sonner";
 import { Switch } from "@/registry/kobalte/ui/switch";
+import { Toaster } from "@/registry/kobalte/ui/toast";
 
 export default function SortableExample() {
   return (

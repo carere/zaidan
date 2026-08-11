@@ -141,7 +141,7 @@ function InputWithSelect() {
         >
           <SelectTrigger class="w-32">
             <SelectValue<(typeof currencies)[number]>>
-              {(state) => state.selectedOption()?.label}
+              {(state) => state.selectedOption().label}
             </SelectValue>
           </SelectTrigger>
           <SelectContent />
@@ -215,7 +215,7 @@ function InputForm() {
               >
                 <SelectTrigger id="form-country">
                   <SelectValue<(typeof countries)[number]>>
-                    {(state) => state.selectedOption()?.label}
+                    {(state) => state.selectedOption().label}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent />

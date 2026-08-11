@@ -109,7 +109,7 @@ function ToggleWithButtonIcon() {
     <Example title="With Button Icon">
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-2">
-          <Button variant="outline" size="icon-sm">
+          <Button variant="outline" size="icon-sm" aria-label="Bold">
             <Bold />
           </Button>
           <Toggle variant="outline" aria-label="Toggle sm icon" size="sm">
@@ -117,7 +117,7 @@ function ToggleWithButtonIcon() {
           </Toggle>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" aria-label="Italic">
             <Italic />
           </Button>
           <Toggle variant="outline" aria-label="Toggle default icon" size="default">
@@ -125,7 +125,7 @@ function ToggleWithButtonIcon() {
           </Toggle>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="outline" size="icon-lg">
+          <Button variant="outline" size="icon-lg" aria-label="Underline">
             <Underline />
           </Button>
           <Toggle variant="outline" aria-label="Toggle lg icon" size="lg">

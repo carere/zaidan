@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-mist",
+  "title": "Chart Color Mist",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.872 0.007 219.6)",
+      "chart-2": "oklch(0.56 0.021 213.5)",
+      "chart-3": "oklch(0.45 0.017 213.2)",
+      "chart-4": "oklch(0.378 0.015 216)",
+      "chart-5": "oklch(0.275 0.011 216.9)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.872 0.007 219.6)",
+      "chart-2": "oklch(0.56 0.021 213.5)",
+      "chart-3": "oklch(0.45 0.017 213.2)",
+      "chart-4": "oklch(0.378 0.015 216)",
+      "chart-5": "oklch(0.275 0.011 216.9)"
+    }
+  },
+  "type": "registry:theme"
+}

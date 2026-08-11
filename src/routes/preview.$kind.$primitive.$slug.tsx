@@ -11,17 +11,23 @@ import {
   Show,
 } from "solid-js";
 import { NotFoundPage } from "@/components/not-found-page";
-import { FONTS, RADII } from "@/lib/config";
+import { DEFAULT_CONFIG, FONTS, RADII } from "@/lib/config";
+import { getPreviewModule, hasPreviewModule } from "@/lib/create-previews";
 import { buildRegistryTheme } from "@/lib/theme-utils";
 import type { IframeMessage, Kind } from "@/lib/types";
 
 export const Route = createFileRoute("/preview/$kind/$primitive/$slug")({
+  ssr: false,
   loader: ({ params }) => {
     const { slug, primitive, kind } = params;
 
+    if (kind !== "ui" && kind !== "blocks") {
+      throw notFound({ data: { slug } });
+    }
+
     const collection = kind === "ui" ? ui : blocks;
     const component = collection.find((u) => u.slug === slug);
-    if (!component) {
+    if (!component || !hasPreviewModule(kind, primitive, slug)) {
       throw notFound({ data: { slug } });
     }
 
@@ -36,20 +42,24 @@ export const Route = createFileRoute("/preview/$kind/$primitive/$slug")({
 });
 
 function PreviewComponent() {
-  const initialSearch = Route.useSearch();
   const params = Route.useParams();
-  const [search, setSearch] = createSignal(initialSearch());
   const [isReady, setIsReady] = createSignal(false);
+  const [config, setConfig] = createSignal(DEFAULT_CONFIG);
 
-  const ExampleComponent = lazy(
-    () =>
-      import(
-        `../registry/${params().primitive}/examples/${params().kind}/${params().slug}-example.tsx`
-      ),
-  );
+  const ExampleComponent = lazy(async () => {
+    const kind = params().kind;
+    if (kind !== "ui" && kind !== "blocks") {
+      throw new Error(`Unsupported Create preview kind: ${kind}`);
+    }
+    const module = getPreviewModule(kind, params().primitive, params().slug);
+    if (!module) {
+      throw new Error(`Missing Create preview module: ${params().slug}`);
+    }
+    return module();
+  });
 
   const registryTheme = createMemo(() => {
-    const p = search();
+    const p = config();
     if (!p.baseColor || !p.theme || !p.chartColor || !p.menuAccent || !p.radius) {
       return null;
     }
@@ -65,12 +75,12 @@ function PreviewComponent() {
 
   onMount(() => {
     const handleMessage = (event: MessageEvent<IframeMessage>) => {
-      if (event.data?.type === "design-system-params-sync" && event.data.data)
-        setSearch(event.data.data);
-
+      if (event.origin !== window.location.origin || event.source !== window.parent) return;
       if (event.data?.type === "color-mode-sync" && event.data.data) {
         document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(event.data.data);
+      } else if (event.data?.type === "design-system-params-sync") {
+        setConfig(event.data.data);
       }
     };
 
@@ -99,28 +109,14 @@ function PreviewComponent() {
           } satisfies IframeMessage);
         }
       }
-
-      if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey) {
-        if (
-          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
-        ) {
-          return;
-        }
-        e.preventDefault();
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({
-            type: "randomize-forward",
-            key: e.key,
-          } satisfies IframeMessage);
-        }
-      }
     };
 
     window.addEventListener("message", handleMessage);
     document.addEventListener("keydown", handleKeyDown);
+    window.parent.postMessage(
+      { type: "preview-ready" } satisfies IframeMessage,
+      window.location.origin,
+    );
 
     onCleanup(() => {
       window.removeEventListener("message", handleMessage);
@@ -133,10 +129,10 @@ function PreviewComponent() {
   createEffect(
     on(
       [
-        () => search().style,
-        () => search().baseColor,
-        () => search().font,
-        () => search().headingFont,
+        () => config().style,
+        () => config().baseColor,
+        () => config().font,
+        () => config().headingFont,
       ],
       ([style, baseColor, font, headingFont]) => {
         document.body.classList.forEach((className) => {
@@ -176,7 +172,7 @@ function PreviewComponent() {
   // Apply radius CSS custom property to document.documentElement
   createEffect(
     on(
-      () => search().radius,
+      () => config().radius,
       (radius) => {
         const radiusValue = RADII.find((r) => r.name === radius || r.name === "medium")
           ?.value as string;

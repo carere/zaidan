@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-cyan",
+  "title": "Chart Color Cyan",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.865 0.127 207.078)",
+      "chart-2": "oklch(0.715 0.143 215.221)",
+      "chart-3": "oklch(0.609 0.126 221.723)",
+      "chart-4": "oklch(0.52 0.105 223.128)",
+      "chart-5": "oklch(0.45 0.085 224.283)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.865 0.127 207.078)",
+      "chart-2": "oklch(0.715 0.143 215.221)",
+      "chart-3": "oklch(0.609 0.126 221.723)",
+      "chart-4": "oklch(0.52 0.105 223.128)",
+      "chart-5": "oklch(0.45 0.085 224.283)"
+    }
+  },
+  "type": "registry:theme"
+}

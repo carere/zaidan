@@ -2,71 +2,95 @@
 title: Navigation Menu
 slug: navigation-menu
 description: A collection of links for navigating websites.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/navigation-menu
+  api: https://kobalte.dev/docs/core/components/navigation-menu#api-reference
 ---
 
-# Navigation Menu
+The Navigation Menu component uses [Kobalte Navigation Menu](https://kobalte.dev/docs/core/components/navigation-menu) for accessible navigation, keyboard, and focus behavior.
 
-A collection of links for navigating websites.
+<ComponentPreview name="navigation-menu-demo" previewClass="h-96" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/navigation-menu
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/navigation-menu.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core
 ```
 
-## Link
+<Step>Copy and paste the following code into your project.</Step>
 
-You can use the `as` prop to make another component render as a navigation menu link.
+<ComponentSource name="navigation-menu" title="components/ui/navigation-menu.tsx" />
 
-```tsx showLineNumbers title="components/example-navigation-menu.tsx"
-import { A } from "@solidjs/router";
+<Step>Update the import paths to match your project setup.</Step>
 
-export function NavigationMenuDemo() {
-  return (
-    <NavigationMenuItem>
-      <NavigationMenuLink as={A} href="/docs">
-        Documentation
-      </NavigationMenuLink>
-    </NavigationMenuItem>
-  );
-}
-```
+</Steps>
 
-## Examples
+</TabsContent>
 
-Here are the source code of all the examples from the preview page:
+</CodeTabs>
 
-### Basic
+## Usage
 
-```tsx
-import { CircleAlert } from "lucide-solid";
-import { type ComponentProps, For, splitProps } from "solid-js";
+```tsx showLineNumbers
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/navigation-menu-example.tsx#L58-L100
-
+```tsx showLineNumbers
+<NavigationMenu>
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <NavigationMenuLink href="/docs">Link</NavigationMenuLink>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
+</NavigationMenu>
 ```
 
-The `ListItem` helper component used in the example:
+## Composition
 
-```tsx file=../../../registry/kobalte/examples/ui/navigation-menu-example.tsx#L102-L114
+`NavigationMenu` renders its own list wrapper internally, so items are placed directly inside it.
+Use the following composition to build a `NavigationMenu`:
 
+```text
+NavigationMenu
+├── NavigationMenuItem
+│   ├── NavigationMenuTrigger
+│   └── NavigationMenuContent
+│       ├── NavigationMenuLink
+│       └── NavigationMenuLink
+└── NavigationMenuItem
+    └── NavigationMenuLink
 ```
+
+## API Reference
+
+See the [Kobalte Navigation Menu API reference](https://kobalte.dev/docs/core/components/navigation-menu#api-reference) for primitive props, keyboard behavior, and accessibility details.

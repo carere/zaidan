@@ -2,35 +2,59 @@
 title: Popover
 slug: popover
 description: Displays rich content in a portal, triggered by a button.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/popover
+  api: https://kobalte.dev/docs/core/components/popover#api-reference
 ---
 
-# Popover
+The Popover component is built on top of [Kobalte Popover](https://kobalte.dev/docs/core/components/popover), which provides accessible dialog, keyboard, and focus behavior.
 
-Displays rich content in a portal, triggered by a button.
+<ComponentPreview name="popover-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/popover
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/popover.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="popover" title="components/ui/popover.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Button } from "~/components/ui/button";
 import {
   Popover,
@@ -42,67 +66,50 @@ import {
 } from "~/components/ui/popover";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/popover-example.tsx#L33-L49
-
+```tsx showLineNumbers
+<Popover>
+  <PopoverTrigger as={Button} variant="outline">
+    Open Popover
+  </PopoverTrigger>
+  <PopoverContent>
+    <PopoverHeader>
+      <PopoverTitle>Title</PopoverTitle>
+      <PopoverDescription>Description text here.</PopoverDescription>
+    </PopoverHeader>
+  </PopoverContent>
+</Popover>
 ```
 
-### With Form
+See the [Kobalte Popover documentation](https://kobalte.dev/docs/core/components/popover) for primitive-level options, accessibility, and keyboard behavior.
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "~/components/ui/popover";
+## Composition
+
+Use the following composition to build a `Popover`:
+
+```text
+Popover
+├── PopoverTrigger
+└── PopoverContent
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/popover-example.tsx#L51-L81
+## Basic
 
-```
+A simple popover with a header, title, and description.
 
-### Alignments
+<ComponentPreview name="popover-basic" />
 
-```tsx
-import { Button } from "~/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-```
+## Align
 
-```tsx file=../../../registry/kobalte/examples/ui/popover-example.tsx#L83-L108
+Use the `placement` prop on `Popover` (e.g. `bottom-start`, `bottom`, `bottom-end`) to control the horizontal alignment.
 
-```
+<ComponentPreview name="popover-alignments" />
 
-### In Dialog
+## With Form
 
-```tsx
-import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-```
+A popover with form fields inside.
 
-```tsx file=../../../registry/kobalte/examples/ui/popover-example.tsx#L110-L139
+<ComponentPreview name="popover-form" />
 
-```
+## API Reference
+
+See the [Kobalte Popover API reference](https://kobalte.dev/docs/core/components/popover#api-reference) for primitive props, keyboard behavior, and accessibility details.

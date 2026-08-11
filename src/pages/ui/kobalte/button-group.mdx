@@ -2,26 +2,76 @@
 title: Button Group
 slug: button-group
 description: A container that groups related buttons together with consistent styling.
+component: true
 ---
 
-# Button Group
-
-A container that groups related buttons together with consistent styling.
+<ComponentPreview name="button-group-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/button-group
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/button-group.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependency:</Step>
+
+```package-install
+class-variance-authority
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="button-group" title="components/ui/button-group.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "~/components/ui/button-group";
+```
+
+```tsx showLineNumbers
+<ButtonGroup>
+  <Button>Button 1</Button>
+  <Button>Button 2</Button>
+</ButtonGroup>
+```
+
+## Composition
+
+Use the following composition to build a `ButtonGroup`:
+
+```text
+ButtonGroup
+├── Button or Input
+├── ButtonGroupSeparator
+└── ButtonGroupText
 ```
 
 ## Accessibility
@@ -42,272 +92,67 @@ Copy and paste the following code into your project.
 - Use the `ButtonGroup` component when you want to group buttons that perform an action.
 - Use the `ToggleGroup` component when you want to group buttons that toggle a state.
 
-## Kobalte particularity
-
-When using `Select` inside a `ButtonGroup`, you need to handle yourself the rounded border or not.
-It is necessary because Kobalte wrap `Select` inside a `div`, and button group expect a `button` obviously
+## Orientation
 
-## Examples
+Set the `orientation` prop to change the button group layout.
 
-Here are the source code of all the examples from the preview page:
+<ComponentPreview name="button-group-orientation" />
 
-### Basic
+## Size
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
+Control the size of buttons using the `size` prop on individual buttons.
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L69-L80
-
-```
+<ComponentPreview name="button-group-size" />
 
-### With Input
+## Nested
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-import { Input } from "~/components/ui/input";
-```
+Nest `<ButtonGroup>` components to create button groups with spacing.
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L82-L97
+<ComponentPreview name="button-group-nested" />
 
-```
+## Separator
 
-### With Text
-
-```tsx
-import { Button } from "~/components/ui/button";
-import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-```
+The `ButtonGroupSeparator` component visually divides buttons within a group.
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L99-L116
+Buttons with variant `outline` do not need a separator since they have a border. For other variants, a separator is recommended to improve the visual hierarchy.
 
-```
+<ComponentPreview name="button-group-separator" />
 
-### With Dropdown
+## Split
 
-```tsx
-import {
-  AlertTriangle,
-  Check,
-  ChevronDown,
-  Copy,
-  Share,
-  Trash,
-  UserRoundX,
-  VolumeX,
-} from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L118-L180
+Create a split button group by adding two buttons separated by a `ButtonGroupSeparator`.
 
-```
+<ComponentPreview name="button-group-split" />
 
-### With Select
+## Input
 
-```tsx
-import { ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-import { Field } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
+Wrap an `Input` component with buttons.
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L188-L218
+<ComponentPreview name="button-group-input" />
 
-```
+## Input Group
 
-### With Icons
+Wrap an `InputGroup` component to create complex input layouts.
 
-```tsx
-import { FlipHorizontal, FlipVertical, RotateCw } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
+<ComponentPreview name="button-group-input-group" />
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L220-L238
+## Dropdown Menu
 
-```
+Create a split button group with a `DropdownMenu` component.
 
-### With Input Group
+<ComponentPreview name="button-group-dropdown" />
 
-```tsx
-import { Search } from "lucide-solid";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "~/components/ui/input-group";
-```
+## Select
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L240-L253
+Pair with a `Select` component.
 
-```
+<ComponentPreview name="button-group-select" />
 
-### With Fields
+## Popover
 
-```tsx
-import { Minus, Plus } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-import { Field, FieldGroup } from "~/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "~/components/ui/input-group";
-import { Label } from "~/components/ui/label";
-```
+Use with a `Popover` component.
 
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L255-L280
-
-```
-
-### With Like
-
-```tsx
-import { Heart } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L282-L295
-
-```
-
-### With Select and Input
-
-```tsx
-import { ButtonGroup } from "~/components/ui/button-group";
-import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L303-L327
-
-```
-
-### Nested
-
-```tsx
-import { AudioLines, Plus } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L329-L352
-
-```
-
-### Pagination
-
-```tsx
-import { ArrowLeft, ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L354-L384
-
-```
-
-### Pagination Split
-
-```tsx
-import { ArrowLeft, ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L386-L418
-
-```
-
-### Navigation
-
-```tsx
-import { ArrowLeft, ArrowRight } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L420-L440
-
-```
-
-### Text Alignment
-
-```tsx
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-import { Field } from "~/components/ui/field";
-import { Label } from "~/components/ui/label";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L442-L464
-
-```
-
-### Vertical
-
-```tsx
-import { Minus, Plus } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L466-L481
-
-```
-
-### Vertical Nested
-
-```tsx
-import {
-  Copy,
-  FlipHorizontal,
-  FlipVertical,
-  RotateCw,
-  Search,
-  Share,
-  Trash,
-} from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/button-group-example.tsx#L483-L517
-
-```
+<ComponentPreview name="button-group-popover" />
 
 ## API Reference
 
@@ -355,6 +200,10 @@ The `ButtonGroupSeparator` component visually divides buttons within a group.
 
 Use this component to display text within a button group.
 
+| Prop | Type | Default |
+| --- | --- | --- |
+| `as` | `ValidComponent` | `"div"` |
+
 ```tsx
 <ButtonGroup>
   <ButtonGroupText>Text</ButtonGroupText>
@@ -362,7 +211,7 @@ Use this component to display text within a button group.
 </ButtonGroup>
 ```
 
-Use a `Label` component inside `ButtonGroupText` to associate it with an input.
+Use the `as` prop to render a custom component as the text, for example a label.
 
 ```tsx showLineNumbers
 import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
@@ -372,8 +221,8 @@ import { Label } from "~/components/ui/label";
 export function ButtonGroupTextDemo() {
   return (
     <ButtonGroup>
-      <ButtonGroupText>
-        <Label for="name">Text</Label>
+      <ButtonGroupText as={Label} for="name">
+        Text
       </ButtonGroupText>
       <Input placeholder="Type something here..." id="name" />
     </ButtonGroup>

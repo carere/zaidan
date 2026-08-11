@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-fuchsia",
+  "title": "Chart Color Fuchsia",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.833 0.145 321.434)",
+      "chart-2": "oklch(0.667 0.295 322.15)",
+      "chart-3": "oklch(0.591 0.293 322.896)",
+      "chart-4": "oklch(0.518 0.253 323.949)",
+      "chart-5": "oklch(0.452 0.211 324.591)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.833 0.145 321.434)",
+      "chart-2": "oklch(0.667 0.295 322.15)",
+      "chart-3": "oklch(0.591 0.293 322.896)",
+      "chart-4": "oklch(0.518 0.253 323.949)",
+      "chart-5": "oklch(0.452 0.211 324.591)"
+    }
+  },
+  "type": "registry:theme"
+}

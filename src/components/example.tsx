@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 function ExampleWrapper(props: ComponentProps<"div">) {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    <div class="w-full bg-background">
+    <div class="w-full bg-muted dark:bg-background">
       <div
         data-slot="example-wrapper"
         class={cn(
@@ -37,7 +37,7 @@ function Example(
       <div
         data-slot="example-content"
         class={cn(
-          "flex min-w-0 flex-1 flex-col items-start gap-6 border border-dashed bg-background p-4 text-foreground sm:p-6 *:[div:not([class*='w-'])]:w-full",
+          "flex min-w-0 flex-1 flex-col items-start gap-6 rounded-xl style-lyra:rounded-none style-sera:rounded-none bg-card p-12 text-foreground *:[div:not([class*='w-'])]:w-full",
           local.class,
         )}
       >

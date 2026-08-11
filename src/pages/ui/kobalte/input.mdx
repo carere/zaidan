@@ -1,151 +1,138 @@
 ---
 title: Input
 slug: input
-description: Displays a form input field or a component that looks like an input field.
+description: A text input component for forms and user data entry with built-in styling and accessibility features.
+component: true
+links:
+  api: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input
 ---
 
-# Input
-
-Displays a form input field or a component that looks like an input field.
+<ComponentPreview name="input-demo" previewClass="*:max-w-xs" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/input
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/input.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
-```
+<Step>Copy and paste the following code into your project.</Step>
 
-## Examples
+<ComponentSource name="input" title="components/ui/input.tsx" />
 
-Here are the source code of all the examples from the preview page:
+<Step>Update the import paths to match your project setup.</Step>
 
-### Basic
+</Steps>
 
-```tsx
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Input } from "~/components/ui/input";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L31-L37
-
+```tsx showLineNumbers
+<Input />
 ```
 
-### Invalid
+## Basic
 
-```tsx
-import { Input } from "~/components/ui/input";
-```
+<ComponentPreview name="input-basic" previewClass="*:max-w-xs" />
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L39-L45
+## Field
 
-```
+Use `Field`, `FieldLabel`, and `FieldDescription` to create an input with a label and description.
 
-### With Label
+<ComponentPreview name="input-field" previewClass="*:max-w-xs" />
 
-```tsx
-import { Field, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-```
+## Field Group
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L47-L56
+Use `FieldGroup` to show multiple `Field` blocks and to build forms.
 
-```
+<ComponentPreview name="input-fieldgroup" previewClass="*:max-w-xs" />
 
-### With Description
+## Disabled
 
-```tsx
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-```
+Use the `disabled` prop to disable the input. To style the disabled state, add the `data-disabled` attribute to the `Field` component.
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L58-L68
+<ComponentPreview name="input-disabled" previewClass="*:max-w-xs" />
 
-```
+## Invalid
 
-### Disabled
+Use the `aria-invalid` prop to mark the input as invalid. To style the invalid state, add the `data-invalid` attribute to the `Field` component.
 
-```tsx
-import { Field, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-```
+<ComponentPreview name="input-invalid" previewClass="*:max-w-xs" />
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L70-L79
+## File
 
-```
+Use the `type="file"` prop to create a file input.
 
-### Input Types
+<ComponentPreview name="input-file" previewClass="*:max-w-xs" />
 
-```tsx
-import { Field, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-```
+## Inline
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L81-L120
+Use `Field` with `orientation="horizontal"` to create an inline input. Pair with `Button` to create a search input with a button.
 
-```
+<ComponentPreview name="input-inline" previewClass="*:max-w-xs" />
 
-### With Select
+## Grid
 
-```tsx
-import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
+Use a grid layout to place multiple inputs side by side.
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L122-L152
+<ComponentPreview name="input-grid" previewClass="p-6" />
 
-```
+## Required
 
-### With Button
+Use the `required` attribute to indicate required inputs.
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-```
+<ComponentPreview name="input-required" previewClass="*:max-w-xs" />
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L154-L163
+## Badge
 
-```
+Use `Badge` in the label to highlight a recommended field.
 
-### With Native Select
+<ComponentPreview name="input-badge" previewClass="*:max-w-xs" />
 
-```tsx
-import { Input } from "~/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "~/components/ui/native-select";
-```
+## Input Group
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L165-L178
+To add icons, text, or buttons inside an input, use the `InputGroup` component. See the [Input Group](/docs/components/kobalte/input-group) component for more examples.
 
-```
+<ComponentPreview name="input-input-group" previewClass="*:max-w-xs" />
 
-### Form
+## Button Group
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
+To add buttons to an input, use the `ButtonGroup` component. See the [Button Group](/docs/components/kobalte/button-group) component for more examples.
 
-```tsx file=../../../registry/kobalte/examples/ui/input-example.tsx#L180-L239
+<ComponentPreview name="input-button-group" previewClass="*:max-w-xs" />
 
-```
+## Form
+
+A full form example with multiple inputs, a select, and a button.
+
+<ComponentPreview name="input-form" previewClass="h-[32rem]" />
+
+## API Reference
+
+`Input` is a styled native input element. See the [HTML input element reference](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input) for its native props, keyboard behavior, and accessibility semantics.
+
+| Prop           | Type     | Default |
+| -------------- | -------- | ------- |
+| `class`        | `string` |         |
+| `defaultValue` | `string` |         |

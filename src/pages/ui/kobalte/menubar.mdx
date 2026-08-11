@@ -2,120 +2,59 @@
 title: Menubar
 slug: menubar
 description: A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/menubar
+  api: https://kobalte.dev/docs/core/components/menubar#api-reference
 ---
 
-# Menubar
+The Menubar component is built on top of [Kobalte Menubar](https://kobalte.dev/docs/core/components/menubar), which provides accessible menu, keyboard, and focus behavior.
 
-A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands.
+<ComponentPreview name="menubar-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/menubar
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
 
 ```package-install
 @kobalte/core
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/menubar.tsx showLineNumbers
+<ComponentSource name="menubar" title="components/ui/menubar.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Basic
+</CodeTabs>
 
-```tsx
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
+## Usage
 
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L67-L105
-
-```
-
-### With Submenu
-
-```tsx
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L107-L155
-
-```
-
-### With Checkboxes
-
-```tsx
-import {
-  Menubar,
-  MenubarCheckboxItem,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L157-L186
-
-```
-
-### With Radio
-
-```tsx
-import { createSignal } from "solid-js";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSeparator,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L188-L221
-
-```
-
-### With Icons
-
-```tsx
-import { CircleDashed, File, Folder, Save } from "lucide-solid";
+```tsx showLineNumbers
 import {
   Menubar,
   MenubarContent,
@@ -128,116 +67,91 @@ import {
 } from "~/components/ui/menubar";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L223-L268
-
+```tsx showLineNumbers
+<Menubar>
+  <MenubarMenu>
+    <MenubarTrigger>File</MenubarTrigger>
+    <MenubarContent>
+      <MenubarGroup>
+        <MenubarItem>
+          New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+        </MenubarItem>
+        <MenubarItem>New Window</MenubarItem>
+      </MenubarGroup>
+      <MenubarSeparator />
+      <MenubarGroup>
+        <MenubarItem>Share</MenubarItem>
+        <MenubarItem>Print</MenubarItem>
+      </MenubarGroup>
+    </MenubarContent>
+  </MenubarMenu>
+</Menubar>
 ```
 
-### With Shortcuts
+See the [Kobalte Menubar documentation](https://kobalte.dev/docs/core/components/menubar) for primitive-level options, accessibility, and keyboard behavior.
 
-```tsx
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
+## Composition
+
+Use the following composition to build a `Menubar`:
+
+```text
+Menubar
+├── MenubarMenu
+│   ├── MenubarTrigger
+│   └── MenubarContent
+│       ├── MenubarGroup
+│       │   ├── MenubarLabel
+│       │   ├── MenubarItem
+│       │   └── MenubarItem
+│       ├── MenubarSeparator
+│       ├── MenubarGroup
+│       │   ├── MenubarLabel
+│       │   ├── MenubarCheckboxItem
+│       │   └── MenubarCheckboxItem
+│       ├── MenubarSeparator
+│       ├── MenubarGroup
+│       │   ├── MenubarLabel
+│       │   └── MenubarRadioGroup
+│       │       ├── MenubarRadioItem
+│       │       └── MenubarRadioItem
+│       └── MenubarSub
+│           ├── MenubarSubTrigger
+│           └── MenubarSubContent
+│               └── MenubarGroup
+│                   ├── MenubarLabel
+│                   ├── MenubarItem
+│                   └── MenubarItem
+└── MenubarMenu
+    ├── MenubarTrigger
+    └── MenubarContent
+        └── MenubarGroup
+            ├── MenubarLabel
+            ├── MenubarItem
+            └── MenubarItem
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L270-L312
+## Checkbox
 
-```
+Use `MenubarCheckboxItem` for toggleable options.
 
-### Format
+<ComponentPreview name="menubar-checkbox" />
 
-```tsx
-import { Bold, Italic, Underline } from "lucide-solid";
-import {
-  Menubar,
-  MenubarCheckboxItem,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
+## Radio
 
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L314-L351
+Use `MenubarRadioGroup` and `MenubarRadioItem` for single-select options.
 
-```
+<ComponentPreview name="menubar-radio" />
 
-### Insert
+## Submenu
 
-```tsx
-import { Check, Image, Link, Search, Table } from "lucide-solid";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
+Use `MenubarSub`, `MenubarSubTrigger`, and `MenubarSubContent` for nested menus.
 
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L353-L398
+<ComponentPreview name="menubar-submenu" />
 
-```
+## With Icons
 
-### Destructive
+<ComponentPreview name="menubar-icons" />
 
-```tsx
-import { File, Folder, LogOut, Settings, Trash, User } from "lucide-solid";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L400-L448
-
-```
-
-### In Dialog
-
-```tsx
-import { ClipboardPaste, Copy, Scissors, Trash } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
-  MenubarTrigger,
-} from "~/components/ui/menubar";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/menubar-example.tsx#L450-L512
-
-```
+See the [Kobalte Menubar API reference](https://kobalte.dev/docs/core/components/menubar#api-reference) for primitive props, keyboard behavior, and accessibility details.

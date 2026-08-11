@@ -1,65 +1,427 @@
-.expressive-code {
-  @apply mt-6;
+/* biome-ignore-all lint/style/noDescendingSpecificity: Expressive Code injects its base styles after app CSS, so the parity overrides intentionally mix selector strengths. */
+.expressive-code.expressive-code {
+  margin-top: 1.09375rem;
 
-  code {
-    @apply font-mono;
-  }
+  --ec-brdRad: 18px;
+  --ec-brdWd: 0px;
+  --ec-codeBg: var(--code);
+  --ec-codeFg: var(--code-foreground);
+  --ec-codeFontFml: "Geist Mono Variable", monospace;
+  --ec-codeFontSize: 0.875rem;
+  --ec-codeLineHt: 1.75;
+  --ec-codePadBlk: 0.875rem;
+  --ec-codePadInl: 1rem;
+  --ec-frm-edBg: var(--code);
+  --ec-frm-frameBoxShdCssVal: none;
+  --ec-lineNumbers-fg: var(--code-number);
+  --ec-tm-markBg: var(--code-highlight);
 
-  .gutter .ln {
-    @apply pr-0;
-  }
-
-  .ec-line {
-    @apply py-0.5 nth-[n+16]:last:pb-4; /* add padding to bottom if more than 16 elements */
-
-    &.mark {
-      @apply bg-neutral-200/50 dark:bg-zinc-700/50;
-    }
-
-    .code {
-      @apply border-none pl-6;
-    }
+  code,
+  code span {
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
   }
 
   .frame {
-    @apply shadow-none bg-transparent;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--code);
+    color: var(--code-foreground);
+    box-shadow: none;
 
     pre {
-      @apply max-h-112.5 overflow-y-auto rounded-xl border-0 bg-neutral-100 dark:bg-zinc-900;
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: auto;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+
+      > code {
+        padding-block: 0.875rem;
+        color: var(--code-foreground);
+        font-family: "Geist Mono Variable", monospace;
+        font-size: 0.875rem;
+        line-height: 1.75;
+      }
+
+      &[data-language="text"],
+      &[data-language="plaintext"] {
+        padding: 0.875rem 1rem;
+
+        > code {
+          display: block;
+          padding: 0;
+          white-space: pre;
+          font-family:
+            ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+            monospace;
+          line-height: 0.95;
+        }
+
+        .ec-line,
+        .ec-line .code {
+          display: block;
+          min-height: 0;
+          padding: 0;
+          line-height: 0.95;
+        }
+
+        .ec-line:not(:last-child) {
+          margin-bottom: 0.95em;
+        }
+      }
     }
 
     .header {
-      @apply bg-transparent;
+      border-bottom: 1px solid color-mix(in oklab, var(--border) 30%, transparent);
+      background: transparent;
     }
 
     &.has-title:not(.is-terminal) {
-      .title {
-        @apply border-none bg-transparent py-2 text-[0.9rem] font-mono text-foreground after:border-none dark:text-zinc-400;
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 2.5rem;
+        padding-inline: 1rem;
+        color: var(--code-foreground);
       }
+
+      .file-icon {
+        width: 1rem;
+        height: 1rem;
+        flex: none;
+        color: var(--code-foreground);
+        opacity: 0.7;
+      }
+
+      .title {
+        margin: 0;
+        padding: 0.625rem 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--code-foreground);
+        font-family: "Geist Mono Variable", monospace;
+        font-size: 0.875rem;
+
+        &::after {
+          border: 0;
+        }
+      }
+
+      .copy {
+        top: 0.375rem;
+      }
+
+      &[data-code-collapsible="true"] .header {
+        padding-inline-end: 9rem;
+      }
+    }
+
+    &[data-code-collapsible="true"][data-expanded="false"] pre {
+      max-height: 16rem;
+    }
+
+    &[data-code-collapsible="true"][data-expanded="true"],
+    &[data-code-collapsible="true"][data-expanded="true"] pre {
+      max-height: none;
     }
   }
 
-  .copy button {
-    @apply bg-transparent size-3;
+  .code-collapse-control {
+    position: absolute;
+    z-index: 10;
+    top: 0.375rem;
+    right: 2.75rem;
+    display: flex;
+    align-items: center;
 
-    & div {
-      @apply bg-transparent;
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .code-collapse-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.75rem;
+    padding-inline: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1;
+    cursor: pointer;
+    outline: none;
+    transition:
+      color 150ms,
+      background-color 150ms,
+      border-color 150ms,
+      box-shadow 150ms;
+
+    &:hover {
+      background: var(--accent);
+      color: var(--accent-foreground);
     }
 
-    &::before {
-      @apply border-0 opacity-0;
+    &:focus-visible {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+    }
+  }
+
+  .code-collapse-separator {
+    width: 1px;
+    height: 1rem;
+    margin-inline: 0.375rem;
+    background: var(--border);
+  }
+
+  .code-collapse-gradient {
+    position: absolute;
+    z-index: 9;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 5rem;
+    border: 0;
+    border-radius: 0 0 18px 18px;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--code) 70%, transparent),
+      var(--code)
+    );
+    color: var(--muted-foreground);
+    font-family: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    outline: none;
+
+    &[hidden],
+    .frame[data-expanded="true"] & {
+      display: none;
     }
 
-    &::after {
-      @apply m-auto size-4;
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-clipboard'%3E%3Crect width='8' height='4' x='8' y='2' rx='1' ry='1'%3E%3C/rect%3E%3Cpath d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'%3E%3C/path%3E%3C/svg%3E");
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'  viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-clipboard'%3E%3Crect width='8' height='4' x='8' y='2' rx='1' ry='1'%3E%3C/rect%3E%3Cpath d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'%3E%3C/path%3E%3C/svg%3E");
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--ring);
+    }
+  }
+
+  .ec-line {
+    min-height: 0.21875rem;
+    padding-block: 0.0625rem;
+
+    .code {
+      border: 0;
+      padding-inline: 1rem;
+    }
+
+    &:has(.gutter) .code {
+      padding-inline-start: 0;
+    }
+
+    &.mark {
+      background: var(--code-highlight);
+    }
+  }
+
+  .gutter {
+    position: sticky;
+    left: 0;
+    width: 4rem;
+    background: var(--code);
+    color: var(--code-number);
+
+    .ln {
+      display: inline-block;
+      box-sizing: border-box;
+      width: 4rem;
+      min-width: 4rem;
+      padding: 0 1.5rem 0 0;
+      color: var(--code-number);
+      font-size: 0.875rem;
+      text-align: right;
+    }
+  }
+
+  .copy {
+    top: 0.75rem;
+    right: 0.5rem;
+
+    .feedback {
+      display: none;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 0.5rem;
+      background: var(--code);
+      color: var(--code-foreground);
+      cursor: pointer;
+      opacity: 1;
+      outline: none;
+      transition:
+        color 150ms,
+        background-color 150ms,
+        border-color 150ms,
+        box-shadow 150ms,
+        transform 150ms;
+
+      div {
+        background: transparent;
+      }
+
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        inset: 0.375rem;
+        margin: 0;
+        background-color: var(--code-foreground);
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'/%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'/%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'/%3E%3C/svg%3E");
+        mask-position: center;
+        mask-repeat: no-repeat;
+        mask-size: contain;
+      }
+
+      &:hover,
+      &:focus-visible {
+        opacity: 1;
+      }
+
+      &:hover {
+        background: var(--accent);
+        color: var(--accent-foreground);
+      }
+
+      &:focus-visible {
+        border-color: var(--ring);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+
+    &:has(.feedback.show) button::after {
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m20 6-11 11-5-5'/%3E%3C/svg%3E");
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m20 6-11 11-5-5'/%3E%3C/svg%3E");
     }
   }
 }
 
-[role="tabpanel"] .expressive-code {
-  @apply mt-0;
+.dark .expressive-code.expressive-code .copy button:hover {
+  background: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+[data-slot="component-preview-source"] .expressive-code.expressive-code,
+[data-slot="component-source"] .expressive-code.expressive-code,
+[role="tabpanel"] .expressive-code.expressive-code {
+  margin-top: 0;
+}
+
+[data-slot="component-preview-source"] .expressive-code.expressive-code {
+  .frame,
+  .frame pre {
+    max-height: 18rem;
+    border-radius: 0 0 18px 18px;
+  }
+
+  .copy {
+    right: 1rem;
+  }
+}
+
+[data-slot="component-source"] .expressive-code.expressive-code .frame pre {
+  max-height: 24rem;
+}
+
+[data-slot="component-preview-source"]:has(
+    .frame.has-title[data-code-collapsible="true"][data-expanded="true"]
+  )
+  > div {
+  max-height: none;
+  overflow: visible;
+}
+
+[data-slot="chart-source-code"] {
+  [data-slot="chart-source-scroll"] {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .shiki {
+    min-width: max-content;
+    min-height: 100%;
+    margin: 0;
+    padding-block: 0.875rem;
+    /* biome-ignore lint/complexity/noImportantStyles: Shiki emits the background as an inline style. */
+    background: transparent !important;
+    color: var(--code-foreground);
+    font-family: "Geist Mono Variable", monospace;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    outline: none;
+  }
+
+  code {
+    display: grid;
+    min-width: 100%;
+    counter-reset: line;
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
+  }
+
+  [data-line] {
+    display: inline-block;
+    width: 100%;
+    min-height: 0.21875rem;
+    padding-block: 0.0625rem;
+    padding-inline-end: 1rem;
+  }
+
+  [data-line]::before {
+    position: sticky;
+    left: 0;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 4rem;
+    min-width: 4rem;
+    padding-inline-end: 1.5rem;
+    background: var(--code);
+    color: var(--code-number);
+    font-size: 0.875rem;
+    text-align: right;
+    content: counter(line);
+    counter-increment: line;
+  }
+}
+
+.dark [data-slot="chart-source-code"] .shiki,
+.dark [data-slot="chart-source-code"] .shiki span {
+  /* biome-ignore lint/complexity/noImportantStyles: Shiki emits light colors as inline styles. */
+  color: var(--shiki-dark) !important;
 }
 
 :not([data-slot="tabs-list"])[role="tablist"] {

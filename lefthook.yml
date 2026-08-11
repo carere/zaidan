@@ -1,7 +1,7 @@
 commit-msg:
   commands:
-    commitlint:
-      run: commitlint --edit {1}
+    conventional-commit:
+      run: cog verify --file {1}
 
 pre-commit:
   commands:
@@ -11,5 +11,8 @@ pre-commit:
       stage_fixed: true
     check:
       glob: "*.{js,ts,tsx,json,jsonc,html,css}"
-      run: bun biome check --write {staged_files}
+      # The glob matches by basename, so built registry JSON under public/
+      # reaches biome, which ignores those paths and then exits 1 on having
+      # processed nothing — failing every registry rebuild commit.
+      run: bun biome check --write --no-errors-on-unmatched {staged_files}
       stage_fixed: true

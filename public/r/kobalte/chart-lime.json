@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-lime",
+  "title": "Chart Color Lime",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.897 0.196 126.665)",
+      "chart-2": "oklch(0.768 0.233 130.85)",
+      "chart-3": "oklch(0.648 0.2 131.684)",
+      "chart-4": "oklch(0.532 0.157 131.589)",
+      "chart-5": "oklch(0.453 0.124 130.933)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.897 0.196 126.665)",
+      "chart-2": "oklch(0.768 0.233 130.85)",
+      "chart-3": "oklch(0.648 0.2 131.684)",
+      "chart-4": "oklch(0.532 0.157 131.589)",
+      "chart-5": "oklch(0.453 0.124 130.933)"
+    }
+  },
+  "type": "registry:theme"
+}

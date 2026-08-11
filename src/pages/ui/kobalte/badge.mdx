@@ -2,102 +2,105 @@
 title: Badge
 slug: badge
 description: Displays a badge or a component that looks like a badge.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/badge
+  api: https://kobalte.dev/docs/core/components/badge#api-reference
 ---
 
-# Badge
+The Badge component is built on top of [Kobalte Badge](https://kobalte.dev/docs/core/components/badge), which provides the accessible badge primitive.
 
-Displays a badge or a component that looks like a badge.
+<ComponentPreview name="badge-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/badge
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/badge.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core class-variance-authority
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="badge" title="components/ui/badge.tsx" />
 
-### Variants
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import { Badge } from "~/components/ui/badge";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L21-L34
-
+```tsx showLineNumbers
+<Badge variant="default | outline | secondary | destructive">Badge</Badge>
 ```
 
-### Icon Left
+## Variants
 
-```tsx
-import { BadgeCheck } from "lucide-solid";
-import { Badge } from "~/components/ui/badge";
-```
+Use the `variant` prop to change the variant of the badge.
 
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L36-L67
+<ComponentPreview name="badge-variants" />
 
-```
+## With Icon
 
-### Icon Right
+You can render an icon inside the badge. Use `data-icon="inline-start"` to render the icon on the left and `data-icon="inline-end"` to render the icon on the right.
 
-```tsx
-import { ArrowRight } from "lucide-solid";
-import { Badge } from "~/components/ui/badge";
-```
+<ComponentPreview name="badge-icon" />
 
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L69-L100
+## With Spinner
 
-```
+You can render a spinner inside the badge. Remember to add the `data-icon="inline-start"` or `data-icon="inline-end"` prop to the spinner.
 
-### With Spinner
+<ComponentPreview name="badge-spinner" />
 
-```tsx
-import { Badge } from "~/components/ui/badge";
-import { Spinner } from "~/components/ui/spinner";
-```
+## Link
 
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L102-L133
+Use the `as` prop to render a link as a badge.
 
-```
+<ComponentPreview name="badge-link" />
 
-### As Link
+## Custom Colors
 
-```tsx
-import { ArrowUpRight } from "lucide-solid";
-import { Badge } from "~/components/ui/badge";
-```
+You can customize the colors of a badge by adding custom classes such as `bg-green-50 dark:bg-green-800` to the `Badge` component.
 
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L135-L154
+<ComponentPreview name="badge-colors" />
 
-```
+## API Reference
 
-### Long Text
+### Badge
 
-```tsx
-import { Badge } from "~/components/ui/badge";
-```
+The `Badge` component displays a badge or a component that looks like a badge.
 
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L156-L164
+| Prop      | Type                                                                          | Default     |
+| --------- | ----------------------------------------------------------------------------- | ----------- |
+| `variant` | `"default" \| "secondary" \| "destructive" \| "outline" \| "ghost" \| "link"` | `"default"` |
+| `class`   | `string`                                                                      | -           |
 
-```
-
-### Custom Colors
-
-```tsx
-import { Badge } from "~/components/ui/badge";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/badge-example.tsx#L166-L188
-
-```
+For primitive props, see the [Kobalte Badge API reference](https://kobalte.dev/docs/core/components/badge#api-reference).

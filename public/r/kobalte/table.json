@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "table",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "src/registry/kobalte/ui/table.tsx",
+      "content": "import { type ComponentProps, splitProps } from \"solid-js\";\nimport { cn } from \"@/lib/utils\";\n\ntype TableProps = ComponentProps<\"table\">;\n\nconst Table = (props: TableProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <div data-slot=\"table-container\" class=\"z-table-container\">\n      <table data-slot=\"table\" class={cn(\"z-table\", local.class)} {...others} />\n    </div>\n  );\n};\n\ntype TableHeaderProps = ComponentProps<\"thead\">;\n\nconst TableHeader = (props: TableHeaderProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return <thead data-slot=\"table-header\" class={cn(\"z-table-header\", local.class)} {...others} />;\n};\n\ntype TableBodyProps = ComponentProps<\"tbody\">;\n\nconst TableBody = (props: TableBodyProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return <tbody data-slot=\"table-body\" class={cn(\"z-table-body\", local.class)} {...others} />;\n};\n\ntype TableFooterProps = ComponentProps<\"tfoot\">;\n\nconst TableFooter = (props: TableFooterProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return <tfoot data-slot=\"table-footer\" class={cn(\"z-table-footer\", local.class)} {...others} />;\n};\n\ntype TableRowProps = ComponentProps<\"tr\">;\n\nconst TableRow = (props: TableRowProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <tr\n      data-slot=\"table-row\"\n      class={cn(\"z-table-row has-aria-expanded:bg-muted/50\", local.class)}\n      {...others}\n    />\n  );\n};\n\ntype TableHeadProps = ComponentProps<\"th\">;\n\nconst TableHead = (props: TableHeadProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return <th data-slot=\"table-head\" class={cn(\"z-table-head\", local.class)} {...others} />;\n};\n\ntype TableCellProps = ComponentProps<\"td\">;\n\nconst TableCell = (props: TableCellProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return <td data-slot=\"table-cell\" class={cn(\"z-table-cell\", local.class)} {...others} />;\n};\n\ntype TableCaptionProps = ComponentProps<\"caption\">;\n\nconst TableCaption = (props: TableCaptionProps) => {\n  const [local, others] = splitProps(props, [\"class\"]);\n  return (\n    <caption data-slot=\"table-caption\" class={cn(\"z-table-caption\", local.class)} {...others} />\n  );\n};\n\nexport { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

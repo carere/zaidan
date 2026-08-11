@@ -56,21 +56,25 @@ import {
 } from "@/registry/kobalte/ui/popover";
 import { Spinner } from "@/registry/kobalte/ui/spinner";
 import { Textarea } from "@/registry/kobalte/ui/textarea";
+import { Toaster } from "@/registry/kobalte/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/registry/kobalte/ui/tooltip";
 
 export default function InputGroupExample() {
   const [country, setCountry] = createSignal("+1");
 
   return (
-    <ExampleWrapper class="min-w-0">
-      <InputGroupBasic />
-      <InputGroupWithAddons />
-      <InputGroupWithButtons />
-      <InputGroupWithTooltip country={country()} setCountry={setCountry} />
-      <InputGroupWithKbd />
-      <InputGroupInCard />
-      <InputGroupTextareaExamples />
-    </ExampleWrapper>
+    <>
+      <Toaster />
+      <ExampleWrapper class="min-w-0">
+        <InputGroupBasic />
+        <InputGroupWithAddons />
+        <InputGroupWithButtons />
+        <InputGroupWithTooltip country={country()} setCountry={setCountry} />
+        <InputGroupWithKbd />
+        <InputGroupInCard />
+        <InputGroupTextareaExamples />
+      </ExampleWrapper>
+    </>
   );
 }
 

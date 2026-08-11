@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-emerald",
+  "title": "Chart Color Emerald",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.845 0.143 164.978)",
+      "chart-2": "oklch(0.696 0.17 162.48)",
+      "chart-3": "oklch(0.596 0.145 163.225)",
+      "chart-4": "oklch(0.508 0.118 165.612)",
+      "chart-5": "oklch(0.432 0.095 166.913)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.845 0.143 164.978)",
+      "chart-2": "oklch(0.696 0.17 162.48)",
+      "chart-3": "oklch(0.596 0.145 163.225)",
+      "chart-4": "oklch(0.508 0.118 165.612)",
+      "chart-5": "oklch(0.432 0.095 166.913)"
+    }
+  },
+  "type": "registry:theme"
+}

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearch } from "@tanstack/solid-router";
+import { Link, useNavigate } from "@tanstack/solid-router";
 import { docs, ui } from "@velite";
 import { createMemo } from "solid-js";
 import {
@@ -17,27 +17,36 @@ import {
 } from "@/registry/kobalte/ui/empty";
 import { InputGroupAddon } from "@/registry/kobalte/ui/input-group";
 import { Kbd } from "@/registry/kobalte/ui/kbd";
-import type { FileRouteTypes } from "@/routeTree.gen";
 
-type Option = {
-  pathname: string;
-  slug: string;
-  route: FileRouteTypes["to"];
-};
+type Option =
+  | { pathname: string; slug: string; route: "/docs" }
+  | { pathname: string; slug: string; route: "/docs/$slug" }
+  | { pathname: string; slug: string; route: "/docs/installation/$slug" }
+  | { pathname: string; slug: string; route: "/docs/components/$primitive/$slug" };
 
 const getOptions = (): Option[] => {
-  const docsOptions = docs.map((d) => ({
-    pathname: d.parent ? `/${d.parent}/${d.slug}` : `/${d.slug}`,
-    slug: d.slug,
-    route: (d.parent ? `/${d.parent}/${d.slug}` : "/$slug") as FileRouteTypes["to"],
-  }));
+  const docsOptions = docs.map((d) => {
+    if (d.slug === "index") {
+      return {
+        pathname: "/docs",
+        slug: d.slug,
+        route: "/docs" as const,
+      };
+    }
+
+    return {
+      pathname: d.parent ? `/docs/${d.parent}/${d.slug}` : `/docs/${d.slug}`,
+      slug: d.slug,
+      route: d.parent ? ("/docs/installation/$slug" as const) : ("/docs/$slug" as const),
+    };
+  });
 
   const uiOptions = ui
     .toSorted((a, b) => a.title.localeCompare(b.title))
     .map((u) => ({
-      pathname: `/ui/${u.slug}`,
+      pathname: `/docs/components/kobalte/${u.slug}`,
       slug: u.slug,
-      route: "/ui/{-$slug}" as FileRouteTypes["to"],
+      route: "/docs/components/$primitive/$slug" as const,
     }));
 
   return [...docsOptions, ...uiOptions];
@@ -45,7 +54,6 @@ const getOptions = (): Option[] => {
 
 export function NotFoundPage() {
   const navigate = useNavigate();
-  const search = useSearch({ strict: false });
   const options = createMemo(() => getOptions());
 
   return (
@@ -59,19 +67,28 @@ export function NotFoundPage() {
       <EmptyContent>
         <Combobox<Option>
           options={options()}
-          optionValue="slug"
-          optionTextValue="pathname"
-          placeholder="Type / to search pages..."
-          class="w-3/4"
-          itemComponent={(props) => (
-            <ComboboxItem item={props.item}>{props.item.rawValue.pathname}</ComboboxItem>
+          optionValue={(option) => option.pathname}
+          optionTextValue={(option) => option.pathname}
+          optionLabel={(option) => option.pathname}
+          itemComponent={(itemProps) => (
+            <ComboboxItem item={itemProps.item}>{itemProps.item.rawValue.pathname}</ComboboxItem>
           )}
           onChange={(value) => {
             if (value) {
+              if (value.route === "/docs/components/$primitive/$slug") {
+                navigate({
+                  to: value.route,
+                  params: { primitive: "kobalte", slug: value.slug },
+                });
+                return;
+              }
+              if (value.route === "/docs") {
+                navigate({ to: value.route });
+                return;
+              }
               navigate({
                 to: value.route,
                 params: { slug: value.slug },
-                search: search(),
               });
             }
           }}

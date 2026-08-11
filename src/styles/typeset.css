@@ -1,0 +1,90 @@
+/*
+ * Docs-site overrides on top of the portable typeset.
+ *
+ * The portable stylesheet lives in `src/registry/kobalte/styles/typeset.css`
+ * and is what consumers install. Everything here is specific to this site's
+ * MDX shell — heading anchors, the page-title block, and the `steps` helper —
+ * and must not leak into the shipped file.
+ *
+ * Interactive documentation components opt out with [data-not-typeset].
+ */
+
+@layer components {
+  [data-slot="docs"] {
+    --font-sans: "Geist Variable", sans-serif;
+    --font-heading: "Geist Variable", sans-serif;
+
+    font-family: var(--font-sans);
+  }
+
+  /* Zaidan sets a slightly larger underline offset on links than upstream
+     typeset does. Kept here so the portable stylesheet stays canonical. */
+  .typeset a:not(:where(.not-typeset, [data-not-typeset], .not-typeset *, [data-not-typeset] *)) {
+    text-underline-offset: 0.2em;
+  }
+
+  /* Rendered components inside MDX keep their own link styling. */
+  .typeset a[data-slot] {
+    font-weight: inherit;
+    text-decoration-line: none;
+  }
+
+  /* Autolinked heading anchors from rehype-autolink-headings. */
+  .typeset :is(h1, h2, h3, h4, h5, h6) > a[data-auto-heading] {
+    color: inherit;
+    font-weight: inherit;
+    text-decoration-line: none;
+  }
+
+  .typeset :is(h1, h2, h3, h4, h5, h6) > a[data-auto-heading]::after {
+    margin-inline-start: 0.5rem;
+    color: var(--typeset-muted);
+    content: "#";
+    opacity: 0;
+    transition: opacity 150ms;
+  }
+
+  .typeset :is(h1, h2, h3, h4, h5, h6):hover > a[data-auto-heading]::after {
+    opacity: 1;
+  }
+
+  /* Existing Zaidan pages keep their metadata heading in MDX. Match shadcn's page shell. */
+  .typeset > h1:first-child {
+    margin-top: 0;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    letter-spacing: -0.025em;
+  }
+
+  .typeset > h1:first-child > a[data-auto-heading]::after {
+    display: none;
+  }
+
+  .typeset > h1:first-child + p {
+    max-width: 80%;
+    margin-top: 0.5rem;
+    color: var(--typeset-muted);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  @media (min-width: 40rem) {
+    .typeset > h1:first-child + p {
+      font-size: 1rem;
+    }
+  }
+
+  .typeset .steps:first-child,
+  .typeset .steps:first-child > h3:first-child {
+    margin-top: 0;
+  }
+
+  .typeset .steps > h3 {
+    margin-top: 2rem;
+  }
+
+  .typeset .steps > h3 + p {
+    margin-top: 0.5rem;
+  }
+}

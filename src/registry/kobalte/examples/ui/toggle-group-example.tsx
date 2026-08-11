@@ -9,7 +9,9 @@ import {
   TrendingUp,
   Underline,
 } from "lucide-solid";
+import { createSignal } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
+import { Field, FieldDescription, FieldLabel } from "@/registry/kobalte/ui/field";
 import { Input } from "@/registry/kobalte/ui/input";
 import {
   Select,
@@ -37,6 +39,7 @@ export default function ToggleGroupExample() {
       <ToggleGroupVerticalOutline />
       <ToggleGroupVerticalOutlineWithIcons />
       <ToggleGroupVerticalWithSpacing />
+      <ToggleGroupFontWeightSelector />
     </ExampleWrapper>
   );
 }
@@ -207,7 +210,14 @@ function ToggleGroupFilter() {
 function ToggleGroupDateRange() {
   return (
     <Example title="Date Range">
-      <ToggleGroup multiple={false} defaultValue="today" variant="outline" size="sm" spacing={2}>
+      <ToggleGroup
+        class="max-w-full flex-wrap"
+        multiple={false}
+        defaultValue="today"
+        variant="outline"
+        size="sm"
+        spacing={2}
+      >
         <ToggleGroupItem value="today" aria-label="Today">
           Today
         </ToggleGroupItem>
@@ -265,7 +275,7 @@ function ToggleGroupWithInputAndSelect() {
             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
           )}
         >
-          <SelectTrigger class="w-32">
+          <SelectTrigger aria-label="Filter status" class="w-32">
             <SelectValue<(typeof items)[number]>>
               {(state) => state.selectedOption().label}
             </SelectValue>
@@ -344,6 +354,65 @@ function ToggleGroupVerticalOutlineWithIcons() {
           <Underline />
         </ToggleGroupItem>
       </ToggleGroup>
+    </Example>
+  );
+}
+
+function ToggleGroupFontWeightSelector() {
+  const [fontWeight, setFontWeight] = createSignal("normal");
+
+  return (
+    <Example title="Font Weight Selector">
+      <Field>
+        <FieldLabel>Font Weight</FieldLabel>
+        <ToggleGroup
+          value={fontWeight()}
+          onChange={(value) => setFontWeight(value ?? "normal")}
+          variant="outline"
+          spacing={2}
+          size="lg"
+        >
+          <ToggleGroupItem
+            value="light"
+            aria-label="Light"
+            class="flex size-16 flex-col items-center justify-center rounded-xl"
+          >
+            <span class="text-2xl leading-none font-light">Aa</span>
+            <span class="text-xs text-foreground/80">Light</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="normal"
+            aria-label="Normal"
+            class="flex size-16 flex-col items-center justify-center rounded-xl"
+          >
+            <span class="text-2xl leading-none font-normal">Aa</span>
+            <span class="text-xs text-foreground/80">Normal</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="medium"
+            aria-label="Medium"
+            class="flex size-16 flex-col items-center justify-center rounded-xl"
+          >
+            <span class="text-2xl leading-none font-medium">Aa</span>
+            <span class="text-xs text-foreground/80">Medium</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="bold"
+            aria-label="Bold"
+            class="flex size-16 flex-col items-center justify-center rounded-xl"
+          >
+            <span class="text-2xl leading-none font-bold">Aa</span>
+            <span class="text-xs text-foreground/80">Bold</span>
+          </ToggleGroupItem>
+        </ToggleGroup>
+        <FieldDescription>
+          Use{" "}
+          <code class="rounded-md bg-muted px-1 py-0.5 font-mono text-foreground">
+            font-{fontWeight()}
+          </code>{" "}
+          to set the font weight.
+        </FieldDescription>
+      </Field>
     </Example>
   );
 }

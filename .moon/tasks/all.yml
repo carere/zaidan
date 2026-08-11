@@ -1,0 +1,45 @@
+$schema: ../cache/schemas/tasks.json
+
+fileGroups:
+  configs:
+    - "moon.yml"
+    - "package.json"
+    - "tsconfig.json"
+    - "biome.json"
+    - "knip.json"
+    - "wrangler.jsonc"
+    - "*.config.{js,ts,cjs,mjs,mts}"
+  sources:
+    - "src/**/*"
+  workspace:
+    - "/.moon/tasks/**/*"
+    - "/.moon/toolchains.yml"
+    - "/.moon/workspace.yml"
+    - "/biome.json"
+    - "/bun.lock"
+    - "/knip.json"
+    - "/package.json"
+    - "/tsconfig.json"
+
+implicitInputs:
+  - "/.moon/tasks/**/*"
+  - "/.moon/toolchains.yml"
+  - "/.moon/workspace.yml"
+  - "/biome.json"
+  - "/bun.lock"
+  - "/knip.json"
+  - "/package.json"
+  - "/tsconfig.json"
+
+tasks:
+  check:
+    command: "bun --bun biome check --no-errors-on-unmatched ."
+
+  fix:
+    command: "bun --bun biome check --write --no-errors-on-unmatched ."
+
+  tsc:
+    command: "bun --bun tsc --noEmit"
+
+  knip:
+    command: "bun --bun knip"

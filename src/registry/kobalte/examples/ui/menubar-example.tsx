@@ -19,7 +19,7 @@ import {
   Underline,
   User,
 } from "lucide-solid";
-import { createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -36,6 +36,7 @@ import {
   MenubarContent,
   MenubarGroup,
   MenubarItem,
+  MenubarLabel,
   MenubarMenu,
   MenubarRadioGroup,
   MenubarRadioItem,
@@ -52,6 +53,7 @@ export default function MenubarExample() {
     <ExampleWrapper>
       <MenubarBasic />
       <MenubarWithSubmenu />
+      <MenubarSides />
       <MenubarWithCheckboxes />
       <MenubarWithRadio />
       <MenubarWithIcons />
@@ -60,7 +62,35 @@ export default function MenubarExample() {
       <MenubarInsert />
       <MenubarDestructive />
       <MenubarInDialog />
+      <MenubarWithInset />
     </ExampleWrapper>
+  );
+}
+
+function MenubarSides() {
+  const sides = ["top", "left", "bottom", "right"] as const;
+
+  return (
+    <Example title="Sides" containerClass="col-span-2">
+      <div class="flex flex-wrap justify-center gap-2">
+        <For each={sides}>
+          {(side) => (
+            <Menubar>
+              <MenubarMenu placement={side}>
+                <MenubarTrigger class="capitalize">{side}</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarGroup>
+                    <MenubarItem>New Tab</MenubarItem>
+                    <MenubarItem>New Window</MenubarItem>
+                    <MenubarItem>New Incognito Window</MenubarItem>
+                  </MenubarGroup>
+                </MenubarContent>
+              </MenubarMenu>
+            </Menubar>
+          )}
+        </For>
+      </div>
+    </Example>
   );
 }
 
@@ -507,6 +537,65 @@ function MenubarInDialog() {
           </Menubar>
         </DialogContent>
       </Dialog>
+    </Example>
+  );
+}
+
+function MenubarWithInset() {
+  const [showBookmarks, setShowBookmarks] = createSignal(true);
+  const [showUrls, setShowUrls] = createSignal(false);
+  const [theme, setTheme] = createSignal("system");
+
+  return (
+    <Example title="With Inset">
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>View</MenubarTrigger>
+          <MenubarContent class="w-44">
+            <MenubarGroup>
+              <MenubarLabel>Actions</MenubarLabel>
+              <MenubarItem>
+                <Copy />
+                Copy
+              </MenubarItem>
+              <MenubarItem>
+                <Scissors />
+                Cut
+              </MenubarItem>
+              <MenubarItem inset>Paste</MenubarItem>
+            </MenubarGroup>
+            <MenubarSeparator />
+            <MenubarGroup>
+              <MenubarLabel inset>Appearance</MenubarLabel>
+              <MenubarCheckboxItem checked={showBookmarks()} onChange={setShowBookmarks}>
+                Bookmarks
+              </MenubarCheckboxItem>
+              <MenubarCheckboxItem checked={showUrls()} onChange={setShowUrls}>
+                Full URLs
+              </MenubarCheckboxItem>
+            </MenubarGroup>
+            <MenubarSeparator />
+            <MenubarGroup>
+              <MenubarLabel inset>Theme</MenubarLabel>
+              <MenubarRadioGroup value={theme()} onChange={setTheme}>
+                <MenubarRadioItem value="light">Light</MenubarRadioItem>
+                <MenubarRadioItem value="dark">Dark</MenubarRadioItem>
+                <MenubarRadioItem value="system">System</MenubarRadioItem>
+              </MenubarRadioGroup>
+            </MenubarGroup>
+            <MenubarSeparator />
+            <MenubarSub>
+              <MenubarSubTrigger inset>More Options</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarGroup>
+                  <MenubarItem>Save Page...</MenubarItem>
+                  <MenubarItem>Create Shortcut...</MenubarItem>
+                </MenubarGroup>
+              </MenubarSubContent>
+            </MenubarSub>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
     </Example>
   );
 }

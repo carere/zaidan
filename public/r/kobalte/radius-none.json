@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radius-none",
+  "title": "None",
+  "cssVars": {
+    "light": {
+      "radius": "0"
+    },
+    "dark": {
+      "radius": "0"
+    }
+  },
+  "type": "registry:theme"
+}

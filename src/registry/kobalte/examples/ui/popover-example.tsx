@@ -1,3 +1,4 @@
+import { For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -23,6 +24,7 @@ export default function PopoverExample() {
   return (
     <ExampleWrapper>
       <PopoverBasic />
+      <PopoverSides />
       <PopoverWithForm />
       <PopoverAlignments />
       <PopoverInDialog />
@@ -37,13 +39,50 @@ function PopoverBasic() {
         <PopoverTrigger as={Button} variant="outline" class="w-fit">
           Open Popover
         </PopoverTrigger>
-        <PopoverContent class="w-64">
+        <PopoverContent>
           <PopoverHeader>
             <PopoverTitle>Dimensions</PopoverTitle>
             <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
           </PopoverHeader>
         </PopoverContent>
       </Popover>
+    </Example>
+  );
+}
+
+function PopoverSides() {
+  return (
+    <Example title="Sides">
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-wrap gap-2">
+          <For each={["top", "left"] as const}>
+            {(side) => (
+              <Popover placement={side}>
+                <PopoverTrigger as={Button} variant="outline" class="w-fit capitalize">
+                  {side}
+                </PopoverTrigger>
+                <PopoverContent class="w-40">
+                  <p>Popover on {side}</p>
+                </PopoverContent>
+              </Popover>
+            )}
+          </For>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <For each={["bottom", "right"] as const}>
+            {(side) => (
+              <Popover placement={side}>
+                <PopoverTrigger as={Button} variant="outline" class="w-fit capitalize">
+                  {side}
+                </PopoverTrigger>
+                <PopoverContent class="w-40">
+                  <p>Popover on {side}</p>
+                </PopoverContent>
+              </Popover>
+            )}
+          </For>
+        </div>
+      </div>
     </Example>
   );
 }
@@ -65,13 +104,13 @@ function PopoverWithForm() {
               <FieldLabel for="width" class="w-1/2">
                 Width
               </FieldLabel>
-              <Input id="width" value="100%" />
+              <Input id="width" defaultValue="100%" />
             </Field>
             <Field orientation="horizontal">
               <FieldLabel for="height" class="w-1/2">
                 Height
               </FieldLabel>
-              <Input id="height" value="25px" />
+              <Input id="height" defaultValue="25px" />
             </Field>
           </FieldGroup>
         </PopoverContent>

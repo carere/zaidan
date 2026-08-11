@@ -25,7 +25,7 @@ function TextareaBasic() {
 function TextareaInvalid() {
   return (
     <Example title="Invalid">
-      <Textarea placeholder="Type your message here." aria-invalid="true" />
+      <Textarea placeholder="Type your message here." aria-invalid />
     </Example>
   );
 }

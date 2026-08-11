@@ -36,7 +36,6 @@ import { Item, ItemContent, ItemDescription, ItemTitle } from "@/registry/kobalt
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -632,7 +631,7 @@ function ComboboxWithOtherInputs() {
           <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
       </Combobox>
-      <Select<(typeof selectItems)[number]>
+      <Select
         options={selectItems}
         optionValue="value"
         optionTextValue="label"
@@ -643,12 +642,10 @@ function ComboboxWithOtherInputs() {
       >
         <SelectTrigger class="w-52">
           <SelectValue<(typeof selectItems)[number]>>
-            {(state) => state.selectedOption()?.label}
+            {(state) => state.selectedOption().label}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectGroup />
-        </SelectContent>
+        <SelectContent />
       </Select>
       <Button variant="outline" class="w-52 justify-between font-normal text-muted-foreground">
         Select a framework

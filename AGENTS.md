@@ -1,7 +1,13 @@
-# Zaidan Agent Guide
+## Agent skills
 
-Use `.agents/skills/zaidan-agent/SKILL.md` for the shared Zaidan Agent workflow,
-source URLs, target paths, browser testing, and registry update contract.
+### Issue tracker
 
-Use `.agents/skills/react-to-solid/SKILL.md` for React-to-SolidJS
-transformation rules.
+Repository issues are tracked in GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the five canonical engineering-workflow labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This repository uses a single-context domain layout. See `docs/agents/domain.md`.

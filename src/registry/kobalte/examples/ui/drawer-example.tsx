@@ -12,20 +12,207 @@ import {
   DrawerTrigger,
 } from "@/registry/kobalte/ui/drawer";
 
+const PARAGRAPHS = [
+  "Your changes are saved automatically as you type.",
+  "Delivery usually takes three to five business days, depending on your location and the shipping method you selected at checkout.",
+  "We use your email address for account notifications and order updates. You can change this anytime from your profile settings.",
+  "Two-factor authentication adds an extra layer of security to your account. When enabled, you'll need to enter a code from your authenticator app in addition to your password. We recommend enabling it if you store payment methods or sensitive information.",
+  "By continuing, you agree to our Terms of Service and Privacy Policy. We collect usage data to improve the product, personalize your experience, and troubleshoot issues. You can export or delete your data at any time from the account settings page. Third-party integrations may have their own policies, and you should review them before connecting external services.",
+  "Refunds are processed within five to ten business days after we receive your return. Items must be unused and in their original packaging to qualify. Shipping costs are non-refundable unless the return is due to our error or a defective product. Once approved, the refund is issued to your original payment method; credit card refunds may take an additional billing cycle to appear on your statement. If you paid with store credit, the balance is restored to your account immediately. Contact support if you haven't received your refund after two weeks.",
+  "Last updated March 12, 2026.",
+  "Upgrade to Pro for unlimited projects, priority support, and advanced analytics. Cancel anytime from billing settings.",
+  "You haven't verified your email yet. Check your inbox for a confirmation link—we sent it when you signed up. The link expires after 24 hours, but you can request a new one below.",
+  "API requests are rate-limited to 1,000 calls per hour on the free plan. Exceeding the limit returns a 429 response with a Retry-After header. Upgrade to a paid plan for higher limits and dedicated support. Webhook deliveries are retried up to three times with exponential backoff if your endpoint returns a non-2xx status.",
+  "No payment method on file.",
+  "Our design team rebuilt the checkout flow last quarter after interviews with forty-two customers. The biggest friction point was surprise fees at the final step, so we moved shipping and tax estimates earlier in the process. Early tests show a twelve percent drop in cart abandonment. We're still rolling out the update region by region, and you may see the old flow until your account is migrated.",
+];
+
+const DRAWER_SIDES = ["top", "right", "bottom", "left"] as const;
+const SNAP_POINTS: (number | `${number}px`)[] = ["480px", 1];
+
 export default function DrawerExample() {
   return (
     <ExampleWrapper>
-      <DrawerScrollableContent />
-      <DrawerWithSides />
+      <DrawerDemo />
+      <DrawerSwipeHandleExample />
+      <DrawerCustomWidthAndHeight />
+      <DrawerPosition />
+      <DrawerScrollable />
+      <DrawerSnapPoints />
+      <DrawerNested />
+      <DrawerNonModal />
     </ExampleWrapper>
   );
 }
 
-const DRAWER_SIDES = ["top", "right", "bottom", "left"] as const;
-
-function DrawerWithSides() {
+function DrawerDemo() {
   return (
-    <Example title="Sides">
+    <Example title="Demo">
+      <div class="flex flex-wrap gap-2">
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Open Drawer
+          </DrawerTrigger>
+          <DrawerContent>
+            <div class="p-4">
+              <div class="h-80 w-full bg-muted" />
+            </div>
+          </DrawerContent>
+        </Drawer>
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Header
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Edit profile</DrawerTitle>
+              <DrawerDescription>
+                Make changes to your profile here. Click save when you're done.
+              </DrawerDescription>
+            </DrawerHeader>
+            <div class="p-4">
+              <div class="h-80 w-full bg-muted" />
+            </div>
+          </DrawerContent>
+        </Drawer>
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Footer
+          </DrawerTrigger>
+          <DrawerContent>
+            <div class="p-4">
+              <div class="h-80 w-full bg-muted" />
+            </div>
+            <DrawerFooter>
+              <Button>Submit</Button>
+              <DrawerClose as={Button} variant="outline">
+                Cancel
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Header and Footer
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Edit profile</DrawerTitle>
+              <DrawerDescription>
+                Make changes to your profile here. Click save when you're done.
+              </DrawerDescription>
+            </DrawerHeader>
+            <div class="p-4">
+              <div class="h-80 w-full bg-muted" />
+            </div>
+            <DrawerFooter>
+              <Button>Submit</Button>
+              <DrawerClose as={Button} variant="outline">
+                Cancel
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Edge to Edge
+          </DrawerTrigger>
+          <DrawerContent>
+            <div class="h-80 w-full bg-blue-200" />
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </Example>
+  );
+}
+
+function DrawerSwipeHandleExample() {
+  return (
+    <Example title="Swipe Handle">
+      <div class="flex flex-wrap gap-2">
+        <Drawer>
+          <DrawerTrigger as={Button} variant="outline">
+            Open Drawer
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Drawer</DrawerTitle>
+              <DrawerDescription>
+                A drawer opening from the bottom shows a swipe handle.
+              </DrawerDescription>
+            </DrawerHeader>
+            <DrawerFill />
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </Example>
+  );
+}
+
+function DrawerCustomWidthAndHeight() {
+  return (
+    <Example title="Custom Width and Height">
+      <div class="flex flex-wrap gap-2">
+        <Drawer side="bottom">
+          <DrawerTrigger as={Button} variant="outline">
+            Bottom
+          </DrawerTrigger>
+          <DrawerContent class="data-[side=bottom]:h-64">
+            <DrawerHeader>
+              <DrawerTitle>Bottom drawer</DrawerTitle>
+              <DrawerDescription>Drawer with a custom height.</DrawerDescription>
+            </DrawerHeader>
+            <DrawerParagraphs class="scrollbar-thin" />
+            <DrawerCloseFooter />
+          </DrawerContent>
+        </Drawer>
+        <Drawer side="top">
+          <DrawerTrigger as={Button} variant="outline">
+            Top
+          </DrawerTrigger>
+          <DrawerContent class="data-[side=top]:h-[50vh]">
+            <DrawerHeader>
+              <DrawerTitle>Top drawer</DrawerTitle>
+              <DrawerDescription>Drawer with a custom height.</DrawerDescription>
+            </DrawerHeader>
+            <DrawerParagraphs />
+            <DrawerCloseFooter />
+          </DrawerContent>
+        </Drawer>
+        <Drawer side="left">
+          <DrawerTrigger as={Button} variant="outline">
+            Left
+          </DrawerTrigger>
+          <DrawerContent class="data-[side=left]:w-xl">
+            <DrawerHeader>
+              <DrawerTitle>Left drawer</DrawerTitle>
+              <DrawerDescription>Drawer with a custom width.</DrawerDescription>
+            </DrawerHeader>
+            <DrawerParagraphs />
+            <DrawerCloseFooter />
+          </DrawerContent>
+        </Drawer>
+        <Drawer side="right">
+          <DrawerTrigger as={Button} variant="outline">
+            Right
+          </DrawerTrigger>
+          <DrawerContent class="data-[side=right]:w-xs">
+            <DrawerHeader>
+              <DrawerTitle>Right drawer</DrawerTitle>
+              <DrawerDescription>Drawer with a custom width.</DrawerDescription>
+            </DrawerHeader>
+            <DrawerParagraphs />
+            <DrawerCloseFooter />
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </Example>
+  );
+}
+
+function DrawerPosition() {
+  return (
+    <Example title="Position">
       <div class="flex flex-wrap gap-2">
         <For each={DRAWER_SIDES}>
           {(side) => (
@@ -33,29 +220,122 @@ function DrawerWithSides() {
               <DrawerTrigger as={Button} variant="outline" class="capitalize">
                 {side}
               </DrawerTrigger>
-              <DrawerContent class="data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]">
+              <DrawerContent>
                 <DrawerHeader>
                   <DrawerTitle>Move Goal</DrawerTitle>
                   <DrawerDescription>Set your daily activity goal.</DrawerDescription>
                 </DrawerHeader>
-                <div class="no-scrollbar overflow-y-auto px-4">
-                  <Index each={Array.from({ length: 10 })}>
-                    {() => (
-                      <p class="mb-4 style-lyra:mb-2 leading-normal style-lyra:leading-relaxed">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-                        non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                      </p>
-                    )}
-                  </Index>
-                </div>
+                <DrawerFill />
+                <DrawerSubmitFooter />
+              </DrawerContent>
+            </Drawer>
+          )}
+        </For>
+      </div>
+    </Example>
+  );
+}
+
+function DrawerScrollable() {
+  return (
+    <Example title="Scrollable Content">
+      <div class="flex flex-wrap gap-2">
+        <For each={DRAWER_SIDES}>
+          {(side) => (
+            <Drawer side={side}>
+              <DrawerTrigger as={Button} variant="outline" class="capitalize">
+                {side}
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Move Goal</DrawerTitle>
+                  <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+                </DrawerHeader>
+                <DrawerParagraphs count={20} />
+                <DrawerSubmitFooter />
+              </DrawerContent>
+            </Drawer>
+          )}
+        </For>
+      </div>
+    </Example>
+  );
+}
+
+function DrawerSnapPoints() {
+  return (
+    <Example title="Snap Points">
+      <Drawer snapPoints={[...SNAP_POINTS]}>
+        <DrawerTrigger as={Button} variant="outline">
+          Open Snap Drawer
+        </DrawerTrigger>
+        <DrawerContent class="max-h-[calc(100dvh-1rem)]">
+          <DrawerHeader>
+            <DrawerTitle>Snap points</DrawerTitle>
+            <DrawerDescription>
+              Drag the drawer to snap between a compact peek and a near full-height view.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div class="grid flex-1 scroll-fade gap-3 overflow-y-auto p-4">
+            <Index each={Array.from({ length: 16 })}>{() => <div class="h-12 bg-muted" />}</Index>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </Example>
+  );
+}
+
+function DrawerNested() {
+  return (
+    <Example title="Nested">
+      <div class="flex flex-wrap gap-2">
+        <For each={DRAWER_SIDES}>
+          {(side) => (
+            <Drawer side={side}>
+              <DrawerTrigger as={Button} variant="outline" class="capitalize">
+                {side}
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle class="capitalize">{side} drawer</DrawerTitle>
+                  <DrawerDescription>
+                    Open another drawer from the same direction.
+                  </DrawerDescription>
+                </DrawerHeader>
+                <DrawerFill />
                 <DrawerFooter>
-                  <Button>Submit</Button>
+                  <Drawer side={side}>
+                    <DrawerTrigger as={Button}>Open nested drawer</DrawerTrigger>
+                    <DrawerContent>
+                      <DrawerHeader>
+                        <DrawerTitle>Nested drawer</DrawerTitle>
+                        <DrawerDescription>
+                          The parent drawer stays mounted behind this one.
+                        </DrawerDescription>
+                      </DrawerHeader>
+                      <DrawerFill />
+                      <DrawerFooter>
+                        <Drawer side={side}>
+                          <DrawerTrigger as={Button}>Open third drawer</DrawerTrigger>
+                          <DrawerContent>
+                            <DrawerHeader>
+                              <DrawerTitle>Third drawer</DrawerTitle>
+                              <DrawerDescription>
+                                This is the frontmost drawer in the stack.
+                              </DrawerDescription>
+                            </DrawerHeader>
+                            <DrawerFill />
+                            <DrawerCloseFooter />
+                          </DrawerContent>
+                        </Drawer>
+                        <DrawerClose as={Button} variant="outline">
+                          Close
+                        </DrawerClose>
+                      </DrawerFooter>
+                    </DrawerContent>
+                  </Drawer>
                   <DrawerClose as={Button} variant="outline">
-                    Cancel
+                    Close
                   </DrawerClose>
                 </DrawerFooter>
               </DrawerContent>
@@ -67,40 +347,64 @@ function DrawerWithSides() {
   );
 }
 
-function DrawerScrollableContent() {
+function DrawerNonModal() {
   return (
-    <Example title="Scrollable Content">
-      <Drawer side="right">
+    <Example title="Non Modal">
+      <Drawer modal={false} closeOnOutsidePointer={false} side="right">
         <DrawerTrigger as={Button} variant="outline">
-          Scrollable Content
+          Non Modal
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Move Goal</DrawerTitle>
-            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+            <DrawerTitle>Non Modal Drawer</DrawerTitle>
           </DrawerHeader>
-          <div class="no-scrollbar overflow-y-auto px-4">
-            <Index each={Array.from({ length: 10 })}>
-              {() => (
-                <p class="mb-4 style-lyra:mb-2 leading-normal style-lyra:leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                  officia deserunt mollit anim id est laborum.
-                </p>
-              )}
-            </Index>
-          </div>
-          <DrawerFooter>
-            <Button>Submit</Button>
-            <DrawerClose as={Button} variant="outline">
-              Cancel
-            </DrawerClose>
-          </DrawerFooter>
+          <DrawerFill />
+          <DrawerCloseFooter />
         </DrawerContent>
       </Drawer>
     </Example>
+  );
+}
+
+function DrawerFill() {
+  return (
+    <div class="flex-1 p-4">
+      <div class="h-80 w-full bg-muted" />
+    </div>
+  );
+}
+
+function DrawerParagraphs(props: { class?: string; count?: number }) {
+  return (
+    <div class={`flex-1 scroll-fade overflow-y-auto p-4 ${props.class ?? ""}`}>
+      <Index each={Array.from({ length: props.count ?? 10 })}>
+        {(_, index) => (
+          <p class="mb-4 leading-normal style-lyra:mb-2 style-lyra:leading-relaxed">
+            {PARAGRAPHS[index % PARAGRAPHS.length]}
+          </p>
+        )}
+      </Index>
+    </div>
+  );
+}
+
+function DrawerSubmitFooter() {
+  return (
+    <DrawerFooter>
+      <Button>Submit</Button>
+      <DrawerClose as={Button} variant="outline">
+        Cancel
+      </DrawerClose>
+    </DrawerFooter>
+  );
+}
+
+function DrawerCloseFooter() {
+  return (
+    <DrawerFooter>
+      <DrawerClose as={Button} variant="outline">
+        Close
+      </DrawerClose>
+    </DrawerFooter>
   );
 }

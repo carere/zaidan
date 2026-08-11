@@ -2,36 +2,61 @@
 title: Accordion
 slug: accordion
 description: A vertically stacked set of interactive headings that each reveal a section of content.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/accordion
+  api: https://kobalte.dev/docs/core/components/accordion#api-reference
 ---
 
-# Accordion
-
-A vertically stacked set of interactive headings that each reveal a section of content.
+<ComponentPreview
+  name="accordion-demo"
+  align="start"
+  previewClass="*:data-[slot=accordion]:max-w-sm min-h-[300px]"
+/>
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/accordion
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/accordion.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core lucide-solid
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="accordion" title="components/ui/accordion.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
-import { For } from "solid-js";
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx showLineNumbers
 import {
   Accordion,
   AccordionContent,
@@ -40,79 +65,81 @@ import {
 } from "~/components/ui/accordion";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/accordion-example.tsx#L32-L65
-
+```tsx showLineNumbers
+<Accordion defaultValue={["item-1"]}>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>Is it accessible?</AccordionTrigger>
+    <AccordionContent>
+      Yes. It follows the WAI-ARIA accordion pattern.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
 ```
 
-### Multiple
+## Composition
 
-```tsx
-import { For } from "solid-js";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
+Use the following composition to build an `Accordion`:
+
+```text
+Accordion
+├── AccordionItem
+│   ├── AccordionTrigger
+│   └── AccordionContent
+└── AccordionItem
+    ├── AccordionTrigger
+    └── AccordionContent
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/accordion-example.tsx#L67-L99
+## Basic
 
-```
+A basic accordion that shows one item at a time. The first item is open by default.
 
-### With Borders
+<ComponentPreview
+  name="accordion-basic"
+  align="start"
+  previewClass="*:data-[slot=accordion]:max-w-sm min-h-[300px]"
+/>
 
-```tsx
-import { For } from "solid-js";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
-```
+## Multiple
 
-```tsx file=../../../registry/kobalte/examples/ui/accordion-example.tsx#L101-L150
+Use the `multiple` prop to allow multiple items to be open at the same time.
 
-```
+<ComponentPreview
+  name="accordion-multiple"
+  align="start"
+  previewClass="*:data-[slot=accordion]:max-w-sm min-h-[360px]"
+/>
 
-### In Card
+## Disabled
 
-```tsx
-import { ArrowUpRight } from "lucide-solid";
-import { For } from "solid-js";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-```
+Use the `disabled` prop on `AccordionItem` to disable individual items.
 
-```tsx file=../../../registry/kobalte/examples/ui/accordion-example.tsx#L152-L249
+<ComponentPreview
+  name="accordion-disabled"
+  align="start"
+  previewClass="*:data-[slot=accordion]:max-w-sm min-h-[300px]"
+/>
 
-```
+## Borders
 
-### With Disabled
+Add border utilities to the `Accordion` and `AccordionItem` components to visually group items.
 
-```tsx
-import { For } from "solid-js";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
-```
+<ComponentPreview
+  name="accordion-borders"
+  align="start"
+  previewClass="*:data-[slot=accordion]:max-w-sm min-h-[300px]"
+/>
 
-```tsx file=../../../registry/kobalte/examples/ui/accordion-example.tsx#L251-L298
+## Card
 
-```
+Wrap the `Accordion` in a `Card` component.
+
+<ComponentPreview
+  name="accordion-card"
+  align="start"
+  previewClass="*:data-[slot=accordion]:max-w-sm min-h-[420px]"
+/>
+
+## API Reference
+
+See the [Kobalte Accordion documentation](https://kobalte.dev/docs/core/components/accordion#api-reference) for the primitive API.

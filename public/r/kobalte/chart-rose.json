@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-rose",
+  "title": "Chart Color Rose",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.81 0.117 11.638)",
+      "chart-2": "oklch(0.645 0.246 16.439)",
+      "chart-3": "oklch(0.586 0.253 17.585)",
+      "chart-4": "oklch(0.514 0.222 16.935)",
+      "chart-5": "oklch(0.455 0.188 13.697)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.81 0.117 11.638)",
+      "chart-2": "oklch(0.645 0.246 16.439)",
+      "chart-3": "oklch(0.586 0.253 17.585)",
+      "chart-4": "oklch(0.514 0.222 16.935)",
+      "chart-5": "oklch(0.455 0.188 13.697)"
+    }
+  },
+  "type": "registry:theme"
+}

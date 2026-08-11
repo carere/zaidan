@@ -1,21 +1,19 @@
 import { Check, ChevronsUpDown, Search } from "lucide-solid";
 import { createSignal, For, Show } from "solid-js";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/registry/kobalte/ui/breadcrumb";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/registry/kobalte/ui/dropdown-menu";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@/registry/kobalte/ui/item";
 import { Label } from "@/registry/kobalte/ui/label";
-import { Separator } from "@/registry/kobalte/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -51,7 +49,7 @@ const data = {
       ],
     },
     {
-      title: "Building Your Application",
+      title: "Build Your Application",
       url: "#",
       items: [
         {
@@ -179,11 +177,15 @@ export default function SidebarExample() {
                   size="lg"
                   class="data-expanded:bg-sidebar-accent data-expanded:text-sidebar-accent-foreground"
                 >
-                  <div class="flex flex-col gap-0.5 leading-none">
-                    <span class="font-medium">Documentation</span>
-                    <span class="text-muted-foreground text-xs">v{selectedVersion()}</span>
-                  </div>
-                  <ChevronsUpDown class="ml-auto" />
+                  <Item class="p-0" size="xs">
+                    <ItemContent>
+                      <ItemTitle class="text-sm">Documentation</ItemTitle>
+                      <ItemDescription>v{selectedVersion()}</ItemDescription>
+                    </ItemContent>
+                    <ItemActions>
+                      <ChevronsUpDown />
+                    </ItemActions>
+                  </Item>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent class="w-(--kb-popper-anchor-width)">
                   <For each={data.versions}>
@@ -237,20 +239,8 @@ export default function SidebarExample() {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header class="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+        <header class="flex h-16 shrink-0 items-center gap-2 px-4">
           <SidebarTrigger class="-ml-1" />
-          <Separator orientation="vertical" class="mr-2 data-[orientation=vertical]:h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem class="hidden md:block">
-                <BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator class="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
         </header>
         <div class="flex flex-1 flex-col gap-4 p-4">
           <div class="grid auto-rows-min gap-4 md:grid-cols-3">
@@ -258,7 +248,7 @@ export default function SidebarExample() {
             <div class="aspect-video rounded-xl bg-muted/50" />
             <div class="aspect-video rounded-xl bg-muted/50" />
           </div>
-          <div class="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+          <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -1,4 +1,5 @@
 import { Example, ExampleWrapper } from "@/components/example";
+import { Field, FieldLabel } from "@/registry/kobalte/ui/field";
 import {
   Pagination,
   PaginationContent,
@@ -8,8 +9,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/registry/kobalte/ui/pagination";
-import { Field, FieldLabel } from "../../ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/registry/kobalte/ui/select";
 
 export default function PaginationExample() {
   return (
@@ -81,31 +87,20 @@ function PaginationSimple() {
 }
 
 function PaginationIconsOnly() {
-  const items = [
-    { value: "10", label: "10" },
-    { value: "25", label: "25" },
-    { value: "50", label: "50" },
-    { value: "100", label: "100" },
-  ];
-
   return (
     <Example title="With Select">
       <div class="flex items-center justify-between gap-4">
         <Field orientation="horizontal" class="w-fit">
           <FieldLabel for="select-rows-per-page">Rows per page</FieldLabel>
-          <Select<(typeof items)[number]>
-            options={items}
-            optionValue="value"
-            optionTextValue="label"
-            defaultValue={items[1]}
+          <Select
+            options={["10", "25", "50", "100"]}
+            defaultValue="25"
             itemComponent={(props) => (
-              <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
+              <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
             )}
           >
             <SelectTrigger class="w-20" id="select-rows-per-page">
-              <SelectValue<(typeof items)[number]>>
-                {(state) => state.selectedOption().label}
-              </SelectValue>
+              <SelectValue<string>>{(state) => state.selectedOption()}</SelectValue>
             </SelectTrigger>
             <SelectContent />
           </Select>

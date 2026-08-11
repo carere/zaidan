@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radius-medium",
+  "title": "Medium",
+  "cssVars": {
+    "light": {
+      "radius": "0.625rem"
+    },
+    "dark": {
+      "radius": "0.625rem"
+    }
+  },
+  "type": "registry:theme"
+}

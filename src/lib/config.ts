@@ -6,7 +6,6 @@ import type {
   DesignSystemConfig,
   Font,
   MenuAccent,
-  Primitive,
   Radius,
   Style,
   Theme,
@@ -65,6 +64,11 @@ export const STYLES: { name: Style; label: string; description: string }[] = [
     name: "sera",
     label: "Sera",
     description: "Editorial and typographic. Sharp corners with expressive type.",
+  },
+  {
+    name: "rhea",
+    label: "Rhea",
+    description: "Like Luma but compact.",
   },
 ];
 
@@ -173,11 +177,11 @@ export const CHART_COLORS: {
  * Available radius options with their metadata
  */
 export const RADII: { name: Radius; label: string; value: string }[] = [
-  { name: "default", label: "Default", value: "0.625rem" },
+  { name: "default", label: "Default", value: "" },
   { name: "none", label: "None", value: "0" },
-  { name: "small", label: "Small", value: "0.25rem" },
-  { name: "medium", label: "Medium", value: "0.5rem" },
-  { name: "large", label: "Large", value: "0.75rem" },
+  { name: "small", label: "Small", value: "0.45rem" },
+  { name: "medium", label: "Medium", value: "0.625rem" },
+  { name: "large", label: "Large", value: "0.875rem" },
 ];
 
 /**
@@ -205,27 +209,10 @@ export const FONTS: {
 }));
 
 /**
- * Menu color options for sidebar/navigation styling
- * Currently a placeholder for future menu color customization
- */
-export const MENU_COLORS: { name: string; label: string }[] = [
-  { name: "default", label: "Default" },
-];
-
-/**
- * Available primitive options with their metadata
- */
-export const PRIMITIVES: { name: Primitive; label: string }[] = [
-  { name: "kobalte", label: "Kobalte" },
-  { name: "base", label: "Base" },
-];
-
-/**
  * Discriminated entry for the "has updates" indicator. Items listed in
  * {@link UPDATED_ITEMS} render a small blue dot next to their label in the
- * sidebar (`ItemExplorer`) and command palette (`ItemPicker`). The `kind`
- * keeps the lookup unambiguous when the same slug exists across docs, ui,
- * and blocks (e.g. a doc page named "button" vs the button component).
+ * navigation lists and search results. The `kind` keeps the lookup unambiguous
+ * when the same slug exists across docs, ui, and blocks.
  */
 export type UpdatedItem = {
   kind: "docs" | "ui" | "blocks";
@@ -241,4 +228,5 @@ export const UPDATED_ITEMS: UpdatedItem[] = [
   { kind: "docs", slug: "changelog" },
   { kind: "docs", slug: "zaidan-agent" },
   { kind: "blocks", slug: "image-crop" },
+  { kind: "blocks", slug: "questionnaire" },
 ];

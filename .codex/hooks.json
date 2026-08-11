@@ -1,0 +1,18 @@
+{
+  "description": "Load repository-specific context when a Codex task starts.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "^startup$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh \"$(git rev-parse --show-toplevel)/.codex/hooks/session-start-direnv.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking the local Moon environment"
+          }
+        ]
+      }
+    ]
+  }
+}

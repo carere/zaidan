@@ -1,5 +1,5 @@
 import { Archive, ClipboardPaste, Copy, Pencil, Scissors, Share, Trash } from "lucide-solid";
-import { createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import {
@@ -31,8 +31,8 @@ export default function ContextMenuExample() {
   return (
     <ExampleWrapper>
       <ContextMenuBasic />
-      <ContextMenuWithSides />
       <ContextMenuWithIcons />
+      <ContextMenuWithSides />
       <ContextMenuWithShortcuts />
       <ContextMenuWithSubmenu />
       <ContextMenuWithGroups />
@@ -40,6 +40,7 @@ export default function ContextMenuExample() {
       <ContextMenuWithRadio />
       <ContextMenuWithDestructive />
       <ContextMenuInDialog />
+      <ContextMenuWithInset />
     </ExampleWrapper>
   );
 }
@@ -330,57 +331,27 @@ function ContextMenuWithDestructive() {
 }
 
 function ContextMenuWithSides() {
+  const sides = ["top", "right", "bottom", "left"] as const;
+
   return (
-    <Example title="With Sides">
-      <div class="grid grid-cols-2 gap-6">
-        <ContextMenu placement="top">
-          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
-            Right click (top)
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuGroup>
-              <ContextMenuItem>Back</ContextMenuItem>
-              <ContextMenuItem>Forward</ContextMenuItem>
-              <ContextMenuItem>Reload</ContextMenuItem>
-            </ContextMenuGroup>
-          </ContextMenuContent>
-        </ContextMenu>
-        <ContextMenu placement="right">
-          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
-            Right click (right)
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuGroup>
-              <ContextMenuItem>Back</ContextMenuItem>
-              <ContextMenuItem>Forward</ContextMenuItem>
-              <ContextMenuItem>Reload</ContextMenuItem>
-            </ContextMenuGroup>
-          </ContextMenuContent>
-        </ContextMenu>
-        <ContextMenu placement="bottom">
-          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
-            Right click (bottom)
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuGroup>
-              <ContextMenuItem>Back</ContextMenuItem>
-              <ContextMenuItem>Forward</ContextMenuItem>
-              <ContextMenuItem>Reload</ContextMenuItem>
-            </ContextMenuGroup>
-          </ContextMenuContent>
-        </ContextMenu>
-        <ContextMenu placement="left">
-          <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
-            Right click (left)
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuGroup>
-              <ContextMenuItem>Back</ContextMenuItem>
-              <ContextMenuItem>Forward</ContextMenuItem>
-              <ContextMenuItem>Reload</ContextMenuItem>
-            </ContextMenuGroup>
-          </ContextMenuContent>
-        </ContextMenu>
+    <Example title="With Sides" containerClass="col-span-2">
+      <div class="flex flex-wrap justify-center gap-2">
+        <For each={sides}>
+          {(side) => (
+            <ContextMenu placement={side}>
+              <ContextMenuTrigger class="flex aspect-[2/0.5] items-center justify-center rounded-lg border p-4 text-sm capitalize">
+                Right click ({side})
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuGroup>
+                  <ContextMenuItem>Back</ContextMenuItem>
+                  <ContextMenuItem>Forward</ContextMenuItem>
+                  <ContextMenuItem>Reload</ContextMenuItem>
+                </ContextMenuGroup>
+              </ContextMenuContent>
+            </ContextMenu>
+          )}
+        </For>
       </div>
     </Example>
   );
@@ -445,6 +416,65 @@ function ContextMenuInDialog() {
           </ContextMenu>
         </DialogContent>
       </Dialog>
+    </Example>
+  );
+}
+
+function ContextMenuWithInset() {
+  const [showBookmarks, setShowBookmarks] = createSignal(true);
+  const [showUrls, setShowUrls] = createSignal(false);
+  const [theme, setTheme] = createSignal("system");
+
+  return (
+    <Example title="With Inset">
+      <ContextMenu>
+        <ContextMenuTrigger class="flex aspect-[2/0.5] w-full items-center justify-center rounded-lg border text-sm">
+          Right click here
+        </ContextMenuTrigger>
+        <ContextMenuContent class="w-44">
+          <ContextMenuGroup>
+            <ContextMenuLabel>Actions</ContextMenuLabel>
+            <ContextMenuItem>
+              <Copy />
+              Copy
+            </ContextMenuItem>
+            <ContextMenuItem>
+              <Scissors />
+              Cut
+            </ContextMenuItem>
+            <ContextMenuItem inset>Paste</ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuLabel inset>Appearance</ContextMenuLabel>
+            <ContextMenuCheckboxItem checked={showBookmarks()} onChange={setShowBookmarks}>
+              Bookmarks
+            </ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem checked={showUrls()} onChange={setShowUrls}>
+              Full URLs
+            </ContextMenuCheckboxItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuLabel inset>Theme</ContextMenuLabel>
+            <ContextMenuRadioGroup value={theme()} onChange={setTheme}>
+              <ContextMenuRadioItem value="light">Light</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="dark">Dark</ContextMenuRadioItem>
+              <ContextMenuRadioItem value="system">System</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuSub>
+            <ContextMenuSubTrigger inset>More Options</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuGroup>
+                <ContextMenuItem>Save Page...</ContextMenuItem>
+                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+              </ContextMenuGroup>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
     </Example>
   );
 }

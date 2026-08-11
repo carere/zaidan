@@ -106,10 +106,10 @@ function AccordionWithBorders() {
           value="billing"
           class="style-nova:rounded-lg style-vega:rounded-lg style-lyra:border style-nova:border style-vega:border"
         >
-          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-luma:text-sm style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
             How does billing work?
           </AccordionTrigger>
-          <AccordionContent class="style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
+          <AccordionContent class="style-luma:px-0 style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
             We offer monthly and annual subscription plans. Billing is charged at the beginning of
             each cycle, and you can cancel anytime. All plans include automatic backups, 24/7
             support, and unlimited team members. There are no hidden fees or setup costs.
@@ -119,10 +119,10 @@ function AccordionWithBorders() {
           value="security"
           class="style-nova:rounded-lg style-vega:rounded-lg style-lyra:border style-nova:border style-vega:border"
         >
-          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-luma:text-sm style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
             Is my data secure?
           </AccordionTrigger>
-          <AccordionContent class="style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
+          <AccordionContent class="style-luma:px-0 style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
             Yes. We use end-to-end encryption, SOC 2 Type II compliance, and regular third-party
             security audits. All data is encrypted at rest and in transit using industry-standard
             protocols. We also offer optional two-factor authentication and single sign-on for
@@ -133,10 +133,10 @@ function AccordionWithBorders() {
           value="integration"
           class="style-nova:rounded-lg style-vega:rounded-lg style-lyra:border style-nova:border style-vega:border"
         >
-          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
+          <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4 font-medium style-lyra:text-xs style-luma:text-sm style-maia:text-sm style-mira:text-xs style-nova:text-sm style-vega:text-sm">
             What integrations do you support?
           </AccordionTrigger>
-          <AccordionContent class="style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
+          <AccordionContent class="style-luma:px-0 style-lyra:px-2 style-maia:px-0 style-mira:px-0 style-nova:px-2.5 style-vega:px-4 style-lyra:text-xs style-nova:text-sm text-muted-foreground">
             <p>
               We integrate with 500+ popular tools including Slack, Zapier, Salesforce, HubSpot, and
               more. You can also build custom integrations using our REST API and webhooks.
@@ -275,13 +275,13 @@ function AccordionWithDisabled() {
 
   return (
     <Example title="With Disabled">
-      <Accordion class="mx-auto max-w-lg overflow-hidden style-lyra:rounded-none style-maia:rounded-lg style-mira:rounded-lg style-nova:rounded-lg style-vega:rounded-lg border">
+      <Accordion class="mx-auto max-w-lg overflow-hidden style-luma:rounded-xl style-lyra:rounded-none style-maia:rounded-lg style-mira:rounded-lg style-nova:rounded-lg style-vega:rounded-lg border">
         <For each={items}>
           {(item) => (
             <AccordionItem
               value={item.value}
               disabled={item.disabled}
-              class="p-1 data-open:bg-muted/50"
+              class="p-1 data-expanded:bg-muted/50"
             >
               <AccordionTrigger class="style-lyra:px-2 style-nova:px-2.5 style-vega:px-4">
                 {item.trigger}

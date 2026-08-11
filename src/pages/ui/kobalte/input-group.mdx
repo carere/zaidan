@@ -1,186 +1,148 @@
 ---
 title: Input Group
 slug: input-group
-description: Display additional information or actions to an input or textarea.
+description: Add addons, buttons, and helper content to inputs.
+component: true
 ---
 
-# Input Group
+Input Group is a native Solid composition built from standard controls and Zaidan wrappers.
 
-Display additional information or actions to an input or textarea.
+<ComponentPreview name="input-group-demo" previewClass="h-[26rem]" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/input-group
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/input-group.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependency:</Step>
+
+```package-install
+class-variance-authority
 ```
 
-## Examples
+<Step>Copy and paste the following code into your project.</Step>
 
-Here are the source code of all the examples from the preview page:
+<ComponentSource name="input-group" title="components/ui/input-group.tsx" />
 
-### Basic
+<Step>Update the import paths to match your project setup.</Step>
 
-```tsx
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
-import { InputGroup, InputGroupInput } from "~/components/ui/input-group";
-```
+</Steps>
 
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L77-L110
+</TabsContent>
 
-```
+</CodeTabs>
 
-### With Addons
+## Usage
 
-```tsx
-import { toast } from "solid-sonner";
-import {
-  Copy,
-  EyeOff,
-  Info,
-  Mic,
-  Radio,
-  Search,
-  Star,
-} from "lucide-solid";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
+```tsx showLineNumbers
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-} from "~/components/ui/input-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L112-L209
-
-```
-
-### With Buttons
-
-```tsx
-import { Copy, Trash } from "lucide-solid";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "~/components/ui/input-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L211-L261
-
-```
-
-### With Tooltip, Dropdown, Popover
-
-```tsx
-import { toast } from "solid-sonner";
-import { ChevronDown, Info, Star } from "lucide-solid";
-import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "~/components/ui/input-group";
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L263-L349
-
-```
-
-### With Kbd
-
-```tsx
-import { Check, Info, Search, Sparkles } from "lucide-solid";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "~/components/ui/input-group";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-import { Spinner } from "~/components/ui/spinner";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L351-L452
-
-```
-
-### In Card
-
-```tsx
-import { ExternalLink, Mail } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
 } from "~/components/ui/input-group";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L454-L507
-
+```tsx showLineNumbers
+<InputGroup>
+  <InputGroupInput placeholder="Search..." />
+  <InputGroupAddon>
+    <SearchIcon />
+  </InputGroupAddon>
+</InputGroup>
 ```
 
-### Textarea
+## Composition
 
-```tsx
-import { ArrowUp, Code, Copy, Info, RefreshCw } from "lucide-solid";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "~/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupText,
-  InputGroupTextarea,
-} from "~/components/ui/input-group";
-import { Textarea } from "~/components/ui/textarea";
+Use the following composition to build an `InputGroup`:
+
+```text
+InputGroup
+├── InputGroupInput or InputGroupTextarea
+├── InputGroupAddon
+├── InputGroupButton
+└── InputGroupText
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/input-group-example.tsx#L509-L623
+## Align
 
-```
+Use the `align` prop on `InputGroupAddon` to position the addon relative to the input.
+
+### inline-start
+
+Use `align="inline-start"` to position the addon at the start of the input. This is the default.
+
+<ComponentPreview name="input-group-inline-start" previewClass="h-48" />
+
+### inline-end
+
+Use `align="inline-end"` to position the addon at the end of the input.
+
+<ComponentPreview name="input-group-inline-end" previewClass="h-48" />
+
+### block-start
+
+Use `align="block-start"` to position the addon above the input.
+
+<ComponentPreview name="input-group-block-start" previewClass="h-96" />
+
+### block-end
+
+Use `align="block-end"` to position the addon below the input.
+
+<ComponentPreview name="input-group-block-end" previewClass="h-[26rem]" />
+
+## Icon
+
+<ComponentPreview name="input-group-icon" previewClass="h-80" />
+
+## Text
+
+<ComponentPreview name="input-group-text" previewClass="h-80" />
+
+## Button
+
+<ComponentPreview name="input-group-button" previewClass="h-72" />
+
+## Kbd
+
+<ComponentPreview name="input-group-kbd" previewClass="h-40" />
+
+## Dropdown
+
+<ComponentPreview name="input-group-dropdown" previewClass="h-56" />
+
+## Spinner
+
+<ComponentPreview name="input-group-spinner" previewClass="h-80" />
+
+## Textarea
+
+<ComponentPreview name="input-group-textarea" previewClass="h-96" />
+
+## Custom Input
+
+Add the `data-slot="input-group-control"` attribute to a custom input for automatic focus state handling.
+
+<ComponentPreview name="input-group-custom" previewClass="h-56" />
 
 ## API Reference
 
@@ -201,9 +163,7 @@ The main component that wraps inputs and addons.
 
 ### InputGroupAddon
 
-Displays icons, text, buttons, or other content alongside inputs.
-
-For proper focus navigation, the `InputGroupAddon` component should be placed after the input. Set the `align` prop to position the addon.
+Displays icons, text, buttons, or other content alongside inputs. Place the addon after its input in the DOM and use `align` to position it visually.
 
 | Prop    | Type                                                             | Default          |
 | ------- | ---------------------------------------------------------------- | ---------------- |
@@ -216,16 +176,7 @@ For proper focus navigation, the `InputGroupAddon` component should be placed af
 </InputGroupAddon>
 ```
 
-**For `<InputGroupInput />`, use the `inline-start` or `inline-end` alignment. For `<InputGroupTextarea />`, use the `block-start` or `block-end` alignment.**
-
-The `InputGroupAddon` component can have multiple `InputGroupButton` components and icons.
-
-```tsx
-<InputGroupAddon>
-  <InputGroupButton>Button</InputGroupButton>
-  <InputGroupButton>Button</InputGroupButton>
-</InputGroupAddon>
-```
+For `<InputGroupInput />`, use the `inline-start` or `inline-end` alignment. For `<InputGroupTextarea />`, use the `block-start` or `block-end` alignment.
 
 ### InputGroupButton
 
@@ -239,45 +190,20 @@ Displays buttons within input groups.
 
 ```tsx
 <InputGroupButton>Button</InputGroupButton>
-<InputGroupButton size="icon-xs" aria-label="Copy">
-  <CopyIcon />
-</InputGroupButton>
 ```
 
 ### InputGroupInput
 
-Replacement for `<Input />` when building input groups. This component has the input group styles pre-applied and uses the unified `data-slot="input-group-control"` for focus state handling.
+Replacement for `<Input />` when building input groups. It applies input-group styles and `data-slot="input-group-control"` for focus state handling.
 
 | Prop    | Type     | Default |
 | ------- | -------- | ------- |
 | `class` | `string` |         |
-
-All other props are passed through to the underlying `<Input />` component.
-
-```tsx
-<InputGroup>
-  <InputGroupInput placeholder="Enter text..." />
-  <InputGroupAddon>
-    <SearchIcon />
-  </InputGroupAddon>
-</InputGroup>
-```
 
 ### InputGroupTextarea
 
-Replacement for `<Textarea />` when building input groups. This component has the textarea group styles pre-applied and uses the unified `data-slot="input-group-control"` for focus state handling.
+Replacement for `<Textarea />` when building input groups. It applies textarea-group styles and `data-slot="input-group-control"` for focus state handling.
 
 | Prop    | Type     | Default |
 | ------- | -------- | ------- |
 | `class` | `string` |         |
-
-All other props are passed through to the underlying `<Textarea />` component.
-
-```tsx
-<InputGroup>
-  <InputGroupTextarea placeholder="Enter message..." />
-  <InputGroupAddon align="block-end">
-    <InputGroupButton>Send</InputGroupButton>
-  </InputGroupAddon>
-</InputGroup>
-```

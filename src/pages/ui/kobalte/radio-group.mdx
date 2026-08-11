@@ -2,126 +2,133 @@
 title: Radio Group
 slug: radio-group
 description: A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.
+component: true
 ---
 
-# Radio Group
+`RadioGroup` wraps [Kobalte's Radio Group](https://kobalte.dev/docs/core/components/radio-group) primitive, which implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/) with roving-tabindex keyboard navigation and native form participation.
 
-A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.
+<ComponentPreview name="radio-group-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/radio-group
 ```
 
-### Manual
+</TabsContent>
 
-Install the following dependencies:
+<TabsContent value="manual">
 
-```package-install
-@kobalte/core
-```
+<Steps class="mb-0 pt-2">
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/radio-group.tsx showLineNumbers
+<ComponentSource name="radio-group" title="components/ui/radio-group.tsx" />
 
-```
+<Step>Update the import paths to match your project setup.</Step>
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Basic
+</CodeTabs>
 
-```tsx
-import {
-  Field,
-  FieldLabel,
-} from "~/components/ui/field";
+## Usage
+
+```tsx showLineNumbers
+import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/radio-group-example.tsx#L25-L50
-
+```tsx showLineNumbers
+<RadioGroup defaultValue="option-one">
+  <div class="flex items-center gap-3">
+    <RadioGroupItem value="option-one" id="option-one" />
+    <Label for="option-one">Option One</Label>
+  </div>
+  <div class="flex items-center gap-3">
+    <RadioGroupItem value="option-two" id="option-two" />
+    <Label for="option-two">Option Two</Label>
+  </div>
+</RadioGroup>
 ```
 
-### With Descriptions
+## Composition
 
-```tsx
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldLabel,
-} from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+Use the following composition to build a `RadioGroup`:
+
+```text
+RadioGroup
+├── RadioGroupItem
+└── RadioGroupItem
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/radio-group-example.tsx#L52-L86
+## Description
 
-```
+Radio group items with a description using the `Field` component.
 
-### With FieldSet
+<ComponentPreview name="radio-group-description" />
 
-```tsx
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-```
+## Choice Card
 
-```tsx file=../../../registry/kobalte/examples/ui/radio-group-example.tsx#L88-L117
+Use `FieldLabel` to wrap the entire `Field` for a clickable card-style selection.
 
-```
+<ComponentPreview name="radio-group-choice-card" />
 
-### Grid Layout
+## Fieldset
 
-```tsx
-import {
-  Field,
-  FieldLabel,
-} from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-```
+Use `FieldSet` and `FieldLegend` to group radio items with a label and description.
 
-```tsx file=../../../registry/kobalte/examples/ui/radio-group-example.tsx#L119-L150
+<ComponentPreview name="radio-group-fieldset" />
 
-```
+## Disabled
 
-### Disabled
+Use the `disabled` prop on `RadioGroup` to disable all items, or on `RadioGroupItem` to disable an individual item.
 
-```tsx
-import {
-  Field,
-  FieldLabel,
-} from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-```
+<ComponentPreview name="radio-group-disabled" />
 
-```tsx file=../../../registry/kobalte/examples/ui/radio-group-example.tsx#L152-L177
+## Invalid
 
-```
+Use `aria-invalid` on `RadioGroupItem` and `data-invalid` on `Field` to show validation errors.
 
-### Invalid
+<ComponentPreview name="radio-group-invalid" />
 
-```tsx
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "~/components/ui/field";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/radio-group-example.tsx#L179-L208
+`RadioGroup` and `RadioGroupItem` wrap [Kobalte's Radio Group](https://kobalte.dev/docs/core/components/radio-group) primitive, which implements the [WAI-ARIA radio group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), including roving-tabindex keyboard navigation, disabled, read-only, and form reset behavior.
 
-```
+### RadioGroup
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `value` | `string` | - |
+| `defaultValue` | `string` | - |
+| `onChange` | `(value: string) => void` | - |
+| `orientation` | `"horizontal" \| "vertical"` | `"vertical"` |
+| `disabled` | `boolean` | `false` |
+| `readOnly` | `boolean` | `false` |
+| `required` | `boolean` | `false` |
+| `validationState` | `"valid" \| "invalid"` | - |
+| `name` | `string` | - |
+| `id` | `string` | - |
+| `as` | `ValidComponent` | `"div"` |
+| `class` | `string` | - |
+
+### RadioGroupItem
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `value` | `string` | - |
+| `disabled` | `boolean` | `false` |
+| `id` | `string` | - |
+| `as` | `ValidComponent` | `"div"` |
+| `class` | `string` | - |

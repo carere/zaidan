@@ -8,6 +8,11 @@ type InputOTPProps = OtpFieldRootProps &
   ComponentProps<"div"> &
   Pick<ComponentProps<"input">, "disabled" | "required"> & {
     containerClass?: string;
+    /**
+     * Regex pattern for the input, forwarded to the underlying `OtpField.Input`.
+     * Defaults to digits only (`'^\d*$'`). Pass `null` to allow all characters.
+     */
+    pattern?: string | null;
   };
 
 const InputOTP = (props: InputOTPProps) => {
@@ -20,6 +25,7 @@ const InputOTP = (props: InputOTPProps) => {
     "required",
     "value",
     "onValueChange",
+    "pattern",
   ]);
 
   return (
@@ -33,6 +39,7 @@ const InputOTP = (props: InputOTPProps) => {
         id={local.id}
         data-slot="input-otp-input"
         class={cn("z-input-otp-input disabled:cursor-not-allowed", local.class)}
+        pattern={local.pattern}
         spellcheck={false}
         disabled={local.disabled}
         required={local.required}

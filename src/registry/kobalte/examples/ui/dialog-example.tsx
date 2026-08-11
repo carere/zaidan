@@ -76,11 +76,11 @@ function DialogWithForm() {
             <FieldGroup>
               <Field>
                 <FieldLabel for="name-1">Name</FieldLabel>
-                <Input id="name-1" name="name" value="Pedro Duarte" />
+                <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
               </Field>
               <Field>
                 <FieldLabel for="username-1">Username</FieldLabel>
-                <Input id="username-1" name="username" value="@peduarte" />
+                <Input id="username-1" name="username" defaultValue="@peduarte" />
               </Field>
             </FieldGroup>
             <DialogFooter>
@@ -108,10 +108,10 @@ function DialogScrollableContent() {
             <DialogTitle>Scrollable Content</DialogTitle>
             <DialogDescription>This is a dialog with scrollable content.</DialogDescription>
           </DialogHeader>
-          <div class="max-h-[70vh] overflow-y-auto">
+          <div class="no-scrollbar max-h-[70vh] overflow-y-auto style-vega:-mx-6 style-vega:px-6 style-nova:-mx-4 style-nova:px-4 style-lyra:-mx-4 style-lyra:px-4 style-maia:-mx-6 style-maia:px-6 style-mira:-mx-4 style-mira:px-4 style-luma:-mx-6 style-luma:px-6 style-rhea:-mx-6 style-rhea:px-6">
             <For each={Array.from({ length: 10 })}>
               {() => (
-                <p class="mb-4 leading-normal">
+                <p class="mb-4 leading-normal style-lyra:mb-2 style-lyra:leading-relaxed">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
                   exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
@@ -140,10 +140,10 @@ function DialogWithStickyFooter() {
             <DialogTitle>Scrollable Content</DialogTitle>
             <DialogDescription>This is a dialog with scrollable content.</DialogDescription>
           </DialogHeader>
-          <div class="max-h-[70vh] overflow-y-auto">
+          <div class="no-scrollbar max-h-[70vh] overflow-y-auto style-vega:-mx-6 style-vega:px-6 style-nova:-mx-4 style-nova:px-4 style-lyra:-mx-4 style-lyra:px-4 style-maia:-mx-6 style-maia:px-6 style-mira:-mx-4 style-mira:px-4 style-luma:-mx-6 style-luma:px-6 style-rhea:-mx-6 style-rhea:px-6">
             <For each={Array.from({ length: 10 })}>
               {() => (
-                <p class="mb-4 leading-normal">
+                <p class="mb-4 leading-normal style-lyra:mb-2 style-lyra:leading-relaxed">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                   incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
                   exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
@@ -239,10 +239,10 @@ const accents = [
 
 function DialogChatSettings() {
   const [tab, setTab] = createSignal("general");
-  const [theme, setTheme] = createSignal(themes[2]);
-  const [accentColor, setAccentColor] = createSignal(accents[0]);
-  const [spokenLanguage, setSpokenLanguage] = createSignal(spokenLanguages[1]);
-  const [voice, setVoice] = createSignal(voices[0]);
+  const [theme, setTheme] = createSignal(themes[2].value);
+  const [accentColor, setAccentColor] = createSignal(accents[0].value);
+  const [spokenLanguage, setSpokenLanguage] = createSignal(spokenLanguages[1].value);
+  const [voice, setVoice] = createSignal(voices[0].value);
 
   return (
     <Example title="Chat Settings" class="items-center justify-center">
@@ -276,7 +276,7 @@ function DialogChatSettings() {
                 <TabsTrigger value="personalization">Personalization</TabsTrigger>
                 <TabsTrigger value="security">Security</TabsTrigger>
               </TabsList>
-              <div class="min-h-[450px] rounded-lg border p-4 [&_[data-slot=select-trigger]]:min-w-[125px]">
+              <div class="border **:data-[slot=select-trigger]:min-w-[125px] style-vega:min-h-[550px] style-vega:rounded-lg style-vega:p-6 style-nova:min-h-[460px] style-nova:rounded-lg style-nova:p-4 style-lyra:min-h-[450px] style-lyra:rounded-none style-lyra:p-4 style-maia:min-h-[550px] style-maia:rounded-xl style-maia:p-6 style-mira:min-h-[450px] style-mira:rounded-md style-mira:p-4 style-luma:min-h-[550px] style-luma:rounded-xl style-luma:p-6 style-rhea:min-h-[480px] style-rhea:rounded-2xl style-rhea:p-6">
                 <TabsContent value="general">
                   <FieldSet>
                     <FieldGroup>
@@ -286,8 +286,8 @@ function DialogChatSettings() {
                           options={themes}
                           optionValue="value"
                           optionTextValue="label"
-                          value={theme()}
-                          onChange={setTheme}
+                          value={themes.find((item) => item.value === theme())}
+                          onChange={(item) => item && setTheme(item.value)}
                           itemComponent={(props) => (
                             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
                           )}
@@ -307,8 +307,8 @@ function DialogChatSettings() {
                           options={accents}
                           optionValue="value"
                           optionTextValue="label"
-                          value={accentColor()}
-                          onChange={setAccentColor}
+                          value={accents.find((item) => item.value === accentColor())}
+                          onChange={(item) => item && setAccentColor(item.value)}
                           itemComponent={(props) => (
                             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
                           )}
@@ -334,8 +334,8 @@ function DialogChatSettings() {
                           options={spokenLanguages}
                           optionValue="value"
                           optionTextValue="label"
-                          value={spokenLanguage()}
-                          onChange={setSpokenLanguage}
+                          value={spokenLanguages.find((item) => item.value === spokenLanguage())}
+                          onChange={(item) => item && setSpokenLanguage(item.value)}
                           itemComponent={(props) => (
                             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
                           )}
@@ -355,8 +355,8 @@ function DialogChatSettings() {
                           options={voices}
                           optionValue="value"
                           optionTextValue="label"
-                          value={voice()}
-                          onChange={setVoice}
+                          value={voices.find((item) => item.value === voice())}
+                          onChange={(item) => item && setVoice(item.value)}
                           itemComponent={(props) => (
                             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
                           )}

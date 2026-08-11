@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/pages/**/*.mdx", "src/registry/kobalte/examples/**/*.tsx", "velite.config.ts"],
+  "ignoreDependencies": ["@biomejs/biome", "@moonrepo/cli", "solid-mdx"],
+  "ignoreIssues": {
+    ".velite/**": ["files", "exports", "types"],
+    "src/lib/types.ts": ["duplicates"],
+    "src/registry/kobalte/**": ["files", "exports", "types"]
+  },
+  "ignoreExportsUsedInFile": true,
+  "treatConfigHintsAsErrors": true
+}

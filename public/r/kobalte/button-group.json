@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "button-group",
+  "dependencies": [
+    "class-variance-authority"
+  ],
+  "registryDependencies": [
+    "https://zaidan.carere.dev/r/kobalte/separator.json"
+  ],
+  "files": [
+    {
+      "path": "src/registry/kobalte/ui/button-group.tsx",
+      "content": "import { cva, type VariantProps } from \"class-variance-authority\";\nimport {\n  type ComponentProps,\n  type JSX,\n  mergeProps,\n  splitProps,\n  type ValidComponent,\n} from \"solid-js\";\nimport { Dynamic } from \"solid-js/web\";\n\nimport { cn } from \"@/lib/utils\";\nimport { Separator } from \"@/registry/kobalte/ui/separator\";\n\nconst buttonGroupVariants = cva(\n  \"group/button-group z-button-group flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1\",\n  {\n    variants: {\n      orientation: {\n        horizontal:\n          \"z-button-group-orientation-horizontal *:data-slot:rounded-r-none [&>[data-slot]~[data-slot]]:rounded-l-none [&>[data-slot]~[data-slot]]:border-l-0\",\n        vertical:\n          \"z-button-group-orientation-vertical flex-col *:data-slot:rounded-b-none [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t-0\",\n      },\n    },\n    defaultVariants: {\n      orientation: \"horizontal\",\n    },\n  },\n);\n\ntype ButtonGroupProps = ComponentProps<\"div\"> & VariantProps<typeof buttonGroupVariants>;\n\nconst ButtonGroup = (props: ButtonGroupProps) => {\n  const [local, others] = splitProps(props, [\"class\", \"orientation\"]);\n  return (\n    // biome-ignore lint/a11y/useSemanticElements: role=\"group\" matches the pinned shadcn contract\n    <div\n      class={cn(buttonGroupVariants({ orientation: local.orientation }), local.class)}\n      data-orientation={local.orientation}\n      data-slot=\"button-group\"\n      role=\"group\"\n      {...others}\n    />\n  );\n};\n\ntype ButtonGroupTextProps<T extends ValidComponent = \"div\"> = {\n  as?: T;\n  class?: string | undefined;\n  children?: JSX.Element;\n} & Omit<ComponentProps<T>, \"as\" | \"class\" | \"children\">;\n\nconst ButtonGroupText = <T extends ValidComponent = \"div\">(rawProps: ButtonGroupTextProps<T>) => {\n  const props = mergeProps({ as: \"div\" as T } as const, rawProps);\n  const [local, others] = splitProps(props as ButtonGroupTextProps, [\"as\", \"class\"]);\n  return (\n    <Dynamic\n      component={local.as}\n      data-slot=\"button-group-text\"\n      class={cn(\"z-button-group-text flex items-center [&_svg]:pointer-events-none\", local.class)}\n      {...others}\n    />\n  );\n};\n\ntype ButtonGroupSeparatorProps = ComponentProps<typeof Separator>;\n\nconst ButtonGroupSeparator = (props: ButtonGroupSeparatorProps) => {\n  const mergedProps = mergeProps({ orientation: \"vertical\" } as const, props);\n  const [local, others] = splitProps(mergedProps, [\"class\", \"orientation\"]);\n  return (\n    <Separator\n      class={cn(\n        \"relative z-button-group-separator self-stretch data-[orientation=horizontal]:mx-px data-[orientation=vertical]:my-px data-[orientation=vertical]:h-auto data-[orientation=horizontal]:w-auto\",\n        local.class,\n      )}\n      data-slot=\"button-group-separator\"\n      orientation={local.orientation}\n      {...others}\n    />\n  );\n};\n\nexport { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

@@ -1,0 +1,76 @@
+import { toast } from "solid-sonner";
+import { Example, ExampleWrapper } from "@/components/example";
+import { Button } from "@/registry/kobalte/ui/button";
+import { Toaster } from "@/registry/kobalte/ui/toast";
+
+export default function ToastExample() {
+  return (
+    <>
+      <Toaster />
+      <ExampleWrapper>
+        <ToastBasic />
+        <ToastWithAction />
+        <ToastPromise />
+      </ExampleWrapper>
+    </>
+  );
+}
+
+function ToastBasic() {
+  return (
+    <Example title="Basic" class="items-center justify-center">
+      <Button
+        variant="outline"
+        class="w-fit"
+        onClick={() =>
+          toast("Event created", {
+            description: "Sunday, December 3 at 9:00 AM",
+          })
+        }
+      >
+        Show Toast
+      </Button>
+    </Example>
+  );
+}
+
+function ToastWithAction() {
+  const showToast = () =>
+    toast("Event created", {
+      description: "You can undo this action.",
+      action: {
+        label: "Undo",
+        onClick: () => toast("Event creation undone."),
+      },
+    });
+
+  return (
+    <Example title="With Action" class="items-center justify-center">
+      <Button variant="outline" class="w-fit" onClick={showToast}>
+        Show Toast
+      </Button>
+    </Example>
+  );
+}
+
+function ToastPromise() {
+  const showToast = () =>
+    toast.promise(
+      new Promise<{ name: string }>((resolve) => {
+        window.setTimeout(() => resolve({ name: "Event" }), 2000);
+      }),
+      {
+        loading: "Creating event…",
+        success: (data) => `${data.name} created.`,
+        error: "Could not create event.",
+      },
+    );
+
+  return (
+    <Example title="Promise" class="items-center justify-center">
+      <Button variant="outline" class="w-fit" onClick={showToast}>
+        Create Event
+      </Button>
+    </Example>
+  );
+}

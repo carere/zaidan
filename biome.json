@@ -7,32 +7,15 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**/*.{ts,tsx,json,jsonc,css}", "!**/bun.lock", "!**/routeTree.gen.ts"]
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "nursery": {
-        "useSortedClasses": {
-          "level": "error",
-          "fix": "safe",
-          "options": {
-            "attributes": ["classList", "class"],
-            "functions": ["clsx", "cva", "cn"]
-          }
-        }
-      }
-    }
-  },
-  "css": {
-    "parser": {
-      "tailwindDirectives": true
-    },
-    "formatter": {
-      "enabled": true,
-      "indentStyle": "space"
-    }
+    "includes": [
+      "*.json",
+      "*.jsonc",
+      "*.ts",
+      "*.css",
+      "src/**/*",
+      "!src/routeTree.gen.ts",
+      "!src/pages/**/*.mdx"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -50,9 +33,20 @@
       }
     }
   },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
   "javascript": {
     "formatter": {
       "quoteStyle": "double"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   }
 }

@@ -1,9 +1,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { type ComponentProps, type JSX, splitProps } from "solid-js";
+import { type ComponentProps, mergeProps, splitProps } from "solid-js";
 
 import { cn } from "@/lib/utils";
 import { Button, type ButtonProps } from "@/registry/kobalte/ui/button";
-import { Input } from "@/registry/kobalte/ui/input";
+import { Input, type InputProps } from "@/registry/kobalte/ui/input";
 import { Textarea } from "@/registry/kobalte/ui/textarea";
 
 type InputGroupProps = ComponentProps<"div">;
@@ -11,12 +11,12 @@ type InputGroupProps = ComponentProps<"div">;
 const InputGroup = (props: InputGroupProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <exception for input group>
+    // biome-ignore lint/a11y/useSemanticElements: role="group" matches the pinned shadcn contract
     <div
       data-slot="input-group"
       role="group"
       class={cn(
-        "group/input-group relative z-input-group flex w-full min-w-0 items-center outline-none has-[>textarea]:h-auto",
+        "group/input-group z-input-group relative flex w-full min-w-0 items-center outline-none has-[>textarea]:h-auto",
         local.class,
       )}
       {...others}
@@ -25,7 +25,7 @@ const InputGroup = (props: InputGroupProps) => {
 };
 
 const inputGroupAddonVariants = cva(
-  "z-input-group-addon flex cursor-text select-none items-center justify-center",
+  "z-input-group-addon flex cursor-text items-center justify-center select-none",
   {
     variants: {
       align: {
@@ -43,29 +43,24 @@ const inputGroupAddonVariants = cva(
 
 type InputGroupAddonProps = ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>;
 
-const InputGroupAddon = (props: InputGroupAddonProps) => {
-  const [local, others] = splitProps(props, ["class", "align", "onClick"]);
-  const align = () => local.align ?? "inline-start";
-
-  const handleClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (e) => {
-    if ((e.target as HTMLElement).closest("button")) {
-      return;
-    }
-    e.currentTarget.parentElement?.querySelector("input")?.focus();
-    if (typeof local.onClick === "function") {
-      local.onClick(e);
-    }
-  };
+const InputGroupAddon = (rawProps: InputGroupAddonProps) => {
+  const props = mergeProps({ align: "inline-start" } as const, rawProps);
+  const [local, others] = splitProps(props, ["class", "align"]);
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <exception for input group addon>
-    // biome-ignore lint/a11y/useKeyWithClickEvents: <click delegates focus to input>
+    // biome-ignore lint/a11y/useSemanticElements: role="group" matches the pinned shadcn contract
+    // biome-ignore lint/a11y/useKeyWithClickEvents: pointer activation delegates focus to the input
     <div
       role="group"
       data-slot="input-group-addon"
-      data-align={align()}
-      class={cn(inputGroupAddonVariants({ align: align() }), local.class)}
-      onClick={handleClick}
+      data-align={local.align}
+      class={cn(inputGroupAddonVariants({ align: local.align }), local.class)}
+      onClick={(event) => {
+        if ((event.target as HTMLElement).closest("button")) {
+          return;
+        }
+        event.currentTarget.parentElement?.querySelector("input")?.focus();
+      }}
       {...others}
     />
   );
@@ -85,23 +80,21 @@ const inputGroupButtonVariants = cva("z-input-group-button flex items-center sha
   },
 });
 
-type InputGroupButtonProps = Omit<ButtonProps, "size"> &
+type InputGroupButtonProps = Omit<ButtonProps, "size" | "type"> &
   VariantProps<typeof inputGroupButtonVariants> & {
     type?: "button" | "submit" | "reset";
   };
 
-const InputGroupButton = (props: InputGroupButtonProps) => {
+const InputGroupButton = (rawProps: InputGroupButtonProps) => {
+  const props = mergeProps({ type: "button", variant: "ghost", size: "xs" } as const, rawProps);
   const [local, others] = splitProps(props, ["class", "type", "variant", "size"]);
-  const size = () => local.size ?? "xs";
-  const variant = () => local.variant ?? "ghost";
-  const type = () => local.type ?? "button";
 
   return (
     <Button
-      type={type()}
-      data-size={size()}
-      variant={variant()}
-      class={cn(inputGroupButtonVariants({ size: size() }), local.class)}
+      type={local.type}
+      data-size={local.size}
+      variant={local.variant}
+      class={cn(inputGroupButtonVariants({ size: local.size }), local.class)}
       {...others}
     />
   );
@@ -119,7 +112,7 @@ const InputGroupText = (props: InputGroupTextProps) => {
   );
 };
 
-type InputGroupInputProps = ComponentProps<"input">;
+type InputGroupInputProps = InputProps;
 
 const InputGroupInput = (props: InputGroupInputProps) => {
   const [local, others] = splitProps(props, ["class"]);
@@ -148,14 +141,8 @@ const InputGroupTextarea = (props: InputGroupTextareaProps) => {
 export {
   InputGroup,
   InputGroupAddon,
-  type InputGroupAddonProps,
   InputGroupButton,
-  type InputGroupButtonProps,
   InputGroupInput,
-  type InputGroupInputProps,
-  type InputGroupProps,
   InputGroupText,
   InputGroupTextarea,
-  type InputGroupTextareaProps,
-  type InputGroupTextProps,
 };

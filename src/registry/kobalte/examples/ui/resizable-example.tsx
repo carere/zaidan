@@ -109,7 +109,7 @@ function ResizableNested() {
 }
 
 function ResizableControlled() {
-  const [sizes, setSizes] = createSignal([0.3, 0.7]);
+  const [sizes, setSizes] = createSignal<number[]>([0.3, 0.7]);
 
   return (
     <Example title="Controlled">
@@ -117,9 +117,7 @@ function ResizableControlled() {
         orientation="horizontal"
         class="min-h-[200px] rounded-lg border"
         sizes={sizes()}
-        onSizesChange={(newSizes) => {
-          setSizes(newSizes);
-        }}
+        onSizesChange={setSizes}
       >
         <ResizablePanel initialSize={0.3} minSize={0.2}>
           <div class="flex h-full flex-col items-center justify-center gap-2 p-6">

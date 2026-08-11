@@ -2,10 +2,11 @@ import type { docs } from "@velite";
 import type { Component } from "solid-js";
 import { z } from "zod";
 import type { sharedComponents } from "@/components/mdx-components";
+import type { CreateShowcase } from "@/lib/create-previews";
 import { FONT_DEFINITIONS, type FontName } from "@/lib/fonts";
 import type { ColorMode } from "@/registry/kobalte/components/color-mode";
 
-export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera"]);
+export const StyleSchema = z.enum(["vega", "nova", "lyra", "maia", "mira", "luma", "sera", "rhea"]);
 export type Style = z.infer<typeof StyleSchema>;
 
 export const BaseColorSchema = z.enum([
@@ -58,22 +59,11 @@ export type Radius = z.infer<typeof RadiusSchema>;
 export const MenuAccentSchema = z.enum(["subtle", "bold"]);
 export type MenuAccent = z.infer<typeof MenuAccentSchema>;
 
-export type LockableParam =
-  | "style"
-  | "baseColor"
-  | "theme"
-  | "chartColor"
-  | "headingFont"
-  | "font"
-  | "radius"
-  | "menuAccent";
-
 export type TocEntry = docs["toc"];
 
 export type IframeMessage =
   | {
-      type: "design-system-params-sync";
-      data: DesignSystemConfig;
+      type: "preview-ready";
     }
   | {
       type: "cmd-k-forward";
@@ -84,19 +74,17 @@ export type IframeMessage =
       key: "d" | "D";
     }
   | {
-      type: "randomize-forward";
-      key: "r" | "R";
-    }
-  | {
       type: "color-mode-sync";
       data: ColorMode;
     }
   | {
-      type: "iframe-height-sync";
-      data: number;
+      type: "design-system-params-sync";
+      data: DesignSystemConfig;
+    }
+  | {
+      type: "showcase-change";
+      data: CreateShowcase;
     };
-
-export type IframeMessageType = IframeMessage["type"];
 
 export const PrimitiveSchema = z.enum(["kobalte", "base"]);
 
@@ -104,18 +92,28 @@ export type Primitive = z.infer<typeof PrimitiveSchema>;
 
 export type Kind = "ui" | "blocks";
 
-export const DesignSystemConfigSchema = z.object({
-  primitive: PrimitiveSchema.optional().default("kobalte"),
-  style: StyleSchema.optional().default("vega"),
-  baseColor: BaseColorSchema.optional().default("neutral"),
-  theme: ThemeSchema.optional().default("neutral"),
-  chartColor: ChartColorSchema.optional().default("neutral"),
-  font: FontSchema.optional().default("inter"),
-  headingFont: FontSchema.optional().default("inter"),
-  radius: RadiusSchema.optional().default("default"),
-  menuAccent: MenuAccentSchema.optional().default("subtle"),
-});
+export type DesignSystemConfig = {
+  primitive: Primitive;
+  style: Style;
+  baseColor: BaseColor;
+  theme: Theme;
+  chartColor: ChartColor;
+  font: Font;
+  headingFont: Font;
+  radius: Radius;
+  menuAccent: MenuAccent;
+};
 
-export type DesignSystemConfig = z.infer<typeof DesignSystemConfigSchema>;
+export const DesignSystemConfigSchema = z.object({
+  primitive: PrimitiveSchema,
+  style: StyleSchema,
+  baseColor: BaseColorSchema,
+  theme: ThemeSchema,
+  chartColor: ChartColorSchema,
+  font: FontSchema,
+  headingFont: FontSchema,
+  radius: RadiusSchema,
+  menuAccent: MenuAccentSchema,
+});
 
 export type MdxModule = { default: Component<{ components?: typeof sharedComponents }> };

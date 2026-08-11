@@ -1,0 +1,19 @@
+$schema: ./cache/schemas/workspace.json
+
+projects:
+  zaidan: "."
+
+defaultProject: zaidan
+
+vcs:
+  defaultBranch: main
+  provider: github
+
+remote:
+  api: "http"
+  host: "https://remoshu.carere.workers.dev"
+  auth:
+    token: "MOON_REMOTE_CACHE_TOKEN"
+  cache:
+    instanceName: "carere/zaidan"
+    verifyIntegrity: true

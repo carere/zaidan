@@ -1,100 +1,65 @@
 ---
 title: Combobox
 slug: combobox
-description: Autocomplete input and command palette with a list of suggestions.
+description: Autocomplete input with a list of suggestions.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/combobox
+  api: https://kobalte.dev/docs/core/components/combobox#api-reference
 example: combobox-example.tsx
 ---
 
-# Combobox
+The Combobox component is built on top of [Kobalte Combobox](https://kobalte.dev/docs/core/components/combobox), which provides the accessible autocomplete primitive and keyboard navigation.
 
-Autocomplete input and command palette with a list of suggestions.
+<ComponentPreview name="combobox-demo" description="A combobox with a list of frameworks." />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
 
 ```package-dlx
 shadcn@latest add @zaidan/combobox
 ```
 
-### Manual
+</TabsContent>
 
-Copy and paste the following code into your project.
+<TabsContent value="manual">
 
-```tsx file=../../../registry/kobalte/ui/combobox.tsx showLineNumbers
+<Steps class="mb-0 pt-2">
 
+<Step>Install the following dependencies:</Step>
+
+```package-install
+@kobalte/core lucide-solid
 ```
 
-## Props
+<Step>Add the Button and Input Group components to your project.</Step>
 
-The Combobox component uses Kobalte's Combobox primitive under the hood. Here are the main props:
+The Combobox component uses them for its trigger and input controls.
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `options` | `T[]` | - | The array of options to display |
-| `optionValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's value |
-| `optionTextValue` | `keyof T \| ((option: T) => string)` | - | Key or function to get the option's text for filtering |
-| `optionDisabled` | `keyof T \| ((option: T) => boolean)` | - | Key or function to determine if option is disabled |
-| `optionGroupChildren` | `keyof T` | - | Key for grouped options' children array |
-| `value` | `T` | - | The controlled value of the combobox |
-| `defaultValue` | `T` | - | The default value of the combobox |
-| `onChange` | `(value: T) => void` | - | Handler called when value changes |
-| `placeholder` | `string` | - | Placeholder text when no value is selected |
-| `disabled` | `boolean` | `false` | Whether the combobox is disabled |
-| `validationState` | `"valid" \| "invalid"` | - | The validation state of the combobox |
-| `multiple` | `boolean` | `false` | Whether multiple options can be selected |
-| `defaultFilter` | `"startsWith" \| "endsWith" \| "contains" \| function` | `"contains"` | The filtering strategy |
-| `triggerMode` | `"input" \| "focus" \| "manual"` | `"input"` | When to open the dropdown |
+<Step>Copy and paste the following code into your project.</Step>
 
-### ComboboxInput
+<ComponentSource name="combobox" title="components/ui/combobox.tsx" />
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `showTrigger` | `boolean` | `true` | Show the dropdown trigger button |
-| `showClear` | `boolean` | `false` | Show the clear button when value is selected |
-| `placeholder` | `string` | - | Placeholder text |
-| `disabled` | `boolean` | `false` | Whether the input is disabled |
-| `class` | `string` | - | Additional CSS classes |
+<Step>Update the import paths to match your project setup.</Step>
 
-### ComboboxTrigger
+</Steps>
 
-Used for popup-style combobox (button trigger instead of input).
+</TabsContent>
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `size` | `"sm" \| "default"` | `"default"` | The size variant of the trigger |
-| `class` | `string` | - | Additional CSS classes |
+</CodeTabs>
 
-### ComboboxContent
+## Usage
 
-The ComboboxContent component wraps the dropdown portal and listbox. It inherits positioning from the Combobox root.
-
-### ComboboxItem
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `item` | `ListState.Option<T>` | - | The item object from Kobalte |
-| `disabled` | `boolean` | `false` | Whether the item is disabled |
-
-### ComboboxEmpty
-
-Displayed when no options match the filter.
-
-### ComboboxSection / ComboboxSectionLabel
-
-Used for grouping options when using `optionGroupChildren`.
-
-### ComboboxSeparator
-
-Visual separator between groups.
-
-## Examples
-
-Here are the source code of all the examples from the preview page:
-
-### Basic
-
-```tsx
+```tsx showLineNumbers
 import {
   Combobox,
   ComboboxContent,
@@ -102,144 +67,93 @@ import {
   ComboboxInput,
   ComboboxItem,
 } from "~/components/ui/combobox";
+
+const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L70-L87
-
+```tsx showLineNumbers
+<Combobox
+  options={frameworks}
+  placeholder="Select a framework..."
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+  )}
+>
+  <ComboboxInput placeholder="Select a framework..." />
+  <ComboboxContent>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
+  </ComboboxContent>
+</Combobox>
 ```
 
-### Disabled
+See the [Kobalte Combobox documentation](https://kobalte.dev/docs/core/components/combobox) for primitive-level options, accessibility, and keyboard behavior.
 
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-```
+## Composition
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L89-L107
+### Simple
 
-```
+A single-line input and a flat list rendered from `options` via `itemComponent` (see [Basic](#basic)).
 
-### Invalid
-
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L109-L151
-
-```
-
-### With Clear Button
-
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L153-L171
-
+```text
+Combobox
+├── ComboboxInput
+└── ComboboxContent
+    └── ComboboxEmpty
 ```
 
 ### With Groups
 
-```tsx
-import { Show } from "solid-js";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxSection,
-  ComboboxSectionLabel,
-} from "~/components/ui/combobox";
+Group `options` with `optionGroupChildren`, and render a section heading (and an optional separator) from `sectionComponent` (see [Groups](#groups)).
+
+```text
+Combobox
+├── ComboboxInput
+└── ComboboxContent
+    └── ComboboxEmpty
+
+sectionComponent renders, per group:
+├── ComboboxSeparator (optional, skipped for the first group)
+└── ComboboxSection
+    └── ComboboxSectionLabel
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L216-L241
+## Custom Items
 
+Use `optionValue` and `optionTextValue` when your options are objects.
+
+```tsx showLineNumbers
+type Framework = {
+  label: string;
+  value: string;
+};
+
+const frameworks: Framework[] = [
+  { label: "Next.js", value: "next" },
+  { label: "SvelteKit", value: "sveltekit" },
+  { label: "Nuxt", value: "nuxt" },
+];
+
+<Combobox
+  options={frameworks}
+  optionValue="value"
+  optionTextValue="label"
+  placeholder="Select a framework..."
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue.label}</ComboboxItem>
+  )}
+>
+  <ComboboxInput placeholder="Select a framework..." />
+  <ComboboxContent>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
+  </ComboboxContent>
+</Combobox>
 ```
 
-### With Groups and Separator
+## Multiple Selection
 
-```tsx
-import { Show } from "solid-js";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxSection,
-  ComboboxSectionLabel,
-  ComboboxSeparator,
-} from "~/components/ui/combobox";
-```
+Use `multiple` (with a `T[]` `value`/`defaultValue`) for multi-select behavior. The input text reflects the selection the same way single-select does.
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L243-L273
-
-```
-
-### Large List (100 items)
-
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L280-L299
-
-```
-
-### With Icon Addon
-
-```tsx
-import { Globe } from "lucide-solid";
-import { Show } from "solid-js";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxSection,
-  ComboboxSectionLabel,
-  ComboboxSeparator,
-} from "~/components/ui/combobox";
-import { InputGroupAddon } from "~/components/ui/input-group";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L301-L335
-
-```
-
-### Form with Combobox
-
-```tsx
-import { toast } from "solid-sonner";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardFooter } from "~/components/ui/card";
+```tsx showLineNumbers
 import {
   Combobox,
   ComboboxContent,
@@ -247,149 +161,77 @@ import {
   ComboboxInput,
   ComboboxItem,
 } from "~/components/ui/combobox";
-import { Field, FieldGroup, FieldLabel } from "~/components/ui/field";
+
+<Combobox
+  options={frameworks}
+  placeholder="Select frameworks..."
+  multiple
+  defaultValue={[frameworks[0]]}
+  itemComponent={(props) => (
+    <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
+  )}
+>
+  <ComboboxInput placeholder="Select frameworks..." />
+  <ComboboxContent>
+    <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
+  </ComboboxContent>
+</Combobox>
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L337-L381
+## Basic
 
-```
+A simple combobox with a list of frameworks.
 
-### Multiple Selection
+<ComponentPreview name="combobox-basic" />
 
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-```
+## Multiple
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L383-L402
+A combobox with multiple selection using `multiple`.
 
-```
+<ComponentPreview name="combobox-multiple" />
 
-### Multiple Selection Disabled
+## Clear Button
 
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-```
+Use the `showClear` prop to show a clear button.
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L404-L424
+<ComponentPreview name="combobox-clear" />
 
-```
+## Groups
 
-### Multiple Selection Invalid
+Use `optionGroupChildren` with a `sectionComponent` rendering `ComboboxSection`, `ComboboxSectionLabel`, and `ComboboxSeparator` to group items.
 
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-import { Field, FieldDescription, FieldError, FieldLabel } from "~/components/ui/field";
-```
+<ComponentPreview name="combobox-groups" />
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L426-L472
+## Custom Items
 
-```
+You can render a custom component inside `ComboboxItem` via `itemComponent`.
 
-### With Custom Item Rendering
+<ComponentPreview name="combobox-custom" />
 
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-import { Item, ItemContent, ItemDescription, ItemTitle } from "~/components/ui/item";
-```
+## Invalid
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L503-L531
+Use the `validationState="invalid"` prop to make the combobox invalid.
 
-```
+<ComponentPreview name="combobox-invalid" />
 
-### With Field
+## Disabled
 
-```tsx
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field";
-```
+Use the `disabled` prop to disable the combobox.
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L533-L554
+<ComponentPreview name="combobox-disabled" />
 
-```
+## Popup
 
-### In Dialog
+Use `ComboboxTrigger` to open a combobox from a button instead of a text input.
 
-```tsx
-import { createSignal } from "solid-js";
-import { toast } from "solid-sonner";
-import { Button } from "~/components/ui/button";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import { Field, FieldLabel } from "~/components/ui/field";
-```
+<ComponentPreview name="combobox-popup" />
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L556-L607
+## Input Group
 
-```
+Add an addon to the combobox by placing `InputGroupAddon` inside `ComboboxInput`.
 
-### With Other Inputs
+<ComponentPreview name="combobox-input-group" />
 
-```tsx
-import { ChevronDown } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-} from "~/components/ui/combobox";
-import { Input } from "~/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "~/components/ui/input-group";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-```
+## API Reference
 
-```tsx file=../../../registry/kobalte/examples/ui/combobox-example.tsx#L620-L666
-
-```
+See the [Kobalte Combobox API reference](https://kobalte.dev/docs/core/components/combobox#api-reference) for primitive props, keyboard behavior, and accessibility details.

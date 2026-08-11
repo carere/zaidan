@@ -1,8 +1,8 @@
 import { For, Index } from "solid-js";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/registry/kobalte/ui/field";
 import { Input } from "@/registry/kobalte/ui/input";
-import { Label } from "@/registry/kobalte/ui/label";
 import {
   Sheet,
   SheetClose,
@@ -38,17 +38,17 @@ function SheetWithForm() {
               Make changes to your profile here. Click save when you&apos;re done.
             </SheetDescription>
           </SheetHeader>
-          <div class="px-4">
-            <div class="flex flex-col gap-4">
-              <div class="flex flex-col gap-2">
-                <Label for="sheet-demo-name">Name</Label>
+          <div class="style-vega:px-4 style-nova:px-4 style-lyra:px-4 style-maia:px-6 style-mira:px-6 style-luma:px-6 style-rhea:px-6">
+            <FieldGroup>
+              <Field>
+                <FieldLabel for="sheet-demo-name">Name</FieldLabel>
                 <Input id="sheet-demo-name" value="Pedro Duarte" />
-              </div>
-              <div class="flex flex-col gap-2">
-                <Label for="sheet-demo-username">Username</Label>
+              </Field>
+              <Field>
+                <FieldLabel for="sheet-demo-username">Username</FieldLabel>
                 <Input id="sheet-demo-username" value="@peduarte" />
-              </div>
-            </div>
+              </Field>
+            </FieldGroup>
           </div>
           <SheetFooter>
             <Button type="submit">Save changes</Button>
@@ -105,7 +105,7 @@ function SheetWithSides() {
                     Make changes to your profile here. Click save when you&apos;re done.
                   </SheetDescription>
                 </SheetHeader>
-                <div class="no-scrollbar overflow-y-auto px-4">
+                <div class="no-scrollbar overflow-y-auto style-vega:px-4 style-nova:px-4 style-lyra:px-4 style-maia:px-6 style-mira:px-6 style-luma:px-6 style-rhea:px-6">
                   <Index each={Array.from({ length: 10 })}>
                     {() => (
                       <p class="mb-4 style-lyra:mb-2 leading-normal style-lyra:leading-relaxed">

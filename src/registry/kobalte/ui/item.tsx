@@ -15,11 +15,11 @@ type ItemGroupProps = ComponentProps<"div">;
 const ItemGroup = (props: ItemGroupProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
-    // biome-ignore lint/a11y/useSemanticElements: Using div with role for flexibility as per shadcn design
+    // biome-ignore lint/a11y/useSemanticElements: role="list" matches the pinned shadcn contract
     <div
       role="list"
       data-slot="item-group"
-      class={cn("group/item-group z-item-group flex w-full flex-col", local.class)}
+      class={cn("z-item-group group/item-group flex w-full flex-col", local.class)}
       {...others}
     />
   );
@@ -40,7 +40,7 @@ const ItemSeparator = (props: ItemSeparatorProps) => {
 };
 
 const itemVariants = cva(
-  "group/item z-item flex w-full flex-wrap items-center outline-none transition-colors duration-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors",
+  "z-item group/item flex w-full flex-wrap items-center transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors",
   {
     variants: {
       variant: {
@@ -140,7 +140,7 @@ const ItemTitle = (props: ItemTitleProps) => {
   return (
     <div
       data-slot="item-title"
-      class={cn("z-font-heading z-item-title line-clamp-1 flex w-fit items-center", local.class)}
+      class={cn("z-item-title line-clamp-1 flex w-fit items-center", local.class)}
       {...others}
     />
   );
@@ -154,7 +154,7 @@ const ItemDescription = (props: ItemDescriptionProps) => {
     <p
       data-slot="item-description"
       class={cn(
-        "z-item-description line-clamp-2 font-normal [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
+        "z-item-description line-clamp-2 font-normal [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         local.class,
       )}
       {...others}
@@ -212,6 +212,4 @@ export {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
-  itemMediaVariants,
-  itemVariants,
 };

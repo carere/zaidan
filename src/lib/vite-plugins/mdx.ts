@@ -14,14 +14,18 @@ import remarkGfm from "remark-gfm";
 import type { Pluggable } from "unified";
 import { VFile } from "vfile";
 import type { Plugin as VitePlugin } from "vite";
-import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code";
-import { codeImport as remarkCodeImport } from "../remark-plugins/code-import";
-import { remarkCodeTabs } from "../remark-plugins/code-tabs";
-import { remarkDirectiveContainers } from "../remark-plugins/directives";
-import { remarkGithubAlertsToDirectives } from "../remark-plugins/gh-directives";
-import { remarkAddClass } from "../remark-plugins/kbd";
-import { remarkPackageManagerTabs } from "../remark-plugins/package-manager-tabs";
-import { remarkTabGroup } from "../remark-plugins/tab-group";
+import { codeThemeNames } from "../code-highlighting.ts";
+import { pluginTitledCodeBlocks } from "../expressive-code-plugins/titled-code-blocks.ts";
+import { rehypeCollapseExpressiveCode } from "../rehype-plugins/collapse-expressive-code.ts";
+import { rehypeFixExpressiveCodeJsx } from "../rehype-plugins/fix-expressive-code.ts";
+import { codeImport as remarkCodeImport } from "../remark-plugins/code-import.ts";
+import { remarkCodeTabs } from "../remark-plugins/code-tabs.ts";
+import { remarkComponentSource } from "../remark-plugins/component-source.ts";
+import { remarkDirectiveContainers } from "../remark-plugins/directives.ts";
+import { remarkGithubAlertsToDirectives } from "../remark-plugins/gh-directives.ts";
+import { remarkAddClass } from "../remark-plugins/kbd.ts";
+import { remarkPackageManagerTabs } from "../remark-plugins/package-manager-tabs.ts";
+import { remarkTabGroup } from "../remark-plugins/tab-group.ts";
 
 async function jsxToES2019(code_jsx: string) {
   // We use `esbuild` ourselves instead of letting Vite doing the esbuild transform,
@@ -54,19 +58,27 @@ export const rehypePlugins: Pluggable[] = [
   [
     rehypeExpressiveCode,
     {
-      themes: ["catppuccin-mocha", "catppuccin-latte"],
+      themes: [...codeThemeNames],
       themeCssSelector: (theme: ExpressiveCodeTheme) => `.${theme.type}`,
-      plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
+      minSyntaxHighlightingColorContrast: 0,
+      plugins: [pluginCollapsibleSections(), pluginLineNumbers(), pluginTitledCodeBlocks()],
       defaultProps: {
         showLineNumbers: false,
         collapseStyle: "collapsible-auto",
       },
     },
   ],
+  rehypeCollapseExpressiveCode,
   rehypeFixExpressiveCodeJsx,
   [rehypeRaw, { passThrough: nodeTypes }],
   rehypeSlug,
-  [rehypeAutolinkHeadings, { behavior: "wrap", properties: { "data-auto-heading": "" } }],
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: "wrap",
+      properties: { "data-auto-heading": "", className: ["group", "no-underline"] },
+    },
+  ],
 ];
 
 export const remarkPlugins: Pluggable[] = [
@@ -79,6 +91,7 @@ export const remarkPlugins: Pluggable[] = [
   remarkDirective,
   remarkDirectiveContainers,
   remarkAddClass,
+  remarkComponentSource,
   remarkCodeImport,
 ];
 

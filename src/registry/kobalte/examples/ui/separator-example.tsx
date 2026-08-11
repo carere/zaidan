@@ -15,7 +15,7 @@ export default function SeparatorExample() {
 function SeparatorHorizontal() {
   return (
     <Example title="Horizontal">
-      <div class="flex flex-col gap-4 style-lyra:text-xs/relaxed text-sm">
+      <div class="flex flex-col gap-4 text-sm style-lyra:text-xs/relaxed">
         <div class="flex flex-col gap-1">
           <div class="font-medium leading-none">shadcn/ui</div>
           <div class="text-muted-foreground">The Foundation for your Design System</div>
@@ -32,7 +32,7 @@ function SeparatorHorizontal() {
 function SeparatorVertical() {
   return (
     <Example title="Vertical">
-      <div class="flex h-5 items-center gap-4 style-lyra:text-xs/relaxed text-sm">
+      <div class="flex h-5 items-center gap-4 text-sm style-lyra:text-xs/relaxed">
         <div>Blog</div>
         <Separator orientation="vertical" />
         <div>Docs</div>
@@ -46,7 +46,7 @@ function SeparatorVertical() {
 function SeparatorVerticalMenu() {
   return (
     <Example title="Vertical Menu">
-      <div class="flex items-center gap-2 style-lyra:text-xs/relaxed text-sm md:gap-4">
+      <div class="flex items-center gap-2 text-sm md:gap-4 style-lyra:text-xs/relaxed">
         <div class="flex flex-col gap-1">
           <span class="font-medium">Settings</span>
           <span class="text-muted-foreground text-xs">Manage preferences</span>
@@ -69,7 +69,7 @@ function SeparatorVerticalMenu() {
 function SeparatorInList() {
   return (
     <Example title="In List">
-      <div class="flex flex-col gap-2 style-lyra:text-xs/relaxed text-sm">
+      <div class="flex flex-col gap-2 text-sm style-lyra:text-xs/relaxed">
         <dl class="flex items-center justify-between">
           <dt>Item 1</dt>
           <dd class="text-muted-foreground">Value 1</dd>

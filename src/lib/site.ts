@@ -13,5 +13,3 @@ export const siteConfig = {
   ogImage: "/zaidan-og.png",
   twitterHandle: "carere_dev",
 } as const;
-
-export type SiteConfig = typeof siteConfig;

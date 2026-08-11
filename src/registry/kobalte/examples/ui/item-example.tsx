@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/a11y/useValidAnchor: <example file> */
 import { Inbox } from "lucide-solid";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -17,7 +16,7 @@ import {
 
 export default function ItemExample() {
   return (
-    <ExampleWrapper>
+    <ExampleWrapper id="item-example">
       <DefaultVariantItems />
       <OutlineVariantItems />
       <MutedVariantItems />
@@ -893,18 +892,18 @@ function DefaultLinkItems() {
   return (
     <Example title="As Link">
       <ItemGroup>
-        <Item as="a" href="#">
+        <Item as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>Title Only (Link)</ItemTitle>
           </ItemContent>
         </Item>
-        <Item as="a" href="#">
+        <Item as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>Title + Description (Link)</ItemTitle>
             <ItemDescription>Clickable item with title and description.</ItemDescription>
           </ItemContent>
         </Item>
-        <Item as="a" href="#">
+        <Item as="a" href="#item-example">
           <ItemMedia variant="icon">
             <Inbox />
           </ItemMedia>
@@ -912,7 +911,7 @@ function DefaultLinkItems() {
             <ItemTitle>Media + Title (Link)</ItemTitle>
           </ItemContent>
         </Item>
-        <Item as="a" href="#">
+        <Item as="a" href="#item-example">
           <ItemMedia variant="icon">
             <Inbox />
           </ItemMedia>
@@ -923,7 +922,7 @@ function DefaultLinkItems() {
             </ItemDescription>
           </ItemContent>
         </Item>
-        <Item as="a" href="#">
+        <Item as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>With Actions (Link)</ItemTitle>
             <ItemDescription>Link item that also has action buttons.</ItemDescription>
@@ -943,18 +942,18 @@ function OutlineLinkItems() {
   return (
     <Example title="Outline - As Link">
       <ItemGroup>
-        <Item variant="outline" as="a" href="#">
+        <Item variant="outline" as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>Title Only (Link)</ItemTitle>
           </ItemContent>
         </Item>
-        <Item variant="outline" as="a" href="#">
+        <Item variant="outline" as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>Title + Description (Link)</ItemTitle>
             <ItemDescription>Clickable item with title and description.</ItemDescription>
           </ItemContent>
         </Item>
-        <Item variant="outline" as="a" href="#">
+        <Item variant="outline" as="a" href="#item-example">
           <ItemMedia variant="icon">
             <Inbox />
           </ItemMedia>
@@ -962,7 +961,7 @@ function OutlineLinkItems() {
             <ItemTitle>Media + Title (Link)</ItemTitle>
           </ItemContent>
         </Item>
-        <Item variant="outline" as="a" href="#">
+        <Item variant="outline" as="a" href="#item-example">
           <ItemMedia variant="icon">
             <Inbox />
           </ItemMedia>
@@ -973,7 +972,7 @@ function OutlineLinkItems() {
             </ItemDescription>
           </ItemContent>
         </Item>
-        <Item variant="outline" as="a" href="#">
+        <Item variant="outline" as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>With Actions (Link)</ItemTitle>
             <ItemDescription>Link item that also has action buttons.</ItemDescription>
@@ -993,18 +992,18 @@ function MutedLinkItems() {
   return (
     <Example title="Muted - As Link">
       <ItemGroup>
-        <Item variant="muted" as="a" href="#">
+        <Item variant="muted" as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>Title Only (Link)</ItemTitle>
           </ItemContent>
         </Item>
-        <Item variant="muted" as="a" href="#">
+        <Item variant="muted" as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>Title + Description (Link)</ItemTitle>
             <ItemDescription>Clickable item with title and description.</ItemDescription>
           </ItemContent>
         </Item>
-        <Item variant="muted" as="a" href="#">
+        <Item variant="muted" as="a" href="#item-example">
           <ItemMedia variant="icon">
             <Inbox />
           </ItemMedia>
@@ -1012,7 +1011,7 @@ function MutedLinkItems() {
             <ItemTitle>Media + Title (Link)</ItemTitle>
           </ItemContent>
         </Item>
-        <Item variant="muted" as="a" href="#">
+        <Item variant="muted" as="a" href="#item-example">
           <ItemMedia variant="icon">
             <Inbox />
           </ItemMedia>
@@ -1023,7 +1022,7 @@ function MutedLinkItems() {
             </ItemDescription>
           </ItemContent>
         </Item>
-        <Item variant="muted" as="a" href="#">
+        <Item variant="muted" as="a" href="#item-example">
           <ItemContent>
             <ItemTitle>With Actions (Link)</ItemTitle>
             <ItemDescription>Link item that also has action buttons.</ItemDescription>

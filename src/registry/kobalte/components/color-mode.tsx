@@ -54,9 +54,15 @@ export function useColorMode(): ColorModeContextValue {
   return context;
 }
 
-export const getClientColorMode = () =>
-  document.cookie
+export const getClientColorMode = (): ColorMode => {
+  const cookieColorMode = document.cookie
     .split("; ")
     .find((cookie) => cookie.startsWith(`${ZAIDAN_COLOR_MODE_COOKIE_KEY}=`))
-    ?.split("=")[1] ??
-  (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    ?.split("=")[1];
+
+  if (cookieColorMode === "light" || cookieColorMode === "dark") {
+    return cookieColorMode;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};

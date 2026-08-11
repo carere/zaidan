@@ -1,36 +1,31 @@
-# Build
-.solid
-.output
-.netlify
-.tanstack
-dist/
-public/static
-public/r
-
-# Content
-.velite
-
-# Environment
-.env
-.env*.local
-.dev-ports.json
-
 # dependencies
-/node_modules
+node_modules
 
-# Coudflare
-.wrangler/
+# build output
+dist
+.tanstack
+.velite
+.content-collections
+.registry-build-*
 
-# Claude Code
-trees/
-specs/
-ai_docs/*
-ai_review/
-!ai_docs/README.md
+# test output
+test-results
 
-# System Files
+# moon
+.moon/cache
+.moon/docker
+
+# cloudflare
+.wrangler
+.dev.vars*
+!**/.dev.vars.example
+
+# TypeScript
+*.tsbuildinfo
+
+# platform
 .DS_Store
-Thumbs.db
 
-# UI Review
-screenshots/
+# environment
+.env*
+!**/.env.example

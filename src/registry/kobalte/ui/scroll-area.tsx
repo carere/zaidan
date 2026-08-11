@@ -62,7 +62,7 @@ const ScrollArea = (props: ScrollAreaProps) => {
         {...others}
       >
         <div
-          class="size-full overflow-auto rounded-[inherit] outline-none transition-[color,box-shadow] [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:outline-1 focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-scrollbar]:hidden"
+          class="size-full overflow-auto rounded-[inherit] outline-none transition-[color,box-shadow] [-ms-overflow-style:none] scrollbar-none focus-visible:outline-1 focus-visible:ring-[3px] focus-visible:ring-ring/50 [&::-webkit-scrollbar]:hidden"
           data-slot="scroll-area-viewport"
           ref={viewportRef}
         >

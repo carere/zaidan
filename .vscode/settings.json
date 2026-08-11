@@ -1,4 +1,5 @@
 {
+  "css.validate": false,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.indentSize": "tabSize",
@@ -6,31 +7,6 @@
     "source.fixAll.biome": "always",
     "source.organizeImports.biome": "always",
     "source.removeUnusedImports": "always"
-  },
-  "css.validate": false,
-  "[yaml,yml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[html]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome"
   },
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true
@@ -41,9 +17,21 @@
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
   },
+  "[yaml][yml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "[json][jsonc][html][css][typescript][typescriptreact][javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "js/ts.updateImportsOnPaste.enabled": true,
   "js/ts.experimental.useTsgo": true,
-  "js/ts.tsdk.path": "node_modules/@typescript/native-preview-darwin-arm64/lib",
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
   "tailwindCSS.classAttributes": ["class"],
+  "tailwindCSS.classFunctions": ["cva", "clsx", "cn"],
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["classList={{([^;]*)}}", "\\s*?[\"'`]([^\"'`]*).*?:"],
@@ -53,19 +41,20 @@
   "cSpell.words": [
     "Abatan",
     "adws",
+    "autoscrolling",
     "bento",
-    "Binstall",
     "biomejs",
     "bunx",
     "carere",
     "cmdk",
-    "commitlint",
+    "cocogitto",
     "Corvu",
     "Cpath",
     "CRDT",
     "Crect",
     "Csvg",
     "Customizer",
+    "direnv",
     "Embla",
     "esast",
     "extralight",
@@ -77,8 +66,7 @@
     "hovercard",
     "isodate",
     "jsxs",
-    "knope",
-    "Knope",
+    "knip",
     "kobalte",
     "lefthook",
     "linecap",
@@ -87,6 +75,7 @@
     "luma",
     "mdxjs",
     "merriweather",
+    "moonrepo",
     "networkidle",
     "noto",
     "nowrap",
@@ -95,6 +84,7 @@
     "oklch",
     "oxanium",
     "playfair",
+    "playwright",
     "raleway",
     "rehype",
     "roboto",
@@ -103,12 +93,11 @@
     "shikijs",
     "solidjs",
     "solidstart",
-    "Sonner",
     "subcontent",
     "syncer",
     "tablist",
     "tanstack",
-    "tsgo",
+    "toplevel",
     "tsrouter",
     "twoslash",
     "UNGH",
@@ -116,6 +105,8 @@
     "velite",
     "vinxi",
     "vite",
+    "vitest",
+    "worktrees",
     "zaidan"
   ]
 }

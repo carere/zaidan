@@ -342,7 +342,7 @@ function TableWithSelect() {
                   >
                     <SelectTrigger class="w-40" size="sm">
                       <SelectValue<(typeof people)[number]>>
-                        {(state) => state.selectedOption()?.label}
+                        {(state) => state.selectedOption().label}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent />
@@ -381,7 +381,12 @@ function TableWithInput() {
               <TableRow>
                 <TableCell class="font-medium">{product.name}</TableCell>
                 <TableCell>
-                  <Input type="number" value={index() === 1 ? "2" : "1"} class="h-8 w-20" min="0" />
+                  <Input
+                    type="number"
+                    defaultValue={index() === 1 ? "2" : "1"}
+                    class="h-8 w-20"
+                    min="0"
+                  />
                 </TableCell>
                 <TableCell>{product.price}</TableCell>
               </TableRow>

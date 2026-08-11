@@ -1,6 +1,13 @@
 # Base UI to Kobalte/Corvu Mapping Reference
 
-Complete mapping reference for transforming Base UI (React) patterns to Kobalte and Corvu (SolidJS) equivalents. This is used when converting shadcn components that use `@base-ui/react-*` imports.
+Mapping reference for transforming Base UI (React) patterns to Kobalte and
+Corvu (SolidJS) equivalents. This is used when converting shadcn components
+that use `@base-ui/react-*` imports.
+
+This table is intentionally a starting point, not an exhaustive selector
+contract. Inspect the actual rendered DOM and installed primitive source/types
+for every port. Component structure, state attributes, and CSS variables can
+differ even when parts have similar names.
 
 ## Table of Contents
 
@@ -8,6 +15,7 @@ Complete mapping reference for transforming Base UI (React) patterns to Kobalte 
 - [Data Attribute Mapping](#data-attribute-mapping)
 - [CSS Variable Mapping](#css-variable-mapping)
 - [Import Mapping](#import-mapping)
+- [Style Semantic Marker Translation](#style-semantic-marker-translation)
 - [Component-Specific Mappings](#component-specific-mappings)
 - [Prop Mapping](#prop-mapping)
 - [Render Pattern Mapping](#render-pattern-mapping)
@@ -53,6 +61,25 @@ Complete mapping reference for transforming Base UI (React) patterns to Kobalte 
 | `data-popup-open` | `data-expanded` | Dropdown is open |
 | `data-placeholder-shown` | `data-placeholder-shown` | Placeholder visible |
 
+### Toast-Specific Attributes
+
+Base Toast and Kobalte Toast use different lifecycle and swipe models. Port the
+visual behavior rather than copying selectors verbatim.
+
+| Base UI | Kobalte | Adaptation |
+|---|---|---|
+| `data-starting-style` | No direct equivalent | `data-opened` is persistent; use explicit enter state/animation when first-open behavior matters |
+| `data-ending-style` | No direct equivalent | `data-closed` is persistent; use explicit exit state/animation when closing behavior matters |
+| `data-swipe-direction="…"` | `data-swipe-direction="…"` | Same direction attribute |
+| Base swipe movement variables | `--kb-toast-swipe-move-x`, `--kb-toast-swipe-move-y` | Rename transform inputs |
+| Base swipe end variables | `--kb-toast-swipe-end-x`, `--kb-toast-swipe-end-y` | Rename exit transform inputs |
+| Base progress variable | `--kb-toast-progress-fill-width` | Use on Kobalte `ProgressFill` |
+| Base stacked index/offset/height variables | No direct equivalent | Recreate only if required for shadcn stack parity; verify against Kobalte Region/List behavior |
+
+Kobalte Root also exposes `data-swipe="start|move|cancel|end"`. Base selectors
+such as `data-limited` and `data-expanded` do not have automatic one-to-one
+Kobalte equivalents and may require wrapper state.
+
 ## CSS Variable Mapping
 
 ### Accordion / Collapsible
@@ -71,6 +98,10 @@ Complete mapping reference for transforming Base UI (React) patterns to Kobalte 
 | `--anchor-width` | Use `sameWidth` prop on Kobalte |
 | `--available-height` | Use `fitViewport` prop on Kobalte |
 | `--transform-origin` | `--kb-popper-content-transform-origin` or `--kb-select-content-transform-origin` |
+
+Do not translate `--available-height` to a prop inside authored Zaidan style
+CSS. When a selector needs the computed value, use the primitive variable
+actually exposed by the wrapper, commonly `--kb-popper-available-height`.
 
 ### Navigation Menu
 
@@ -109,6 +140,43 @@ Complete mapping reference for transforming Base UI (React) patterns to Kobalte 
 |---|---|
 | N/A (vaul) | `@corvu/drawer` |
 | N/A (react-resizable-panels) | `@corvu/resizable` |
+
+### Toast
+
+| Base UI Part | Kobalte Part | Notes |
+|---|---|---|
+| `Toast.Provider` | No direct equivalent | Kobalte uses its toaster state plus Region/List; adapter context may be needed for shadcn manager parity |
+| `Toast.Portal` | `Portal` | Use Solid/Kobalte Portal around Region/List when required |
+| `Toast.Viewport` | `Toast.Region` + `Toast.List` | No direct one-part equivalent |
+| `Toast.Root` | `Toast.Root` | Kobalte requires the toast ID from its toaster state |
+| `Toast.Content` | Native wrapper inside `Toast.Root` | No direct Kobalte part |
+| `Toast.Title` | `Toast.Title` | Same semantic role |
+| `Toast.Description` | `Toast.Description` | Same semantic role |
+| `Toast.Action` | Button inside Root | No direct Kobalte action part |
+| `Toast.Close` | `Toast.CloseButton` | Name/API change |
+| `createToastManager` | `toaster` API or a Zaidan adapter | Kobalte exposes `show`, `update`, `promise`, `dismiss`, and `clear` |
+
+When matching shadcn Base Toast, implement the shadcn public surface over
+Kobalte rather than preserving `solid-sonner`. Verify host mounting, timeout
+pause, Alt+T hotkey, close behavior, swipe, promise/update/dismiss behavior,
+and reduced motion.
+
+## Style Semantic Marker Translation
+
+Upstream authored style sheets use semantic `.cn-*` markers. Zaidan uses
+`.z-*` markers. The baseline conversion is:
+
+1. Remove the outer upstream `.style-<name>` wrapper for the per-style file.
+2. Rename `.cn-*` to `.z-*`.
+3. Remove React Aria-only `*-aria` rules when no Zaidan DOM uses them.
+4. Translate Base state attributes and CSS variables using this reference.
+5. Compare every resulting selector with the rendered Kobalte/Corvu/Solid DOM.
+
+Known non-mechanical cases include Combobox list/listbox naming, Navigation
+Menu structure, Progress root/track placement, Corvu Calendar and Drawer,
+Resizable handle-only styling, and OTP's Zaidan-specific input/caret wrappers.
+Never preserve obsolete Vaul selectors such as
+`data-[vaul-drawer-direction]` when the current Drawer uses Corvu.
 
 ## Component-Specific Mappings
 

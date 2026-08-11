@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zaidan"
+  short_description: "Install Zaidan and choose components"
+  default_prompt: "Use $zaidan to configure this SolidJS project and recommend the right Zaidan components."

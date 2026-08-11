@@ -37,7 +37,13 @@ type TableRowProps = ComponentProps<"tr">;
 
 const TableRow = (props: TableRowProps) => {
   const [local, others] = splitProps(props, ["class"]);
-  return <tr data-slot="table-row" class={cn("z-table-row", local.class)} {...others} />;
+  return (
+    <tr
+      data-slot="table-row"
+      class={cn("z-table-row has-aria-expanded:bg-muted/50", local.class)}
+      {...others}
+    />
+  );
 };
 
 type TableHeadProps = ComponentProps<"th">;

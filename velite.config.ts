@@ -22,6 +22,14 @@ export default defineConfig({
         slug: s.slug("ui"),
         title: s.string(),
         description: s.string(),
+        component: s.boolean().optional(),
+        foundation: s.enum(["kobalte", "corvu"]).optional(),
+        links: s
+          .object({
+            doc: s.string().optional(),
+            api: s.string().optional(),
+          })
+          .optional(),
         toc: s.toc(),
       }),
     },

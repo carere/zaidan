@@ -11,6 +11,8 @@ const Pagination = (props: PaginationProps) => {
   const [local, others] = splitProps(props, ["class"]);
   return (
     <nav
+      // biome-ignore lint/a11y/noRedundantRoles: role="navigation" matches the pinned shadcn contract
+      role="navigation"
       aria-label="pagination"
       data-slot="pagination"
       class={cn("z-pagination mx-auto flex w-full justify-center", local.class)}
@@ -60,10 +62,11 @@ const PaginationLink = (props: PaginationLinkProps) => {
   );
 };
 
-type PaginationPreviousProps = ComponentProps<typeof PaginationLink>;
+type PaginationPreviousProps = ComponentProps<typeof PaginationLink> & { text?: string };
 
 const PaginationPrevious = (props: PaginationPreviousProps) => {
-  const [local, others] = splitProps(props, ["class", "children"]);
+  const mergedProps = mergeProps({ text: "Previous" }, props);
+  const [local, others] = splitProps(mergedProps, ["class", "children", "text"]);
   return (
     <PaginationLink
       aria-label="Go to previous page"
@@ -72,15 +75,16 @@ const PaginationPrevious = (props: PaginationPreviousProps) => {
       {...others}
     >
       <ChevronLeft data-icon="inline-start" />
-      <span class="z-pagination-previous-text hidden sm:block">Previous</span>
+      <span class="z-pagination-previous-text hidden sm:block">{local.text}</span>
     </PaginationLink>
   );
 };
 
-type PaginationNextProps = ComponentProps<typeof PaginationLink>;
+type PaginationNextProps = ComponentProps<typeof PaginationLink> & { text?: string };
 
 const PaginationNext = (props: PaginationNextProps) => {
-  const [local, others] = splitProps(props, ["class", "children"]);
+  const mergedProps = mergeProps({ text: "Next" }, props);
+  const [local, others] = splitProps(mergedProps, ["class", "children", "text"]);
   return (
     <PaginationLink
       aria-label="Go to next page"
@@ -88,7 +92,7 @@ const PaginationNext = (props: PaginationNextProps) => {
       class={cn("z-pagination-next", local.class)}
       {...others}
     >
-      <span class="z-pagination-next-text hidden sm:block">Next</span>
+      <span class="z-pagination-next-text hidden sm:block">{local.text}</span>
       <ChevronRight data-icon="inline-end" />
     </PaginationLink>
   );

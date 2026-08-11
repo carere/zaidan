@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-neutral",
+  "title": "Chart Color Neutral",
+  "cssVars": {
+    "light": {
+      "chart-1": "oklch(0.87 0 0)",
+      "chart-2": "oklch(0.556 0 0)",
+      "chart-3": "oklch(0.439 0 0)",
+      "chart-4": "oklch(0.371 0 0)",
+      "chart-5": "oklch(0.269 0 0)"
+    },
+    "dark": {
+      "chart-1": "oklch(0.87 0 0)",
+      "chart-2": "oklch(0.556 0 0)",
+      "chart-3": "oklch(0.439 0 0)",
+      "chart-4": "oklch(0.371 0 0)",
+      "chart-5": "oklch(0.269 0 0)"
+    }
+  },
+  "type": "registry:theme"
+}

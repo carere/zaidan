@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shadcn to Zaidan"
+  short_description: "Port shadcn components into Zaidan"
+  default_prompt: "Use $shadcn-to-zaidan to port this shadcn component into Zaidan."

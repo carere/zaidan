@@ -2,125 +2,128 @@
 title: Tooltip
 slug: tooltip
 description: A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+component: true
+foundation: kobalte
+links:
+  doc: https://kobalte.dev/docs/core/components/tooltip
+  api: https://kobalte.dev/docs/core/components/tooltip#api-reference
 ---
 
-# Tooltip
+The Tooltip component is built on top of [Kobalte Tooltip](https://kobalte.dev/docs/core/components/tooltip), which provides accessible hover, focus, and keyboard behavior.
 
-A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+<ComponentPreview name="tooltip-demo" />
 
 ## Installation
 
-### CLI
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Run the following command:</Step>
 
 ```package-dlx
 shadcn@latest add @zaidan/tooltip
 ```
 
-### Manual
+<Step>Add the `TooltipProvider` to the root of your app.</Step>
 
-Install the following dependencies:
+```tsx title="app.tsx" showLineNumbers
+import type { ParentProps } from "solid-js";
+import { TooltipProvider } from "~/components/ui/tooltip";
+
+export default function App(props: ParentProps) {
+  return <TooltipProvider>{props.children}</TooltipProvider>;
+}
+```
+
+</Steps>
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies:</Step>
 
 ```package-install
-@kobalte/core
+@kobalte/core solid-js
 ```
 
-Copy and paste the following code into your project.
+<Step>Copy and paste the following code into your project.</Step>
 
-```tsx file=../../../registry/kobalte/ui/tooltip.tsx showLineNumbers
+<ComponentSource name="tooltip" title="components/ui/tooltip.tsx" />
 
+<Step>Update the import paths to match your project setup.</Step>
+
+<Step>Add the `TooltipProvider` to the root of your app.</Step>
+
+```tsx title="app.tsx" showLineNumbers
+import type { ParentProps } from "solid-js";
+import { TooltipProvider } from "~/components/ui/tooltip";
+
+export default function App(props: ParentProps) {
+  return <TooltipProvider>{props.children}</TooltipProvider>;
+}
 ```
 
-## Examples
+</Steps>
 
-Here are the source code of all the examples from the preview page:
+</TabsContent>
 
-### Basic
+</CodeTabs>
 
-```tsx
+## Usage
+
+```tsx showLineNumbers
 import { Button } from "~/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L25-L38
-
+```tsx showLineNumbers
+<Tooltip>
+  <TooltipTrigger as={Button} variant="outline">
+    Hover
+  </TooltipTrigger>
+  <TooltipContent>
+    <p>Add to library</p>
+  </TooltipContent>
+</Tooltip>
 ```
 
-### Sides
+## Composition
 
-```tsx
-import { For } from "solid-js";
-import { Button } from "~/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
+Use the following composition to build a `Tooltip`:
+
+```text
+Tooltip
+├── TooltipTrigger
+└── TooltipContent
 ```
 
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L40-L59
+## Side
 
-```
+Use the `side` prop to change the position of the tooltip.
 
-### With Icon
+<ComponentPreview name="tooltip-sides" />
 
-```tsx
-import { Info } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
+## With Keyboard Shortcut
 
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L61-L75
+<ComponentPreview name="tooltip-keyboard" />
 
-```
+## Disabled Button
 
-### Long Content
+Show a tooltip on a disabled button by wrapping it with a span.
 
-```tsx
-import { Button } from "~/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
+<ComponentPreview name="tooltip-disabled" />
 
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L77-L91
+## API Reference
 
-```
-
-### Disabled
-
-```tsx
-import { Button } from "~/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L93-L108
-
-```
-
-### With Keyboard Shortcut
-
-```tsx
-import { Save } from "lucide-solid";
-import { Button } from "~/components/ui/button";
-import { Kbd } from "~/components/ui/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L110-L125
-
-```
-
-### On Link
-
-```tsx
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L127-L145
-
-```
-
-### Formatted Content
-
-```tsx
-import { Button } from "~/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
-```
-
-```tsx file=../../../registry/kobalte/examples/ui/tooltip-example.tsx#L147-L163
-
-```
+See the [Kobalte Tooltip API reference](https://kobalte.dev/docs/core/components/tooltip#api-reference) for primitive props, keyboard behavior, and accessibility details.

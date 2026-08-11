@@ -1,0 +1,79 @@
+$schema: ./.moon/cache/schemas/project.json
+
+stack: frontend
+layer: application
+
+tasks:
+  dev:
+    command: bun vite dev
+    description: Start Zaidan in development mode
+    env:
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
+    preset: server
+    # Persistent server task: never cached, so skip input hashing entirely.
+    # Without this, moon defaults inputs to the whole project tree and pipes
+    # ~350k files (node_modules, symlinked skills) to `git hash-object`,
+    # stalling startup for 40-60s before vite ever launches.
+    inputs: []
+
+  build:
+    command: bun vite build
+    description: Build Zaidan
+    env:
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
+    # The site ships the built registry out of public/r, so it has to be
+    # regenerated before vite copies it — otherwise a stale artifact goes out
+    # under a fresh build.
+    deps:
+      - "~:r-build-kobalte"
+    inputs:
+      - "@group(configs)"
+      - "@group(sources)"
+      - "@group(workspace)"
+      # Copied verbatim into dist/client — the built registry under public/r
+      # ships this way, so a registry rebuild has to invalidate the site build.
+      - "public/**/*"
+    outputs:
+      - "dist/"
+      # Velite compiles src/pages into the content collections the app imports
+      # and `@velite` types resolve against. Generated, gitignored, and needed
+      # by `tsc` as much as by the build itself.
+      - ".velite/"
+      # Written by @cloudflare/vite-plugin: the redirect that points a bare
+      # `wrangler deploy` at dist/server/wrangler.json. Only `deploy/` — the
+      # rest of .wrangler is miniflare's local state (sqlite caches written
+      # while prerendering), which is runtime scratch, not a build artifact.
+      - ".wrangler/deploy/"
+    type: build
+
+  preview:
+    command: bun vite preview
+    description: Preview the production build
+    env:
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: "false"
+    preset: server
+    # Persistent server task: skip input hashing (see `dev` above).
+    inputs: []
+
+  # Both registry tasks read the same tree: registry.json plus every source
+  # file its items point at. Without explicit inputs moon falls back to the
+  # whole project, so unrelated edits bust the cache (and hashing takes the
+  # detour described on `dev`).
+  r-build-kobalte:
+    command: bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte
+    description: Build the Kobalte registry
+    # Never emit items from a registry that does not validate: the output is
+    # published as-is and consumed by other people's CLIs.
+    deps:
+      - "~:r-validate-kobalte"
+    inputs:
+      - "src/registry/kobalte/**/*"
+    outputs:
+      - "public/r/kobalte/"
+    type: build
+
+  r-validate-kobalte:
+    command: bun shadcn registry validate src/registry/kobalte/registry.json
+    description: Validate the Kobalte registry
+    inputs:
+      - "src/registry/kobalte/**/*"

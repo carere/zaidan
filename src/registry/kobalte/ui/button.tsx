@@ -5,7 +5,7 @@ import { type ComponentProps, splitProps, type ValidComponent } from "solid-js";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button z-button inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "group/button z-button inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap outline-none transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -36,7 +36,7 @@ const buttonVariants = cva(
 
 type ButtonProps<T extends ValidComponent = "button"> = PolymorphicProps<T, ButtonRootProps<T>> &
   VariantProps<typeof buttonVariants> &
-  Pick<ComponentProps<T>, "class">;
+  Partial<Pick<ComponentProps<T>, "class">>;
 
 const Button = <T extends ValidComponent = "button">(props: ButtonProps<T>) => {
   const [local, others] = splitProps(props as ButtonProps, ["variant", "size", "class"]);

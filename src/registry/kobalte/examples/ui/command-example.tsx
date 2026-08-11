@@ -28,6 +28,7 @@ import { createSignal } from "solid-js";
 
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
+import { Card, CardContent } from "@/registry/kobalte/ui/card";
 import {
   Command,
   CommandDialog,
@@ -43,11 +44,61 @@ import {
 export default function CommandExample() {
   return (
     <ExampleWrapper>
+      <CommandInline />
       <CommandBasic />
       <CommandWithShortcuts />
       <CommandWithGroups />
       <CommandManyItems />
     </ExampleWrapper>
+  );
+}
+
+function CommandInline() {
+  return (
+    <Example title="Inline">
+      <Card class="w-full p-0">
+        <CardContent class="p-0">
+          <Command>
+            <CommandInput placeholder="Type a command or search..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup heading="Suggestions">
+                <CommandItem value="calendar">
+                  <Calendar />
+                  <span>Calendar</span>
+                </CommandItem>
+                <CommandItem value="search-emoji">
+                  <Smile />
+                  <span>Search Emoji</span>
+                </CommandItem>
+                <CommandItem value="calculator">
+                  <Calculator />
+                  <span>Calculator</span>
+                </CommandItem>
+              </CommandGroup>
+              <CommandSeparator />
+              <CommandGroup heading="Settings">
+                <CommandItem value="profile">
+                  <User />
+                  <span>Profile</span>
+                  <CommandShortcut>⌘P</CommandShortcut>
+                </CommandItem>
+                <CommandItem value="billing">
+                  <CreditCard />
+                  <span>Billing</span>
+                  <CommandShortcut>⌘B</CommandShortcut>
+                </CommandItem>
+                <CommandItem value="settings">
+                  <Settings />
+                  <span>Settings</span>
+                  <CommandShortcut>⌘S</CommandShortcut>
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </CardContent>
+      </Card>
+    </Example>
   );
 }
 

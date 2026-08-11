@@ -1,3 +1,5 @@
+/// <reference types="vitest/config" />
+
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -6,14 +8,29 @@ import velite from "@velite/plugin-vite";
 import { defineConfig } from "vite";
 import lucide from "vite-plugin-lucide-preprocess";
 import solid from "vite-plugin-solid";
-import mdx from "./src/lib/vite-plugins/mdx";
+import { configDefaults } from "vitest/config";
+import { getPrerenderPages } from "./src/lib/prerender-pages.ts";
+import { highlightCode } from "./src/lib/vite-plugins/highlight-code.ts";
+import mdx from "./src/lib/vite-plugins/mdx.ts";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     tsconfigPaths: true,
   },
+  server: { port: Number(process.env.PORT) || 5173 },
+  environments: {
+    ssr: {
+      build: {
+        // Vite leaves server builds unminified by default; the Worker upload
+        // then exceeds Cloudflare's 64 MiB payload cap (~117 MB of route
+        // chunks). Minifying brings it down ~73%.
+        minify: "oxc",
+      },
+    },
+  },
   plugins: [
     lucide(),
+    highlightCode(),
     mdx({
       jsx: true,
       jsxImportSource: "solid-js",
@@ -21,10 +38,32 @@ export default defineConfig({
       stylePropertyNameCase: "css",
     }),
     devtools(),
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    ...(mode === "test" ? [] : [cloudflare({ viteEnvironment: { name: "ssr" } })]),
     tailwind(),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        autoSubfolderIndex: false,
+        autoStaticPathsDiscovery: false,
+        crawlLinks: false,
+        concurrency: 8,
+        filter: ({ path }) =>
+          path !== "/create" &&
+          path !== "/charts" &&
+          !path.startsWith("/preview/") &&
+          !path.startsWith("/r/"),
+        retryCount: 2,
+        retryDelay: 500,
+        maxRedirects: 5,
+        failOnError: true,
+      },
+      pages: getPrerenderPages(),
+    }),
     solid({ ssr: true, hot: true, extensions: [".tsx", ".mdx"] }),
-    velite(),
+    ...(mode === "test" ? [] : [velite()]),
   ],
-});
+  test: {
+    environment: "node",
+    exclude: [...configDefaults.exclude, ".sandcastle/**"],
+  },
+}));

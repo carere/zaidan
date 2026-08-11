@@ -105,10 +105,14 @@ function ButtonGroupWithText() {
           <Button variant="outline">Another Button</Button>
         </ButtonGroup>
         <ButtonGroup>
-          <ButtonGroupText>
-            <Label for="input-text">GPU Size</Label>
+          <ButtonGroupText as={Label} for="input-text">
+            GPU Size
           </ButtonGroupText>
-          <Input id="input-text" placeholder="Type something here..." />
+          <Input
+            id="input-text"
+            placeholder="Type something here..."
+            class="style-luma:border-border"
+          />
         </ButtonGroup>
       </div>
     </Example>
@@ -121,8 +125,8 @@ function ButtonGroupWithDropdown() {
       <div class="flex flex-col gap-4">
         <ButtonGroup>
           <Button variant="outline">Update</Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger as={Button} variant="outline" size="icon" class="">
+          <DropdownMenu placement="bottom-end">
+            <DropdownMenuTrigger as={Button} variant="outline" size="icon">
               <ChevronDown />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -134,7 +138,7 @@ function ButtonGroupWithDropdown() {
         <ButtonGroup>
           <Button variant="outline">Follow</Button>
           <DropdownMenu>
-            <DropdownMenuTrigger as={Button} variant="outline" size="icon" class="">
+            <DropdownMenuTrigger as={Button} variant="outline" size="icon">
               <ChevronDown />
             </DropdownMenuTrigger>
             <DropdownMenuContent class="w-50">
@@ -200,14 +204,14 @@ function ButtonGroupWithSelect() {
               <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
             )}
           >
-            <SelectTrigger class="rounded-r-none">
+            <SelectTrigger>
               <SelectValue<(typeof currencyItems)[number]>>
-                {(state) => state.selectedOption()?.label}
+                {(state) => state.selectedOption().label}
               </SelectValue>
             </SelectTrigger>
             <SelectContent />
           </Select>
-          <Input placeholder="Enter amount to send" class="rounded-l-none border-l-0" />
+          <Input placeholder="Enter amount to send" />
           <Button variant="outline">
             <ArrowRight />
           </Button>
@@ -313,14 +317,14 @@ function ButtonGroupWithSelectAndInput() {
             <SelectItem item={props.item}>{props.item.rawValue.label}</SelectItem>
           )}
         >
-          <SelectTrigger id="duration" class="rounded-r-none">
+          <SelectTrigger id="duration">
             <SelectValue<(typeof durationItems)[number]>>
-              {(state) => state.selectedOption()?.label}
+              {(state) => state.selectedOption().label}
             </SelectValue>
           </SelectTrigger>
           <SelectContent />
         </Select>
-        <Input class="rounded-l-none border-l-0" />
+        <Input />
       </ButtonGroup>
     </Example>
   );
