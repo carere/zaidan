@@ -36,8 +36,19 @@ describe("Kanban documentation", () => {
 
     // The manual install has to hand over every file the registry entry ships,
     // or `~/components/blocks/kanban` does not resolve for a manual installer.
-    expect(page).toContain("file=../../../registry/kobalte/blocks/kanban/kanban.tsx");
-    expect(page).toContain("file=../../../registry/kobalte/blocks/kanban/index.tsx");
+    const registryPath = fileURLToPath(
+      new URL("../../../registry/kobalte/registry.json", import.meta.url),
+    );
+    const registry = JSON.parse(await readFile(registryPath, "utf8")) as {
+      items: { name: string; files: { path: string }[] }[];
+    };
+    const entry = registry.items.find((item) => item.name === "kanban");
+    if (!entry) throw new Error("kanban registry entry not found");
+    expect(entry.files.length).toBeGreaterThan(2);
+    for (const file of entry.files) {
+      const relative = file.path.replace("src/registry", "../../../registry");
+      expect(page).toContain(`file=${relative}`);
+    }
 
     expect(page).toContain("onValueCommit");
     expect(page).toContain("### KanbanBoard");

@@ -1893,9 +1893,44 @@
           "target": "components/blocks/kanban/index.tsx"
         },
         {
+          "path": "src/registry/kobalte/blocks/kanban/column.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/column.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/constants.ts",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/constants.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/context.ts",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/context.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/item.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/item.tsx"
+        },
+        {
           "path": "src/registry/kobalte/blocks/kanban/kanban.tsx",
           "type": "registry:component",
           "target": "components/blocks/kanban/kanban.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/overlay.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/overlay.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/sorting.ts",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/sorting.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/types.ts"
         }
       ]
     },
@@ -2259,9 +2294,29 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "src/registry/kobalte/blocks/sortable.tsx",
+          "path": "src/registry/kobalte/blocks/sortable/index.tsx",
           "type": "registry:component",
-          "target": "components/blocks/sortable.tsx"
+          "target": "components/blocks/sortable/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/sortable/context.ts",
+          "type": "registry:component",
+          "target": "components/blocks/sortable/context.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/sortable/item.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/sortable/item.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/sortable/overlay.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/sortable/overlay.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/sortable/sortable.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/sortable/sortable.tsx"
         }
       ]
     },
