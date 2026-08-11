@@ -11,7 +11,7 @@
 - rebuild the docs site: routing, layout, mdx presentation, and prerendering
 - redesign the homepage with the shadcn layout
 - synchronize 50 components with shadcn@4.16.2
-- replace sonner with a first-party toast
+- rename the sonner item to toast and theme it against the design tokens
 - add attachment, bubble, marker, and message components
 - add the rhea style and sync the eight-theme baseline
 - port the shimmer and scroll-fade utilities
@@ -22,7 +22,6 @@
 ### Fixes
 
 - keep streamed message-scroller nodes stable and pinned to the live edge
-- animate toast exits and match sonner's swipe dismissal
 - remove select open/close jank and scroll the selected item into view
 - make switch clicks toggle across the whole track
 - restore the gray color option
