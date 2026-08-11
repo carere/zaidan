@@ -1494,18 +1494,6 @@
       ]
     },
     {
-      "name": "icon-stack",
-      "type": "registry:ui",
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/kobalte/ui/icon-stack.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
       "name": "input",
       "type": "registry:ui",
       "dependencies": [],
@@ -1554,26 +1542,6 @@
         {
           "path": "src/registry/kobalte/ui/item.tsx",
           "type": "registry:ui"
-        }
-      ]
-    },
-    {
-      "name": "kanban",
-      "type": "registry:block",
-      "title": "Kanban",
-      "description": "A drag-and-drop kanban board for moving cards within and between columns, with column reordering, a drag overlay, and commit/rollback metadata. Built on @dnd-kit/solid.",
-      "dependencies": ["@dnd-kit/solid"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "src/registry/kobalte/blocks/kanban/index.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/kanban/index.tsx"
-        },
-        {
-          "path": "src/registry/kobalte/blocks/kanban/kanban.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/kanban/kanban.tsx"
         }
       ]
     },

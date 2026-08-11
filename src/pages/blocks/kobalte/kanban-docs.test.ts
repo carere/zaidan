@@ -33,6 +33,12 @@ describe("Kanban documentation", () => {
     }
 
     expect(page).toContain("shadcn@latest add @zaidan/kanban");
+
+    // The manual install has to hand over every file the registry entry ships,
+    // or `~/components/blocks/kanban` does not resolve for a manual installer.
+    expect(page).toContain("file=../../../registry/kobalte/blocks/kanban/kanban.tsx");
+    expect(page).toContain("file=../../../registry/kobalte/blocks/kanban/index.tsx");
+
     expect(page).toContain("onValueCommit");
     expect(page).toContain("### KanbanBoard");
     expect(page).toContain("### KanbanColumn");
