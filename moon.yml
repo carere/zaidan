@@ -25,8 +25,20 @@ tasks:
       - "@group(configs)"
       - "@group(sources)"
       - "@group(workspace)"
+      # Copied verbatim into dist/client — the built registry under public/r
+      # ships this way, so a registry rebuild has to invalidate the site build.
+      - "public/**/*"
     outputs:
       - "dist/"
+      # Velite compiles src/pages into the content collections the app imports
+      # and `@velite` types resolve against. Generated, gitignored, and needed
+      # by `tsc` as much as by the build itself.
+      - ".velite/"
+      # Written by @cloudflare/vite-plugin: the redirect that points a bare
+      # `wrangler deploy` at dist/server/wrangler.json. Only `deploy/` — the
+      # rest of .wrangler is miniflare's local state (sqlite caches written
+      # while prerendering), which is runtime scratch, not a build artifact.
+      - ".wrangler/deploy/"
     type: build
 
   preview:
@@ -38,10 +50,25 @@ tasks:
     # Persistent server task: skip input hashing (see `dev` above).
     inputs: []
 
+  # Both registry tasks read the same tree: registry.json plus every source
+  # file its items point at. Without explicit inputs moon falls back to the
+  # whole project, so unrelated edits bust the cache (and hashing takes the
+  # detour described on `dev`).
   r-build-kobalte:
     command: bun shadcn build src/registry/kobalte/registry.json --output public/r/kobalte
     description: Build the Kobalte registry
+    inputs:
+      - "src/registry/kobalte/**/*"
+    # Caveat: the directory also holds 25 committed chart-*.json palettes that
+    # no longer have an entry in registry.json, so this task does not write
+    # them. They ride along in the cache archive because they are on disk when
+    # it runs; a run that starts without them would bake their absence in.
+    outputs:
+      - "public/r/kobalte/"
+    type: build
 
   r-validate-kobalte:
     command: bun shadcn registry validate src/registry/kobalte/registry.json
     description: Validate the Kobalte registry
+    inputs:
+      - "src/registry/kobalte/**/*"
