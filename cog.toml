@@ -1,10 +1,9 @@
 branch_whitelist = ["main"]
 
-# A merge commit is not a conventional commit and never will be. Without this,
-# `cog verify` rejects the commit-msg hook's own merge message and `cog check`
-# fails on any merge already in history. Detection is by parent count for real
-# commits, and by git's default "Merge …" message in the hook — so let git
-# write the merge message rather than passing -m.
+# Covers merges that keep git's own message: `cog check` spots them by parent
+# count, and `cog verify` — which only ever sees the message the commit-msg
+# hook hands it — by the default "Merge …" subject. A hand-written subject is
+# covered by the `merge` commit type below instead.
 ignore_merge_commits = true
 
 pre_bump_hooks = [
@@ -24,6 +23,12 @@ bump_patch = true
 
 [commit_types.chore]
 bump_patch = true
+
+# `merge: <what was merged>` — for merge commits written by hand, which the
+# built-in types have no room for. No bump flag: a merge introduces no change
+# of its own, and every commit it brings in is already accounted for.
+[commit_types.merge]
+omit_from_changelog = true
 
 [commit_types.perf]
 bump_patch = true
