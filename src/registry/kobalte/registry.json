@@ -1369,6 +1369,87 @@
       ]
     },
     {
+      "name": "data-grid",
+      "type": "registry:block",
+      "title": "Data Grid",
+      "description": "A TanStack Table v9 data grid with sorting, filtering, pagination, footer rows, drag-and-drop, virtualization, infinite scroll, row pinning, and tree rows.",
+      "dependencies": [
+        "@tanstack/solid-table",
+        "@tanstack/solid-virtual",
+        "@dnd-kit/solid",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/badge.json",
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/checkbox.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/select.json",
+        "https://zaidan.carere.dev/r/kobalte/separator.json",
+        "https://zaidan.carere.dev/r/kobalte/skeleton.json",
+        "https://zaidan.carere.dev/r/kobalte/spinner.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-column-filter.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-column-filter.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-column-header.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-column-header.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-column-visibility.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-column-visibility.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-pagination.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-pagination.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-scroll-area.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-scroll-area.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table-dnd-rows.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table-dnd-rows.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table-virtual.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table-virtual.tsx"
+        }
+      ]
+    },
+    {
       "name": "dialog",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],

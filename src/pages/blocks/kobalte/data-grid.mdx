@@ -1,0 +1,789 @@
+---
+title: Data Grid
+slug: data-grid
+description: A TanStack Table v9 data grid with sorting, filtering, pagination, footer rows, drag-and-drop, virtualization, infinite scroll, row pinning, and tree rows.
+---
+
+# Data Grid
+
+<ComponentPreview name="data-grid-demo" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+The Data Grid block ships the shared grid context, the table renderers, pagination, column
+controls, drag-and-drop helpers, virtualization, infinite scroll, footer helpers, row pinning,
+and tree rows. Footer components (`DataGridTableFoot`, `DataGridTableFootRow`,
+`DataGridTableFootRowCell`) plus the `DataGridTableRowPin` and `DataGridTableRowExpand` toggles
+come from `data-grid-table.tsx`, and `DataGridScrollArea` handles scrolling for sticky-header or
+wide tables.
+
+You own the TanStack core: the block never creates a table for you, it renders the one you hand
+it.
+
+## Installation
+
+<CodeTabs>
+
+<TabsList variant="line" class="gap-6">
+  <TabsTrigger value="cli">Command</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+
+<TabsContent value="cli">
+
+```package-dlx
+shadcn@latest add @zaidan/data-grid
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps class="mb-0 pt-2">
+
+<Step>Install the following dependencies.</Step>
+
+```package-install
+@tanstack/solid-table @tanstack/solid-virtual @dnd-kit/solid lucide-solid
+```
+
+<Step>Copy the data-grid folder into your project.</Step>
+
+The block is one folder of ten source files behind a single barrel. The barrel below is the
+whole public surface:
+
+```tsx file=../../../registry/kobalte/blocks/data-grid/index.tsx showLineNumbers
+
+```
+
+<Step>Install the components the grid renders: Badge, Button, Checkbox, Dropdown Menu, Input, Popover, Select, Separator, Skeleton, and Spinner.</Step>
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## TanStack Table v9
+
+The grid is built on [TanStack Table v9](https://tanstack.com/table/latest) through
+`@tanstack/solid-table`. v9 asks every table to declare which features it uses, so the block
+exports a ready-made bundle:
+
+```tsx showLineNumbers
+import { createTable } from "@tanstack/solid-table";
+
+import { dataGridFeatures } from "~/components/blocks/data-grid";
+
+const table = createTable({
+  features: dataGridFeatures,
+  columns,
+  get data() {
+    return data();
+  },
+  state: {
+    get sorting() {
+      return sorting();
+    },
+    get pagination() {
+      return pagination();
+    },
+  },
+  onSortingChange: setSorting,
+  onPaginationChange: setPagination,
+});
+```
+
+`createTable` replaces React's `useTable`. Its options object is read reactively, so anything
+that changes over time — `data`, `pageCount`, every slice of `state` — is passed as a **getter**,
+not as a snapshot. Solid's setters match TanStack's `OnChangeFn` shape, so `onSortingChange`
+takes a `createSignal` setter directly.
+
+`dataGridFeatures` registers everything the grid's own rendering needs, which is a wider set than
+it looks. `columnVisibilityFeature` gates `row.getVisibleCells()` and `columnPinningFeature`
+gates the `getStartVisibleCells()` / `getCenterVisibleCells()` / `getEndVisibleCells()` split
+every row goes through, so a grid that never hides and never pins a column still needs both just
+to render rows.
+
+Two entries in the bundle are neither features nor row models:
+
+- `sortFns: { basic: sortFn_basic, text: sortFn_text }`. On v9 a string `sortFn` resolves against
+  this registry alone, so `"basic"` and `"text"` (plus the default `"auto"`) are the only names
+  this bundle types. Any other built-in (`"alphanumeric"`, `"datetime"`, `"textCaseSensitive"`)
+  has to be registered in your own bundle or passed as a function.
+- `columnMeta`, which types `columnDef.meta` as `DataGridColumnMeta` (`headerTitle`,
+  `headerClassName`, `cellClassName`, `skeleton`, `expandedContent`, `autoSize`). A
+  features-level `columnMeta` slot wins over the global `ColumnMeta` interface, so a
+  `declare module` augmentation is ignored on any table built with `dataGridFeatures`. Add your
+  own fields to `DataGridColumnMeta` in the installed `data-grid.tsx` instead.
+
+The bundle also ships as a type, `DataGridFeatures`. v9 puts the feature set first in the
+TanStack generics, so that is the type you write wherever a column, a row, or the table appears
+in your own annotations:
+
+```tsx showLineNumbers
+import type { ColumnDef, Row } from "@tanstack/solid-table";
+
+import type { DataGridFeatures } from "~/components/blocks/data-grid";
+
+const columns: ColumnDef<DataGridFeatures, User>[] = [
+  // ...
+];
+
+function ActionsCell(props: { row: Row<DataGridFeatures, User> }) {
+  // ...
+}
+```
+
+Extend the bundle when a grid needs more:
+
+```tsx showLineNumbers
+const features = tableFeatures({
+  ...dataGridFeatures,
+  columnGroupingFeature,
+  groupedRowModel: createGroupedRowModel(),
+});
+```
+
+`<DataGrid>` is the generic one: its `table` prop is `Table<TFeatures, TData>` for any
+`TFeatures`, and the instance is widened internally exactly once. The sub-components that take a
+`column`, `row`, or `table` prop (`DataGridColumnHeader`, `DataGridColumnFilter`,
+`DataGridColumnVisibility`, `DataGridTableRowSelect`, `DataGridTableRowPin`,
+`DataGridTableRowExpand`) are declared against `DataGridFeatures`, and `TFeatures` is invariant
+in v9, so any bundle wider or leaner than `dataGridFeatures` needs a cast at those boundaries.
+
+### No Subscribe, no memo
+
+React needs TanStack's `Subscribe` around builder calls like `row.getIsSelected()` and
+`column.getIsSorted()`, because the React Compiler can memoize a read off a stable row or column
+reference and freeze it. Solid has no such gap: reading `column.getIsSorted()` inside JSX *is*
+the subscription, since v9 backs its state with signals through the Solid adapter. The block
+drops `Subscribe` and `memo` everywhere upstream used them, and your own cell templates need
+neither.
+
+State reads go through `table.store.state.*` — `table.getState()` is gone, and there is no plain
+`table.state` on the Solid adapter:
+
+```tsx showLineNumbers
+const { pageIndex, pageSize } = table.store.state.pagination;
+```
+
+### Upgrading from v8
+
+These are the changes that bite hardest when porting an existing table:
+
+- **Every generic gained a leading `TFeatures`.** `ColumnDef<TData, TValue>` becomes
+  `ColumnDef<DataGridFeatures, TData, TValue>`, and `Row`, `Column`, `Cell`, `Header`, and
+  `Table` shift the same way.
+- **`useReactTable` is now `createTable`, and the `get*RowModel` options are gone.** Row models
+  moved into the `features` bundle, which is what `dataGridFeatures` hands you.
+- **A registered `paginatedRowModel` always slices.** It is the one row model that is not inert,
+  so a grid that used to render every row now shows only `pageSize` rows (10 by default). When
+  the data is already one page, or the grid renders all rows, set `manualPagination: true`.
+- **Column pinning moved from `left` / `right` to `start` / `end`**, across
+  `ColumnPinningState`, `column.pin()`, and `getIsPinned()`. The grid's `data-pinned`,
+  `data-last-col`, and `data-outer-pinned-col` attributes emit `start` / `end` too, so CSS
+  targeting `[data-pinned="left"]` must be updated.
+- **`getIsSomeRowsSelected()` and `getIsSomePageRowsSelected()` changed meaning**, from "some but
+  not all" to "at least one". Guard an indeterminate checkbox with
+  `getIsSomePageRowsSelected() && !getIsAllPageRowsSelected()`.
+- **State shapes got stricter.** `ColumnPinningState` requires both `start` and `end`,
+  `RowPinningState` requires both `top` and `bottom`, and `RowSelectionState` narrowed to
+  `Record<string, true>`.
+
+## Usage
+
+```tsx showLineNumbers
+import { createSignal } from "solid-js";
+import { type ColumnDef, createTable } from "@tanstack/solid-table";
+
+import {
+  DataGrid,
+  DataGridContainer,
+  DataGridPagination,
+  DataGridScrollArea,
+  DataGridTable,
+  DataGridTableFootRow,
+  DataGridTableFootRowCell,
+  type DataGridFeatures,
+  dataGridFeatures,
+} from "~/components/blocks/data-grid";
+```
+
+```tsx showLineNumbers
+const columns: ColumnDef<DataGridFeatures, User>[] = [
+  { accessorKey: "name", id: "name", header: "Name" },
+  { accessorKey: "email", id: "email", header: "Email" },
+];
+
+const footer = (
+  <DataGridTableFootRow>
+    <DataGridTableFootRowCell colSpan={columns.length}>
+      Showing {data().length} rows
+    </DataGridTableFootRowCell>
+  </DataGridTableFootRow>
+);
+
+const table = createTable({
+  features: dataGridFeatures,
+  columns,
+  get data() {
+    return data();
+  },
+});
+
+return (
+  <DataGrid table={table} recordCount={data().length} tableLayout={{ rowsPinnable: true }}>
+    <DataGridContainer>
+      <DataGridScrollArea>
+        <DataGridTable footerContent={footer} />
+      </DataGridScrollArea>
+    </DataGridContainer>
+    <DataGridPagination />
+  </DataGrid>
+);
+```
+
+Use `DataGridTableRowPin` inside a column definition to let users pin rows, swap in
+`DataGridTableVirtual` when you need virtualization or infinite scroll, and wrap sticky-header
+tables with `DataGridScrollArea`. When rows can be pinned, reordered, or virtualized, provide a
+stable `getRowId` so row identity survives reordering.
+
+## Examples
+
+### Cell Border
+
+<ComponentPreview name="data-grid-cell-border" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+### Dense Table
+
+<ComponentPreview name="data-grid-dense" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+### Light Table
+
+<ComponentPreview name="data-grid-light" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+### Striped Table
+
+<ComponentPreview name="data-grid-striped" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+### Auto Width
+
+<ComponentPreview name="data-grid-auto-width" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+### Row Selection
+
+<ComponentPreview name="data-grid-row-selection" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+### Tree Rows
+
+<ComponentPreview name="data-grid-tree-rows" align="start" previewClass="h-auto p-4 sm:p-6" />
+
+## Server-Side Rendering
+
+`@dnd-kit/solid` is browser-only, so `DataGridTableDnd` and `DataGridTableDndRows` render the
+same table markup without a drag context during SSR and hydration, then engage drag and drop one
+tick after mount. The server HTML is visually identical, but grips are not draggable and carry no
+drag-related ARIA attributes until hydration completes. Because Solid resolves context through
+the owner tree, the drag provider has to be an ancestor of the sortables, so the table subtree is
+built once for the static pass and once when the provider mounts. Every other part of the grid —
+including `DataGridTableVirtual`, which measures on the client — renders on the server unchanged.
+
+## API Reference
+
+### DataGrid
+
+The root component that provides the table context.
+
+| Prop                   | Type                      | Default                | Description                                                            |
+| :--------------------- | :------------------------ | :--------------------- | :--------------------------------------------------------------------- |
+| `table`                | `Table<TFeatures, TData>` | -                      | **Required**. The TanStack Table instance.                             |
+| `recordCount`          | `number`                  | -                      | **Required**. Total number of records.                                 |
+| `isLoading`            | `boolean`                 | `false`                | Whether the table is in a loading state.                               |
+| `loadingMode`          | `"skeleton" \| "spinner"` | `"skeleton"`           | The visual style of the loading state.                                 |
+| `loadingMessage`       | `JSX.Element`             | `"Loading..."`         | Message displayed when `loadingMode` is `"spinner"`.                   |
+| `fetchingMoreMessage`  | `JSX.Element`             | `loadingMessage`       | Message displayed while `DataGridTableVirtual` is fetching more rows.  |
+| `allRowsLoadedMessage` | `JSX.Element`             | `"All records loaded"` | Message displayed when virtual infinite scroll reaches the end.        |
+| `emptyMessage`         | `JSX.Element`             | `"No data available"`  | Message displayed when the table is empty.                             |
+| `onRowClick`           | `(row: TData) => void`    | -                      | Callback fired when a row is clicked.                                  |
+| `tableLayout`          | `DataGridTableLayout`     | -                      | Configuration for table layout and features.                           |
+| `tableClassNames`      | `DataGridTableClassNames` | -                      | Custom CSS classes for various table parts.                            |
+| `class`                | `string`                  | -                      | Additional CSS classes for the root grid component.                    |
+
+### tableLayout
+
+| Property            | Type                    | Default   | Description                                                 |
+| :------------------ | :---------------------- | :-------- | :---------------------------------------------------------- |
+| `dense`             | `boolean`               | `false`   | Whether to use dense padding for cells.                     |
+| `cellBorder`        | `boolean`               | `false`   | Whether to show vertical borders between cells.             |
+| `rowBorder`         | `boolean`               | `true`    | Whether to show horizontal borders between rows.            |
+| `rowRounded`        | `boolean`               | `false`   | Whether to add rounded corners to rows.                     |
+| `stripped`          | `boolean`               | `false`   | Whether to use zebra-striping for rows.                     |
+| `headerBackground`  | `boolean`               | `false`   | Whether to show a background color for the header.          |
+| `footerBackground`  | `boolean`               | `false`   | Whether to show a background color for footer rows.         |
+| `headerBorder`      | `boolean`               | `true`    | Whether to show a border below the header.                  |
+| `headerSticky`      | `boolean`               | `false`   | Whether the header should be sticky during scroll.          |
+| `width`             | `"auto" \| "fixed"`     | `"fixed"` | The table layout algorithm (`table-auto` vs `table-fixed`). |
+| `columnsVisibility` | `boolean`               | `false`   | Enables column visibility toggling.                         |
+| `columnsResizable`  | `boolean`               | `false`   | Enables column resizing.                                    |
+| `columnsResizeMode` | `"onChange" \| "onEnd"` | `"onEnd"` | When a column resize is committed.                          |
+| `columnsPinnable`   | `boolean`               | `false`   | Enables column pinning.                                     |
+| `columnsMovable`    | `boolean`               | `false`   | Enables moving columns via the header menu.                 |
+| `columnsDraggable`  | `boolean`               | `false`   | Enables drag-and-drop for columns.                          |
+| `rowsDraggable`     | `boolean`               | `false`   | Enables drag-and-drop for rows.                             |
+| `rowsPinnable`      | `boolean`               | `false`   | Enables row pinning (top/bottom).                           |
+
+`columnsResizeMode` is resolved by the grid, not by TanStack. Left unset, the grid reads the
+table's own `columnResizeMode` and falls back to `"onEnd"` when that is undefined, which on v9 is
+the normal case: `createTable` hands back the options object you passed, so feature defaults
+never show up on `table.options`.
+
+### DataGridTableClassNames
+
+Custom CSS classes for different parts of the table.
+
+| Property       | Type     | Default | Description                                        |
+| :------------- | :------- | :------ | :------------------------------------------------- |
+| `base`         | `string` | -       | CSS classes for the `<table>` element.             |
+| `header`       | `string` | -       | CSS classes for the `<thead>` element.             |
+| `headerRow`    | `string` | -       | CSS classes for header rows.                       |
+| `headerSticky` | `string` | -       | CSS classes for the sticky header state.           |
+| `body`         | `string` | -       | CSS classes for the `<tbody>` element.             |
+| `bodyRow`      | `string` | -       | CSS classes for body rows.                         |
+| `footer`       | `string` | -       | CSS classes for the `<tfoot>` element.             |
+| `edgeCell`     | `string` | -       | CSS classes for the first and last cells in a row. |
+
+### DataGridContainer
+
+The outer wrapper for the grid. It clips overflow, so scrolling comes from `DataGridScrollArea`.
+
+| Prop       | Type          | Default | Description                                                       |
+| :--------- | :------------ | :------ | :---------------------------------------------------------------- |
+| `children` | `JSX.Element` | -       | **Required**. The grid content to wrap.                           |
+| `border`   | `boolean`     | -       | Accepted for backwards compatibility and currently has no effect. |
+| `class`    | `string`      | -       | Additional CSS classes for the container.                         |
+
+### DataGridScrollArea
+
+Dedicated scroll wrapper for wide grids and sticky headers.
+
+| Prop          | Type                                   | Default  | Description                             |
+| :------------ | :------------------------------------- | :------- | :-------------------------------------- |
+| `children`    | `JSX.Element`                          | -        | **Required**. The grid content to wrap. |
+| `orientation` | `"horizontal" \| "vertical" \| "both"` | `"both"` | Which scrollbars to render.             |
+| `class`       | `string`                               | -        | Additional CSS classes for the wrapper. |
+
+While the sticky-header scroll mode is active (`headerSticky` with a vertical orientation), the
+root carries `data-overflow-vertical="true"` whenever content overflows vertically. Use it as an
+ancestor selector to style scrollable vs short grids, for example a closing bottom border on the
+last row only when a fixed-height grid is partially filled:
+`[[data-slot=data-grid-scroll-area]:not([data-overflow-vertical])_&:last-child>td]:border-b` on
+`tableClassNames.bodyRow`.
+
+The wrapper is vanilla Solid rather than the Zaidan Scroll Area component: the grid needs a
+viewport ref, per-axis scrollbars, and a pinned-column inset that the shared wrapper does not
+expose.
+
+### DataGridTable
+
+Renders the actual HTML table. It handles data rendering, loading states (skeletons/spinners),
+empty states, footer rows, and pinned rows when `rowsPinnable` is enabled on the parent
+`DataGrid`. The unpinned rows come from `table.getRowModel()`, which on v9 resolves to the
+paginated row model, and `dataGridFeatures` always registers `paginatedRowModel`, so a grid that
+must render every row sets `manualPagination: true`.
+
+| Prop            | Type          | Default | Description                                        |
+| :-------------- | :------------ | :------ | :------------------------------------------------- |
+| `footerContent` | `JSX.Element` | -       | Optional footer content rendered inside `<tfoot>`. |
+| `renderHeader`  | `boolean`     | `true`  | Whether to render the table header.                |
+
+### DataGridPagination
+
+Pagination controls. The record info comes from `recordCount` on `DataGrid`, and the page buttons
+come from `table.getPageCount()`, so they only render when there is more than one page. In v9
+`getPageCount()` is `pageCount ?? Math.ceil(rowCount / pageSize)` and `rowCount` falls back to
+the pre-paginated row count, so a grid whose `data` holds only the current page must pass
+`rowCount` or `pageCount` to `createTable` or the buttons never appear.
+
+| Prop                | Type            | Default                        | Description                                                                   |
+| :------------------ | :-------------- | :----------------------------- | :---------------------------------------------------------------------------- |
+| `sizes`             | `number[]`      | `[5, 10, 25, 50, 100]`         | Array of available page sizes.                                                |
+| `sizesSkeleton`     | `JSX.Element`   | `<Skeleton class="h-8 w-44" />` | Placeholder shown instead of the page size selector while `isLoading` is set. |
+| `rowsPerPageLabel`  | `string`        | `"Rows per page"`              | Visible label rendered next to the page size selector.                        |
+| `info`              | `string`        | `"{from} - {to} of {count}"`   | Template for the record info. `{count}` is `recordCount`.                     |
+| `infoSkeleton`      | `JSX.Element`   | `<Skeleton class="h-8 w-60" />` | Placeholder shown instead of the record info while `isLoading` is set.        |
+| `moreLimit`         | `number`        | `5`                            | The number of page buttons to show before truncating.                         |
+| `previousPageLabel` | `string`        | `"Go to previous page"`        | Accessible label for the previous page button.                                |
+| `nextPageLabel`     | `string`        | `"Go to next page"`            | Accessible label for the next page button.                                    |
+| `ellipsisText`      | `string`        | `"..."`                        | Text displayed for the ellipsis button.                                       |
+| `class`             | `string`        | -                              | Additional CSS classes for the pagination container.                          |
+
+`sizesInfo`, `sizesLabel`, `sizesDescription`, and `more` are still accepted by
+`DataGridPaginationProps` but are not rendered. The page size selector is a Kobalte Select, so
+its value is a `number` rather than a stringified one, and both skeleton defaults are built
+lazily — only while `isLoading` is set.
+
+### DataGridColumnHeader
+
+Sort, pin, move, and visibility controls for a column header.
+
+| Prop         | Type                                      | Default | Description                                                                                                   |
+| :----------- | :---------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------ |
+| `column`     | `Column<DataGridFeatures, TData, TValue>` | -       | **Required**. The TanStack Column instance.                                                                   |
+| `title`      | `string`                                  | -       | Header label. Falls back to `columnDef.meta.headerTitle`, then a string `columnDef.header`, then `column.id`. |
+| `icon`       | `JSX.Element`                             | -       | Optional icon displayed next to the title.                                                                    |
+| `filter`     | `JSX.Element`                             | -       | Optional filter component displayed in the header menu.                                                       |
+| `visibility` | `boolean`                                 | `false` | Whether to include column visibility controls in the menu.                                                    |
+| `class`      | `string`                                  | -       | Additional CSS classes for the header label or trigger button.                                                |
+
+The props extend `Omit<JSX.HTMLAttributes<HTMLDivElement>, "title">`, because the string `title`
+prop would otherwise collide with the DOM `title` attribute.
+
+### DataGridColumnFilter
+
+A faceted multi-select filter for one column, rendered inside a Popover.
+
+| Prop      | Type                                                                              | Default | Description                                       |
+| :-------- | :-------------------------------------------------------------------------------- | :------ | :------------------------------------------------ |
+| `column`  | `Column<DataGridFeatures, TData, TValue>`                                         | -       | The TanStack Column instance to filter.           |
+| `title`   | `string`                                                                          | -       | The title for the filter trigger and placeholder. |
+| `options` | `Array<{ label: string; value: string; icon?: Component<{ class?: string }> }>`   | -       | **Required**. The list of options to filter by.   |
+
+`icon` is a Solid component rendered through `Dynamic` and receives a `class` prop.
+
+The count beside each option comes from `column.getFacetedUniqueValues()`. On v9 that method only
+exists when the feature bundle registers `columnFacetingFeature`; leave it out of a leaner bundle
+of your own and the call throws. The numbers themselves come from the `facetedUniqueValues` row
+model, and `facetedRowModel` is what makes those counts respect the table's other active filters.
+`dataGridFeatures` registers all three, so the counts work out of the box.
+
+Filtering needs one thing more. v9 resolves a string `filterFn` name against the `filterFns` map
+on the feature bundle, including the default `"auto"`, and `dataGridFeatures` registers none, so
+hand the column a filter function directly:
+
+```tsx showLineNumbers
+import { filterFn_arrHas } from "@tanstack/solid-table";
+
+const columns = [
+  {
+    accessorKey: "status",
+    id: "status",
+    header: "Status",
+    filterFn: filterFn_arrHas,
+  },
+];
+```
+
+This filter writes an array of selected values, and `filterFn_arrHas` matches a scalar cell value
+against that array (reach for `filterFn_arrIncludesSome` when the cell itself holds an array).
+
+### DataGridColumnVisibility
+
+A dropdown menu of checkbox items, one per hideable column.
+
+| Prop      | Type                                 | Default | Description                                              |
+| :-------- | :----------------------------------- | :------ | :------------------------------------------------------- |
+| `table`   | `Table<DataGridFeatures, TData>`     | -       | **Required**. The TanStack Table instance.               |
+| `trigger` | `Component<ComponentProps<"button">>` | -       | **Required**. The component rendered as the menu trigger. |
+
+Solid has no `cloneElement`, so `trigger` is a component rather than an element. It receives the
+menu trigger props and must spread them onto its root:
+
+```tsx showLineNumbers
+<DataGridColumnVisibility
+  table={table}
+  trigger={(triggerProps) => (
+    <Button {...triggerProps} variant="outline" size="sm">
+      <Settings2 />
+      Columns
+    </Button>
+  )}
+/>
+```
+
+### DataGridTableDnd
+
+Column drag-and-drop reordering, with optional footer rendering.
+
+| Prop            | Type                                              | Default | Description                                                       |
+| :-------------- | :------------------------------------------------ | :------ | :---------------------------------------------------------------- |
+| `handleDragEnd` | `(event: DataGridTableDndDragEndEvent) => void`   | -       | **Required**. Callback fired when a column drag operation ends.   |
+| `footerContent` | `JSX.Element`                                     | -       | Optional footer content rendered inside `<tfoot>`.                |
+
+`@dnd-kit/solid` is the next-generation dnd-kit and has no `DragEndEvent`, so the grid reports the
+resolved positions itself:
+
+```ts showLineNumbers
+type DataGridTableDndDragEndEvent = {
+  activeId: string;
+  overId: string | null;
+  activeIndex: number;
+  overIndex: number;
+  canceled: boolean;
+};
+```
+
+The sortable items come from `table.store.state.columnOrder`, and TanStack starts that slice as an
+empty array, so you have to seed it and keep it controlled. Give every column an explicit `id`:
+`ColumnDef.id` is optional and is only derived from `accessorKey` on the built column, not on the
+definition object you map over.
+
+```tsx showLineNumbers
+const [columnOrder, setColumnOrder] = createSignal<string[]>(
+  columns.map((column) => column.id as string),
+);
+
+const handleDragEnd = (event: DataGridTableDndDragEndEvent) => {
+  if (event.overIndex === -1 || event.activeIndex === event.overIndex) return;
+  setColumnOrder((order) => arrayMove(order, event.activeIndex, event.overIndex));
+};
+
+const table = createTable({
+  features: dataGridFeatures,
+  columns,
+  get data() {
+    return data();
+  },
+  state: {
+    get columnOrder() {
+      return columnOrder();
+    },
+  },
+  onColumnOrderChange: setColumnOrder,
+});
+```
+
+Leave `columnOrder` empty and the headers never resolve a position, so nothing shifts during the
+gesture and the reorder commits nothing.
+
+Only the header cell is a sortable. Upstream registers every body cell under the column's id so
+dnd-kit stamps one translate on the whole column; `@dnd-kit/solid` keys its registry on unique
+ids, so the body cells mirror the dragged column's state (dimmed, grabbing cursor, raised) rather
+than translating with it. The committed order is identical either way.
+
+### DataGridTableDndRows
+
+Row drag-and-drop reordering, with optional footer rendering.
+
+Reordering is yours to commit: the grid carries a clone of the row you picked up and marks the
+seam it would land on, then hands you `handleDragEnd` to write the new order back. Three things
+have to line up, and a reorder that silently does nothing is almost always one of them:
+
+- **`getRowId` must be stable and match `dataIds`.** dnd-kit identifies rows by `row.id`, so
+  `dataIds` has to be the same ids in the same order as the rendered rows. A row missing from
+  `dataIds` resolves to index `-1` and will not sort.
+- **Reorder by replacing `data`,** not by mutating it. TanStack reprocesses rows when the `data`
+  reference changes, so an in-place `splice` leaves the grid showing the old order.
+- **Do not read a stale index.** Resolve positions from the current data inside the setter.
+
+```tsx showLineNumbers
+const [rows, setRows] = createSignal(initialRows);
+const dataIds = () => rows().map((row) => row.id);
+
+const handleDragEnd = (event: DataGridTableDndRowsDragEndEvent) => {
+  if (event.overIndex === -1 || event.activeIndex === event.overIndex) return;
+  setRows((current) => arrayMove(current, event.activeIndex, event.overIndex));
+};
+
+const table = createTable({
+  features: dataGridFeatures,
+  // dataGridFeatures registers a paginated row model, and that model always
+  // slices to pageSize (10 by default). manualPagination says the data is
+  // already the page, so every row renders and stays reorderable.
+  manualPagination: true,
+  columns,
+  get data() {
+    return rows();
+  },
+  getRowId: (row) => row.id,
+});
+```
+
+The drag handle comes from `DataGridTableDndRowHandle` in a column of your own. It reads the
+row's sortable context, so it only works inside the rows this component renders; placed anywhere
+else it renders as a disabled grip. It takes `class`, plus a `disabled` flag and a
+`disabledLabel` (default `"Reordering unavailable"`) for the cases where reordering is genuinely
+off — a sort being the usual one: the grip keeps its place in the gutter and reads as unavailable
+instead of vanishing and collapsing the column.
+
+| Prop                  | Type                                                | Default         | Description                                                                                |
+| :-------------------- | :-------------------------------------------------- | :-------------- | :----------------------------------------------------------------------------------------- |
+| `dataIds`             | `(string \| number)[]`                              | -               | **Required**. Ids for the current page data, in render order.                              |
+| `handleDragEnd`       | `(event: DataGridTableDndRowsDragEndEvent) => void` | -               | **Required**. Callback fired when a row drag operation ends.                                |
+| `footerContent`       | `JSX.Element`                                       | -               | Optional footer content rendered inside `<tfoot>`.                                          |
+| `collisionDetection`  | `DataGridTableDndRowsCollisionDetection`            | `closestCenter` | Overrides the dnd-kit collision strategy.                                                   |
+| `modifiers`           | `DataGridTableDndRowsModifiers`                     | -               | Modifiers forwarded to `DragDropProvider` untouched.                                        |
+| `renderRowDecoration` | `(context) => JSX.Element`                          | -               | Per-row slot for drop indicators and depth guides. Receives `{ row, isDragging, isOver }`.  |
+| `dropIndicator`       | `boolean`                                           | `true`          | Marks the drop target with a bar down its leading edge. Turn off when the decoration paints its own. |
+| `onDragStart`         | `DragDropProviderProps["onDragStart"]`              | -               | Forwarded from the drag context, after the internal drag state updates.                      |
+| `onDragMove`          | `DragDropProviderProps["onDragMove"]`               | -               | Forwarded from the drag context.                                                            |
+| `onDragOver`          | `DragDropProviderProps["onDragOver"]`               | -               | Forwarded from the drag context.                                                            |
+| `onDragCancel`        | `(event: DataGridTableDndRowsDragEndEvent) => void` | -               | Fired with the resolved event when the gesture is aborted.                                  |
+
+While a row is in flight the grid does four things, and all of them are built in:
+
+- **The carried row is a clone**, measured from the row it was lifted from — its column widths
+  *and* its height. It is not a fixed size, so a grid with wrapping cells does not appear to grow
+  under the pointer when you pick a row up.
+- **The rows hold still.** Sliding them apart to open a gap reads well in a list of identical
+  rows and badly in a table. Nothing moves until the drop commits.
+- **The row you picked up stays where it was**, dimmed and outlined. It is the slot you are
+  moving out of, so it is still there to return to if you change your mind mid-drag.
+- **The drop target is marked** with a 2px bar down its leading edge. Since nothing moves, the bar
+  is the only thing that says where the row lands, and `data-edge` says which side of that row it
+  comes to rest on.
+
+The indicator renders as a plain element inside the last cell, never a `td` of its own, so it adds
+no column and cannot disturb `table-layout: fixed`. Target it with
+`[data-slot="data-grid-table-row-drop-indicator"]`.
+
+Every sortable row carries tree metadata, so any drag event can resolve a target without
+re-deriving the table shape:
+
+```ts showLineNumbers
+type DataGridTableDndRowData = {
+  type: "data-grid-row";
+  depth: number;
+  index: number;
+  parentId: string | null;
+};
+```
+
+Together these cover cross-parent (re-parenting) drops: track the intended parent and depth in
+`onDragMove` or `onDragOver`, paint the target with `renderRowDecoration`, and commit the move in
+`handleDragEnd`. The decoration node is positioned over the row, so it adds no column and does not
+disturb striping; give it `absolute` placement, for example an
+`inset-x-0 bottom-0 h-0.5 bg-primary` line offset by the target depth.
+
+`@dnd-kit/solid` has no `SortingStrategy` concept, so there is no `sortingStrategy` prop: the hold-in-place
+behavior is inherent to how the grid renders. It also re-exports no modifiers, so the default axis
+restriction and the container clamp are not applied for you; pass your own through `modifiers` if
+you need them.
+
+### DataGridTableVirtual
+
+A virtualized table renderer using `@tanstack/solid-virtual` for row virtualization, infinite
+scroll, optional footer rows, and pinned rows when `rowsPinnable` is enabled. The wrapper manages
+row count and the scroll element for you, while `virtualizerOptions` lets you customize the
+underlying TanStack Virtual instance. Set `scrollToRowIndex` to reveal a controlled center row;
+`"auto"` alignment keeps already-visible rows in place and accounts for sticky headers.
+
+| Prop                 | Type                                     | Default  | Description                                                                                            |
+| :------------------- | :--------------------------------------- | :------- | :----------------------------------------------------------------------------------------------------- |
+| `height`             | `number \| string`                       | -        | Optional fixed height when not using an outer scroll container. Numbers are treated as px.             |
+| `estimateSize`       | `number`                                 | `48`     | Estimated row height in pixels for the virtualizer.                                                    |
+| `overscan`           | `number`                                 | `10`     | Number of rows rendered outside the visible area.                                                      |
+| `scrollBehavior`     | `ScrollBehavior`                         | `"auto"` | Scroll animation used when revealing `scrollToRowIndex`.                                               |
+| `scrollToRowAlign`   | `"auto" \| "center" \| "start" \| "end"` | `"auto"` | Alignment used when revealing the target row. `"auto"` only scrolls when the row is out of view.       |
+| `scrollToRowIndex`   | `number`                                 | -        | Index within the center (non-pinned) row section to reveal.                                            |
+| `footerContent`      | `JSX.Element`                            | -        | Optional footer content rendered inside `<tfoot>`.                                                     |
+| `renderHeader`       | `boolean`                                | `true`   | Whether to render the table header.                                                                    |
+| `onFetchMore`        | `() => void`                             | -        | Callback fired when the user scrolls near the bottom.                                                  |
+| `isFetchingMore`     | `boolean`                                | -        | Whether additional data is currently being loaded.                                                     |
+| `hasMore`            | `boolean`                                | -        | Whether there are more records available to fetch.                                                     |
+| `fetchMoreOffset`    | `number`                                 | `0`      | How many rows before the end should trigger `onFetchMore`.                                             |
+| `virtualizerOptions` | `DataGridTableVirtualizerOptions<TData>` | -        | Passthrough for TanStack Virtual settings like `enabled`, `getItemKey`, `measureElement`, `onChange`.  |
+
+`observeElementRect`, `observeElementOffset`, and `scrollToFn` are optional on
+`DataGridTableVirtualizerOptions`, matching the Solid adapter's own signature, so passing
+`virtualizerOptions` never forces you to supply internals you did not mean to touch.
+
+**Set `manualPagination: true`.** A virtualized grid renders every row, and `dataGridFeatures`
+registers `paginatedRowModel`, which is the one row model in the bundle that is not inert:
+`table.getRowModel()` is sliced to `pageSize` (default `10`) unless the table opts out. Without it
+an otherwise correct virtual grid renders ten rows and stops.
+
+### DataGridTableRowPin
+
+A pin/unpin toggle button for use in column definitions.
+
+| Prop  | Type                           | Default | Description                                  |
+| :---- | :----------------------------- | :------ | :------------------------------------------- |
+| `row` | `Row<DataGridFeatures, TData>` | -       | **Required**. The TanStack Table row instance. |
+
+The button pins to the top region with `row.pin("top")` and clears it with `row.pin(false)`. Turn
+pinning on with `enableRowPinning` on the table and `tableLayout={{ rowsPinnable: true }}` on
+`DataGrid`. In v9 both `RowPinningState` keys are required, so controlled state has to seed each
+region: `createSignal<RowPinningState>({ top: [], bottom: [] })`.
+
+### DataGridTableRowSelect / DataGridTableRowSelectAll
+
+Selection checkboxes for a row and for the current page. `DataGridTableRowSelect` takes a `row`
+prop; `DataGridTableRowSelectAll` reads the table from the grid context and takes none. Enable
+selection with `enableRowSelection` on the table.
+
+### DataGridTableRowExpand
+
+A depth-indented expand/collapse toggle for tree data, for use in the tree column's cell. Renders
+a chevron button for expandable rows (with `aria-expanded` reflecting state) and a compact spacer
+for leaves so leaf content sits close to the parent label.
+
+| Prop       | Type                           | Default | Description                                           |
+| :--------- | :----------------------------- | :------ | :---------------------------------------------------- |
+| `row`      | `Row<DataGridFeatures, TData>` | -       | **Required**. The TanStack Table row instance.        |
+| `indent`   | `number`                       | `20`    | Horizontal offset in px applied per tree depth level. |
+| `class`    | `string`                       | -       | Additional CSS classes for the wrapper.               |
+| `children` | `JSX.Element`                  | -       | Custom toggle icon; replaces the default chevron.     |
+
+Pass `children` to swap the default chevron for your own state-aware icon; the button always
+carries `aria-expanded`, so pure-CSS state styling keeps working. The wrapper exposes
+`data-slot="data-grid-table-row-expand"` and the computed `--data-grid-tree-padding` CSS variable
+as styling hooks. For fully custom cells, the exported `getDataGridTreeIndentStyle(row, indent)`
+helper returns the same indent style, and `row.getCanExpand()` / `row.getIsExpanded()` /
+`row.getToggleExpandedHandler()` cover bring-your-own toggles.
+
+### DataGridTableFoot
+
+Wrapper component for the table footer (`<tfoot>`).
+
+### DataGridTableFootRow
+
+A row inside the table footer.
+
+### DataGridTableFootRowCell
+
+A cell inside a footer row.
+
+| Prop       | Type          | Default | Description                      |
+| :--------- | :------------ | :------ | :------------------------------- |
+| `colSpan`  | `number`      | -       | Column span for the footer cell. |
+| `class`    | `string`      | -       | Additional CSS classes.          |
+| `children` | `JSX.Element` | -       | Content of the footer cell.      |
+
+### DOM Attributes
+
+Data rows carry these attributes so you can target them from queries, tests, and styles. They are
+applied by the shared row renderer, so they appear on standard, virtualized, pinned, and
+draggable rows alike, with `data-index` the one exception (only `DataGridTableVirtual` sets it,
+and only on its unpinned body rows). Spacer, skeleton, empty, virtual status, and expanded-detail
+rows are rendered separately and carry none of them.
+
+| Attribute                  | Value               | Description                                                                                                                             |
+| :------------------------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `data-row-id`              | `string`            | The resolved TanStack Table row id, respecting any `getRowId` configuration. Stable across sorting and pagination.                      |
+| `data-index`               | `number`            | Index of the row inside the center (non-pinned) section. Set only by `DataGridTableVirtual`, for virtual measurement and stripe parity. |
+| `data-state`               | `"selected"`        | Present while row selection is enabled and the row is selected. Omitted otherwise.                                                      |
+| `data-row-pinned`          | `"top" \| "bottom"` | Which edge the row is pinned to. Omitted entirely when the row is not pinned.                                                           |
+| `data-row-pinned-boundary` | `"top" \| "bottom"` | Marks the seam between pinned and unpinned rows: the last top-pinned row, or the first bottom-pinned row.                               |
+| `data-depth`               | `number`            | Depth of the row in a hierarchical row model (`getSubRows` trees or grouped rows). Omitted for root-level rows.                         |
+
+Header and body **cells** carry the pinning attributes below. They are the contract the grid's own
+sticky-column styling is built on, so they are also the hook to use for your own. These values
+were `left` / `right` before TanStack Table v9, so any CSS selecting `[data-pinned="left"]` needs
+updating to `[data-pinned="start"]`.
+
+| Attribute               | Value              | Description                                                                                                         |
+| :---------------------- | :----------------- | :------------------------------------------------------------------------------------------------------------------ |
+| `data-pinned`           | `"start" \| "end"` | Which edge the column is pinned to. Omitted entirely when the column is not pinned.                                 |
+| `data-last-col`         | `"start" \| "end"` | Marks the inner boundary of a pinned group — the last start-pinned or first end-pinned column. Carries the divider. |
+| `data-outer-pinned-col` | `"start" \| "end"` | Marks the outer edge of a pinned group. Header cells only; used for background clipping.                            |
+
+While a column is being resized the grid also renders a full-height vertical line at the pointer,
+with a cap in the header. It is only shown in `onEnd` mode — the default — because that is the
+mode where the column width does not move until you release, so the line is the only feedback the
+drag produces. Target it with `[data-slot="data-grid-table-resize-indicator"]`. It is positioned
+imperatively rather than through signals: a resize drag fires at pointer rate, and routing that
+through the reactive graph would touch every row on every frame.
+
+Pinned cells stick with the CSS logical properties `inset-inline-start` and `inset-inline-end`
+rather than `left` / `right`, so they land on the correct edge in RTL without extra work.

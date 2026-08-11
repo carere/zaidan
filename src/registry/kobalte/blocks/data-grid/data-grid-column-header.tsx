@@ -120,7 +120,7 @@ function DataGridColumnHeader<TData extends object, TValue>(
     </Show>
   );
 
-  // Section flags. Upstream builds one `useMemo`d array of nodes and threads a
+  // Section flags. Upstream builds one memoized array of nodes and threads a
   // running `hasPreviousSection` boolean through it to decide where the
   // separators go; the same decision is expressed here as derived predicates,
   // so the menu is plain JSX and no dependency list has to be maintained.
