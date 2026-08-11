@@ -18,6 +18,13 @@ export default defineConfig(({ mode }) => ({
     tsconfigPaths: true,
   },
   server: { port: Number(process.env.PORT) || 5173 },
+  optimizeDeps: {
+    // `solid-mdx` only ever appears as the `providerImportSource` injected into
+    // compiled MDX, so the dependency scanner cannot see it statically. Without
+    // this it is discovered on first page load, which re-optimizes and reloads
+    // mid-render and 504s every demo module still in flight.
+    include: ["solid-mdx"],
+  },
   environments: {
     ssr: {
       build: {
