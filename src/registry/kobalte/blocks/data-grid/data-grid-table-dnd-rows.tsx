@@ -108,6 +108,16 @@ type DataGridTableDndRowDecoration<TData extends object> = (context: {
 // `handleRef` setter instead.
 type SortableRowContextValue = {
   setHandleRef: (element: Element | undefined) => void;
+  /**
+   * Whether an interactive grip is currently mounted for this row.
+   *
+   * Upstream makes a row undraggable simply by not handing the grip its
+   * listeners; dnd-kit reads an absent handle as "the whole element is the
+   * handle", so a row whose grip is inert - or that renders no grip at all -
+   * would stay draggable by its body. The row turns this into the sortable's
+   * `disabled` flag instead.
+   */
+  setHandleEnabled: (enabled: boolean) => void;
 };
 
 const SortableRowContext = createContext<SortableRowContextValue | null>(null);
@@ -139,12 +149,15 @@ function DataGridTableDndRowHandle(props: {
   const disabledLabel = () => props.disabledLabel ?? "Reordering unavailable";
   const isInert = () => !context || props.disabled;
 
+  // The grip is registered unconditionally and draggability is governed by the
+  // row's `disabled` flag, so a grip that starts inert and is later enabled
+  // still works - a Solid ref callback fires once and would never re-register.
+  createEffect(() => context?.setHandleEnabled(!isInert()));
+  onCleanup(() => context?.setHandleEnabled(false));
+
   return (
     <Button
-      ref={(element: HTMLButtonElement) => {
-        if (isInert()) return;
-        context?.setHandleRef(element);
-      }}
+      ref={(element: HTMLButtonElement) => context?.setHandleRef(element)}
       variant="ghost"
       size="icon-sm"
       class={cn(
@@ -249,6 +262,9 @@ function DataGridTableDndRow<TData extends object>(props: {
   collisionDetection?: DataGridTableDndRowsCollisionDetection;
 }) {
   const context = useContext(DataGridTableDndRowsContext);
+  // Mirrors upstream's "no grip, no drag": the row is only draggable once an
+  // interactive `DataGridTableDndRowHandle` has announced itself.
+  const [handleEnabled, setHandleEnabled] = createSignal(false);
 
   const rowData = (): DataGridTableDndRowData => ({
     type: "data-grid-row",
@@ -269,6 +285,9 @@ function DataGridTableDndRow<TData extends object>(props: {
     },
     get collisionDetector() {
       return props.collisionDetection;
+    },
+    get disabled() {
+      return !handleEnabled();
     },
     transition: null,
   });
@@ -315,7 +334,12 @@ function DataGridTableDndRow<TData extends object>(props: {
     props.renderRowDecoration?.({ row: props.row, isDragging: isDragging(), isOver: isOver() });
 
   return (
-    <SortableRowContext.Provider value={{ setHandleRef: (element) => sortable.handleRef(element) }}>
+    <SortableRowContext.Provider
+      value={{
+        setHandleRef: (element) => sortable.handleRef(element),
+        setHandleEnabled,
+      }}
+    >
       <DataGridTableBodyRow
         row={props.row}
         dndRef={(element) => sortable.ref(element)}

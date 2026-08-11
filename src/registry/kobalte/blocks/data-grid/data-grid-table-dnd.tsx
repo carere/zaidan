@@ -81,6 +81,24 @@ const DataGridTableDndContext = createContext<DataGridTableDndContextValue>({
 });
 
 /**
+ * Whether a column opts out of reordering.
+ *
+ * Upstream expresses the opt-out by withholding the grip: without the grip
+ * there are no dnd-kit listeners, so the column cannot be picked up. The
+ * next-generation dnd-kit reads an absent handle as "the whole element is the
+ * handle", so the same markup would leave an opted-out column draggable by its
+ * header cell. The flag therefore also has to reach `useSortable` as
+ * `disabled`.
+ */
+function canReorderDataGridColumn<TData extends object>(
+  header: Header<DataGridFeatures, TData, unknown>,
+) {
+  return (
+    (header.column.columnDef as { enableColumnOrdering?: boolean }).enableColumnOrdering !== false
+  );
+}
+
+/**
  * Style applied to the header cell and to every body cell of the column being
  * carried.
  *
@@ -111,8 +129,7 @@ function DataGridTableDndHeaderContent<TData extends object>(props: {
   const column = () => props.header.column;
 
   // Check if column ordering is enabled for this column
-  const canOrder = () =>
-    (column().columnDef as { enableColumnOrdering?: boolean }).enableColumnOrdering !== false;
+  const canOrder = () => canReorderDataGridColumn(props.header);
 
   return (
     <div class="flex items-center justify-start gap-0.5">
@@ -153,6 +170,12 @@ function DataGridTableDndHeaderSortable<TData extends object>(props: {
     },
     get index() {
       return props.index;
+    },
+    // Without this an opted-out column stays draggable: dnd-kit falls back to
+    // the sortable element itself when no handle is registered, and the grip
+    // is exactly what this column does not render.
+    get disabled() {
+      return !canReorderDataGridColumn(props.header);
     },
   });
 
