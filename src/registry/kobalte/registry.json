@@ -1675,6 +1675,85 @@
       ]
     },
     {
+      "name": "gantt",
+      "type": "registry:block",
+      "title": "Gantt",
+      "description": "A headless-first gantt with split tree and timeline panes, day to year scales, zoom, drag and resize scheduling, progress, summary rollups, and an external CRUD contract.",
+      "dependencies": ["date-fns", "@date-fns/tz", "lucide-solid"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/calendar.json",
+        "https://zaidan.carere.dev/r/kobalte/checkbox.json",
+        "https://zaidan.carere.dev/r/kobalte/context-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/scroll-area.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/gantt/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-bar.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-bar.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-i18n.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-i18n.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-lib.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-lib.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-nav.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-nav.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-recurrence.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-recurrence.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-types.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-view-lib.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-view-lib.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-view-rows.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-view-rows.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt.tsx"
+        }
+      ]
+    },
+    {
       "name": "hover-card",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
