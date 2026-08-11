@@ -1,4 +1,52 @@
 export type {
+  EventCalendarActivationConfig,
+  EventCalendarApi,
+  EventCalendarApiRef,
+  EventCalendarCallbacks,
+  EventCalendarClassNames,
+  EventCalendarInstance,
+  EventCalendarInternals,
+  EventCalendarProps,
+  EventCalendarRenderEventProps,
+  EventCalendarSettings,
+  EventCalendarViewConfig,
+  UseEventCalendarStateOptions,
+} from "./event-calendar";
+export {
+  ALL_VIEWS,
+  BASE_VIEWS,
+  DEFAULT_VIEW_CONFIG,
+  EventCalendar,
+  EventCalendarContext,
+  EventCalendarViewConfigContext,
+  EventCalendarViewContext,
+  useEventCalendar,
+  useEventCalendarDay,
+  useEventCalendarInteractions,
+  useEventCalendarNavigation,
+  useEventCalendarOccurrences,
+  useEventCalendarSelection,
+  useEventCalendarSelector,
+  useEventCalendarSettings,
+  useEventCalendarSettingsVersion,
+  useEventCalendarState,
+  useEventCalendarView,
+  useEventCalendarViewConfig,
+  useEventCalendarViewContext,
+  useEventCalendarViewSettings,
+  useEventCalendarWeek,
+} from "./event-calendar";
+export type { EventCalendarContentProps } from "./event-calendar-content";
+export { DEFAULT_VIEW_COMPONENTS, EventCalendarContent } from "./event-calendar-content";
+export {
+  cancelActiveEventCalendarGestures,
+  EVENT_CALENDAR_ACTIVATION,
+  markChipPress,
+  useEventCalendarGestures,
+  wasRecentChipPress,
+  wasRecentDrag,
+} from "./event-calendar-dnd";
+export type {
   EventCalendarI18nConfig,
   EventCalendarI18nOverrides,
 } from "./event-calendar-i18n";
@@ -34,6 +82,22 @@ export {
   toZoned,
   zonedStartOfDay,
 } from "./event-calendar-lib";
+export type {
+  EventCalendarNavProps,
+  EventCalendarTitleProps,
+  EventCalendarToolbarProps,
+  EventCalendarViewSwitcherProps,
+} from "./event-calendar-nav";
+export {
+  EventCalendarDatePicker,
+  EventCalendarNav,
+  EventCalendarNavNext,
+  EventCalendarNavPrev,
+  EventCalendarNavToday,
+  EventCalendarTitle,
+  EventCalendarToolbar,
+  EventCalendarViewSwitcher,
+} from "./event-calendar-nav";
 export {
   EventCalendarRecurrenceError,
   expandRecurrence,
