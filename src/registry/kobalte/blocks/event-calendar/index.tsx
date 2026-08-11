@@ -36,6 +36,8 @@ export {
   useEventCalendarViewSettings,
   useEventCalendarWeek,
 } from "./event-calendar";
+export type { EventCalendarAgendaViewProps } from "./event-calendar-agenda-view";
+export { EventCalendarAgendaView } from "./event-calendar-agenda-view";
 export type { EventCalendarContentProps } from "./event-calendar-content";
 export { DEFAULT_VIEW_COMPONENTS, EventCalendarContent } from "./event-calendar-content";
 export {
@@ -46,6 +48,17 @@ export {
   wasRecentChipPress,
   wasRecentDrag,
 } from "./event-calendar-dnd";
+export type {
+  EventCalendarChipContextValue,
+  EventCalendarEventProps,
+} from "./event-calendar-event";
+export {
+  EVENT_CALENDAR_COLORS,
+  EVENT_CALENDAR_FADE_TRUNCATE,
+  EVENT_CALENDAR_GHOST,
+  EventCalendarEvent,
+  useEventCalendarEventChip,
+} from "./event-calendar-event";
 export type {
   EventCalendarI18nConfig,
   EventCalendarI18nOverrides,
@@ -83,6 +96,11 @@ export {
   zonedStartOfDay,
 } from "./event-calendar-lib";
 export type {
+  EventCalendarMonthViewProps,
+  EventCalendarMoreIndicatorProps,
+} from "./event-calendar-month-view";
+export { EventCalendarMonthView, EventCalendarMoreIndicator } from "./event-calendar-month-view";
+export type {
   EventCalendarNavProps,
   EventCalendarTitleProps,
   EventCalendarToolbarProps,
@@ -105,6 +123,19 @@ export {
   MAX_OCCURRENCES,
   parseRRuleString,
 } from "./event-calendar-recurrence";
+export type { EventCalendarResourceViewProps } from "./event-calendar-resource-view";
+export { EventCalendarResourceView } from "./event-calendar-resource-view";
+export type { EventCalendarTimeGridProps } from "./event-calendar-time-grid";
+export {
+  EventCalendarDaysView,
+  EventCalendarDayView,
+  EventCalendarNowIndicator,
+  EventCalendarTimeGrid,
+  EventCalendarTimeGutter,
+  EventCalendarWeekView,
+  minuteBlockStyle,
+  useNow,
+} from "./event-calendar-time-grid";
 export type {
   CalendarEvent,
   CalendarView,
