@@ -23,9 +23,13 @@ function isMdxJsxFlowElement(node: unknown): node is MdxJsxFlowElement {
   );
 }
 
-function isScript(node: ElementContent | MdxJsxFlowElement) {
+// Assets that must outlive the block they were emitted with. Expressive Code
+// attaches the page's whole stylesheet and its JS to the FIRST code block it
+// renders; both have to survive that block being collapsed — and, more
+// importantly, that block not rendering at all.
+function isHoistedAsset(node: ElementContent | MdxJsxFlowElement) {
   const name = isMdxJsxFlowElement(node) ? node.name : (node as Element).tagName;
-  return node.type !== "text" && name === "script";
+  return node.type !== "text" && (name === "script" || name === "style");
 }
 
 // rehype-expressive-code marks its <style>/<script> assets as JSX elements
@@ -56,11 +60,19 @@ function dangerouslySetInnerHtml(node: MdxJsxFlowElement): string | undefined {
 // static, collapse each `.expressive-code` block into one HTML string that
 // Solid injects via `innerHTML` — on the server and the client alike.
 //
-// <script> children (EC's copy-button/theme JS) are hoisted out unchanged:
-// scripts inserted through innerHTML never execute, so they must stay real
-// elements for rehypeFixExpressiveCodeJsx + Solid to create and run them.
+// <script> and <style> children are hoisted out unchanged, to the end of the
+// document. Scripts must stay real elements because a script inserted through
+// innerHTML never executes. Both must leave the block entirely, not just the
+// innerHTML: EC attaches the page's whole stylesheet and JS to the first code
+// block it renders, which on a component page is the source injected into
+// <ComponentPreview> — and that block is conditional (`hideCode` drops it).
+// Left in place, one `hideCode` took the syntax colors of every block on the
+// page down with it. At document level they no longer depend on any one block
+// being rendered.
 export function rehypeCollapseExpressiveCode() {
   return (tree: Root) => {
+    const hoisted: ElementContent[] = [];
+
     visit(tree, "element", (node: Element, index, parent) => {
       if (parent === undefined || index === undefined) return;
 
@@ -68,12 +80,12 @@ export function rehypeCollapseExpressiveCode() {
       const classes = Array.isArray(className) ? className : [className];
       if (!classes.includes("expressive-code")) return;
 
-      const scripts: unknown[] = [];
+      const assets: ElementContent[] = [];
       const htmlParts: string[] = [];
 
       for (const child of node.children) {
-        if (isScript(child)) {
-          scripts.push(child);
+        if (isHoistedAsset(child)) {
+          assets.push(child as ElementContent);
         } else if (isMdxJsxFlowElement(child)) {
           const innerHtml = dangerouslySetInnerHtml(child);
           // Unknown JSX child we cannot serialize — leave this block alone.
@@ -94,8 +106,11 @@ export function rehypeCollapseExpressiveCode() {
         children: [],
       };
 
-      parent.children.splice(index, 1, collapsed, ...(scripts as ElementContent[]));
+      hoisted.push(...assets);
+      parent.children.splice(index, 1, collapsed);
       return SKIP;
     });
+
+    tree.children.push(...hoisted);
   };
 }
