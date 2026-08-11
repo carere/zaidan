@@ -1432,6 +1432,80 @@
       ]
     },
     {
+      "name": "filters",
+      "type": "registry:block",
+      "title": "Filters",
+      "description": "A composable filter bar with an add-filter menu, per-field operators, and select, multiselect, text, and custom value editors.",
+      "dependencies": ["class-variance-authority", "lucide-solid"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/button-group.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/input-group.json",
+        "https://zaidan.carere.dev/r/kobalte/kbd.json",
+        "https://zaidan.carere.dev/r/kobalte/scroll-area.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/filters/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/context.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/context.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filter-input.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filter-input.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filter-operator-dropdown.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filter-operator-dropdown.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filter-submenu-content.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filter-submenu-content.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filters.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filters.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/i18n.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/i18n.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/select-options-popover.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/select-options-popover.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/types.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/use-field-options.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/use-field-options.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/utils.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/utils.ts"
+        }
+      ]
+    },
+    {
       "name": "hover-card",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core"],
