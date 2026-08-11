@@ -1369,6 +1369,87 @@
       ]
     },
     {
+      "name": "data-grid",
+      "type": "registry:block",
+      "title": "Data Grid",
+      "description": "A TanStack Table v9 data grid with sorting, filtering, pagination, footer rows, drag-and-drop, virtualization, infinite scroll, row pinning, and tree rows.",
+      "dependencies": [
+        "@tanstack/solid-table",
+        "@tanstack/solid-virtual",
+        "@dnd-kit/solid",
+        "lucide-solid"
+      ],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/badge.json",
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/checkbox.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/select.json",
+        "https://zaidan.carere.dev/r/kobalte/separator.json",
+        "https://zaidan.carere.dev/r/kobalte/skeleton.json",
+        "https://zaidan.carere.dev/r/kobalte/spinner.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-column-filter.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-column-filter.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-column-header.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-column-header.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-column-visibility.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-column-visibility.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-pagination.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-pagination.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-scroll-area.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-scroll-area.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table-dnd-rows.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table-dnd-rows.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/data-grid/data-grid-table-virtual.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-grid/data-grid-table-virtual.tsx"
+        }
+      ]
+    },
+    {
       "name": "dialog",
       "type": "registry:ui",
       "dependencies": ["@kobalte/core", "lucide-solid"],
@@ -1417,6 +1498,94 @@
       ]
     },
     {
+      "name": "event-calendar",
+      "type": "registry:block",
+      "title": "Event Calendar",
+      "description": "A headless-first event calendar with month, week, day, N-day, agenda and resource views, drag-and-drop scheduling, recurring events, time zones, and an external CRUD contract.",
+      "dependencies": ["@date-fns/tz", "date-fns", "lucide-solid"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/calendar.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/icon-stack.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/scroll-area.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-agenda-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-agenda-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-content.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-content.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-event.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-event.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-i18n.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-i18n.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-lib.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-lib.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-month-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-month-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-nav.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-nav.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-recurrence.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-recurrence.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-resource-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-resource-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-time-grid.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-time-grid.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-types.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-types.tsx"
+        }
+      ]
+    },
+    {
       "name": "field",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
@@ -1428,6 +1597,159 @@
         {
           "path": "src/registry/kobalte/ui/field.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "filters",
+      "type": "registry:block",
+      "title": "Filters",
+      "description": "A composable filter bar with an add-filter menu, per-field operators, and select, multiselect, text, and custom value editors.",
+      "dependencies": ["class-variance-authority", "lucide-solid"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/button-group.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/input.json",
+        "https://zaidan.carere.dev/r/kobalte/input-group.json",
+        "https://zaidan.carere.dev/r/kobalte/kbd.json",
+        "https://zaidan.carere.dev/r/kobalte/scroll-area.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/filters/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/context.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/context.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filter-input.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filter-input.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filter-operator-dropdown.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filter-operator-dropdown.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filter-submenu-content.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filter-submenu-content.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/filters.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/filters.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/i18n.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/i18n.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/select-options-popover.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filters/select-options-popover.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/types.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/use-field-options.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/use-field-options.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/filters/utils.ts",
+          "type": "registry:component",
+          "target": "components/blocks/filters/utils.ts"
+        }
+      ]
+    },
+    {
+      "name": "gantt",
+      "type": "registry:block",
+      "title": "Gantt",
+      "description": "A headless-first gantt with split tree and timeline panes, day to year scales, zoom, drag and resize scheduling, progress, summary rollups, and an external CRUD contract.",
+      "dependencies": ["date-fns", "@date-fns/tz", "lucide-solid"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/calendar.json",
+        "https://zaidan.carere.dev/r/kobalte/checkbox.json",
+        "https://zaidan.carere.dev/r/kobalte/context-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/scroll-area.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/gantt/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-bar.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-bar.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-i18n.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-i18n.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-lib.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-lib.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-nav.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-nav.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-recurrence.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-recurrence.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-types.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-types.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-view-lib.ts",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-view-lib.ts"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-view-rows.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-view-rows.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/gantt/gantt.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/gantt/gantt.tsx"
         }
       ]
     },
@@ -1554,6 +1876,26 @@
         {
           "path": "src/registry/kobalte/ui/item.tsx",
           "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "kanban",
+      "type": "registry:block",
+      "title": "Kanban",
+      "description": "A drag-and-drop kanban board for moving cards within and between columns, with column reordering, a drag overlay, and commit/rollback metadata. Built on @dnd-kit/solid.",
+      "dependencies": ["@dnd-kit/solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/kanban/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/kanban.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/kanban.tsx"
         }
       ]
     },
