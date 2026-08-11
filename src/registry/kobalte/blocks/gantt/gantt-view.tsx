@@ -12,6 +12,7 @@ import {
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-solid";
 import type { Accessor, ComponentProps } from "solid-js";
 import {
+  children,
   createEffect,
   createMemo,
   createSignal,
@@ -1533,6 +1534,11 @@ function GanttView(props: GanttViewProps) {
   const showUnitLines = () => !uniform() || showVerticalLines();
 
   // ----- tree pane content -----
+  // The consumer's header slot is JSX, and a JSX prop is a GETTER: reading it
+  // twice (once to test it, once to place it) builds the slot TWICE - one live
+  // instance and one orphan that ran its setup and effects for nothing.
+  // `children` resolves it once and hands the same nodes to both reads.
+  const columnsMenu = children(() => viewConfig.columnsMenu);
   // Header label offset = the row cell's ps-3 (0.75rem) left gutter + the
   // toggle/checkbox gutter (w-5 + me-1 = 1.5rem) + the reorder grip (0.875rem)
   // when present, so "Resources" lines up with the row titles below it.
@@ -1587,14 +1593,14 @@ function GanttView(props: GanttViewProps) {
             </For>
             <div class="min-w-0 flex-1" />
           </div>
-          <Show when={viewConfig.columnsMenu}>
+          <Show when={columnsMenu()}>
             <div
               data-slot="gantt-columns-menu"
               // gradient lead-in: scrolled column headers dissolve into this
               // sticky control instead of hard-clipping against its background
               class="sticky end-0 z-10 flex h-full shrink-0 items-center bg-background ps-1.5 pe-2.5 before:pointer-events-none before:absolute before:inset-y-0 before:-start-5 before:w-5 before:bg-linear-to-l before:from-background before:to-transparent rtl:before:bg-linear-to-r"
             >
-              {viewConfig.columnsMenu}
+              {columnsMenu()}
             </div>
           </Show>
         </div>
