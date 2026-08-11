@@ -1558,6 +1558,26 @@
       ]
     },
     {
+      "name": "kanban",
+      "type": "registry:block",
+      "title": "Kanban",
+      "description": "A drag-and-drop kanban board for moving cards within and between columns, with column reordering, a drag overlay, and commit/rollback metadata. Built on @dnd-kit/solid.",
+      "dependencies": ["@dnd-kit/solid"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/kanban/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/kanban/kanban.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/kanban/kanban.tsx"
+        }
+      ]
+    },
+    {
       "name": "kbd",
       "type": "registry:ui",
       "dependencies": [],

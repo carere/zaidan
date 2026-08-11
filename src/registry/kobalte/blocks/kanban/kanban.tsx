@@ -669,17 +669,22 @@ function RegisteredKanbanColumn(props: KanbanColumnProps) {
 
 // ---------- Kanban column handle ----------
 
-export type KanbanColumnHandleProps = JSX.HTMLAttributes<HTMLDivElement> & {
+/**
+ * Polymorphic: `as` also widens the accepted props, so
+ * `<KanbanColumnHandle as={Button} variant="ghost" size="icon-xs" />` type-checks.
+ * This replaces upstream's Base UI `render={(props) => <Button {...props} />}`.
+ */
+export type KanbanColumnHandleProps<T extends ValidComponent = "div"> = ComponentProps<T> & {
   cursor?: boolean;
-  as?: ValidComponent;
+  as?: T;
 };
 
 /**
  * Drag handle for a `KanbanColumn`. When present, only the handle starts a
  * column drag instead of the whole column.
  */
-function KanbanColumnHandle(props: KanbanColumnHandleProps) {
-  const merged = mergeProps({ cursor: true }, props);
+function KanbanColumnHandle<T extends ValidComponent = "div">(props: KanbanColumnHandleProps<T>) {
+  const merged = mergeProps({ cursor: true }, props as KanbanColumnHandleProps);
   const [local, others] = splitProps(merged, ["class", "cursor", "as", "children"]);
   const ctx = useContext(KanbanColumnContext);
 
@@ -869,17 +874,18 @@ function RegisteredKanbanItem(props: KanbanItemProps) {
 
 // ---------- Kanban item handle ----------
 
-export type KanbanItemHandleProps = JSX.HTMLAttributes<HTMLDivElement> & {
+/** Polymorphic in the same way as {@link KanbanColumnHandleProps}. */
+export type KanbanItemHandleProps<T extends ValidComponent = "div"> = ComponentProps<T> & {
   cursor?: boolean;
-  as?: ValidComponent;
+  as?: T;
 };
 
 /**
  * Drag handle for a `KanbanItem`. When present, only the handle starts a card
  * drag instead of the whole card.
  */
-function KanbanItemHandle(props: KanbanItemHandleProps) {
-  const merged = mergeProps({ cursor: true }, props);
+function KanbanItemHandle<T extends ValidComponent = "div">(props: KanbanItemHandleProps<T>) {
+  const merged = mergeProps({ cursor: true }, props as KanbanItemHandleProps);
   const [local, others] = splitProps(merged, ["class", "cursor", "as", "children"]);
   const ctx = useContext(KanbanItemContext);
 
