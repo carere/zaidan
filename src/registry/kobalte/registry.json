@@ -1417,6 +1417,94 @@
       ]
     },
     {
+      "name": "event-calendar",
+      "type": "registry:block",
+      "title": "Event Calendar",
+      "description": "A headless-first event calendar with month, week, day, N-day, agenda and resource views, drag-and-drop scheduling, recurring events, time zones, and an external CRUD contract.",
+      "dependencies": ["@date-fns/tz", "date-fns", "lucide-solid"],
+      "registryDependencies": [
+        "https://zaidan.carere.dev/r/kobalte/button.json",
+        "https://zaidan.carere.dev/r/kobalte/calendar.json",
+        "https://zaidan.carere.dev/r/kobalte/dropdown-menu.json",
+        "https://zaidan.carere.dev/r/kobalte/icon-stack.json",
+        "https://zaidan.carere.dev/r/kobalte/popover.json",
+        "https://zaidan.carere.dev/r/kobalte/scroll-area.json",
+        "https://zaidan.carere.dev/r/kobalte/tooltip.json"
+      ],
+      "files": [
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/index.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/index.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-agenda-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-agenda-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-content.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-content.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-dnd.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-dnd.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-event.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-event.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-i18n.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-i18n.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-lib.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-lib.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-month-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-month-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-nav.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-nav.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-recurrence.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-recurrence.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-resource-view.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-resource-view.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-time-grid.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-time-grid.tsx"
+        },
+        {
+          "path": "src/registry/kobalte/blocks/event-calendar/event-calendar-types.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/event-calendar/event-calendar-types.tsx"
+        }
+      ]
+    },
+    {
       "name": "field",
       "type": "registry:ui",
       "dependencies": ["class-variance-authority"],
