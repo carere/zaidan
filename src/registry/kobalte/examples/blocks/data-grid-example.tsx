@@ -80,7 +80,7 @@ interface Invoice {
   amount: number;
 }
 
-const avatarHandles = ["shadcn", "evilrabbit", "maxleiter", "pranathip", "leerob", "rauchg"];
+const avatarHandles = ["carere", "shadcn", "evilrabbit", "maxleiter", "pranathip", "leerob"];
 
 const invoiceSeed: Omit<Invoice, "avatar">[] = [
   {

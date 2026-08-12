@@ -157,12 +157,12 @@ function AvatarGroupExample() {
     <Example title="Group">
       <AvatarGroup>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -171,12 +171,12 @@ function AvatarGroupExample() {
       </AvatarGroup>
       <AvatarGroup>
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar>
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar>
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -185,12 +185,12 @@ function AvatarGroupExample() {
       </AvatarGroup>
       <AvatarGroup>
         <Avatar size="lg">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar size="lg">
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar size="lg">
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -206,12 +206,12 @@ function AvatarGroupWithCount() {
     <Example title="Group with Count">
       <AvatarGroup>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -221,12 +221,12 @@ function AvatarGroupWithCount() {
       </AvatarGroup>
       <AvatarGroup>
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar>
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar>
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -236,12 +236,12 @@ function AvatarGroupWithCount() {
       </AvatarGroup>
       <AvatarGroup>
         <Avatar size="lg">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar size="lg">
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar size="lg">
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -258,12 +258,12 @@ function AvatarGroupWithIconCount() {
     <Example title="Group with Icon Count">
       <AvatarGroup>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -275,12 +275,12 @@ function AvatarGroupWithIconCount() {
       </AvatarGroup>
       <AvatarGroup>
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+          <AvatarFallback>CR</AvatarFallback>
         </Avatar>
         <Avatar>
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-          <AvatarFallback>LR</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Avatar>
           <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />
@@ -291,13 +291,13 @@ function AvatarGroupWithIconCount() {
         </AvatarGroupCount>
       </AvatarGroup>
       <AvatarGroup>
+        <Avatar size="lg">
+          <AvatarImage src="https://github.com/carere.png" alt="@carere" class="grayscale" />
+          <AvatarFallback>CR</AvatarFallback>
+        </Avatar>
         <Avatar size="lg">
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" class="grayscale" />
           <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        <Avatar size="lg">
-          <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" class="grayscale" />
-          <AvatarFallback>LR</AvatarFallback>
         </Avatar>
         <Avatar size="lg">
           <AvatarImage
@@ -323,16 +323,12 @@ function AvatarInEmpty() {
           <EmptyMedia>
             <AvatarGroup>
               <Avatar size="lg">
-                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" class="grayscale" />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage src="https://github.com/carere.png" alt="@carere" class="grayscale" />
+                <AvatarFallback>CR</AvatarFallback>
               </Avatar>
               <Avatar size="lg">
-                <AvatarImage
-                  src="https://github.com/maxleiter.png"
-                  alt="@maxleiter"
-                  class="grayscale"
-                />
-                <AvatarFallback>LR</AvatarFallback>
+                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" class="grayscale" />
+                <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <Avatar size="lg">
                 <AvatarImage

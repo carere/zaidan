@@ -14,12 +14,8 @@ import {
 } from "@/registry/kobalte/ui/item";
 
 const people = [
+  { username: "carere", avatar: "https://github.com/carere.png", email: "carere@example.com" },
   { username: "shadcn", avatar: "https://github.com/shadcn.png", email: "shadcn@vercel.com" },
-  {
-    username: "maxleiter",
-    avatar: "https://github.com/maxleiter.png",
-    email: "maxleiter@vercel.com",
-  },
   {
     username: "evilrabbit",
     avatar: "https://github.com/evilrabbit.png",

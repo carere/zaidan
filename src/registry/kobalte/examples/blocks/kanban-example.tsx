@@ -73,7 +73,7 @@ const initialColumns: Record<string, Task[]> = {
       title: "Audit token contrast in the dark theme",
       label: "Design",
       priority: "medium",
-      handle: "pranathip",
+      handle: "carere",
       due: "Aug 21",
       comments: 3,
       attachments: 2,

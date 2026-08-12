@@ -11,12 +11,12 @@ export default function AvatarGroupCountIcon() {
   return (
     <AvatarGroup class="grayscale">
       <Avatar>
-        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-        <AvatarFallback>CN</AvatarFallback>
+        <AvatarImage src="https://github.com/carere.png" alt="@carere" />
+        <AvatarFallback>CR</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarImage src="https://github.com/maxleiter.png" alt="@maxleiter" />
-        <AvatarFallback>LR</AvatarFallback>
+        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+        <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <Avatar>
         <AvatarImage src="https://github.com/evilrabbit.png" alt="@evilrabbit" />

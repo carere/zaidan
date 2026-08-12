@@ -34,10 +34,10 @@ interface User {
 }
 
 const avatars = [
+  "https://github.com/carere.png",
   "https://github.com/shadcn.png",
   "https://github.com/evilrabbit.png",
   "https://github.com/maxleiter.png",
-  "https://github.com/pranathip.png",
 ];
 
 const availabilities: Availability[] = ["online", "away", "busy", "offline"];

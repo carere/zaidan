@@ -71,7 +71,7 @@ const CALENDARS: Array<{ id: CalendarId; title: string; color: string }> = [
   { id: "personal", title: "Personal", color: "var(--color-emerald-500)" },
 ];
 
-const TEAM = ["shadcn", "maxleiter", "evilrabbit", "pranathip", "jorgezreik"];
+const TEAM = ["carere", "shadcn", "evilrabbit", "pranathip", "jorgezreik"];
 
 const STATUS_META: Record<
   BookingStatus,
@@ -149,7 +149,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       start: at(0, 10, 0),
       end: at(0, 11, 30),
       location: "Studio A",
-      attendees: ["shadcn", "pranathip", "jorgezreik"],
+      attendees: ["carere", "shadcn", "pranathip"],
     }),
     book({
       id: "focus-motion",
@@ -197,7 +197,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       end: at(1, 17, 0),
       status: "tentative",
       location: "Google Meet",
-      attendees: ["shadcn", "maxleiter"],
+      attendees: ["carere", "shadcn"],
     }),
 
     // Wednesday
@@ -208,7 +208,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       start: at(2, 9, 45),
       end: at(2, 11, 15),
       location: "Room 3",
-      attendees: ["maxleiter", "evilrabbit", "pranathip", "shadcn"],
+      attendees: ["carere", "shadcn", "evilrabbit", "pranathip"],
     }),
     book({
       id: "lunch-and-learn",
@@ -246,7 +246,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       start: at(3, 11, 0),
       end: at(3, 12, 0),
       location: "Google Meet",
-      attendees: ["shadcn", "maxleiter"],
+      attendees: ["carere", "shadcn"],
     }),
     book({
       id: "a11y-review",
@@ -325,7 +325,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       start: at(-4, 15, 0),
       end: at(-4, 16, 30),
       location: "Google Meet",
-      attendees: ["shadcn", "maxleiter"],
+      attendees: ["carere", "shadcn"],
     }),
     book({
       id: "portfolio-review",
@@ -343,7 +343,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       start: at(8, 10, 0),
       end: at(8, 12, 0),
       location: "Studio A",
-      attendees: ["shadcn", "pranathip"],
+      attendees: ["carere", "shadcn"],
     }),
     book({
       id: "release-gate",
@@ -362,7 +362,7 @@ function buildEvents(anchor: Date): StudioEvent[] {
       end: at(11, 14, 0),
       status: "tentative",
       location: "Google Meet",
-      attendees: ["shadcn"],
+      attendees: ["carere", "shadcn"],
     }),
     book({
       id: "conference",

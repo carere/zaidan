@@ -204,7 +204,7 @@ const priorityMeta = {
   urgent: { label: "Urgent", variant: "destructive-outline" },
 } as const;
 
-const handles = ["shadcn", "evilrabbit", "maxleiter", "pranathip", "jorgezreik"];
+const handles = ["carere", "shadcn", "evilrabbit", "maxleiter", "pranathip"];
 
 function Handle(props: { handle: string; class?: string }) {
   return (
