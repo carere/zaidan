@@ -32,6 +32,23 @@ describe("Sortable documentation", () => {
     }
 
     expect(page).toContain("shadcn@latest add @zaidan/sortable");
+
+    // The manual install has to hand over every file the registry entry ships,
+    // or `~/components/blocks/sortable` does not resolve for a manual installer.
+    const registryPath = fileURLToPath(
+      new URL("../../../registry/kobalte/registry.json", import.meta.url),
+    );
+    const registry = JSON.parse(await readFile(registryPath, "utf8")) as {
+      items: { name: string; files: { path: string }[] }[];
+    };
+    const entry = registry.items.find((item) => item.name === "sortable");
+    if (!entry) throw new Error("sortable registry entry not found");
+    expect(entry.files.length).toBeGreaterThan(1);
+    for (const file of entry.files) {
+      const relative = file.path.replace("src/registry", "../../../registry");
+      expect(page).toContain(`file=${relative}`);
+    }
+
     expect(page).toContain("onValueCommit");
     expect(page).toContain("### SortableOverlay");
   });

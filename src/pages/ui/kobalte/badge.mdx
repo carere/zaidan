@@ -68,6 +68,12 @@ Use the `variant` prop to change the variant of the badge.
 
 <ComponentPreview name="badge-variants" />
 
+## Status Variants
+
+Each semantic color ships in two treatments. `*-light` fills the badge with a tinted surface, and `*-outline` keeps the badge on the page background with only the border and the label carrying the color. Both read against the same `--primary`, `--destructive`, `--success`, `--warning` and `--info` tokens, so they follow the active theme.
+
+<ComponentPreview name="badge-status" />
+
 ## With Icon
 
 You can render an icon inside the badge. Use `data-icon="inline-start"` to render the icon on the left and `data-icon="inline-end"` to render the icon on the right.
@@ -98,9 +104,9 @@ You can customize the colors of a badge by adding custom classes such as `bg-gre
 
 The `Badge` component displays a badge or a component that looks like a badge.
 
-| Prop      | Type                                                                          | Default     |
-| --------- | ----------------------------------------------------------------------------- | ----------- |
-| `variant` | `"default" \| "secondary" \| "destructive" \| "outline" \| "ghost" \| "link"` | `"default"` |
-| `class`   | `string`                                                                      | -           |
+| Prop      | Type                                                                                                                                                                                                                                | Default     |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `variant` | `"default" \| "secondary" \| "destructive" \| "outline" \| "ghost" \| "link" \| "primary-light" \| "destructive-light" \| "success-light" \| "warning-light" \| "info-light" \| "primary-outline" \| "destructive-outline" \| "success-outline" \| "warning-outline" \| "info-outline"` | `"default"` |
+| `class`   | `string`                                                                                                                                                                                                                              | -           |
 
 For primitive props, see the [Kobalte Badge API reference](https://kobalte.dev/docs/core/components/badge#api-reference).

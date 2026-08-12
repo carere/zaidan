@@ -15,18 +15,20 @@ import {
 
 const SCROLL_STORAGE_KEY = "docs-sidebar-scroll";
 
+// `slug` matches the `docs` entries in UPDATED_ITEMS, so a section can carry the
+// same "has updates" dot the component and block lists already show.
 const sections = [
-  { name: "Introduction", to: "/docs" },
-  { name: "Components", to: "/docs/components" },
-  { name: "Blocks", to: "/docs/blocks" },
-  { name: "Installation", to: "/docs/installation" },
-  { name: "Customization", to: "/docs/customization" },
-  { name: "Dark Mode", to: "/docs/dark-mode" },
-  { name: "Typeset", to: "/docs/typeset" },
-  { name: "Zaidan Skills", to: "/docs/zaidan-agent" },
-  { name: "FAQ", to: "/docs/faq" },
-  { name: "Roadmap", to: "/docs/roadmap" },
-  { name: "Changelog", to: "/docs/changelog" },
+  { name: "Introduction", to: "/docs", slug: "index" },
+  { name: "Components", to: "/docs/components", slug: "components" },
+  { name: "Blocks", to: "/docs/blocks", slug: "blocks" },
+  { name: "Installation", to: "/docs/installation", slug: "installation" },
+  { name: "Customization", to: "/docs/customization", slug: "customization" },
+  { name: "Dark Mode", to: "/docs/dark-mode", slug: "dark-mode" },
+  { name: "Typeset", to: "/docs/typeset", slug: "typeset" },
+  { name: "Zaidan Skills", to: "/docs/zaidan-agent", slug: "zaidan-agent" },
+  { name: "FAQ", to: "/docs/faq", slug: "faq" },
+  { name: "Roadmap", to: "/docs/roadmap", slug: "roadmap" },
+  { name: "Changelog", to: "/docs/changelog", slug: "changelog" },
 ] as const;
 
 const installationPages = [...docs]
@@ -135,6 +137,13 @@ export function DocsSidebar() {
                       >
                         <span class="absolute inset-0 flex w-(--sidebar-menu-width) bg-transparent" />
                         {item.name}
+                        <Show when={hasUpdate(item.slug, "docs")}>
+                          <span
+                            role="status"
+                            aria-label="Has updates"
+                            class="ml-1.5 size-1.5 shrink-0 rounded-full bg-sky-500"
+                          />
+                        </Show>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

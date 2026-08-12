@@ -115,6 +115,46 @@
   @apply text-foreground underline-offset-4 hover:underline;
 }
 
+.z-badge-variant-primary-light {
+  @apply text-foreground [a]:hover:text-foreground/70;
+}
+
+.z-badge-variant-destructive-light {
+  @apply text-destructive [a]:hover:text-destructive/70;
+}
+
+.z-badge-variant-success-light {
+  @apply text-success-foreground [a]:hover:text-success-foreground/70;
+}
+
+.z-badge-variant-warning-light {
+  @apply text-warning-foreground [a]:hover:text-warning-foreground/70;
+}
+
+.z-badge-variant-info-light {
+  @apply text-info-foreground [a]:hover:text-info-foreground/70;
+}
+
+.z-badge-variant-primary-outline {
+  @apply text-foreground [a]:hover:text-foreground/70;
+}
+
+.z-badge-variant-destructive-outline {
+  @apply text-destructive [a]:hover:text-destructive/70;
+}
+
+.z-badge-variant-success-outline {
+  @apply text-success-foreground [a]:hover:text-success-foreground/70;
+}
+
+.z-badge-variant-warning-outline {
+  @apply text-warning-foreground [a]:hover:text-warning-foreground/70;
+}
+
+.z-badge-variant-info-outline {
+  @apply text-info-foreground [a]:hover:text-info-foreground/70;
+}
+
 /* MARK: Breadcrumb */
 .z-breadcrumb-list {
   @apply text-muted-foreground gap-1.5 text-xs uppercase tracking-wide sm:gap-2.5;

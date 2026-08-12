@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/registry
 
 // GitHub usernames displayed as contributor avatars.
 const usernames = [
+  "carere",
   "shadcn",
   "vercel",
   "nextjs",

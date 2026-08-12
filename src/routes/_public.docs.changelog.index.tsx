@@ -8,8 +8,8 @@ import {
   sharedComponents,
   UpdateCard,
 } from "@/components/mdx-components";
+import { getChangelogEntry } from "@/lib/changelog-entries";
 import { createPageHead } from "@/lib/seo";
-import type { MdxModule } from "@/lib/types";
 import { fmtDate } from "@/lib/utils";
 
 const RECENT_COUNT = 5;
@@ -36,13 +36,6 @@ export const Route = createFileRoute("/_public/docs/changelog/")({
 
 function ChangelogPage() {
   const data = Route.useLoaderData();
-  const mdxModules = import.meta.glob<MdxModule>("../pages/changelog/*.mdx", { eager: true });
-  const componentBySlug: Record<string, MdxModule["default"]> = {};
-
-  for (const [path, mod] of Object.entries(mdxModules)) {
-    const slug = path.match(/([^/]+)\.mdx$/)?.[1];
-    if (slug) componentBySlug[slug] = mod.default;
-  }
 
   return (
     <DocsPage toc={[]}>
@@ -55,7 +48,7 @@ function ChangelogPage() {
 
       <For each={data().recent}>
         {(entry) => {
-          const MDX = componentBySlug[entry.slug];
+          const MDX = getChangelogEntry(entry.slug);
           return (
             <Show when={MDX}>
               <ChangelogEntry>

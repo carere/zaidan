@@ -225,8 +225,16 @@ export type UpdatedItem = {
  * manually — entries stay until the maintainer removes them.
  */
 export const UPDATED_ITEMS: UpdatedItem[] = [
+  { kind: "docs", slug: "blocks" },
   { kind: "docs", slug: "changelog" },
+  { kind: "docs", slug: "roadmap" },
+  { kind: "docs", slug: "typeset" },
   { kind: "docs", slug: "zaidan-agent" },
-  { kind: "blocks", slug: "image-crop" },
+  { kind: "blocks", slug: "data-grid" },
+  { kind: "blocks", slug: "event-calendar" },
+  { kind: "blocks", slug: "filters" },
+  { kind: "blocks", slug: "gantt" },
+  { kind: "blocks", slug: "message-scroller" },
+  { kind: "blocks", slug: "kanban" },
   { kind: "blocks", slug: "questionnaire" },
 ];
