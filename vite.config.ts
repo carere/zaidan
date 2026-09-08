@@ -71,6 +71,6 @@ export default defineConfig(({ mode }) => ({
   ],
   test: {
     environment: "node",
-    exclude: [...configDefaults.exclude, ".sandcastle/**", ".claude/worktrees/**"],
+    exclude: [...configDefaults.exclude, ".claude/worktrees/**"],
   },
 }));

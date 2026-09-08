@@ -12,6 +12,7 @@
   "author": "Kevin Abatan <abatan.k@gmail.com> (https://github.com/carere)",
   "type": "module",
   "dependencies": {
+    "@carere/kojo-runtime": "0.1.0-alpha.3",
     "@cloudflare/vite-plugin": "^1.50.0",
     "@corvu/calendar": "^0.1.2",
     "@corvu/drawer": "^0.2.4",
@@ -46,6 +47,7 @@
     "clsx": "^2.1.1",
     "cmdk-solid": "^1.1.2",
     "date-fns": "^4.4.0",
+    "effect": "4.0.0-rc.112",
     "embla-carousel": "^8.6.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-solid": "^8.6.0",
