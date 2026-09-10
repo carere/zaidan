@@ -12,7 +12,6 @@
   "author": "Kevin Abatan <abatan.k@gmail.com> (https://github.com/carere)",
   "type": "module",
   "dependencies": {
-    "@carere/kojo-runtime": "0.1.0-alpha.3",
     "@cloudflare/vite-plugin": "^1.50.0",
     "@corvu/calendar": "^0.1.2",
     "@corvu/drawer": "^0.2.4",
