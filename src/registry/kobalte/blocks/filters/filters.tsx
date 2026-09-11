@@ -1,16 +1,6 @@
 import { Plus } from "lucide-solid";
 import type { ValidComponent } from "solid-js";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  For,
-  mergeProps,
-  on,
-  onCleanup,
-  Show,
-} from "solid-js";
+import { createEffect, createMemo, createSignal, For, mergeProps, onCleanup, Show } from "solid-js";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/kobalte/ui/button";
@@ -162,15 +152,10 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
   const filterIds = createMemo(() => props.filters.map((filter) => filter.id));
   const [addFilterOpen, setAddFilterOpen] = createSignal(false);
   const [menuSearchInput, setMenuSearchInput] = createSignal("");
-  const [activeMenu, setActiveMenu] = createSignal<string>("root");
-  const [openSubMenu, setOpenSubMenu] = createSignal<string | null>(null);
-  const [highlightedIndex, setHighlightedIndex] = createSignal(-1);
   const [lastAddedFilterId, setLastAddedFilterId] = createSignal<string | null>(null);
   // Track which filter instance is being built in the current Add Filter menu
   // session. Maps fieldKey -> unique filterId created during this open session.
   const [sessionFilterIds, setSessionFilterIds] = createSignal<Record<string, string>>({});
-  let rootInputRef: HTMLInputElement | undefined;
-  const rootId = createUniqueId();
 
   createEffect(() => {
     if (!props.enableShortcut) return;
@@ -192,35 +177,6 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
 
     window.addEventListener("keydown", handleKeyDown);
     onCleanup(() => window.removeEventListener("keydown", handleKeyDown));
-  });
-
-  createEffect(() => {
-    if (addFilterOpen() && activeMenu() === "root") {
-      rootInputRef?.focus();
-    }
-  });
-
-  // The menu popup mounts after this component's effects have flushed, so the
-  // effect above cannot focus the freshly created input. Claim focus from the
-  // ref on the next tick, which lands after Kobalte's open auto-focus.
-  const focusRootInput = (element: HTMLInputElement) => {
-    rootInputRef = element;
-    setTimeout(() => {
-      if (activeMenu() === "root") element.focus();
-    }, 0);
-  };
-
-  createEffect(() => {
-    if (highlightedIndex() >= 0 && addFilterOpen()) {
-      const element = document.getElementById(`${rootId}-item-${highlightedIndex()}`);
-      element?.scrollIntoView({ block: "nearest" });
-    }
-  });
-
-  createEffect(() => {
-    if (!addFilterOpen()) {
-      setOpenSubMenu(null);
-    }
   });
 
   createEffect(() => {
@@ -282,27 +238,6 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
     ),
   );
 
-  // Upstream splits this across two effects — one resetting to -1 whenever the
-  // query changes, one re-highlighting the first row when the match count
-  // changes. In Solid both would land in the same flush and race, so keep a
-  // single deterministic rule: the first match is highlighted, or nothing when
-  // the menu is closed or nothing matches.
-  createEffect(
-    on([menuSearchInput, addFilterOpen, filteredFields], ([, isOpen, fields]) => {
-      setHighlightedIndex(isOpen && fields.length > 0 ? 0 : -1);
-    }),
-  );
-
-  const toggleSubMenu = (fieldKey: string) => {
-    if (openSubMenu() === fieldKey) {
-      setOpenSubMenu(null);
-      setActiveMenu("root");
-    } else {
-      setOpenSubMenu(fieldKey);
-      setActiveMenu(fieldKey);
-    }
-  };
-
   const contextValue: FilterContextValue = {
     get variant() {
       return props.variant;
@@ -347,8 +282,6 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
               if (!open) {
                 setMenuSearchInput("");
                 setSessionFilterIds({});
-              } else {
-                setActiveMenu("root");
               }
             }}
           >
@@ -370,73 +303,25 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
             <DropdownMenuContent class={cn("w-55", props.menuPopupClassName)}>
               <Show when={props.showSearchInput}>
                 <div class="relative">
-                  <Input
-                    ref={focusRootInput}
-                    role="combobox"
-                    aria-controls={`${rootId}-listbox`}
-                    aria-activedescendant={
-                      highlightedIndex() >= 0 ? `${rootId}-item-${highlightedIndex()}` : undefined
-                    }
+                  <DropdownMenuItem
+                    as={Input}
+                    role="searchbox"
+                    closeOnSelect={false}
+                    textValue={mergedI18n().searchFields}
+                    type="search"
                     placeholder={mergedI18n().searchFields}
                     class={cn(
                       "h-8 rounded-none border-0 bg-transparent! px-2 text-sm shadow-none",
                       "focus-visible:border-border focus-visible:ring-0 focus-visible:ring-offset-0",
-                      activeMenu() === "root" && "placeholder:text-foreground",
                     )}
                     value={menuSearchInput()}
-                    onFocus={() => setActiveMenu("root")}
-                    onMouseEnter={() => setActiveMenu("root")}
-                    onBlur={() => {
-                      if (activeMenu() === "root") rootInputRef?.focus();
-                    }}
                     onInput={(event) => setMenuSearchInput(event.currentTarget.value)}
                     onClick={(event) => event.stopPropagation()}
                     onKeyDown={(event) => {
-                      if (event.key === "ArrowDown") {
-                        event.preventDefault();
-                        if (filteredFields().length > 0) {
-                          setHighlightedIndex((previous) =>
-                            previous < filteredFields().length - 1 ? previous + 1 : 0,
-                          );
-                        }
-                      } else if (event.key === "ArrowUp") {
-                        event.preventDefault();
-                        if (filteredFields().length > 0) {
-                          setHighlightedIndex((previous) =>
-                            previous > 0 ? previous - 1 : filteredFields().length - 1,
-                          );
-                        }
-                      } else if (
-                        (event.key === "ArrowRight" || event.key === "ArrowLeft") &&
-                        highlightedIndex() >= 0
-                      ) {
-                        const field = filteredFields()[highlightedIndex()];
-
-                        if (event.key === "ArrowRight" && field && hasSubMenu(field)) {
-                          event.preventDefault();
-                          setOpenSubMenu(field.key || null);
-                          setActiveMenu(field.key || "root");
-                        } else if (event.key === "ArrowLeft") {
-                          event.preventDefault();
-                          if (openSubMenu()) {
-                            setOpenSubMenu(null);
-                            setActiveMenu("root");
-                          }
-                        }
-                      } else if (event.key === "Enter" && highlightedIndex() >= 0) {
-                        event.preventDefault();
-                        const field = filteredFields()[highlightedIndex()];
-                        if (field?.key) {
-                          if (hasSubMenu(field)) {
-                            toggleSubMenu(field.key);
-                          } else {
-                            addFilter(field.key);
-                          }
-                        }
-                      } else if (event.key === "Escape") {
-                        setAddFilterOpen(false);
+                      // Keep text editing in the search input; the menu handles navigation.
+                      if (!["ArrowDown", "ArrowUp", "Escape", "Tab"].includes(event.key)) {
+                        event.stopPropagation();
                       }
-                      event.stopPropagation();
                     }}
                   />
                   <Show when={props.enableShortcut && props.shortcutLabel}>
@@ -449,12 +334,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
               </Show>
 
               <div class="relative flex max-h-full">
-                <div
-                  class="flex max-h-[min(var(--kb-popper-content-available-height),24rem)] w-full scroll-pt-2 scroll-pb-2 flex-col overscroll-contain"
-                  role="listbox"
-                  id={`${rootId}-listbox`}
-                  onMouseEnter={() => setActiveMenu("root")}
-                >
+                <div class="flex max-h-[min(var(--kb-popper-content-available-height),24rem)] w-full scroll-pt-2 scroll-pb-2 flex-col overscroll-contain">
                   <ScrollArea class="**:data-[slot=scroll-area-scrollbar]:m-0">
                     <Show
                       when={filteredFields().length > 0}
@@ -465,9 +345,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                       }
                     >
                       <For each={filteredFields()}>
-                        {(field, index) => {
-                          const isHighlighted = () => highlightedIndex() === index();
-                          const itemId = () => `${rootId}-item-${index()}`;
+                        {(field) => {
                           const fieldKey = field.key as string;
                           const isMultiSelect = field.type === "multiselect";
                           const sessionFilter = () => {
@@ -483,11 +361,6 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                               when={hasSubMenu(field)}
                               fallback={
                                 <DropdownMenuItem
-                                  id={itemId()}
-                                  role="option"
-                                  aria-selected={isHighlighted()}
-                                  data-highlighted={isHighlighted() || undefined}
-                                  onMouseEnter={() => setHighlightedIndex(index())}
                                   onSelect={() => field.key && addFilter(field.key)}
                                   class="data-highlighted:bg-accent data-highlighted:text-accent-foreground"
                                 >
@@ -496,28 +369,8 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                                 </DropdownMenuItem>
                               }
                             >
-                              <DropdownMenuSub
-                                open={openSubMenu() === fieldKey}
-                                onOpenChange={(open) => {
-                                  if (open) {
-                                    setOpenSubMenu(fieldKey);
-                                  } else if (openSubMenu() === fieldKey) {
-                                    setOpenSubMenu(null);
-                                    setActiveMenu("root");
-                                  }
-                                }}
-                              >
-                                <DropdownMenuSubTrigger
-                                  id={itemId()}
-                                  role="option"
-                                  aria-selected={isHighlighted()}
-                                  data-highlighted={isHighlighted() || undefined}
-                                  onMouseEnter={() => {
-                                    setHighlightedIndex(index());
-                                    setActiveMenu("root");
-                                  }}
-                                  class="data-expanded:bg-accent data-expanded:text-accent-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground"
-                                >
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger class="data-expanded:bg-accent data-expanded:text-accent-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground">
                                   {renderIcon(field.icon)}
                                   <span>{field.label}</span>
                                 </DropdownMenuSubTrigger>
@@ -527,17 +380,6 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                                     currentValues={currentValues()}
                                     isMultiSelect={isMultiSelect}
                                     i18n={mergedI18n()}
-                                    isActive={activeMenu() === fieldKey}
-                                    onActive={() => {
-                                      if (field.searchable !== false) {
-                                        setActiveMenu(fieldKey);
-                                      }
-                                    }}
-                                    onBack={() => {
-                                      setOpenSubMenu(null);
-                                      setActiveMenu("root");
-                                    }}
-                                    onClose={() => setAddFilterOpen(false)}
                                     onToggle={(value, isSelected) => {
                                       if (isMultiSelect) {
                                         const nextValues = isSelected

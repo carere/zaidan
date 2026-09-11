@@ -14,3 +14,9 @@ bun playwright test --grep 'vega light default uncontrolled'
 ```
 
 The Node-based suite remains available through `bun vitest run`.
+
+The Filters fixture at `/tests/browser/filters.html` uses the same transforms and
+renders the real registry component and demo. Run it with
+`bun playwright test tests/browser/filters.spec.ts`. Its hover regression rests
+the browser pointer on an option for over one second because Kobalte's delayed
+dismissal can pass an immediate visibility check.
