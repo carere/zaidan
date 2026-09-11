@@ -70,45 +70,13 @@ const options = [
   { id: "astro", label: "Astro" },
 ];
 
-it.each(["property", "function"])(
-  "reflects controlled object selection and removal using a %s label accessor",
-  (kind) => {
-    const [value, setValue] = createSignal([options[0]]);
-    dispose = render(
-      () => (
-        <Combobox
-          multiple
-          options={options}
-          optionValue="id"
-          optionTextValue={kind === "property" ? "label" : (option) => option.label}
-          value={value()}
-          onChange={setValue}
-        >
-          <ComboboxInput showClear />
-        </Combobox>
-      ),
-      document.body,
-    );
-    expect(chips()).toEqual(["Next.js"]);
-    setValue(options);
-    expect(chips()).toEqual(["Next.js", "Astro"]);
-    button("Remove Next.js").click();
-    expect(value()).toEqual([options[1]]);
-    expect(chips()).toEqual(["Astro"]);
-    button("Clear selection").click();
-    expect(value()).toEqual([]);
-    expect(chips()).toEqual([]);
-  },
-);
-
 it.each(["root", "input"])(
   "retains disabled selections and blocks removal when disabled on the %s",
   (level) => {
-    const [value, setValue] = createSignal(["Next.js"]);
+    const [value, setValue] = createSignal<string | null>("Next.js");
     dispose = render(
       () => (
         <Combobox
-          multiple
           options={["Next.js"]}
           value={value()}
           onChange={setValue}
@@ -119,12 +87,10 @@ it.each(["root", "input"])(
       ),
       document.body,
     );
-    expect(chips()).toEqual(["Next.js"]);
-    expect(button("Remove Next.js").disabled).toBe(true);
-    button("Remove Next.js").click();
+    expect(inputElement().value).toBe("Next.js");
     expect(button("Clear selection").disabled).toBe(true);
     button("Clear selection").click();
-    expect(value()).toEqual(["Next.js"]);
+    expect(value()).toBe("Next.js");
   },
 );
 
@@ -137,7 +103,20 @@ it("preserves invalid state and normal backspace removal", () => {
         defaultValue={["Next.js", "Astro"]}
         validationState="invalid"
       >
-        <ComboboxInput />
+        <ComboboxChips>
+          <ComboboxValue<string>>
+            {(values) => (
+              <For each={values}>
+                {(value) => (
+                  <ComboboxChip value={value} removeLabel={`Remove ${value}`}>
+                    {value}
+                  </ComboboxChip>
+                )}
+              </For>
+            )}
+          </ComboboxValue>
+          <ComboboxChipsInput />
+        </ComboboxChips>
       </Combobox>
     ),
     document.body,
@@ -182,7 +161,7 @@ it("composes shadcn-style chip parts with Kobalte selection and custom chip cont
             {(values) => (
               <For each={values}>
                 {(option) => (
-                  <ComboboxChip value={option}>
+                  <ComboboxChip value={option} removeLabel={`Remove framework ${option.label}`}>
                     <strong>{option.label}</strong>
                   </ComboboxChip>
                 )}
@@ -196,7 +175,7 @@ it("composes shadcn-style chip parts with Kobalte selection and custom chip cont
     document.body,
   );
   expect(chips()).toEqual(["Next.js", "Astro"]);
-  button("Remove Next.js").click();
+  button("Remove framework Next.js").click();
   expect(value()).toEqual([options[1]]);
   expect(chips()).toEqual(["Astro"]);
   setValue([]);
@@ -222,7 +201,15 @@ it("keeps composed chips visible and disabled, with optional remove buttons", ()
           <ComboboxValue<string>>
             {(values) => (
               <For each={values}>
-                {(option) => <ComboboxChip value={option} showRemove={showRemove()} />}
+                {(option) => (
+                  <ComboboxChip
+                    value={option}
+                    removeLabel={`Remove ${option}`}
+                    showRemove={showRemove()}
+                  >
+                    {option}
+                  </ComboboxChip>
+                )}
               </For>
             )}
           </ComboboxValue>

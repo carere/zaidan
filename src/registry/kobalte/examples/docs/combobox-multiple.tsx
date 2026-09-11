@@ -27,7 +27,13 @@ export default function ComboboxMultiple() {
       <ComboboxChips class="w-full max-w-xs">
         <ComboboxValue<string>>
           {(values) => (
-            <For each={values}>{(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}</For>
+            <For each={values}>
+              {(value) => (
+                <ComboboxChip value={value} removeLabel={`Remove ${value}`}>
+                  {value}
+                </ComboboxChip>
+              )}
+            </For>
           )}
         </ComboboxValue>
         <ComboboxChipsInput placeholder="Add framework..." />

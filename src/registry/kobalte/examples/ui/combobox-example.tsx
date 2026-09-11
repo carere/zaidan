@@ -399,7 +399,11 @@ function ComboboxMultiple() {
           <ComboboxValue<string>>
             {(values) => (
               <For each={values}>
-                {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+                {(value) => (
+                  <ComboboxChip value={value} removeLabel={`Remove ${value}`}>
+                    {value}
+                  </ComboboxChip>
+                )}
               </For>
             )}
           </ComboboxValue>
@@ -430,7 +434,11 @@ function ComboboxMultipleDisabled() {
           <ComboboxValue<string>>
             {(values) => (
               <For each={values}>
-                {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+                {(value) => (
+                  <ComboboxChip value={value} removeLabel={`Remove ${value}`}>
+                    {value}
+                  </ComboboxChip>
+                )}
               </For>
             )}
           </ComboboxValue>
@@ -462,7 +470,11 @@ function ComboboxMultipleInvalid() {
             <ComboboxValue<string>>
               {(values) => (
                 <For each={values}>
-                  {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+                  {(value) => (
+                    <ComboboxChip value={value} removeLabel={`Remove ${value}`}>
+                      {value}
+                    </ComboboxChip>
+                  )}
                 </For>
               )}
             </ComboboxValue>
@@ -488,7 +500,11 @@ function ComboboxMultipleInvalid() {
               <ComboboxValue<string>>
                 {(values) => (
                   <For each={values}>
-                    {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+                    {(value) => (
+                      <ComboboxChip value={value} removeLabel={`Remove ${value}`}>
+                        {value}
+                      </ComboboxChip>
+                    )}
                   </For>
                 )}
               </ComboboxValue>

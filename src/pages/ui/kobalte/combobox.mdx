@@ -190,7 +190,7 @@ const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
     <ComboboxValue<string>>
       {(values) => (
         <For each={values}>
-          {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+          {(value) => <ComboboxChip value={value} removeLabel={`Remove ${value}`}>{value}</ComboboxChip>}
         </For>
       )}
     </ComboboxValue>
@@ -202,9 +202,9 @@ const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
 Pass the selected option as each chip's `value`: Kobalte removes options by value rather than by their rendered position. `ComboboxChips` also anchors the popup through Kobalte Control, so no `useComboboxAnchor` hook is needed.
 
-`ComboboxValue` provides the selected options to its render function. You can customize chip children, or omit them to use the configured `optionTextValue` label. Set `showRemove={false}` to hide a chip's remove button. The remove buttons have accessible names and support keyboard activation; removal returns focus to the input.
+`ComboboxValue` provides the selected options to its render function. Pass explicit chip children and a `removeLabel` for the remove button’s accessible name. Set `showRemove={false}` to hide a chip's remove button. The remove buttons have accessible names and support keyboard activation; removal returns focus to the input.
 
-Use `value` and `onChange` for controlled selection, or `defaultValue` for uncontrolled selection. Set `disabled` or `validationState="invalid"` on `Combobox` to apply those states to the chips input. Disabled selections stay visible and cannot be removed. Existing multiple-selection compositions using `ComboboxInput` continue to render chips automatically through the same chip component.
+Use `value` and `onChange` for controlled selection, or `defaultValue` for uncontrolled selection. Set `disabled` or `validationState="invalid"` on `Combobox` to apply those states to the chips input. Disabled selections stay visible and cannot be removed.
 
 ## Basic
 
