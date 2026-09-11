@@ -27,8 +27,8 @@ function VirtualizedOptions(props: FilterOptionListRenderProps) {
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
     getItemKey: (index) => String(props.options[index]?.value ?? index),
-    // Keep the highlighted row mounted even when scrolled away, so the
-    // combobox's aria-activedescendant never points at an unmounted node.
+    // Keep the highlighted row mounted even when scrolled away to preserve
+    // menu focus and the value editor's aria-activedescendant.
     rangeExtractor: (range: Range) => {
       const indices = new Set(defaultRangeExtractor(range));
       if (props.highlightedIndex >= 0 && props.highlightedIndex < props.options.length) {
