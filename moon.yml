@@ -4,6 +4,14 @@ stack: frontend
 layer: application
 
 tasks:
+  test-browser:
+    command: bun playwright test
+    description: Test rendered registry components in Chromium
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+      - "tests/browser/**/*"
+
   dev:
     command: bun vite dev
     description: Start Zaidan in development mode
