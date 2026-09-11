@@ -18,6 +18,7 @@ export default function ComboboxMultiple() {
       options={frameworks}
       placeholder="Select frameworks..."
       multiple
+      triggerMode="focus"
       defaultValue={[frameworks[0]]}
       itemComponent={(props) => (
         <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
