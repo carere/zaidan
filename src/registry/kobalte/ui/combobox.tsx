@@ -335,7 +335,8 @@ type ComboboxContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
   Pick<ComponentProps<T>, "class">;
 
 const ComboboxContent = <T extends ValidComponent = "div">(props: ComboboxContentProps<T>) => {
-  const [local, others] = splitProps(props as ComboboxContentProps, ["class"]);
+  const context = ComboboxPrimitive.useComboboxContext();
+  const [local, others] = splitProps(props as ComboboxContentProps, ["class", "onCloseAutoFocus"]);
   return (
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Content
@@ -344,6 +345,11 @@ const ComboboxContent = <T extends ValidComponent = "div">(props: ComboboxConten
           local.class,
         )}
         data-slot="combobox-content"
+        onCloseAutoFocus={(event) => {
+          local.onCloseAutoFocus?.(event);
+          // Restoring input focus after the exit animation would reopen a focus-triggered popup.
+          if (context.triggerMode() === "focus") event.preventDefault();
+        }}
         {...others}
       >
         <ComboboxPrimitive.Listbox class="z-combobox-listbox m-0 p-1" />

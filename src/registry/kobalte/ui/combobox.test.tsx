@@ -246,3 +246,41 @@ it("keeps composed chips visible and disabled, with optional remove buttons", ()
   button("Remove Next.js").click();
   expect(value()).toEqual([]);
 });
+
+it("stays closed after an outside click and the popup exit animation in focus mode", async () => {
+  // happy-dom does not play CSS animations; finish the real popup's exit explicitly.
+  const style = document.createElement("style");
+  style.textContent =
+    ".z-combobox-content { animation-name: exit; } .z-combobox-content[data-expanded] { animation-name: enter; }";
+  document.body.append(style);
+  dispose = render(
+    () => (
+      <>
+        <ComboboxMultiple />
+        <div>Outside</div>
+      </>
+    ),
+    document.body,
+  );
+  const input = inputElement();
+  input.focus();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  expect(input.getAttribute("aria-expanded")).toBe("true");
+  const content = document.querySelector('[data-slot="combobox-content"]');
+  if (!content) throw new Error("Missing popup");
+  content.dispatchEvent(new AnimationEvent("animationstart", { animationName: "enter" }));
+  const outside = [...document.querySelectorAll("div")].find(
+    (element) => element.textContent === "Outside",
+  );
+  if (!outside) throw new Error("Missing outside element");
+  outside.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, pointerType: "mouse", button: 0 }),
+  );
+  input.blur();
+  outside.click();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  content.dispatchEvent(new AnimationEvent("animationend", { animationName: "exit" }));
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  expect(input.getAttribute("aria-expanded")).toBe("false");
+  expect(document.activeElement).not.toBe(input);
+});
