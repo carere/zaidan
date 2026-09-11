@@ -76,7 +76,12 @@ export default defineConfig(({ mode }) => ({
         extends: true,
         test: {
           name: "node",
-          exclude: [...configDefaults.exclude, ".claude/worktrees/**", "**/*.test.tsx"],
+          exclude: [
+            ...configDefaults.exclude,
+            ".claude/worktrees/**",
+            "tests/browser/**",
+            "**/*.test.tsx",
+          ],
         },
       },
       {
@@ -98,6 +103,6 @@ export default defineConfig(({ mode }) => ({
         },
       },
     ],
-    exclude: [...configDefaults.exclude, ".claude/worktrees/**"],
+    exclude: [...configDefaults.exclude, ".claude/worktrees/**", "tests/browser/**"],
   },
 }));

@@ -13,6 +13,7 @@
       "*.ts",
       "*.css",
       "src/**/*",
+      "tests/browser/**/*",
       "!src/routeTree.gen.ts",
       "!src/pages/**/*.mdx"
     ]

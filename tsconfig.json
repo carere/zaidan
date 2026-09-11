@@ -22,5 +22,11 @@
     },
     "outDir": ".moon/cache/types"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "*.ts",
+    "tests/browser/**/*.ts",
+    "tests/browser/**/*.tsx"
+  ]
 }

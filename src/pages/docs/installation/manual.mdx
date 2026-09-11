@@ -195,7 +195,7 @@ Create a `components.json` file in the root of your project.
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles/globals.css",
+    "css": "src/index.css",
     "baseColor": "neutral", // or "gray", "stone", "zinc"
     "cssVariables": true,
     "prefix": ""
@@ -217,8 +217,28 @@ Create a `components.json` file in the root of your project.
 }
 ```
 
-### That's it
+Set `tailwind.css` to the global CSS file you configured above, and make sure that file is imported by your application.
+
+### Install a Style
+
+Zaidan components require a style in addition to the CSS variables above. The style defines component classes such as `z-button`, `z-button-variant-default`, and `z-button-size-default`. Without it, components will appear unstyled.
+
+After creating `components.json`, install a style such as Vega:
+
+```package-dlx
+shadcn@latest add @zaidan/style-vega
+```
+
+This adds `styles/base.css` and `styles/utilities.css` and wires their imports into your configured global CSS file. You can choose another style by replacing `style-vega` with `style-nova`, `style-maia`, `style-lyra`, `style-mira`, `style-luma`, `style-sera`, or `style-rhea`.
+
+To customize the full design system, including the style, colors, and fonts, use <CliButton />.
+
+### Add Components
 
 You can now start adding components to your project.
+
+```package-dlx
+shadcn@latest add @zaidan/button
+```
 
 </Steps>
