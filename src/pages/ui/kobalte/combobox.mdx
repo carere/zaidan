@@ -151,7 +151,7 @@ const frameworks: Framework[] = [
 
 ## Multiple Selection
 
-Use `multiple` (with a `T[]` `value`/`defaultValue`) for multi-select behavior. The input text reflects the selection the same way single-select does.
+Use `multiple` (with a `T[]` `value`/`defaultValue`) for multi-select behavior. Selected options appear as removable chips in `ComboboxInput` and remain visible while you type or open and close the list. Each remove button is keyboard focusable and named for its option; removing the last chip leaves an empty input. Controlled `value` updates and `onChange` use the same selection API. Disabled controls keep their chips visible and prevent removal. For object options, configure `optionTextValue` for chip labels.
 
 ```tsx showLineNumbers
 import {
@@ -186,7 +186,7 @@ A simple combobox with a list of frameworks.
 
 ## Multiple
 
-A combobox with multiple selection using `multiple`.
+A combobox with multiple selection using `multiple`, starting with a removable Next.js chip.
 
 <ComponentPreview name="combobox-multiple" />
 

@@ -381,7 +381,7 @@ function ComboboxWithForm() {
 
 function ComboboxMultiple() {
   return (
-    <Example title="Multiple Selection">
+    <Example title="Multiple Selection with Removable Chips">
       <Combobox<(typeof frameworks)[number]>
         options={frameworks}
         placeholder="Select frameworks..."

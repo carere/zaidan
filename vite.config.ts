@@ -66,11 +66,38 @@ export default defineConfig(({ mode }) => ({
       },
       pages: getPrerenderPages(),
     }),
-    solid({ ssr: true, hot: true, extensions: [".tsx", ".mdx"] }),
+    solid({ ssr: true, hot: mode !== "test", extensions: [".tsx", ".mdx"] }),
     ...(mode === "test" ? [] : [velite()]),
   ],
   test: {
     environment: "node",
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "node",
+          exclude: [...configDefaults.exclude, ".claude/worktrees/**", "**/*.test.tsx"],
+        },
+      },
+      {
+        extends: true,
+        resolve: {
+          alias: {
+            "solid-js/store": new URL("./node_modules/solid-js/store/dist/dev.js", import.meta.url)
+              .pathname,
+            "solid-js/web": new URL("./node_modules/solid-js/web/dist/web.js", import.meta.url)
+              .pathname,
+            "solid-js": new URL("./node_modules/solid-js/dist/dev.js", import.meta.url).pathname,
+          },
+        },
+        test: {
+          server: { deps: { inline: true } },
+          name: "dom",
+          environment: "happy-dom",
+          include: ["src/**/*.test.tsx"],
+        },
+      },
+    ],
     exclude: [...configDefaults.exclude, ".claude/worktrees/**"],
   },
 }));

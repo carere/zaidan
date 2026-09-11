@@ -11,7 +11,7 @@ import * as ComboboxPrimitive from "@kobalte/core/combobox";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import { Check, ChevronsUpDown, X } from "lucide-solid";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
-import { mergeProps, Show, splitProps } from "solid-js";
+import { createContext, For, mergeProps, Show, splitProps, useContext } from "solid-js";
 import { cn } from "@/lib/utils";
 import {
   InputGroup,
@@ -23,6 +23,8 @@ import {
 // ============================================================================
 // Combobox Root
 // ============================================================================
+
+const ComboboxLabelContext = createContext<(option: unknown) => string>(String);
 
 type ComboboxProps<O, OptGroup = never, T extends ValidComponent = "div"> = PolymorphicProps<
   T,
@@ -43,7 +45,21 @@ const Combobox = <O, OptGroup = never, T extends ValidComponent = "div">(
     } as ComboboxProps<O>,
     props,
   );
-  return <ComboboxPrimitive.Root {...mergedProps} />;
+  const getOptionLabel = (option: unknown) => {
+    const accessor = props.optionTextValue ?? props.optionLabel;
+    return String(
+      typeof accessor === "function"
+        ? accessor(option as Exclude<O, null>)
+        : accessor == null
+          ? option
+          : (option as Exclude<O, null>)[accessor],
+    );
+  };
+  return (
+    <ComboboxLabelContext.Provider value={getOptionLabel}>
+      <ComboboxPrimitive.Root {...mergedProps} />
+    </ComboboxLabelContext.Provider>
+  );
 };
 
 // ============================================================================
@@ -82,6 +98,9 @@ type ComboboxInputProps<T extends ValidComponent = "input"> = PolymorphicProps<
   };
 
 const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInputProps<T>) => {
+  const context = ComboboxPrimitive.useComboboxContext();
+  const getOptionLabel = useContext(ComboboxLabelContext);
+  const isDisabled = () => context.isDisabled() || local.disabled;
   const props = mergeProps({ showTrigger: true, showClear: false }, rawProps);
   const [local, others] = splitProps(props as ComboboxInputProps, [
     "class",
@@ -94,15 +113,46 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
   return (
     <ComboboxPrimitive.Control
       as={InputGroup}
-      class={cn("z-combobox-input w-auto", local.class)}
+      class={cn(
+        "z-combobox-input w-auto",
+        context.isMultiple() && "h-auto! min-h-9 flex-wrap gap-1 p-1",
+        local.class,
+      )}
       data-slot="combobox-control"
     >
       {(state) => (
         <>
           {local.children}
+          <Show when={context.isMultiple()}>
+            <For each={state.selectedOptions()}>
+              {(option) => (
+                <span
+                  data-slot="combobox-chip"
+                  class="inline-flex max-w-full items-center gap-1 rounded-sm bg-secondary py-0.5 pl-2 pr-0.5 text-sm text-secondary-foreground"
+                >
+                  <span class="truncate">{getOptionLabel(option)}</span>
+                  <InputGroupButton
+                    size="icon-xs"
+                    variant="ghost"
+                    aria-label={`Remove ${getOptionLabel(option)}`}
+                    disabled={isDisabled()}
+                    onPointerDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      if (isDisabled()) return;
+                      state.remove(option);
+                      context.inputRef()?.focus();
+                    }}
+                  >
+                    <X class="pointer-events-none size-3" aria-hidden="true" />
+                  </InputGroupButton>
+                </span>
+              )}
+            </For>
+          </Show>
           <ComboboxPrimitive.Input
             as={InputGroupInput}
-            disabled={local.disabled}
+            disabled={isDisabled()}
+            class={context.isMultiple() ? "min-w-24 flex-1 basis-24" : undefined}
             data-slot="combobox-input"
             {...others}
           />
@@ -114,7 +164,7 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
                 variant="ghost"
                 data-slot="combobox-trigger"
                 class="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
-                disabled={local.disabled}
+                disabled={isDisabled()}
               >
                 <ComboboxPrimitive.Icon
                   as={ChevronsUpDown}
@@ -128,8 +178,11 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
                 size="icon-xs"
                 data-slot="combobox-clear"
                 class="z-combobox-clear"
-                disabled={local.disabled}
-                onClick={() => state.clear()}
+                disabled={isDisabled()}
+                aria-label="Clear selection"
+                onClick={() => {
+                  if (!isDisabled()) state.clear();
+                }}
               >
                 <X class="pointer-events-none z-combobox-clear-icon" />
               </InputGroupButton>
