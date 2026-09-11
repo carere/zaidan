@@ -528,11 +528,7 @@ const Filters = <T = unknown>(rawProps: FiltersProps<T>) => {
                                     isMultiSelect={isMultiSelect}
                                     i18n={mergedI18n()}
                                     isActive={activeMenu() === fieldKey}
-                                    onActive={() => {
-                                      if (field.searchable !== false) {
-                                        setActiveMenu(fieldKey);
-                                      }
-                                    }}
+                                    onActive={() => setActiveMenu(fieldKey)}
                                     onBack={() => {
                                       setOpenSubMenu(null);
                                       setActiveMenu("root");
