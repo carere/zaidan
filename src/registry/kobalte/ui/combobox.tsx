@@ -13,6 +13,7 @@ import { Check, ChevronsUpDown, X } from "lucide-solid";
 import type { ComponentProps, JSX, ValidComponent } from "solid-js";
 import { mergeProps, Show, splitProps } from "solid-js";
 import { cn } from "@/lib/utils";
+import { Button } from "@/registry/kobalte/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -68,6 +69,113 @@ const ComboboxControl = <T extends ValidComponent = "div">(props: ComboboxContro
 };
 
 // ============================================================================
+// Combobox Chips
+// ============================================================================
+
+type ComboboxChipsProps = ComboboxControlProps;
+
+const ComboboxChips = (props: ComboboxChipsProps) => {
+  const [local, others] = splitProps(props, ["class"]);
+  return (
+    <ComboboxPrimitive.Control
+      data-slot="combobox-chips"
+      class={cn("z-combobox-chips", local.class)}
+      {...others}
+    />
+  );
+};
+
+type ComboboxValueProps<O> = {
+  children: JSX.Element | ((values: O[]) => JSX.Element);
+};
+
+const ComboboxValue = <O,>(props: ComboboxValueProps<O>) => {
+  const context = ComboboxPrimitive.useComboboxContext();
+  return (
+    <>
+      {typeof props.children === "function"
+        ? props.children(context.selectedOptions() as O[])
+        : props.children}
+    </>
+  );
+};
+
+type ComboboxChipProps = ComponentProps<"span"> & {
+  /** The selected option to remove; Kobalte identifies options by value, not chip position. */
+  value: unknown;
+  children: JSX.Element;
+  removeLabel: string;
+  showRemove?: boolean;
+  disabled?: boolean;
+};
+
+const ComboboxChip = (rawProps: ComboboxChipProps) => {
+  const props = mergeProps({ showRemove: true }, rawProps);
+  const [local, others] = splitProps(props, [
+    "class",
+    "children",
+    "value",
+    "showRemove",
+    "removeLabel",
+    "disabled",
+  ]);
+  const context = ComboboxPrimitive.useComboboxContext();
+  const isDisabled = () => context.isDisabled() || local.disabled;
+  return (
+    <span
+      data-slot="combobox-chip"
+      class={cn(
+        "z-combobox-chip has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-disabled:opacity-50",
+        local.class,
+      )}
+      {...others}
+    >
+      {local.children}
+      <Show when={local.showRemove}>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          type="button"
+          data-slot="combobox-chip-remove"
+          class="z-combobox-chip-remove"
+          aria-label={local.removeLabel}
+          disabled={isDisabled()}
+          onPointerDown={(event) => event.preventDefault()}
+          onClick={() => {
+            if (isDisabled()) return;
+            context.removeOptionFromSelection(local.value);
+            context.inputRef()?.focus();
+          }}
+        >
+          <X class="z-combobox-chip-indicator-icon pointer-events-none" aria-hidden="true" />
+        </Button>
+      </Show>
+    </span>
+  );
+};
+
+type ComboboxChipsInputProps<T extends ValidComponent = "input"> = PolymorphicProps<
+  T,
+  ComboboxPrimitiveInputProps<T>
+> &
+  Pick<ComponentProps<"input">, "class" | "placeholder" | "disabled" | "id" | "name">;
+
+const ComboboxChipsInput = <T extends ValidComponent = "input">(
+  props: ComboboxChipsInputProps<T>,
+) => {
+  const [local, others] = splitProps(props as ComboboxChipsInputProps, ["class", "disabled"]);
+  const context = ComboboxPrimitive.useComboboxContext();
+  return (
+    <ComboboxPrimitive.Input
+      data-slot="combobox-chip-input"
+      class={cn("z-combobox-chip-input min-w-16 flex-1 outline-none", local.class)}
+      disabled={context.isDisabled() || local.disabled}
+      {...others}
+    />
+  );
+};
+
+// ============================================================================
 // Combobox Input
 // ============================================================================
 
@@ -82,6 +190,8 @@ type ComboboxInputProps<T extends ValidComponent = "input"> = PolymorphicProps<
   };
 
 const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInputProps<T>) => {
+  const context = ComboboxPrimitive.useComboboxContext();
+  const isDisabled = () => context.isDisabled() || local.disabled;
   const props = mergeProps({ showTrigger: true, showClear: false }, rawProps);
   const [local, others] = splitProps(props as ComboboxInputProps, [
     "class",
@@ -102,7 +212,7 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
           {local.children}
           <ComboboxPrimitive.Input
             as={InputGroupInput}
-            disabled={local.disabled}
+            disabled={isDisabled()}
             data-slot="combobox-input"
             {...others}
           />
@@ -114,7 +224,7 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
                 variant="ghost"
                 data-slot="combobox-trigger"
                 class="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
-                disabled={local.disabled}
+                disabled={isDisabled()}
               >
                 <ComboboxPrimitive.Icon
                   as={ChevronsUpDown}
@@ -128,8 +238,11 @@ const ComboboxInput = <T extends ValidComponent = "input">(rawProps: ComboboxInp
                 size="icon-xs"
                 data-slot="combobox-clear"
                 class="z-combobox-clear"
-                disabled={local.disabled}
-                onClick={() => state.clear()}
+                disabled={isDisabled()}
+                aria-label="Clear selection"
+                onClick={() => {
+                  if (!isDisabled()) state.clear();
+                }}
               >
                 <X class="pointer-events-none z-combobox-clear-icon" />
               </InputGroupButton>
@@ -191,7 +304,8 @@ type ComboboxContentProps<T extends ValidComponent = "div"> = PolymorphicProps<
   Pick<ComponentProps<T>, "class">;
 
 const ComboboxContent = <T extends ValidComponent = "div">(props: ComboboxContentProps<T>) => {
-  const [local, others] = splitProps(props as ComboboxContentProps, ["class"]);
+  const context = ComboboxPrimitive.useComboboxContext();
+  const [local, others] = splitProps(props as ComboboxContentProps, ["class", "onCloseAutoFocus"]);
   return (
     <ComboboxPrimitive.Portal>
       <ComboboxPrimitive.Content
@@ -200,6 +314,11 @@ const ComboboxContent = <T extends ValidComponent = "div">(props: ComboboxConten
           local.class,
         )}
         data-slot="combobox-content"
+        onCloseAutoFocus={(event) => {
+          local.onCloseAutoFocus?.(event);
+          // Restoring input focus after the exit animation would reopen a focus-triggered popup.
+          if (context.triggerMode() === "focus") event.preventDefault();
+        }}
         {...others}
       >
         <ComboboxPrimitive.Listbox class="z-combobox-listbox m-0 p-1" />
@@ -326,6 +445,9 @@ const ComboboxSeparator = <T extends ValidComponent = "hr">(
 
 export {
   Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
   ComboboxContent,
   ComboboxControl,
   ComboboxEmpty,
@@ -335,4 +457,5 @@ export {
   ComboboxSectionLabel,
   ComboboxSeparator,
   ComboboxTrigger,
+  ComboboxValue,
 };

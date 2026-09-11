@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("non-searchable submenu stays open while resting over its first option", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/tests/browser/filters.html");
   await page.getByRole("button", { name: "Filter", exact: true }).click();
   await page.getByRole("option", { name: "Status", exact: true }).hover();
   const option = page.getByRole("option", { name: "To Do", exact: true });
@@ -14,7 +14,7 @@ test("non-searchable submenu stays open while resting over its first option", as
 test("demo keeps non-searchable options open when moving between rows and fields", async ({
   page,
 }) => {
-  await page.goto("/?demo");
+  await page.goto("/tests/browser/filters.html?demo");
   await page.getByRole("button", { name: "Add Filter", exact: true }).click();
   for (const [field, first, second] of [
     ["Status", "To Do", "In Progress"],
@@ -39,7 +39,7 @@ for (const [field, query, option, multi] of [
   ["Country", "france", "France", false],
 ] as const) {
   test(`searchable ${field} supports hover, search, and selection`, async ({ page }) => {
-    await page.goto("/?demo");
+    await page.goto("/tests/browser/filters.html?demo");
     await page.getByRole("button", { name: "Add Filter", exact: true }).click();
     await page.getByRole("option", { name: field, exact: true }).hover();
     const search = page.getByPlaceholder(`Search ${field.toLowerCase()}...`, { exact: true });
@@ -65,7 +65,7 @@ for (const [field, query, option, multi] of [
 
 for (const field of ["Status", "Country"]) {
   test(`keyboard enters, leaves, and selects in ${field}`, async ({ page }) => {
-    await page.goto("/?demo");
+    await page.goto("/tests/browser/filters.html?demo");
     await page.getByRole("button", { name: "Add Filter", exact: true }).click();
     const rootSearch = page.getByPlaceholder("Filter...", { exact: true });
     await rootSearch.fill(field);
@@ -85,7 +85,7 @@ for (const field of ["Status", "Country"]) {
 
 for (const dismissal of ["Escape", "outside click"]) {
   test(`non-searchable submenu dismisses with ${dismissal}`, async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/tests/browser/filters.html");
     await page.getByRole("button", { name: "Filter", exact: true }).click();
     await page.getByRole("option", { name: "Status", exact: true }).hover();
     const option = page.getByRole("option", { name: "To Do", exact: true });

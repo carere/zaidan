@@ -23,11 +23,14 @@ function MinimalFilters() {
   );
 }
 
+const root = document.getElementById("root");
+if (!root) throw new Error("Filters fixture root is missing");
+
 render(
   () => (
     <main style={{ padding: "80px" }}>
       {new URLSearchParams(location.search).has("demo") ? <FiltersDemo /> : <MinimalFilters />}
     </main>
   ),
-  document.getElementById("root")!,
+  root,
 );
