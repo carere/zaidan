@@ -1,11 +1,14 @@
 import { ChevronDown, Globe } from "lucide-solid";
-import { createSignal, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { toast } from "solid-sonner";
 import { Example, ExampleWrapper } from "@/components/example";
 import { Button } from "@/registry/kobalte/ui/button";
 import { Card, CardContent, CardFooter } from "@/registry/kobalte/ui/card";
 import {
   Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxInput,
@@ -13,6 +16,7 @@ import {
   ComboboxSection,
   ComboboxSectionLabel,
   ComboboxSeparator,
+  ComboboxValue,
 } from "@/registry/kobalte/ui/combobox";
 import {
   Dialog,
@@ -391,7 +395,16 @@ function ComboboxMultiple() {
           <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
-        <ComboboxInput placeholder="Select frameworks..." />
+        <ComboboxChips>
+          <ComboboxValue<string>>
+            {(values) => (
+              <For each={values}>
+                {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+              </For>
+            )}
+          </ComboboxValue>
+          <ComboboxChipsInput placeholder="Select frameworks..." />
+        </ComboboxChips>
         <ComboboxContent>
           <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
@@ -413,7 +426,16 @@ function ComboboxMultipleDisabled() {
           <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
         )}
       >
-        <ComboboxInput placeholder="Select frameworks..." disabled />
+        <ComboboxChips>
+          <ComboboxValue<string>>
+            {(values) => (
+              <For each={values}>
+                {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+              </For>
+            )}
+          </ComboboxValue>
+          <ComboboxChipsInput placeholder="Select frameworks..." disabled />
+        </ComboboxChips>
         <ComboboxContent>
           <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         </ComboboxContent>
@@ -436,7 +458,16 @@ function ComboboxMultipleInvalid() {
             <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
           )}
         >
-          <ComboboxInput placeholder="Select frameworks..." aria-invalid="true" />
+          <ComboboxChips>
+            <ComboboxValue<string>>
+              {(values) => (
+                <For each={values}>
+                  {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+                </For>
+              )}
+            </ComboboxValue>
+            <ComboboxChipsInput placeholder="Select frameworks..." aria-invalid="true" />
+          </ComboboxChips>
           <ComboboxContent>
             <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
           </ComboboxContent>
@@ -453,11 +484,20 @@ function ComboboxMultipleInvalid() {
               <ComboboxItem item={props.item}>{props.item.rawValue}</ComboboxItem>
             )}
           >
-            <ComboboxInput
-              id="combobox-multiple-invalid"
-              placeholder="Select frameworks..."
-              aria-invalid="true"
-            />
+            <ComboboxChips>
+              <ComboboxValue<string>>
+                {(values) => (
+                  <For each={values}>
+                    {(value) => <ComboboxChip value={value}>{value}</ComboboxChip>}
+                  </For>
+                )}
+              </ComboboxValue>
+              <ComboboxChipsInput
+                id="combobox-multiple-invalid"
+                placeholder="Select frameworks..."
+                aria-invalid="true"
+              />
+            </ComboboxChips>
             <ComboboxContent>
               <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
             </ComboboxContent>
