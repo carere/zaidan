@@ -2,7 +2,9 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "style-vega",
   "dependencies": [],
-  "registryDependencies": [],
+  "registryDependencies": [
+    "@zaidan/semantic-colors"
+  ],
   "files": [
     {
       "path": "src/registry/kobalte/styles/style-vega.css",

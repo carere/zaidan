@@ -2336,10 +2336,41 @@
       ]
     },
     {
+      "name": "semantic-colors",
+      "type": "registry:theme",
+      "title": "Semantic colors",
+      "cssVars": {
+        "light": {
+          "success": "oklch(0.979 0.021 166.113)",
+          "success-foreground": "oklch(0.378 0.077 168.94)",
+          "warning": "oklch(0.987 0.026 102.212)",
+          "warning-foreground": "oklch(0.421 0.095 57.708)",
+          "info": "oklch(0.97 0.014 254.604)",
+          "info-foreground": "oklch(0.379 0.146 265.522)"
+        },
+        "dark": {
+          "success": "oklch(0.23 0.0359 185.7)",
+          "success-foreground": "oklch(0.765 0.177 163.223)",
+          "warning": "oklch(0.25 0.0437 50.86)",
+          "warning-foreground": "oklch(0.795 0.184 86.047)",
+          "info": "oklch(0.25 0.0714 268.38)",
+          "info-foreground": "oklch(0.707 0.165 254.624)"
+        },
+        "theme": {
+          "color-success": "var(--success)",
+          "color-success-foreground": "var(--success-foreground)",
+          "color-warning": "var(--warning)",
+          "color-warning-foreground": "var(--warning-foreground)",
+          "color-info": "var(--info)",
+          "color-info-foreground": "var(--info-foreground)"
+        }
+      }
+    },
+    {
       "name": "style-luma",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2366,7 +2397,7 @@
       "name": "style-lyra",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2393,7 +2424,7 @@
       "name": "style-maia",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2420,7 +2451,7 @@
       "name": "style-mira",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2447,7 +2478,7 @@
       "name": "style-nova",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2474,7 +2505,7 @@
       "name": "style-rhea",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2501,7 +2532,7 @@
       "name": "style-sera",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {
@@ -2528,7 +2559,7 @@
       "name": "style-vega",
       "type": "registry:theme",
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@zaidan/semantic-colors"],
       "css": {
         "@import \"./styles/utilities.css\"": {},
         "@layer base": {

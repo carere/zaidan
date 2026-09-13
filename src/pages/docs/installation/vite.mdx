@@ -127,7 +127,7 @@ Update the `components.json` file to point to the Zaidan registry and use the `k
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/styles/globals.css",
+    "css": "src/index.css",
     "baseColor": "neutral", // or "gray", "stone", "zinc"
     "cssVariables": true,
     "prefix": ""
@@ -168,7 +168,7 @@ import { Button } from "@/components/ui/button"
  
 function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
+    <div class="flex min-h-svh flex-col items-center justify-center">
       <Button>Click me</Button>
     </div>
   )
