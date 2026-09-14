@@ -17,6 +17,9 @@ Styles control the visual treatment of every component — spacing, borders, pad
 shadcn@latest add @zaidan/style-vega
 ```
 
+Every style includes the semantic color theme: `success`, `warning`, `info`, and their foregrounds, with light/dark values and Tailwind mappings. These tokens can be customized in your global CSS. To update an existing installation, re-add your style and accept the semantic color dependency.
+
+
 When you add a style, the CLI creates or overrides two files in your project: `styles/base.css`,
 which holds the `.z-*` classes that style every component using Tailwind `@apply` directives, and
 `styles/utilities.css`, which holds the utilities those classes rely on.

@@ -2,7 +2,9 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "style-sera",
   "dependencies": [],
-  "registryDependencies": [],
+  "registryDependencies": [
+    "@zaidan/semantic-colors"
+  ],
   "files": [
     {
       "path": "src/registry/kobalte/styles/style-sera.css",
