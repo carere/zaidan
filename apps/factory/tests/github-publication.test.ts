@@ -133,3 +133,59 @@ test("GitHub publication rejects off-origin pagination and incomplete merged evi
   mode = "error";
   await assert.rejects(github.findPullRequests("owner/repo", "codex/issue-1"), /HTTP 403/);
 });
+
+test("GitHub graph readiness uses native draft transitions and updates review context without a merge endpoint", async (t) => {
+  const mutations: string[] = [];
+  const updates: unknown[] = [];
+  const server = createServer(async (request, response) => {
+    let text = "";
+    for await (const chunk of request) text += chunk;
+    const body = JSON.parse(text);
+    response.setHeader("Content-Type", "application/json");
+    assert.equal(request.headers.authorization, "Bearer fixture-token");
+    if (request.url === "/graphql") {
+      const draft = body.query.includes("convertPullRequestToDraft");
+      mutations.push(body.query);
+      assert.equal(body.variables.input.pullRequestId, "PR_one");
+      response.end(
+        JSON.stringify({
+          data: {
+            transition: {
+              pullRequest: {
+                id: "PR_one",
+                isDraft: draft,
+                repository: { nameWithOwner: "owner/repo" },
+              },
+            },
+          },
+        }),
+      );
+    } else {
+      assert.equal(request.url, "/repos/owner/repo/pulls/10");
+      assert.equal(request.method, "PATCH");
+      updates.push(body);
+      response.end(JSON.stringify({ ...body, number: 10 }));
+    }
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => server.close());
+  const addr = server.address();
+  assert.ok(addr && typeof addr !== "string");
+  const github = createGitHubPublication({
+    apiBase: `http://127.0.0.1:${addr.port}`,
+    token: "fixture-token",
+  });
+  assert.ok(github.setDraft);
+  assert.ok(github.updatePullRequest);
+  await github.setDraft("owner/repo", "PR_one", false);
+  await github.setDraft("owner/repo", "PR_one", true);
+  await github.updatePullRequest("owner/repo", 10, {
+    title: "Whole graph",
+    body: "Covered requirements and exact evidence",
+  });
+  assert.match(mutations[0], /markPullRequestReadyForReview/);
+  assert.match(mutations[1], /convertPullRequestToDraft/);
+  assert.deepEqual(updates, [
+    { title: "Whole graph", body: "Covered requirements and exact evidence" },
+  ]);
+});

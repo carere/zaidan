@@ -29,6 +29,12 @@ export interface PullRequestInput {
   marker: string;
 }
 export interface PublicationGitHub {
+  setDraft?(repository: string, id: string, draft: boolean): Promise<void>;
+  updatePullRequest?(
+    repository: string,
+    number: number,
+    input: { title: string; body: string },
+  ): Promise<void>;
   findPullRequests(repository: string, branch: string): Promise<PublishedPullRequest[]>;
   createPullRequest(input: PullRequestInput): Promise<PublishedPullRequest>;
   closeIssue(repository: string, number: number): Promise<void>;
@@ -102,16 +108,31 @@ export function validateCoverage(run: RunSnapshot, reviewBase = run.issue.review
     snapshot: run.resources.id,
     issueRevision: run.issue.revision,
   };
-  const integration = run.integration
+  const acceptance = run.acceptance
     ? {
-        graphId: run.integration.graphId,
-        graphRevision: run.integration.graphRevision,
-        expectedHead: run.integration.expectedHead,
-        candidateCommit: run.integration.candidate.commit,
+        id: run.acceptance.id,
+        graphId: run.acceptance.graphId,
+        graphRevision: run.acceptance.graphRevision,
+        head: run.acceptance.head,
       }
     : undefined;
+  const integration =
+    !acceptance && run.integration
+      ? {
+          graphId: run.integration.graphId,
+          graphRevision: run.integration.graphRevision,
+          expectedHead: run.integration.expectedHead,
+          candidateCommit: run.integration.candidate.commit,
+        }
+      : undefined;
   const matches = (value: Record<string, unknown>) =>
     Object.entries(binding).every(([key, expected]) => value[key] === expected) &&
+    (!acceptance ||
+      (typeof value.acceptance === "object" &&
+        value.acceptance !== null &&
+        Object.entries(acceptance).every(
+          ([key, expected]) => (value.acceptance as Record<string, unknown>)[key] === expected,
+        ))) &&
     (!integration ||
       (typeof value.integration === "object" &&
         value.integration !== null &&

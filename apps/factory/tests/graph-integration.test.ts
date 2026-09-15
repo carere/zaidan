@@ -130,7 +130,7 @@ import { createPublicationGit } from "../src/publication-git.ts";
 import type { PublishedPullRequest } from "../src/standalone-publication.ts";
 import type { WorkerRequest } from "../src/workflow-contracts.ts";
 
-function integrationFixture(t: { after(fn: () => void): void }) {
+function integrationFixture(t: { after(fn: () => void): void }, acceptance = false) {
   const directory = mkdtempSync(join(tmpdir(), "factory-graph-git-"));
   const source = join(directory, "source");
   mkdirSync(source);
@@ -163,6 +163,8 @@ function integrationFixture(t: { after(fn: () => void): void }) {
   const pulls: PublishedPullRequest[] = [];
   const events: string[] = [];
   let clock = 100;
+  let loseReady = false,
+    loseNotify = false;
   let losePush = false,
     loseCreate = false,
     loseClose = false;
@@ -172,7 +174,9 @@ function integrationFixture(t: { after(fn: () => void): void }) {
   let transform: (candidate: ReturnType<typeof makeCandidate>) => ReturnType<typeof makeCandidate> =
     (candidate) => candidate;
   const makeCandidate = (request: WorkerRequest) => {
-    if (!request.integration) {
+    if (request.acceptance) {
+      git("checkout", "-B", `acceptance-${request.runId}`, request.acceptance.head);
+    } else if (!request.integration) {
       git("checkout", "-B", `work-${request.runId}`, request.issue.startingRevision);
       writeFileSync(join(source, "greeting"), "hello world\n");
       writeFileSync(join(source, `part-${request.issue.issueId}`), request.issue.issueId);
@@ -189,10 +193,23 @@ function integrationFixture(t: { after(fn: () => void): void }) {
     const binding = {
       commit,
       tree,
-      reviewBase: request.integration?.reviewBase ?? request.issue.reviewBase,
+      reviewBase:
+        request.acceptance?.reviewBase ??
+        request.integration?.reviewBase ??
+        request.issue.reviewBase,
       snapshot: request.resources?.id,
       issueRevision: request.issue.revision,
-      ...(request.integration
+      ...(request.acceptance
+        ? {
+            acceptance: {
+              id: request.acceptance.id,
+              graphId: request.acceptance.graphId,
+              graphRevision: request.acceptance.graphRevision,
+              head: request.acceptance.head,
+            },
+          }
+        : {}),
+      ...(!request.acceptance && request.integration
         ? {
             integration: {
               graphId: request.integration.graphId,
@@ -211,7 +228,7 @@ function integrationFixture(t: { after(fn: () => void): void }) {
         axis,
         delegateSession: axis,
         passed: true,
-        findings: [],
+        findings: [] as string[],
       })),
       artifact: {
         kind: "git-bundle",
@@ -260,7 +277,9 @@ function integrationFixture(t: { after(fn: () => void): void }) {
           await beforeWorker(request);
           clock += 100;
           const candidate = transform(makeCandidate(request));
-          return { type: "completed", candidate };
+          return request.acceptance
+            ? { type: "graph-accepted", evidence: candidate }
+            : { type: "completed", candidate };
         },
         async resume() {
           throw Error("unused");
@@ -289,6 +308,21 @@ function integrationFixture(t: { after(fn: () => void): void }) {
       graph: {
         store: graphStore,
         entry: "resolving-merge-conflicts",
+        ...(acceptance
+          ? {
+              acceptance: {
+                entry: "resolving-merge-conflicts",
+                async notify(input: { operationId: string }) {
+                  if (!events.includes(input.operationId)) events.push(input.operationId);
+                  if (loseNotify) {
+                    loseNotify = false;
+                    throw Error("lost notify reply");
+                  }
+                  return input.operationId;
+                },
+              },
+            }
+          : {}),
         git: {
           ...transport,
           async publishBranch(branch, commit, expected) {
@@ -331,6 +365,17 @@ function integrationFixture(t: { after(fn: () => void): void }) {
             }
             return pr;
           },
+          async setDraft(_repo, id, draft) {
+            const pr = pulls.find((p) => p.id === id);
+            assert.ok(pr);
+            pr.draft = draft;
+            events.push(draft ? "withdraw" : "ready");
+            if (loseReady && !draft) {
+              loseReady = false;
+              throw Error("lost ready reply");
+            }
+          },
+          async updatePullRequest() {},
           async closeIssue(_repo, number) {
             const child = issues.find((i) => i.number === number);
             assert.ok(child);
@@ -362,6 +407,15 @@ function integrationFixture(t: { after(fn: () => void): void }) {
     git,
     base,
     transport,
+    maintainerMerge(head: string) {
+      git("--git-dir", remote, "update-ref", "refs/heads/main", head, base);
+    },
+    setLoseReady() {
+      loseReady = true;
+    },
+    setLoseNotify() {
+      loseNotify = true;
+    },
     setLosePush() {
       losePush = true;
     },
@@ -669,4 +723,163 @@ test("graph integration retains a triage-approved brief and rejects changed appr
   assert.equal(f.pulls.length, 0);
   assert.equal(child.state, "open");
   assert.equal(f.requests.length, 1);
+});
+
+test("whole-graph acceptance uses the assembled head and retained attempt before readiness", async (t) => {
+  const f = integrationFixture(t, true);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  const last = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(last);
+  await workflow.drive(last.runId);
+  await workflow.drive(last.runId);
+  const queued = workflow.observe(last.runId);
+  assert.ok(queued.acceptance, "all closed children queue explicit acceptance");
+  assert.equal(f.pulls[0].draft, true);
+  assert.deepEqual(queued.issue, last.issue);
+  assert.deepEqual(queued.session, last.session);
+  assert.deepEqual(queued.resources, last.resources);
+  assert.equal(queued.execution?.consumedMs, 200);
+  assert.equal(queued.acceptance.head, workflow.observeGraph("root").head);
+  assert.deepEqual(queued.acceptance.members.map((i) => i.issueId).sort(), ["a", "b", "root"]);
+  await workflow.drive(last.runId);
+  assert.equal(f.pulls[0].draft, false);
+  assert.equal(workflow.observeGraph("root").state, "reviewable");
+  assert.equal(workflow.observe(last.runId).execution?.consumedMs, 300);
+  assert.equal(f.events.filter((e) => e === "ready").length, 1);
+  assert.equal(f.issues[0].state, "open");
+  assert.equal(f.requests.filter((r) => r.acceptance).length, 1);
+});
+
+async function acceptanceReadyFixture(t: { after(fn: () => void): void }) {
+  const f = integrationFixture(t, true);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  const last = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(last);
+  await workflow.drive(last.runId);
+  await workflow.drive(last.runId);
+  return { ...f, workflow, last };
+}
+test("readiness and notification recover lost responses without repeating completed actions", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  f.setLoseReady();
+  await f.workflow.drive(f.last.runId);
+  assert.equal(f.pulls[0].draft, false);
+  assert.equal(f.workflow.observeGraph("root").finalization?.state, "passed");
+  const restarted = f.make();
+  f.setLoseNotify();
+  await restarted.recoverGraph("root");
+  await f.make().recoverGraph("root");
+  assert.equal(f.events.filter((e) => e === "ready").length, 1);
+  assert.equal(f.events.filter((e) => e.startsWith("graph:root:reviewable:")).length, 1);
+  assert.equal(f.requests.filter((r) => r.acceptance).length, 1);
+  assert.equal(restarted.observeGraph("root").state, "reviewable");
+});
+test("failed whole-spec review leaves the assembled PR draft", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  f.setTransform((candidate) => ({
+    ...candidate,
+    reviews: candidate.reviews.map((r) => ({
+      ...r,
+      passed: false,
+      findings: ["Parent requirement absent"],
+    })),
+  }));
+  await f.workflow.drive(f.last.runId);
+  assert.equal(f.pulls[0].draft, true);
+  assert.equal(f.workflow.observeGraph("root").state, "reconciliation");
+  assert.equal(f.events.filter((e) => e === "ready").length, 0);
+});
+test("changed specification withdraws readiness even after implementation authorization is revoked", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  await f.workflow.drive(f.last.runId);
+  f.issues[0].labels = ["needs-info"];
+  f.issues[0].revision = "root-2";
+  await f.make().recoverGraph("root");
+  assert.equal(f.pulls[0].draft, true);
+  assert.equal(f.workflow.observeGraph("root").finalization?.state, "stale");
+  assert.equal(f.events.filter((e) => e === "withdraw").length, 1);
+});
+
+test("all specification parents close only after observed main delivery, recovering a lost closure", async (t) => {
+  const f = integrationFixture(t, true);
+  const nested = issue("nested", ["b"]);
+  nested.number = 4;
+  f.issues[0].childIds = ["a", "nested"];
+  f.issues[2].parentIds = ["nested"];
+  f.issues.push(nested);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  const last = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(last);
+  await workflow.drive(last.runId);
+  await workflow.drive(last.runId);
+  await workflow.drive(last.runId);
+  assert.equal(f.pulls[0].draft, false);
+  await workflow.recoverGraph("root");
+  assert.equal(f.issues[0].state, "open");
+  assert.equal(nested.state, "open");
+  const head = workflow.observeGraph("root").head;
+  Object.assign(f.pulls[0], {
+    state: "closed",
+    mergedAt: "2026-09-16T00:00:00Z",
+    mergeCommit: head,
+  });
+  await workflow.recoverGraph("root");
+  assert.equal(f.issues[0].state, "open", "merge must be present in receiving main");
+  // The controlled external maintainer advances the fixture main; no workflow merge API exists.
+  f.maintainerMerge(head);
+  f.setLoseClose();
+  await f.make().recoverGraph("root");
+  await f.make().recoverGraph("root");
+  assert.equal(workflow.observeGraph("root").state, "delivered");
+  for (const parent of [f.issues[0], nested]) {
+    assert.equal(parent.state, "closed");
+    assert.equal(f.events.filter((e) => e === `close:${parent.issueId}`).length, 1);
+  }
+});
+
+test("invalid acceptance evidence is a failed attempt that explicit retry can replace", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  f.setTransform((candidate) => ({
+    ...candidate,
+    reviews: candidate.reviews.map((r) => ({
+      ...r,
+      passed: false,
+      findings: ["Missing parent behavior"],
+    })),
+  }));
+  await f.workflow.drive(f.last.runId);
+  assert.equal(f.workflow.observe(f.last.runId).status, "failed");
+  assert.equal(f.workflow.observeGraph("root").finalization?.state, "failed");
+  f.setTransform((candidate) => candidate);
+  await f.workflow.retry(f.last.runId);
+  await f.workflow.drive(f.last.runId);
+  assert.equal(f.pulls[0].draft, false);
+  assert.equal(f.workflow.observeGraph("root").state, "reviewable");
+  assert.equal(f.workflow.observe(f.last.runId).execution?.attempt, 1);
+});
+
+test("source revision changing during sandbox acceptance cannot establish readiness", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  f.setBeforeWorker(async (request) => {
+    if (request.acceptance) {
+      f.issues[0].revision = "root-edited";
+      f.issues[0].body += "\nA newly required behavior.";
+    }
+  });
+  await f.workflow.drive(f.last.runId);
+  assert.equal(f.pulls[0].draft, true);
+  assert.equal(f.workflow.observeGraph("root").finalization?.state, "stale");
+  assert.equal(f.events.filter((e) => e === "ready").length, 0);
 });
