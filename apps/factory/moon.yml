@@ -36,3 +36,8 @@ tasks:
     command: node --test tests/docker-worker.test.ts
     options:
       cache: false
+
+  test-docker-integration:
+    command: node --test tests/docker-integration.test.ts
+    options:
+      cache: false

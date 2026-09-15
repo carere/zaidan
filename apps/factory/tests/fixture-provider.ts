@@ -38,7 +38,12 @@ export default function fixture(pi: ExtensionAPI) {
       const summarizing = context.systemPrompt?.startsWith(
         "You are a context summarization assistant",
       );
-      const results = context.messages.filter((message) => message.role === "toolResult");
+      const phaseMessages = request.integration
+        ? context.messages.slice(
+            context.messages.findLastIndex((message) => message.role === "user") + 1,
+          )
+        : context.messages;
+      const results = phaseMessages.filter((message) => message.role === "toolResult");
       const names = results.map((message) =>
         message.role === "toolResult" ? message.toolName : "",
       );
@@ -74,6 +79,14 @@ export default function fixture(pi: ExtensionAPI) {
           name: "request_user_input",
           arguments: { prompt: "Choose fixture implementation", allowFreeform: true },
         };
+      else if (request.integration && !names.includes("bash"))
+        tool = {
+          name: "bash",
+          arguments: {
+            command:
+              "test -f .git/MERGE_HEAD && test -n \"$(git ls-files -u)\" && printf 'child and sibling\\n' > result.txt",
+          },
+        };
       else if (!names.includes("bash"))
         tool = {
           name: "bash",
@@ -83,6 +96,8 @@ export default function fixture(pi: ExtensionAPI) {
         tool = { name: "checkpoint_commit", arguments: {} };
       else if (!names.includes("factory_validate"))
         tool = { name: "factory_validate", arguments: {} };
+      else if (request.integration && !names.includes("Skill"))
+        tool = { name: "Skill", arguments: { name: "code-review" } };
       else if (names.filter((name) => name === "spawn_agent").length === 0)
         tool = {
           name: "spawn_agent",
