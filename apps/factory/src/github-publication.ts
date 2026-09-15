@@ -111,6 +111,43 @@ export function createGitHubPublication(options: GitHubPublicationOptions = {}):
     };
   };
   return {
+    async setDraft(repository, id, draft) {
+      repositoryPath(repository);
+      if (!id || typeof draft !== "boolean") throw Error("Invalid PR transition identity");
+      const mutation = draft ? "convertPullRequestToDraft" : "markPullRequestReadyForReview";
+      const type = draft ? "ConvertPullRequestToDraftInput" : "MarkPullRequestReadyForReviewInput";
+      const payload = record(
+        (
+          await request(`${prefix}/graphql`, "POST", {
+            query: `mutation Transition($input: ${type}!) { transition: ${mutation}(input: $input) { pullRequest { id isDraft repository { nameWithOwner } } } }`,
+            variables: { input: { pullRequestId: id } },
+          })
+        ).body,
+      );
+      if (payload.errors)
+        throw Error("GitHub draft transition is uncertain; reconcile remote PR state");
+      const pr = record(record(record(payload.data).transition).pullRequest);
+      if (
+        pr.id !== id ||
+        pr.isDraft !== draft ||
+        record(pr.repository).nameWithOwner !== repository
+      )
+        throw Error("GitHub draft transition identity is not confirmed");
+    },
+    async updatePullRequest(repository, number, input) {
+      if (!Number.isSafeInteger(number) || number <= 0 || !input.title || !input.body)
+        throw Error("Invalid PR description");
+      const result = record(
+        (
+          await request(`${repositoryPath(repository)}/pulls/${number}`, "PATCH", {
+            title: input.title,
+            body: input.body,
+          })
+        ).body,
+      );
+      if (result.number !== number || result.title !== input.title || result.body !== input.body)
+        throw Error("PR description update is not confirmed");
+    },
     async findPullRequests(repository, branch) {
       const path = repositoryPath(repository);
       const search = new URLSearchParams({

@@ -33,8 +33,15 @@ let rpc;
 try {
   mkdirSync(phaseDirectory, { recursive: true });
   const integration = request.integration;
-  const entry = integration?.entry ?? manifest.entry;
+  const acceptance = request.acceptance;
+  const entry = acceptance?.entry ?? integration?.entry ?? manifest.entry;
   const resuming = existsSync("/state/identity.json");
+  if (
+    acceptance &&
+    createHash("sha256").update(readFileSync("/source/repository.bundle")).digest("hex") !==
+      acceptance.source.sha256
+  )
+    throw new Error("Captured acceptance bundle changed");
   if (integration) {
     for (const [path, expected] of [
       ["/source/repository.bundle", integration.source.sha256],
@@ -55,7 +62,7 @@ try {
       "checkout",
       "-b",
       `factory/${request.runId}`,
-      integration?.expectedHead ?? request.issue.startingRevision,
+      acceptance?.head ?? integration?.expectedHead ?? request.issue.startingRevision,
     );
     git("remote", "remove", "origin");
     git("config", "user.name", "Zaidan Factory");
@@ -63,13 +70,14 @@ try {
   }
   const reviewBase = git(
     "rev-parse",
-    `${integration?.reviewBase ?? request.issue.reviewBase}^{commit}`,
+    `${acceptance?.reviewBase ?? integration?.reviewBase ?? request.issue.reviewBase}^{commit}`,
   );
   const identity = {
     session: request.session.id,
     snapshot: request.resources.id,
     reviewBase,
     ...(integration ? { integration } : {}),
+    ...(acceptance ? { acceptance } : {}),
   };
   if (existsSync("/state/identity.json")) {
     if (
@@ -104,6 +112,13 @@ try {
     }
     writeFileSync("/state/identity.json", JSON.stringify(identity));
   }
+  if (
+    acceptance &&
+    (git("rev-parse", "HEAD") !== acceptance.head ||
+      git("rev-parse", "HEAD^{tree}") !== acceptance.tree ||
+      git("status", "--porcelain"))
+  )
+    throw new Error("Captured acceptance checkout changed");
   mkdirSync("/sessions", { recursive: true });
   const session = `/sessions/${request.session.id}.jsonl`;
   const instructions = manifest.instructions
@@ -111,8 +126,9 @@ try {
       (path) => `\n## Captured /resources/${path}\n${readFileSync(`/resources/${path}`, "utf8")}`,
     )
     .join("\n");
-  const routeInstructions =
-    request.issue.route === "triage"
+  const routeInstructions = acceptance
+    ? `Perform whole-graph acceptance on exactly commit ${acceptance.head}, tree ${acceptance.tree}, review base ${reviewBase}. The complete current root and intermediate specifications, implementation issues, native relationships and approved briefs are in /input/request.json acceptance.members, acceptance.specificationIds and acceptance.briefs. Read this entire scope and explicitly verify every specification's acceptance criteria against the assembled implementation. Run factory_validate and captured code-review with separate standards/spec delegates. The spec delegate must cover all root and intermediate specifications, not merely the original admitted leaf. Preserve the original session and resource snapshot. This phase must not create commits or change the checkout; report findings as failure. Finish only with factory_accept_graph after passing checks and independent reviews. Supply a bounded report with title, summary describing the concrete original problem and resulting behavior, and validation describing observed check results. This report becomes the final PR description; omit HTML comment delimiters and issue-closing directives. factory_complete is forbidden in this phase.`
+    : request.issue.route === "triage"
       ? "Follow the captured triage skill in order: read the full captured issue triageContext including all comments, authors and dates; investigate redundancy and prior rejection in the checkout; present reasoning and category/state recommendations through request_user_input and wait BEFORE claim verification or grilling. Preserve every skill-required question. After human direction, verify, load captured grilling/domain-modeling if needed, and finish using factory_triage_propose with exact disclaimer-prefixed comment. Never use factory_complete for triage. The coordinator alone applies authorized labels/comments/closure. Rejected enhancement knowledge is a .out-of-scope Markdown document in the proposal, published through a draft PR."
       : "Before review, call checkpoint_commit; then run required checks with factory_validate. Load code-review and run independent standards/spec delegates with spawn_agent axis set accordingly; they end using review_result. Complete with factory_complete only after committed diff, required validation and both reviews.";
   writeFileSync(
@@ -187,11 +203,13 @@ try {
   });
   const prompt = request.answer
     ? `Continue the original captured workflow. Durable checkpoint ${request.checkpoint.id}: ${request.checkpoint.question.prompt}\nAnswer ${request.checkpoint.answerId}: ${JSON.stringify(request.answer)}. Do not repeat the question or completed work.`
-    : integration && !resuming
-      ? `/skill:${entry} Integrate the reviewed child ${integration.candidate.commit} into current graph head ${integration.expectedHead}. Resolve conflicts, checkpoint, validate the assembled result and invoke captured code-review with independent standards/spec delegates.`
-      : request.phase > 0
-        ? "Continue the original captured workflow from the preserved session and checkout after an infrastructure or operator pause. Do not repeat completed work."
-        : `/skill:${manifest.entry} ${request.issue.route === "triage" ? "Triage" : "Implement"} the admitted issue in /resources/manifest.json using the captured specification and resources. ${request.instruction ?? ""}`;
+    : acceptance && !resuming
+      ? `/skill:${entry} Accept the complete assembled graph in /input/request.json, including every root and intermediate specification. Verify exact input HEAD/tree without modifications or commits, run selected checks and independent standards/spec reviews, and finish with factory_accept_graph.`
+      : integration && !resuming
+        ? `/skill:${entry} Integrate the reviewed child ${integration.candidate.commit} into current graph head ${integration.expectedHead}. Resolve conflicts, checkpoint, validate the assembled result and invoke captured code-review with independent standards/spec delegates.`
+        : request.phase > 0
+          ? "Continue the original captured workflow from the preserved session and checkout after an infrastructure or operator pause. Do not repeat completed work."
+          : `/skill:${manifest.entry} ${request.issue.route === "triage" ? "Triage" : "Implement"} the admitted issue in /resources/manifest.json using the captured specification and resources. ${request.instruction ?? ""}`;
   await rpc.prompt(prompt);
   if (existsSync(join(phaseDirectory, "provider-outcome.json")))
     record(JSON.parse(readFileSync(join(phaseDirectory, "provider-outcome.json"), "utf8")));

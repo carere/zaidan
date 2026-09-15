@@ -119,14 +119,21 @@ export class DockerPiWorker implements WorkerAdapter {
   private workspace(request: WorkerRequest) {
     // Integration state must never be a descendant of the agent-writable original
     // checkout mount: an implementation could otherwise pre-create symlinks there.
-    return request.integration
+    return request.acceptance
       ? join(
           this.options.directory,
-          "integrations",
+          "acceptances",
           digest(request.runId),
-          digest(JSON.stringify(request.integration)),
+          digest(JSON.stringify(request.acceptance)),
         )
-      : join(this.options.directory, "runs", digest(request.runId));
+      : request.integration
+        ? join(
+            this.options.directory,
+            "integrations",
+            digest(request.runId),
+            digest(JSON.stringify(request.integration)),
+          )
+        : join(this.options.directory, "runs", digest(request.runId));
   }
   private name(operationId: string) {
     return `zaidan-worker-${digest(operationId).slice(0, 32)}`;
@@ -140,6 +147,7 @@ export class DockerPiWorker implements WorkerAdapter {
         "checkpoint",
         "triage-proposed",
         "completed",
+        "graph-accepted",
         "no-change",
         "failed",
         "cancelled",
@@ -160,7 +168,7 @@ export class DockerPiWorker implements WorkerAdapter {
     delete outcome.finishedAt;
     if (existsSync(stopped))
       outcome.finishedAt = JSON.parse(readFileSync(stopped, "utf8")).finishedAt;
-    if (outcome.type === "completed") {
+    if (outcome.type === "completed" || outcome.type === "graph-accepted") {
       const request = JSON.parse(
         readFileSync(join(this.phase(operationId), "input", "request.json"), "utf8"),
       ) as WorkerRequest;
@@ -284,6 +292,30 @@ export class DockerPiWorker implements WorkerAdapter {
       manifest.issue.revision !== request.issue.revision
     )
       return { type: "failed", reason: "Snapshot belongs to another issue revision" };
+    if (request.acceptance) {
+      const input = request.acceptance;
+      if (
+        request.integration ||
+        !input.id ||
+        !input.graphId ||
+        !input.graphRevision ||
+        ![input.head, input.tree, input.reviewBase].every((value) =>
+          /^[a-f0-9]{40}$/.test(value),
+        ) ||
+        input.entry !== "code-review" ||
+        !manifest.skills.some((skill) => skill.name === input.entry) ||
+        !input.specificationIds.length ||
+        !input.specificationIds.includes(input.graphId) ||
+        input.specificationIds.some(
+          (id) => !input.members.some((member) => member.issueId === id),
+        ) ||
+        !manifest.checks.length
+      )
+        return {
+          type: "failed",
+          reason: "Invalid acceptance identity or missing captured graph scope/review skill/checks",
+        };
+    }
     if (request.integration) {
       const input = request.integration;
       if (
@@ -314,7 +346,7 @@ export class DockerPiWorker implements WorkerAdapter {
     const bundleDirectory = join(this.options.directory, "sources", digest(workspace));
     mkdirSync(bundleDirectory, { recursive: true });
     const bundle = join(bundleDirectory, "repository.bundle");
-    if (request.integration) {
+    if (request.integration || request.acceptance) {
       const copyBundle = (reference: unknown, target: string) => {
         const value = reference as { kind?: string; path?: string; sha256?: string };
         if (
@@ -334,8 +366,12 @@ export class DockerPiWorker implements WorkerAdapter {
           throw new Error("Integration source bundle changed");
         writeFileSync(target, bytes, { mode: 0o400, flag: "wx" });
       };
-      copyBundle(request.integration.source, bundle);
-      copyBundle(request.integration.candidate.artifact, join(bundleDirectory, "candidate.bundle"));
+      copyBundle((request.acceptance ?? request.integration)?.source, bundle);
+      if (request.integration)
+        copyBundle(
+          request.integration.candidate.artifact,
+          join(bundleDirectory, "candidate.bundle"),
+        );
     } else if (!existsSync(bundle)) {
       await run("git", ["bundle", "create", `${bundle}.tmp`, "--all"], this.options.repositoryPath);
       renameSync(`${bundle}.tmp`, bundle);
@@ -489,7 +525,7 @@ export class DockerPiWorker implements WorkerAdapter {
   }
   private async verifyCandidate(
     request: WorkerRequest,
-    outcome: Extract<WorkerOutcome, { type: "completed" }>,
+    outcome: Extract<WorkerOutcome, { type: "completed" | "graph-accepted" }>,
   ) {
     if (!request.resources) throw new Error("Missing candidate snapshot");
     readResourceSnapshot(request.resources);
@@ -524,12 +560,13 @@ export class DockerPiWorker implements WorkerAdapter {
       "node",
       "/runtime/verify.mjs",
     ]);
-    const artifact = outcome.candidate.artifact as {
+    const candidate = outcome.type === "graph-accepted" ? outcome.evidence : outcome.candidate;
+    const artifact = candidate.artifact as {
       relativePath: string;
       sha256: string;
       path?: string;
     };
-    if (artifact.relativePath !== `candidates/${outcome.candidate.commit}.bundle`)
+    if (artifact.relativePath !== `candidates/${candidate.commit}.bundle`)
       throw new Error("Unsafe candidate artifact");
     artifact.path = join(workspace, artifact.relativePath);
   }

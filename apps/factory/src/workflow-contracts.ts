@@ -1,5 +1,6 @@
 import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import type { ExternalDeliveryEvidence } from "./external-delivery.ts";
+import type { GraphAcceptanceInput } from "./graph-acceptance.ts";
 import type { IntegrationInput } from "./graph-integration.ts";
 import type { PublicationState } from "./standalone-publication.ts";
 import type { TriageContext, TriageProposal, TriageReceipt } from "./triage.ts";
@@ -44,6 +45,7 @@ export interface Candidate {
   [evidence: string]: unknown;
 }
 export type WorkerOutcome = (
+  | { type: "graph-accepted"; evidence: Candidate }
   | { type: "triage-proposed"; proposal: TriageProposal }
   | { type: "checkpoint"; question: Question }
   | { type: "completed"; candidate: Candidate }
@@ -54,6 +56,7 @@ export type WorkerOutcome = (
   | { type: "cancelled"; reason: string }
 ) & { finishedAt?: number };
 export interface WorkerRequest {
+  acceptance?: GraphAcceptanceInput;
   integration?: IntegrationInput;
   operationId: string;
   runId: string;
@@ -98,8 +101,10 @@ export interface Checkpoint {
   answerId?: string;
 }
 export interface RunSnapshot {
+  acceptance?: GraphAcceptanceInput;
   integration?: IntegrationInput;
   graphPending?: boolean;
+  acceptanceResult?: Candidate;
   runId: string;
   issue: IssueSnapshot;
   session: SessionReference;

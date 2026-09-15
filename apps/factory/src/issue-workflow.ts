@@ -7,6 +7,7 @@ import {
   type ScanResult,
 } from "./discovery.ts";
 import type { ExternalDeliveryAdapter, ExternalDeliveryResult } from "./external-delivery.ts";
+import type { GraphAcceptanceInput } from "./graph-acceptance.ts";
 import { GraphCoordinator, type GraphOptions, type IntegrationInput } from "./graph-integration.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import {
@@ -89,16 +90,50 @@ export class IssueWorkflow {
   async recoverGraph(id: string) {
     this.assertLiveAction();
     if (!this.graphs) throw Error("Graph adapters are not configured");
+    if (this.observeGraph(id).finalization) return this.graphs.finalize(id);
     await this.graphs.admit(id);
     for (const run of this.admissions().filter(
       (run) => run.issue.graphId === id && run.graphPending && run.status === "completed",
     ))
       await this.graphs.advance(run.runId);
+    await this.graphs.finalize(id);
     return this.graphs.observe(id);
   }
   observeGraph(id: string) {
     if (!this.graphs) throw Error("Graph adapters are not configured");
     return this.graphs.observe(id);
+  }
+  async finalizeGraph(id: string) {
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    return this.graphs.finalize(id);
+  }
+  async invalidateGraphAcceptance(id: string, reason: string) {
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    return this.graphs.invalidate(id, reason);
+  }
+  rejectAcceptance(runId: string, reason: string) {
+    this.options.store.change(runId, (run) => {
+      if (!run.acceptance || run.execution?.operationId) throw Error("Acceptance is not settled");
+      run.status = "failed";
+      run.reason = reason;
+      delete run.acceptanceResult;
+    });
+  }
+  beginAcceptance(runId: string, input: GraphAcceptanceInput) {
+    this.options.store.change(runId, (run) => {
+      if (run.acceptance) {
+        if (JSON.stringify(run.acceptance) !== JSON.stringify(input))
+          throw Error("Acceptance inputs changed");
+        return;
+      }
+      if (run.status !== "completed" || run.execution?.operationId)
+        throw Error("Integration is not settled");
+      run.acceptance = input;
+      run.graphPending = true;
+      run.phase++;
+      run.status = "admitted";
+      delete run.checkpoint;
+    });
   }
   beginIntegration(runId: string, input: IntegrationInput) {
     this.options.store.change(runId, (run) => {
@@ -520,7 +555,11 @@ export class IssueWorkflow {
             operationId: id,
             runId,
             issue: run.issue,
-            ...(run.integration ? { integration: run.integration } : {}),
+            ...(run.acceptance
+              ? { acceptance: run.acceptance }
+              : run.integration
+                ? { integration: run.integration }
+                : {}),
             session: run.session,
             phase,
             ...(this.options.execution?.permitUrl
@@ -581,6 +620,24 @@ export class IssueWorkflow {
     if (stop) {
       current.status = stop.status;
       current.reason = stop.reason;
+      return;
+    }
+    if (
+      current.acceptance &&
+      ["completed", "no-change", "triage-proposed"].includes(outcome.type)
+    ) {
+      current.status = "failed";
+      current.reason = "Acceptance requires an explicit whole-graph evidence outcome";
+      return;
+    }
+    if (outcome.type === "graph-accepted") {
+      if (!current.acceptance) {
+        current.status = "failed";
+        current.reason = "Unexpected graph acceptance outcome";
+      } else {
+        current.status = "completed";
+        current.acceptanceResult = outcome.evidence;
+      }
       return;
     }
     if (outcome.type === "triage-proposed") {

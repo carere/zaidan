@@ -3,6 +3,11 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type DiscoveredIssue, discoverWork } from "./discovery.ts";
+import {
+  GraphAcceptance,
+  type GraphAcceptanceOptions,
+  type GraphFinalization,
+} from "./graph-acceptance.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import type { PublicationGit } from "./publication-git.ts";
@@ -29,7 +34,8 @@ export interface GraphRecord extends GraphIntegrationState {
   number: number;
   branch: string;
   marker: string;
-  state: "active" | "reconciliation";
+  state: "active" | "reconciliation" | "reviewable" | "delivered";
+  finalization?: GraphFinalization;
   reason?: string;
   activeRunId?: string;
   pullRequest?: PublishedPullRequest;
@@ -99,6 +105,7 @@ export interface GraphPublicationGit extends PublicationGit {
   exportBundle(commit: string): Promise<BundleReference>;
 }
 export interface GraphOptions {
+  acceptance?: GraphAcceptanceOptions;
   store: SqliteGraphStore;
   git: GraphPublicationGit;
   github: PublicationGitHub;
@@ -116,9 +123,11 @@ const closureIdentity = (issue: DiscoveredIssue) => ({
 export class GraphCoordinator {
   private workflow: IssueWorkflow;
   private options: GraphOptions;
+  private acceptance: GraphAcceptance;
   constructor(workflow: IssueWorkflow, options: GraphOptions) {
     this.workflow = workflow;
     this.options = options;
+    this.acceptance = new GraphAcceptance(workflow, options, (id) => this.verified(id));
   }
   observe(id: string) {
     const graph = this.options.store.read(id);
@@ -252,11 +261,28 @@ export class GraphCoordinator {
       await this.workflow.admit({ ...leaf.admission, graphId: id });
     }
   }
+  async finalize(id: string) {
+    await this.locked(id, () => this.acceptance.advance(id));
+    return this.observe(id);
+  }
+  async invalidate(id: string, reason: string) {
+    await this.locked(id, () => this.acceptance.invalidate(id, reason));
+    return this.observe(id);
+  }
   async authorizeDispatch(run: RunSnapshot) {
     this.workflow.assertLiveAction(run.runId);
     const id = run.issue.graphId;
     if (!id) return;
     const plan = await this.verified(id);
+    if (run.acceptance) {
+      await this.acceptance.current(run.acceptance);
+      if (
+        run.acceptance.head !== this.observe(id).head ||
+        run.acceptance.graphRevision !== plan.graphRevision
+      )
+        throw Error("Acceptance inputs changed before dispatch");
+      return;
+    }
     await this.authorized(run, plan);
     if (run.integration && run.integration.expectedHead !== this.observe(id).head)
       throw Error("Integration head changed before dispatch");
@@ -265,6 +291,10 @@ export class GraphCoordinator {
     const run = this.workflow.observe(runId);
     const id = run.issue.graphId;
     if (!id) return;
+    if (run.acceptance) {
+      await this.finalize(id);
+      return;
+    }
     await this.locked(id, async () => {
       let graph = this.observe(id);
       if (graph.activeRunId && graph.activeRunId !== runId) return;
@@ -286,7 +316,7 @@ export class GraphCoordinator {
         )
           throw Error("Integrated issue changed before frontier recovery");
         await this.frontier(id);
-        this.workflow.finishIntegration(runId);
+        await this.settleChild(id, runId);
         return;
       }
       if (!run.integration) {
@@ -450,8 +480,22 @@ export class GraphCoordinator {
         delete g.reason;
       });
       await this.frontier(id);
-      this.workflow.finishIntegration(runId);
+      await this.settleChild(id, runId);
     });
+  }
+  private async settleChild(id: string, runId: string) {
+    // Keep the original Eve workflow alive until acceptance intent and phase are durable.
+    await this.acceptance.advance(id);
+    const graph = this.observe(id);
+    if (
+      !this.workflow.observe(runId).acceptance &&
+      !(
+        this.options.acceptance &&
+        (graph.finalization?.runId === runId ||
+          (!graph.finalization && graph.state === "reconciliation"))
+      )
+    )
+      this.workflow.finishIntegration(runId);
   }
   private async current(issueId: string) {
     const scan = await this.workflow.graphDiscovery();
