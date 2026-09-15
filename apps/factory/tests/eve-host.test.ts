@@ -6,6 +6,8 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { createEveEngine, findFactoryRun } from "../src/eve-engine.ts";
 import { IssueWorkflow } from "../src/issue-workflow.ts";
+import { LocalService } from "../src/local-service.ts";
+import { listenLocalService } from "../src/service-http.ts";
 import type { WorkerAdapter, WorkerRequest } from "../src/workflow-contracts.ts";
 import { SqliteWorkflowStore } from "../src/workflow-store.ts";
 import { buildEveHost, eventually } from "./eve-host-fixture.ts";
@@ -30,6 +32,17 @@ test("uncertain Eve start reconciliation searches all pages and rejects duplicat
     "eve-a",
   );
   assert.deepEqual(calls, [undefined, "next"]);
+  const ownerRuns: { runId: string; attributes: Record<string, string> }[] = [
+    { runId: "original", attributes: { factoryRunId: "factory-a" } },
+    {
+      runId: "continuation",
+      attributes: { factoryRunId: "factory-a", factoryContinuationId: "revision-two" },
+    },
+  ];
+  const owners = async () => ({ data: ownerRuns, cursor: null, hasMore: false });
+  assert.equal(await findFactoryRun("factory-a", owners), "original");
+  assert.equal(await findFactoryRun("factory-a", owners, "revision-two"), "continuation");
+  assert.equal(await findFactoryRun("factory-a", owners, "unknown"), undefined);
   await assert.rejects(
     findFactoryRun("factory-a", async (cursor) => ({
       data: [{ runId: cursor ? "second" : "first", attributes: { factoryRunId: "factory-a" } }],
@@ -332,5 +345,206 @@ test("compiled Eve keeps a completed graph child alive until durable integration
     await host.stop();
     await new Promise<void>((resolve) => bridge.close(() => resolve()));
     if (success) rmSync(host.root, { recursive: true, force: true });
+  }
+});
+
+test("a completed compiled Eve owner continues the same factory admission under a durable new owner after restart", {
+  timeout: 180000,
+}, async () => {
+  const host = await buildEveHost();
+  const database = join(host.root, "factory-state", "workflow.sqlite");
+  let store = new SqliteWorkflowStore(database);
+  const requests: WorkerRequest[] = [];
+  const receipts = new Map<string, Awaited<ReturnType<WorkerAdapter["dispatch"]>>>();
+  const notifications = new Map<string, string>();
+  const engine = createEveEngine({ baseUrl: host.baseUrl });
+  let continuationStarts = 0;
+  let wakeEffects = 0;
+  const worker: WorkerAdapter = {
+    async dispatch(request) {
+      requests.push(request);
+      const result =
+        request.phase === 0
+          ? { type: "completed" as const, candidate: { commit: "original-result" } }
+          : { type: "checkpoint" as const, question: { prompt: "Approve revised requirements?" } };
+      receipts.set(request.operationId, result);
+      return result;
+    },
+    async resume(request) {
+      requests.push(request);
+      assert.deepEqual(request.answer, { text: "Approved current scope" });
+      const result = { type: "completed" as const, candidate: { commit: "reevaluated-result" } };
+      receipts.set(request.operationId, result);
+      return result;
+    },
+    async reconcile(id) {
+      return receipts.get(id);
+    },
+  };
+  function coordinator() {
+    return new IssueWorkflow({
+      store,
+      engine: {
+        ...engine,
+        async start(input) {
+          if (!input.continuationId) return engine.start(input);
+          continuationStarts++;
+          const ids = await Promise.all([engine.start(input), engine.start(input)]);
+          assert.equal(ids[0], ids[1]);
+          throw Error("Lost continuation start response");
+        },
+        async wake(token, payload) {
+          wakeEffects++;
+          await engine.wake(token, payload);
+        },
+      },
+      worker,
+      notifications: {
+        async send(input) {
+          const id = `message:${input.operationId}`;
+          notifications.set(input.operationId, id);
+          return id;
+        },
+        async reconcile(id) {
+          return notifications.get(id);
+        },
+      },
+      captureResources: () => ({
+        id: "original-resource-snapshot",
+        path: join(host.root, "captured"),
+      }),
+      discovery: {
+        read: async () => ({ repository: "fixture/factory", revision: "fixture", issues: [] }),
+      },
+    });
+  }
+  let workflow = coordinator();
+  let service = new LocalService({ workflow, stateDirectory: join(host.root, "service") });
+  let http = await listenLocalService({ workflow, service, port: 0 });
+  let success = false;
+  async function restart() {
+    await host.stop();
+    await http.close();
+    await service.stop();
+    store.close();
+    store = new SqliteWorkflowStore(database);
+    workflow = coordinator();
+    service = new LocalService({ workflow, stateDirectory: join(host.root, "service") });
+    http = await listenLocalService({ workflow, service, port: 0 });
+    await host.start(http.url);
+    // This actual service scan recovers pending start intents without a manual drive call.
+    await service.start();
+  }
+  async function terminal(id: string) {
+    return eventually(
+      async () =>
+        (await (await fetch(`${host.baseUrl}/factory/engine/state/${id}`)).json()) as {
+          status: string;
+        },
+      (state) => state.status === "completed",
+    );
+  }
+  try {
+    await host.start(http.url);
+    await service.start();
+    const original = await workflow.admit({
+      issueId: "fixture:continuation",
+      repository: "fixture/factory",
+      number: 524,
+      revision: "original-issue-revision",
+      startingRevision: "original-git-head",
+      reviewBase: "original-review-base",
+    });
+    assert.ok(original.eveRunId);
+    await terminal(original.eveRunId);
+    assert.equal(workflow.observe(original.runId).candidate?.commit, "original-result");
+    assert.equal(requests.length, 1);
+    store.change(original.runId, (run, ops) => {
+      run.phase++;
+      run.status = "admitted";
+      workflow.queueEveContinuation(run, ops, "reevaluation:current-revision");
+    });
+    store.change(original.runId, (run, ops) =>
+      workflow.queueEveContinuation(run, ops, "reevaluation:current-revision"),
+    );
+    assert.equal(workflow.observe(original.runId).eveRunId, undefined);
+    assert.equal(workflow.observe(original.runId).eveOwnerHistory?.length, 1);
+    // Crash after the new phase+owner intent, before its Eve start effect.
+    await restart();
+    const waiting = await eventually(
+      async () => workflow.observe(original.runId),
+      (run) => run.status === "waiting-human",
+    );
+    assert.ok(waiting.checkpoint);
+    const continuation = await engine.find(original.runId, "reevaluation:current-revision");
+    assert.ok(continuation);
+    assert.notEqual(continuation, original.eveRunId);
+    assert.equal(await engine.find(original.runId), original.eveRunId);
+    assert.equal(continuationStarts, 1);
+    assert.equal(waiting.eveRunId, undefined, "new owner's start response was lost");
+    assert.equal(waiting.candidate?.commit, "original-result");
+    assert.deepEqual(waiting.eveOwnerHistory, [{ eveRunId: original.eveRunId }]);
+    assert.deepEqual(waiting.issue, original.issue);
+    assert.deepEqual(waiting.resources, original.resources);
+    assert.deepEqual(waiting.session, original.session);
+    await eventually(
+      async () =>
+        (await (await fetch(`${host.baseUrl}/factory/engine/state/${continuation}`)).json()) as {
+          pendingHooks: string[];
+        },
+      (state) => state.pendingHooks.includes(waiting.checkpoint?.id ?? "missing"),
+    );
+    // Crash after the remote start but before saving its uncertain receipt.
+    await restart();
+    const recovered = workflow.observe(original.runId);
+    assert.equal(recovered.eveRunId, continuation);
+    assert.equal(continuationStarts, 1);
+    assert.equal(requests.length, 2);
+    for (const path of ["drive", "wake-pending"]) {
+      const response = await fetch(`${http.url}/factory/${path}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ runId: original.runId }),
+      });
+      assert.equal(response.status, 200);
+      assert.deepEqual(await response.json(), { status: "completed", graphPending: false });
+    }
+    assert.equal((await workflow.driveOwned(original.runId)).graphPending, false);
+    await workflow.recoverWakeOwned(original.runId);
+    assert.equal(wakeEffects, 0);
+    assert.equal(requests.length, 2);
+    assert.equal(workflow.observe(original.runId).status, "waiting-human");
+    assert.equal(
+      await workflow.answer({
+        runId: original.runId,
+        issueId: original.issue.issueId,
+        revision: original.issue.revision,
+        checkpointId: waiting.checkpoint.id,
+        answerId: "current-approval",
+        answer: { text: "Approved current scope" },
+      }),
+      "accepted",
+    );
+    await terminal(continuation);
+    const completed = workflow.observe(original.runId);
+    assert.equal(completed.candidate?.commit, "reevaluated-result");
+    assert.equal(completed.eveRunId, continuation);
+    assert.equal(requests.length, 3);
+    assert.equal(wakeEffects, 1);
+    assert.equal(notifications.size, 1);
+    for (const request of requests) {
+      assert.equal(request.runId, original.runId);
+      assert.deepEqual(request.session, original.session);
+      assert.deepEqual(request.resources, original.resources);
+      assert.deepEqual(request.issue, original.issue);
+    }
+    success = true;
+  } finally {
+    await host.stop();
+    await http.close();
+    await service.stop();
+    store.close();
+    if (success) rmSync(host.root, { recursive: true, force: true });
+    else console.error(`Eve continuation fixture evidence: ${host.root}`);
   }
 });

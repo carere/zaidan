@@ -124,6 +124,9 @@ export function validateCoverage(run: RunSnapshot, reviewBase = run.issue.review
           graphRevision: run.integration.graphRevision,
           expectedHead: run.integration.expectedHead,
           candidateCommit: run.integration.candidate.commit,
+          ...(run.integration.reevaluation
+            ? { reevaluationId: run.integration.reevaluation.id }
+            : {}),
         }
       : undefined;
   const matches = (value: Record<string, unknown>) =>

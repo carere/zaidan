@@ -131,7 +131,15 @@ export class GraphAcceptance {
     const graph = this.read(id);
     if (!graph.pullRequest) return;
     const pr = await this.pull(graph);
-    if (pr.state !== "open" || pr.draft) return;
+    if (pr.state !== "open") return;
+    if (pr.draft) {
+      const key = `withdraw:${graph.finalization?.input.id ?? graph.graphRevision}:${pr.headCommit}`;
+      this.options.store.change(id, (g) => {
+        if (g.operations[key]) g.operations[key] = { state: "done", receipt: pr };
+        g.pullRequest = pr;
+      });
+      return;
+    }
     if (!this.options.github.setDraft)
       throw new InvalidAcceptance("Draft transition adapter is required");
     this.workflow.assertLiveAction();
@@ -216,10 +224,14 @@ export class GraphAcceptance {
           )
         )
           throw new InvalidAcceptance("Specification parent is not authorized");
-        const delivery = Object.values(graph.deliveries).find(
-          (d) => d.candidate.commit === graph.head,
-        );
-        if (!delivery || typeof delivery.candidate.tree !== "string")
+        const delivery =
+          Object.values(graph.deliveries).find((d) => d.candidate.commit === graph.head) ??
+          Object.values(graph.deliveries).at(-1);
+        const tree =
+          delivery?.candidate.commit === graph.head
+            ? delivery.candidate.tree
+            : await this.options.git.tree?.(graph.head);
+        if (!delivery || typeof tree !== "string")
           throw new InvalidAcceptance("Missing exact assembled tree evidence");
         const run = this.workflow.observe(delivery.runId);
         if (
@@ -236,7 +248,7 @@ export class GraphAcceptance {
           graphRevision: plan.graphRevision,
           branch: graph.branch,
           head: graph.head,
-          tree: delivery.candidate.tree,
+          tree,
           reviewBase: graph.reviewBase,
           entry: acceptance.entry,
           members: members as DiscoveredIssue[],
@@ -282,6 +294,7 @@ export class GraphAcceptance {
         throw new RejectedAcceptance(previous.reason ?? "Whole-spec acceptance failed");
       this.workflow.assertLiveAction(runId);
       this.workflow.beginAcceptance(runId, input);
+      await this.workflow.recover();
       const run = this.workflow.observe(runId);
       if (!run.acceptanceResult) return;
       try {

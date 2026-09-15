@@ -55,6 +55,9 @@ export default function bridge(pi: ExtensionAPI) {
             graphRevision: request.integration.graphRevision,
             expectedHead: request.integration.expectedHead,
             candidateCommit: request.integration.candidate.commit,
+            ...(request.integration.reevaluation
+              ? { reevaluationId: request.integration.reevaluation.id }
+              : {}),
           },
         }
       : {}),
@@ -349,7 +352,7 @@ export default function bridge(pi: ExtensionAPI) {
       try {
         await child.send("set_auto_retry", { enabled: false });
         await child.prompt(
-          `${args.task}\n${candidate ? `Review only ${args.axis} against fixed base ${candidate.reviewBase}, candidate ${candidate.commit}. ${request.acceptance && args.axis === "spec" ? "Read /input/request.json acceptance members, briefs and specificationIds; explicitly verify the complete root and every intermediate specification acceptance criteria against this assembled graph, not just the original leaf." : ""} End with review_result including concrete findings; pass only with none. Do not modify files.` : "End with delegate_result containing your findings."}`,
+          `${args.task}\n${candidate ? `Review only ${args.axis} against fixed base ${candidate.reviewBase}, candidate ${candidate.commit}. ${request.acceptance && args.axis === "spec" ? "Read /input/request.json acceptance members, briefs and specificationIds; explicitly verify the complete root and every intermediate specification acceptance criteria against this assembled graph, not just the original leaf." : ""} ${request.integration?.reevaluation ? "Read /input/request.json integration.reevaluation.issue.sourceContent, including its body, brief and all specifications. Those explicit current requirements are authoritative for this new evaluation; the original manifest issue is historical provenance. Verify the changed requirements against the assembled candidate." : ""} End with review_result including concrete findings; pass only with none. Do not modify files.` : "End with delegate_result containing your findings."}`,
         );
         signal?.throwIfAborted();
         if (!existsSync(receipt)) throw new Error("Delegate ended without typed result");

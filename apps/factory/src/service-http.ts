@@ -36,6 +36,16 @@ export async function listenLocalService(options: {
         typeof input.runId !== "string"
       )
         return json(response, 400, { error: "runId-required" });
+      const continuationId = "continuationId" in input ? input.continuationId : undefined;
+      if (
+        continuationId !== undefined &&
+        (typeof continuationId !== "string" ||
+          !continuationId.trim() ||
+          continuationId.length > 200)
+      )
+        return json(response, 400, { error: "invalid-continuationId" });
+      if (workflow.observe(input.runId).eveContinuationId !== continuationId)
+        return json(response, 200, { status: "completed", graphPending: false });
       if (!service.status().ready) {
         workflow.observe(input.runId);
         // Eve's durable loop can sleep without consuming failed-step retries while
@@ -48,8 +58,10 @@ export async function listenLocalService(options: {
       }
       const result =
         request.url === "/factory/drive"
-          ? await workflow.drive(input.runId)
-          : await workflow.recoverWake(input.runId);
+          ? await workflow.driveOwned(input.runId, continuationId)
+          : await workflow.recoverWakeOwned(input.runId, continuationId);
+      if (workflow.observe(input.runId).eveContinuationId !== continuationId)
+        return json(response, 200, { status: "completed", graphPending: false });
       return json(response, 200, result ?? { accepted: true });
     }
     return json(response, 404, { error: "not-found" });
