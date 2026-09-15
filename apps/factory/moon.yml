@@ -1,0 +1,21 @@
+$schema: ../../.moon/cache/schemas/project.json
+stack: backend
+layer: application
+language: typescript
+
+tasks:
+  check:
+    options:
+      cache: local
+  fix:
+    options:
+      cache: false
+  tsc:
+    options:
+      cache: local
+  knip:
+    command: bun --bun knip --workspace apps/factory
+    options:
+      runFromWorkspaceRoot: true
+      mergeArgs: replace
+      cache: local

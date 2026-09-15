@@ -11,11 +11,13 @@
       "*.json",
       "*.jsonc",
       "*.ts",
-      "*.css",
-      "src/**/*",
-      "tests/browser/**/*",
-      "!src/routeTree.gen.ts",
-      "!src/pages/**/*.mdx"
+      "apps/*/*.json",
+      "apps/*/*.jsonc",
+      "apps/*/*.ts",
+      "apps/*/src/**/*",
+      "apps/website/tests/browser/**/*",
+      "!apps/website/src/routeTree.gen.ts",
+      "!apps/website/src/pages/**/*.mdx"
     ]
   },
   "formatter": {

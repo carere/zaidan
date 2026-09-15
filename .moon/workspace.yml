@@ -1,7 +1,9 @@
 $schema: ./cache/schemas/workspace.json
 
 projects:
-  zaidan: "."
+  workspace: "."
+  zaidan: "apps/website"
+  factory: "apps/factory"
 
 defaultProject: zaidan
 

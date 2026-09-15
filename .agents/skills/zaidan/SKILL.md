@@ -62,7 +62,8 @@ when the user wants a full design system.
    `alert-dialog`, and `sheet` versus `drawer`.
 3. Verify recommended item names against the current registry before presenting
    an install command. In this repository, inspect
-   `src/registry/kobalte/registry.json`; elsewhere, resolve the corresponding
+   `apps/website/src/registry/kobalte/registry.json`; elsewhere, resolve the
+   corresponding
    `https://zaidan.carere.dev/r/kobalte/<name>.json` item. `@zaidan/preset-<code>`
    and `@zaidan/typeset-<code>` are the exception: they are generated on demand
    from the code, so they resolve without appearing in the registry listing.

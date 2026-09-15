@@ -1,0 +1,14 @@
+{
+  "name": "@zaidan/factory",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "eve": "0.54.3"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.0"
+  },
+  "engines": {
+    "node": ">=24.21.0"
+  }
+}

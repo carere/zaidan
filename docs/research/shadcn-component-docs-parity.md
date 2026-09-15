@@ -25,7 +25,7 @@ At the pinned Fumadocs tag, the default preset assembles `remarkGfm`, headings, 
 
 Crucially, Fumadocs does **not** provide shadcn's component preview or component-source resolver. Those are shadcn application components: `ComponentPreview` calls its registry resolver and combines the live component with full and three-line source views ([preview](https://github.com/shadcn-ui/ui/blob/cb2bcd88d93b2f9bddb030e9136f1f8773e7eac4/apps/v4/components/component-preview.tsx#L69-L109)); `ComponentSource` reads demo/registry files, formats them, highlights them, and wraps them in the collapsible UI ([source](https://github.com/shadcn-ui/ui/blob/cb2bcd88d93b2f9bddb030e9136f1f8773e7eac4/apps/v4/components/component-source.tsx#L34-L84)); the registry resolver is also app-owned ([registry](https://github.com/shadcn-ui/ui/blob/cb2bcd88d93b2f9bddb030e9136f1f8773e7eac4/apps/v4/lib/registry.ts#L24-L115)). Shadcn keeps each demo as a separately indexed file, which is the key architectural pattern to copy, not Fumadocs itself.
 
-Zaidan already has equivalents for most Fumadocs defaults: Velite supplies metadata/TOC, the custom Vite MDX compiler assembles remark/rehype plugins, package-manager tabs are already transformed, code imports are supported, and Expressive Code handles highlighting ([Velite schema](../../velite.config.ts), [MDX compiler](../../src/lib/vite-plugins/mdx.ts), [code-import plugin](../../src/lib/remark-plugins/code-import.ts)). Replacing these would create migration work without supplying the missing preview/source feature.
+Zaidan already has equivalents for most Fumadocs defaults: Velite supplies metadata/TOC, the custom Vite MDX compiler assembles remark/rehype plugins, package-manager tabs are already transformed, code imports are supported, and Expressive Code handles highlighting ([Velite schema](../../apps/website/velite.config.ts), [MDX compiler](../../apps/website/src/lib/vite-plugins/mdx.ts), [code-import plugin](../../apps/website/src/lib/remark-plugins/code-import.ts)). Replacing these would create migration work without supplying the missing preview/source feature.
 
 ## Page shell and foundation identity
 
@@ -35,13 +35,13 @@ For Zaidan, model this as semantic `foundation` metadata, not as a reflection of
 
 | Component | Foundation shown | Reason |
 | --- | --- | --- |
-| Accordion | Kobalte | Its primitives are runtime imports from `@kobalte/core` ([source](../../src/registry/kobalte/ui/accordion.tsx)). |
-| Resizable | Corvu | Its runtime primitives come from `@corvu/resizable`; the Kobalte polymorphic import is type-only ([source](../../src/registry/kobalte/ui/resizable.tsx)). The install command must still include both packages. |
-| Card | none | It is native Solid/div composition with no primitive foundation ([source](../../src/registry/kobalte/ui/card.tsx)). Showing a Kobalte logo merely because the route is under the Kobalte registry would be misleading. |
+| Accordion | Kobalte | Its primitives are runtime imports from `@kobalte/core` ([source](../../apps/website/src/registry/kobalte/ui/accordion.tsx)). |
+| Resizable | Corvu | Its runtime primitives come from `@corvu/resizable`; the Kobalte polymorphic import is type-only ([source](../../apps/website/src/registry/kobalte/ui/resizable.tsx)). The install command must still include both packages. |
+| Card | none | It is native Solid/div composition with no primitive foundation ([source](../../apps/website/src/registry/kobalte/ui/card.tsx)). Showing a Kobalte logo merely because the route is under the Kobalte registry would be misleading. |
 
 Extend the Velite `ui` schema with `foundation: s.enum(["kobalte", "corvu"]).optional()` and, if the API-reference component should be data-driven, optional `links.doc`/`links.api`. Pass the full document record to a component-docs shell. That shell should render title, description, a same-position foundation row when `foundation` exists, then MDX. Card should omit the logo/label; it may retain an empty equal-height spacer only if visual rhythm requires it.
 
-The historical Kobalte icon can be restored verbatim from parent commit `4ef7abe008b1073ff7674965db3e7a875541911a` ([historical file](https://github.com/carere/zaidan/blob/4ef7abe008b1073ff7674965db3e7a875541911a/src/components/icons/kobalte.tsx)); its previous consumer used `size-4 fill-foreground`. The new untracked [Corvu icon](../../src/components/icons/corvu.tsx) also needs its accidental export name `Carere` changed to `Corvu`, then:
+The historical Kobalte icon can be restored verbatim from parent commit `4ef7abe008b1073ff7674965db3e7a875541911a` ([historical file](https://github.com/carere/zaidan/blob/4ef7abe008b1073ff7674965db3e7a875541911a/src/components/icons/kobalte.tsx)); its previous consumer used `size-4 fill-foreground`. The new untracked [Corvu icon](../../apps/website/src/components/icons/corvu.tsx) also needs its accidental export name `Carere` changed to `Corvu`, then:
 
 - body: `class="fill-foreground"`;
 - eye and upper beak: `class="fill-background"`;
@@ -58,7 +58,7 @@ Add two coordinated resolvers:
 
 Run the source-injection plugin before the existing code-import/highlighting stages. The Solid preview component can render the live demo plus its compiled child source in a rounded bordered container, with shadcn's short source teaser and “View Code” expansion. `ComponentSource` uses the same injected child without the live preview. This keeps file I/O at build time, prevents arbitrary runtime paths, and lets Expressive Code continue handling syntax, copy buttons, themes, and raw text.
 
-Register `ComponentPreview`, `ComponentSource`, `CodeTabs`, and any tab primitives in [the MDX component map](../../src/components/mdx-components.tsx). Add a dedicated persistent `CodeTabs` wrapper for the Installation “CLI / Manual” choice; the existing package-manager tabs inside command blocks should remain in place.
+Register `ComponentPreview`, `ComponentSource`, `CodeTabs`, and any tab primitives in [the MDX component map](../../apps/website/src/components/mdx-components.tsx). Add a dedicated persistent `CodeTabs` wrapper for the Installation “CLI / Manual” choice; the existing package-manager tabs inside command blocks should remain in place.
 
 Use shadcn's dimensions and states as the visual reference: rounded-2xl outer border, a centered preview region, a collapsed three-line code teaser, and an expand/collapse control ([preview tabs](https://github.com/shadcn-ui/ui/blob/cb2bcd88d93b2f9bddb030e9136f1f8773e7eac4/apps/v4/components/component-preview-tabs.tsx#L52-L176)). Port the relevant `typeset` rules or align the existing tag component classes rather than adopting all of `fumadocs-ui`; shadcn itself uses an application stylesheet for this typography.
 
@@ -74,7 +74,7 @@ Each page begins with the primary `ComponentPreview` after the shell-rendered ti
 
 ## Card parity is not docs-only
 
-Current shadcn Card uses a `--card-spacing` custom property throughout header/content/footer and changes the property for small cards. Its Spacing example and changelog describe that behavior. Zaidan's seven registry style files currently hard-code the gaps and paddings (for example [Nova](../../src/registry/kobalte/styles/style-nova.css)); therefore copying those sections now would document a feature that does not work.
+Current shadcn Card uses a `--card-spacing` custom property throughout header/content/footer and changes the property for small cards. Its Spacing example and changelog describe that behavior. Zaidan's seven registry style files currently hard-code the gaps and paddings (for example [Nova](../../apps/website/src/registry/kobalte/styles/style-nova.css)); therefore copying those sections now would document a feature that does not work.
 
 For actual parity, update all seven Card style definitions to define/use `--card-spacing`, preserving each style's existing default and small spacing values, then add the spacing demo and a Zaidan-specific migration note. Rebuild the public registry artifacts afterward. If this implementation work is intentionally out of scope, omit Card's Spacing and Changelog sections and explicitly accept that the first pass is structurally short of shadcn parity.
 
