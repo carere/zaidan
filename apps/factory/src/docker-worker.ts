@@ -3,9 +3,11 @@ import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   realpathSync,
   renameSync,
+  rmSync,
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
@@ -553,31 +555,40 @@ export class DockerPiWorker implements WorkerAdapter {
       "--mount",
       `type=bind,src=${source},dst=${target},readonly`,
     ];
-    await run("docker", [
-      "run",
-      "--rm",
-      "--network",
-      "none",
-      "--user",
-      "1000:1000",
-      "--cap-drop",
-      "ALL",
-      "--security-opt",
-      "no-new-privileges",
-      "--read-only",
-      "--pids-limit",
-      "64",
-      "--tmpfs",
-      "/tmp:rw,nosuid,nodev",
-      ...mount(workspace, "/state"),
-      ...mount(join(phase, "input"), "/input"),
-      ...mount(join(phase, "output"), "/phase"),
-      ...mount(request.resources.path, "/resources"),
-      ...mount(fileURLToPath(new URL("../worker", import.meta.url)), "/runtime"),
-      this.options.image ?? "zaidan-factory-worker:0.85.1",
-      "node",
-      "/runtime/verify.mjs",
-    ]);
+    // Seal the exact host-observed outcome under a new path. Reusing a bind-mounted
+    // receipt can expose a prior file size on OrbStack even after atomic replacement.
+    // This also keeps verification bound to the outcome returned to the coordinator.
+    const verification = mkdtempSync(join(phase, "verification-"));
+    try {
+      writeFileSync(join(verification, "outcome.json"), JSON.stringify(outcome), { mode: 0o444 });
+      await run("docker", [
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "1000:1000",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--read-only",
+        "--pids-limit",
+        "64",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev",
+        ...mount(workspace, "/state"),
+        ...mount(join(phase, "input"), "/input"),
+        ...mount(verification, "/phase"),
+        ...mount(request.resources.path, "/resources"),
+        ...mount(fileURLToPath(new URL("../worker", import.meta.url)), "/runtime"),
+        this.options.image ?? "zaidan-factory-worker:0.85.1",
+        "node",
+        "/runtime/verify.mjs",
+      ]);
+    } finally {
+      rmSync(verification, { recursive: true, force: true });
+    }
     const candidate = outcome.type === "graph-accepted" ? outcome.evidence : outcome.candidate;
     const artifact = candidate.artifact as {
       relativePath: string;
