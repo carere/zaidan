@@ -1,3 +1,4 @@
+import { loadPrivateEnvironment } from "../../src/production-config.ts";
 import { repository } from "./scenario.ts";
 
 export function fixtureGitHub(token: string, apiBase = "https://api.github.com") {
@@ -97,4 +98,13 @@ export interface NativePull {
   head: { sha: string; ref: string; repo: { full_name: string } };
   base: { ref: string; repo: { full_name: string } };
   user: { id: number };
+}
+
+export function fixtureGitHubToken(path?: string, environment: NodeJS.ProcessEnv = process.env) {
+  const selected = path ? loadPrivateEnvironment(path, environment) : environment;
+  if (!selected.FACTORY_GITHUB_TOKEN)
+    throw Error(
+      "Provide existing GitHub authorization through the environment or selected private file",
+    );
+  return selected.FACTORY_GITHUB_TOKEN;
 }

@@ -6,12 +6,11 @@ import {
   openSync,
   readFileSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { fixtureGitHub } from "../fixtures/live/github.ts";
+import { fixtureGitHub, fixtureGitHubToken } from "../fixtures/live/github.ts";
 import { digest } from "../fixtures/live/journal.ts";
 import { skillInventory } from "../fixtures/live/payload.ts";
 import {
@@ -229,7 +228,7 @@ async function main() {
       /* No healthy CLI status. Setup is performed before native service startup. */
     }
     if (running) throw Error("Stop the fixture service before applying setup or activation");
-    const token = githubToken(config.envFile);
+    const token = fixtureGitHubToken(config.envFile);
     const applied = await applyFixture(
       directory as string,
       fixtureGitHub(token),
@@ -293,36 +292,10 @@ async function main() {
     journal,
     state,
     progress,
-    fixtureGitHub(githubToken(config.envFile)),
+    fixtureGitHub(fixtureGitHubToken(config.envFile)),
   );
   journal.save("runner-wait.json", next);
   print(next);
-}
-function githubToken(envFile?: string) {
-  if (process.env.FACTORY_GITHUB_TOKEN) {
-    if (envFile) throw Error("Choose credential environment or one private environment file");
-    return process.env.FACTORY_GITHUB_TOKEN;
-  }
-  if (!envFile || !isAbsolute(envFile) || statSync(envFile).mode & 0o077)
-    throw Error(
-      "Provide the explicit private FACTORY environment file or GitHub token environment",
-    );
-  const lines = readFileSync(envFile, "utf8")
-    .split(/\r?\n/)
-    .filter((line) => line.trim() && !line.trimStart().startsWith("#"));
-  let token: string | undefined;
-  const seen = new Set<string>();
-  for (const line of lines) {
-    const match =
-      /^(FACTORY_GITHUB_TOKEN|FACTORY_TELEGRAM_TOKEN|FACTORY_TELEGRAM_MAINTAINER_ID)=(.*)$/.exec(
-        line,
-      );
-    if (!match || seen.has(match[1])) throw Error("Invalid or duplicate private environment entry");
-    seen.add(match[1]);
-    if (match[1] === "FACTORY_GITHUB_TOKEN") token = match[2].replace(/^(['"])(.*)\1$/, "$2");
-  }
-  if (!token) throw Error("Explicit private environment file lacks FACTORY_GITHUB_TOKEN");
-  return token;
 }
 function print(value: unknown) {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);

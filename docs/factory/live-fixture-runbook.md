@@ -53,9 +53,10 @@ node apps/factory/tests/live-factory.ts prepare --state /absolute/factory-live-f
 ```
 
 The file can be attached before it exists; preparation does not read it. Actual setup/service
-commands require a regular private file, mode 0600, containing the following three assignments
-(with real values only in that file): `FACTORY_GITHUB_TOKEN`, `FACTORY_TELEGRAM_TOKEN`, and
-`FACTORY_TELEGRAM_MAINTAINER_ID`. No shell sourcing is used. The Telegram identity must match the
+commands require a regular private file, mode 0600, containing `FACTORY_TELEGRAM_TOKEN` and `FACTORY_TELEGRAM_MAINTAINER_ID`
+(with real values only in that file). Existing GitHub authorization may supply
+`FACTORY_GITHUB_TOKEN` separately in the coordinator environment; alternatively put that key
+in the same private file. Duplicate keys across the file and environment are rejected. No shell sourcing is used. The Telegram identity must match the
 sender and private chat ID; start a private bot conversation if needed. Do not run a second poller.
 A conflicting credential path or changed runtime requires explicit reconciliation, not a silent
 replacement of retained identities.

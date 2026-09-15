@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
+import { fixtureGitHubToken } from "./github.ts";
 
 test("offline preparation retains full skill hashes and accepts a later credential path without reading credentials", () => {
   const root = mkdtempSync(join(tmpdir(), "factory-live-prepare-"));
@@ -45,6 +46,31 @@ test("offline preparation retains full skill hashes and accepts a later credenti
     const changed = cli("run", "--approved-payload", first.payloadHash);
     assert.equal(changed.status, 1);
     assert.match(changed.stderr, /Reviewed fixture payload changed/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("fixture credentials combine existing GitHub authorization with a Telegram-only private file and reject duplicate keys", () => {
+  const root = mkdtempSync(join(tmpdir(), "factory-fixture-credentials-"));
+  const file = join(root, "telegram.env");
+  try {
+    writeFileSync(
+      file,
+      "FACTORY_TELEGRAM_TOKEN=synthetic-bot\nFACTORY_TELEGRAM_MAINTAINER_ID=42\n",
+      { mode: 0o600 },
+    );
+    assert.equal(fixtureGitHubToken(file, { FACTORY_GITHUB_TOKEN: "existing-gh" }), "existing-gh");
+    assert.equal(
+      fixtureGitHubToken(undefined, { FACTORY_GITHUB_TOKEN: "existing-gh" }),
+      "existing-gh",
+    );
+    writeFileSync(file, "FACTORY_GITHUB_TOKEN=duplicate\n");
+    assert.throws(
+      () => fixtureGitHubToken(file, { FACTORY_GITHUB_TOKEN: "existing-gh" }),
+      /conflicting/,
+    );
+    assert.throws(() => fixtureGitHubToken(undefined, {}), /GitHub authorization/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
