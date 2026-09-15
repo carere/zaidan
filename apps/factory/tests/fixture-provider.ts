@@ -1,5 +1,5 @@
 /** Deterministic external-provider fixture. Loaded only by the dedicated network-none test image. */
-import { appendFileSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import {
   type AssistantMessage,
   createAssistantMessageEventStream,
@@ -22,11 +22,22 @@ export default function fixture(pi: ExtensionAPI) {
         maxTokens: 1000,
       },
     ],
-    streamSimple(model, context) {
+    streamSimple(model, context, options) {
       const request = JSON.parse(
         readFileSync(process.env.FACTORY_REQUEST ?? "/phase/request.json", "utf8"),
       );
       const axis = process.env.FACTORY_REVIEW_AXIS;
+      const observations = "/state/provider-dispatched.jsonl";
+      const previousCalls = existsSync(observations)
+        ? readFileSync(observations, "utf8")
+            .trim()
+            .split("\n")
+            .map((line) => JSON.parse(line))
+            .filter((call) => call.owner === request.operationId && !call.summarizing).length
+        : 0;
+      const summarizing = context.systemPrompt?.startsWith(
+        "You are a context summarization assistant",
+      );
       const results = context.messages.filter((message) => message.role === "toolResult");
       const names = results.map((message) =>
         message.role === "toolResult" ? message.toolName : "",
@@ -51,6 +62,8 @@ export default function fixture(pi: ExtensionAPI) {
         tool = process.env.FACTORY_DELEGATE_RESULT
           ? { name: "bash", arguments: { command: "sleep 120" } }
           : { name: "spawn_agent", arguments: { task: "Run cancellation probe" } };
+      else if (request.issue.number === 7 && !request.answer && previousCalls < 3)
+        tool = { name: "read", arguments: { path: "/resources/skills/fixture/large.txt" } };
       else if (!request.answer)
         tool = {
           name: "request_user_input",
@@ -109,18 +122,50 @@ export default function fixture(pi: ExtensionAPI) {
         stopReason: "toolUse",
         timestamp: Date.now(),
       };
-      queueMicrotask(() => {
-        if (results.length > 40) {
-          message.stopReason = "error";
-          message.errorMessage = "Fixture exceeded bounded protocol steps";
-          stream.push({ type: "error", reason: "error", error: message });
+      if (summarizing) {
+        message.content = [
+          {
+            type: "text",
+            text: "Preserve the fixture issue, captured resources and existing workspace. Continue from the saved human answer.",
+          },
+        ];
+        message.stopReason = "stop";
+      } else if (request.issue.number === 7 && request.phase === 0) {
+        message.usage.input = 190000;
+        message.usage.totalTokens = 190000;
+      }
+      setTimeout(
+        async () => {
+          await options?.onPayload?.({ fixture: true }, model);
+          appendFileSync(
+            "/state/provider-dispatched.jsonl",
+            `${JSON.stringify({
+              owner: process.env.FACTORY_MODEL_OWNER ?? request.operationId,
+              summarizing,
+            })}\n`,
+          );
+          if ([8, 9].includes(request.issue.number)) {
+            message.stopReason = "error";
+            message.errorMessage =
+              request.issue.number === 8 ? "usage_limit_reached" : "401 unauthorized";
+            stream.push({ type: "error", reason: "error", error: message });
+            stream.end();
+            return;
+          }
+          if (results.length > 40) {
+            message.stopReason = "error";
+            message.errorMessage = "Fixture exceeded bounded protocol steps";
+            stream.push({ type: "error", reason: "error", error: message });
+            stream.end();
+            return;
+          }
+          await new Promise((resolve) => setTimeout(resolve, request.permits ? 80 : 0));
+          stream.push({ type: "start", partial: message });
+          stream.push({ type: "done", reason: summarizing ? "stop" : "toolUse", message });
           stream.end();
-          return;
-        }
-        stream.push({ type: "start", partial: message });
-        stream.push({ type: "done", reason: "toolUse", message });
-        stream.end();
-      });
+        },
+        request.permits ? 80 : 0,
+      );
       return stream;
     },
   });

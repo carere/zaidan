@@ -67,39 +67,95 @@ export default function bridge(pi: ExtensionAPI) {
     return committed();
   };
   pi.on("tool_call", () => {
-    if (existsSync(join(directory, "proposal.json")))
+    if (
+      existsSync(join(directory, "proposal.json")) ||
+      existsSync(join(directory, "provider-outcome.json"))
+    )
       return { block: true, reason: "Phase has reached its durable outcome", terminate: true };
   });
   pi.on("session_shutdown", async () => {
     await Promise.all([...children].map((child) => child.stop()));
   });
-  // #516 can attach one global model-call permit transport at these exact lifecycle hooks.
-  // message_end (assistant), rather than turn_end, releases before delegated tool waits.
-  pi.on("before_provider_request", async () => {
-    if (process.env.FACTORY_PERMIT_URL) {
-      const response = await fetch(`${process.env.FACTORY_PERMIT_URL}/acquire`, {
+  // Assistant message_end precedes tool execution: a parent never owns a model
+  // slot while awaiting delegates. Capabilities authorize this operation only.
+  const permit = async (
+    action: "acquire" | "release",
+    owner = process.env.FACTORY_MODEL_OWNER ?? request.operationId,
+  ) => {
+    if (!request.permits) return;
+    for (;;) {
+      const response = await fetch(`${request.permits.url}/${action}`, {
         method: "POST",
+        headers: {
+          authorization: `Bearer ${request.permits.token}`,
+          "content-type": "application/json",
+        },
         body: JSON.stringify({
           runId: request.runId,
-          operationId: process.env.FACTORY_MODEL_OWNER ?? request.operationId,
+          owner,
         }),
+        signal: AbortSignal.timeout(5000),
       });
-      if (!response.ok) throw new Error("Model permit unavailable");
+      if (response.ok) {
+        const result = await response.json();
+        if (
+          typeof result !== "object" ||
+          result === null ||
+          !("status" in result) ||
+          result.status !== "granted"
+        )
+          throw new Error("Invalid model permit receipt");
+        return;
+      }
+      if (response.status !== 429 || action !== "acquire") throw new Error("Model permit rejected");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  };
+  const acquire = async () => {
+    if (existsSync(join(directory, "provider-outcome.json"))) process.exit(75);
+    try {
+      await permit("acquire");
+    } catch {
+      // Pi 0.85.1 catches extension errors and would continue the request. Exit
+      // this Pi process synchronously so transport loss can never fail open.
+      save(join(directory, "provider-outcome.json"), {
+        type: "failed",
+        category: "transient",
+        reason: "Local model permit unavailable",
+      });
+      process.exit(75);
+    }
+  };
+  pi.on("before_provider_request", acquire);
+  // Native compaction uses sequential summary calls outside the provider-payload hook.
+  pi.on("session_before_compact", acquire);
+  const release = () => permit("release");
+  pi.on("session_compact", release);
+  pi.on("session_compact_failed", async (event) => {
+    await release();
+    if (!event.aborted) providerFailure(event.errorMessage ?? "Compaction failed");
+  });
+  pi.on("message_end", async (event) => {
+    if (event.message.role !== "assistant") return;
+    await release();
+    if (event.message.stopReason === "error") {
+      providerFailure(event.message.errorMessage ?? "");
     }
   });
-  const release = async () => {
-    if (process.env.FACTORY_PERMIT_URL)
-      await fetch(`${process.env.FACTORY_PERMIT_URL}/release`, {
-        method: "POST",
-        body: JSON.stringify({
-          runId: request.runId,
-          operationId: process.env.FACTORY_MODEL_OWNER ?? request.operationId,
-        }),
-      });
+  const providerFailure = (message: string) => {
+    const value = /usage_limit|quota|allowance|usage limit|rate.limit|429/i.test(message)
+      ? { type: "subscription-paused", reason: "Subscription allowance unavailable" }
+      : /unauthorized|authentication|reauth|invalid.token|expired.token|401|403/i.test(message)
+        ? { type: "reauthentication-required", reason: "Subscription reauthentication required" }
+        : {
+            type: "failed",
+            category: /timeout|network|connection|ECONN|502|503|504/i.test(message)
+              ? "transient"
+              : "semantic",
+            reason: "Provider execution failed",
+          };
+    save(join(directory, "provider-outcome.json"), value);
   };
-  pi.on("message_end", async (event) => {
-    if (event.message.role === "assistant") await release();
-  });
   pi.on("agent_end", release);
   pi.on("session_shutdown", release);
   pi.registerTool({
@@ -211,6 +267,7 @@ export default function bridge(pi: ExtensionAPI) {
           "Review delegate must finish its bounded review without further delegation",
         );
       signal?.throwIfAborted();
+      await release();
       const identity = createHash("sha256").update(`${request.session.id}:${id}`).digest("hex");
       const childDirectory = join(directory, "delegates", identity);
       mkdirSync(childDirectory, { recursive: true });
@@ -260,6 +317,7 @@ export default function bridge(pi: ExtensionAPI) {
       };
       signal?.addEventListener("abort", abort, { once: true });
       try {
+        await child.send("set_auto_retry", { enabled: false });
         await child.prompt(
           `${args.task}\n${candidate ? `Review only ${args.axis} against fixed base ${candidate.reviewBase}, candidate ${candidate.commit}. End with review_result including concrete findings; pass only with none. Do not modify files.` : "End with delegate_result containing your findings."}`,
         );
@@ -278,6 +336,7 @@ export default function bridge(pi: ExtensionAPI) {
       } finally {
         signal?.removeEventListener("abort", abort);
         await child.stop();
+        await permit("release", identity);
         children.delete(child);
       }
     },

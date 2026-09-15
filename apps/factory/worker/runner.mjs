@@ -135,8 +135,12 @@ try {
   });
   const prompt = request.answer
     ? `Continue the original captured workflow. Durable checkpoint ${request.checkpoint.id}: ${request.checkpoint.question.prompt}\nAnswer ${request.checkpoint.answerId}: ${JSON.stringify(request.answer)}. Do not repeat the question or completed work.`
-    : `/skill:${manifest.entry} Implement the admitted issue in /resources/manifest.json using the captured specification and resources. ${request.instruction ?? ""}`;
+    : request.phase > 0
+      ? "Continue the original captured workflow from the preserved session and checkout after an infrastructure or operator pause. Do not repeat completed work."
+      : `/skill:${manifest.entry} Implement the admitted issue in /resources/manifest.json using the captured specification and resources. ${request.instruction ?? ""}`;
   await rpc.prompt(prompt);
+  if (existsSync(join(phaseDirectory, "provider-outcome.json")))
+    record(JSON.parse(readFileSync(join(phaseDirectory, "provider-outcome.json"), "utf8")));
   if (existsSync(join(phaseDirectory, "proposal.json")))
     record(JSON.parse(readFileSync(join(phaseDirectory, "proposal.json"), "utf8")));
   if (!existsSync(outcomePath))
@@ -150,7 +154,19 @@ try {
         ? error.message
         : "Worker execution failed",
   });
-  record({ type: "failed", reason: "Worker execution failed before a verified typed outcome" });
+  if (existsSync(join(phaseDirectory, "provider-outcome.json")))
+    record(JSON.parse(readFileSync(join(phaseDirectory, "provider-outcome.json"), "utf8")));
+  else if (
+    error instanceof Error &&
+    /authentication|reauth|unauthorized|credentials.*expired|401|403/i.test(error.message)
+  )
+    record({ type: "reauthentication-required", reason: "Subscription reauthentication required" });
+  else
+    record({
+      type: "failed",
+      category: "transient",
+      reason: "Worker execution failed before a verified typed outcome",
+    });
 } finally {
   await rpc?.stop();
 }

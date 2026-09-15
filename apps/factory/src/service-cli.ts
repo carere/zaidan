@@ -16,6 +16,7 @@ import { createEveEngine } from "./eve-engine.ts";
 import { createGitHubDiscovery } from "./github-discovery.ts";
 import { IssueWorkflow } from "./issue-workflow.ts";
 import { LocalService } from "./local-service.ts";
+import { startModelPermitServer } from "./model-permit-server.ts";
 import { type CreateServiceAdapters, discoveryOnlyAdapters } from "./service-adapters.ts";
 import { type ServiceConfig, serviceConfig } from "./service-config.ts";
 import { listenLocalService } from "./service-http.ts";
@@ -110,6 +111,10 @@ async function serve(settings: ServiceConfig) {
   const store = new SqliteWorkflowStore(join(settings.stateDirectory, "workflow.sqlite"));
   const workflow = new IssueWorkflow({
     store,
+    execution: {
+      ...settings.execution,
+      permitUrl: `http://host.docker.internal:${settings.permitPort}`,
+    },
     engine: createEveEngine({ baseUrl: `http://127.0.0.1:${settings.evePort}` }),
     worker: adapters.worker,
     notifications: adapters.notifications,
@@ -120,12 +125,14 @@ async function serve(settings: ServiceConfig) {
         token: process.env.FACTORY_GITHUB_TOKEN,
       }),
   });
+  let permits: Awaited<ReturnType<typeof startModelPermitServer>> | undefined;
   let child: ChildProcess | undefined;
   let stopping = false;
   const service = new LocalService({
     workflow,
     stateDirectory: settings.stateDirectory,
     prepare: async () => {
+      permits = await startModelPermitServer(workflow, settings.permitPort);
       const logs = join(settings.stateDirectory, "logs");
       mkdirSync(logs, { recursive: true });
       const fd = openSync(join(logs, "eve.log"), "a", 0o600);
@@ -170,6 +177,7 @@ async function serve(settings: ServiceConfig) {
       throw new Error("Eve host startup timed out");
     },
     disconnect: async () => {
+      await permits?.close();
       if (child && child.exitCode === null && child.signalCode === null) {
         const exited = once(child, "exit");
         child.kill("SIGTERM");

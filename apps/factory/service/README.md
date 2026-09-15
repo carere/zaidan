@@ -177,3 +177,26 @@ recovery. The separate service test builds actual production Eve, runs the real
 CLI on temporary loopback ports with controlled discovery, forces SIGKILL,
 checks orphan shutdown and persistent Eve run identity, restarts and stops with
 SIGTERM. It uses no live GitHub, Telegram, model, Docker or launchd operations.
+
+### Capacity and model permits
+
+The service starts a dedicated model-permit listener on `127.0.0.1:4313`, reachable
+from OrbStack workers through `host.docker.internal`. `FACTORY_PERMIT_PORT` changes
+this port; preserve its value on restart because durable worker requests contain
+that endpoint. It must differ from the coordinator and Eve ports. The listener
+accepts only phase-scoped bearer requests for model acquisition/release and rejects
+browser-origin requests. Do not proxy or expose it publicly.
+
+`FACTORY_WORKERS` (default `4`), `FACTORY_MODEL_CALLS` (default `4`) and
+`FACTORY_BUDGET_MS` (default `7200000`) configure positive integer limits. Worker
+execution and model ownership live in `workflow.sqlite`; there is no second lease
+database. An unresolved Docker cancellation keeps ownership. Restore Docker access
+and reconcile the original operation; deleting a lease to unblock the pool could
+permit still-running work to exceed limits.
+
+The coordinator controls `pause(runId)`, `resume(runId)`, `cancel(runId)` and
+`retry(runId)` through `IssueWorkflow`. Subscription waits resume after an explicit
+service-availability/operator signal. Authentication waits require
+`resume(runId, { reauthenticated: true })` after the selected login is repaired.
+No periodic model probe or API-billed fallback is used. These transport-neutral
+methods are the integration points for Telegram controls.

@@ -7,6 +7,8 @@ export interface ServiceConfig {
   repository: string;
   coordinatorPort: number;
   evePort: number;
+  permitPort: number;
+  execution: { workers: number; modelCalls: number; budgetMs: number };
   adapterModule?: string;
 }
 
@@ -21,6 +23,20 @@ export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConf
   const coordinatorPort = port(env.FACTORY_COORDINATOR_PORT, 4311);
   const evePort = port(env.FACTORY_EVE_PORT, 4312);
   if (coordinatorPort === evePort) throw new Error("Coordinator and Eve ports must differ");
+  const permitPort = port(env.FACTORY_PERMIT_PORT, 4313);
+  if ([coordinatorPort, evePort].includes(permitPort))
+    throw new Error("Model permit port must differ");
+  const positive = (value: string | undefined, fallback: number) => {
+    const result = value === undefined ? fallback : Number(value);
+    if (!Number.isSafeInteger(result) || result < 1)
+      throw new Error("Execution limits must be positive integers");
+    return result;
+  };
+  const execution = {
+    workers: positive(env.FACTORY_WORKERS, 4),
+    modelCalls: positive(env.FACTORY_MODEL_CALLS, 4),
+    budgetMs: positive(env.FACTORY_BUDGET_MS, 7200000),
+  };
   const adapterModule = env.FACTORY_ADAPTER_MODULE;
   if (adapterModule && !isAbsolute(adapterModule))
     throw new Error("FACTORY_ADAPTER_MODULE must be absolute");
@@ -30,6 +46,8 @@ export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConf
     repository,
     coordinatorPort,
     evePort,
+    permitPort,
+    execution,
     adapterModule,
   };
 }

@@ -9,6 +9,7 @@ import {
   DockerPiWorker,
   IssueWorkflow,
   SqliteWorkflowStore,
+  startModelPermitServer,
 } from "../src/index.ts";
 
 const [authFile, skillsRoot] = process.argv.slice(2);
@@ -105,6 +106,8 @@ const workflow = new IssueWorkflow({
       checks: ["node --test", "node --check src/greeting.mjs"],
     }),
 });
+const permitServer = await startModelPermitServer(workflow);
+workflow.configureModelPermits(permitServer.url);
 const admitted = await workflow.admit(issue);
 console.log(JSON.stringify({ directory, runId: admitted.runId, snapshot: admitted.resources?.id }));
 const timeout = setTimeout(() => {
@@ -160,5 +163,6 @@ try {
   );
 } finally {
   clearTimeout(timeout);
+  await permitServer.close();
   store.close();
 }

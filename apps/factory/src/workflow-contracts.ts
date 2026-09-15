@@ -36,11 +36,14 @@ export interface Candidate {
   commit: string;
   [evidence: string]: unknown;
 }
-export type WorkerOutcome =
+export type WorkerOutcome = (
   | { type: "checkpoint"; question: Question }
   | { type: "completed"; candidate: Candidate }
-  | { type: "failed"; reason: string }
-  | { type: "cancelled"; reason: string };
+  | { type: "failed"; reason: string; category?: "transient" | "validation" | "semantic" }
+  | { type: "subscription-paused"; reason: string }
+  | { type: "reauthentication-required"; reason: string }
+  | { type: "cancelled"; reason: string }
+) & { finishedAt?: number };
 export interface WorkerRequest {
   operationId: string;
   runId: string;
@@ -50,12 +53,14 @@ export interface WorkerRequest {
   answer?: Answer;
   checkpoint?: Checkpoint;
   resources?: ResourceSnapshotReference;
+  permits?: { url: string; token: string };
 }
 /** Operations must be idempotent by operationId, including retries after lost responses. */
 export interface WorkerAdapter {
   dispatch(request: WorkerRequest): Promise<WorkerOutcome>;
   resume(request: WorkerRequest): Promise<WorkerOutcome>;
   reconcile(operationId: string): Promise<WorkerOutcome | undefined>;
+  cancel?(operationId: string, reason?: string): Promise<WorkerOutcome>;
 }
 export interface NotificationRequest {
   operationId: string;
@@ -87,8 +92,28 @@ export interface RunSnapshot {
   issue: IssueSnapshot;
   session: SessionReference;
   resources?: ResourceSnapshotReference;
-  status: "admitted" | "running" | "waiting-human" | "completed" | "failed" | "cancelled";
+  status:
+    | "admitted"
+    | "running"
+    | "waiting-human"
+    | "waiting-subscription"
+    | "waiting-authentication"
+    | "paused"
+    | "completed"
+    | "failed"
+    | "cancelled";
   phase: number;
+  execution?: {
+    operationId?: string;
+    startedAt?: number;
+    consumedMs: number;
+    attempt: number;
+    retries: number;
+    token?: string;
+    models: string[];
+    stop?: { status: "failed" | "cancelled" | "paused"; reason: string };
+  };
+  pausedFrom?: "admitted" | "waiting-human" | "waiting-subscription" | "waiting-authentication";
   eveRunId?: string;
   checkpoint?: Checkpoint;
   candidate?: Candidate;

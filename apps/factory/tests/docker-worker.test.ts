@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -11,10 +19,11 @@ import {
   DockerPiWorker,
   IssueWorkflow,
   SqliteWorkflowStore,
+  startModelPermitServer,
   type WorkerRequest,
 } from "../src/index.ts";
 
-function fixture(number = 1) {
+function fixture(number = 1, permits = false) {
   const directory = mkdtempSync(join(tmpdir(), "factory-docker-515-"));
   const repository = join(directory, "repository");
   mkdirSync(repository);
@@ -38,6 +47,7 @@ function fixture(number = 1) {
     "---\nname: fixture\ndescription: captured fixture\ndisable-model-invocation: true\n---\nRead [support](support.txt). Ask the human before implementation. Then copy support into result.txt, checkpoint, validate, delegate standards and spec reviews and complete.\n",
   );
   writeFileSync(join(skill, "support.txt"), "original captured resource\n");
+  if (number === 7) writeFileSync(join(skill, "large.txt"), `${"x".repeat(70)}\n`.repeat(1500));
   const auth = join(directory, "auth.json");
   // Deliberately fake OAuth, only in the dedicated no-network synthetic-provider image.
   writeFileSync(
@@ -64,8 +74,8 @@ function fixture(number = 1) {
   const workerOptions = {
     directory: join(directory, "workers"),
     repositoryPath: repository,
-    image: "zaidan-factory-worker-test:0.85.1",
-    network: "none" as const,
+    image: permits ? "zaidan-factory-worker-test-516:0.85.1" : "zaidan-factory-worker-test:0.85.1",
+    ...(permits ? {} : { network: "none" as const }),
     auth: { sourceFile: auth, lockDirectory: join(directory, "auth-locks") },
     onEvent: (event: (typeof events)[number]) => events.push(event),
   };
@@ -322,5 +332,126 @@ test("cancellation stops the whole issue container, preserving the original chec
     f.store.close();
     if (process.env.FACTORY_KEEP_FIXTURES !== "1")
       rmSync(f.directory, { recursive: true, force: true });
+  }
+});
+
+test("real Pi parent and delegates share one scoped loopback permit without deadlocking", {
+  timeout: 120000,
+}, async () => {
+  const f = fixture(7, true);
+  const workflow = new IssueWorkflow({
+    ...f.shared,
+    store: f.store,
+    worker: f.worker,
+    execution: { modelCalls: 1 },
+  });
+  const server = await startModelPermitServer(workflow);
+  workflow.configureModelPermits(server.url);
+  const owners = new Set<string>();
+  let maximum = 0;
+  const timer = setInterval(() => {
+    for (const run of workflow.admissions()) {
+      maximum = Math.max(maximum, run.execution?.models.length ?? 0);
+      for (const owner of run.execution?.models ?? []) owners.add(owner);
+    }
+  }, 5);
+  try {
+    const run = await workflow.admit(f.issue);
+    const waiting = await workflow.drive(run.runId);
+    assert.equal(waiting.status, "waiting-human", JSON.stringify(waiting));
+    assert.equal(
+      (
+        await fetch(`${server.url.replace("host.docker.internal", "127.0.0.1")}/acquire`, {
+          method: "POST",
+          body: JSON.stringify({ runId: run.runId, owner: "intruder" }),
+        })
+      ).status,
+      403,
+    );
+    await workflow.answer({
+      runId: run.runId,
+      issueId: f.issue.issueId,
+      revision: "r1",
+      checkpointId: waiting.checkpoint?.id ?? "missing",
+      answerId: "yes",
+      answer: { text: "Implement" },
+    });
+    const completed = await workflow.drive(run.runId);
+    assert.equal(completed.status, "completed", JSON.stringify(completed));
+    const workspace = join(
+      f.workerOptions.directory,
+      "runs",
+      createHash("sha256").update(run.runId).digest("hex"),
+    );
+    const calls = readFileSync(join(workspace, "provider-dispatched.jsonl"), "utf8")
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    assert.ok(
+      calls.some((call) => call.summarizing),
+      "native session compaction runs under the model permit",
+    );
+    assert.equal(maximum, 1);
+    assert.ok(
+      owners.size >= 4,
+      "original phase, resumed parent and both delegates acquire actual permits",
+    );
+    assert.deepEqual(completed.execution?.models, []);
+  } finally {
+    clearInterval(timer);
+    await server.close();
+    f.store.close();
+    rmSync(f.directory, { recursive: true, force: true });
+  }
+});
+
+test("real Pi provider errors become quota and authentication waits with automatic provider retries disabled", {
+  timeout: 120000,
+}, async () => {
+  for (const [number, status] of [
+    [8, "waiting-subscription"],
+    [9, "waiting-authentication"],
+  ] as const) {
+    const f = fixture(number, true);
+    const server = await startModelPermitServer(f.workflow);
+    f.workflow.configureModelPermits(server.url);
+    try {
+      const run = await f.workflow.admit(f.issue);
+      const waiting = await f.workflow.drive(run.runId);
+      assert.equal(waiting.status, status, JSON.stringify(waiting));
+      assert.equal(waiting.execution?.operationId, undefined);
+      assert.deepEqual(waiting.execution?.models, []);
+      await f.workflow.recover();
+      assert.deepEqual(f.workflow.observe(run.runId).session, run.session);
+    } finally {
+      await server.close();
+      f.store.close();
+      rmSync(f.directory, { recursive: true, force: true });
+    }
+  }
+});
+
+test("unreachable model permit transport stops Pi before any provider dispatch", {
+  timeout: 30000,
+}, async () => {
+  const f = fixture(7, true);
+  const server = await startModelPermitServer(f.workflow);
+  f.workflow.configureModelPermits(server.url);
+  await server.close();
+  try {
+    const run = await f.workflow.admit(f.issue);
+    const result = await f.workflow.drive(run.runId);
+    assert.equal(result.status, "admitted", JSON.stringify(result));
+    assert.equal(result.execution?.retries, 1);
+    const workspace = join(
+      f.workerOptions.directory,
+      "runs",
+      createHash("sha256").update(run.runId).digest("hex"),
+    );
+    assert.equal(existsSync(join(workspace, "provider-dispatched.jsonl")), false);
+    assert.equal(result.execution?.operationId, undefined);
+  } finally {
+    f.store.close();
+    rmSync(f.directory, { recursive: true, force: true });
   }
 });
