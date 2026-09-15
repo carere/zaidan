@@ -1,6 +1,7 @@
 import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import type { ExternalDeliveryEvidence } from "./external-delivery.ts";
 import type { PublicationState } from "./standalone-publication.ts";
+import type { TriageContext, TriageProposal, TriageReceipt } from "./triage.ts";
 /** Transport snapshots use stable provider identity, never issue number as a key. */
 export interface IssueSnapshot {
   issueId: string;
@@ -16,6 +17,7 @@ export interface IssueSnapshot {
   sourceRef?: string;
   externalDeliveries?: ExternalDeliveryEvidence[];
   route?: "triage" | "implementation";
+  triageContext?: TriageContext;
   sourceContent?: {
     body: string;
     brief?: string;
@@ -40,6 +42,7 @@ export interface Candidate {
   [evidence: string]: unknown;
 }
 export type WorkerOutcome = (
+  | { type: "triage-proposed"; proposal: TriageProposal }
   | { type: "checkpoint"; question: Question }
   | { type: "completed"; candidate: Candidate }
   | { type: "no-change"; reason: string }
@@ -123,6 +126,7 @@ export interface RunSnapshot {
   candidate?: Candidate;
   publication?: PublicationState;
   noChange?: { reason: string };
+  triage?: { proposal: TriageProposal; checkpointId: string; receipt?: TriageReceipt };
   reason?: string;
 }
 export interface AnswerInput {

@@ -7,7 +7,7 @@ import type { IssueSnapshot, RunSnapshot } from "./workflow-contracts.ts";
 
 export interface Operation {
   id: string;
-  kind: "start" | "dispatch" | "resume" | "notify" | "wake" | "publication";
+  kind: "start" | "dispatch" | "resume" | "notify" | "wake" | "publication" | "triage";
   runId: string;
   phase: number;
   state: "pending" | "claimed" | "done";

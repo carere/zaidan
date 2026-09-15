@@ -21,7 +21,7 @@ test("admission retains complete original skill resources through source edits a
     mkdirSync(skill, { recursive: true });
     writeFileSync(
       join(skill, "SKILL.md"),
-      "---\nname: fixture\ndescription: fixture\ndisable-model-invocation: true\n---\nRead [support](support.txt).\n",
+      "---\nname: fixture\ndescription: fixture\ndisable-model-invocation: true\n---\nRead [support](support.txt).\n\n```md\n[Example context](./ordering.md)\n```\n",
     );
     writeFileSync(join(skill, "support.txt"), "original resource");
     const issue = {

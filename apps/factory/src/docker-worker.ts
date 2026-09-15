@@ -14,6 +14,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import lockfile from "proper-lockfile";
 import { readResourceSnapshot } from "./captured-resources.ts";
+import { validateTriageProposal } from "./triage.ts";
 import type { WorkerAdapter, WorkerOutcome, WorkerRequest } from "./workflow-contracts.ts";
 
 export interface DockerWorkerOptions {
@@ -125,6 +126,7 @@ export class DockerPiWorker implements WorkerAdapter {
     if (
       ![
         "checkpoint",
+        "triage-proposed",
         "completed",
         "no-change",
         "failed",
@@ -151,6 +153,13 @@ export class DockerPiWorker implements WorkerAdapter {
         readFileSync(join(this.phase(operationId), "input", "request.json"), "utf8"),
       ) as WorkerRequest;
       await this.verifyCandidate(request, outcome);
+    }
+    if (outcome.type === "triage-proposed") {
+      try {
+        validateTriageProposal(outcome.proposal);
+      } catch {
+        return { type: "failed", reason: "Worker triage proposal failed coordinator validation" };
+      }
     }
     if (outcome.type === "checkpoint") {
       const question = outcome.question;

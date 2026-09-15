@@ -10,6 +10,7 @@ import type { DiscoveredIssue } from "../src/discovery.ts";
 import { IssueWorkflow } from "../src/issue-workflow.ts";
 import { createPublicationGit } from "../src/publication-git.ts";
 import type { PublicationGitHub, PublishedPullRequest } from "../src/standalone-publication.ts";
+import type { TriageAdapter } from "../src/triage.ts";
 import type { WorkerOutcome } from "../src/workflow-contracts.ts";
 import { SqliteWorkflowStore } from "../src/workflow-store.ts";
 
@@ -104,11 +105,12 @@ function fixture(t: { after(fn: () => void): void }) {
   };
   const transport = createPublicationGit({ trustedGitDirectory: bare, remote });
   const stores: SqliteWorkflowStore[] = [];
-  const open = () => {
+  const open = (triage?: TriageAdapter) => {
     const store = new SqliteWorkflowStore(join(root, "state.sqlite"));
     stores.push(store);
     return new IssueWorkflow({
       store,
+      triage,
       discovery: {
         async read() {
           return {
@@ -532,4 +534,37 @@ test("authorization revoked while a PR is created pauses before advertising it a
   assert.equal((await workflow.publishStandalone(run.runId)).publication?.state, "reconciliation");
   assert.equal(f.pulls.length, 1);
   assert.equal(f.notifications.length, 0);
+});
+
+test("standalone admission and publication retain the triage-approved brief and reject a later changed comment", async (t) => {
+  const f = fixture(t);
+  f.issue.body = "Please add a greeting.";
+  const brief = {
+    issueId: f.issue.issueId,
+    contentRevision: f.issue.contentRevision,
+    ref: `${f.issue.sourceRef}#issuecomment-approved`,
+    content: "## Agent brief\nGreet the world.\n## Acceptance criteria\nSay hello world.",
+  };
+  const triage: TriageAdapter = {
+    prepare: async (issue) => issue,
+    apply: async () => {
+      throw new Error("Implementation never publishes triage");
+    },
+    reconcile: async () => undefined,
+    approvedBriefs: async () => [structuredClone(brief)],
+  };
+  const workflow = f.open(triage);
+  assert.equal((await workflow.scan()).decisions[0].route, "implementation");
+  const run = await workflow.admitStandalone(f.issue.issueId, {
+    startingRevision: f.base,
+    reviewBase: f.base,
+  });
+  assert.equal(run.issue.sourceContent?.brief, brief.content);
+  assert.equal(run.issue.briefRef, brief.ref);
+  await workflow.drive(run.runId);
+  assert.equal((await workflow.publishStandalone(run.runId)).publication?.state, "reviewable");
+  brief.content += "\nChanged scope.";
+  const restarted = f.open(triage);
+  assert.equal((await restarted.publishStandalone(run.runId)).publication?.state, "reconciliation");
+  assert.deepEqual(f.counts(), { pushes: 1, creates: 1, closes: 0, dispatches: 1 });
 });

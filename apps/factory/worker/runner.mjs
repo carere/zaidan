@@ -63,9 +63,13 @@ try {
       (path) => `\n## Captured /resources/${path}\n${readFileSync(`/resources/${path}`, "utf8")}`,
     )
     .join("\n");
+  const routeInstructions =
+    request.issue.route === "triage"
+      ? "Follow the captured triage skill in order: read the full captured issue triageContext including all comments, authors and dates; investigate redundancy and prior rejection in the checkout; present reasoning and category/state recommendations through request_user_input and wait BEFORE claim verification or grilling. Preserve every skill-required question. After human direction, verify, load captured grilling/domain-modeling if needed, and finish using factory_triage_propose with exact disclaimer-prefixed comment. Never use factory_complete for triage. The coordinator alone applies authorized labels/comments/closure. Rejected enhancement knowledge is a .out-of-scope Markdown document in the proposal, published through a draft PR."
+      : "Before review, call checkpoint_commit; then run required checks with factory_validate. Load code-review and run independent standards/spec delegates with spawn_agent axis set accordingly; they end using review_result. Complete with factory_complete only after committed diff, required validation and both reviews.";
   writeFileSync(
     join(phaseDirectory, "context.md"),
-    `Factory run ${request.runId}. Original issue and specification: /resources/manifest.json. Stable review base: ${reviewBase}. Snapshot: ${request.resources.id}.\nUse the captured original skills. Skill loads a captured skill; spawn_agent runs durable Pi delegates in this same sandbox. request_user_input persists a human checkpoint and terminates this phase; resume continues this exact session. Tracker reads come from captured issue resources; tracker writes require a human/coordinator action intent, never tokens. Before review, call checkpoint_commit; then run required checks with factory_validate. Load code-review and run independent standards/spec delegates with spawn_agent axis set accordingly; they end using review_result. Complete with factory_complete only after committed diff, required validation and both reviews. Missing resources fail explicitly. ${instructions}`,
+    `Factory run ${request.runId}. Original issue and specification: /resources/manifest.json. Stable review base: ${reviewBase}. Snapshot: ${request.resources.id}.\nUse the captured original skills. Skill loads a captured skill; spawn_agent runs durable Pi delegates in this same sandbox. request_user_input persists a human checkpoint and terminates this phase; resume continues this exact session. Tracker reads come from captured issue resources; tracker writes require a human/coordinator action intent, never tokens. ${routeInstructions} Missing resources fail explicitly. ${instructions}`,
   );
   const args = [
     "--provider",
@@ -137,7 +141,7 @@ try {
     ? `Continue the original captured workflow. Durable checkpoint ${request.checkpoint.id}: ${request.checkpoint.question.prompt}\nAnswer ${request.checkpoint.answerId}: ${JSON.stringify(request.answer)}. Do not repeat the question or completed work.`
     : request.phase > 0
       ? "Continue the original captured workflow from the preserved session and checkout after an infrastructure or operator pause. Do not repeat completed work."
-      : `/skill:${manifest.entry} Implement the admitted issue in /resources/manifest.json using the captured specification and resources. ${request.instruction ?? ""}`;
+      : `/skill:${manifest.entry} ${request.issue.route === "triage" ? "Triage" : "Implement"} the admitted issue in /resources/manifest.json using the captured specification and resources. ${request.instruction ?? ""}`;
   await rpc.prompt(prompt);
   if (existsSync(join(phaseDirectory, "provider-outcome.json")))
     record(JSON.parse(readFileSync(join(phaseDirectory, "provider-outcome.json"), "utf8")));
