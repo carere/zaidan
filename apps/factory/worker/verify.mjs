@@ -6,6 +6,8 @@ import { readFileSync } from "node:fs";
 
 const request = JSON.parse(readFileSync("/input/request.json", "utf8"));
 const { candidate } = JSON.parse(readFileSync("/phase/outcome.json", "utf8"));
+const integration = request.integration;
+const reviewBase = integration?.reviewBase ?? request.issue.reviewBase;
 const manifest = JSON.parse(readFileSync("/resources/manifest.json", "utf8"));
 const git = (...args) =>
   execFileSync("git", ["--no-optional-locks", ...args], {
@@ -18,16 +20,32 @@ if (
   git("status", "--porcelain") ||
   candidate.commit !== git("rev-parse", "HEAD") ||
   candidate.tree !== git("rev-parse", "HEAD^{tree}") ||
-  !git("diff", "--name-only", `${request.issue.reviewBase}...HEAD`)
+  !git("diff", "--name-only", `${reviewBase}...HEAD`)
 )
   throw new Error("Candidate does not identify clean committed implementation");
-const base = git("rev-parse", `${request.issue.reviewBase}^{commit}`);
+const base = git("rev-parse", `${reviewBase}^{commit}`);
+const expectedIntegration = integration
+  ? {
+      graphId: integration.graphId,
+      graphRevision: integration.graphRevision,
+      expectedHead: integration.expectedHead,
+      candidateCommit: integration.candidate.commit,
+    }
+  : undefined;
+if (integration) {
+  if (integration.reviewBase !== integration.expectedHead)
+    throw new Error("Integration review base differs from expected graph head");
+  git("merge-base", "--is-ancestor", integration.expectedHead, candidate.commit);
+  git("merge-base", "--is-ancestor", integration.candidate.commit, candidate.commit);
+}
 const matches = (item) =>
   item.commit === candidate.commit &&
   item.tree === candidate.tree &&
   item.snapshot === request.resources.id &&
   item.issueRevision === request.issue.revision &&
-  item.reviewBase === base;
+  item.reviewBase === base &&
+  JSON.stringify(item.integration) === JSON.stringify(expectedIntegration);
+if (!matches(candidate)) throw new Error("Candidate identity is stale");
 if (
   !Array.isArray(candidate.checks) ||
   candidate.checks.length !== manifest.checks.length ||

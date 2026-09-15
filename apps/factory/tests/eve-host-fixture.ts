@@ -5,6 +5,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { prepareEveWorld } from "../src/eve-local-recovery.ts";
 
 const factoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -69,12 +70,14 @@ export async function buildEveHost() {
     reservation.close((error) => (error ? reject(error) : resolve())),
   );
   let host: ChildProcess | undefined;
+  let ownership: ReturnType<typeof prepareEveWorld> | undefined;
   let logs = "";
   const baseUrl = `http://127.0.0.1:${port}`;
   return {
     root,
     baseUrl,
     async start(coordinatorUrl: string) {
+      ownership = prepareEveWorld(join(root, ".eve", ".workflow-data"));
       host = spawn(node, [join(root, ".output/server/index.mjs")], {
         cwd: root,
         env: {
@@ -110,6 +113,8 @@ export async function buildEveHost() {
         await stopped;
       }
       host = undefined;
+      ownership?.release();
+      ownership = undefined;
       writeFileSync(join(root, "host.log"), logs);
     },
     logs() {

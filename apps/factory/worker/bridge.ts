@@ -48,6 +48,16 @@ export default function bridge(pi: ExtensionAPI) {
     reviewBase: process.env.FACTORY_REVIEW_BASE,
     snapshot: request.resources.id,
     issueRevision: request.issue.revision,
+    ...(request.integration
+      ? {
+          integration: {
+            graphId: request.integration.graphId,
+            graphRevision: request.integration.graphRevision,
+            expectedHead: request.integration.expectedHead,
+            candidateCommit: request.integration.candidate.commit,
+          },
+        }
+      : {}),
     provider: "openai-codex",
     model: "gpt-6-astra",
     reasoning: "high",
@@ -60,7 +70,7 @@ export default function bridge(pi: ExtensionAPI) {
   };
   const checkpointCommit = () => {
     if (axis) throw new Error("Review delegates cannot checkpoint implementation");
-    if (git("status", "--porcelain")) {
+    if (git("status", "--porcelain") || existsSync("/state/checkout/.git/MERGE_HEAD")) {
       git("add", "--all");
       git("commit", "-m", `feat: checkpoint issue ${request.issue.number}`);
     }
@@ -449,7 +459,9 @@ export default function bridge(pi: ExtensionAPI) {
         JSON.parse(readFileSync(join(evidenceDirectory, `review-${name}.json`), "utf8")),
       );
       const matches = (item: Record<string, unknown>) =>
-        Object.entries(candidate).every(([key, value]) => item[key] === value);
+        Object.entries(candidate).every(
+          ([key, value]) => JSON.stringify(item[key]) === JSON.stringify(value),
+        );
       if (
         checks.length !== manifest.checks.length ||
         checks.some(

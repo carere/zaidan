@@ -152,7 +152,7 @@ export function createGitHubPublication(options: GitHubPublicationOptions = {}):
         head: input.branch,
         base: "main",
         body: input.body,
-        draft: false,
+        draft: input.draft ?? false,
         maintainer_can_modify: false,
       });
       return parse(body, input.repository);

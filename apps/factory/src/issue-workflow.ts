@@ -7,11 +7,13 @@ import {
   type ScanResult,
 } from "./discovery.ts";
 import type { ExternalDeliveryAdapter, ExternalDeliveryResult } from "./external-delivery.ts";
+import { GraphCoordinator, type GraphOptions, type IntegrationInput } from "./graph-integration.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import {
   publishStandaloneRun,
   refreshStandalone,
   type StandalonePublicationOptions,
+  validateCoverage,
 } from "./standalone-publication.ts";
 import { type TriageAdapter, type TriageReceipt, triageApproval } from "./triage.ts";
 import type {
@@ -28,6 +30,7 @@ import type { Operation, WorkflowStore } from "./workflow-store.ts";
 
 export interface IssueWorkflowOptions {
   store: WorkflowStore;
+  graph?: GraphOptions;
   publication?: StandalonePublicationOptions;
   discovery?: DiscoveryAdapter;
   triage?: TriageAdapter;
@@ -46,6 +49,7 @@ export interface IssueWorkflowOptions {
 export class IssueWorkflow {
   private options: IssueWorkflowOptions;
   private owner = randomUUID();
+  private graphs?: GraphCoordinator;
   private scanning?: Promise<ScanResult>;
   private latestScan?: ScanResult;
   private latestBriefs?: ApprovedBrief[];
@@ -53,6 +57,7 @@ export class IssueWorkflow {
   private stopping = new Map<string, Promise<void>>();
   constructor(options: IssueWorkflowOptions) {
     this.options = options;
+    if (options.graph) this.graphs = new GraphCoordinator(this, options.graph);
     this.clock = options.clock ?? { now: Date.now };
     if (options.execution?.permitUrl) this.configureModelPermits(options.execution.permitUrl);
     for (const limit of [
@@ -62,6 +67,68 @@ export class IssueWorkflow {
     ])
       if (!Number.isSafeInteger(limit) || limit < 1)
         throw new Error("Execution limits must be positive integers");
+  }
+  async graphDiscovery() {
+    const discovery = this.discoveryWithBriefs();
+    if (!discovery) throw Error("Discovery is not configured");
+    const snapshot = await discovery.read();
+    const briefs = await discovery.approvedBriefs?.();
+    return { ...discoverWork(snapshot, [], briefs), briefs };
+  }
+  assertLiveAction(runId?: string) {
+    if (runId && ["failed", "cancelled"].includes(this.observe(runId).status))
+      throw Error("Issue execution is stopped");
+  }
+  async admitGraph(id: string) {
+    this.assertLiveAction();
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    return this.graphs.admit(id);
+  }
+  admittedGraphs() {
+    return this.options.graph?.store.list() ?? [];
+  }
+  async recoverGraph(id: string) {
+    this.assertLiveAction();
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    await this.graphs.admit(id);
+    for (const run of this.admissions().filter(
+      (run) => run.issue.graphId === id && run.graphPending && run.status === "completed",
+    ))
+      await this.graphs.advance(run.runId);
+    return this.graphs.observe(id);
+  }
+  observeGraph(id: string) {
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    return this.graphs.observe(id);
+  }
+  beginIntegration(runId: string, input: IntegrationInput) {
+    this.options.store.change(runId, (run) => {
+      if (run.integration) {
+        if (JSON.stringify(run.integration) !== JSON.stringify(input))
+          throw Error("Integration inputs changed");
+        return;
+      }
+      if (run.status !== "completed" || run.execution?.operationId)
+        throw Error("Implementation is not settled");
+      run.integration = input;
+      run.graphPending = true;
+      run.phase++;
+      run.status = "admitted";
+      delete run.candidate;
+    });
+  }
+  finishIntegration(runId: string) {
+    this.options.store.change(runId, (run) => {
+      run.graphPending = false;
+    });
+  }
+  validateCandidate(runId: string) {
+    validateCoverage(this.observe(runId));
+  }
+  async validateIntegration(runId: string) {
+    const run = this.observe(runId);
+    if (!run.integration) throw Error("Missing integration phase");
+    validateCoverage(run, run.integration.reviewBase);
   }
   observe(runId: string) {
     return this.options.store.read(runId);
@@ -275,6 +342,10 @@ export class IssueWorkflow {
     const resources =
       existing?.resources ?? (!existing ? await this.options.captureResources?.(issue) : undefined);
     const run = this.options.store.admit(issue, resources);
+    if (issue.graphId)
+      this.options.store.change(run.runId, (current) => {
+        current.graphPending ??= true;
+      });
     await this.start(run.runId);
     return this.observe(run.runId);
   }
@@ -356,6 +427,22 @@ export class IssueWorkflow {
         !run.issue.parentIds?.length
       )
         await this.authorizeStandalone(run.issue);
+      if (run.issue.graphId) {
+        try {
+          await this.graphs?.authorizeDispatch(run);
+        } catch (error) {
+          this.options.store.change(runId, (current) => {
+            if (!current.execution?.operationId) {
+              current.status = "paused";
+              current.reason =
+                error instanceof Error
+                  ? error.message
+                  : "Graph authorization requires reconciliation";
+            }
+          });
+          return this.observe(runId);
+        }
+      }
       const resuming = run.status === "waiting-human";
       const phase = resuming ? run.phase + 1 : run.phase;
       const id = `${runId}:worker:${phase}`;
@@ -400,6 +487,7 @@ export class IssueWorkflow {
             operationId: id,
             runId,
             issue: run.issue,
+            ...(run.integration ? { integration: run.integration } : {}),
             session: run.session,
             phase,
             ...(this.options.execution?.permitUrl
@@ -434,6 +522,7 @@ export class IssueWorkflow {
       );
     }
     await this.notify(runId);
+    if (this.observe(runId).issue.graphId) await this.graphs?.advance(runId);
     return this.observe(runId);
   }
   private applyWorkerOutcome(

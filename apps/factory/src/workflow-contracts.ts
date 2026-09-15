@@ -1,9 +1,11 @@
 import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import type { ExternalDeliveryEvidence } from "./external-delivery.ts";
+import type { IntegrationInput } from "./graph-integration.ts";
 import type { PublicationState } from "./standalone-publication.ts";
 import type { TriageContext, TriageProposal, TriageReceipt } from "./triage.ts";
 /** Transport snapshots use stable provider identity, never issue number as a key. */
 export interface IssueSnapshot {
+  graphId?: string;
   issueId: string;
   revision: string;
   repository: string;
@@ -52,6 +54,7 @@ export type WorkerOutcome = (
   | { type: "cancelled"; reason: string }
 ) & { finishedAt?: number };
 export interface WorkerRequest {
+  integration?: IntegrationInput;
   operationId: string;
   runId: string;
   issue: IssueSnapshot;
@@ -95,6 +98,8 @@ export interface Checkpoint {
   answerId?: string;
 }
 export interface RunSnapshot {
+  integration?: IntegrationInput;
+  graphPending?: boolean;
   runId: string;
   issue: IssueSnapshot;
   session: SessionReference;

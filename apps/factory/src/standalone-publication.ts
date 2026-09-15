@@ -20,6 +20,7 @@ export interface PublishedPullRequest {
   marker: string;
 }
 export interface PullRequestInput {
+  draft?: boolean;
   repository: string;
   branch: string;
   commit: string;
@@ -87,7 +88,7 @@ export async function refreshStandalone(
     throw new Error("Issue requirements, brief or relationships changed");
   return { current, closed };
 }
-function validateCoverage(run: RunSnapshot) {
+export function validateCoverage(run: RunSnapshot, reviewBase = run.issue.reviewBase) {
   const candidate = run.candidate;
   if (!candidate || !run.resources)
     throw new Error("Missing committed candidate or resource snapshot");
@@ -97,12 +98,26 @@ function validateCoverage(run: RunSnapshot) {
   const binding = {
     commit: candidate.commit,
     tree: candidate.tree,
-    reviewBase: run.issue.reviewBase,
+    reviewBase,
     snapshot: run.resources.id,
     issueRevision: run.issue.revision,
   };
+  const integration = run.integration
+    ? {
+        graphId: run.integration.graphId,
+        graphRevision: run.integration.graphRevision,
+        expectedHead: run.integration.expectedHead,
+        candidateCommit: run.integration.candidate.commit,
+      }
+    : undefined;
   const matches = (value: Record<string, unknown>) =>
-    Object.entries(binding).every(([key, expected]) => value[key] === expected);
+    Object.entries(binding).every(([key, expected]) => value[key] === expected) &&
+    (!integration ||
+      (typeof value.integration === "object" &&
+        value.integration !== null &&
+        Object.entries(integration).every(
+          ([key, expected]) => (value.integration as Record<string, unknown>)[key] === expected,
+        )));
   if (!matches(candidate) || typeof candidate.tree !== "string")
     throw new Error("Candidate evidence names different admitted inputs");
   const checks = candidate.checks as Record<string, unknown>[] | undefined;
