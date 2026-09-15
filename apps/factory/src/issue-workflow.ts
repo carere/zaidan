@@ -608,12 +608,16 @@ export class IssueWorkflow {
     }
     // A concurrent new phase may supersede this owner during remote lookup.
     if (this.observe(runId).eveContinuationId !== continuationId) return;
+    if (this.options.rollout?.status().enabled === false) return;
     await this.perform(
       runId,
       id,
-      async () =>
-        (await this.options.engine.find(runId, continuationId)) ??
-        (await this.options.engine.start({ runId, ...(continuationId ? { continuationId } : {}) })),
+      async () => {
+        const retained = await this.options.engine.find(runId, continuationId);
+        if (retained) return retained;
+        this.options.rollout?.assertAllowed();
+        return this.options.engine.start({ runId, ...(continuationId ? { continuationId } : {}) });
+      },
       save,
     );
   }
@@ -1142,6 +1146,7 @@ export class IssueWorkflow {
     }
   }
   private async notify(runId: string) {
+    if (this.options.rollout?.status().enabled === false) return;
     const run = this.observe(runId);
     if (!run.checkpoint) return;
     const checkpoint = run.checkpoint;
@@ -1149,14 +1154,17 @@ export class IssueWorkflow {
     await this.perform(
       runId,
       id,
-      async () =>
-        (await this.options.notifications.reconcile(id)) ??
-        (await this.options.notifications.send({
+      async () => {
+        const retained = await this.options.notifications.reconcile(id);
+        if (retained) return retained;
+        this.options.rollout?.assertAllowed();
+        return this.options.notifications.send({
           operationId: id,
           runId,
           issue: run.issue,
           checkpoint,
-        })),
+        });
+      },
       () => {},
     );
   }
@@ -1227,6 +1235,7 @@ export class IssueWorkflow {
     return action;
   }
   private async recoverWakeOnce(runId: string, continuationId?: string) {
+    if (this.options.rollout?.status().enabled === false) return;
     const run = this.observe(runId);
     if (run.eveContinuationId !== continuationId || !run.checkpoint?.answer) return;
     const checkpoint = run.checkpoint;
@@ -1235,6 +1244,7 @@ export class IssueWorkflow {
       `${checkpoint.id}:wake`,
       async () => {
         if (this.observe(runId).eveContinuationId !== continuationId) return false;
+        this.options.rollout?.assertAllowed();
         await this.options.engine.wake(checkpoint.id, {
           answerId: checkpoint.answerId,
           answer: checkpoint.answer,

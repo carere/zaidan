@@ -138,3 +138,115 @@ test("a retained admitted run cannot dispatch or publish after the service retur
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test("disabled recovery retains pending engine, checkpoint notification and answer wake effects until rollout returns", async () => {
+  const root = mkdtempSync(join(tmpdir(), "factory-rollout-recovery-"));
+  const store = new SqliteWorkflowStore(join(root, "workflow.sqlite"));
+  let starts = 0,
+    sends = 0,
+    wakes = 0;
+  let failStart = true,
+    failSend = true,
+    failWake = true;
+  const options = {
+    store,
+    engine: {
+      find: async () => undefined,
+      start: async () => {
+        starts++;
+        if (failStart) {
+          failStart = false;
+          throw Error("lost start");
+        }
+        return `eve-${starts}`;
+      },
+      wake: async () => {
+        wakes++;
+        if (failWake) {
+          failWake = false;
+          throw Error("lost wake");
+        }
+      },
+    },
+    worker: {
+      dispatch: async () => ({ type: "checkpoint" as const, question: { prompt: "Continue?" } }),
+      resume: async () => ({ type: "completed" as const, candidate: { commit: "candidate" } }),
+      reconcile: async () => undefined,
+    },
+    notifications: {
+      reconcile: async () => undefined,
+      send: async () => {
+        sends++;
+        if (failSend) {
+          failSend = false;
+          throw Error("lost send");
+        }
+        return "sent";
+      },
+    },
+  };
+  const issue = (id: string) => ({
+    repository: "fixture/local",
+    issueId: id,
+    number: 1,
+    revision: "v1",
+    startingRevision: "base",
+    reviewBase: "base",
+  });
+  try {
+    const original = new IssueWorkflow(options);
+    const pendingStart = await original.admit(issue("pending-start"));
+    store.change(pendingStart.runId, (_run, operations) => {
+      for (const operation of operations) {
+        operation.ownerPid = 2147483647;
+        operation.leaseUntil = 0;
+      }
+    });
+    const waiting = await original.admit(issue("pending-send"));
+    await original.drive(waiting.runId);
+    const answered = await original.admit(issue("pending-wake"));
+    const question = await original.drive(answered.runId);
+    assert.ok(question.checkpoint);
+    await original.answer({
+      runId: answered.runId,
+      issueId: answered.issue.issueId,
+      revision: "v1",
+      checkpointId: question.checkpoint.id,
+      answerId: "human:1",
+      answer: { text: "yes" },
+    });
+    const before = { starts, sends, wakes };
+    let enabled = false;
+    const restored = new IssueWorkflow({
+      ...options,
+      rollout: {
+        status: () => ({ enabled }),
+        assertAllowed: () => {
+          if (!enabled) throw Error("Rollout disabled");
+        },
+      },
+    });
+    await restored.recover();
+    assert.deepEqual(
+      { starts, sends, wakes },
+      before,
+      "retained recovery must not start any new gated effect",
+    );
+    assert.equal(restored.observe(answered.runId).checkpoint?.answerId, "human:1");
+    assert.deepEqual(restored.observe(waiting.runId).session, waiting.session);
+    enabled = true;
+    await restored.recover();
+    assert.deepEqual(
+      { starts, sends, wakes },
+      { starts: before.starts + 1, sends: before.sends + 1, wakes: before.wakes + 1 },
+    );
+    await restored.recover();
+    assert.deepEqual(
+      { starts, sends, wakes },
+      { starts: before.starts + 1, sends: before.sends + 1, wakes: before.wakes + 1 },
+    );
+  } finally {
+    store.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
