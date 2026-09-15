@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import {
   type ApprovedBrief,
   type DiscoveryAdapter,
@@ -26,6 +27,9 @@ export interface IssueWorkflowOptions {
   notifications: NotificationAdapter;
   clock?: Clock;
   leaseMs?: number;
+  captureResources?: (
+    issue: IssueSnapshot,
+  ) => Promise<ResourceSnapshotReference> | ResourceSnapshotReference;
 }
 /** The single policy boundary. Transports supply snapshots/answers; only workers run models/tools. */
 export class IssueWorkflow {
@@ -77,7 +81,12 @@ export class IssueWorkflow {
   async admit(issue: IssueSnapshot) {
     if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
       throw new Error("Admission requires stable identity and explicit revisions");
-    const run = this.options.store.admit(issue);
+    const existing = this.admissions().find(
+      (run) => run.issue.issueId === issue.issueId && run.issue.revision === issue.revision,
+    );
+    const resources =
+      existing?.resources ?? (!existing ? await this.options.captureResources?.(issue) : undefined);
+    const run = this.options.store.admit(issue, resources);
     await this.start(run.runId);
     return this.observe(run.runId);
   }
@@ -130,6 +139,7 @@ export class IssueWorkflow {
             issue: run.issue,
             session: run.session,
             phase,
+            ...(run.resources ? { resources: run.resources } : {}),
             ...(resuming ? { answer: run.checkpoint?.answer, checkpoint: run.checkpoint } : {}),
           };
           return (

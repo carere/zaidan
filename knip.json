@@ -27,7 +27,9 @@
         "src/service-cli.ts",
         "src/eve-service-host.ts",
         "tests/**/*.ts",
-        "agent/**/*.ts"
+        "agent/**/*.ts",
+        "worker/*.mjs",
+        "worker/*.ts"
       ],
       "ignoreDependencies": ["workflow"]
     },

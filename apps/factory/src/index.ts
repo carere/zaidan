@@ -1,3 +1,11 @@
+export {
+  type CaptureOptions,
+  captureResources,
+  maintainerSkillDependencies,
+  type ResourceManifest,
+  type ResourceSnapshotReference,
+  readResourceSnapshot,
+} from "./captured-resources.ts";
 export type {
   ApprovedBrief,
   DiscoveredIssue,
@@ -6,6 +14,7 @@ export type {
   DiscoverySnapshot,
   ScanResult,
 } from "./discovery.ts";
+export { DockerPiWorker, type DockerWorkerOptions } from "./docker-worker.ts";
 export { createEveEngine } from "./eve-engine.ts";
 export { createGitHubDiscovery, type GitHubDiscoveryOptions } from "./github-discovery.ts";
 export type { GraphIntegrationState, GraphPlan, PlannedLeaf } from "./graph-planning.ts";

@@ -180,3 +180,77 @@ integration boundary must reconcile and record the observed issue revision; it
 must never relabel arbitrary edited/reopened source as delivered. Durable delivery
 storage, Git containment verification, and publication recovery belong to the
 integration ticket rather than this read-only planner.
+## Captured skills and Docker workers
+
+`IssueWorkflowOptions.captureResources` captures resources before a new issue revision is
+admitted. Use `captureResources` with explicit selected skill paths, the entry name,
+required validation commands, and the repository path. It copies whole directories,
+materializes selected symlinks, validates the declared maintainer-skill dependency
+closure and fixed Markdown links, and records original source paths plus content hashes.
+Duplicate frontmatter names require one source marked `selected: true`. Additional
+resources can be given explicit logical targets; repository skill trees preserve their
+repository-relative paths. A missing or changing required resource fails admission.
+
+The immutable manifest contains the admitted issue (including captured scope supplied
+by discovery), tracked repository instructions, domain documents, ADRs, and the required
+checks. The durable run stores its manifest reference. Re-admission/resumption of the
+same issue revision never reads current home skills again. New dependencies or changed
+requirements need a new admitted revision. Generic dynamic references cannot be inferred
+reliably: declare their skills/resources in the capture configuration.
+
+Build the worker locally:
+
+```sh
+docker build -t zaidan-factory-worker:0.85.1 -f apps/factory/worker/Dockerfile apps/factory/worker
+```
+
+`DockerPiWorker` implements dispatch/resume/reconcile plus cancellation. Configure
+absolute persistent state, a trusted source repository, and exactly the selected native
+Pi `openai-codex` OAuth file and a shared lock directory. All instances in one
+coordinator process share a reference-counted native source-file lock; all containers
+mount the same selected file and native container-lock directory. This retains the
+concurrent refresh contract established by #512. It never copies independent renewing
+auth files or supplies GitHub/Telegram credentials. The provider/model/reasoning are
+pinned to `openai-codex / gpt-6-astra / high`; unsupported effective settings fail.
+
+The per-issue checkout, branch, original session file, delegate sessions, streamed
+events, and outcome receipts survive container replacement. The runtime invokes Pi's
+native explicit skill command, disables implicit live context/resource discovery,
+and appends captured original repository instructions. `Skill`, `spawn_agent`, and
+`request_user_input` bridge source-skill loading, container-local delegates, and durable
+human waits. Native Pi UI questions also become durable workflow checkpoints; a restart
+uses the stored question/answer and original session, never a stale Pi UI request ID.
+
+`checkpoint_commit` creates real reviewable work before `code-review`. Required checks
+and two independent review axes identify the exact commit, tree, review base, issue
+revision and snapshot. Changed/dirty candidates, failed checks/reviews and missing
+resources cannot produce successful completion. Evidence survives a phase pause but
+must still match the final candidate. The completed candidate exports a Git bundle
+with SHA-256 and a host artifact path. Import that bundle into a coordinator-owned bare
+repository with trusted configuration; never execute host Git in the worker's checkout.
+Candidate verification itself runs in a fresh credential-free, network-disabled Docker
+container. A checkpoint commit or completed worker outcome does not publish or close an
+issue.
+
+The worker's optional `permitUrl` connects #516's model-call capacity transport. It
+acquires before a provider request and releases on assistant `message_end`, before
+delegated tools wait, plus end/error/shutdown cleanup. Worker admission limits, active
+budgets, retries, and authenticated permit transport belong to that coordinator policy.
+Pi's own automatic retry is disabled so it cannot compete with the durable retry policy.
+
+### Worker contract checks
+
+The deterministic workflow suite includes captured resource identity and preflight
+failures. The dedicated Docker test image injects a deterministic provider into **real
+Pi**, with networking disabled and fake credentials. It checks native hidden-skill
+expansion, relative resources, original-session restart, independent delegate sessions,
+committed validation/review evidence, explicit failure and container-wide cancellation.
+It is separate from the normal worker image and never provides an inference fallback.
+
+```sh
+docker build -t zaidan-factory-worker-test:0.85.1 -f apps/factory/tests/Dockerfile apps/factory/tests
+direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test-docker
+```
+
+Authenticated inference/refresh compatibility evidence remains in
+`docs/examples/pi-eve-compatibility/EVIDENCE.md`. Normal tests make no live model calls.

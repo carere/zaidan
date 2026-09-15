@@ -18,6 +18,7 @@
       "apps/website/tests/browser/**/*",
       "apps/factory/tests/**/*",
       "apps/factory/agent/**/*",
+      "apps/factory/worker/**/*",
       "!apps/website/src/routeTree.gen.ts",
       "!apps/website/src/pages/**/*.mdx"
     ]
