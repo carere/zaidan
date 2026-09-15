@@ -294,6 +294,7 @@ export class GraphAcceptance {
         throw new RejectedAcceptance(previous.reason ?? "Whole-spec acceptance failed");
       this.workflow.assertLiveAction(runId);
       this.workflow.beginAcceptance(runId, input);
+      await this.workflow.recover();
       const run = this.workflow.observe(runId);
       if (!run.acceptanceResult) return;
       try {

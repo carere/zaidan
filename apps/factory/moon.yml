@@ -24,7 +24,7 @@ tasks:
     options:
       cache: false
   test-eve:
-    command: node --test tests/eve-host.test.ts
+    command: node --test tests/eve-host.test.ts tests/graph-reconciliation-eve.test.ts
     options:
       cache: false
   test-service:

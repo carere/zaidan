@@ -689,9 +689,10 @@ test("a fresh graph observation admits a new eligible child without replacing un
   let workflow = f.make();
   await workflow.admitGraph("root");
   const original = workflow.admissions()[0];
-  f.issues[0].childIds.push("c");
+  f.issues[0].childIds.push("c", "human-owned");
   f.issues[0].revision = "root-membership-2";
   f.issues.push({ ...issue("c"), number: 4 });
+  f.issues.push({ ...issue("human-owned"), number: 9, labels: ["ready-for-human"] });
   workflow = f.make();
   await workflow.reconcileGraph("root");
   assert.deepEqual(

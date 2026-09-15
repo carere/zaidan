@@ -142,7 +142,7 @@ export class IssueWorkflow {
     });
   }
   replaceIntegration(runId: string, input: IntegrationInput) {
-    this.options.store.change(runId, (run) => {
+    this.options.store.change(runId, (run, ops) => {
       if (run.operatorPaused || run.execution?.operationId) throw Error("Run is not settled");
       if (run.integration?.reevaluation?.id === input.reevaluation?.id) return;
       run.graphPhaseHistory ??= [];
@@ -165,6 +165,7 @@ export class IssueWorkflow {
       run.status = "admitted";
       run.graphPending = true;
       delete run.reason;
+      this.queueEveContinuation(run, ops, `integration:${input.reevaluation?.id}`);
     });
   }
   observeGraph(id: string) {
@@ -188,7 +189,7 @@ export class IssueWorkflow {
     });
   }
   beginAcceptance(runId: string, input: GraphAcceptanceInput) {
-    this.options.store.change(runId, (run) => {
+    this.options.store.change(runId, (run, ops) => {
       if (run.acceptance) {
         if (JSON.stringify(run.acceptance) === JSON.stringify(input)) return;
         if (
@@ -216,6 +217,7 @@ export class IssueWorkflow {
       run.phase++;
       run.status = "admitted";
       delete run.checkpoint;
+      this.queueEveContinuation(run, ops, `acceptance:${input.id}`);
     });
   }
   beginIntegration(runId: string, input: IntegrationInput) {

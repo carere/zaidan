@@ -44,3 +44,26 @@ Telegram call is made.
 ```sh
 direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test-eve
 ```
+
+## Graph reconciliation composition
+
+`graph-reconciliation-eve.test.ts` uses the real compiled Eve host, real workflow
+and graph SQLite stores, real trusted bare Git transport, and controlled workers
+and GitHub responses. It admits a graph through `admitGraph`; Eve automatically
+implements/integrates its leaves. After the original child owner is observed
+terminal and graph operations settle, the host is stopped and the child is
+reopened. An explicit exact `reconcileGraph` decision durably queues an integration
+phase and new owner before the unavailable host rejects start. After restart,
+`recoverGraph` starts that owner and integration/closure finish automatically.
+The test never manually drives the new work, and verifies the original admission,
+resources and session, one original implementation, one replacement integration,
+and retired-owner fencing. The sole GitHub write transport is controlled fixture
+state; no real provider or Telegram credential is used.
+
+Every newly queued acceptance and replacement integration phase records its
+continuation owner in the same run transaction as its immutable inputs. Graph
+coordination then recovers the unique start intent. `graphPending` keeps its
+existing publication/acceptance meaning; owner continuation is separate and does
+not reset attempt budget or worker state. See the service handoff for native Eve
+owner event-limit recovery: this change supplies identities and fencing, without
+silently retrying arbitrary terminal native failures.

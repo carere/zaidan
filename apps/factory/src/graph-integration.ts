@@ -686,6 +686,7 @@ export class GraphCoordinator {
       await this.frontier(id);
       if (!Object.keys(holds).length) await this.acceptance.advance(id);
     });
+    await this.workflow.recover();
     return this.observe(id);
   }
   private assertReconciled(id: string, run?: RunSnapshot) {

@@ -649,3 +649,11 @@ Any affected integration needs fresh assembled validation; whole-graph acceptanc
 uses the new head's actual Git tree. Old acceptance inputs/evidence and readiness
 receipts remain in history. Returning a ready PR to draft has its own recoverable
 receipt and still works when implementation readiness was revoked.
+
+New acceptance and replacement integration phases atomically queue an Eve
+continuation owner. This allows an already-terminal native workflow to continue
+the same factory admission, session, resources and attempt. Retired owners cannot
+drive or wake the replacement phase; prior native owner IDs remain in
+`eveOwnerHistory`. A failed host connection can occur after the decision was
+persisted: recover the pending owner start instead of creating a new issue run.
+The executable's `/factory/drive` and wake routes use owner-aware workflow methods.
