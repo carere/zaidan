@@ -19,3 +19,11 @@ tasks:
       runFromWorkspaceRoot: true
       mergeArgs: replace
       cache: local
+  test:
+    command: node --test tests/issue-workflow.test.ts
+    options:
+      cache: false
+  test-eve:
+    command: node --test tests/eve-host.test.ts
+    options:
+      cache: false

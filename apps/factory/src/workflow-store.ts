@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { IssueSnapshot, RunSnapshot } from "./workflow-contracts.ts";
 
@@ -26,6 +26,8 @@ export class SqliteWorkflowStore implements WorkflowStore {
   private db: DatabaseSync;
   private stateDirectory: string;
   constructor(path: string) {
+    if (!isAbsolute(path))
+      throw new Error("Workflow database requires an absolute persistent path");
     this.stateDirectory = dirname(path);
     mkdirSync(this.stateDirectory, { recursive: true });
     this.db = new DatabaseSync(path);

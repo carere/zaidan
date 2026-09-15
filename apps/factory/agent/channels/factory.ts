@@ -36,18 +36,22 @@ async function ensureStarted(runId: string): Promise<string> {
 export default defineChannel({
   routes: [
     POST("/factory/engine/start", async (request) => {
-      const { runId } = await request.json();
+      const input = await request.json();
+      const runId = isRecord(input) ? input.runId : undefined;
       if (typeof runId !== "string" || !runId) return new Response(null, { status: 400 });
       return Response.json({ runId: await ensureStarted(runId) });
     }),
     POST("/factory/engine/find", async (request) => {
-      const { runId } = await request.json();
+      const input = await request.json();
+      const runId = isRecord(input) ? input.runId : undefined;
       if (typeof runId !== "string" || !runId) return new Response(null, { status: 400 });
       const found = await find(runId);
       return Response.json({ runId: found ?? null });
     }),
     POST("/factory/engine/wake", async (request) => {
-      const { token, payload } = await request.json();
+      const input = await request.json();
+      const token = isRecord(input) ? input.token : undefined;
+      const payload = isRecord(input) ? input.payload : undefined;
       if (typeof token !== "string" || !token) return new Response(null, { status: 400 });
       await resumeHook(token, payload);
       return Response.json({ accepted: true });
@@ -65,3 +69,7 @@ export default defineChannel({
     }),
   ],
 });
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}

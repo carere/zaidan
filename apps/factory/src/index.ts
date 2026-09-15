@@ -1,3 +1,4 @@
+export { createEveEngine } from "./eve-engine.ts";
 export { IssueWorkflow, type IssueWorkflowOptions } from "./issue-workflow.ts";
 export type {
   Answer,
@@ -8,6 +9,7 @@ export type {
   IssueSnapshot,
   NotificationAdapter,
   NotificationRequest,
+  Question,
   RunSnapshot,
   SessionReference,
   WorkerAdapter,

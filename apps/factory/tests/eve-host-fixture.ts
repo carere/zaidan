@@ -104,9 +104,11 @@ export async function buildEveHost() {
     },
     async stop() {
       if (!host) return;
-      const stopped = once(host, "exit");
-      host.kill("SIGKILL");
-      await stopped;
+      if (host.exitCode === null && host.signalCode === null) {
+        const stopped = once(host, "exit");
+        host.kill("SIGKILL");
+        await stopped;
+      }
       host = undefined;
       writeFileSync(join(root, "host.log"), logs);
     },

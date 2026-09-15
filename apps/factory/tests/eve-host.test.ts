@@ -152,8 +152,11 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     const originalEveRun = await engine.find(admitted.runId);
     assert.ok(originalEveRun);
     await eventually(
-      async () => (await fetch(`${host.baseUrl}/factory/engine/state/${originalEveRun}`)).json(),
-      (state) => state.pendingHooks?.includes(waiting.checkpoint?.id),
+      async () =>
+        (await (await fetch(`${host.baseUrl}/factory/engine/state/${originalEveRun}`)).json()) as {
+          pendingHooks?: string[];
+        },
+      (state) => state.pendingHooks?.includes(waiting.checkpoint?.id ?? "missing") ?? false,
     );
     const duplicateStarts = await Promise.all([
       engine.start({ runId: admitted.runId }),
@@ -200,7 +203,7 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
       async () => {
         const response = await fetch(`${host.baseUrl}/factory/engine/state/${originalEveRun}`);
         assert.equal(response.status, 200);
-        return response.json();
+        return (await response.json()) as { status: string; result: { status: string } };
       },
       (state) => state.status === "completed",
     );
