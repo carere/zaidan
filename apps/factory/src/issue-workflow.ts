@@ -61,8 +61,8 @@ export class IssueWorkflow {
   private latestBriefs?: ApprovedBrief[];
   private clock: Clock;
   private stopping = new Map<string, Promise<void>>();
-  private driving = new Map<string, Promise<RunSnapshot>>();
-  private waking = new Map<string, Promise<void>>();
+  private driving = new Map<string, { continuationId?: string; action: Promise<RunSnapshot> }>();
+  private waking = new Map<string, { continuationId?: string; action: Promise<void> }>();
   constructor(options: IssueWorkflowOptions) {
     this.options = options;
     if (options.graph) this.graphs = new GraphCoordinator(this, options.graph);
@@ -486,40 +486,92 @@ export class IssueWorkflow {
     await this.start(run.runId);
     return this.observe(run.runId);
   }
+  /** Call inside the same store transaction that persists a new graph phase. */
+  queueEveContinuation(run: RunSnapshot, ops: Operation[], continuationId: string) {
+    if (!continuationId.trim() || continuationId.length > 200)
+      throw Error("Invalid Eve continuation identity");
+    const id = `${run.runId}:start:${continuationId}`;
+    if (run.eveContinuationId === continuationId) {
+      if (!ops.some((op) => op.id === id)) throw Error("Missing continuation start intent");
+      return;
+    }
+    if (run.execution?.operationId) throw Error("Cannot replace an active worker owner");
+    if (ops.some((op) => op.id === id)) throw Error("Eve continuation identity was already used");
+    run.eveOwnerHistory ??= [];
+    run.eveOwnerHistory.push({
+      ...(run.eveContinuationId ? { continuationId: run.eveContinuationId } : {}),
+      ...(run.eveRunId ? { eveRunId: run.eveRunId } : {}),
+    });
+    run.eveContinuationId = continuationId;
+    delete run.eveRunId;
+    ops.push({ id, runId: run.runId, phase: run.phase, kind: "start", state: "pending" });
+  }
   private async start(runId: string) {
-    if (this.observe(runId).eveRunId) return;
+    const snapshot = this.observe(runId);
+    if (snapshot.eveRunId) return;
+    const continuationId = snapshot.eveContinuationId;
+    const id = continuationId ? `${runId}:start:${continuationId}` : `${runId}:start`;
+    const save = (run: RunSnapshot, receipt: unknown) => {
+      if (run.eveContinuationId === continuationId) run.eveRunId = receipt as string;
+      else {
+        const previous = run.eveOwnerHistory?.find(
+          (owner) => owner.continuationId === continuationId,
+        );
+        if (previous) previous.eveRunId = receipt as string;
+      }
+    };
     // Reconciliation is safe even while a start's owner is alive. Starting again is not.
-    const existing = await this.options.engine.find(runId);
+    const existing = await this.options.engine.find(runId, continuationId);
     if (existing) {
       this.options.store.change(runId, (run, ops) => {
-        run.eveRunId = existing;
-        const op = ops.find((item) => item.id === `${runId}:start`);
+        save(run, existing);
+        const op = ops.find((item) => item.id === id);
         if (!op) throw new Error("Missing start intent");
         op.state = "done";
         op.receipt = existing;
       });
       return;
     }
+    // A concurrent new phase may supersede this owner during remote lookup.
+    if (this.observe(runId).eveContinuationId !== continuationId) return;
     await this.perform(
       runId,
-      `${runId}:start`,
+      id,
       async () =>
-        (await this.options.engine.find(runId)) ?? (await this.options.engine.start({ runId })),
-      (run, receipt) => {
-        run.eveRunId = receipt as string;
-      },
+        (await this.options.engine.find(runId, continuationId)) ??
+        (await this.options.engine.start({ runId, ...(continuationId ? { continuationId } : {}) })),
+      save,
     );
   }
   drive(runId: string): Promise<RunSnapshot> {
+    return this.driveOwned(runId, this.observe(runId).eveContinuationId);
+  }
+  private retiredOwner(runId: string): RunSnapshot {
+    return { ...this.observe(runId), status: "completed", graphPending: false };
+  }
+  driveOwned(runId: string, continuationId?: string): Promise<RunSnapshot> {
+    if (this.observe(runId).eveContinuationId !== continuationId)
+      return Promise.resolve(this.retiredOwner(runId));
     const pending = this.driving.get(runId);
-    if (pending) return pending;
-    const action = this.driveOnce(runId).finally(() => this.driving.delete(runId));
-    this.driving.set(runId, action);
+    if (pending) {
+      if (pending.continuationId === continuationId) return pending.action;
+      return pending.action.then(() => this.driveOwned(runId, continuationId));
+    }
+    const action = this.driveOnce(runId, continuationId)
+      .then((result) =>
+        this.observe(runId).eveContinuationId === continuationId
+          ? result
+          : this.retiredOwner(runId),
+      )
+      .finally(() => this.driving.delete(runId));
+    this.driving.set(runId, { continuationId, action });
     return action;
   }
-  private async driveOnce(runId: string): Promise<RunSnapshot> {
+  private async driveOnce(runId: string, continuationId?: string): Promise<RunSnapshot> {
+    if (this.observe(runId).eveContinuationId !== continuationId) return this.retiredOwner(runId);
     await this.reconcileWorkers();
     await this.enforceBudgets();
+    if (this.observe(runId).eveContinuationId !== continuationId) return this.retiredOwner(runId);
     const run = this.observe(runId);
     if (this.factoryPaused() || run.operatorPaused)
       return run.status === "waiting-human" && run.checkpoint?.answer
@@ -601,7 +653,13 @@ export class IssueWorkflow {
       const phase = resuming ? run.phase + 1 : run.phase;
       const id = `${runId}:worker:${phase}`;
       const acquired = this.options.store.change(runId, (current) => {
-        if (this.factoryPaused() || current.operatorPaused) return false;
+        if (
+          this.factoryPaused() ||
+          current.operatorPaused ||
+          current.eveContinuationId !== continuationId ||
+          current.phase !== run.phase
+        )
+          return false;
         current.execution ??= {
           consumedMs: 0,
           attempt: 0,
@@ -1074,20 +1132,30 @@ export class IssueWorkflow {
     return result;
   }
   recoverWake(runId: string): Promise<void> {
+    return this.recoverWakeOwned(runId, this.observe(runId).eveContinuationId);
+  }
+  recoverWakeOwned(runId: string, continuationId?: string): Promise<void> {
+    if (this.observe(runId).eveContinuationId !== continuationId) return Promise.resolve();
     const pending = this.waking.get(runId);
-    if (pending) return pending;
-    const action = this.recoverWakeOnce(runId).finally(() => this.waking.delete(runId));
-    this.waking.set(runId, action);
+    if (pending) {
+      if (pending.continuationId === continuationId) return pending.action;
+      return pending.action.then(() => this.recoverWakeOwned(runId, continuationId));
+    }
+    const action = this.recoverWakeOnce(runId, continuationId).finally(() =>
+      this.waking.delete(runId),
+    );
+    this.waking.set(runId, { continuationId, action });
     return action;
   }
-  private async recoverWakeOnce(runId: string) {
+  private async recoverWakeOnce(runId: string, continuationId?: string) {
     const run = this.observe(runId);
-    if (!run.checkpoint?.answer) return;
+    if (run.eveContinuationId !== continuationId || !run.checkpoint?.answer) return;
     const checkpoint = run.checkpoint;
     await this.perform(
       runId,
       `${checkpoint.id}:wake`,
       async () => {
+        if (this.observe(runId).eveContinuationId !== continuationId) return false;
         await this.options.engine.wake(checkpoint.id, {
           answerId: checkpoint.answerId,
           answer: checkpoint.answer,

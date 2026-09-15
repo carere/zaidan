@@ -7,29 +7,35 @@ import { issueWorkflow } from "../lib/issue-workflow";
 // start promise; after a host restart the persisted attribute is authoritative.
 const starting = new Map<string, Promise<string>>();
 
-async function find(runId: string) {
+async function find(runId: string, continuationId?: string) {
   const world = await getWorld();
-  return findFactoryRun(runId, (cursor) =>
-    world.runs.list({ resolveData: "none", pagination: { cursor, limit: 100 } }),
+  return findFactoryRun(
+    runId,
+    (cursor) => world.runs.list({ resolveData: "none", pagination: { cursor, limit: 100 } }),
+    continuationId,
   );
 }
 
-async function ensureStarted(runId: string): Promise<string> {
-  const pending = starting.get(runId);
+async function ensureStarted(runId: string, continuationId?: string): Promise<string> {
+  const owner = JSON.stringify([runId, continuationId ?? null]);
+  const pending = starting.get(owner);
   if (pending) return pending;
   const operation = (async () => {
-    const existing = await find(runId);
+    const existing = await find(runId, continuationId);
     if (existing) return existing;
-    const run = await start(issueWorkflow, [{ runId }], {
-      attributes: { factoryRunId: runId },
+    const run = await start(issueWorkflow, [{ runId, continuationId }], {
+      attributes: {
+        factoryRunId: runId,
+        ...(continuationId ? { factoryContinuationId: continuationId } : {}),
+      },
     });
     return run.runId;
   })();
-  starting.set(runId, operation);
+  starting.set(owner, operation);
   try {
     return await operation;
   } finally {
-    starting.delete(runId);
+    starting.delete(owner);
   }
 }
 
@@ -38,14 +44,32 @@ export default defineChannel({
     POST("/factory/engine/start", async (request) => {
       const input = await request.json();
       const runId = isRecord(input) ? input.runId : undefined;
-      if (typeof runId !== "string" || !runId) return new Response(null, { status: 400 });
-      return Response.json({ runId: await ensureStarted(runId) });
+      const continuationId = isRecord(input) ? input.continuationId : undefined;
+      if (
+        typeof runId !== "string" ||
+        !runId ||
+        (continuationId !== undefined &&
+          (typeof continuationId !== "string" ||
+            !continuationId.trim() ||
+            continuationId.length > 200))
+      )
+        return new Response(null, { status: 400 });
+      return Response.json({ runId: await ensureStarted(runId, continuationId) });
     }),
     POST("/factory/engine/find", async (request) => {
       const input = await request.json();
       const runId = isRecord(input) ? input.runId : undefined;
-      if (typeof runId !== "string" || !runId) return new Response(null, { status: 400 });
-      const found = await find(runId);
+      const continuationId = isRecord(input) ? input.continuationId : undefined;
+      if (
+        typeof runId !== "string" ||
+        !runId ||
+        (continuationId !== undefined &&
+          (typeof continuationId !== "string" ||
+            !continuationId.trim() ||
+            continuationId.length > 200))
+      )
+        return new Response(null, { status: 400 });
+      const found = await find(runId, continuationId);
       return Response.json({ runId: found ?? null });
     }),
     POST("/factory/engine/wake", async (request) => {
