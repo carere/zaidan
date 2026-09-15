@@ -17,6 +17,7 @@
       "apps/*/src/**/*",
       "apps/website/tests/browser/**/*",
       "apps/factory/tests/**/*",
+      "apps/factory/fixtures/**/*",
       "apps/factory/agent/**/*",
       "apps/factory/worker/**/*",
       "!apps/website/src/routeTree.gen.ts",
