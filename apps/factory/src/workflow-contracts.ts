@@ -89,6 +89,8 @@ export interface WorkflowEngine {
   start(input: { runId: string; continuationId?: string }): Promise<string>;
   find(runId: string, continuationId?: string): Promise<string | undefined>;
   wake(token: string, payload: unknown): Promise<void>;
+  /** Native owner health; only typed history exhaustion permits automatic continuation. */
+  inspect?(eveRunId: string): Promise<{ status: string; errorCode?: string }>;
 }
 export interface Clock {
   now(): number;
@@ -146,7 +148,11 @@ export interface RunSnapshot {
   pausedFrom?: "admitted" | "waiting-human" | "waiting-subscription" | "waiting-authentication";
   eveRunId?: string;
   eveContinuationId?: string;
-  eveOwnerHistory?: { continuationId?: string; eveRunId?: string }[];
+  eveOwnerHistory?: {
+    continuationId?: string;
+    eveRunId?: string;
+    recovery?: { reason: "MAX_EVENTS_EXCEEDED"; observedAt: number };
+  }[];
   checkpoint?: Checkpoint;
   candidate?: Candidate;
   publication?: PublicationState;

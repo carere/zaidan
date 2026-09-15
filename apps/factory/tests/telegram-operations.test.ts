@@ -9,10 +9,12 @@ import { IssueWorkflow, LocalService, SqliteWorkflowStore, TelegramControl } fro
 import { TelegramOperations, type TelegramOperationsOptions } from "../src/telegram-operations.ts";
 import { TRIAGE_DISCLAIMER, type TriageAdapter, type TriageRequest } from "../src/triage.ts";
 import type { WorkerOutcome } from "../src/workflow-contracts.ts";
+import { integrationFixture } from "./graph-fixture.ts";
 
 async function fixture(
   t: { after(fn: () => void | Promise<void>): void },
   extra: {
+    workflow?: IssueWorkflow;
     triage?: TriageAdapter;
     triageRecovery?: TelegramOperationsOptions["triageRecovery"];
     graphs?: TelegramOperationsOptions["graphs"];
@@ -82,6 +84,7 @@ async function fixture(
     },
   };
   const openWorkflow = () =>
+    extra.workflow ??
     new IssueWorkflow({
       store,
       engine,
@@ -204,6 +207,46 @@ test("authorized operator commands retain targets, sessions and one retry across
     f.messages.some((message) => message.includes(run.runId) && message.includes("failed")),
   );
   assert.ok(!f.messages.join("\n").includes("secret-token-must-not-leak"));
+});
+
+test("Telegram graph reconciliation requires the current revision and named held runs through the same workflow", async (t) => {
+  const graphFixture = integrationFixture(t);
+  const workflow = graphFixture.make();
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  graphFixture.issues[1].state = "open";
+  graphFixture.issues[1].stateReason = null;
+  graphFixture.issues[1].revision = "reopened";
+  await workflow.reconcileGraph("root");
+  const operators = await fixture(t, {
+    workflow,
+    graphs: () =>
+      workflow.admittedGraphs().map((graph) => ({
+        graphId: graph.graphId,
+        repository: graph.repository,
+        issueNumber: graph.number,
+        head: graph.head,
+        state: graph.state,
+        integrated: graph.integrations.length,
+        total: 2,
+        reconciliation: graph.reconciliation,
+      })),
+  });
+  await operators.command(1, "/status factory");
+  const revision = workflow.observeGraph("root").reconciliation?.revision;
+  assert.ok(revision);
+  assert.ok(operators.messages.at(-1)?.includes(revision));
+  await operators.command(2, `/reconcile graph root stale ${first.runId}`);
+  assert.ok(workflow.observeGraph("root").reconciliation?.holds[first.runId]);
+  await operators.command(3, `/reconcile graph root ${revision} ${first.runId}`, 999);
+  assert.ok(workflow.observeGraph("root").reconciliation?.holds[first.runId]);
+  await operators.command(4, `/reconcile graph root ${revision} ${first.runId}`);
+  assert.equal(workflow.observeGraph("root").reconciliation?.holds[first.runId], undefined);
+  assert.deepEqual(workflow.observe(first.runId).session, first.session);
+  assert.equal(workflow.observe(first.runId).issue.revision, first.issue.revision);
 });
 
 test("factory pause survives restart, gates new work and preserves only its own paused sessions", async (t) => {

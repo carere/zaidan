@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import {
   type ApprovedBrief,
@@ -35,6 +36,10 @@ import type {
 import type { Operation, WorkflowStore } from "./workflow-store.ts";
 
 export interface IssueWorkflowOptions {
+  /** Optional fixture-only interruption seam; receives no question or answer contents. */
+  checkpointEffect?: (point: "answer-persistence.before" | "answer-persistence.after") => void;
+  /** Production always supplies the independent rollout gate, including in read-only mode. */
+  rollout?: { status(): { enabled: boolean }; assertAllowed(): void };
   store: WorkflowStore;
   graph?: GraphOptions;
   publication?: StandalonePublicationOptions;
@@ -88,6 +93,25 @@ export class IssueWorkflow {
     this.assertLiveAction();
     if (!this.graphs) throw Error("Graph adapters are not configured");
     return this.graphs.admit(id);
+  }
+  async previewGraphAdmission(id: string) {
+    if (!this.options.graph) throw new Error("Graph adapters are not configured");
+    const scan = await this.graphDiscovery();
+    const plan = planIssueGraph(scan, id);
+    const head = await this.options.graph.git.branchHead("main");
+    if (!head) throw new Error("Repository main is unavailable");
+    return this.verifyGraph(
+      id,
+      {
+        graphId: id,
+        graphRevision: plan.graphRevision,
+        head,
+        reviewBase: head,
+        integrations: [],
+        containedCommits: [],
+      },
+      scan,
+    );
   }
   admittedGraphs() {
     return this.options.graph?.store.list() ?? [];
@@ -254,6 +278,7 @@ export class IssueWorkflow {
   }
   /** Read-only discovery is allowed while operator gates prevent consequential actions. */
   assertLiveAction(runId?: string) {
+    this.options.rollout?.assertAllowed();
     if (this.factoryPaused()) throw new Error("Factory is paused");
     if (runId) {
       const run = this.observe(runId);
@@ -305,7 +330,12 @@ export class IssueWorkflow {
         (this.options.execution?.budgetMs ?? 7200000)
       )
         return "denied" as const;
-      if (this.factoryPaused() || run.operatorPaused) return "denied" as const;
+      if (
+        this.options.rollout?.status().enabled === false ||
+        this.factoryPaused() ||
+        run.operatorPaused
+      )
+        return "denied" as const;
       if (execution.models.includes(owner)) return "granted" as const;
       if (
         this.admissions().reduce(
@@ -352,12 +382,20 @@ export class IssueWorkflow {
     );
   }
   /** Fresh external evidence bound to this snapshot, receiving base and eventual starting head. */
-  async verifyGraph(rootIssueId: string, integration: GraphIntegrationState) {
-    const captured = this.latestScan;
+  async verifyGraph(
+    rootIssueId: string,
+    integration: GraphIntegrationState,
+    observed?: Awaited<ReturnType<IssueWorkflow["graphDiscovery"]>>,
+  ) {
+    // Own both source and approval data across awaits; another scan may replace its cache.
+    const captured = structuredClone(observed ?? (await this.graphDiscovery()));
     const state = structuredClone(integration);
-    const initial = this.planGraph(rootIssueId, state);
+    const initial = planIssueGraph(
+      discoverWork(captured.snapshot, this.admissions(), captured.briefs),
+      rootIssueId,
+      state,
+    );
     if (
-      !captured ||
       !this.options.externalDelivery ||
       initial.graphRevision !== state.graphRevision ||
       state.graphId !== rootIssueId
@@ -378,10 +416,34 @@ export class IssueWorkflow {
           }),
         );
     }
-    if (this.latestScan !== captured)
-      throw new Error("Discovery changed during delivery verification; plan again");
+    if (ids.size) {
+      const current = await this.graphDiscovery();
+      const freshPlan = planIssueGraph(current, rootIssueId);
+      const relevantIds = new Set([
+        rootIssueId,
+        ...initial.specificationIds,
+        ...initial.leaves.map((leaf) => leaf.issue.issueId),
+        ...ids,
+      ]);
+      const source = (scan: typeof captured) => ({
+        repository: scan.snapshot.repository,
+        issues: scan.snapshot.issues
+          .filter((issue) => relevantIds.has(issue.issueId))
+          .sort((a, b) => a.issueId.localeCompare(b.issueId)),
+        briefs: (scan.briefs ?? [])
+          .filter((brief) => relevantIds.has(brief.issueId))
+          .sort((a, b) => a.issueId.localeCompare(b.issueId) || a.ref.localeCompare(b.ref)),
+      });
+      // A new scan identity alone is not source drift. Reject changed graph inputs,
+      // including labels/closure and external sources, without blocking unrelated graphs.
+      if (
+        freshPlan.graphRevision !== initial.graphRevision ||
+        !isDeepStrictEqual(source(captured), source(current))
+      )
+        throw new Error("Discovery changed during delivery verification; plan again");
+    }
     return planIssueGraph(
-      discoverWork(structuredClone(captured.snapshot), this.admissions(), this.latestBriefs),
+      discoverWork(captured.snapshot, this.admissions(), captured.briefs),
       rootIssueId,
       state,
       results,
@@ -411,6 +473,7 @@ export class IssueWorkflow {
       (run) =>
         run.issue.issueId === issueId &&
         run.issue.revision !== decision.issue.revision &&
+        !(run.issue.route === "triage" && run.triage?.receipt && run.status === "completed") &&
         run.status !== "cancelled" &&
         run.status !== "failed",
     );
@@ -490,6 +553,14 @@ export class IssueWorkflow {
   }
   /** Call inside the same store transaction that persists a new graph phase. */
   queueEveContinuation(run: RunSnapshot, ops: Operation[], continuationId: string) {
+    this.replaceEveOwner(run, ops, continuationId);
+  }
+  private replaceEveOwner(
+    run: RunSnapshot,
+    ops: Operation[],
+    continuationId: string,
+    terminalOwner = false,
+  ) {
     if (!continuationId.trim() || continuationId.length > 200)
       throw Error("Invalid Eve continuation identity");
     const id = `${run.runId}:start:${continuationId}`;
@@ -497,7 +568,8 @@ export class IssueWorkflow {
       if (!ops.some((op) => op.id === id)) throw Error("Missing continuation start intent");
       return;
     }
-    if (run.execution?.operationId) throw Error("Cannot replace an active worker owner");
+    if (!terminalOwner && run.execution?.operationId)
+      throw Error("Cannot replace an active worker owner");
     if (ops.some((op) => op.id === id)) throw Error("Eve continuation identity was already used");
     run.eveOwnerHistory ??= [];
     run.eveOwnerHistory.push({
@@ -536,12 +608,16 @@ export class IssueWorkflow {
     }
     // A concurrent new phase may supersede this owner during remote lookup.
     if (this.observe(runId).eveContinuationId !== continuationId) return;
+    if (this.options.rollout?.status().enabled === false) return;
     await this.perform(
       runId,
       id,
-      async () =>
-        (await this.options.engine.find(runId, continuationId)) ??
-        (await this.options.engine.start({ runId, ...(continuationId ? { continuationId } : {}) })),
+      async () => {
+        const retained = await this.options.engine.find(runId, continuationId);
+        if (retained) return retained;
+        this.options.rollout?.assertAllowed();
+        return this.options.engine.start({ runId, ...(continuationId ? { continuationId } : {}) });
+      },
       save,
     );
   }
@@ -575,6 +651,7 @@ export class IssueWorkflow {
     await this.enforceBudgets();
     if (this.observe(runId).eveContinuationId !== continuationId) return this.retiredOwner(runId);
     const run = this.observe(runId);
+    if (this.options.rollout?.status().enabled === false) return { ...run, status: "running" };
     if (this.factoryPaused() || run.operatorPaused)
       return run.status === "waiting-human" && run.checkpoint?.answer
         ? { ...run, status: "running" }
@@ -1069,6 +1146,7 @@ export class IssueWorkflow {
     }
   }
   private async notify(runId: string) {
+    if (this.options.rollout?.status().enabled === false) return;
     const run = this.observe(runId);
     if (!run.checkpoint) return;
     const checkpoint = run.checkpoint;
@@ -1076,14 +1154,17 @@ export class IssueWorkflow {
     await this.perform(
       runId,
       id,
-      async () =>
-        (await this.options.notifications.reconcile(id)) ??
-        (await this.options.notifications.send({
+      async () => {
+        const retained = await this.options.notifications.reconcile(id);
+        if (retained) return retained;
+        this.options.rollout?.assertAllowed();
+        return this.options.notifications.send({
           operationId: id,
           runId,
           issue: run.issue,
           checkpoint,
-        })),
+        });
+      },
       () => {},
     );
   }
@@ -1119,6 +1200,7 @@ export class IssueWorkflow {
         (input.answer.optionId !== undefined && input.answer.text !== undefined)
       )
         return "invalid" as const;
+      this.options.checkpointEffect?.("answer-persistence.before");
       run.checkpoint.answer = input.answer;
       run.checkpoint.answerId = input.answerId;
       ops.push({
@@ -1130,7 +1212,10 @@ export class IssueWorkflow {
       });
       return "accepted" as const;
     });
-    if (result === "accepted") await this.recoverWake(input.runId);
+    if (result === "accepted") {
+      this.options.checkpointEffect?.("answer-persistence.after");
+      await this.recoverWake(input.runId);
+    }
     return result;
   }
   recoverWake(runId: string): Promise<void> {
@@ -1150,6 +1235,7 @@ export class IssueWorkflow {
     return action;
   }
   private async recoverWakeOnce(runId: string, continuationId?: string) {
+    if (this.options.rollout?.status().enabled === false) return;
     const run = this.observe(runId);
     if (run.eveContinuationId !== continuationId || !run.checkpoint?.answer) return;
     const checkpoint = run.checkpoint;
@@ -1158,6 +1244,7 @@ export class IssueWorkflow {
       `${checkpoint.id}:wake`,
       async () => {
         if (this.observe(runId).eveContinuationId !== continuationId) return false;
+        this.options.rollout?.assertAllowed();
         await this.options.engine.wake(checkpoint.id, {
           answerId: checkpoint.answerId,
           answer: checkpoint.answer,
@@ -1167,7 +1254,39 @@ export class IssueWorkflow {
       () => {},
     );
   }
+  /** Poll from the owned service lifecycle, independently of six-hour discovery scans.
+   * A terminal native history cap retires coordination only, never the worker attempt.
+   */
+  async recoverEngineOwners() {
+    const inspect = this.options.engine.inspect;
+    if (!inspect) return;
+    for (let snapshot of this.admissions()) {
+      if (!snapshot.eveRunId && snapshot.eveContinuationId?.startsWith("event-cap:")) {
+        await this.start(snapshot.runId);
+        snapshot = this.observe(snapshot.runId);
+      }
+      if (!snapshot.eveRunId || (snapshot.status === "completed" && !snapshot.graphPending))
+        continue;
+      const native = await inspect(snapshot.eveRunId);
+      if (native.status !== "failed" || native.errorCode !== "MAX_EVENTS_EXCEEDED") continue;
+      this.options.store.change(snapshot.runId, (current, ops) => {
+        if (
+          current.eveRunId !== snapshot.eveRunId ||
+          current.eveContinuationId !== snapshot.eveContinuationId
+        )
+          return;
+        // The observed native owner is terminal. An active Docker operation is retained;
+        // its durable receipt/claim is reconciled by the successor, never redispatched.
+        this.replaceEveOwner(current, ops, `event-cap:${snapshot.eveRunId}`, true);
+        const retired = current.eveOwnerHistory?.at(-1);
+        if (retired)
+          retired.recovery = { reason: "MAX_EVENTS_EXCEEDED", observedAt: this.clock.now() };
+      });
+      await this.start(snapshot.runId);
+    }
+  }
   async recover() {
+    await this.recoverEngineOwners();
     await this.reconcileWorkers();
     await this.enforceBudgets();
     for (const run of this.admissions()) {

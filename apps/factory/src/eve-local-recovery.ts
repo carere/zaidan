@@ -13,7 +13,7 @@ import { dirname, isAbsolute, join } from "node:path";
 
 const pinnedWorld = "@workflow/world-local@5.0.0-beta.43";
 const id = "[0-9A-HJKMNP-TV-Z]{26}";
-const created = new RegExp(`^(wrun_${id})-(step_${id})\\.created$`);
+const created = new RegExp(`^(wrun_${id})-((step|wait)_${id})\\.created$`);
 const read = (path: string) => JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
 const plain = (path: string) => {
   if (lstatSync(path).isSymbolicLink()) throw Error("Eve recovery refuses redirected state");
@@ -54,27 +54,37 @@ export function prepareEveWorld(world: string) {
   const release = () => {
     if (existsSync(claim) && read(claim).owner === owner) unlinkSync(claim);
   };
-  const repaired: { marker: string; quarantine: string }[] = [];
+  const repaired: {
+    marker: string;
+    quarantine: string;
+    record?: { source: string; quarantine: string };
+  }[] = [];
   try {
     if (!existsSync(world)) return { release, repaired };
     plain(world);
-    const locks = join(world, ".locks", "steps");
-    if (!existsSync(locks)) return { release, repaired };
-    plain(join(world, ".locks"));
-    plain(locks);
-    const candidates = readdirSync(locks).filter((name) => created.test(name));
+    const candidates: { collection: "steps" | "waits"; marker: string; locks: string }[] = [];
+    for (const collection of ["steps", "waits"] as const) {
+      const locks = join(world, ".locks", collection);
+      if (!existsSync(locks)) continue;
+      plain(join(world, ".locks"));
+      plain(locks);
+      for (const marker of readdirSync(locks)) {
+        const match = created.exec(marker);
+        if (match && `${match[3]}s` === collection) candidates.push({ collection, marker, locks });
+      }
+    }
     if (!candidates.length) return { release, repaired };
     if (readFileSync(join(world, "version.txt"), "utf8").trim() !== pinnedWorld)
       throw Error("Unknown Eve world version; refuse automatic journal repair");
-    const planned: string[] = [];
-    for (const marker of candidates) {
+    const planned: { marker: string; record?: string }[] = [];
+    for (const { collection, marker, locks } of candidates) {
       const match = created.exec(marker);
       if (!match) continue;
-      const [, runId, stepId] = match;
+      const [, runId, recordId] = match;
       const path = join(locks, marker);
       plain(path);
       if (!lstatSync(path).isFile() || lstatSync(path).size !== 0)
-        throw Error("Malformed Eve step creation marker");
+        throw Error("Malformed Eve creation marker");
       const runPath = join(world, "runs", `${runId}.json`);
       plain(join(world, "runs"));
       plain(runPath);
@@ -86,11 +96,36 @@ export function prepareEveWorld(world: string) {
       )
         throw Error("Malformed Eve run identity");
       if (!["pending", "running"].includes(run.status)) continue;
-      const stepPath = join(world, "steps", `${runId}-${stepId}.json`);
-      if (existsSync(stepPath)) {
-        plain(stepPath);
-        continue;
+      const recordPath = join(world, collection, `${runId}-${recordId}.json`);
+      let pendingRecord: string | undefined;
+      if (existsSync(recordPath)) {
+        plain(recordPath);
+        // Native inline execution may already have called the coordinator before
+        // journal persistence. Only its durable, idempotent factory operations make
+        // replay safe; this is deliberately not a repair for arbitrary Eve steps.
+        const record = read(recordPath);
+        if (
+          collection !== "steps" ||
+          record.runId !== runId ||
+          record.stepId !== recordId ||
+          record.status !== "pending" ||
+          record.attempt !== 0 ||
+          ![
+            "step//./agent/lib/issue-workflow//drive",
+            "step//./agent/lib/issue-workflow//recoverWake",
+          ].includes(String(record.stepName)) ||
+          typeof record.createdAt !== "string" ||
+          !Number.isFinite(Date.parse(record.createdAt)) ||
+          record.updatedAt !== record.createdAt ||
+          record.startedAt !== undefined ||
+          record.output !== undefined ||
+          record.error !== undefined ||
+          record.completedAt !== undefined
+        )
+          continue;
+        pendingRecord = recordPath;
       }
+      if (existsSync(join(locks, `${runId}-${recordId}.terminal`))) continue;
       const events = join(world, "events");
       if (!existsSync(events)) throw Error("Missing Eve journal requires reconciliation");
       plain(events);
@@ -103,9 +138,9 @@ export function prepareEveWorld(world: string) {
         const event = read(eventPath);
         if (event.runId !== runId || typeof event.eventType !== "string")
           throw Error("Malformed Eve journal identity");
-        if (event.correlationId === stepId) journaled = true;
+        if (event.correlationId === recordId) journaled = true;
       }
-      if (!journaled) planned.push(path);
+      if (!journaled) planned.push({ marker: path, record: pendingRecord });
     }
     // Validate the whole repair set before changing any marker. Keep evidence outside
     // native world directories; all recorded entities and other tombstones survive.
@@ -114,10 +149,22 @@ export function prepareEveWorld(world: string) {
       mkdirSync(quarantine, { recursive: true, mode: 0o700 });
       plain(quarantine);
     }
-    for (const path of planned) {
+    for (const { marker: path, record } of planned) {
       const retained = join(quarantine, `${owner}-${path.slice(path.lastIndexOf("/") + 1)}`);
+      const retainedRecord = record
+        ? join(quarantine, `${owner}-${record.slice(record.lastIndexOf("/") + 1)}`)
+        : undefined;
+      // Record first: a crash here leaves the already-supported absent-record seam.
+      // Both original files remain in the diagnostic quarantine across that crash.
+      if (record && retainedRecord) renameSync(record, retainedRecord);
       renameSync(path, retained);
-      repaired.push({ marker: path, quarantine: retained });
+      repaired.push({
+        marker: path,
+        quarantine: retained,
+        ...(record && retainedRecord
+          ? { record: { source: record, quarantine: retainedRecord } }
+          : {}),
+      });
     }
     if (repaired.length)
       writeFileSync(

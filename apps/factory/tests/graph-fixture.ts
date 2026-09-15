@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { captureResources } from "../src/captured-resources.ts";
 import type { DiscoveredIssue } from "../src/discovery.ts";
 import { createExternalDelivery, type DeliveryPullRequest } from "../src/external-delivery.ts";
+import type { FixtureFaults } from "../src/fixture-faults.ts";
 import { SqliteGraphStore } from "../src/graph-integration.ts";
 import { IssueWorkflow } from "../src/issue-workflow.ts";
 import { createPublicationGit } from "../src/publication-git.ts";
@@ -85,6 +86,10 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
     loseCreate = false,
     loseClose = false;
   let beforePublish: () => void = () => {};
+  let effects = <T>(
+    _name: Parameters<FixtureFaults["effect"]>[0],
+    action: () => Promise<T>,
+  ): Promise<T> => action();
   let failCapture = false;
   let noChange = false;
   let beforeWorker: (request: WorkerRequest) => Promise<void> = async () => {};
@@ -279,13 +284,15 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
             return transport.exportBundle(commit);
           },
           async publishBranch(branch, commit, expected) {
-            beforePublish();
-            await transport.publishBranch(branch, commit, expected);
-            events.push(`publish:${commit}`);
-            if (losePush && expected) {
-              losePush = false;
-              throw Error("lost push reply");
-            }
+            return effects("branch-publication", async () => {
+              beforePublish();
+              await transport.publishBranch(branch, commit, expected);
+              events.push(`publish:${commit}`);
+              if (losePush && expected) {
+                losePush = false;
+                throw Error("lost push reply");
+              }
+            });
           },
         },
         github: {
@@ -319,38 +326,43 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
             return pr;
           },
           async setDraft(_repo, id, draft) {
-            const pr = pulls.find((p) => p.id === id);
-            assert.ok(pr);
-            if (draft && failWithdraw === "before") {
-              failWithdraw = undefined;
-              throw Error("interrupted before draft");
-            }
-            pr.draft = draft;
-            events.push(draft ? "withdraw" : "ready");
-            if (draft && failWithdraw === "after") {
-              failWithdraw = undefined;
-              throw Error("lost draft reply");
-            }
-            if (loseReady && !draft) {
-              loseReady = false;
-              throw Error("lost ready reply");
-            }
+            const action = async () => {
+              const pr = pulls.find((p) => p.id === id);
+              assert.ok(pr);
+              if (draft && failWithdraw === "before") {
+                failWithdraw = undefined;
+                throw Error("interrupted before draft");
+              }
+              pr.draft = draft;
+              events.push(draft ? "withdraw" : "ready");
+              if (draft && failWithdraw === "after") {
+                failWithdraw = undefined;
+                throw Error("lost draft reply");
+              }
+              if (loseReady && !draft) {
+                loseReady = false;
+                throw Error("lost ready reply");
+              }
+            };
+            return draft ? action() : effects("pr-readiness", action);
           },
           async updatePullRequest(_repo, _number, input) {
             description = input;
           },
           async closeIssue(_repo, number) {
-            const child = issues.find((i) => i.number === number);
-            assert.ok(child);
-            child.state = "closed";
-            child.stateReason = "completed";
-            child.revision += "-closed";
-            child.updatedAt = "2026-09-15T01:00:00Z";
-            events.push(`close:${child.issueId}`);
-            if (loseClose) {
-              loseClose = false;
-              throw Error("lost close reply");
-            }
+            return effects("issue-closure", async () => {
+              const child = issues.find((i) => i.number === number);
+              assert.ok(child);
+              child.state = "closed";
+              child.stateReason = "completed";
+              child.revision += "-closed";
+              child.updatedAt = "2026-09-15T01:00:00Z";
+              events.push(`close:${child.issueId}`);
+              if (loseClose) {
+                loseClose = false;
+                throw Error("lost close reply");
+              }
+            });
           },
         },
       },
@@ -363,6 +375,14 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
   });
   return {
     make,
+    restart(triage?: TriageAdapter, engine?: WorkflowEngine) {
+      for (const store of stores.splice(0)) store.close();
+      for (const graph of graphs.splice(0)) graph.close();
+      return make(triage, engine);
+    },
+    setEffects(handler: typeof effects) {
+      effects = handler;
+    },
     issues,
     requests,
     pulls,
@@ -383,6 +403,14 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
     },
     maintainerMerge(head: string) {
       git("--git-dir", remote, "update-ref", "refs/heads/main", head, base);
+    },
+    maintainerBringMain(branch: string, head: string, main: string) {
+      git("checkout", "-B", "maintainer-reconcile", head);
+      git("merge", "--no-ff", main, "-m", "maintainer: bring delivered prerequisite into graph");
+      const next = git("rev-parse", "HEAD");
+      git("push", remote, `HEAD:refs/heads/${branch}`);
+      git("--git-dir", bare, "fetch", remote, `refs/heads/${branch}:refs/heads/${branch}`);
+      return next;
     },
     description() {
       return description;

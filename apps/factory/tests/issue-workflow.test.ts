@@ -353,3 +353,64 @@ test("live coordinator drive and wake effects stay single-flight beyond durable 
   assert.equal(completed.status, "completed");
   assert.equal(f.resumes.length, 1);
 });
+
+test("engine liveness ignores semantic failures and fences a stale exhaustion observation", async (t) => {
+  const f = fixture(t);
+  const owners = new Map<string, string>();
+  let starts = 0;
+  let inspect: NonNullable<IssueWorkflowOptions["engine"]["inspect"]> = async () => ({
+    status: "failed",
+    errorCode: "RUNTIME_ERROR",
+  });
+  f.adapters.engine = {
+    async start({ runId, continuationId }) {
+      const id = `owner-${++starts}`;
+      owners.set(`${runId}:${continuationId}`, id);
+      if (starts === 2) throw Error("Lost continuation start response");
+      return id;
+    },
+    async find(runId, continuationId) {
+      return owners.get(`${runId}:${continuationId}`);
+    },
+    async wake() {},
+    inspect: (id) => inspect(id),
+  };
+  const workflow = f.open();
+  const admitted = await workflow.admit(issue);
+  await workflow.drive(admitted.runId);
+  const waiting = workflow.observe(admitted.runId);
+  for (const status of ["failed", "cancelled", "running", "completed"]) {
+    inspect = async () => ({
+      status,
+      errorCode: status === "failed" ? "RUNTIME_ERROR" : "MAX_EVENTS_EXCEEDED",
+    });
+    await workflow.recoverEngineOwners();
+    assert.deepEqual(workflow.observe(admitted.runId), waiting);
+  }
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  inspect = async () => {
+    await held;
+    return { status: "failed", errorCode: "MAX_EVENTS_EXCEEDED" };
+  };
+  const stale = workflow.recoverEngineOwners();
+  inspect = async (id) => ({
+    status: id === "owner-1" ? "failed" : "running",
+    errorCode: "MAX_EVENTS_EXCEEDED",
+  });
+  await workflow.recoverEngineOwners();
+  assert.equal(workflow.observe(admitted.runId).eveRunId, undefined);
+  await workflow.recoverEngineOwners();
+  const current = workflow.observe(admitted.runId);
+  assert.equal(current.eveRunId, "owner-2");
+  release();
+  await stale;
+  assert.equal(starts, 2);
+  assert.deepEqual(workflow.observe(admitted.runId), current);
+  assert.deepEqual(current.checkpoint, waiting.checkpoint);
+  assert.deepEqual(current.execution, waiting.execution);
+  assert.deepEqual(current.resources, waiting.resources);
+  assert.equal(current.phase, waiting.phase);
+});

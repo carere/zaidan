@@ -11,11 +11,15 @@ export interface TelegramOptions {
   token: string;
   maintainerId: number;
   apiBase?: string;
+  /** Explicit fixture-only native send interruption, before its local receipt. */
+  checkpointEffect?: (
+    point: "question-notification.before" | "question-notification.after",
+  ) => void;
 }
 export interface TelegramCommand {
   /** Handler must reconcile this durable identity before repeating any external action. */
   id: string;
-  name: "scan" | "status" | "pause" | "resume" | "cancel" | "retry";
+  name: "scan" | "status" | "pause" | "resume" | "cancel" | "retry" | "reconcile";
   argument: string;
 }
 type CommandHandler = (command: TelegramCommand) => Promise<void>;
@@ -211,6 +215,7 @@ export class TelegramControl implements NotificationAdapter {
           { text: option.label.slice(0, 100), callback_data: `a:${token}:${optionIndex}` },
         ],
       );
+      if (!("text" in request)) this.options.checkpointEffect?.("question-notification.before");
       const message = (await this.api("sendMessage", {
         chat_id: this.options.maintainerId,
         text: part.text,
@@ -218,6 +223,7 @@ export class TelegramControl implements NotificationAdapter {
           ? { reply_markup: { inline_keyboard: buttons } }
           : {}),
       })) as Message;
+      if (!("text" in request)) this.options.checkpointEffect?.("question-notification.after");
       if (
         !Number.isSafeInteger(message?.message_id) ||
         message.chat?.id !== this.options.maintainerId
@@ -267,7 +273,9 @@ export class TelegramControl implements NotificationAdapter {
           : undefined;
       if (option) answer = { optionId: option.id };
     } else if (!callback && message.text) {
-      const control = message.text.match(/^\/(scan|status|pause|resume|cancel|retry)(?:\s+(.*))?$/);
+      const control = message.text.match(
+        /^\/(scan|status|pause|resume|cancel|retry|reconcile)(?:\s+(.*))?$/,
+      );
       if (control && command) {
         await command({
           id: `telegram:${update.update_id}`,

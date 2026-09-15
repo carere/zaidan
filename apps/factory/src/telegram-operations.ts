@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import type { GraphReconciliation } from "./graph-integration.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import type { LocalService } from "./local-service.ts";
 import type { StandalonePublicationOptions } from "./standalone-publication.ts";
@@ -18,6 +19,7 @@ export interface OperatorGraphStatus {
   integrated: number;
   total: number;
   pullRequestUrl?: string;
+  reconciliation?: GraphReconciliation;
 }
 export interface TelegramOperationsOptions {
   database: string;
@@ -31,6 +33,12 @@ export interface TelegramOperationsOptions {
   };
 }
 interface CommandReceipt {
+  graphDecision?: {
+    graphId: string;
+    revision: string;
+    continueRunIds: string[];
+    adoptReceivingBase?: string;
+  };
   command: TelegramCommand;
   targets: string[];
   factory?: boolean;
@@ -137,6 +145,38 @@ export class TelegramOperations {
       state: valid ? "pending" : "done",
       ...(!valid ? { result: help } : {}),
     };
+    if (command.name === "reconcile") {
+      const [scope, graphId, revision, ...choices] = parts;
+      const bases = choices.filter((choice) => choice.startsWith("base="));
+      const adoptReceivingBase = bases[0]?.slice(5);
+      const continueRunIds = choices.filter((choice) => !choice.startsWith("base="));
+      const graph = this.options.graphs?.().find((item) => item.graphId === graphId);
+      if (
+        scope === "graph" &&
+        graph?.reconciliation?.revision === revision &&
+        bases.length <= 1 &&
+        (!adoptReceivingBase ||
+          (/^[a-f0-9]{40}$/.test(adoptReceivingBase) &&
+            graph.reconciliation.receivingBase?.contained &&
+            adoptReceivingBase === graph.reconciliation.receivingBase.available)) &&
+        continueRunIds.every((id) => id in (graph.reconciliation?.holds ?? {})) &&
+        new Set(continueRunIds).size === continueRunIds.length
+      ) {
+        receipt.graphDecision = {
+          graphId,
+          revision,
+          continueRunIds,
+          ...(adoptReceivingBase ? { adoptReceivingBase } : {}),
+        };
+        receipt.state = "pending";
+        delete receipt.result;
+      } else {
+        receipt.state = "done";
+        receipt.result =
+          "Inspect /status factory for the current graph revision and held run IDs. Use /reconcile graph <graph-id> <exact-revision> [run-id ...] to approve re-evaluation of only those retained runs.";
+      }
+      return receipt;
+    }
     if (factory) {
       receipt.factoryAlreadyPaused = this.options.workflow.factoryPaused();
       const row = this.db
@@ -187,7 +227,20 @@ export class TelegramOperations {
     this.save(receipt);
     if (receipt.state === "pending") {
       try {
-        if (receipt.recovery) receipt.result = await this.recoverExternal(receipt);
+        if (receipt.graphDecision) {
+          const { graphId, revision, continueRunIds, adoptReceivingBase } = receipt.graphDecision;
+          const reconciled = await this.options.workflow.reconcileGraph(graphId, {
+            revision,
+            continueRunIds,
+            adoptReceivingBase,
+          });
+          if (
+            (adoptReceivingBase && reconciled.reviewBase !== adoptReceivingBase) ||
+            continueRunIds.some((id) => reconciled.reconciliation?.holds[id])
+          )
+            throw new Error("The current graph could not apply the selected decision");
+          receipt.result = `Graph ${graphId}: the exact revision decision was reconciled; retained work will continue only where currently authorized.`;
+        } else if (receipt.recovery) receipt.result = await this.recoverExternal(receipt);
         else if (command.name === "scan") {
           await this.options.service.trigger("manual");
           receipt.result = "Factory scan completed. Use /status factory for progress.";
@@ -318,6 +371,13 @@ export class TelegramOperations {
   }
   private async notifyChanges() {
     for (const run of this.options.workflow.admissions()) {
+      if (["triage", "reconciliation"].includes(run.publication?.state ?? ""))
+        await this.options.telegram
+          .sendMessage({
+            operationId: `${run.runId}:publication-attention:${run.publication?.state}:${run.phase}`,
+            text: `${runStatus(run)}\nThe retained outcome requires maintainer triage or reconciliation. Review the existing result and update the issue's canonical workflow state; no successful PR or closure was manufactured.`,
+          })
+          .catch(() => {});
       if (run.status === "failed")
         await this.options.telegram
           .sendMessage({
@@ -334,22 +394,29 @@ export class TelegramOperations {
         }).catch(() => {});
     }
     for (const graph of this.options.graphs?.() ?? []) {
-      if (graph.state === "reconciliation")
+      if (graph.state === "reconciliation" || graph.reconciliation?.receivingBase)
         await this.options.telegram
           .sendMessage({
-            operationId: `graph:${graph.graphId}:reconciliation:${graph.head}`,
+            operationId: `graph:${graph.graphId}:reconciliation:${graph.reconciliation?.revision ?? graph.head}`,
             text: `Graph #${graph.issueNumber} needs reconciliation; published work and evidence are retained. Inspect /status factory and the graph's current GitHub membership/authorization before continuing.`,
           })
           .catch(() => {});
-      const url = safePullRequest(graph.pullRequestUrl, graph.repository);
-      if (graph.state === "reviewable" && url)
-        await this.options.telegram
-          .sendMessage({
-            operationId: `graph:${graph.graphId}:reviewable:${graph.head}:${url}`,
-            text: `Graph #${graph.issueNumber} is reviewable: ${url}\nThe maintainer performs the final merge into main.`,
-          })
-          .catch(() => {});
+      if (graph.state === "reviewable" && safePullRequest(graph.pullRequestUrl, graph.repository))
+        await this.notifyGraphReviewable(graph).catch(() => {});
     }
+  }
+  notifyGraphReviewable(
+    input: Pick<
+      OperatorGraphStatus,
+      "graphId" | "issueNumber" | "head" | "repository" | "pullRequestUrl"
+    >,
+  ) {
+    const url = safePullRequest(input.pullRequestUrl, input.repository);
+    if (!url) throw new Error("Invalid graph pull request reference");
+    return this.options.telegram.sendMessage({
+      operationId: `graph:${input.graphId}:reviewable:${input.head}:${url}`,
+      text: `Graph #${input.issueNumber} is reviewable: ${url}\nThe maintainer performs the final merge into main.`,
+    });
   }
   /** Wire directly to standalone publication's existing notification receipt. */
   notifyReviewable: StandalonePublicationOptions["notify"] = async (input) => {
@@ -372,7 +439,17 @@ export class TelegramOperations {
         ? []
         : (this.options.graphs?.() ?? []).map(
             (graph) =>
-              `Graph ${graph.graphId} #${graph.issueNumber}: ${graph.state}; ${graph.integrated}/${graph.total} integrated.${safePullRequest(graph.pullRequestUrl, graph.repository) ? ` ${safePullRequest(graph.pullRequestUrl, graph.repository)}` : ""}`,
+              `Graph ${graph.graphId} #${graph.issueNumber}: ${graph.state}; ${graph.integrated}/${graph.total} integrated.${safePullRequest(graph.pullRequestUrl, graph.repository) ? ` ${safePullRequest(graph.pullRequestUrl, graph.repository)}` : ""}${
+                graph.reconciliation
+                  ? `\nReconciliation revision: ${graph.reconciliation.revision}\n${Object.entries(
+                      graph.reconciliation.holds,
+                    )
+                      .map(([id, hold]) => `${id}: ${hold.kind}: ${hold.reason}`)
+                      .join(
+                        "\n",
+                      )}\nApprove only the listed runs you intend to re-evaluate: /reconcile graph ${graph.graphId} ${graph.reconciliation.revision} [run-id ...]${graph.reconciliation.receivingBase ? `\nReceiving base: ${graph.reconciliation.receivingBase.current}; available main: ${graph.reconciliation.receivingBase.available}. ${graph.reconciliation.receivingBase.contained ? `To adopt this contained main explicitly, add base=${graph.reconciliation.receivingBase.available} to the reconciliation command.` : "The maintainer must first bring main into the graph branch, preserving its existing work, then /scan factory. The coordinator never merges main."}` : ""}`
+                  : ""
+              }`,
           )),
       ...this.options.telegram
         .status()

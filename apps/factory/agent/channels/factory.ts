@@ -72,6 +72,17 @@ export default defineChannel({
       const found = await find(runId, continuationId);
       return Response.json({ runId: found ?? null });
     }),
+    POST("/factory/engine/inspect", async (request) => {
+      const input = await request.json();
+      const eveRunId = isRecord(input) ? input.eveRunId : undefined;
+      if (typeof eveRunId !== "string" || !eveRunId) return new Response(null, { status: 400 });
+      const world = await getWorld();
+      const run = await world.runs.get(eveRunId, { resolveData: "none" });
+      return Response.json({
+        status: run.status,
+        ...(run.errorCode ? { errorCode: run.errorCode } : {}),
+      });
+    }),
     POST("/factory/engine/wake", async (request) => {
       const input = await request.json();
       const token = isRecord(input) ? input.token : undefined;

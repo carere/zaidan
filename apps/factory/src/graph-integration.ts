@@ -31,6 +31,7 @@ export interface IntegrationInput {
   entry: string;
 }
 export interface GraphRecord extends GraphIntegrationState {
+  receivingBaseHistory?: { from: string; to: string; head: string; revision: string }[];
   reconciliation?: GraphReconciliation;
   finalizationHistory?: GraphFinalization[];
   deliveryHistory?: GraphRecord["deliveries"][string][];
@@ -127,12 +128,15 @@ const closureIdentity = (issue: DiscoveredIssue) => ({
 
 export interface GraphReconciliation {
   revision: string;
+  receivingBase?: { current: string; available: string; contained: boolean };
   holds: Record<string, { reason: string; kind: "changed" | "reopened" | "moved" | "outcome" }>;
 }
 export interface ReconcileGraphDecision {
   /** The exact observation approved by the operator; stale decisions never clear holds. */
   revision: string;
   continueRunIds: string[];
+  /** Explicitly adopt freshly observed main only after it is contained in the graph branch. */
+  adoptReceivingBase?: string;
 }
 
 export class GraphCoordinator {
@@ -151,10 +155,10 @@ export class GraphCoordinator {
   }
   async admit(id: string) {
     await this.workflow.scan();
-    const plan = this.workflow.planGraph(id);
+    const snapshot = await this.workflow.graphDiscovery();
+    const plan = planIssueGraph(snapshot, id);
     if (!plan.specificationIds.includes(id))
       throw Error("Graph admission requires a readable top-level specification");
-    const snapshot = await this.workflow.graphDiscovery();
     const root = snapshot.snapshot.issues.find((issue) => issue.issueId === id);
     if (!root || root.parentIds.length)
       throw Error("Graph root is inaccessible or is not top-level");
@@ -258,7 +262,11 @@ export class GraphCoordinator {
     const current = await this.workflow.graphDiscovery();
     if (current.decisions.find((item) => item.issue.issueId === id)?.route !== "coordinator")
       throw Error("Graph specification is not currently authorized");
-    const plan = await this.workflow.verifyGraph(id, { ...graph, containedCommits: contained });
+    const plan = await this.workflow.verifyGraph(
+      id,
+      { ...graph, containedCommits: contained },
+      current,
+    );
     if (plan.graphRevision !== graph.graphRevision)
       throw Error("Graph membership or requirements changed");
     return plan;
@@ -310,6 +318,15 @@ export class GraphCoordinator {
         .filter((i) => relevantIds.has(i.issueId))
         .sort((a, b) => a.issueId.localeCompare(b.issueId));
       const head = await this.options.git.branchHead(graph.branch);
+      const main = await this.options.git.branchHead("main");
+      const receivingBase =
+        main && main !== graph.reviewBase
+          ? {
+              current: graph.reviewBase,
+              available: main,
+              contained: Boolean(head && (await this.options.git.contains(head, main))),
+            }
+          : undefined;
       const accepted = graph.finalization?.input;
       const acceptanceChanged =
         accepted &&
@@ -343,16 +360,21 @@ export class GraphCoordinator {
       if (head)
         for (const item of graph.integrations)
           if (await this.options.git.contains(head, item.commit)) contained.push(item.commit);
-      const plan = await this.workflow.verifyGraph(id, {
-        ...graph,
-        head: head ?? graph.head,
-        graphRevision: raw.graphRevision,
-        containedCommits: contained,
-      });
+      let plan = await this.workflow.verifyGraph(
+        id,
+        {
+          ...graph,
+          head: head ?? graph.head,
+          graphRevision: raw.graphRevision,
+          containedCommits: contained,
+        },
+        scan,
+      );
       const revision = createHash("sha256")
         .update(
           JSON.stringify({
             head,
+            receivingBase,
             sources,
             deliveries: plan.leaves.map((leaf) => ({
               issueId: leaf.issue.issueId,
@@ -468,7 +490,7 @@ export class GraphCoordinator {
               "Issue belongs to an existing run in another graph; restore membership before continuing",
           };
       this.options.store.change(id, (g) => {
-        g.reconciliation = { revision, holds };
+        g.reconciliation = { revision, holds, ...(receivingBase ? { receivingBase } : {}) };
         if (g.activeRunId && holds[g.activeRunId]) delete g.activeRunId;
       });
       const changed =
@@ -502,6 +524,40 @@ export class GraphCoordinator {
         throw Error("Graph specification is not currently authorized");
       if (decision && decision.revision !== revision)
         throw Error("Graph reconciliation decision is stale");
+      if (decision?.adoptReceivingBase) {
+        const base = decision.adoptReceivingBase;
+        if (!receivingBase?.contained || base !== main)
+          throw Error(
+            "Receiving base adoption requires exact observed main contained in the graph branch",
+          );
+        if (graph.activeRunId)
+          throw Error("Settle the active integration before adopting a receiving base");
+        if (graph.pullRequest) {
+          const pulls = await this.options.github.findPullRequests(graph.repository, graph.branch);
+          if (pulls.length !== 1 || pulls[0].state !== "open")
+            throw Error("A closed graph requires a follow-up issue");
+        }
+        if (
+          (await this.options.git.branchHead("main")) !== base ||
+          (await this.options.git.branchHead(graph.branch)) !== head
+        )
+          throw Error("Receiving base or graph changed during reconciliation");
+        await this.acceptance.invalidate(
+          id,
+          "Receiving base changed; repeat whole-graph acceptance",
+        );
+        this.options.store.change(id, (g) => {
+          g.receivingBaseHistory ??= [];
+          g.receivingBaseHistory.push({ from: g.reviewBase, to: base, head, revision });
+          g.reviewBase = base;
+        });
+        graph = this.observe(id);
+        plan = await this.workflow.verifyGraph(
+          id,
+          { ...graph, head, graphRevision: raw.graphRevision, containedCommits: contained },
+          scan,
+        );
+      }
       this.options.store.change(id, (g) => {
         g.graphRevision = raw.graphRevision;
         g.head = head;
@@ -544,7 +600,11 @@ export class GraphCoordinator {
           };
       }
       this.options.store.change(id, (g) => {
-        g.reconciliation = { revision, holds };
+        g.reconciliation = {
+          revision,
+          holds,
+          ...(receivingBase && !decision?.adoptReceivingBase ? { receivingBase } : {}),
+        };
       });
       if (Object.keys(holds).length)
         await this.acceptance.invalidate(id, Object.values(holds)[0].reason);
@@ -566,7 +626,11 @@ export class GraphCoordinator {
             throw Error("Moved work must be reconciled in its original graph");
           delete holds[runId];
           this.options.store.change(id, (g) => {
-            g.reconciliation = { revision, holds: { ...holds } };
+            g.reconciliation = {
+              revision,
+              holds: { ...holds },
+              ...(receivingBase && !decision?.adoptReceivingBase ? { receivingBase } : {}),
+            };
           });
           continue;
         }
@@ -666,7 +730,11 @@ export class GraphCoordinator {
         }
         delete holds[runId];
         this.options.store.change(id, (g) => {
-          g.reconciliation = { revision, holds: { ...holds } };
+          g.reconciliation = {
+            revision,
+            holds: { ...holds },
+            ...(receivingBase && !decision?.adoptReceivingBase ? { receivingBase } : {}),
+          };
         });
       }
       this.options.store.change(id, (g) => {

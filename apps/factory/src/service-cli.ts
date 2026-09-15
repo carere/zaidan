@@ -6,6 +6,7 @@ import {
   existsSync,
   mkdirSync,
   openSync,
+  readFileSync,
   realpathSync,
   symlinkSync,
   writeFileSync,
@@ -17,6 +18,13 @@ import { createGitHubDiscovery } from "./github-discovery.ts";
 import { IssueWorkflow } from "./issue-workflow.ts";
 import { LocalService } from "./local-service.ts";
 import { startModelPermitServer } from "./model-permit-server.ts";
+import { createProductionAdapters } from "./production-adapters.ts";
+import {
+  loadPrivateEnvironment,
+  readProductionConfig,
+  sourceIdentity,
+} from "./production-config.ts";
+import { RolloutPolicy } from "./rollout.ts";
 import { type CreateServiceAdapters, discoveryOnlyAdapters } from "./service-adapters.ts";
 import { type ServiceConfig, serviceConfig } from "./service-config.ts";
 import { listenLocalService } from "./service-http.ts";
@@ -26,10 +34,12 @@ import { SqliteWorkflowStore } from "./workflow-store.ts";
 
 const factoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const command = process.argv[2];
-if (!command || !["prepare", "serve", "status", "scan"].includes(command)) {
-  throw new Error("Usage: node apps/factory/src/service-cli.ts prepare|serve|status|scan");
+if (!command || !["prepare", "serve", "status", "scan", "progress"].includes(command)) {
+  throw new Error("Usage: node apps/factory/src/service-cli.ts prepare|serve|status|scan|progress");
 }
 process.umask(0o077);
+if (process.env.FACTORY_ENV_FILE)
+  process.env = loadPrivateEnvironment(process.env.FACTORY_ENV_FILE);
 const config = serviceConfig();
 if (command === "prepare") prepare(config);
 else if (command === "serve") await serve(config);
@@ -83,6 +93,18 @@ function prepare(settings: ServiceConfig) {
     env: hostEnvironment(settings),
   });
   if (built.status !== 0) throw new Error("Eve build failed");
+  writeFileSync(
+    join(root, "factory-build.json"),
+    JSON.stringify({ version: 1, source: compiledSourceIdentity() }),
+    { mode: 0o600 },
+  );
+}
+function compiledSourceIdentity() {
+  return sourceIdentity([
+    join(factoryRoot, "agent"),
+    join(factoryRoot, "src/eve-engine.ts"),
+    join(factoryRoot, "../../bun.lock"),
+  ]);
 }
 function hostEnvironment(settings: ServiceConfig): NodeJS.ProcessEnv {
   return {
@@ -102,18 +124,33 @@ function hostEnvironment(settings: ServiceConfig): NodeJS.ProcessEnv {
 async function serve(settings: ServiceConfig) {
   if (!existsSync(join(settings.deploymentDirectory, ".output/server/index.mjs")))
     throw new Error("Prepare the external Eve deployment first");
-  const adapters = settings.adapterModule
-    ? await (
-        (await import(pathToFileURL(settings.adapterModule).href)) as {
-          createServiceAdapters: CreateServiceAdapters;
-        }
-      ).createServiceAdapters({
+  const build = JSON.parse(
+    readFileSync(join(settings.deploymentDirectory, "factory-build.json"), "utf8"),
+  );
+  if (build.version !== 1 || build.source !== compiledSourceIdentity())
+    throw new Error(
+      "Prepared Eve deployment differs from this factory source; follow the stopped-service upgrade procedure",
+    );
+  const adapters = settings.runtimeConfig
+    ? await createProductionAdapters({
         stateDirectory: settings.stateDirectory,
         repository: settings.repository,
-        mode: "read-only",
+        factoryRoot,
+        runtime: readProductionConfig(settings.runtimeConfig),
+        env: process.env,
       })
-    : discoveryOnlyAdapters();
-  if (settings.telegram && adapters.telegram)
+    : settings.adapterModule
+      ? await (
+          (await import(pathToFileURL(settings.adapterModule).href)) as {
+            createServiceAdapters: CreateServiceAdapters;
+          }
+        ).createServiceAdapters({
+          stateDirectory: settings.stateDirectory,
+          repository: settings.repository,
+          mode: "read-only",
+        })
+      : discoveryOnlyAdapters();
+  if (settings.telegram && adapters.telegram && !settings.runtimeConfig)
     throw new Error("Configure one Telegram transport, through environment or adapters");
   const telegram =
     adapters.telegram ??
@@ -126,6 +163,17 @@ async function serve(settings: ServiceConfig) {
       : undefined);
   const store = new SqliteWorkflowStore(join(settings.stateDirectory, "workflow.sqlite"));
   const workflow = new IssueWorkflow({
+    ...adapters.workflowOptions,
+    rollout:
+      adapters.rollout ??
+      new RolloutPolicy({
+        repository: settings.repository,
+        binding: {
+          runtime: "discovery-only",
+          configuration: "discovery-only",
+          repositoryId: "unverified",
+        },
+      }),
     store,
     execution: {
       ...settings.execution,
@@ -148,6 +196,12 @@ async function serve(settings: ServiceConfig) {
   let stopping = false;
   let prepared = false;
   const service = new LocalService({
+    rollout: () =>
+      adapters.rollout?.status() ?? {
+        mode: "read-only",
+        enabled: false,
+        reason: "Read-only discovery selected",
+      },
     workflow,
     stateDirectory: settings.stateDirectory,
     prepare: async () => {
@@ -210,6 +264,7 @@ async function serve(settings: ServiceConfig) {
       process.stdout.write(
         `${JSON.stringify({ event: "scan-completed", mode: result.mode, decisions: result.decisions.length })}\n`,
       );
+      return adapters.onScan?.(result);
     },
   });
   if (telegram)
@@ -221,20 +276,40 @@ async function serve(settings: ServiceConfig) {
       graphs: adapters.operatorGraphs,
       triageRecovery: adapters.triageRecovery,
     });
-  const http = await listenLocalService({ workflow, service, port: settings.coordinatorPort });
+  const http = await listenLocalService({
+    workflow,
+    service,
+    port: settings.coordinatorPort,
+    evidence: adapters.evidence,
+  });
   const interval = setInterval(() => {
     void service.poll().catch(() => logFailure());
   }, 30000);
+  let progressing: Promise<void> | undefined;
+  const progress = setInterval(() => {
+    if (progressing || stopping || !service.status().ready) return;
+    progressing = Promise.resolve()
+      .then(async () => {
+        await workflow.recoverEngineOwners();
+        await adapters.tick?.();
+      })
+      .catch(() => logFailure())
+      .finally(() => {
+        progressing = undefined;
+      });
+  }, 2000);
   async function shutdown(code: number) {
     if (stopping) return;
     stopping = true;
     clearInterval(interval);
+    clearInterval(progress);
     const deadline = setTimeout(() => {
       child?.kill("SIGKILL");
       process.exit(code || 1);
     }, 10000);
     deadline.unref();
     await operators?.stop();
+    await progressing;
     await service.stop();
     await http.close();
     operators?.close();

@@ -1,12 +1,14 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import type { LocalService } from "./local-service.ts";
+import type { Candidate } from "./workflow-contracts.ts";
 
 /** Loopback transport only: all policy and durable state remain in IssueWorkflow. */
 export async function listenLocalService(options: {
   service: LocalService;
   workflow: IssueWorkflow;
   port: number;
+  evidence?: () => unknown;
 }) {
   const { service, workflow } = options;
   const server = createServer((request, response) => {
@@ -20,6 +22,70 @@ export async function listenLocalService(options: {
       return json(response, 403, { error: "browser-request-denied" });
     if (request.method === "GET" && request.url === "/factory/status")
       return json(response, 200, service.status());
+    if (request.method === "GET" && request.url === "/factory/progress")
+      return json(response, 200, {
+        evidence: options.evidence?.(),
+        service: service.status(),
+        runs: workflow.admissions().map((run) => ({
+          runId: run.runId,
+          issueId: run.issue.issueId,
+          issueNumber: run.issue.number,
+          issueRevision: run.issue.revision,
+          route: run.issue.route,
+          graphId: run.issue.graphId,
+          status: run.status,
+          phase: run.phase,
+          sessionId: run.session.id,
+          snapshotId: run.resources?.id,
+          startingRevision: run.issue.startingRevision,
+          eveRunId: run.eveRunId,
+          eveContinuationId: run.eveContinuationId,
+          checkpoint: run.checkpoint
+            ? { id: run.checkpoint.id, answered: Boolean(run.checkpoint.answer) }
+            : undefined,
+          execution: run.execution
+            ? {
+                active: Boolean(run.execution.operationId),
+                attempt: run.execution.attempt,
+                consumedMs: run.execution.consumedMs,
+                modelCalls: run.execution.models.length,
+                retries: run.execution.retries,
+              }
+            : undefined,
+          candidate: run.candidate?.commit,
+          candidateEvidence: candidateEvidence(run.acceptanceResult ?? run.candidate),
+          acceptance: run.acceptance?.id,
+          publication: run.publication
+            ? { state: run.publication.state, pullRequest: run.publication.pullRequest?.url }
+            : undefined,
+        })),
+        graphs: workflow.admittedGraphs().map((graph) => ({
+          graphId: graph.graphId,
+          head: graph.head,
+          revision: graph.graphRevision,
+          state: graph.state,
+          integrationCount: graph.integrations.length,
+          integrations: Object.entries(graph.deliveries).map(([issueId, delivery]) => ({
+            issueId,
+            runId: delivery.runId,
+            expectedHead: delivery.expectedHead,
+            commit: delivery.candidate.commit,
+            tree: delivery.candidate.tree,
+            published: delivery.published === true,
+            closedRevision: delivery.closedRevision,
+          })),
+          pullRequest: graph.pullRequest?.url,
+          acceptance: graph.finalization
+            ? {
+                id: graph.finalization.input.id,
+                state: graph.finalization.state,
+                head: graph.finalization.input.head,
+                tree: graph.finalization.input.tree,
+              }
+            : undefined,
+          reconciliation: graph.reconciliation,
+        })),
+      });
     if (request.method === "POST" && request.url === "/factory/scan") {
       const result = await service.trigger("manual");
       return json(response, 200, result);
@@ -81,6 +147,27 @@ export async function listenLocalService(options: {
       new Promise<void>((resolve, reject) =>
         server.close((error) => (error ? reject(error) : resolve())),
       ),
+  };
+}
+function candidateEvidence(candidate?: Candidate) {
+  if (!candidate) return undefined;
+  const records = (value: unknown) =>
+    Array.isArray(value)
+      ? (value.filter((item) => item && typeof item === "object") as Record<string, unknown>[])
+      : [];
+  return {
+    tree: typeof candidate.tree === "string" ? candidate.tree : undefined,
+    checks: records(candidate.checks).map((check) => ({
+      exitCode: check.exitCode === 0 ? 0 : "failed",
+      commit: check.commit,
+    })),
+    reviews: records(candidate.reviews).map((review) => ({
+      axis: review.axis === "standards" ? "standards" : "spec",
+      passed: review.passed === true,
+      delegateSession:
+        typeof review.delegateSession === "string" ? review.delegateSession : undefined,
+      commit: review.commit,
+    })),
   };
 }
 async function body(request: IncomingMessage): Promise<unknown> {

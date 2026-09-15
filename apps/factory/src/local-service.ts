@@ -4,11 +4,14 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { ScanResult } from "./discovery.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
+import type { RolloutMode } from "./rollout.ts";
 import type { Clock } from "./workflow-contracts.ts";
 
 export type ScanTrigger = "restart" | "wake" | "manual" | "scheduled";
 export interface ServiceStatus {
-  mode: "read-only";
+  instanceId?: string;
+  mode: RolloutMode;
+  rollout?: { enabled: boolean; reason?: string };
   running: boolean;
   ready: boolean;
   scanning: boolean;
@@ -25,6 +28,7 @@ export interface LocalServiceOptions {
   onScan?: (result: ScanResult) => void | Promise<void>;
   prepare?: () => Promise<void>;
   disconnect?: () => Promise<void>;
+  rollout?: () => { mode: RolloutMode; enabled: boolean; reason?: string };
 }
 
 /** A single local lifecycle around the authoritative IssueWorkflow.scan boundary.
@@ -49,7 +53,12 @@ export class LocalService {
     this.clock = options.clock ?? { now: Date.now };
   }
   status(): ServiceStatus {
-    return { ...this.current };
+    const rollout = this.options.rollout?.();
+    return {
+      ...this.current,
+      instanceId: this.owner,
+      ...(rollout ? { mode: rollout.mode, rollout } : {}),
+    };
   }
   async start() {
     if (this.db) throw new Error("Service already started");
