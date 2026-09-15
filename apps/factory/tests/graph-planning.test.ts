@@ -3,7 +3,12 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { type DiscoveredIssue, IssueWorkflow, SqliteWorkflowStore } from "../src/index.ts";
+import {
+  type ApprovedBrief,
+  type DiscoveredIssue,
+  IssueWorkflow,
+  SqliteWorkflowStore,
+} from "../src/index.ts";
 
 function fixture(t: { after(fn: () => void): void }) {
   const path = mkdtempSync(join(tmpdir(), "factory-graph-"));
@@ -15,13 +20,30 @@ function fixture(t: { after(fn: () => void): void }) {
   const issues: DiscoveredIssue[] = [];
   let reads = 0;
   let failScan = false;
+  let beforeRead = async () => {};
+  let beforeVerify = async () => {};
+  const briefs: ApprovedBrief[] = [];
   const workflow = new IssueWorkflow({
     store,
     discovery: {
+      async approvedBriefs() {
+        return structuredClone(briefs);
+      },
       async read() {
         reads++;
+        await beforeRead();
         if (failScan) throw new Error("Snapshot unavailable");
-        return { repository: "carere/zaidan", revision: `scan-${reads}`, issues };
+        return {
+          repository: "carere/zaidan",
+          revision: `scan-${reads}`,
+          issues: structuredClone(issues),
+        };
+      },
+    },
+    externalDelivery: {
+      async verify() {
+        await beforeVerify();
+        return { status: "waiting", problem: "Awaiting delivery" };
       },
     },
     engine: {
@@ -81,6 +103,13 @@ function fixture(t: { after(fn: () => void): void }) {
     workflow,
     issue,
     issues,
+    briefs,
+    onRead(fn: () => Promise<void>) {
+      beforeRead = fn;
+    },
+    onVerify(fn: () => Promise<void>) {
+      beforeVerify = fn;
+    },
     reads: () => reads,
     failScan: () => {
       failScan = true;
@@ -379,4 +408,101 @@ test("a missing side of native membership cannot turn a specification into dupli
   );
   assert.equal(plan.eligibleLeaves.length, 0);
   assert.match(plan.problems.join(" "), /membership/i);
+});
+
+test("graph verification owns its source while a concurrent scan clears the planning cache", async (t) => {
+  const f = fixture(t);
+  f.issue("root");
+  f.issue("a", "root");
+  await f.workflow.scan();
+  const observed = await f.workflow.graphDiscovery();
+  const state = {
+    graphId: "root",
+    graphRevision: f.workflow.planGraph("root").graphRevision,
+    head: "head",
+    reviewBase: "base",
+    integrations: [],
+    containedCommits: [],
+  };
+  const entered = Promise.withResolvers<void>(),
+    release = Promise.withResolvers<void>();
+  let first = true;
+  f.onRead(async () => {
+    if (first) {
+      first = false;
+      entered.resolve();
+      await release.promise;
+    }
+  });
+  const other = f.workflow.scan();
+  await entered.promise;
+  try {
+    const result = await f.workflow.verifyGraph("root", state, observed);
+    assert.deepEqual(
+      result.eligibleLeaves.map((l) => l.issue.issueId),
+      ["a"],
+    );
+  } finally {
+    release.resolve();
+    await other;
+  }
+});
+
+test("external verification tolerates unchanged overlapping scans and unrelated issue changes", async (t) => {
+  const f = fixture(t);
+  f.issue("root");
+  f.issue("a", "root", ["external"]);
+  f.issue("external");
+  const unrelated = f.issue("unrelated");
+  await f.workflow.scan();
+  const state = {
+    graphId: "root",
+    graphRevision: f.workflow.planGraph("root").graphRevision,
+    head: "head",
+    reviewBase: "base",
+    integrations: [],
+    containedCommits: [],
+  };
+  f.onVerify(async () => {
+    unrelated.revision = "changed";
+    await f.workflow.scan();
+  });
+  const result = await f.workflow.verifyGraph("root", state);
+  assert.equal(result.leaves[0].status, "waiting-external");
+});
+
+test("external verification refuses changes to members, authorization briefs, membership or prerequisite sources", async (t) => {
+  for (const change of ["member", "brief", "membership", "external", "duplicate"]) {
+    const f = fixture(t);
+    const root = f.issue("root");
+    const member = f.issue("a", "root", ["external"]);
+    const external = f.issue("external");
+    f.briefs.push({
+      issueId: "a",
+      contentRevision: member.contentRevision,
+      ref: "approved",
+      content: "Original approval",
+    });
+    await f.workflow.scan();
+    const state = {
+      graphId: "root",
+      graphRevision: f.workflow.planGraph("root").graphRevision,
+      head: "head",
+      reviewBase: "base",
+      integrations: [],
+      containedCommits: [],
+    };
+    f.onVerify(async () => {
+      if (change === "member") member.labels = ["ready-for-human"];
+      if (change === "brief") f.briefs[0].content = "Changed approval";
+      if (change === "membership") root.childIds = [];
+      if (change === "external") external.revision = "changed";
+      if (change === "duplicate") f.issues.push(structuredClone(external));
+    });
+    await assert.rejects(
+      f.workflow.verifyGraph("root", state),
+      /Discovery changed during delivery verification/,
+      change,
+    );
+  }
 });

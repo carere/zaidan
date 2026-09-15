@@ -258,7 +258,11 @@ export class GraphCoordinator {
     const current = await this.workflow.graphDiscovery();
     if (current.decisions.find((item) => item.issue.issueId === id)?.route !== "coordinator")
       throw Error("Graph specification is not currently authorized");
-    const plan = await this.workflow.verifyGraph(id, { ...graph, containedCommits: contained });
+    const plan = await this.workflow.verifyGraph(
+      id,
+      { ...graph, containedCommits: contained },
+      current,
+    );
     if (plan.graphRevision !== graph.graphRevision)
       throw Error("Graph membership or requirements changed");
     return plan;
@@ -343,12 +347,16 @@ export class GraphCoordinator {
       if (head)
         for (const item of graph.integrations)
           if (await this.options.git.contains(head, item.commit)) contained.push(item.commit);
-      const plan = await this.workflow.verifyGraph(id, {
-        ...graph,
-        head: head ?? graph.head,
-        graphRevision: raw.graphRevision,
-        containedCommits: contained,
-      });
+      const plan = await this.workflow.verifyGraph(
+        id,
+        {
+          ...graph,
+          head: head ?? graph.head,
+          graphRevision: raw.graphRevision,
+          containedCommits: contained,
+        },
+        scan,
+      );
       const revision = createHash("sha256")
         .update(
           JSON.stringify({

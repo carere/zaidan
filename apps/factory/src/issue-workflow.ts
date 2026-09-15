@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import {
   type ApprovedBrief,
@@ -352,12 +353,20 @@ export class IssueWorkflow {
     );
   }
   /** Fresh external evidence bound to this snapshot, receiving base and eventual starting head. */
-  async verifyGraph(rootIssueId: string, integration: GraphIntegrationState) {
-    const captured = this.latestScan;
+  async verifyGraph(
+    rootIssueId: string,
+    integration: GraphIntegrationState,
+    observed?: Awaited<ReturnType<IssueWorkflow["graphDiscovery"]>>,
+  ) {
+    // Own both source and approval data across awaits; another scan may replace its cache.
+    const captured = structuredClone(observed ?? (await this.graphDiscovery()));
     const state = structuredClone(integration);
-    const initial = this.planGraph(rootIssueId, state);
+    const initial = planIssueGraph(
+      discoverWork(captured.snapshot, this.admissions(), captured.briefs),
+      rootIssueId,
+      state,
+    );
     if (
-      !captured ||
       !this.options.externalDelivery ||
       initial.graphRevision !== state.graphRevision ||
       state.graphId !== rootIssueId
@@ -378,10 +387,34 @@ export class IssueWorkflow {
           }),
         );
     }
-    if (this.latestScan !== captured)
-      throw new Error("Discovery changed during delivery verification; plan again");
+    if (ids.size) {
+      const current = await this.graphDiscovery();
+      const freshPlan = planIssueGraph(current, rootIssueId);
+      const relevantIds = new Set([
+        rootIssueId,
+        ...initial.specificationIds,
+        ...initial.leaves.map((leaf) => leaf.issue.issueId),
+        ...ids,
+      ]);
+      const source = (scan: typeof captured) => ({
+        repository: scan.snapshot.repository,
+        issues: scan.snapshot.issues
+          .filter((issue) => relevantIds.has(issue.issueId))
+          .sort((a, b) => a.issueId.localeCompare(b.issueId)),
+        briefs: (scan.briefs ?? [])
+          .filter((brief) => relevantIds.has(brief.issueId))
+          .sort((a, b) => a.issueId.localeCompare(b.issueId) || a.ref.localeCompare(b.ref)),
+      });
+      // A new scan identity alone is not source drift. Reject changed graph inputs,
+      // including labels/closure and external sources, without blocking unrelated graphs.
+      if (
+        freshPlan.graphRevision !== initial.graphRevision ||
+        !isDeepStrictEqual(source(captured), source(current))
+      )
+        throw new Error("Discovery changed during delivery verification; plan again");
+    }
     return planIssueGraph(
-      discoverWork(structuredClone(captured.snapshot), this.admissions(), this.latestBriefs),
+      discoverWork(captured.snapshot, this.admissions(), captured.briefs),
       rootIssueId,
       state,
       results,
