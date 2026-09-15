@@ -345,6 +345,7 @@ test("compiled Eve keeps a completed graph child alive until durable integration
     await host.stop();
     await new Promise<void>((resolve) => bridge.close(() => resolve()));
     if (success) rmSync(host.root, { recursive: true, force: true });
+    else console.error(`Eve graph wait evidence: ${host.root}`);
   }
 });
 
@@ -546,5 +547,149 @@ test("a completed compiled Eve owner continues the same factory admission under 
     store.close();
     if (success) rmSync(host.root, { recursive: true, force: true });
     else console.error(`Eve continuation fixture evidence: ${host.root}`);
+  }
+});
+
+test("typed native history exhaustion continues quota waits and active operations without resetting an attempt", {
+  timeout: 180000,
+}, async () => {
+  const host = await buildEveHost({ maxEvents: 20 });
+  const database = join(host.root, "factory-state", "workflow.sqlite");
+  let store = new SqliteWorkflowStore(database);
+  const engine = createEveEngine({ baseUrl: host.baseUrl });
+  const requests: WorkerRequest[] = [];
+  const receipts = new Map<string, Awaited<ReturnType<WorkerAdapter["dispatch"]>>>();
+  const worker: WorkerAdapter = {
+    async dispatch(request) {
+      // WorkerAdapter dispatch is idempotent by operation ID, including lost responses.
+      if (!requests.some((existing) => existing.operationId === request.operationId))
+        requests.push(request);
+      if (request.phase > 0) throw Error("Lost response after durable fixture worker start");
+      const result = { type: "subscription-paused" as const, reason: "fixture quota" };
+      receipts.set(request.operationId, result);
+      return result;
+    },
+    async resume() {
+      throw Error("No human resume expected");
+    },
+    async reconcile(id) {
+      return receipts.get(id);
+    },
+  };
+  const coordinator = () =>
+    new IssueWorkflow({
+      store,
+      engine,
+      worker,
+      notifications: { send: async ({ operationId }) => operationId, reconcile: async (id) => id },
+      discovery: {
+        read: async () => ({ repository: "fixture/factory", revision: "fixture", issues: [] }),
+      },
+    });
+  let workflow = coordinator();
+  let service = new LocalService({ workflow, stateDirectory: join(host.root, "service") });
+  let http = await listenLocalService({ workflow, service, port: 0 });
+  let success = false;
+  let polling: Promise<void> | undefined;
+  let interval: ReturnType<typeof setInterval> | undefined;
+  try {
+    await host.start(http.url);
+    await service.start();
+    const admitted = await workflow.admit({
+      issueId: "fixture:event-cap",
+      repository: "fixture/factory",
+      number: 527,
+      revision: "original",
+      startingRevision: "head",
+      reviewBase: "base",
+    });
+    assert.ok(admitted.eveRunId);
+    await eventually(
+      () => engine.inspect(admitted.eveRunId ?? "missing"),
+      (state) => state.status === "failed",
+    );
+    assert.equal((await engine.inspect(admitted.eveRunId)).errorCode, "MAX_EVENTS_EXCEEDED");
+    const waiting = workflow.observe(admitted.runId);
+    assert.equal(waiting.status, "waiting-subscription");
+    assert.equal(requests.length, 1);
+    // Service death after terminal native owner and before continuation intent.
+    await host.stop();
+    await http.close();
+    await service.stop();
+    store.close();
+    store = new SqliteWorkflowStore(database);
+    workflow = coordinator();
+    service = new LocalService({ workflow, stateDirectory: join(host.root, "service") });
+    http = await listenLocalService({ workflow, service, port: 0 });
+    await host.start(http.url);
+    await service.start();
+    const continued = workflow.observe(admitted.runId);
+    assert.notEqual(continued.eveRunId, admitted.eveRunId);
+    assert.deepEqual(continued.execution, waiting.execution);
+    assert.equal(continued.phase, waiting.phase);
+    assert.deepEqual(continued.session, admitted.session);
+    assert.deepEqual(continued.resources, admitted.resources);
+    assert.equal(continued.eveOwnerHistory?.[0]?.recovery?.reason, "MAX_EVENTS_EXCEEDED");
+    assert.equal((await workflow.driveOwned(admitted.runId)).status, "completed");
+    assert.equal(requests.length, 1, "retired native owner cannot restart work");
+    await workflow.resume(admitted.runId);
+    await eventually(
+      async () => workflow.observe(admitted.runId),
+      (run) => !!run.execution?.operationId,
+    );
+    const active = workflow.observe(admitted.runId);
+    assert.equal(requests.length, 2);
+    assert.ok(active.eveRunId);
+    await eventually(
+      () => engine.inspect(active.eveRunId ?? "missing"),
+      (state) => state.status === "failed",
+    );
+    assert.equal((await engine.inspect(active.eveRunId)).errorCode, "MAX_EVENTS_EXCEEDED");
+    // Same liveness task invoked by the production supervisor; no manual drive.
+    interval = setInterval(() => {
+      if (!polling)
+        polling = workflow.recoverEngineOwners().finally(() => {
+          polling = undefined;
+        });
+    }, 100);
+    const recovered = await eventually(
+      async () => workflow.observe(admitted.runId),
+      (run) => !!run.eveRunId && run.eveRunId !== active.eveRunId,
+    );
+    assert.deepEqual(
+      recovered.execution,
+      active.execution,
+      "active permit, start time, attempt and consumed budget are retained",
+    );
+    assert.equal(recovered.phase, active.phase);
+    assert.equal(requests.length, 2);
+    assert.equal(
+      (await workflow.driveOwned(admitted.runId, active.eveContinuationId)).status,
+      "completed",
+    );
+    assert.ok(active.execution?.operationId);
+    receipts.set(active.execution.operationId, {
+      type: "completed",
+      candidate: { commit: "retained-worker-result" },
+    });
+    const completed = await eventually(
+      async () => workflow.observe(admitted.runId),
+      (run) => run.status === "completed",
+    );
+    assert.equal(completed.candidate?.commit, "retained-worker-result");
+    assert.equal(completed.session.id, admitted.session.id);
+    assert.equal(completed.execution?.attempt, active.execution?.attempt);
+    assert.ok((completed.execution?.consumedMs ?? 0) >= (active.execution?.consumedMs ?? 0));
+    assert.equal(requests.length, 2, "cap recovery never redispatches the active operation");
+    success = true;
+  } finally {
+    clearInterval(interval);
+    await polling;
+    await host.stop();
+    await http.close();
+    await service.stop();
+    store.close();
+    if (success) rmSync(host.root, { recursive: true, force: true });
+    else console.error(`Eve event ceiling evidence: ${host.root}`);
   }
 });

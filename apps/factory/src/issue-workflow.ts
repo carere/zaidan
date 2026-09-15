@@ -490,6 +490,14 @@ export class IssueWorkflow {
   }
   /** Call inside the same store transaction that persists a new graph phase. */
   queueEveContinuation(run: RunSnapshot, ops: Operation[], continuationId: string) {
+    this.replaceEveOwner(run, ops, continuationId);
+  }
+  private replaceEveOwner(
+    run: RunSnapshot,
+    ops: Operation[],
+    continuationId: string,
+    terminalOwner = false,
+  ) {
     if (!continuationId.trim() || continuationId.length > 200)
       throw Error("Invalid Eve continuation identity");
     const id = `${run.runId}:start:${continuationId}`;
@@ -497,7 +505,8 @@ export class IssueWorkflow {
       if (!ops.some((op) => op.id === id)) throw Error("Missing continuation start intent");
       return;
     }
-    if (run.execution?.operationId) throw Error("Cannot replace an active worker owner");
+    if (!terminalOwner && run.execution?.operationId)
+      throw Error("Cannot replace an active worker owner");
     if (ops.some((op) => op.id === id)) throw Error("Eve continuation identity was already used");
     run.eveOwnerHistory ??= [];
     run.eveOwnerHistory.push({
@@ -1167,7 +1176,39 @@ export class IssueWorkflow {
       () => {},
     );
   }
+  /** Poll from the owned service lifecycle, independently of six-hour discovery scans.
+   * A terminal native history cap retires coordination only, never the worker attempt.
+   */
+  async recoverEngineOwners() {
+    const inspect = this.options.engine.inspect;
+    if (!inspect) return;
+    for (let snapshot of this.admissions()) {
+      if (!snapshot.eveRunId && snapshot.eveContinuationId?.startsWith("event-cap:")) {
+        await this.start(snapshot.runId);
+        snapshot = this.observe(snapshot.runId);
+      }
+      if (!snapshot.eveRunId || (snapshot.status === "completed" && !snapshot.graphPending))
+        continue;
+      const native = await inspect(snapshot.eveRunId);
+      if (native.status !== "failed" || native.errorCode !== "MAX_EVENTS_EXCEEDED") continue;
+      this.options.store.change(snapshot.runId, (current, ops) => {
+        if (
+          current.eveRunId !== snapshot.eveRunId ||
+          current.eveContinuationId !== snapshot.eveContinuationId
+        )
+          return;
+        // The observed native owner is terminal. An active Docker operation is retained;
+        // its durable receipt/claim is reconciled by the successor, never redispatched.
+        this.replaceEveOwner(current, ops, `event-cap:${snapshot.eveRunId}`, true);
+        const retired = current.eveOwnerHistory?.at(-1);
+        if (retired)
+          retired.recovery = { reason: "MAX_EVENTS_EXCEEDED", observedAt: this.clock.now() };
+      });
+      await this.start(snapshot.runId);
+    }
+  }
   async recover() {
+    await this.recoverEngineOwners();
     await this.reconcileWorkers();
     await this.enforceBudgets();
     for (const run of this.admissions()) {
