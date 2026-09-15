@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.options.json",
   "compilerOptions": {
     "lib": ["ESNext"],
-    "types": ["node"],
+    "types": ["node", "eve/workflow-modules"],
     "outDir": "../../.moon/cache/types/apps/factory"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "agent/**/*.ts"]
 }
