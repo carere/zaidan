@@ -180,6 +180,40 @@ integration boundary must reconcile and record the observed issue revision; it
 must never relabel arbitrary edited/reopened source as delivered. Durable delivery
 storage, Git containment verification, and publication recovery belong to the
 integration ticket rather than this read-only planner.
+
+### External prerequisite delivery
+
+Configure `IssueWorkflow.externalDelivery` with `createExternalDelivery({ trustedGitDirectory,
+github: createGitHubDeliverySource({ token }) })`, then call `await workflow.verifyGraph(rootId,
+integration)` after a complete scan. This preserves `planGraph` as a synchronous read-only
+planner; external prerequisites remain ineligible there until fresh verification is requested.
+
+The Git directory must be a coordinator-owned **bare repository outside all worker mounts**.
+Import delivery objects through the trusted integration transport before verification. The verifier
+performs bounded read-only Git operations, disables replacement objects and lazy fetching, and
+never runs Git from worker checkout configuration or hooks. Both `integration.reviewBase` and
+`integration.head` must be full immutable commit IDs. The GitHub adapter issues only a fixed
+GraphQL query using native closing references, including closed/merged PRs; arbitrary mentions
+and another graph's child closure are insufficient delivery proof.
+
+Eligibility requires one unambiguous merged closing PR whose merge commit is present in **both**
+the receiving base and the worker starting head. The merge commit also proves squash delivery;
+original implementation ancestry is unnecessary. Open or unmerged prerequisites wait. Unknown or
+non-completion closure reasons, inaccessible/changed source, ambiguous PRs, missing objects, and
+cross-repository delivery requiring an explicit mapping pause affected work for maintainer
+clarification. No success is inferred from missing evidence.
+
+Verified leaves and their admission snapshots retain `externalDeliveries`: exact prerequisite
+revision, PR identity/revision and merge commit, graph/snapshot identity, receiving base, and
+starting revision. Admission rejects receipts tied to different revisions. Integration must
+freshly scan and verify immediately before consequential actions, preserve these receipts, and
+recheck authorization and the selected head. A newer main base does not make an older graph head
+eligible; the graph must first receive the delivered code. Every verification rereads delivery
+source and checks Git containment, and a concurrent scan invalidates its result. No eligibility
+cache survives restart or silently carries evidence across changed bases.
+
+Protocol reference: [GitHub native closing PR references](https://docs.github.com/en/graphql/reference/issues#issue).
+
 ## Captured skills and Docker workers
 
 `IssueWorkflowOptions.captureResources` captures resources before a new issue revision is

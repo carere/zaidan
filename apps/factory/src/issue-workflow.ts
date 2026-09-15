@@ -6,6 +6,7 @@ import {
   discoverWork,
   type ScanResult,
 } from "./discovery.ts";
+import type { ExternalDeliveryAdapter, ExternalDeliveryResult } from "./external-delivery.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import type {
   AnswerInput,
@@ -22,6 +23,7 @@ import type { Operation, WorkflowStore } from "./workflow-store.ts";
 export interface IssueWorkflowOptions {
   store: WorkflowStore;
   discovery?: DiscoveryAdapter;
+  externalDelivery?: ExternalDeliveryAdapter;
   engine: WorkflowEngine;
   worker: WorkerAdapter;
   notifications: NotificationAdapter;
@@ -78,9 +80,55 @@ export class IssueWorkflow {
       integration,
     );
   }
+  /** Fresh external evidence bound to this snapshot, receiving base and eventual starting head. */
+  async verifyGraph(rootIssueId: string, integration: GraphIntegrationState) {
+    const captured = this.latestScan;
+    const state = structuredClone(integration);
+    const initial = this.planGraph(rootIssueId, state);
+    if (
+      !captured ||
+      !this.options.externalDelivery ||
+      initial.graphRevision !== state.graphRevision ||
+      state.graphId !== rootIssueId
+    )
+      return initial;
+    const results = new Map<string, ExternalDeliveryResult>();
+    const ids = new Set(initial.leaves.flatMap((leaf) => leaf.externalPrerequisiteIds));
+    for (const id of ids) {
+      const issue = captured.snapshot.issues.find((item) => item.issueId === id);
+      if (issue)
+        results.set(
+          id,
+          await this.options.externalDelivery.verify({
+            issue: structuredClone(issue),
+            repository: captured.snapshot.repository,
+            snapshotRevision: captured.snapshot.revision,
+            integration: state,
+          }),
+        );
+    }
+    if (this.latestScan !== captured)
+      throw new Error("Discovery changed during delivery verification; plan again");
+    return planIssueGraph(
+      discoverWork(structuredClone(captured.snapshot), this.admissions(), this.latestBriefs),
+      rootIssueId,
+      state,
+      results,
+    );
+  }
   async admit(issue: IssueSnapshot) {
     if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
       throw new Error("Admission requires stable identity and explicit revisions");
+    if (
+      issue.externalDeliveries?.some(
+        (evidence) =>
+          evidence.startingRevision !== issue.startingRevision ||
+          evidence.reviewBase !== issue.reviewBase,
+      )
+    )
+      throw new Error(
+        "External delivery evidence does not match admission revisions; verify the graph again",
+      );
     const existing = this.admissions().find(
       (run) => run.issue.issueId === issue.issueId && run.issue.revision === issue.revision,
     );

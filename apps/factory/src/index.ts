@@ -16,6 +16,16 @@ export type {
 } from "./discovery.ts";
 export { DockerPiWorker, type DockerWorkerOptions } from "./docker-worker.ts";
 export { createEveEngine } from "./eve-engine.ts";
+export {
+  createExternalDelivery,
+  type DeliveryPullRequest,
+  type DeliverySource,
+  type DeliverySourceAdapter,
+  type ExternalDeliveryAdapter,
+  type ExternalDeliveryEvidence,
+  type ExternalDeliveryOptions,
+} from "./external-delivery.ts";
+export { createGitHubDeliverySource, type GitHubDeliveryOptions } from "./github-delivery.ts";
 export { createGitHubDiscovery, type GitHubDiscoveryOptions } from "./github-discovery.ts";
 export type { GraphIntegrationState, GraphPlan, PlannedLeaf } from "./graph-planning.ts";
 export { IssueWorkflow, type IssueWorkflowOptions } from "./issue-workflow.ts";
