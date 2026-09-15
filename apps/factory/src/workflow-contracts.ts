@@ -11,6 +11,12 @@ export interface IssueSnapshot {
   dependencyIds?: string[];
   briefRef?: string;
   sourceRef?: string;
+  route?: "triage" | "implementation";
+  sourceContent?: {
+    body: string;
+    brief?: string;
+    specifications?: { issueId: string; body: string; brief?: string }[];
+  };
 }
 export interface Question {
   prompt: string;
