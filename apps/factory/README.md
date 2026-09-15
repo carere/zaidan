@@ -146,3 +146,37 @@ GitHub writes or model calls.
 Native API references: [issues](https://docs.github.com/en/rest/issues/issues),
 [sub-issues](https://docs.github.com/en/rest/issues/sub-issues), and
 [dependencies](https://docs.github.com/en/rest/issues/issue-dependencies).
+
+## Read-only graph planning
+
+After a complete `scan()`, call `workflow.planGraph(rootIssueId, integration?)`.
+Use the top-level issue's stable ID; a standalone issue is a one-leaf graph.
+The plan lists `specificationIds`, implementation `leaves`, and all
+`eligibleLeaves` together. It expands prerequisites on internal specifications
+into their implementation descendants, inherits ancestor prerequisites, and
+checks the whole prerequisite chain. Cycles, unreadable relationships, and
+ambiguous membership pause affected work and its dependents. Readable external
+prerequisites remain explicit `waiting-external` outcomes until the external
+delivery ticket supplies verification.
+
+`GraphIntegrationState` is trusted recorded delivery evidence from the integration
+boundary: graph ID, matching `graphRevision`, published `head`, `reviewBase`,
+per-leaf exact issue revision and integration commit, and commits verified
+reachable from that exact head. Closure alone supplies none of that evidence.
+A missing head, stale revision, contradictory receipt, or missing commit prevents
+eligibility. Every eligible leaf includes its explicit `startingRevision` and
+an admission proposal with that head and review base. Planning neither admits
+workers nor writes to GitHub; consequential actions still require current
+source/authorization/head rechecks and the live rollout gate.
+
+Call `planGraph` again as soon as integration records change. It recomputes from
+the captured complete discovery snapshot and current durable admissions without
+waiting for the next discovery interval. Returned plans cannot mutate the captured
+source. A failed refresh invalidates planning until a complete scan succeeds.
+The graph revision hashes member identities, specification/source content, and
+native membership/dependencies; issue lifecycle metadata remains checked by the
+exact per-issue revision. After factory-owned closure changes that revision, the
+integration boundary must reconcile and record the observed issue revision; it
+must never relabel arbitrary edited/reopened source as delivered. Durable delivery
+storage, Git containment verification, and publication recovery belong to the
+integration ticket rather than this read-only planner.

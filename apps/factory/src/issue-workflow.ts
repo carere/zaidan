@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { type DiscoveryAdapter, discoverWork, type ScanResult } from "./discovery.ts";
+import {
+  type ApprovedBrief,
+  type DiscoveryAdapter,
+  discoverWork,
+  type ScanResult,
+} from "./discovery.ts";
+import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import type {
   AnswerInput,
   Clock,
@@ -26,6 +32,8 @@ export class IssueWorkflow {
   private options: IssueWorkflowOptions;
   private owner = randomUUID();
   private scanning?: Promise<ScanResult>;
+  private latestScan?: ScanResult;
+  private latestBriefs?: ApprovedBrief[];
   private clock: Clock;
   constructor(options: IssueWorkflowOptions) {
     this.options = options;
@@ -45,12 +53,26 @@ export class IssueWorkflow {
     return this.scanning;
   }
   private async scanOnce(): Promise<ScanResult> {
+    this.latestScan = undefined;
+    this.latestBriefs = undefined;
     if (!this.options.discovery) throw new Error("Discovery adapter is not configured");
     await this.reconcileWorkers();
     await this.recover();
     const snapshot = await this.options.discovery.read();
     const briefs = await this.options.discovery.approvedBriefs?.();
-    return discoverWork(snapshot, this.admissions(), briefs);
+    const result = discoverWork(snapshot, this.admissions(), briefs);
+    this.latestScan = structuredClone(result);
+    this.latestBriefs = structuredClone(briefs);
+    return result;
+  }
+  /** Recompute immediately from the last complete scan and current recorded integration evidence. */
+  planGraph(rootIssueId: string, integration?: GraphIntegrationState) {
+    if (!this.latestScan) throw new Error("A complete discovery scan is required before planning");
+    return planIssueGraph(
+      discoverWork(structuredClone(this.latestScan.snapshot), this.admissions(), this.latestBriefs),
+      rootIssueId,
+      integration,
+    );
   }
   async admit(issue: IssueSnapshot) {
     if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
