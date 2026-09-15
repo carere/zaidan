@@ -28,7 +28,6 @@ export async function listenLocalService(options: {
       request.method === "POST" &&
       (request.url === "/factory/drive" || request.url === "/factory/wake-pending")
     ) {
-      if (!service.status().ready) return json(response, 503, { error: "reconciliation-pending" });
       const input = await body(request);
       if (
         !input ||
@@ -37,6 +36,16 @@ export async function listenLocalService(options: {
         typeof input.runId !== "string"
       )
         return json(response, 400, { error: "runId-required" });
+      if (!service.status().ready) {
+        workflow.observe(input.runId);
+        // Eve's durable loop can sleep without consuming failed-step retries while
+        // reconciliation waits on external receipts. No workflow mutation occurs.
+        return json(
+          response,
+          200,
+          request.url === "/factory/drive" ? { status: "running" } : { accepted: false },
+        );
+      }
       const result =
         request.url === "/factory/drive"
           ? await workflow.drive(input.runId)

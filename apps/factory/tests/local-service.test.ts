@@ -6,6 +6,7 @@ import test from "node:test";
 import { IssueWorkflow } from "../src/issue-workflow.ts";
 import { LocalService } from "../src/local-service.ts";
 import { serviceConfig } from "../src/service-config.ts";
+import { listenLocalService } from "../src/service-http.ts";
 import { SqliteWorkflowStore } from "../src/workflow-store.ts";
 
 function fixture() {
@@ -218,5 +219,40 @@ test("service configuration rejects Git state, redirected Eve deployments and no
     assert.equal(serviceConfig({ FACTORY_STATE_DIR: root }).evePort, 4312);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("Eve can wait for startup reconciliation without spending failed-step retries or dispatching", async () => {
+  const f = fixture();
+  const service = f.service();
+  const run = await f.workflow.admit({
+    issueId: "startup-fixture",
+    repository: "fixture/repo",
+    number: 1,
+    revision: "one",
+    startingRevision: "abc",
+    reviewBase: "abc",
+  });
+  const http = await listenLocalService({ workflow: f.workflow, service, port: 0 });
+  try {
+    const response = await fetch(`${http.url}/factory/drive`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ runId: run.runId }),
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { status: "running" });
+    const wake = await fetch(`${http.url}/factory/wake-pending`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ runId: run.runId }),
+    });
+    assert.equal(wake.status, 200);
+    assert.deepEqual(await wake.json(), { accepted: false });
+    assert.equal(f.workflow.observe(run.runId).status, "admitted");
+  } finally {
+    await http.close();
+    await service.stop();
+    f.cleanup();
   }
 });

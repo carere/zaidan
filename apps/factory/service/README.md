@@ -100,8 +100,10 @@ a trailing duplicate. Explicit wake hooks can also call `trigger('wake')`.
 
 Before discovery, `IssueWorkflow.scan()` reconciles existing worker receipts,
 engine run identities, sessions, checkpoints, notification intents and wake
-intents using the original admission store. HTTP drive/wake callbacks return 503
-until the first scan succeeds. A receipt lookup error leaves the service unready;
+intents using the original admission store. HTTP drive callbacks return a non-dispatching `running` response
+until the first scan succeeds, allowing Eve to sleep without exhausting step
+retries. Wake callbacks return `accepted: false` during that gate; durable wake
+intents remain for reconciliation. A receipt lookup error leaves the service unready;
 `status` exposes `scan-failed` without copying potentially sensitive adapter
 errors. Correct the adapter/connectivity problem and run `scan`, or let the next
 scheduled/wake scan retry. Never clear claims or generate a new session to hide an
