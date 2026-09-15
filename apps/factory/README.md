@@ -531,8 +531,58 @@ Changed heads, membership, requirements, labels, external delivery, reopened
 prerequisites, and stale validation prevent further publication. Preserved work and
 explicit reconciliation reasons are available for subsequent graph re-evaluation;
 these checks never fabricate a new candidate or rewrite original admission evidence.
-Final whole-graph acceptance, readiness and observed main-merge finalization are later
-phases. The default local service remains read-only until the full rollout gate passes.
+The default local service remains read-only until the full rollout gate passes.
+
+## Whole-graph acceptance and delivery
+
+Add `graph.acceptance: { entry: "code-review", notify }` to the same workflow's graph
+configuration. The selected final entry must already exist in each implementation
+run's captured resource closure. When all implementation leaves have published and
+closed, the last integrated leaf continues into an explicit acceptance phase through
+normal `drive`. It keeps its original session, issue/resource snapshot, attempt and
+consumed active budget. The original Eve run remains pending through preparation
+failures until that phase is durably queued; no initialization or acceptance commit
+is manufactured.
+
+Acceptance receives separate immutable inputs: assembled head/tree, original graph
+review base, current root/intermediate specifications, implementation membership,
+issue revisions and approved briefs. Pi executes inside a separate Docker checkout,
+runs all admission-selected checks and independent standards/spec reviews, and
+finishes with `factory_accept_graph`. The checkout must still identify exactly the
+captured clean head/tree, including when head equals review base. The completion
+includes bounded title, problem/result summary and validation prose for the PR.
+Checks, both reviews and completion evidence identify the exact acceptance input.
+A fresh container with no network or credentials verifies that evidence before the
+coordinator consumes it.
+
+`finalizeGraph(graphId)` and `recoverGraph(graphId)` reconcile finalization through
+the existing serial graph owner. Source, membership, approved briefs and remote
+head are rechecked before readiness. Failed acceptance stays draft and explicit
+`retry(runId)` may rerun that retained attempt. Changed requirements invalidate the
+saved result; `invalidateGraphAcceptance(graphId, reason)` can withdraw a ready PR
+even when implementation authorization was revoked. Original evidence remains
+available for deliberate graph re-evaluation. Operator and rollout guards still
+control consequential writes.
+
+PR description, native draft/ready transition and reviewable notification have
+separate durable receipts. The `notify` callback must reconcile by its supplied
+`operationId`; use the persistent Telegram transport rather than a direct, repeatable
+send. Unknown sends wait for the existing explicit notification-retry controls.
+Recovered readiness observes the actual PR state before repeating a transition.
+The description combines the accepted behavior/validation report with coordinator
+owned graph issue references, exact evidence and the original publication marker.
+
+Final merging stays with the maintainer. After a matching merged PR is observed,
+its merge commit must be present in current `main` before specification parents can
+close. Each root/intermediate closure has its own receipt and refreshes graph source
+and approved-brief identity; a lost reply reconciles the already closed parent.
+This supports squash delivery without requiring the graph head to be an ancestor
+of the maintainer's merge commit. The factory exposes no main merge or push method.
+
+See [graph acceptance evidence](tests/GRAPH-ACCEPTANCE-EVIDENCE.md). Native readiness
+uses GitHub's [draft/ready GraphQL mutations](https://docs.github.com/en/graphql/reference/pulls).
+The executable's full production composition and authenticated rollout fixture are
+separate gates; these sandbox and workflow checks do not enable live Zaidan work.
 
 ### Pinned Eve interrupted-step recovery
 

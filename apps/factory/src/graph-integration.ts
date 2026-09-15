@@ -489,7 +489,11 @@ export class GraphCoordinator {
     const graph = this.observe(id);
     if (
       !this.workflow.observe(runId).acceptance &&
-      !(this.options.acceptance && (graph.finalization || graph.state === "reconciliation"))
+      !(
+        this.options.acceptance &&
+        (graph.finalization?.runId === runId ||
+          (!graph.finalization && graph.state === "reconciliation"))
+      )
     )
       this.workflow.finishIntegration(runId);
   }
