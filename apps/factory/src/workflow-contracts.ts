@@ -1,3 +1,4 @@
+import type { ExternalDeliveryEvidence } from "./external-delivery.ts";
 /** Transport snapshots use stable provider identity, never issue number as a key. */
 export interface IssueSnapshot {
   issueId: string;
@@ -11,6 +12,7 @@ export interface IssueSnapshot {
   dependencyIds?: string[];
   briefRef?: string;
   sourceRef?: string;
+  externalDeliveries?: ExternalDeliveryEvidence[];
   route?: "triage" | "implementation";
   sourceContent?: {
     body: string;

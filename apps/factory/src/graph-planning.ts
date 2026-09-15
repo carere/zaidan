@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { DiscoveredIssue, ScanResult } from "./discovery.ts";
+import type { ExternalDeliveryEvidence, ExternalDeliveryResult } from "./external-delivery.ts";
 import type { IssueSnapshot } from "./workflow-contracts.ts";
 
 /** Recorded delivery state supplied by integration, never inferred from issue closure. */
@@ -18,6 +19,7 @@ export interface PlannedLeaf {
   issue: DiscoveredIssue;
   prerequisiteIds: string[];
   externalPrerequisiteIds: string[];
+  externalDeliveries: ExternalDeliveryEvidence[];
   status:
     | "eligible"
     | "waiting-integration"
@@ -44,6 +46,7 @@ export function planIssueGraph(
   scan: ScanResult,
   rootIssueId: string,
   integration?: GraphIntegrationState,
+  externalResults?: Map<string, ExternalDeliveryResult>,
 ): GraphPlan {
   const byId = new Map(scan.snapshot.issues.map((issue) => [issue.issueId, issue]));
   const members = new Map<string, DiscoveredIssue>();
@@ -272,6 +275,7 @@ export function planIssueGraph(
       const base = {
         issue,
         prerequisiteIds: prerequisites,
+        externalDeliveries: [] as ExternalDeliveryEvidence[],
         externalPrerequisiteIds: [
           ...new Set(
             [issue.issueId, ...prerequisites]
@@ -292,13 +296,36 @@ export function planIssueGraph(
         ]),
       ];
       if (blockers.length) return { ...base, status: "blocked", problems: blockers };
-      if (base.externalPrerequisiteIds.length)
+      const externalProblems: string[] = [];
+      let clarification = false;
+      for (const id of base.externalPrerequisiteIds) {
+        const result = externalResults?.get(id);
+        if (
+          validHead &&
+          result?.status === "verified" &&
+          result.evidence.issueId === id &&
+          result.evidence.issueRevision === byId.get(id)?.revision &&
+          result.evidence.graphId === rootIssueId &&
+          result.evidence.graphRevision === graphRevision &&
+          result.evidence.snapshotRevision === scan.snapshot.revision &&
+          result.evidence.reviewBase === integration?.reviewBase &&
+          result.evidence.startingRevision === integration?.head
+        ) {
+          base.externalDeliveries.push(result.evidence);
+        } else {
+          clarification ||= result?.status === "clarification";
+          externalProblems.push(
+            result && result.status !== "verified"
+              ? result.problem
+              : `External prerequisite ${id} requires delivery evidence in the receiving base`,
+          );
+        }
+      }
+      if (externalProblems.length)
         return {
           ...base,
-          status: "waiting-external",
-          problems: base.externalPrerequisiteIds.map(
-            (id) => `External prerequisite ${id} requires delivery evidence in the receiving base`,
-          ),
+          status: clarification ? "blocked" : "waiting-external",
+          problems: externalProblems,
         };
       if (integrated(issue)) return { ...base, status: "integrated", problems: [] };
       const decision = scan.decisions.find((item) => item.issue.issueId === issue.issueId);
@@ -334,6 +361,9 @@ export function planIssueGraph(
           ...decision.admission,
           startingRevision: integration.head,
           reviewBase: integration.reviewBase,
+          ...(base.externalDeliveries.length
+            ? { externalDeliveries: base.externalDeliveries }
+            : {}),
         },
       };
     });
