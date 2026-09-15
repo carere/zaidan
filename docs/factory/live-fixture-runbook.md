@@ -227,3 +227,29 @@ These tests use temporary local Git objects, synthetic skill trees and loopback 
 responses. They check uncertain setup-response recovery, all-page reads, empty GitHub repository
 handling, exact native merge semantics, forbidden merge/foreign-repository writes, payload source
 changes and delayed credential-path attachment. They never contact a real provider, GitHub or Telegram.
+
+### Interruption and execution evidence matrix
+
+The exhaustive deterministic matrix and the initial authenticated fixture are different evidence
+tiers. Keep the prepared initial payload unchanged: it selects one consequential
+`branch-publication.after` interruption. Actual acceptance additionally needs the real unanswered
+Telegram checkpoint/restart/reply and the three maintainer-controlled delivery checkpoints above.
+Do not require scripted human answers or repeated live inference to substitute for deterministic
+boundary checks, and do not describe deterministic checks as authenticated acceptance.
+
+| Case | Executable evidence and boundary | Actual fixture requirement |
+| --- | --- | --- |
+| Branch publication, issue closure, PR readiness, each before and after | `factory:test-fault-matrix`: original production router/workflow, real trusted local Git, physically reopened SQLite, controlled remote receipts and worker outcomes. Missing actions finish once; prior integrations and sessions survive. | Observe the selected real GitHub post-effect crash and recovered exact publication identity. |
+| Question notification, before and after | Same matrix: real Telegram transport against loopback HTTP and reopened SQLite. A pre-send uncertain intent requires explicit operator retry; a post-send authenticated reply reconciles the existing message. No automatic uncertain resend. | Observe the real bot checkpoint, service restart and actual authorized reply. |
+| Answer persistence, before and after | Same matrix: authenticated native-shaped Telegram updates, actual workflow SQLite and original wake intent; stale/cross-user/group/duplicate updates cannot consume another checkpoint. | Retain the actual answer/checkpoint/session identity through the real restart. |
+| Whole service routing and lost effect receipts | `factory:test-production`: owned LocalService plus compiled Eve; scan alone drives graph implementation, serial integration, immediate dependency, acceptance/readiness and observed simulated maintainer delivery. | The actual fixture performs the same phases using native provider/Telegram/GitHub adapters. |
+| Capacity, active budgets, bounded retry, subscription waits and descendant cancellation | `factory:test`, `factory:test-eve` and credential-free Docker contracts cover durable policy, actual native history exhaustion and sandbox protocols separately. | Verify authenticated worker/delegate containment and configured model/permit limits; retain actual observations without inventing quota failures. |
+| Changed/reopened/moved work and stale acceptance | `factory:test` exercises retained graph output and exact revision decisions; `factory:test-production` also proves independent external waits and explicit contained receiving-base adoption. | Preserve actual source/acceptance identities and report any unexercised live variations honestly. |
+
+```sh
+direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test-fault-matrix factory:test-production
+```
+
+A typed fault receipt alone establishes only that the interruption point was consumed. The test or
+operator must verify the original durable identity and resulting remote effect before marking its
+case passed. The production matrix does not start a second coordinator or reset attempts/budgets.
