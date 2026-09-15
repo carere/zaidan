@@ -1,6 +1,7 @@
-import type { DiscoveryAdapter } from "./discovery.ts";
-import type { IssueWorkflow } from "./issue-workflow.ts";
+import type { DiscoveryAdapter, ScanResult } from "./discovery.ts";
+import type { IssueWorkflow, IssueWorkflowOptions } from "./issue-workflow.ts";
 import type { LocalService } from "./local-service.ts";
+import type { RolloutPolicy } from "./rollout.ts";
 import type { TelegramControl } from "./telegram.ts";
 import type {
   OperatorGraphStatus,
@@ -11,6 +12,13 @@ import type { TriageAdapter } from "./triage.ts";
 import type { NotificationAdapter, WorkerAdapter } from "./workflow-contracts.ts";
 
 export interface ServiceAdapters {
+  workflowOptions?: Pick<
+    IssueWorkflowOptions,
+    "captureResources" | "publication" | "graph" | "externalDelivery"
+  >;
+  rollout?: RolloutPolicy;
+  onScan?: (result: ScanResult) => Promise<void>;
+  tick?: () => Promise<void>;
   worker: WorkerAdapter;
   notifications: NotificationAdapter;
   discovery?: DiscoveryAdapter;

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import type { GraphReconciliation } from "./graph-integration.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import type { LocalService } from "./local-service.ts";
 import type { StandalonePublicationOptions } from "./standalone-publication.ts";
@@ -18,6 +19,7 @@ export interface OperatorGraphStatus {
   integrated: number;
   total: number;
   pullRequestUrl?: string;
+  reconciliation?: GraphReconciliation;
 }
 export interface TelegramOperationsOptions {
   database: string;
@@ -31,6 +33,7 @@ export interface TelegramOperationsOptions {
   };
 }
 interface CommandReceipt {
+  graphDecision?: { graphId: string; revision: string; continueRunIds: string[] };
   command: TelegramCommand;
   targets: string[];
   factory?: boolean;
@@ -137,6 +140,25 @@ export class TelegramOperations {
       state: valid ? "pending" : "done",
       ...(!valid ? { result: help } : {}),
     };
+    if (command.name === "reconcile") {
+      const [scope, graphId, revision, ...continueRunIds] = parts;
+      const graph = this.options.graphs?.().find((item) => item.graphId === graphId);
+      if (
+        scope === "graph" &&
+        graph?.reconciliation?.revision === revision &&
+        continueRunIds.every((id) => id in (graph.reconciliation?.holds ?? {})) &&
+        new Set(continueRunIds).size === continueRunIds.length
+      ) {
+        receipt.graphDecision = { graphId, revision, continueRunIds };
+        receipt.state = "pending";
+        delete receipt.result;
+      } else {
+        receipt.state = "done";
+        receipt.result =
+          "Inspect /status factory for the current graph revision and held run IDs. Use /reconcile graph <graph-id> <exact-revision> [run-id ...] to approve re-evaluation of only those retained runs.";
+      }
+      return receipt;
+    }
     if (factory) {
       receipt.factoryAlreadyPaused = this.options.workflow.factoryPaused();
       const row = this.db
@@ -187,7 +209,11 @@ export class TelegramOperations {
     this.save(receipt);
     if (receipt.state === "pending") {
       try {
-        if (receipt.recovery) receipt.result = await this.recoverExternal(receipt);
+        if (receipt.graphDecision) {
+          const { graphId, revision, continueRunIds } = receipt.graphDecision;
+          await this.options.workflow.reconcileGraph(graphId, { revision, continueRunIds });
+          receipt.result = `Graph ${graphId}: the exact revision decision was reconciled; retained work will continue only where currently authorized.`;
+        } else if (receipt.recovery) receipt.result = await this.recoverExternal(receipt);
         else if (command.name === "scan") {
           await this.options.service.trigger("manual");
           receipt.result = "Factory scan completed. Use /status factory for progress.";
@@ -372,7 +398,17 @@ export class TelegramOperations {
         ? []
         : (this.options.graphs?.() ?? []).map(
             (graph) =>
-              `Graph ${graph.graphId} #${graph.issueNumber}: ${graph.state}; ${graph.integrated}/${graph.total} integrated.${safePullRequest(graph.pullRequestUrl, graph.repository) ? ` ${safePullRequest(graph.pullRequestUrl, graph.repository)}` : ""}`,
+              `Graph ${graph.graphId} #${graph.issueNumber}: ${graph.state}; ${graph.integrated}/${graph.total} integrated.${safePullRequest(graph.pullRequestUrl, graph.repository) ? ` ${safePullRequest(graph.pullRequestUrl, graph.repository)}` : ""}${
+                graph.reconciliation
+                  ? `\nReconciliation revision: ${graph.reconciliation.revision}\n${Object.entries(
+                      graph.reconciliation.holds,
+                    )
+                      .map(([id, hold]) => `${id}: ${hold.kind}: ${hold.reason}`)
+                      .join(
+                        "\n",
+                      )}\nApprove only the listed runs you intend to re-evaluate: /reconcile graph ${graph.graphId} ${graph.reconciliation.revision} [run-id ...]`
+                  : ""
+              }`,
           )),
       ...this.options.telegram
         .status()

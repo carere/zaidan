@@ -35,6 +35,8 @@ import type {
 import type { Operation, WorkflowStore } from "./workflow-store.ts";
 
 export interface IssueWorkflowOptions {
+  /** Production always supplies the independent rollout gate, including in read-only mode. */
+  rollout?: { status(): { enabled: boolean }; assertAllowed(): void };
   store: WorkflowStore;
   graph?: GraphOptions;
   publication?: StandalonePublicationOptions;
@@ -254,6 +256,7 @@ export class IssueWorkflow {
   }
   /** Read-only discovery is allowed while operator gates prevent consequential actions. */
   assertLiveAction(runId?: string) {
+    this.options.rollout?.assertAllowed();
     if (this.factoryPaused()) throw new Error("Factory is paused");
     if (runId) {
       const run = this.observe(runId);
@@ -305,7 +308,12 @@ export class IssueWorkflow {
         (this.options.execution?.budgetMs ?? 7200000)
       )
         return "denied" as const;
-      if (this.factoryPaused() || run.operatorPaused) return "denied" as const;
+      if (
+        this.options.rollout?.status().enabled === false ||
+        this.factoryPaused() ||
+        run.operatorPaused
+      )
+        return "denied" as const;
       if (execution.models.includes(owner)) return "granted" as const;
       if (
         this.admissions().reduce(
@@ -411,6 +419,7 @@ export class IssueWorkflow {
       (run) =>
         run.issue.issueId === issueId &&
         run.issue.revision !== decision.issue.revision &&
+        !(run.issue.route === "triage" && run.triage?.receipt && run.status === "completed") &&
         run.status !== "cancelled" &&
         run.status !== "failed",
     );
@@ -575,6 +584,7 @@ export class IssueWorkflow {
     await this.enforceBudgets();
     if (this.observe(runId).eveContinuationId !== continuationId) return this.retiredOwner(runId);
     const run = this.observe(runId);
+    if (this.options.rollout?.status().enabled === false) return { ...run, status: "running" };
     if (this.factoryPaused() || run.operatorPaused)
       return run.status === "waiting-human" && run.checkpoint?.answer
         ? { ...run, status: "running" }

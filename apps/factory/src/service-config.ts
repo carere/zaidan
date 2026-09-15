@@ -10,6 +10,7 @@ export interface ServiceConfig {
   permitPort: number;
   execution: { workers: number; modelCalls: number; budgetMs: number };
   adapterModule?: string;
+  runtimeConfig?: string;
   telegram?: { maintainerId: number };
 }
 
@@ -55,6 +56,9 @@ export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConf
   const adapterModule = env.FACTORY_ADAPTER_MODULE;
   if (adapterModule && !isAbsolute(adapterModule))
     throw new Error("FACTORY_ADAPTER_MODULE must be absolute");
+  const runtimeConfig = env.FACTORY_RUNTIME_CONFIG;
+  if (runtimeConfig && (!isAbsolute(runtimeConfig) || adapterModule))
+    throw new Error("Choose one absolute native runtime config or adapter module");
   return {
     stateDirectory,
     deploymentDirectory,
@@ -64,6 +68,7 @@ export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConf
     permitPort,
     execution,
     adapterModule,
+    runtimeConfig,
     telegram,
   };
 }

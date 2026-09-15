@@ -15,7 +15,7 @@ export interface TelegramOptions {
 export interface TelegramCommand {
   /** Handler must reconcile this durable identity before repeating any external action. */
   id: string;
-  name: "scan" | "status" | "pause" | "resume" | "cancel" | "retry";
+  name: "scan" | "status" | "pause" | "resume" | "cancel" | "retry" | "reconcile";
   argument: string;
 }
 type CommandHandler = (command: TelegramCommand) => Promise<void>;
@@ -267,7 +267,9 @@ export class TelegramControl implements NotificationAdapter {
           : undefined;
       if (option) answer = { optionId: option.id };
     } else if (!callback && message.text) {
-      const control = message.text.match(/^\/(scan|status|pause|resume|cancel|retry)(?:\s+(.*))?$/);
+      const control = message.text.match(
+        /^\/(scan|status|pause|resume|cancel|retry|reconcile)(?:\s+(.*))?$/,
+      );
       if (control && command) {
         await command({
           id: `telegram:${update.update_id}`,
