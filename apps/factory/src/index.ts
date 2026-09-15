@@ -9,6 +9,17 @@ export type {
 export { createEveEngine } from "./eve-engine.ts";
 export { createGitHubDiscovery, type GitHubDiscoveryOptions } from "./github-discovery.ts";
 export { IssueWorkflow, type IssueWorkflowOptions } from "./issue-workflow.ts";
+export {
+  LocalService,
+  type LocalServiceOptions,
+  type ScanTrigger,
+  type ServiceStatus,
+} from "./local-service.ts";
+export type {
+  CreateServiceAdapters,
+  ServiceAdapterContext,
+  ServiceAdapters,
+} from "./service-adapters.ts";
 export type {
   Answer,
   AnswerInput,
