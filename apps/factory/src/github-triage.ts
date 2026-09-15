@@ -63,6 +63,7 @@ export function createGitHubTriage(options: GitHubTriageOptions): TriageAdapter 
     throw new Error(
       "Triage requires persistent storage, selected repository and coordinator token",
     );
+  let actionGuard: ((runId: string) => void) | undefined;
   const base = new URL(`${(options.apiBase ?? "https://api.github.com").replace(/\/$/, "")}/`);
   if (
     base.protocol !== "https:" &&
@@ -274,6 +275,7 @@ export function createGitHubTriage(options: GitHubTriageOptions): TriageAdapter 
           `Triage ${key} outcome uncertain; reconcile remote evidence before retrying`,
         );
       await checked();
+      actionGuard?.(request.runId);
       db.exec("BEGIN IMMEDIATE");
       try {
         const latestRow = db
@@ -464,6 +466,9 @@ export function createGitHubTriage(options: GitHubTriageOptions): TriageAdapter 
     return receipt;
   }
   const adapter = {
+    configureActionGuard(guard: (runId: string) => void) {
+      actionGuard = guard;
+    },
     close() {
       db.close();
     },

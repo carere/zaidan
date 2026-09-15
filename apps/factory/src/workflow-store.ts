@@ -7,7 +7,7 @@ import type { IssueSnapshot, RunSnapshot } from "./workflow-contracts.ts";
 
 export interface Operation {
   id: string;
-  kind: "start" | "dispatch" | "resume" | "notify" | "wake" | "publication" | "triage";
+  kind: "start" | "dispatch" | "resume" | "notify" | "wake" | "publication" | "triage" | "control";
   runId: string;
   phase: number;
   state: "pending" | "claimed" | "done";
@@ -21,6 +21,7 @@ export interface WorkflowStore {
   admit(issue: IssueSnapshot, resources?: ResourceSnapshotReference): RunSnapshot;
   read(runId: string): RunSnapshot;
   list(): RunSnapshot[];
+  factoryPaused(value?: boolean): boolean;
   change<T>(runId: string, fn: (run: RunSnapshot, operations: Operation[]) => T): T;
 }
 export class SqliteWorkflowStore implements WorkflowStore {
@@ -33,8 +34,18 @@ export class SqliteWorkflowStore implements WorkflowStore {
     mkdirSync(this.stateDirectory, { recursive: true });
     this.db = new DatabaseSync(path);
     this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
+      CREATE TABLE IF NOT EXISTS factory_controls (id INTEGER PRIMARY KEY CHECK(id=1), paused INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, issue_id TEXT NOT NULL, revision TEXT NOT NULL, data TEXT NOT NULL, UNIQUE(issue_id, revision));
       CREATE TABLE IF NOT EXISTS operations (id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(id), data TEXT NOT NULL);`);
+  }
+  factoryPaused(value?: boolean) {
+    if (value !== undefined)
+      this.db
+        .prepare(
+          "INSERT INTO factory_controls VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET paused=excluded.paused",
+        )
+        .run(value ? 1 : 0);
+    return this.db.prepare("SELECT paused FROM factory_controls WHERE id=1").get()?.paused === 1;
   }
   close() {
     this.db.close();

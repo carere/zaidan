@@ -292,3 +292,64 @@ test("process death during admission recovers the persisted original run and ses
   assert.equal((await recovered.drive(run.runId)).status, "waiting-human");
   assert.equal(f.dispatches.length, 1);
 });
+
+test("live coordinator drive and wake effects stay single-flight beyond durable claim expiry", async (t) => {
+  const f = fixture(t);
+  let releaseWorker!: () => void;
+  const workerHeld = new Promise<void>((resolve) => {
+    releaseWorker = resolve;
+  });
+  const dispatch = f.adapters.worker.dispatch;
+  let workerEffects = 0;
+  f.adapters.worker.dispatch = async (request) => {
+    workerEffects++;
+    await workerHeld;
+    return dispatch(request);
+  };
+  const workflow = f.open();
+  const run = await workflow.admit(issue);
+  const first = workflow.drive(run.runId);
+  await new Promise((resolve) => setImmediate(resolve));
+  f.advance();
+  const replay = workflow.drive(run.runId);
+  await new Promise((resolve) => setImmediate(resolve));
+  try {
+    assert.equal(workerEffects, 1);
+  } finally {
+    releaseWorker();
+  }
+  const [waiting, replayed] = await Promise.all([first, replay]);
+  assert.deepEqual(replayed, waiting);
+  assert.equal(f.dispatches.length, 1);
+  let releaseWake!: () => void;
+  const wakeHeld = new Promise<void>((resolve) => {
+    releaseWake = resolve;
+  });
+  let wakeEffects = 0;
+  f.adapters.engine.wake = async () => {
+    wakeEffects++;
+    await wakeHeld;
+  };
+  const answering = workflow.answer({
+    runId: run.runId,
+    issueId: issue.issueId,
+    revision: issue.revision,
+    checkpointId: waiting.checkpoint?.id ?? "missing",
+    answerId: "held-answer",
+    answer: { optionId: "blue" },
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  f.advance();
+  const wakeReplay = workflow.recoverWake(run.runId);
+  await new Promise((resolve) => setImmediate(resolve));
+  try {
+    assert.equal(wakeEffects, 1);
+  } finally {
+    releaseWake();
+  }
+  assert.equal(await answering, "accepted");
+  await wakeReplay;
+  const completed = await workflow.drive(run.runId);
+  assert.equal(completed.status, "completed");
+  assert.equal(f.resumes.length, 1);
+});

@@ -883,3 +883,47 @@ test("source revision changing during sandbox acceptance cannot establish readin
   assert.equal(f.workflow.observeGraph("root").finalization?.state, "stale");
   assert.equal(f.events.filter((e) => e === "ready").length, 0);
 });
+
+test("factory pause retains a completed graph candidate across restart and resume publishes it once", async (t) => {
+  const f = integrationFixture(t);
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  await workflow.drive(original.runId);
+  f.setLosePush();
+  await workflow.drive(original.runId);
+  const candidate = workflow.observe(original.runId);
+  assert.equal(candidate.status, "completed");
+  assert.equal(candidate.graphPending, true);
+  workflow.factoryPaused(true);
+  await workflow.operate({ id: "factory-pause", runId: original.runId, action: "pause" });
+  workflow = f.make();
+  const events = [...f.events];
+  const paused = await workflow.drive(original.runId);
+  assert.equal(paused.status, "completed");
+  assert.equal(paused.graphPending, true);
+  assert.equal(paused.operatorPaused, true);
+  assert.equal(workflow.factoryPaused(), true);
+  await assert.rejects(workflow.recoverGraph("root"), /paused/);
+  assert.deepEqual(f.events, events);
+  assert.equal(f.requests.length, 2);
+  await workflow.operate({
+    id: "factory-resume",
+    runId: original.runId,
+    action: "resume",
+    restoreOnly: true,
+  });
+  workflow.factoryPaused(false);
+  await workflow.drive(original.runId);
+  const delivered = workflow.observe(original.runId);
+  assert.equal(delivered.graphPending, false);
+  assert.deepEqual(delivered.candidate, candidate.candidate);
+  assert.deepEqual(delivered.session, original.session);
+  assert.deepEqual(delivered.resources, original.resources);
+  assert.equal(delivered.execution?.consumedMs, candidate.execution?.consumedMs);
+  assert.equal(delivered.phase, candidate.phase);
+  assert.equal(f.requests.length, 2);
+  assert.equal(f.pulls.length, 1);
+  assert.equal(f.events.filter((event) => event === "close:a").length, 1);
+  assert.equal(workflow.admissions().length, 2);
+});
