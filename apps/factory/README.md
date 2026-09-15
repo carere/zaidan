@@ -14,6 +14,32 @@ persistent directory outside Git and disposable workers. Do not add Cloudflare b
 remote outputs to factory tasks. See [local service operations](service/README.md) for configuration, lifecycle,
 scheduling, logs, backup, and the optional uninstalled launchd template.
 
+## Production service composition
+
+`service-cli.ts` owns one persistent workflow, compiled Eve host and native operator
+transport. Select `FACTORY_RUNTIME_CONFIG` for native GitHub discovery, triage,
+publication/delivery, Docker Pi workers, serial graph integration and whole-graph
+acceptance. It is mutually exclusive with a custom `FACTORY_ADAPTER_MODULE`.
+Coordinator secrets may come from a private `0600`, data-only `FACTORY_ENV_FILE`;
+only the selected native OAuth file and refresh locks reach the worker.
+
+The default rollout stays disabled. Production coalesces discovery and subsequent
+routing through one service scan, then uses a non-overlapping two-second progress
+tick alongside Eve phase execution. Worker dispatch, model permits, triage writes, publication, new checkpoint sends
+and native starts/wakes require the current rollout policy, including retained-run
+actions. Safe receipt/owner lookup and cancellation remain available; pending
+effects wait for restored authority. Target live authority binds the runtime,
+root lockfile, immutable worker image, selected resource sources and native repository
+identity to operator-owned actual acceptance evidence. Missing or withdrawn proof
+blocks further consequential actions; use pause/cancel to stop existing workers.
+
+Follow [local service operations](service/README.md) for the runtime schema, private
+credentials, `status`/`scan`/`progress`, continuation recovery, graph-base decisions,
+state backup and stopped-service upgrades. The [live fixture runbook](../../docs/factory/live-fixture-runbook.md)
+defines the seven actual scenarios required before an operator can construct the
+bound target proof after fresh disabled discovery. Deterministic tests do not enable
+live work, and no unattended service is installed by adding this configuration.
+
 ## Durable issue workflow
 
 The public boundary is `IssueWorkflow` in `src/index.ts`. Supply a
@@ -59,11 +85,12 @@ direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test
 
 `agent/` is a code-controlled Eve agent with a locally rejecting model and no
 default tools. `createEveEngine({baseUrl})` connects the coordinator to its
-`/factory/engine/{start,find,wake}` routes. The host needs
+`/factory/engine/{start,find,wake,inspect}` routes. The host needs
 `FACTORY_COORDINATOR_URL`; that loopback service routes POST `/factory/drive` to
-`workflow.drive(runId)` and POST `/factory/wake-pending` to
-`workflow.recoverWake(runId)`. Bind both services to loopback. GitHub discovery is configured at the workflow boundary below; operator
-transports are supplied by later factory tickets.
+`workflow.driveOwned(runId, continuationId)` and POST `/factory/wake-pending` to
+`workflow.recoverWakeOwned(runId, continuationId)`. Bind both services to loopback.
+The production service wires native discovery and Telegram controls to this same
+workflow boundary; retired native owners cannot drive a replacement phase.
 
 Run exactly one Eve host for each persistent deployment directory. Build and run
 it from that external directory and preserve its `.eve/.workflow-data` across
@@ -156,8 +183,8 @@ The plan lists `specificationIds`, implementation `leaves`, and all
 into their implementation descendants, inherits ancestor prerequisites, and
 checks the whole prerequisite chain. Cycles, unreadable relationships, and
 ambiguous membership pause affected work and its dependents. Readable external
-prerequisites remain explicit `waiting-external` outcomes until the external
-delivery ticket supplies verification.
+prerequisites remain explicit `waiting-external` outcomes until the configured
+external delivery verifier supplies current evidence.
 
 `GraphIntegrationState` is trusted recorded delivery evidence from the integration
 boundary: graph ID, matching `graphRevision`, published `head`, `reviewBase`,
@@ -179,7 +206,7 @@ exact per-issue revision. After factory-owned closure changes that revision, the
 integration boundary must reconcile and record the observed issue revision; it
 must never relabel arbitrary edited/reopened source as delivered. Durable delivery
 storage, Git containment verification, and publication recovery belong to the
-integration ticket rather than this read-only planner.
+graph integration module rather than this read-only planner.
 
 ### External prerequisite delivery
 
@@ -266,8 +293,8 @@ Candidate verification itself runs in a fresh credential-free, network-disabled 
 container. A checkpoint commit or completed worker outcome does not publish or close an
 issue.
 
-The worker's optional `permitUrl` connects #516's model-call capacity transport. It
-acquires before a provider request and releases on assistant `message_end`, before
+The worker's `permitUrl` connects the coordinator's model-call capacity transport;
+the production service supplies its stable endpoint. Pi acquires before a provider request and releases on assistant `message_end`, before
 delegated tools wait, plus end/error/shutdown cleanup. Worker admission limits, active
 budgets, retries, and authenticated permit transport belong to that coordinator policy.
 Pi's own automatic retry is disabled so it cannot compete with the durable retry policy.
@@ -390,9 +417,9 @@ Mac/OrbStack environment; `host.docker.internal` reaches the bound loopback port
 
 For embedded composition, call `startModelPermitServer(workflow, stablePort)` and
 `workflow.configureModelPermits(server.url)` before driving work; close the server
-on shutdown. Keep that port stable across recovery. Future integration and final
-acceptance phases must use this same workflow capacity ownership, not bypass it by
-calling a worker directly.
+on shutdown. Keep that port stable across recovery. Integration and final
+acceptance phases use this same workflow capacity ownership; custom adapters must
+not bypass it by calling a worker directly.
 
 The normal test suite includes fake-clock capacity/budget/retry/recovery checks.
 The additional credential-free Docker image exercises the actual native Pi hooks,
@@ -478,10 +505,10 @@ The service must surface uncertain notifications as operator attention, not sile
 claim delivery. Keep the adapter database, token and maintainer identity stable
 across restarts; changing bot/identity/API destination rejects incompatible state.
 
-The default CLI remains read-only. The final service composition must supply this
+The default CLI remains read-only. Native runtime configuration supplies this
 triage adapter, capture hook, real Docker worker, and Telegram lifecycle to the
-same workflow/service, and enable admission only after the documented full live
-fixture gate. See [triage evidence](tests/TRIAGE-EVIDENCE.md) for observed contract
+same workflow/service. Target admission requires the documented actual live
+fixture evidence and matching rollout proof. See [triage evidence](tests/TRIAGE-EVIDENCE.md) for observed contract
 checks and the remaining actual Telegram/provider/human acceptance requirement.
 Primary transport references: [Telegram Bot API](https://core.telegram.org/bots/api#getupdates)
 and [GitHub issue comments](https://docs.github.com/en/rest/issues/comments).
@@ -581,26 +608,38 @@ of the maintainer's merge commit. The factory exposes no main merge or push meth
 
 See [graph acceptance evidence](tests/GRAPH-ACCEPTANCE-EVIDENCE.md). Native readiness
 uses GitHub's [draft/ready GraphQL mutations](https://docs.github.com/en/graphql/reference/pulls).
-The executable's full production composition and authenticated rollout fixture are
-separate gates; these sandbox and workflow checks do not enable live Zaidan work.
+Native production composition is available through `FACTORY_RUNTIME_CONFIG`. Its
+authenticated rollout fixture remains a separate acceptance gate; these sandbox and
+workflow checks do not enable live Zaidan work.
 
-### Pinned Eve interrupted-step recovery
+### Native Eve continuation and interrupted creation recovery
 
-The bundled `@workflow/world-local@5.0.0-beta.43` can be interrupted after creating
-an empty step-creation marker but before writing the step entity and journal event.
-Native startup then finds the run but cannot replay that step. The supervised host
-now checks for this exact state before importing the compiled Eve server. A host PID
-claim, in addition to the coordinator's exclusive service ownership, prevents repair
-while a previous host is still alive.
+`recoverEngineOwners()` inspects the current native owner and queues a durable
+continuation only for terminal `MAX_EVENTS_EXCEEDED`. Startup and the service's
+two-second progress loop invoke it. Long waits and active operations keep the same
+factory admission, original session/resources, worker operation, attempt and spent
+budget. Retired native IDs and cap diagnostics remain in `eveOwnerHistory`; owner-aware
+drive/wake callbacks fence stale owners. Uncertain successor starts reconcile the
+same continuation instead of allocating another issue run. Semantic failures do not
+receive this retry, and the native event ceiling is not raised.
 
-Only an empty, unnamespaced `.created` marker for a valid active run is eligible,
-and only when both its step record and corresponding journal evidence are missing.
-The known world-version marker must match. Startup preserves completed runs, existing
-step entities, journaled steps, and all other locks. It quarantines the orphan marker
-and writes a diagnostic receipt under `.eve/factory-world-repairs`, outside the native
-world directories. Unknown versions, malformed state and redirected paths fail closed.
-Do not remove the world or clear its locks manually to recover a run. Revalidate this
-compatibility repair when upgrading Eve or its bundled local-world runtime.
+The bundled `@workflow/world-local@5.0.0-beta.43` can also be interrupted between a
+creation marker, entity record and journal persistence. Before importing the compiled
+host, startup acquires exclusive host ownership and validates this pinned seam. It
+quarantines orphan step/wait creation markers with no record or matching journal.
+For existing records, only pending attempt-zero factory `drive`/`recoverWake` steps
+with matching IDs, equal valid creation/update timestamps, and no started, output,
+error, completion, terminal-marker or journal evidence are eligible.
+
+Missing journal evidence does **not** prove a step body never ran. This narrow
+repair relies on the known idempotent coordinator operations and their retained
+original SQLite receipts/session. It is not safe replay for arbitrary Eve steps.
+Running/completed/failed records, unknown step names, terminal runs and journaled
+state stay untouched. Eligible records and markers are quarantined with diagnostics
+under `.eve/factory-world-repairs`, outside native world collections. Unknown
+versions, malformed state and redirected paths fail closed. Never clear the world
+or arbitrary locks manually; revalidate this repair when upgrading Eve or its
+bundled local-world runtime.
 
 ### Reconcile maintainer edits to a graph
 
@@ -657,3 +696,13 @@ drive or wake the replacement phase; prior native owner IDs remain in
 `eveOwnerHistory`. A failed host connection can occur after the decision was
 persisted: recover the pending owner start instead of creating a new issue run.
 The executable's `/factory/drive` and wake routes use owner-aware workflow methods.
+
+When `main` advances, reconciliation reports the current/available receiving base
+and whether the graph head contains it. The maintainer brings an uncontained base
+into the graph branch, preserving existing work, then scans again. Once contained,
+explicitly approve `adoptReceivingBase: availableMainCommit` together with the exact
+reconciliation revision (and only selected held run IDs). This invalidates stale
+assembled validation without replacing original admission evidence. The native
+Telegram form is `/reconcile graph <graph-id> <exact-revision> base=<40-hex-main-commit> [run-id ...]`.
+The factory never merges or pushes `main`; ordinary resume/retry cannot approve
+base adoption. See the service runbook for the operator sequence.
