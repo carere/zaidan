@@ -220,10 +220,21 @@ Import delivery objects through the trusted integration transport before verific
 performs bounded read-only Git operations, disables replacement objects and lazy fetching, and
 never runs Git from worker checkout configuration or hooks. Both `integration.reviewBase` and
 `integration.head` must be full immutable commit IDs. The GitHub adapter issues only a fixed
-GraphQL query using native closing references, including closed/merged PRs; arbitrary mentions
-and another graph's child closure are insufficient delivery proof.
+GraphQL query using native closing references, including closed/merged PRs.
 
-Eligibility requires one unambiguous merged closing PR whose merge commit is present in **both**
+Production also composes `createGraphDeliverySource` with the retained graph store. Graph children
+close during integration, so their graph PR need not appear in native closing references. The
+coordinator's current accepted finalization supplies the member-to-PR association for children
+and specification parents, including records retained before this adapter was introduced. Each
+lookup rechecks the exact native PR identity, accepted head, graph branch, `main` target and
+publication marker, plus fresh graph membership, issue sources and approved briefs. Parent
+closure must match its durable closure revision. Reopened members, stale acceptance, changed
+scope and conflicting PR associations cannot reuse an old delivery. Arbitrary PR prose or issue
+closure alone never supplies this association. Keep the original `graphs.sqlite` across restart
+and upgrades; absent authoritative records still require a native closing reference or maintainer
+clarification.
+
+Eligibility requires one unambiguous merged delivery PR whose merge commit is present in **both**
 the receiving base and the worker starting head. The merge commit also proves squash delivery;
 original implementation ancestry is unnecessary. Open or unmerged prerequisites wait. Unknown or
 non-completion closure reasons, inaccessible/changed source, ambiguous PRs, missing objects, and
@@ -232,7 +243,8 @@ clarification. No success is inferred from missing evidence.
 
 Verified leaves and their admission snapshots retain `externalDeliveries`: exact prerequisite
 revision, PR identity/revision and merge commit, graph/snapshot identity, receiving base, and
-starting revision. Admission rejects receipts tied to different revisions. Integration must
+starting revision. Graph-backed receipts also retain the accepted graph identity, revision, head
+and acceptance identity. Admission rejects receipts tied to different revisions. Integration must
 freshly scan and verify immediately before consequential actions, preserve these receipts, and
 recheck authorization and the selected head. A newer main base does not make an older graph head
 eligible; the graph must first receive the delivered code. Every verification rereads delivery

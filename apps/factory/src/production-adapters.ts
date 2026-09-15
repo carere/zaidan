@@ -8,6 +8,7 @@ import { createGitHubDeliverySource } from "./github-delivery.ts";
 import { createGitHubDiscovery } from "./github-discovery.ts";
 import { createGitHubPublication } from "./github-publication.ts";
 import { createGitHubTriage } from "./github-triage.ts";
+import { createGraphDeliverySource } from "./graph-delivery.ts";
 import { SqliteGraphStore } from "./graph-integration.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import {
@@ -146,7 +147,18 @@ export async function createProductionAdapters(options: {
     maintainerId,
     checkpointEffect: (point) => faults.hit(point),
   });
-  const deliverySource = createGitHubDeliverySource({ token });
+  const deliverySource = createGraphDeliverySource({
+    source: createGitHubDeliverySource({ token }),
+    graphs,
+    github: nativeGithub,
+    discovery: {
+      read: () => discovery.read(),
+      approvedBriefs: async () => [
+        ...((await discovery.approvedBriefs?.()) ?? []),
+        ...(await triage.approvedBriefs()),
+      ],
+    },
+  });
   const delivery = createExternalDelivery({
     trustedGitDirectory: join(stateDirectory, "trusted.git"),
     github: {

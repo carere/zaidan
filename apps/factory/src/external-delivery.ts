@@ -4,6 +4,7 @@ import type { DiscoveredIssue } from "./discovery.ts";
 import type { GraphIntegrationState } from "./graph-planning.ts";
 
 export interface DeliveryPullRequest {
+  graph?: { id: string; revision: string; acceptance: string; head: string };
   id: string;
   url: string;
   repository: string;
@@ -18,7 +19,7 @@ export interface DeliverySource {
     DiscoveredIssue,
     "issueId" | "repository" | "number" | "title" | "body" | "updatedAt" | "state" | "stateReason"
   >;
-  /** Native closing references, never arbitrary mentions or agent-authored claims. */
+  /** Native closing references or coordinator-owned accepted graph associations. */
   pullRequests: DeliveryPullRequest[];
 }
 export interface DeliverySourceAdapter {
