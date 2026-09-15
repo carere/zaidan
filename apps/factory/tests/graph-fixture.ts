@@ -375,6 +375,8 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
   });
   return {
     make,
+    bare,
+    graphDatabase: join(directory, "graphs.sqlite"),
     restart(triage?: TriageAdapter, engine?: WorkflowEngine) {
       for (const store of stores.splice(0)) store.close();
       for (const graph of graphs.splice(0)) graph.close();
@@ -400,6 +402,20 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
       git("push", remote, `HEAD:refs/heads/${branch}`);
       git("--git-dir", bare, "fetch", remote, `refs/heads/${branch}:refs/heads/${branch}`);
       return next;
+    },
+    maintainerNormalMerge(head: string) {
+      const tree = git("rev-parse", `${head}^{tree}`);
+      const merge = git("commit-tree", tree, "-p", base, "-p", head, "-m", "maintainer merge");
+      git("push", remote, `${merge}:refs/heads/main`);
+      git("--git-dir", bare, "fetch", remote, "refs/heads/main:refs/heads/main");
+      return merge;
+    },
+    maintainerSquash(head: string) {
+      const tree = git("rev-parse", `${head}^{tree}`);
+      const merge = git("commit-tree", tree, "-p", base, "-m", "maintainer squash");
+      git("push", remote, `${merge}:refs/heads/main`);
+      git("--git-dir", bare, "fetch", remote, "refs/heads/main:refs/heads/main");
+      return merge;
     },
     maintainerMerge(head: string) {
       git("--git-dir", remote, "update-ref", "refs/heads/main", head, base);
