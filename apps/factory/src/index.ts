@@ -28,6 +28,14 @@ export {
 export { createGitHubDeliverySource, type GitHubDeliveryOptions } from "./github-delivery.ts";
 export { createGitHubDiscovery, type GitHubDiscoveryOptions } from "./github-discovery.ts";
 export { createGitHubPublication, type GitHubPublicationOptions } from "./github-publication.ts";
+export type {
+  BundleReference,
+  GraphOptions,
+  GraphPublicationGit,
+  GraphRecord,
+  IntegrationInput,
+} from "./graph-integration.ts";
+export { SqliteGraphStore } from "./graph-integration.ts";
 export type { GraphIntegrationState, GraphPlan, PlannedLeaf } from "./graph-planning.ts";
 export { IssueWorkflow, type IssueWorkflowOptions } from "./issue-workflow.ts";
 export {

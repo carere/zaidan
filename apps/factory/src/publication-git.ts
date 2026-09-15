@@ -3,6 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 import { promisify } from "node:util";
+import type { GraphPublicationGit } from "./graph-integration.ts";
 import type { Candidate } from "./workflow-contracts.ts";
 
 const execute = promisify(execFile);
@@ -25,7 +26,7 @@ export interface PublicationGitOptions {
   token?: string;
 }
 /** Object transfer only: no host checkout, repository scripts, worker Git config or hooks. */
-export function createPublicationGit(options: PublicationGitOptions): PublicationGit {
+export function createPublicationGit(options: PublicationGitOptions): GraphPublicationGit {
   if (!isAbsolute(options.trustedGitDirectory))
     throw new Error("Trusted Git directory must be absolute");
   const local = isAbsolute(options.remote);
@@ -89,6 +90,31 @@ export function createPublicationGit(options: PublicationGitOptions): Publicatio
     return `refs/heads/${branch}`;
   };
   return {
+    async contains(head, commit) {
+      await verify();
+      if (!objectId(head) || !objectId(commit))
+        throw Error("Containment requires full Git revisions");
+      for (const revision of [head, commit])
+        if ((await git(["cat-file", "-t", revision])) !== "commit")
+          throw Error("Missing commit object");
+      return (await git(["merge-base", head, commit])) === commit;
+    },
+    async exportBundle(commit) {
+      await verify();
+      if (!objectId(commit)) throw Error("Export requires a full Git revision");
+      const directory = join(options.trustedGitDirectory, "factory-exports");
+      await mkdir(directory, { recursive: true, mode: 0o700 });
+      const path = join(directory, `${randomUUID()}.bundle`);
+      await git(["update-ref", `refs/factory/exports/${commit}`, commit]);
+      await git(["bundle", "create", path, `refs/factory/exports/${commit}`]);
+      return {
+        kind: "git-bundle",
+        path,
+        sha256: createHash("sha256")
+          .update(await readFile(path))
+          .digest("hex"),
+      };
+    },
     async importCandidate(candidate, reviewBase, startingRevision) {
       await verify();
       if (![candidate.commit, reviewBase, startingRevision].every(objectId))

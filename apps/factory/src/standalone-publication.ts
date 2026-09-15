@@ -20,6 +20,7 @@ export interface PublishedPullRequest {
   marker: string;
 }
 export interface PullRequestInput {
+  draft?: boolean;
   repository: string;
   branch: string;
   commit: string;
@@ -87,7 +88,7 @@ export async function refreshStandalone(
     throw new Error("Issue requirements, brief or relationships changed");
   return { current, closed };
 }
-function validateCoverage(run: RunSnapshot) {
+export function validateCoverage(run: RunSnapshot, reviewBase = run.issue.reviewBase) {
   const candidate = run.candidate;
   if (!candidate || !run.resources)
     throw new Error("Missing committed candidate or resource snapshot");
@@ -97,7 +98,7 @@ function validateCoverage(run: RunSnapshot) {
   const binding = {
     commit: candidate.commit,
     tree: candidate.tree,
-    reviewBase: run.issue.reviewBase,
+    reviewBase,
     snapshot: run.resources.id,
     issueRevision: run.issue.revision,
   };

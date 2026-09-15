@@ -5,7 +5,7 @@ type DriveResult =
   | {
       status: "admitted" | "running" | "paused" | "waiting-subscription" | "waiting-authentication";
     }
-  | { status: "completed" | "failed" | "cancelled" };
+  | { status: "completed" | "failed" | "cancelled"; graphPending?: boolean };
 
 export async function issueWorkflow(input: { runId: string }) {
   "use workflow";
@@ -20,7 +20,8 @@ export async function issueWorkflow(input: { runId: string }) {
         "waiting-authentication",
         "failed",
         "cancelled",
-      ].includes(state.status)
+      ].includes(state.status) ||
+      (state.status === "completed" && state.graphPending)
     ) {
       await sleep("1s");
       continue;
