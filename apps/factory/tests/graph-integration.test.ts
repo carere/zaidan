@@ -163,6 +163,8 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
   const pulls: PublishedPullRequest[] = [];
   const events: string[] = [];
   let clock = 100;
+  let description: { title: string; body: string } | undefined;
+  let failAcceptanceExport = false;
   let loseReady = false,
     loseNotify = false;
   let losePush = false,
@@ -222,6 +224,17 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     };
     return {
       ...binding,
+      ...(request.acceptance
+        ? {
+            report: {
+              title: "Add the complete greeting feature",
+              summary:
+                "The greeting was incomplete. The assembled implementation now greets the world and supplies both required parts.",
+              validation:
+                "The required greeting check and independent standards and specification reviews passed.",
+            },
+          }
+        : {}),
       checks: [{ ...binding, command: "true", exitCode: 0 }],
       reviews: ["standards", "spec"].map((axis) => ({
         ...binding,
@@ -325,6 +338,16 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
           : {}),
         git: {
           ...transport,
+          async exportBundle(commit) {
+            if (
+              failAcceptanceExport &&
+              issues.filter((i) => !i.childIds.length).every((i) => i.state === "closed")
+            ) {
+              failAcceptanceExport = false;
+              throw Error("Acceptance bundle storage unavailable");
+            }
+            return transport.exportBundle(commit);
+          },
           async publishBranch(branch, commit, expected) {
             beforePublish();
             await transport.publishBranch(branch, commit, expected);
@@ -375,7 +398,9 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
               throw Error("lost ready reply");
             }
           },
-          async updatePullRequest() {},
+          async updatePullRequest(_repo, _number, input) {
+            description = input;
+          },
           async closeIssue(_repo, number) {
             const child = issues.find((i) => i.number === number);
             assert.ok(child);
@@ -409,6 +434,12 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     transport,
     maintainerMerge(head: string) {
       git("--git-dir", remote, "update-ref", "refs/heads/main", head, base);
+    },
+    description() {
+      return description;
+    },
+    failAcceptanceExport() {
+      failAcceptanceExport = true;
     },
     setLoseReady() {
       loseReady = true;
@@ -748,6 +779,8 @@ test("whole-graph acceptance uses the assembled head and retained attempt before
   await workflow.drive(last.runId);
   assert.equal(f.pulls[0].draft, false);
   assert.equal(workflow.observeGraph("root").state, "reviewable");
+  assert.equal(f.description()?.title, "Add the complete greeting feature");
+  assert.match(f.description()?.body ?? "", /The greeting was incomplete/);
   assert.equal(workflow.observe(last.runId).execution?.consumedMs, 300);
   assert.equal(f.events.filter((e) => e === "ready").length, 1);
   assert.equal(f.issues[0].state, "open");
@@ -926,4 +959,99 @@ test("factory pause retains a completed graph candidate across restart and resum
   assert.equal(f.pulls.length, 1);
   assert.equal(f.events.filter((event) => event === "close:a").length, 1);
   assert.equal(workflow.admissions().length, 2);
+});
+
+test("factory pause after acceptance preserves evidence and prevents readiness until explicit resume", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  f.setBeforeWorker(async (request) => {
+    if (request.acceptance) f.workflow.factoryPaused(true);
+  });
+  await f.workflow.drive(f.last.runId);
+  const paused = f.workflow.observe(f.last.runId);
+  assert.ok(paused.acceptanceResult);
+  assert.equal(f.pulls[0].draft, true);
+  const originalInput = paused.acceptance;
+  const restarted = f.make();
+  await assert.rejects(restarted.recoverGraph("root"), /paused/);
+  restarted.factoryPaused(false);
+  await restarted.recoverGraph("root");
+  assert.equal(f.pulls[0].draft, false);
+  assert.deepEqual(restarted.observe(f.last.runId).acceptance, originalInput);
+  assert.equal(f.requests.filter((r) => r.acceptance).length, 1);
+});
+
+test("edited approved parent brief after readiness prevents specification closure", async (t) => {
+  const f = integrationFixture(t, true);
+  const root = f.issues[0];
+  root.body = "Please implement the greeting feature.";
+  const brief = {
+    issueId: root.issueId,
+    contentRevision: root.contentRevision,
+    ref: "https://github.com/owner/repo/issues/1#issuecomment-approved",
+    content: "## Agent brief\nGreet the world.\n## Acceptance criteria\nGreeting works.",
+  };
+  const triage: TriageAdapter = {
+    prepare: async (issue) => issue,
+    apply: async () => {
+      throw Error("unused");
+    },
+    reconcile: async () => undefined,
+    approvedBriefs: async () => [structuredClone(brief)],
+  };
+  const workflow = f.make(triage);
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  const last = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(last);
+  await workflow.drive(last.runId);
+  await workflow.drive(last.runId);
+  await workflow.drive(last.runId);
+  assert.equal(f.pulls[0].draft, false);
+  assert.equal(workflow.observeGraph("root").finalization?.input.briefs[0].content, brief.content);
+  const head = workflow.observeGraph("root").head;
+  Object.assign(f.pulls[0], {
+    state: "closed",
+    mergedAt: "2026-09-16T00:00:00Z",
+    mergeCommit: head,
+  });
+  f.maintainerMerge(head);
+  brief.content += "\nNew required behavior.";
+  await f.make(triage).recoverGraph("root");
+  assert.equal(root.state, "open");
+  assert.equal(workflow.observeGraph("root").finalization?.state, "stale");
+});
+
+test("interruption while preparing acceptance keeps the original Eve run pending", async (t) => {
+  const f = integrationFixture(t, true);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  const last = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(last);
+  await workflow.drive(last.runId);
+  f.failAcceptanceExport();
+  await workflow.drive(last.runId);
+  assert.equal(workflow.observe(last.runId).graphPending, true);
+  assert.equal(workflow.observe(last.runId).acceptance, undefined);
+  const restarted = f.make();
+  await restarted.drive(last.runId);
+  assert.ok(restarted.observe(last.runId).acceptance);
+  await restarted.drive(last.runId);
+  assert.equal(f.pulls[0].draft, false);
+  assert.equal(f.events.filter((e) => e === "close:b").length, 1);
+});
+
+test("acceptance report cannot add unrelated automatic issue closure instructions", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  f.setTransform((candidate) => ({
+    ...candidate,
+    report: { title: "Whole graph", summary: "Closes #999", validation: "All checks pass." },
+  }));
+  await f.workflow.drive(f.last.runId);
+  assert.equal(f.pulls[0].draft, true);
+  assert.equal(f.workflow.observe(f.last.runId).status, "failed");
 });

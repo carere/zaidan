@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readResourceSnapshot } from "./captured-resources.ts";
 import type { ApprovedBrief, DiscoveredIssue } from "./discovery.ts";
 import type { BundleReference, GraphOptions, GraphRecord } from "./graph-integration.ts";
-import type { GraphPlan } from "./graph-planning.ts";
+import { type GraphPlan, planIssueGraph } from "./graph-planning.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import { type PublishedPullRequest, validateCoverage } from "./standalone-publication.ts";
 import type { Candidate } from "./workflow-contracts.ts";
@@ -21,6 +21,29 @@ export interface GraphAcceptanceInput {
   members: DiscoveredIssue[];
   briefs: ApprovedBrief[];
   specificationIds: string[];
+}
+export interface GraphAcceptanceReport {
+  title: string;
+  summary: string;
+  validation: string;
+}
+function acceptanceReport(value: unknown): GraphAcceptanceReport {
+  if (!value || typeof value !== "object") throw new InvalidAcceptance("Missing acceptance report");
+  const report = value as Record<string, unknown>;
+  const unsafe =
+    /<!--|-->|\b(?:close[sd]?|fix(?:es|ed)?|resolve[sd]?)\s+(?:#\d+|[\w.-]+\/[\w.-]+#\d+|https?:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/\d+)/i;
+  for (const [key, limit] of [
+    ["title", 120],
+    ["summary", 2400],
+    ["validation", 1200],
+  ] as const) {
+    const text = report[key];
+    if (typeof text !== "string" || !text.trim() || text.length > limit || unsafe.test(text))
+      throw new InvalidAcceptance(
+        "Acceptance report is missing, unbounded, or contains unsafe publication instructions",
+      );
+  }
+  return report as unknown as GraphAcceptanceReport;
 }
 export interface GraphFinalization {
   runId: string;
@@ -72,7 +95,7 @@ export class GraphAcceptance {
   private async effect(id: string, key: string, action: () => Promise<unknown>) {
     const graph = this.read(id);
     if (graph.operations[key]?.state === "done") return;
-    this.workflow.assertLiveAction();
+    this.workflow.assertLiveAction(graph.finalization?.runId);
     this.options.store.change(id, (g) => {
       g.operations[key] = { state: "attempted" };
     });
@@ -276,11 +299,13 @@ export class GraphAcceptance {
       });
       if (!this.options.github.setDraft || !this.options.github.updatePullRequest)
         throw new InvalidAcceptance("Graph readiness adapters are required");
+      const report = acceptanceReport(run.acceptanceResult.report);
       await this.effect(id, `describe:${input.id}`, async () => {
         await this.current(input);
+        this.workflow.assertLiveAction(runId);
         await this.options.github.updatePullRequest?.(graph.repository, pr.number, {
-          title: `Implement #${graph.number}: ${input.members.find((i) => i.issueId === id)?.title ?? "Specification"}`,
-          body: `Implements the complete specification graph #${graph.number}.\n\nSpecification parents: ${input.members
+          title: report.title,
+          body: `${report.summary}\n\n## Validation\n\n${report.validation}\n\nSpecification parents: ${input.members
             .filter((i) => input.specificationIds.includes(i.issueId))
             .map((i) => `#${i.number}`)
             .join(", ")}.\nIntegrated implementation issues: ${input.members
@@ -346,6 +371,36 @@ export class GraphAcceptance {
         });
     }
   }
+  private async deliveredSources(input: GraphAcceptanceInput) {
+    const snapshot = await this.workflow.graphDiscovery();
+    const plan = planIssueGraph(snapshot, input.graphId);
+    const ids = [...plan.specificationIds, ...plan.leaves.map((l) => l.issue.issueId)].sort();
+    const briefs = (snapshot.briefs ?? [])
+      .filter((b) => ids.includes(b.issueId))
+      .sort((a, b) => a.issueId.localeCompare(b.issueId));
+    if (
+      plan.graphRevision !== input.graphRevision ||
+      !same(
+        ids,
+        input.members.map((i) => i.issueId),
+      ) ||
+      !same(briefs, input.briefs)
+    )
+      throw new InvalidAcceptance(
+        "Delivered graph membership or approved briefs changed before closure",
+      );
+    const current = new Map(snapshot.snapshot.issues.map((i) => [i.issueId, i]));
+    for (const original of input.members) {
+      const fresh = current.get(original.issueId);
+      if (
+        !fresh ||
+        !same(sourceIdentity(fresh), sourceIdentity(original)) ||
+        (!input.specificationIds.includes(original.issueId) && !same(fresh, original))
+      )
+        throw new InvalidAcceptance("Delivered graph sources changed before parent closure");
+    }
+    return current;
+  }
   private async closeParents(graph: GraphRecord, pr: PublishedPullRequest) {
     const finalization = graph.finalization;
     if (
@@ -358,24 +413,11 @@ export class GraphAcceptance {
     if (!main || !pr.mergeCommit || !(await this.options.git.contains(main, pr.mergeCommit)))
       throw Error("Observed graph merge is not delivered in current main");
     const input = finalization.input;
-    const snapshot = await this.workflow.graphDiscovery();
-    const current = new Map(snapshot.snapshot.issues.map((i) => [i.issueId, i]));
-    for (const original of input.members) {
-      const fresh = current.get(original.issueId);
-      if (
-        !fresh ||
-        !same(sourceIdentity(fresh), sourceIdentity(original)) ||
-        (!input.specificationIds.includes(original.issueId) && !same(fresh, original))
-      )
-        throw new InvalidAcceptance("Delivered graph sources changed before parent closure");
-    }
     for (const id of [...input.specificationIds].reverse()) {
       const original = input.members.find((i) => i.issueId === id);
       if (!original) throw new InvalidAcceptance("Missing captured specification");
       const key = `parent:${input.id}:${id}`;
-      let fresh = (await this.workflow.graphDiscovery()).snapshot.issues.find(
-        (i) => i.issueId === id,
-      );
+      let fresh = (await this.deliveredSources(input)).get(id);
       if (!fresh || !same(sourceIdentity(fresh), sourceIdentity(original)))
         throw new InvalidAcceptance("Specification changed before closure");
       if (fresh.state !== "closed") {
@@ -383,14 +425,12 @@ export class GraphAcceptance {
           throw new InvalidAcceptance("Delivered specification reopened");
         if (fresh.revision !== original.revision)
           throw new InvalidAcceptance("Specification revision changed");
-        this.workflow.assertLiveAction();
+        this.workflow.assertLiveAction(finalization.runId);
         this.options.store.change(graph.graphId, (g) => {
           g.operations[key] = { state: "attempted" };
         });
         await this.options.github.closeIssue(graph.repository, original.number);
-        fresh = (await this.workflow.graphDiscovery()).snapshot.issues.find(
-          (i) => i.issueId === id,
-        );
+        fresh = (await this.deliveredSources(input)).get(id);
       }
       if (
         fresh?.state !== "closed" ||
@@ -418,5 +458,6 @@ export function validateGraphAcceptance(run: ReturnType<IssueWorkflow["observe"]
     evidence = run.acceptanceResult;
   if (!input || !evidence || evidence.commit !== input.head || evidence.tree !== input.tree)
     throw new InvalidAcceptance("Whole-graph acceptance does not cover exact assembled head/tree");
+  acceptanceReport(evidence.report);
   validateCoverage({ ...run, candidate: evidence }, input.reviewBase);
 }

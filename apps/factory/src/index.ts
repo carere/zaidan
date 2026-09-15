@@ -33,6 +33,7 @@ export { createGitHubTriage, type GitHubTriageOptions } from "./github-triage.ts
 export type {
   GraphAcceptanceInput,
   GraphAcceptanceOptions,
+  GraphAcceptanceReport,
   GraphFinalization,
 } from "./graph-acceptance.ts";
 export type {

@@ -316,7 +316,7 @@ export class GraphCoordinator {
         )
           throw Error("Integrated issue changed before frontier recovery");
         await this.frontier(id);
-        this.workflow.finishIntegration(runId);
+        await this.settleChild(id, runId);
         return;
       }
       if (!run.integration) {
@@ -480,9 +480,18 @@ export class GraphCoordinator {
         delete g.reason;
       });
       await this.frontier(id);
-      this.workflow.finishIntegration(runId);
-      await this.acceptance.advance(id);
+      await this.settleChild(id, runId);
     });
+  }
+  private async settleChild(id: string, runId: string) {
+    // Keep the original Eve workflow alive until acceptance intent and phase are durable.
+    await this.acceptance.advance(id);
+    const graph = this.observe(id);
+    if (
+      !this.workflow.observe(runId).acceptance &&
+      !(this.options.acceptance && (graph.finalization || graph.state === "reconciliation"))
+    )
+      this.workflow.finishIntegration(runId);
   }
   private async current(issueId: string) {
     const scan = await this.workflow.graphDiscovery();
