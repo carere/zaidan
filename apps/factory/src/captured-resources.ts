@@ -192,7 +192,9 @@ export function captureResources(options: CaptureOptions): ResourceSnapshotRefer
     // Fixed relative Markdown resource references must resolve in the captured tree.
     // Dynamic/glob/example paths require explicit CaptureOptions.resources rather than guessing.
     for (const file of files.filter(
-      (file) => file.path.startsWith("skills/") && file.path.endsWith(".md"),
+      (file) =>
+        skills.some((skill) => file.path.startsWith(`${skill.relativePath}/`)) &&
+        file.path.endsWith(".md"),
     )) {
       // Fenced Markdown templates describe files an agent may create, not dependencies.
       let fence: string | undefined;
@@ -243,7 +245,16 @@ export function captureResources(options: CaptureOptions): ResourceSnapshotRefer
       entry: options.entry,
       skills,
       files: files.sort((a, b) => a.path.localeCompare(b.path)),
-      instructions: extras.filter((item) => item.instruction).map((item) => item.target),
+      instructions: [
+        ...new Set([
+          ...extras.filter((item) => item.instruction).map((item) => item.target),
+          ...files
+            .filter(
+              (file) => file.path.startsWith("repository/") && /(^|\/)AGENTS\.md$/.test(file.path),
+            )
+            .map((file) => file.path),
+        ]),
+      ],
       checks: options.checks ?? [],
     };
     const serialized = JSON.stringify(manifest);
