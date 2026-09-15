@@ -1,0 +1,259 @@
+import { randomUUID } from "node:crypto";
+import type {
+  AnswerInput,
+  Clock,
+  IssueSnapshot,
+  NotificationAdapter,
+  RunSnapshot,
+  WorkerAdapter,
+  WorkerOutcome,
+  WorkflowEngine,
+} from "./workflow-contracts.ts";
+import type { Operation, WorkflowStore } from "./workflow-store.ts";
+
+export interface IssueWorkflowOptions {
+  store: WorkflowStore;
+  engine: WorkflowEngine;
+  worker: WorkerAdapter;
+  notifications: NotificationAdapter;
+  clock?: Clock;
+  leaseMs?: number;
+}
+/** The single policy boundary. Transports supply snapshots/answers; only workers run models/tools. */
+export class IssueWorkflow {
+  private options: IssueWorkflowOptions;
+  private owner = randomUUID();
+  private clock: Clock;
+  constructor(options: IssueWorkflowOptions) {
+    this.options = options;
+    this.clock = options.clock ?? { now: Date.now };
+  }
+  observe(runId: string) {
+    return this.options.store.read(runId);
+  }
+  admissions() {
+    return this.options.store.list();
+  }
+  async admit(issue: IssueSnapshot) {
+    if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
+      throw new Error("Admission requires stable identity and explicit revisions");
+    const run = this.options.store.admit(issue);
+    await this.start(run.runId);
+    return this.observe(run.runId);
+  }
+  private async start(runId: string) {
+    if (this.observe(runId).eveRunId) return;
+    // Reconciliation is safe even while a start's owner is alive. Starting again is not.
+    const existing = await this.options.engine.find(runId);
+    if (existing) {
+      this.options.store.change(runId, (run, ops) => {
+        run.eveRunId = existing;
+        const op = ops.find((item) => item.id === `${runId}:start`);
+        if (!op) throw new Error("Missing start intent");
+        op.state = "done";
+        op.receipt = existing;
+      });
+      return;
+    }
+    await this.perform(
+      runId,
+      `${runId}:start`,
+      async () =>
+        (await this.options.engine.find(runId)) ?? (await this.options.engine.start({ runId })),
+      (run, receipt) => {
+        run.eveRunId = receipt as string;
+      },
+    );
+  }
+  async drive(runId: string): Promise<RunSnapshot> {
+    const run = this.observe(runId);
+    if (
+      run.status === "admitted" ||
+      run.status === "running" ||
+      (run.status === "waiting-human" && run.checkpoint?.answer)
+    ) {
+      const resuming = run.status === "waiting-human";
+      const phase = resuming ? run.phase + 1 : run.phase;
+      const id = `${runId}:worker:${phase}`;
+      this.options.store.change(runId, (current, ops) => {
+        if (!ops.some((op) => op.id === id))
+          ops.push({ id, kind: resuming ? "resume" : "dispatch", runId, phase, state: "pending" });
+        if (!resuming) current.status = "running";
+      });
+      await this.perform(
+        runId,
+        id,
+        async () => {
+          const request = {
+            operationId: id,
+            runId,
+            issue: run.issue,
+            session: run.session,
+            phase,
+            ...(resuming ? { answer: run.checkpoint?.answer, checkpoint: run.checkpoint } : {}),
+          };
+          return (
+            (await this.options.worker.reconcile(id)) ??
+            (await (resuming
+              ? this.options.worker.resume(request)
+              : this.options.worker.dispatch(request)))
+          );
+        },
+        (current, receipt, ops) => {
+          const outcome = receipt as WorkerOutcome;
+          current.phase = phase;
+          if (outcome.type === "checkpoint") {
+            current.status = "waiting-human";
+            current.checkpoint = {
+              id: `${runId}:checkpoint:${phase}`,
+              phase,
+              question: outcome.question,
+            };
+            ops.push({
+              id: `${current.checkpoint.id}:notify`,
+              kind: "notify",
+              runId,
+              phase,
+              state: "pending",
+            });
+          } else {
+            current.status = outcome.type;
+            if (outcome.type === "completed") current.candidate = outcome.candidate;
+            else current.reason = outcome.reason;
+          }
+        },
+      );
+    }
+    await this.notify(runId);
+    return this.observe(runId);
+  }
+  private async notify(runId: string) {
+    const run = this.observe(runId);
+    if (!run.checkpoint) return;
+    const checkpoint = run.checkpoint;
+    const id = `${checkpoint.id}:notify`;
+    await this.perform(
+      runId,
+      id,
+      async () =>
+        (await this.options.notifications.reconcile(id)) ??
+        (await this.options.notifications.send({
+          operationId: id,
+          runId,
+          issue: run.issue,
+          checkpoint,
+        })),
+      () => {},
+    );
+  }
+  async answer(input: AnswerInput): Promise<"accepted" | "already-answered" | "stale" | "invalid"> {
+    const result = this.options.store.change(input.runId, (run, ops) => {
+      if (
+        run.issue.issueId !== input.issueId ||
+        run.issue.revision !== input.revision ||
+        run.checkpoint?.id !== input.checkpointId
+      )
+        return "stale" as const;
+      if (run.checkpoint.answer) return "already-answered" as const;
+      if (run.status !== "waiting-human") return "stale" as const;
+      const question = run.checkpoint.question;
+      const optionValid =
+        input.answer.optionId !== undefined &&
+        question.options?.some((option) => option.id === input.answer.optionId);
+      const textValid =
+        typeof input.answer.text === "string" &&
+        input.answer.text.trim().length > 0 &&
+        (question.allowFreeform ?? !question.options?.length);
+      if (!input.answerId || (!optionValid && !textValid)) return "invalid" as const;
+      run.checkpoint.answer = input.answer;
+      run.checkpoint.answerId = input.answerId;
+      ops.push({
+        id: `${input.checkpointId}:wake`,
+        kind: "wake",
+        runId: run.runId,
+        phase: run.phase,
+        state: "pending",
+      });
+      return "accepted" as const;
+    });
+    if (result === "accepted") await this.recoverWake(input.runId);
+    return result;
+  }
+  async recoverWake(runId: string) {
+    const run = this.observe(runId);
+    if (!run.checkpoint?.answer) return;
+    const checkpoint = run.checkpoint;
+    await this.perform(
+      runId,
+      `${checkpoint.id}:wake`,
+      async () => {
+        await this.options.engine.wake(checkpoint.id, {
+          answerId: checkpoint.answerId,
+          answer: checkpoint.answer,
+        });
+        return true;
+      },
+      () => {},
+    );
+  }
+  async recover() {
+    for (const run of this.admissions()) {
+      await this.start(run.runId);
+      await this.notify(run.runId);
+      await this.recoverWake(run.runId);
+    }
+    return this.admissions();
+  }
+  private async perform(
+    runId: string,
+    id: string,
+    action: () => Promise<unknown>,
+    apply: (run: RunSnapshot, receipt: unknown, ops: Operation[]) => void,
+  ) {
+    const claimed = this.options.store.change(runId, (_run, ops) => {
+      const op = ops.find((item) => item.id === id);
+      if (!op || op.state === "done") return false;
+      if (
+        op.state === "claimed" &&
+        ((op.leaseUntil ?? 0) > this.clock.now() ||
+          (op.kind === "start" && this.alive(op.ownerPid ?? process.pid)))
+      )
+        return false;
+      op.state = "claimed";
+      op.owner = this.owner;
+      op.ownerPid = process.pid;
+      op.leaseUntil = this.clock.now() + (this.options.leaseMs ?? 30000);
+      return true;
+    });
+    if (!claimed) return;
+    try {
+      const receipt = await action();
+      this.options.store.change(runId, (run, ops) => {
+        const op = ops.find((item) => item.id === id);
+        if (!op) throw new Error("Missing operation intent");
+        if (op.owner !== this.owner || op.state !== "claimed") return;
+        op.state = "done";
+        op.receipt = receipt;
+        apply(run, receipt, ops);
+      });
+    } catch {
+      // A lost response is not failure evidence. Keep intent; reconcile on recovery.
+      this.options.store.change(runId, (_run, ops) => {
+        const op = ops.find((item) => item.id === id);
+        if (!op) throw new Error("Missing operation intent");
+        if (op.owner === this.owner && op.state === "claimed" && op.kind !== "start") {
+          op.state = "pending";
+          delete op.owner;
+        }
+      });
+    }
+  }
+  private alive(pid: number) {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      return (error as NodeJS.ErrnoException).code !== "ESRCH";
+    }
+  }
+}

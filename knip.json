@@ -21,8 +21,8 @@
       }
     },
     "apps/factory": {
-      "entry": ["src/runtime.ts"],
-      "ignoreDependencies": ["eve"]
+      "entry": ["src/index.ts", "src/runtime.ts", "tests/**/*.ts", "agent/**/*.ts"],
+      "ignoreDependencies": ["workflow"]
     },
     "docs/examples/pi-eve-compatibility": {
       "entry": ["*.mjs", "worker/*.ts", "worker/*.mjs"],
