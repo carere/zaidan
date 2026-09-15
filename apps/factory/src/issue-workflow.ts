@@ -147,6 +147,9 @@ export class IssueWorkflow {
       if (run.integration?.reevaluation?.id === input.reevaluation?.id) return;
       run.graphPhaseHistory ??= [];
       run.graphPhaseHistory.push({
+        checkpoint: run.checkpoint,
+        status: run.status,
+        reason: run.reason,
         integration: run.integration,
         acceptance: run.acceptance,
         candidate: run.candidate,
@@ -195,6 +198,9 @@ export class IssueWorkflow {
           throw Error("Acceptance inputs changed without reconciled intent");
         run.graphPhaseHistory ??= [];
         run.graphPhaseHistory.push({
+          checkpoint: run.checkpoint,
+          status: run.status,
+          reason: run.reason,
           acceptance: run.acceptance,
           acceptanceResult: run.acceptanceResult,
           integration: run.integration,

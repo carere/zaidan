@@ -103,6 +103,9 @@ export interface Checkpoint {
 export interface RunSnapshot {
   supersededBy?: string;
   graphPhaseHistory?: {
+    checkpoint?: Checkpoint;
+    status?: RunSnapshot["status"];
+    reason?: string;
     integration?: IntegrationInput;
     acceptance?: GraphAcceptanceInput;
     candidate?: Candidate;

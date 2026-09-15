@@ -278,6 +278,16 @@ export class GraphCoordinator {
       g.integrations = g.integrations.filter((i) => i.issueId !== issueId);
       g.activeRunId = runId;
       if (g.reconciliation) delete g.reconciliation.holds[runId];
+      for (const [otherKey, operation] of Object.entries(g.operations))
+        if (
+          otherKey.startsWith(`reevaluate:${runId}:`) &&
+          otherKey !== key &&
+          operation.state !== "done"
+        )
+          g.operations[otherKey] = {
+            state: "done",
+            receipt: { previous: operation.receipt, supersededBy: key },
+          };
       g.operations[key] = { state: "done", receipt: { runId, input } };
     });
   }
@@ -300,6 +310,35 @@ export class GraphCoordinator {
         .filter((i) => relevantIds.has(i.issueId))
         .sort((a, b) => a.issueId.localeCompare(b.issueId));
       const head = await this.options.git.branchHead(graph.branch);
+      const accepted = graph.finalization?.input;
+      const acceptanceChanged =
+        accepted &&
+        (!same(
+          [...memberIds].sort(),
+          accepted.members.map((i) => i.issueId),
+        ) ||
+          accepted.members.some((original) => {
+            const fresh = sources.find((i) => i.issueId === original.issueId);
+            if (same(fresh, original)) return false;
+            const ownedParentClosure =
+              accepted.specificationIds.includes(original.issueId) &&
+              graph.operations[`parent:${accepted.id}:${original.issueId}`] &&
+              fresh?.state === "closed" &&
+              fresh.stateReason === "completed" &&
+              same(closureIdentity(fresh), closureIdentity(original));
+            return !ownedParentClosure;
+          }) ||
+          !same(
+            (scan.briefs ?? [])
+              .filter((b) => memberIds.includes(b.issueId))
+              .sort((a, b) => a.issueId.localeCompare(b.issueId)),
+            accepted.briefs,
+          ));
+      if (head !== graph.head || raw.graphRevision !== graph.graphRevision || acceptanceChanged)
+        await this.acceptance.invalidate(
+          id,
+          "Graph source or head changed; prior acceptance is stale",
+        );
       const contained: string[] = [];
       if (head)
         for (const item of graph.integrations)

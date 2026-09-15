@@ -601,3 +601,51 @@ and writes a diagnostic receipt under `.eve/factory-world-repairs`, outside the 
 world directories. Unknown versions, malformed state and redirected paths fail closed.
 Do not remove the world or clear its locks manually to recover a run. Revalidate this
 compatibility repair when upgrading Eve or its bundled local-world runtime.
+
+### Reconcile maintainer edits to a graph
+
+`await workflow.reconcileGraph(graphId)` refreshes native membership, issue bodies,
+labels, approved briefs, dependency evidence, and the published branch. This is a
+live workflow action: it can withdraw PR readiness and admit newly eligible
+children. Read-only discovery remains `scan`/`planGraph`/`verifyGraph`.
+
+The returned `reconciliation` contains an exact observation `revision` and
+per-run `holds` with reasons. Show those reasons before accepting an operator's
+explicit decision:
+
+```ts
+await workflow.reconcileGraph(graphId, {
+  revision: observed.reconciliation.revision,
+  continueRunIds: [selectedRunId],
+})
+```
+
+A stale decision never clears a hold. Ordinary pause/resume/retry does not approve
+changed scope, reopening, or movement. Healthy siblings and independent graphs
+can progress while affected work stays held; final acceptance requires all holds
+to be resolved. Factory and manual run pauses remain separate gates.
+
+Settled output is re-evaluated through a new integration input with the current
+requirements, exact graph head and refreshed prerequisites. The original issue,
+resource snapshot, session, attempt budget, implementation bundle and earlier
+phase evidence remain available. Worker checks and independent reviews bind the
+new re-evaluation ID. A revision changed before any worker execution can instead
+receive normal admission after the explicit decision; its superseded, unstarted
+admission is retained and cannot be retried. A worker that has started but has no
+settled candidate remains held until its retained outcome is available or its
+original requirements are restored.
+
+Moved work must return to its original native graph membership before continuing;
+the factory does not automatically move its branch or duplicate its implementation
+in the receiving graph. After restoring membership, explicitly clear the recorded
+move decision in each affected graph. A closed or merged graph PR cannot be reused
+for reopened work: preserve its delivery and create a new follow-up issue.
+No-change, unverified closure and ambiguous delivery remain explicit triage or
+reconciliation decisions, never successful integration receipts.
+
+An observed descendant graph head may be adopted using an exact decision with an
+empty `continueRunIds` list. Previously published work must still be contained.
+Any affected integration needs fresh assembled validation; whole-graph acceptance
+uses the new head's actual Git tree. Old acceptance inputs/evidence and readiness
+receipts remain in history. Returning a ready PR to draft has its own recoverable
+receipt and still works when implementation readiness was revoked.
