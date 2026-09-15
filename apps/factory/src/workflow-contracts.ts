@@ -86,8 +86,8 @@ export interface NotificationAdapter {
   reconcile(operationId: string): Promise<string | undefined>;
 }
 export interface WorkflowEngine {
-  start(input: { runId: string }): Promise<string>;
-  find(runId: string): Promise<string | undefined>;
+  start(input: { runId: string; continuationId?: string }): Promise<string>;
+  find(runId: string, continuationId?: string): Promise<string | undefined>;
   wake(token: string, payload: unknown): Promise<void>;
 }
 export interface Clock {
@@ -134,6 +134,8 @@ export interface RunSnapshot {
   operatorPauseId?: string;
   pausedFrom?: "admitted" | "waiting-human" | "waiting-subscription" | "waiting-authentication";
   eveRunId?: string;
+  eveContinuationId?: string;
+  eveOwnerHistory?: { continuationId?: string; eveRunId?: string }[];
   checkpoint?: Checkpoint;
   candidate?: Candidate;
   publication?: PublicationState;

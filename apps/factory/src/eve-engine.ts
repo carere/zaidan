@@ -11,14 +11,14 @@ export function createEveEngine(options: { baseUrl: string; fetch?: typeof fetch
     return response.json();
   }
   return {
-    async start(input: { runId: string }): Promise<string> {
+    async start(input: { runId: string; continuationId?: string }): Promise<string> {
       const result = await post("start", input);
       if (!hasRunId(result) || typeof result.runId !== "string" || !result.runId)
         throw new Error("Invalid Eve start response");
       return result.runId;
     },
-    async find(runId: string): Promise<string | undefined> {
-      const result = await post("find", { runId });
+    async find(runId: string, continuationId?: string): Promise<string | undefined> {
+      const result = await post("find", { runId, continuationId });
       if (
         !hasRunId(result) ||
         (result.runId !== null && (typeof result.runId !== "string" || !result.runId))
@@ -46,6 +46,7 @@ interface RunPage {
 export async function findFactoryRun(
   runId: string,
   list: (cursor?: string) => Promise<RunPage>,
+  continuationId?: string,
 ): Promise<string | undefined> {
   const cursors = new Set<string>();
   let cursor: string | undefined;
@@ -53,7 +54,11 @@ export async function findFactoryRun(
   for (;;) {
     const page = await list(cursor);
     for (const run of page.data) {
-      if (run.attributes.factoryRunId !== runId) continue;
+      if (
+        run.attributes.factoryRunId !== runId ||
+        run.attributes.factoryContinuationId !== continuationId
+      )
+        continue;
       if (found && found !== run.runId)
         throw new Error("Multiple Eve runs own one factory admission");
       found = run.runId;
