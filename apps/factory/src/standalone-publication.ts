@@ -102,8 +102,22 @@ export function validateCoverage(run: RunSnapshot, reviewBase = run.issue.review
     snapshot: run.resources.id,
     issueRevision: run.issue.revision,
   };
+  const integration = run.integration
+    ? {
+        graphId: run.integration.graphId,
+        graphRevision: run.integration.graphRevision,
+        expectedHead: run.integration.expectedHead,
+        candidateCommit: run.integration.candidate.commit,
+      }
+    : undefined;
   const matches = (value: Record<string, unknown>) =>
-    Object.entries(binding).every(([key, expected]) => value[key] === expected);
+    Object.entries(binding).every(([key, expected]) => value[key] === expected) &&
+    (!integration ||
+      (typeof value.integration === "object" &&
+        value.integration !== null &&
+        Object.entries(integration).every(
+          ([key, expected]) => (value.integration as Record<string, unknown>)[key] === expected,
+        )));
   if (!matches(candidate) || typeof candidate.tree !== "string")
     throw new Error("Candidate evidence names different admitted inputs");
   const checks = candidate.checks as Record<string, unknown>[] | undefined;

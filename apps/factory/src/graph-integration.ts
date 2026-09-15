@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type DiscoveredIssue, discoverWork } from "./discovery.ts";
-import type { GraphIntegrationState } from "./graph-planning.ts";
+import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import type { PublicationGit } from "./publication-git.ts";
 import type { PublicationGitHub, PublishedPullRequest } from "./standalone-publication.ts";
@@ -128,11 +128,12 @@ export class GraphCoordinator {
   async admit(id: string) {
     await this.workflow.scan();
     const plan = this.workflow.planGraph(id);
-    if (!plan.specificationIds.includes(id) || plan.problems.length)
+    if (!plan.specificationIds.includes(id))
       throw Error("Graph admission requires a readable top-level specification");
     const snapshot = await this.workflow.graphDiscovery();
     const root = snapshot.snapshot.issues.find((issue) => issue.issueId === id);
-    if (!root) throw Error("Graph root is inaccessible");
+    if (!root || root.parentIds.length)
+      throw Error("Graph root is inaccessible or is not top-level");
     if (snapshot.decisions.find((item) => item.issue.issueId === id)?.route !== "coordinator")
       throw Error("Graph is not authorized");
     let graph = this.options.store.read(id);
@@ -166,6 +167,7 @@ export class GraphCoordinator {
       if (head !== admitted.head) {
         if (head) throw Error("Graph branch changed before admission");
         if (branch.state === "done") throw Error("Admitted graph branch disappeared");
+        this.workflow.assertLiveAction();
         this.attempt(id, "branch");
         await this.options.git.publishBranch(admitted.branch, admitted.head);
       }
@@ -229,12 +231,16 @@ export class GraphCoordinator {
     this.options.store.change(id, (g) => {
       g.containedCommits = contained;
     });
+    const current = await this.workflow.graphDiscovery();
+    if (current.decisions.find((item) => item.issue.issueId === id)?.route !== "coordinator")
+      throw Error("Graph specification is not currently authorized");
     const plan = await this.workflow.verifyGraph(id, { ...graph, containedCommits: contained });
     if (plan.graphRevision !== graph.graphRevision)
       throw Error("Graph membership or requirements changed");
     return plan;
   }
   async frontier(id: string) {
+    this.workflow.assertLiveAction();
     const plan = await this.verified(id);
     for (const leaf of plan.eligibleLeaves) {
       if (!leaf.admission) continue;
@@ -247,6 +253,7 @@ export class GraphCoordinator {
     }
   }
   async authorizeDispatch(run: RunSnapshot) {
+    this.workflow.assertLiveAction(run.runId);
     const id = run.issue.graphId;
     if (!id) return;
     const plan = await this.verified(id);
@@ -262,18 +269,33 @@ export class GraphCoordinator {
       let graph = this.observe(id);
       if (graph.activeRunId && graph.activeRunId !== runId) return;
       if (run.status !== "completed") return;
+      this.workflow.assertLiveAction(runId);
       if (!run.candidate) {
         if (run.noChange)
           throw Error("No-change graph child requires triage; no delivery recorded");
         return;
       }
-      if (graph.deliveries[run.issue.issueId]?.closedRevision) return;
+      const settled = graph.deliveries[run.issue.issueId];
+      if (settled?.closedRevision) {
+        if (!run.graphPending) return;
+        const source = await this.current(run.issue.issueId);
+        if (
+          source.revision !== settled.closedRevision ||
+          source.state !== "closed" ||
+          source.stateReason !== "completed"
+        )
+          throw Error("Integrated issue changed before frontier recovery");
+        await this.frontier(id);
+        this.workflow.finishIntegration(runId);
+        return;
+      }
       if (!run.integration) {
         const plan = await this.verified(id);
         await this.authorized(run, plan);
         this.options.store.change(id, (g) => {
           g.activeRunId = runId;
         });
+        this.workflow.validateCandidate(runId);
         await this.options.git.importCandidate(
           run.candidate,
           run.issue.reviewBase,
@@ -313,15 +335,37 @@ export class GraphCoordinator {
           };
         });
       }
+      if (delivery.candidate.commit !== run.candidate.commit)
+        throw Error("Reviewed integration candidate changed after publication intent");
       const covered = delivery;
       const key = `publish:${runId}`;
       const publication = this.intent(id, key);
       const head = await this.options.git.branchHead(graph.branch);
+      const beforePulls = await this.options.github.findPullRequests(
+        graph.repository,
+        graph.branch,
+      );
+      if (beforePulls.length > 1) throw Error("Multiple graph PRs require reconciliation");
+      const beforePull = beforePulls[0];
+      if (
+        beforePull &&
+        (beforePull.repository !== graph.repository ||
+          beforePull.marker !== graph.marker ||
+          beforePull.headRef !== graph.branch ||
+          beforePull.headCommit !== head ||
+          beforePull.baseRef !== "main" ||
+          beforePull.state !== "open" ||
+          !beforePull.draft)
+      )
+        throw Error("Graph PR authorization changed before publication");
+      if (!beforePull && graph.operations.draft?.state === "done")
+        throw Error("Existing graph PR is inaccessible");
       if (head !== delivery.candidate.commit) {
         if (delivery.published || publication.state === "done" || head !== delivery.expectedHead)
           throw Error("Graph publication head raced; reconciliation required");
         const plan = await this.verified(id);
         await this.authorized(run, plan);
+        this.workflow.assertLiveAction(runId);
         this.attempt(id, key);
         await this.options.git.publishBranch(
           graph.branch,
@@ -344,6 +388,8 @@ export class GraphCoordinator {
       if (!pr) {
         if (create.state !== "pending")
           throw Error("Uncertain graph draft creation; reconcile before retry");
+        await this.authorized(run, await this.verified(id));
+        this.workflow.assertLiveAction(runId);
         this.attempt(id, "draft");
         pr = await this.options.github.createPullRequest({
           repository: graph.repository,
@@ -356,6 +402,7 @@ export class GraphCoordinator {
         });
       }
       if (
+        pr.repository !== graph.repository ||
         pr.marker !== graph.marker ||
         pr.headRef !== graph.branch ||
         pr.headCommit !== graph.head ||
@@ -379,6 +426,7 @@ export class GraphCoordinator {
         if (source.revision !== delivery.source.revision)
           throw Error("Published child revision changed");
         await this.authorized(run, await this.verified(id));
+        this.workflow.assertLiveAction(runId);
         this.attempt(id, closeKey);
         await this.options.github.closeIssue(graph.repository, run.issue.number);
         source = await this.current(run.issue.issueId);
@@ -401,8 +449,8 @@ export class GraphCoordinator {
         g.state = "active";
         delete g.reason;
       });
-      this.workflow.finishIntegration(runId);
       await this.frontier(id);
+      this.workflow.finishIntegration(runId);
     });
   }
   private async current(issueId: string) {
@@ -419,6 +467,12 @@ export class GraphCoordinator {
     const decision = discoverWork(scan.snapshot, [], scan.briefs).decisions.find(
       (item) => item.issue.issueId === run.issue.issueId,
     );
+    const freshGraph = planIssueGraph(
+      discoverWork(scan.snapshot, [], scan.briefs),
+      run.issue.graphId ?? "",
+    );
+    if (freshGraph.graphRevision !== plan.graphRevision)
+      throw Error("Graph membership or requirements changed during authorization");
     const leaf = plan.leaves.find((item) => item.issue.issueId === run.issue.issueId);
     if (
       decision?.route !== "implementation" ||
@@ -429,12 +483,27 @@ export class GraphCoordinator {
       leaf.problems.some((p) => !p.startsWith("Discovery route: already-admitted"))
     )
       throw Error("Graph child authorization, requirements or prerequisites changed");
+    for (const previous of run.issue.externalDeliveries ?? []) {
+      const current = leaf.externalDeliveries.find((item) => item.issueId === previous.issueId);
+      if (
+        !current ||
+        current.issueRevision !== previous.issueRevision ||
+        current.id !== previous.id ||
+        current.revision !== previous.revision ||
+        current.mergeCommit !== previous.mergeCommit
+      )
+        throw Error("External prerequisite delivery evidence changed after admission");
+    }
     if (!run.issue.graphId) throw Error("Missing graph identity");
     const graph = this.observe(run.issue.graphId);
     for (const dependency of leaf.prerequisiteIds)
       if (
         !graph.integrations.some(
-          (item) => item.issueId === dependency && graph.containedCommits.includes(item.commit),
+          (item) =>
+            item.issueId === dependency &&
+            item.issueRevision ===
+              scan.snapshot.issues.find((source) => source.issueId === dependency)?.revision &&
+            graph.containedCommits.includes(item.commit),
         )
       )
         throw Error("Internal prerequisite lacks published containment");

@@ -166,11 +166,17 @@ function integrationFixture(t: { after(fn: () => void): void }) {
     loseCreate = false,
     loseClose = false;
   let beforePublish: () => void = () => {};
+  let failCapture = false;
+  let beforeWorker: (request: WorkerRequest) => Promise<void> = async () => {};
+  let transform: (candidate: ReturnType<typeof makeCandidate>) => ReturnType<typeof makeCandidate> =
+    (candidate) => candidate;
   const makeCandidate = (request: WorkerRequest) => {
     if (!request.integration) {
       git("checkout", "-B", `work-${request.runId}`, request.issue.startingRevision);
       writeFileSync(join(source, "greeting"), "hello world\n");
-      git("commit", "-am", "implementation");
+      writeFileSync(join(source, `part-${request.issue.issueId}`), request.issue.issueId);
+      git("add", ".");
+      git("commit", "-m", "implementation");
     } else {
       git("checkout", "-B", `integration-${request.runId}`, request.integration.expectedHead);
       git("merge", "--no-ff", request.integration.candidate.commit, "-m", "integrate");
@@ -185,6 +191,16 @@ function integrationFixture(t: { after(fn: () => void): void }) {
       reviewBase: request.integration?.reviewBase ?? request.issue.reviewBase,
       snapshot: request.resources?.id,
       issueRevision: request.issue.revision,
+      ...(request.integration
+        ? {
+            integration: {
+              graphId: request.integration.graphId,
+              graphRevision: request.integration.graphRevision,
+              expectedHead: request.integration.expectedHead,
+              candidateCommit: request.integration.candidate.commit,
+            },
+          }
+        : {}),
     };
     return {
       ...binding,
@@ -214,14 +230,19 @@ function integrationFixture(t: { after(fn: () => void): void }) {
       store,
       clock: { now: () => clock },
       execution: { budgetMs: 1000 },
-      captureResources: (input) =>
-        captureResources({
+      captureResources: (input) => {
+        if (failCapture && input.issueId === "b") {
+          failCapture = false;
+          throw Error("Snapshot storage unavailable");
+        }
+        return captureResources({
           directory: join(directory, "resources"),
           issue: input,
           entry: "resolving-merge-conflicts",
           skills: [{ path: skill }],
           checks: ["true"],
-        }),
+        });
+      },
       engine: {
         async start() {
           return "eve";
@@ -234,8 +255,9 @@ function integrationFixture(t: { after(fn: () => void): void }) {
       worker: {
         async dispatch(request) {
           requests.push(request);
+          await beforeWorker(request);
           clock += 100;
-          const candidate = makeCandidate(request);
+          const candidate = transform(makeCandidate(request));
           return { type: "completed", candidate };
         },
         async resume() {
@@ -280,7 +302,9 @@ function integrationFixture(t: { after(fn: () => void): void }) {
         github: {
           async findPullRequests(_repo, branch) {
             const head = await transport.branchHead(branch);
-            return pulls.map((pr) => ({ ...pr, headCommit: head ?? "" }));
+            return pulls
+              .filter((pr) => pr.headRef === branch)
+              .map((pr) => ({ ...pr, headCommit: head ?? "" }));
           },
           async createPullRequest(input) {
             const pr: PublishedPullRequest = {
@@ -347,6 +371,15 @@ function integrationFixture(t: { after(fn: () => void): void }) {
     },
     setClock(value: number) {
       clock = value;
+    },
+    failNextDependentCapture() {
+      failCapture = true;
+    },
+    setBeforeWorker(fn: (request: WorkerRequest) => Promise<void>) {
+      beforeWorker = fn;
+    },
+    setTransform(fn: typeof transform) {
+      transform = fn;
     },
     setBeforePublish(fn: () => void) {
       beforePublish = fn;
@@ -418,11 +451,14 @@ test("revoked authorization prevents integration dispatch and changed graph head
   const run = workflow.admissions()[0];
   await workflow.drive(run.runId);
   f.issues[1].labels = ["ready-for-human"];
-  await assert.rejects(workflow.drive(run.runId), /authorization/);
+  const paused = await workflow.drive(run.runId);
+  assert.equal(paused.status, "paused");
+  assert.match(paused.reason ?? "", /authorization/);
   assert.equal(f.requests.length, 1);
   assert.equal(workflow.observe(run.runId).execution?.operationId, undefined);
   assert.equal(f.pulls.length, 0);
   f.issues[1].labels = ["ready-for-agent"];
+  await workflow.resume(run.runId);
   const graph = workflow.observeGraph("root");
   f.setBeforePublish(() => {
     f.issues[1].labels = ["ready-for-human"];
@@ -445,4 +481,152 @@ test("integration consumes the original attempt budget and cannot obtain a fresh
   await workflow.drive(run.runId);
   assert.equal(workflow.observe(run.runId).execution?.consumedMs, 200);
   assert.equal(workflow.observe(run.runId).execution?.attempt, 0);
+});
+test("same-graph siblings wait without capacity while another graph can integrate independently", async (t) => {
+  const f = integrationFixture(t);
+  f.issues[2].dependencyIds = [];
+  const secondRoot = { ...issue("root2", ["c"]), number: 10, parentIds: [] };
+  const secondChild = { ...issue("c"), number: 11, parentIds: ["root2"] };
+  f.issues.push(secondRoot, secondChild);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  await workflow.admitGraph("root2");
+  const a = workflow.admissions().find((r) => r.issue.issueId === "a"),
+    b = workflow.admissions().find((r) => r.issue.issueId === "b"),
+    c = workflow.admissions().find((r) => r.issue.issueId === "c");
+  assert.ok(a && b && c);
+  await workflow.drive(a.runId);
+  await workflow.drive(b.runId);
+  await workflow.drive(c.runId);
+  assert.equal(workflow.observe(a.runId).status, "admitted");
+  assert.equal(workflow.observe(b.runId).status, "completed");
+  assert.equal(workflow.observe(b.runId).integration, undefined);
+  assert.equal(workflow.observe(b.runId).execution?.operationId, undefined);
+  assert.equal(workflow.observe(c.runId).status, "admitted");
+  let release = () => {};
+  let entered = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const started = new Promise<void>((resolve) => {
+    entered = resolve;
+  });
+  f.setBeforeWorker(async (request) => {
+    if (request.runId === a.runId && request.integration) {
+      entered();
+      await held;
+    }
+  });
+  const integrating = workflow.drive(a.runId);
+  await started;
+  await workflow.drive(b.runId);
+  await workflow.drive(c.runId);
+  assert.equal(workflow.observe(c.runId).graphPending, false);
+  assert.equal(workflow.observe(b.runId).integration, undefined);
+  release();
+  await integrating;
+  await workflow.drive(b.runId);
+  const queued = workflow.observe(b.runId);
+  assert.equal(queued.status, "admitted");
+  assert.equal(queued.integration?.expectedHead, workflow.observeGraph("root").head);
+  assert.equal(queued.execution?.consumedMs, 100);
+  await workflow.drive(b.runId);
+  assert.equal(workflow.observe(b.runId).graphPending, false, workflow.observeGraph("root").reason);
+  assert.equal(f.pulls.length, 2);
+  assert.equal(f.requests.filter((r) => r.runId === b.runId && r.integration).length, 1);
+});
+test("assembled validation must cover the exact candidate and publication uses compare-and-set", async (t) => {
+  const f = integrationFixture(t);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const run = workflow.admissions()[0];
+  await workflow.drive(run.runId);
+  f.setTransform((candidate) => ({
+    ...candidate,
+    reviews: candidate.reviews.map((review) => ({ ...review, commit: f.base })),
+  }));
+  await workflow.drive(run.runId);
+  assert.equal(workflow.observeGraph("root").state, "reconciliation");
+  assert.match(workflow.observeGraph("root").reason ?? "", /reviews/);
+  assert.equal(f.pulls.length, 0);
+  assert.equal(f.events.length, 1);
+  const current = workflow.observeGraph("root");
+  await assert.rejects(
+    f.transport.publishBranch(current.branch, run.issue.startingRevision, "f".repeat(40)),
+    /reconcile/,
+  );
+  assert.equal(await f.transport.branchHead(current.branch), current.head);
+});
+test("restart after recorded closure retries the missing dependent frontier before completing the Eve run", async (t) => {
+  const f = integrationFixture(t);
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const run = workflow.admissions()[0];
+  await workflow.drive(run.runId);
+  f.failNextDependentCapture();
+  await workflow.drive(run.runId);
+  assert.equal(f.issues[1].state, "closed");
+  assert.equal(workflow.observe(run.runId).graphPending, true);
+  assert.equal(workflow.admissions().length, 1);
+  workflow = f.make();
+  await workflow.drive(run.runId);
+  assert.equal(workflow.observe(run.runId).graphPending, false);
+  assert.equal(workflow.admissions().length, 2);
+  assert.equal(f.requests.length, 2);
+  assert.equal(f.events.filter((e) => e === "close:a").length, 1);
+});
+test("reopened prerequisites and revoked parent authorization pause dependent execution without fabricating delivery", async (t) => {
+  const f = integrationFixture(t);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const run = workflow.admissions()[0];
+  await workflow.drive(run.runId);
+  await workflow.drive(run.runId);
+  const dependent = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(dependent);
+  f.issues[1].state = "open";
+  f.issues[1].stateReason = null;
+  f.issues[1].revision = "a-reopened";
+  const paused = await workflow.drive(dependent.runId);
+  assert.equal(paused.status, "paused");
+  assert.match(paused.reason ?? "", /prerequisite/);
+  assert.equal(f.requests.length, 2);
+  assert.equal(workflow.observeGraph("root").integrations[0].issueRevision, "a-1-closed");
+  const g = integrationFixture(t);
+  const other = g.make();
+  await other.admitGraph("root");
+  g.issues[0].state = "closed";
+  const child = other.admissions()[0];
+  const blocked = await other.drive(child.runId);
+  assert.equal(blocked.status, "paused");
+  assert.match(blocked.reason ?? "", /specification/);
+  assert.equal(g.requests.length, 0);
+});
+test("overlapping coordinators create one graph branch and one admission while unrelated blocked leaves stay queued", async (t) => {
+  const f = integrationFixture(t);
+  f.issues[2].dependencyIds = ["unreadable"];
+  const first = f.make(),
+    second = f.make();
+  const [a, b] = await Promise.all([first.admitGraph("root"), second.admitGraph("root")]);
+  assert.equal(a.branch, b.branch);
+  assert.equal(first.admissions().length, 1);
+  assert.equal(first.admissions()[0].issue.issueId, "a");
+  assert.equal(f.events.filter((event) => event.startsWith("publish:")).length, 1);
+});
+test("an existing graph PR made ready cannot receive another child publication", async (t) => {
+  const f = integrationFixture(t);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const first = workflow.admissions()[0];
+  await workflow.drive(first.runId);
+  await workflow.drive(first.runId);
+  const next = workflow.admissions().find((run) => run.issue.issueId === "b");
+  assert.ok(next);
+  await workflow.drive(next.runId);
+  const head = workflow.observeGraph("root").head;
+  f.pulls[0].draft = false;
+  await workflow.drive(next.runId);
+  assert.equal(await f.transport.branchHead(workflow.observeGraph("root").branch), head);
+  assert.match(workflow.observeGraph("root").reason ?? "", /PR authorization/);
+  assert.equal(f.issues[2].state, "open");
 });

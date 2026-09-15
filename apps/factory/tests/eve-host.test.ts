@@ -243,3 +243,51 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     else console.error(`Eve restart fixture evidence: ${host.root}`);
   }
 });
+
+test("compiled Eve keeps a completed graph child alive until durable integration actions finish", {
+  timeout: 180000,
+}, async () => {
+  const host = await buildEveHost();
+  let polls = 0;
+  let delivered = false;
+  const bridge = createServer(async (request, response) => {
+    for await (const _chunk of request) {
+    }
+    polls++;
+    response.writeHead(200, { "content-type": "application/json" });
+    response.end(JSON.stringify({ status: "completed", graphPending: !delivered }));
+  });
+  bridge.listen(0, "127.0.0.1");
+  await once(bridge, "listening");
+  const address = bridge.address();
+  assert.ok(address && typeof address !== "string");
+  const url = `http://127.0.0.1:${address.port}`;
+  let success = false;
+  try {
+    await host.start(url);
+    const engine = createEveEngine({ baseUrl: host.baseUrl });
+    const runId = await engine.start({ runId: "graph-integration-fixture" });
+    await eventually(
+      async () => polls,
+      (n) => n >= 2,
+    );
+    await host.stop();
+    const before = polls;
+    await host.start(url);
+    await eventually(
+      async () => polls,
+      (n) => n > before,
+    );
+    assert.equal(await engine.find("graph-integration-fixture"), runId);
+    delivered = true;
+    await eventually(
+      async () => polls,
+      (n) => n > before + 1,
+    );
+    success = true;
+  } finally {
+    await host.stop();
+    await new Promise<void>((resolve) => bridge.close(() => resolve()));
+    if (success) rmSync(host.root, { recursive: true, force: true });
+  }
+});

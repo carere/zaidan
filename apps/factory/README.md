@@ -376,7 +376,8 @@ availability signal and retains the original session, resource snapshot and budg
 There is no billed provider fallback. `pause`, `cancel` and explicit `retry` retain
 the workspace and evidence. Explicit retry starts a fresh bounded attempt. Eve
 continues durable polling for paused/failed/cancelled runs so these controls resume
-the same workflow; a completed candidate finishes the Eve loop.
+the same workflow. A standalone completed candidate finishes the Eve loop; a graph
+child keeps polling until integration, publication, closure and frontier admission settle.
 
 The service owns a loopback-only model permit endpoint. Networked Docker workers
 require a per-operation scoped capability in their immutable input. Pi acquires
@@ -405,3 +406,52 @@ direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test
 
 Keep the original `zaidan-factory-worker-test:0.85.1` image for the network-disabled
 containment fixtures. Neither deterministic image proves live subscription readiness.
+
+
+## Serial graph integration
+
+Configure `IssueWorkflowOptions.graph` with a `SqliteGraphStore` outside Git, the
+trusted `createPublicationGit` object transport, native `createGitHubPublication`,
+and the name of the existing captured integration entry skill (normally
+`resolving-merge-conflicts`). Include that skill, `code-review`, and their complete
+resource closure in the original admission snapshot. Configure the Docker worker's
+trusted source repository to the same coordinator-owned bare object store: exported
+graph commits must be available when a newly admitted leaf clones its source bundle.
+
+`admitGraph(rootIssueId)` refreshes native discovery, records graph identity and the
+observed main revision, and creates the graph branch at that commit. It introduces
+no initialization commit or PR. Verified eligible leaves receive individual durable
+runs and start from the published graph head containing their prerequisites. Blocked
+leaves do not suppress independent work. `observeGraph` and `admittedGraphs` expose
+recorded branches, heads, active integration owners, source revisions and receipts.
+
+Normal `drive(runId)` advances a reviewed graph implementation into an explicit
+integration phase. It retains the admitted issue, original resource snapshot and
+session, and uses the same issue attempt and consumed active budget. Integration
+inputs separately identify the child bundle, graph bundle, expected head and effective
+review base. Only one integration per graph can own that phase; queued siblings hold
+no execution permit. Different graphs remain eligible under the global worker and
+model limits.
+
+The integration agent works in Docker, starts from the captured graph head, merges
+the child candidate, resolves conflicts, and runs all captured checks plus independent
+standards/spec reviews against the assembled commit. Candidate, check and review
+evidence names the exact graph identity, expected head and child commit. The trusted
+coordinator imports only exported Git bundles and verifies both ancestors before a
+compare-and-set graph push. It never checks out or runs project code on the host.
+
+Publication, the shared draft PR, and explicit completed child closure have separate
+durable intents and receipts. Lost replies reconcile existing branch/PR/issue state;
+unknown PR creation with no visible result waits for reconciliation. Only a confirmed
+published integration and an unchanged observed completed closure update prerequisite
+receipts. The next eligible frontier is admitted immediately before the old Eve run
+finishes. A restart after closure retries missing frontier admission without merging
+or closing again. `recoverGraph(graphId)` is the explicit live-mode catch-up boundary
+for persisted graph intents; ordinary `scan` and `planGraph` remain read-only.
+
+Changed heads, membership, requirements, labels, external delivery, reopened
+prerequisites, and stale validation prevent further publication. Preserved work and
+explicit reconciliation reasons are available for subsequent graph re-evaluation;
+these checks never fabricate a new candidate or rewrite original admission evidence.
+Final whole-graph acceptance, readiness and observed main-merge finalization are later
+phases. The default local service remains read-only until the full rollout gate passes.

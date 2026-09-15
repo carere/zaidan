@@ -72,9 +72,27 @@ export class IssueWorkflow {
     const briefs = await this.options.discovery.approvedBriefs?.();
     return { ...discoverWork(snapshot, [], briefs), briefs };
   }
+  assertLiveAction(runId?: string) {
+    if (runId && ["failed", "cancelled"].includes(this.observe(runId).status))
+      throw Error("Issue execution is stopped");
+  }
   async admitGraph(id: string) {
+    this.assertLiveAction();
     if (!this.graphs) throw Error("Graph adapters are not configured");
     return this.graphs.admit(id);
+  }
+  admittedGraphs() {
+    return this.options.graph?.store.list() ?? [];
+  }
+  async recoverGraph(id: string) {
+    this.assertLiveAction();
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    await this.graphs.admit(id);
+    for (const run of this.admissions().filter(
+      (run) => run.issue.graphId === id && run.graphPending && run.status === "completed",
+    ))
+      await this.graphs.advance(run.runId);
+    return this.graphs.observe(id);
   }
   observeGraph(id: string) {
     if (!this.graphs) throw Error("Graph adapters are not configured");
@@ -100,6 +118,9 @@ export class IssueWorkflow {
     this.options.store.change(runId, (run) => {
       run.graphPending = false;
     });
+  }
+  validateCandidate(runId: string) {
+    validateCoverage(this.observe(runId));
   }
   async validateIntegration(runId: string) {
     const run = this.observe(runId);
@@ -347,7 +368,22 @@ export class IssueWorkflow {
         !run.issue.parentIds?.length
       )
         await this.authorizeStandalone(run.issue);
-      if (run.issue.graphId) await this.graphs?.authorizeDispatch(run);
+      if (run.issue.graphId) {
+        try {
+          await this.graphs?.authorizeDispatch(run);
+        } catch (error) {
+          this.options.store.change(runId, (current) => {
+            if (!current.execution?.operationId) {
+              current.status = "paused";
+              current.reason =
+                error instanceof Error
+                  ? error.message
+                  : "Graph authorization requires reconciliation";
+            }
+          });
+          return this.observe(runId);
+        }
+      }
       const resuming = run.status === "waiting-human";
       const phase = resuming ? run.phase + 1 : run.phase;
       const id = `${runId}:worker:${phase}`;

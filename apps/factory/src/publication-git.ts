@@ -174,6 +174,10 @@ export function createPublicationGit(options: PublicationGitOptions): GraphPubli
       if (!objectId(commit) || (expectedHead !== undefined && !objectId(expectedHead)))
         throw new Error("Invalid publication commit");
       const ref = branchRef(branch);
+      const observed = await git(["ls-remote", "--refs", options.remote, ref], true);
+      const observedHead = observed ? observed.split(/\s+/)[0] : undefined;
+      if (observedHead !== expectedHead)
+        throw Error("Publication expected head changed; reconcile remote state");
       await git(
         [
           "push",
