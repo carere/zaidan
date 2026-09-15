@@ -38,11 +38,12 @@ export default function fixture(pi: ExtensionAPI) {
       const summarizing = context.systemPrompt?.startsWith(
         "You are a context summarization assistant",
       );
-      const phaseMessages = request.integration
-        ? context.messages.slice(
-            context.messages.findLastIndex((message) => message.role === "user") + 1,
-          )
-        : context.messages;
+      const phaseMessages =
+        request.integration || request.acceptance
+          ? context.messages.slice(
+              context.messages.findLastIndex((message) => message.role === "user") + 1,
+            )
+          : context.messages;
       const results = phaseMessages.filter((message) => message.role === "toolResult");
       const names = results.map((message) =>
         message.role === "toolResult" ? message.toolName : "",
@@ -94,7 +95,55 @@ export default function fixture(pi: ExtensionAPI) {
             findings: request.issue.number === 2 ? ["Fixture review failure"] : [],
           },
         };
-      else if (request.issue.number === 10)
+      else if (request.acceptance) {
+        if (!request.answer)
+          tool = {
+            name: "request_user_input",
+            arguments: { prompt: "Confirm complete graph scope", allowFreeform: true },
+          };
+        else if (!names.includes("read"))
+          tool = { name: "read", arguments: { path: "/input/request.json" } };
+        else if (!names.includes("Skill"))
+          tool = { name: "Skill", arguments: { name: "code-review" } };
+        else if (!names.includes("factory_validate"))
+          tool = { name: "factory_validate", arguments: {} };
+        else if (names.filter((name) => name === "spawn_agent").length < 2)
+          tool = {
+            name: "spawn_agent",
+            arguments: {
+              task: "Review the entire graph including intermediate specifications",
+              axis: names.includes("spawn_agent") ? "spec" : "standards",
+            },
+          };
+        else if (request.issue.number === 13 && !names.includes("bash"))
+          tool = {
+            name: "bash",
+            arguments: {
+              command:
+                "echo altered >> result.txt && git add result.txt && git commit -m 'test: unacceptable graph edit'",
+            },
+          };
+        else if (request.issue.number === 14 && !names.includes("factory_complete"))
+          tool = { name: "factory_complete", arguments: {} };
+        else if (request.issue.number !== 14 && !names.includes("factory_accept_graph"))
+          tool = {
+            name: "factory_accept_graph",
+            arguments: {
+              title: "Preserve the assembled greeting across the specification graph",
+              summary:
+                request.issue.number === 15
+                  ? "Closes other/repository#123"
+                  : "The assembled implementation preserves the greeting required by the root and intermediate specifications.",
+              validation:
+                "The selected greeting check and independent standards/spec reviews passed on the unchanged graph.",
+            },
+          };
+        else
+          tool = {
+            name: "factory_failed",
+            arguments: { reason: "Fixture graph acceptance rejected" },
+          };
+      } else if (request.issue.number === 10)
         tool = {
           name: "factory_no_change",
           arguments: { reason: "Requested behavior already exists" },

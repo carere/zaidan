@@ -51,3 +51,8 @@ tasks:
     command: node --test tests/docker-integration.test.ts
     options:
       cache: false
+
+  test-docker-acceptance:
+    command: node --test tests/docker-acceptance.test.ts
+    options:
+      cache: false

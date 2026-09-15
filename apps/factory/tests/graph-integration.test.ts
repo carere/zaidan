@@ -158,6 +158,12 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     join(skill, "SKILL.md"),
     "---\nname: resolving-merge-conflicts\n---\nResolve and review.",
   );
+  const reviewSkill = join(directory, "skills", "code-review");
+  mkdirSync(reviewSkill, { recursive: true });
+  writeFileSync(
+    join(reviewSkill, "SKILL.md"),
+    "---\nname: code-review\n---\nReview standards and the complete specification graph.",
+  );
   const issues = [issue("root", ["a", "b"]), issue("a"), issue("b", [], ["a"])];
   const requests: WorkerRequest[] = [];
   const pulls: PublishedPullRequest[] = [];
@@ -271,7 +277,7 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
           directory: join(directory, "resources"),
           issue: input,
           entry: "resolving-merge-conflicts",
-          skills: [{ path: skill }],
+          skills: [{ path: skill }, { path: reviewSkill }],
           checks: ["true"],
         });
       },
@@ -324,7 +330,7 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
         ...(acceptance
           ? {
               acceptance: {
-                entry: "resolving-merge-conflicts",
+                entry: "code-review",
                 async notify(input: { operationId: string }) {
                   if (!events.includes(input.operationId)) events.push(input.operationId);
                   if (loseNotify) {
