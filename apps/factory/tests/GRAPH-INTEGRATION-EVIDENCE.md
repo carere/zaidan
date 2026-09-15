@@ -62,3 +62,40 @@ direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test
 ```
 
 Live authenticated whole-factory acceptance remains the separate #527 gate.
+
+## Changed requirements — #524
+
+An integration phase can carry an explicit immutable
+`reevaluation: { id, reason, issue }`. The revised issue must identify the original
+stable issue and repository, the integration graph, a nonempty revision and the
+captured current source body. IDs are bounded to 200 characters and reasons to
+2400. Invalid inputs fail before creating a worker operation. The original issue,
+resource snapshot, session and implementation output remain unchanged.
+
+The native main prompt and independent review tasks read the current body,
+approved brief and specifications from
+`/input/request.json integration.reevaluation.issue.sourceContent`. Those explicit
+requirements govern the new phase. Candidate, check and review identities include
+`integration.reevaluationId` exactly when this phase has a reevaluation input.
+The isolated verifier rejects evidence lacking this new identity.
+
+The real network-none integration fixture now runs both the original conflict
+and a changed-requirements variant. The latter produces the revised expected
+output from the current captured brief, preserves the sibling and original child
+output, and resumes the original session after deleting the temporary source
+bundle. The synthetic provider asserts that current scope instructions reach the
+main context and independent delegate tasks. Separate receipt mutations prove
+stale candidate, check and review evidence fail fresh Docker verification; the
+restored receipt passes. Invalid stable issue, repository, graph, revision,
+source, ID and reason inputs are rejected before dispatch.
+
+Reproduce both variants with the current fixture provider:
+
+```sh
+docker build --network none -t zaidan-factory-reevaluation-test-524:0.85.1 -f apps/factory/tests/Dockerfile apps/factory/tests
+FACTORY_DOCKER_TEST_IMAGE=zaidan-factory-reevaluation-test-524:0.85.1 direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test-docker-integration
+```
+
+This remains a real Pi/Docker protocol test with a deterministic provider and
+fake credentials. It makes no claim about live model reasoning or authenticated
+whole-factory acceptance.

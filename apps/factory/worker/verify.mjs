@@ -35,6 +35,7 @@ const expectedIntegration = integration
       graphRevision: integration.graphRevision,
       expectedHead: integration.expectedHead,
       candidateCommit: integration.candidate.commit,
+      ...(integration.reevaluation ? { reevaluationId: integration.reevaluation.id } : {}),
     }
   : undefined;
 if (integration) {
