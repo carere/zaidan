@@ -194,7 +194,29 @@ export function captureResources(options: CaptureOptions): ResourceSnapshotRefer
     for (const file of files.filter(
       (file) => file.path.startsWith("skills/") && file.path.endsWith(".md"),
     )) {
-      const text = readFileSync(join(pending, file.path), "utf8");
+      // Fenced Markdown templates describe files an agent may create, not dependencies.
+      let fence: string | undefined;
+      const text = readFileSync(join(pending, file.path), "utf8")
+        .split("\n")
+        .filter((line) => {
+          const delimiter = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+          if (fence) {
+            if (
+              delimiter &&
+              delimiter[1]?.[0] === fence[0] &&
+              delimiter[1].length >= fence.length &&
+              !delimiter[2]?.trim()
+            )
+              fence = undefined;
+            return false;
+          }
+          if (delimiter) {
+            fence = delimiter[1];
+            return false;
+          }
+          return true;
+        })
+        .join("\n");
       for (const match of text.matchAll(/\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
         const link = match[1]?.split("#")[0];
         if (!link || /^[a-z]+:/i.test(link) || /[<>*{}]/.test(link) || link.startsWith("/"))

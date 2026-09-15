@@ -20,7 +20,7 @@ tasks:
       mergeArgs: replace
       cache: local
   test:
-    command: node --test tests/issue-workflow.test.ts tests/discovery.test.ts tests/github-discovery.test.ts tests/graph-planning.test.ts tests/local-service.test.ts tests/captured-worker.test.ts tests/external-delivery.test.ts tests/github-delivery.test.ts
+    command: node --test tests/issue-workflow.test.ts tests/discovery.test.ts tests/github-discovery.test.ts tests/graph-planning.test.ts tests/local-service.test.ts tests/captured-worker.test.ts tests/external-delivery.test.ts tests/github-delivery.test.ts tests/triage.test.ts tests/telegram.test.ts tests/github-triage.test.ts
     options:
       cache: false
   test-eve:
@@ -34,5 +34,15 @@ tasks:
 
   test-docker:
     command: node --test tests/docker-worker.test.ts
+    options:
+      cache: false
+
+  test-triage-docker:
+    command: node --test tests/triage-docker.test.ts
+    options:
+      cache: false
+
+  fixture-triage-github:
+    command: node tests/live-triage.ts
     options:
       cache: false

@@ -14,6 +14,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import lockfile from "proper-lockfile";
 import { readResourceSnapshot } from "./captured-resources.ts";
+import { validateTriageProposal } from "./triage.ts";
 import type { WorkerAdapter, WorkerOutcome, WorkerRequest } from "./workflow-contracts.ts";
 
 export interface DockerWorkerOptions {
@@ -123,7 +124,9 @@ export class DockerPiWorker implements WorkerAdapter {
     const path = join(this.phase(operationId), "output", "outcome.json");
     if (!existsSync(path)) return undefined;
     const outcome = JSON.parse(readFileSync(path, "utf8")) as WorkerOutcome;
-    if (!["checkpoint", "completed", "failed", "cancelled"].includes(outcome.type))
+    if (
+      !["checkpoint", "completed", "failed", "cancelled", "triage-proposed"].includes(outcome.type)
+    )
       throw new Error("Malformed durable worker outcome");
     if (await this.container(operationId))
       await run("docker", ["rm", "--force", this.name(operationId)]);
@@ -132,6 +135,13 @@ export class DockerPiWorker implements WorkerAdapter {
         readFileSync(join(this.phase(operationId), "input", "request.json"), "utf8"),
       ) as WorkerRequest;
       await this.verifyCandidate(request, outcome);
+    }
+    if (outcome.type === "triage-proposed") {
+      try {
+        validateTriageProposal(outcome.proposal);
+      } catch {
+        return { type: "failed", reason: "Worker triage proposal failed coordinator validation" };
+      }
     }
     if (outcome.type === "checkpoint") {
       const question = outcome.question;

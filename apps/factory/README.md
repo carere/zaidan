@@ -288,3 +288,82 @@ direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test
 
 Authenticated inference/refresh compatibility evidence remains in
 `docs/examples/pi-eve-compatibility/EVIDENCE.md`. Normal tests make no live model calls.
+
+## Durable triage and Telegram
+
+Supply `triage: createGitHubTriage({repository, token, database})` to the same
+`IssueWorkflow`. Its `prepare` hook captures the complete issue, all comment
+pages, author/dates and native membership before skill snapshot sealing. The
+admitted revision must still match discovery. The worker receives this immutable
+`issue.triageContext`; the coordinator keeps GitHub and Telegram credentials.
+Select the existing `triage`, `grilling`, and `domain-modeling` skill directories
+through the normal capture configuration. Fixed links in prose are dependencies;
+fenced Markdown examples remain unchanged without becoming fictitious files.
+
+Triage invokes the selected skill explicitly in Docker. It investigates
+redundancy/prior rejection and presents the skill's recommendation through
+`request_user_input` **before** verification or grilling. Subsequent questions use
+the same checkpoint bridge. `factory_triage_propose` ends with investigation,
+recommendation, verification and an exact disclaimer-prefixed comment, category,
+state, and optional rejection knowledge/domain/ADR documents. The coordinator
+retains that proposal and creates an `apply` / `revise` checkpoint; free text
+returns to the original worker for revision. Only `apply` authorizes publication.
+A worker cannot skip its first human decision or publish directly.
+
+The GitHub adapter rechecks content, comments, labels and native relationships
+before effects. It replaces only the two category/five workflow role labels and
+preserves unrelated labels. `wontfix` closes as not planned; already-implemented
+outcomes never create rejection knowledge. Rejected enhancements retain a
+`.out-of-scope/` document, while domain/ADR edits remain reviewable in a separate
+draft documentation PR targeting `main`. Changed documentation bases require
+reconciliation. This adapter never merges that PR. Every posted issue comment
+or documentation PR body starts the source skill's literal triage disclaimer.
+
+Publication intents and per-effect attempts live in the adapter's external SQLite
+database. Comment/branch/file/PR/label/closure state is reconciled after uncertain
+responses. An attempted create whose result cannot be found stays uncertain; the
+adapter does not blindly duplicate it. `pending()` exposes unresolved operation IDs
+and attempted steps. After explicit maintainer reconciliation,
+`retryUncertain(request, step)` permits a chosen unresolved effect to be tried again;
+its caller must explain that an uncertain create could duplicate the remote object.
+Completed actions cannot use this override. Final publication recovery reports running
+to Eve instead of reusing an answered human hook. The run retains the original
+session/proposal/receipt. Approved briefs identify the issue content revision and
+comment URL; discovery rechecks the original comment before accepting them. Parent
+triage can run before implementation dependencies; descendant implementation still
+requires every ancestor's current approved brief and ready-for-agent state.
+
+`TelegramControl({database, token, maintainerId})` implements the workflow
+notification adapter. The identity is a numeric Telegram user ID; updates must
+also come from that user's private chat. Use `run(workflow, commandHandler)` for
+long polling, `stop()` then await the running promise during service shutdown,
+and finally `close()`. `pollOnce` supports focused transport/recovery checks.
+Commands are parsed for scan/status/pause/resume/cancel/retry and delivered with a
+stable `telegram:<update_id>` idempotency key; the service's operator handler owns
+their authorized effects. The poller itself logs/sends nothing on empty polls.
+
+Questions are stored before Telegram transmission; long questions are split
+without losing their text. Button payloads use a short durable token mapped to
+run, revision, checkpoint and option. Free text must reply to a known question or
+use `/answer <checkpoint-token> <text>`; an unbound chat message is never guessed
+to answer the latest run. Answers are persisted by `IssueWorkflow.answer` before
+waking Eve; update offsets advance only after handling. Unauthorized, stale,
+duplicate or ambiguous answers cannot advance another question. Native triage
+source changes are checked before accepting answers and resuming workers.
+
+Telegram has no send idempotency key or bot message-history lookup. A lost
+`sendMessage` receipt remains visible in `status().uncertain` and automatic sends
+stop. A maintainer reply with the durable token can establish single-message
+delivery. Otherwise explicitly reconcile or call `retryUncertain(operationId)`;
+that operator action may duplicate a notification but retains one decision identity.
+The service must surface uncertain notifications as operator attention, not silently
+claim delivery. Keep the adapter database, token and maintainer identity stable
+across restarts; changing bot/identity/API destination rejects incompatible state.
+
+The default CLI remains read-only. The final service composition must supply this
+triage adapter, capture hook, real Docker worker, and Telegram lifecycle to the
+same workflow/service, and enable admission only after the documented full live
+fixture gate. See [triage evidence](tests/TRIAGE-EVIDENCE.md) for observed contract
+checks and the remaining actual Telegram/provider/human acceptance requirement.
+Primary transport references: [Telegram Bot API](https://core.telegram.org/bots/api#getupdates)
+and [GitHub issue comments](https://docs.github.com/en/rest/issues/comments).

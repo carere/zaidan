@@ -8,6 +8,7 @@ import {
 } from "./discovery.ts";
 import type { ExternalDeliveryAdapter, ExternalDeliveryResult } from "./external-delivery.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
+import { type TriageAdapter, type TriageReceipt, triageApproval } from "./triage.ts";
 import type {
   AnswerInput,
   Clock,
@@ -23,6 +24,7 @@ import type { Operation, WorkflowStore } from "./workflow-store.ts";
 export interface IssueWorkflowOptions {
   store: WorkflowStore;
   discovery?: DiscoveryAdapter;
+  triage?: TriageAdapter;
   externalDelivery?: ExternalDeliveryAdapter;
   engine: WorkflowEngine;
   worker: WorkerAdapter;
@@ -65,7 +67,10 @@ export class IssueWorkflow {
     await this.reconcileWorkers();
     await this.recover();
     const snapshot = await this.options.discovery.read();
-    const briefs = await this.options.discovery.approvedBriefs?.();
+    const briefs = [
+      ...((await this.options.discovery.approvedBriefs?.()) ?? []),
+      ...((await this.options.triage?.approvedBriefs?.()) ?? []),
+    ];
     const result = discoverWork(snapshot, this.admissions(), briefs);
     this.latestScan = structuredClone(result);
     this.latestBriefs = structuredClone(briefs);
@@ -132,6 +137,8 @@ export class IssueWorkflow {
     const existing = this.admissions().find(
       (run) => run.issue.issueId === issue.issueId && run.issue.revision === issue.revision,
     );
+    if (!existing && issue.route === "triage" && this.options.triage)
+      issue = await this.options.triage.prepare(structuredClone(issue));
     const resources =
       existing?.resources ?? (!existing ? await this.options.captureResources?.(issue) : undefined);
     const run = this.options.store.admit(issue, resources);
@@ -164,6 +171,45 @@ export class IssueWorkflow {
   }
   async drive(runId: string): Promise<RunSnapshot> {
     const run = this.observe(runId);
+    if (
+      run.status === "waiting-human" &&
+      run.triage &&
+      run.triage.checkpointId === run.checkpoint?.id &&
+      run.checkpoint?.answer?.optionId === "apply"
+    ) {
+      if (!this.options.triage) throw new Error("Triage publication adapter is not configured");
+      const adapter = this.options.triage;
+      const id = `${run.checkpoint.id}:triage`;
+      const request = { operationId: id, runId, issue: run.issue, proposal: run.triage.proposal };
+      this.options.store.change(runId, (_current, ops) => {
+        if (!ops.some((op) => op.id === id))
+          ops.push({ id, runId, phase: run.phase, kind: "triage", state: "pending" });
+      });
+      await this.perform(
+        runId,
+        id,
+        async () => (await adapter.reconcile(request)) ?? (await adapter.apply(request)),
+        (current, receipt) => {
+          if (!current.triage) throw new Error("Missing retained triage proposal");
+          current.triage.receipt = receipt as TriageReceipt;
+          current.status = "completed";
+        },
+      );
+      const settled = this.observe(runId);
+      // The answer was already consumed; Eve polls the authorized publication instead of reusing its human hook.
+      return settled.status === "waiting-human"
+        ? { ...settled, status: "running" as const }
+        : settled;
+    }
+    if (
+      ["admitted", "running", "waiting-human"].includes(run.status) &&
+      run.issue.route === "triage" &&
+      this.options.triage?.current &&
+      !(await this.options.triage.current(run.issue))
+    )
+      throw new Error(
+        "Triage source changed before worker continuation; reconcile the admitted revision",
+      );
     if (
       run.status === "admitted" ||
       run.status === "running" ||
@@ -212,6 +258,23 @@ export class IssueWorkflow {
     ops: Operation[],
   ) {
     current.phase = phase;
+    if (outcome.type === "triage-proposed") {
+      try {
+        if (current.issue.route !== "triage" || !current.checkpoint?.answer)
+          throw new Error("Triage proposal requires the original recommendation decision");
+        const question = triageApproval(outcome.proposal);
+        current.triage = {
+          proposal: outcome.proposal,
+          checkpointId: `${current.runId}:checkpoint:${phase}`,
+        };
+        outcome = { type: "checkpoint", question };
+      } catch {
+        outcome = {
+          type: "failed",
+          reason: "Invalid triage proposal or missing original recommendation decision",
+        };
+      }
+    }
     if (outcome.type === "checkpoint") {
       current.status = "waiting-human";
       current.checkpoint = {
@@ -271,6 +334,14 @@ export class IssueWorkflow {
     );
   }
   async answer(input: AnswerInput): Promise<"accepted" | "already-answered" | "stale" | "invalid"> {
+    const observed = this.observe(input.runId);
+    if (
+      !observed.checkpoint?.answer &&
+      observed.issue.route === "triage" &&
+      this.options.triage?.current &&
+      !(await this.options.triage.current(observed.issue))
+    )
+      return "stale";
     const result = this.options.store.change(input.runId, (run, ops) => {
       if (
         run.issue.issueId !== input.issueId ||
@@ -288,7 +359,12 @@ export class IssueWorkflow {
         typeof input.answer.text === "string" &&
         input.answer.text.trim().length > 0 &&
         (question.allowFreeform ?? !question.options?.length);
-      if (!input.answerId || (!optionValid && !textValid)) return "invalid" as const;
+      if (
+        !input.answerId ||
+        (!optionValid && !textValid) ||
+        (input.answer.optionId !== undefined && input.answer.text !== undefined)
+      )
+        return "invalid" as const;
       run.checkpoint.answer = input.answer;
       run.checkpoint.answerId = input.answerId;
       ops.push({
@@ -325,6 +401,16 @@ export class IssueWorkflow {
       await this.start(run.runId);
       await this.notify(run.runId);
       await this.recoverWake(run.runId);
+      const pendingTriage = this.options.store.change(run.runId, (_current, ops) =>
+        ops.some((op) => op.kind === "triage" && op.state !== "done"),
+      );
+      if (
+        pendingTriage &&
+        run.status === "waiting-human" &&
+        run.triage?.checkpointId === run.checkpoint?.id &&
+        run.checkpoint?.answer?.optionId === "apply"
+      )
+        await this.drive(run.runId);
     }
     return this.admissions();
   }

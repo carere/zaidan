@@ -27,6 +27,7 @@ export {
 } from "./external-delivery.ts";
 export { createGitHubDeliverySource, type GitHubDeliveryOptions } from "./github-delivery.ts";
 export { createGitHubDiscovery, type GitHubDiscoveryOptions } from "./github-discovery.ts";
+export { createGitHubTriage, type GitHubTriageOptions } from "./github-triage.ts";
 export type { GraphIntegrationState, GraphPlan, PlannedLeaf } from "./graph-planning.ts";
 export { IssueWorkflow, type IssueWorkflowOptions } from "./issue-workflow.ts";
 export {
@@ -40,6 +41,16 @@ export type {
   ServiceAdapterContext,
   ServiceAdapters,
 } from "./service-adapters.ts";
+export { type TelegramCommand, TelegramControl, type TelegramOptions } from "./telegram.ts";
+export {
+  TRIAGE_DISCLAIMER,
+  TRIAGE_STATES,
+  type TriageAdapter,
+  type TriageContext,
+  type TriageProposal,
+  type TriageReceipt,
+  type TriageRequest,
+} from "./triage.ts";
 export type {
   Answer,
   AnswerInput,
