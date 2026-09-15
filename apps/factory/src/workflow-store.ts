@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import type { ResourceSnapshotReference } from "./captured-resources.ts";
 import type { IssueSnapshot, RunSnapshot } from "./workflow-contracts.ts";
 
 export interface Operation {
@@ -17,7 +18,7 @@ export interface Operation {
 }
 /** Coarse transactions keep admission, checkpoint and outbox mutations indivisible. */
 export interface WorkflowStore {
-  admit(issue: IssueSnapshot): RunSnapshot;
+  admit(issue: IssueSnapshot, resources?: ResourceSnapshotReference): RunSnapshot;
   read(runId: string): RunSnapshot;
   list(): RunSnapshot[];
   change<T>(runId: string, fn: (run: RunSnapshot, operations: Operation[]) => T): T;
@@ -49,7 +50,7 @@ export class SqliteWorkflowStore implements WorkflowStore {
       throw error;
     }
   }
-  admit(issue: IssueSnapshot): RunSnapshot {
+  admit(issue: IssueSnapshot, resources?: ResourceSnapshotReference): RunSnapshot {
     return this.transaction(() => {
       const existing = this.db
         .prepare("SELECT data FROM runs WHERE issue_id=? AND revision=?")
@@ -60,6 +61,7 @@ export class SqliteWorkflowStore implements WorkflowStore {
       const run: RunSnapshot = {
         runId,
         issue,
+        ...(resources ? { resources } : {}),
         session: { id: sessionId, path: join(this.stateDirectory, "sessions", sessionId) },
         status: "admitted",
         phase: 0,

@@ -1,3 +1,4 @@
+import type { ResourceSnapshotReference } from "./captured-resources.ts";
 /** Transport snapshots use stable provider identity, never issue number as a key. */
 export interface IssueSnapshot {
   issueId: string;
@@ -42,7 +43,7 @@ export interface WorkerRequest {
   phase: number;
   answer?: Answer;
   checkpoint?: Checkpoint;
-  resources?: Record<string, unknown>;
+  resources?: ResourceSnapshotReference;
 }
 /** Operations must be idempotent by operationId, including retries after lost responses. */
 export interface WorkerAdapter {
@@ -79,6 +80,7 @@ export interface RunSnapshot {
   runId: string;
   issue: IssueSnapshot;
   session: SessionReference;
+  resources?: ResourceSnapshotReference;
   status: "admitted" | "running" | "waiting-human" | "completed" | "failed" | "cancelled";
   phase: number;
   eveRunId?: string;

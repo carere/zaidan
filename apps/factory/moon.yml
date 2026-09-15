@@ -20,10 +20,15 @@ tasks:
       mergeArgs: replace
       cache: local
   test:
-    command: node --test tests/issue-workflow.test.ts
+    command: node --test tests/issue-workflow.test.ts tests/captured-worker.test.ts
     options:
       cache: false
   test-eve:
     command: node --test tests/eve-host.test.ts
+    options:
+      cache: false
+
+  test-docker:
+    command: node --test tests/docker-worker.test.ts
     options:
       cache: false
