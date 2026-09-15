@@ -20,6 +20,54 @@ export async function listenLocalService(options: {
       return json(response, 403, { error: "browser-request-denied" });
     if (request.method === "GET" && request.url === "/factory/status")
       return json(response, 200, service.status());
+    if (request.method === "GET" && request.url === "/factory/progress")
+      return json(response, 200, {
+        service: service.status(),
+        runs: workflow.admissions().map((run) => ({
+          runId: run.runId,
+          issueId: run.issue.issueId,
+          issueNumber: run.issue.number,
+          issueRevision: run.issue.revision,
+          route: run.issue.route,
+          graphId: run.issue.graphId,
+          status: run.status,
+          phase: run.phase,
+          sessionId: run.session.id,
+          snapshotId: run.resources?.id,
+          startingRevision: run.issue.startingRevision,
+          eveRunId: run.eveRunId,
+          eveContinuationId: run.eveContinuationId,
+          checkpoint: run.checkpoint
+            ? { id: run.checkpoint.id, answered: Boolean(run.checkpoint.answer) }
+            : undefined,
+          execution: run.execution
+            ? {
+                active: Boolean(run.execution.operationId),
+                attempt: run.execution.attempt,
+                consumedMs: run.execution.consumedMs,
+                modelCalls: run.execution.models.length,
+                retries: run.execution.retries,
+              }
+            : undefined,
+          candidate: run.candidate?.commit,
+          acceptance: run.acceptance?.id,
+          publication: run.publication
+            ? { state: run.publication.state, pullRequest: run.publication.pullRequest?.url }
+            : undefined,
+        })),
+        graphs: workflow.admittedGraphs().map((graph) => ({
+          graphId: graph.graphId,
+          head: graph.head,
+          revision: graph.graphRevision,
+          state: graph.state,
+          integrationCount: graph.integrations.length,
+          pullRequest: graph.pullRequest?.url,
+          acceptance: graph.finalization
+            ? { id: graph.finalization.input.id, state: graph.finalization.state }
+            : undefined,
+          reconciliation: graph.reconciliation,
+        })),
+      });
     if (request.method === "POST" && request.url === "/factory/scan") {
       const result = await service.trigger("manual");
       return json(response, 200, result);

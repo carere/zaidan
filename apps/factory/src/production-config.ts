@@ -42,7 +42,12 @@ export function loadPrivateEnvironment(path: string, env: NodeJS.ProcessEnv = pr
 
 export function readProductionConfig(path: string): ProductionConfig {
   if (!isAbsolute(path)) throw new Error("FACTORY_RUNTIME_CONFIG must be absolute");
-  const value = JSON.parse(readFileSync(path, "utf8")) as ProductionConfig;
+  let value: ProductionConfig;
+  try {
+    value = JSON.parse(readFileSync(path, "utf8")) as ProductionConfig;
+  } catch {
+    throw new Error("Factory runtime configuration is unreadable or malformed");
+  }
   if (
     value.version !== 1 ||
     !["read-only", "fixture", "live"].includes(value.mode) ||

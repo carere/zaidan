@@ -10,6 +10,7 @@ export interface RolloutOptions {
   mode?: RolloutMode;
   repository: string;
   binding: RolloutBinding;
+  currentBinding?: () => RolloutBinding;
   evidence?: string;
 }
 export const actualAcceptanceScenarios = [
@@ -31,16 +32,22 @@ export class RolloutPolicy {
   constructor(options: RolloutOptions) {
     this.options = options;
   }
-  status(): { mode: RolloutMode; enabled: boolean; reason?: string } {
-    const { repository, binding, evidence } = this.options;
+  status(): { mode: RolloutMode; enabled: boolean; reason?: string; binding: RolloutBinding } {
+    const { repository, evidence } = this.options;
+    let binding = this.options.binding;
     const mode = this.options.mode ?? "read-only";
-    const disabled = (reason: string) => ({ mode, enabled: false, reason });
+    const disabled = (reason: string) => ({ mode, enabled: false, reason, binding });
+    try {
+      binding = this.options.currentBinding?.() ?? binding;
+    } catch {
+      return disabled("Selected runtime resources are unavailable");
+    }
     if (!Object.values(binding).every((value) => typeof value === "string" && value.trim()))
       return disabled("Runtime, configuration and native repository identities are required");
     if (mode === "read-only") return disabled("Read-only discovery selected");
     if (mode === "fixture")
       return repository === "carere/zaidan-factory-fixture"
-        ? { mode, enabled: true }
+        ? { mode, enabled: true, binding }
         : disabled("Fixture authority is limited to carere/zaidan-factory-fixture");
     if (repository !== "carere/zaidan" || !evidence)
       return disabled("Zaidan requires complete bound actual acceptance evidence");
@@ -64,7 +71,7 @@ export class RolloutPolicy {
         return disabled(
           "Acceptance evidence is incomplete or belongs to another runtime, configuration or repository",
         );
-      return { mode, enabled: true };
+      return { mode, enabled: true, binding };
     } catch {
       return disabled("Acceptance evidence is unavailable or malformed");
     }

@@ -6,6 +6,7 @@ import {
   existsSync,
   mkdirSync,
   openSync,
+  readFileSync,
   realpathSync,
   symlinkSync,
   writeFileSync,
@@ -18,7 +19,11 @@ import { IssueWorkflow } from "./issue-workflow.ts";
 import { LocalService } from "./local-service.ts";
 import { startModelPermitServer } from "./model-permit-server.ts";
 import { createProductionAdapters } from "./production-adapters.ts";
-import { loadPrivateEnvironment, readProductionConfig } from "./production-config.ts";
+import {
+  loadPrivateEnvironment,
+  readProductionConfig,
+  sourceIdentity,
+} from "./production-config.ts";
 import { RolloutPolicy } from "./rollout.ts";
 import { type CreateServiceAdapters, discoveryOnlyAdapters } from "./service-adapters.ts";
 import { type ServiceConfig, serviceConfig } from "./service-config.ts";
@@ -29,8 +34,8 @@ import { SqliteWorkflowStore } from "./workflow-store.ts";
 
 const factoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const command = process.argv[2];
-if (!command || !["prepare", "serve", "status", "scan"].includes(command)) {
-  throw new Error("Usage: node apps/factory/src/service-cli.ts prepare|serve|status|scan");
+if (!command || !["prepare", "serve", "status", "scan", "progress"].includes(command)) {
+  throw new Error("Usage: node apps/factory/src/service-cli.ts prepare|serve|status|scan|progress");
 }
 process.umask(0o077);
 if (process.env.FACTORY_ENV_FILE)
@@ -88,6 +93,14 @@ function prepare(settings: ServiceConfig) {
     env: hostEnvironment(settings),
   });
   if (built.status !== 0) throw new Error("Eve build failed");
+  writeFileSync(
+    join(root, "factory-build.json"),
+    JSON.stringify({ version: 1, source: compiledSourceIdentity() }),
+    { mode: 0o600 },
+  );
+}
+function compiledSourceIdentity() {
+  return sourceIdentity([join(factoryRoot, "agent"), join(factoryRoot, "src/eve-engine.ts")]);
 }
 function hostEnvironment(settings: ServiceConfig): NodeJS.ProcessEnv {
   return {
@@ -107,6 +120,13 @@ function hostEnvironment(settings: ServiceConfig): NodeJS.ProcessEnv {
 async function serve(settings: ServiceConfig) {
   if (!existsSync(join(settings.deploymentDirectory, ".output/server/index.mjs")))
     throw new Error("Prepare the external Eve deployment first");
+  const build = JSON.parse(
+    readFileSync(join(settings.deploymentDirectory, "factory-build.json"), "utf8"),
+  );
+  if (build.version !== 1 || build.source !== compiledSourceIdentity())
+    throw new Error(
+      "Prepared Eve deployment differs from this factory source; follow the stopped-service upgrade procedure",
+    );
   const adapters = settings.runtimeConfig
     ? await createProductionAdapters({
         stateDirectory: settings.stateDirectory,

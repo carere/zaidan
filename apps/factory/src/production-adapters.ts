@@ -68,34 +68,37 @@ export async function createProductionAdapters(options: {
       (!native.private || repository !== "carere/zaidan-factory-fixture"))
   )
     throw new Error("Repository identity or default branch does not match configured authority");
-  const configuration = createHash("sha256")
-    .update(
-      JSON.stringify({
-        ...runtime,
-        image,
-        evidence: undefined,
-        repository,
-        maintainerId,
-        selectedSources: sourceIdentity(
-          runtime.skills.filter((skill) => isAbsolute(skill.path)).map((skill) => skill.path),
-        ),
-      }),
-    )
-    .digest("hex");
+  const configuration = () =>
+    createHash("sha256")
+      .update(
+        JSON.stringify({
+          ...runtime,
+          image,
+          evidence: undefined,
+          repository,
+          maintainerId,
+          selectedSources: sourceIdentity(
+            runtime.skills.filter((skill) => isAbsolute(skill.path)).map((skill) => skill.path),
+          ),
+        }),
+      )
+      .digest("hex");
+  const binding = {
+    repositoryId: native.node_id,
+    configuration: configuration(),
+    runtime: sourceIdentity([
+      join(options.factoryRoot, "src"),
+      join(options.factoryRoot, "agent"),
+      join(options.factoryRoot, "worker"),
+      join(options.factoryRoot, "package.json"),
+    ]),
+  };
   const rollout = new RolloutPolicy({
     mode: runtime.mode,
     repository,
     evidence: runtime.evidence,
-    binding: {
-      repositoryId: native.node_id,
-      configuration,
-      runtime: sourceIdentity([
-        join(options.factoryRoot, "src"),
-        join(options.factoryRoot, "agent"),
-        join(options.factoryRoot, "worker"),
-        join(options.factoryRoot, "package.json"),
-      ]),
-    },
+    binding,
+    currentBinding: () => ({ ...binding, configuration: configuration() }),
   });
   const resources = createProductionResources({
     trustedGitDirectory: join(stateDirectory, "trusted.git"),
