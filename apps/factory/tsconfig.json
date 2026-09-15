@@ -5,5 +5,5 @@
     "types": ["node", "eve/workflow-modules"],
     "outDir": "../../.moon/cache/types/apps/factory"
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "agent/**/*.ts", "worker/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "agent/**/*.ts", "worker/**/*.ts", "fixtures/**/*.ts"]
 }

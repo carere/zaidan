@@ -29,7 +29,8 @@
         "tests/**/*.ts",
         "agent/**/*.ts",
         "worker/*.mjs",
-        "worker/*.ts"
+        "worker/*.ts",
+        "fixtures/**/*.test.ts"
       ],
       "ignoreDependencies": ["workflow"]
     },
