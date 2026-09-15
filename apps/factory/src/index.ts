@@ -55,6 +55,12 @@ export {
   type ServiceStatus,
 } from "./local-service.ts";
 export { startModelPermitServer } from "./model-permit-server.ts";
+export type {
+  ObservedGitSource,
+  ProductionCaptureSettings,
+  ProductionResourceOptions,
+} from "./production-resources.ts";
+export { createProductionResources } from "./production-resources.ts";
 export {
   createPublicationGit,
   type PublicationGit,
