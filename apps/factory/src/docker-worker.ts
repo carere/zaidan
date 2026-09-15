@@ -115,6 +115,18 @@ export class DockerPiWorker implements WorkerAdapter {
   private phase(operationId: string) {
     return join(this.options.directory, "operations", digest(operationId));
   }
+  private workspace(request: WorkerRequest) {
+    // Integration state must never be a descendant of the agent-writable original
+    // checkout mount: an implementation could otherwise pre-create symlinks there.
+    return request.integration
+      ? join(
+          this.options.directory,
+          "integrations",
+          digest(request.runId),
+          digest(JSON.stringify(request.integration)),
+        )
+      : join(this.options.directory, "runs", digest(request.runId));
+  }
   private name(operationId: string) {
     return `zaidan-worker-${digest(operationId).slice(0, 32)}`;
   }
@@ -263,6 +275,22 @@ export class DockerPiWorker implements WorkerAdapter {
       manifest.issue.revision !== request.issue.revision
     )
       return { type: "failed", reason: "Snapshot belongs to another issue revision" };
+    if (request.integration) {
+      const input = request.integration;
+      if (
+        !input.graphId ||
+        !input.graphRevision ||
+        !/^[a-f0-9]{40}$/.test(input.expectedHead) ||
+        input.reviewBase !== input.expectedHead ||
+        !/^[a-f0-9]{40}$/.test(input.candidate.commit) ||
+        !manifest.skills.some((skill) => skill.name === input.entry) ||
+        !manifest.skills.some((skill) => skill.name === "code-review")
+      )
+        return {
+          type: "failed",
+          reason: "Invalid integration identity or missing captured resolver/review skill",
+        };
+    }
     const phase = this.phase(request.operationId);
     mkdirSync(join(phase, "input"), { recursive: true, mode: 0o700 });
     mkdirSync(join(phase, "output"), { recursive: true, mode: 0o700 });
@@ -271,13 +299,35 @@ export class DockerPiWorker implements WorkerAdapter {
       if (JSON.stringify(JSON.parse(readFileSync(requestPath, "utf8"))) !== JSON.stringify(request))
         throw new Error("Worker operation identity reused with different inputs");
     } else atomic(requestPath, request);
-    const workspace = join(this.options.directory, "runs", digest(request.runId));
+    const workspace = this.workspace(request);
     mkdirSync(workspace, { recursive: true, mode: 0o700 });
     mkdirSync(request.session.path, { recursive: true, mode: 0o700 });
-    const bundleDirectory = join(workspace, "source");
+    const bundleDirectory = join(this.options.directory, "sources", digest(workspace));
     mkdirSync(bundleDirectory, { recursive: true });
     const bundle = join(bundleDirectory, "repository.bundle");
-    if (!existsSync(bundle)) {
+    if (request.integration) {
+      const copyBundle = (reference: unknown, target: string) => {
+        const value = reference as { kind?: string; path?: string; sha256?: string };
+        if (
+          value?.kind !== "git-bundle" ||
+          !value.path ||
+          !isAbsolute(value.path) ||
+          !/^[a-f0-9]{64}$/.test(value.sha256 ?? "")
+        )
+          throw new Error("Invalid integration bundle reference");
+        if (existsSync(target)) {
+          if (createHash("sha256").update(readFileSync(target)).digest("hex") !== value.sha256)
+            throw new Error("Retained integration bundle changed");
+          return;
+        }
+        const bytes = readFileSync(value.path);
+        if (createHash("sha256").update(bytes).digest("hex") !== value.sha256)
+          throw new Error("Integration source bundle changed");
+        writeFileSync(target, bytes, { mode: 0o400, flag: "wx" });
+      };
+      copyBundle(request.integration.source, bundle);
+      copyBundle(request.integration.candidate.artifact, join(bundleDirectory, "candidate.bundle"));
+    } else if (!existsSync(bundle)) {
       await run("git", ["bundle", "create", `${bundle}.tmp`, "--all"], this.options.repositoryPath);
       renameSync(`${bundle}.tmp`, bundle);
     }
@@ -434,7 +484,7 @@ export class DockerPiWorker implements WorkerAdapter {
   ) {
     if (!request.resources) throw new Error("Missing candidate snapshot");
     readResourceSnapshot(request.resources);
-    const workspace = join(this.options.directory, "runs", digest(request.runId));
+    const workspace = this.workspace(request);
     const phase = this.phase(request.operationId);
     const mount = (source: string, target: string) => [
       "--mount",
