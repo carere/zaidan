@@ -1,10 +1,19 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import type { DiscoveredIssue } from "../src/discovery.ts";
 import { captureResources, DockerPiWorker, type WorkerRequest } from "../src/index.ts";
 
@@ -74,6 +83,7 @@ test("real Docker/Pi accepts unchanged whole graph, preserves session across che
     dependencyIds: [],
     childIds: [],
   });
+  let succeeded = false;
   try {
     for (const number of [12, 13, 14, 15]) {
       const issue = {
@@ -205,8 +215,74 @@ test("real Docker/Pi accepts unchanged whole graph, preserves session across che
         "graph-accepted",
       );
     }
+    succeeded = true;
+  } catch (error) {
+    // Retain this synthetic fixture and fresh verifier diagnostics. No auth,
+    // worker event log or request payload is included in the diagnostic report.
+    const diagnostics = [];
+    const operations = join(options.directory, "operations");
+    if (existsSync(operations))
+      for (const operation of readdirSync(operations)) {
+        const phase = join(operations, operation);
+        const receipt = join(phase, "output", "outcome.json");
+        const input = join(phase, "input", "request.json");
+        if (!existsSync(receipt) || !existsSync(input)) continue;
+        try {
+          const request = JSON.parse(readFileSync(input, "utf8")) as WorkerRequest;
+          const outcome = JSON.parse(readFileSync(receipt, "utf8"));
+          if (outcome.type !== "graph-accepted" || !request.acceptance || !request.resources)
+            continue;
+          const workspace = join(
+            options.directory,
+            "acceptances",
+            hash(request.runId),
+            hash(JSON.stringify(request.acceptance)),
+          );
+          const args = [
+            "run",
+            "--rm",
+            "--network",
+            "none",
+            "--user",
+            "1000:1000",
+            "--cap-drop",
+            "ALL",
+            "--security-opt",
+            "no-new-privileges",
+            "--read-only",
+            "--pids-limit",
+            "64",
+            "--tmpfs",
+            "/tmp:rw,nosuid,nodev",
+          ];
+          for (const [source, target] of [
+            [workspace, "/state"],
+            [join(phase, "input"), "/input"],
+            [join(phase, "output"), "/phase"],
+            [request.resources.path, "/resources"],
+            [fileURLToPath(new URL("../worker", import.meta.url)), "/runtime"],
+          ])
+            args.push("--mount", `type=bind,src=${source},dst=${target},readonly`);
+          args.push(options.image, "node", "/runtime/verify.mjs");
+          const result = spawnSync("docker", args, { encoding: "utf8", timeout: 60000 });
+          diagnostics.push({
+            operation,
+            exit: result.status,
+            signal: result.signal,
+            stderr: result.stderr?.slice(-4000) ?? "",
+          });
+        } catch {
+          diagnostics.push({ operation, diagnostic: "Could not inspect synthetic verifier input" });
+        }
+      }
+    writeFileSync(
+      join(directory, "verifier-diagnostics.json"),
+      JSON.stringify(diagnostics, null, 2),
+    );
+    process.stderr.write(`Synthetic acceptance fixture retained after failure: ${directory}\n`);
+    throw error;
   } finally {
-    if (process.env.FACTORY_KEEP_FIXTURES !== "1")
+    if (succeeded && process.env.FACTORY_KEEP_FIXTURES !== "1")
       rmSync(directory, { recursive: true, force: true });
   }
 });
