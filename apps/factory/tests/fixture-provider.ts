@@ -45,6 +45,11 @@ export default function fixture(pi: ExtensionAPI) {
             findings: request.issue.number === 2 ? ["Fixture review failure"] : [],
           },
         };
+      else if (request.issue.number === 7)
+        tool = {
+          name: "factory_no_change",
+          arguments: { reason: "Requested behavior already exists" },
+        };
       else if (request.issue.number === 3)
         tool = { name: "Skill", arguments: { name: "uncaptured-dependency" } };
       else if (request.issue.number === 4)

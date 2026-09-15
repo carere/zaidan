@@ -8,6 +8,11 @@ import {
 } from "./discovery.ts";
 import type { ExternalDeliveryAdapter, ExternalDeliveryResult } from "./external-delivery.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
+import {
+  publishStandaloneRun,
+  refreshStandalone,
+  type StandalonePublicationOptions,
+} from "./standalone-publication.ts";
 import type {
   AnswerInput,
   Clock,
@@ -22,6 +27,7 @@ import type { Operation, WorkflowStore } from "./workflow-store.ts";
 
 export interface IssueWorkflowOptions {
   store: WorkflowStore;
+  publication?: StandalonePublicationOptions;
   discovery?: DiscoveryAdapter;
   externalDelivery?: ExternalDeliveryAdapter;
   engine: WorkflowEngine;
@@ -116,6 +122,63 @@ export class IssueWorkflow {
       results,
     );
   }
+  async admitStandalone(
+    issueId: string,
+    revisions: { startingRevision: string; reviewBase: string },
+  ) {
+    if (!this.options.discovery || !this.options.publication)
+      throw new Error("Standalone adapters are not configured");
+    const snapshot = await this.options.discovery.read();
+    const briefs = await this.options.discovery.approvedBriefs?.();
+    const decision = discoverWork(snapshot, [], briefs).decisions.find(
+      (item) => item.issue.issueId === issueId,
+    );
+    if (
+      decision?.route !== "implementation" ||
+      !decision.admission ||
+      decision.issue.parentIds.length ||
+      decision.issue.childIds.length
+    )
+      throw new Error("Issue is not authorized standalone implementation");
+    const active = this.admissions().find(
+      (run) =>
+        run.issue.issueId === issueId &&
+        run.issue.revision !== decision.issue.revision &&
+        run.status !== "cancelled" &&
+        run.status !== "failed",
+    );
+    if (active) throw new Error("An earlier revision requires reconciliation before admission");
+    const existing = this.admissions().find(
+      (run) => run.issue.issueId === issueId && run.issue.revision === decision.issue.revision,
+    );
+    if (existing) {
+      await this.authorizeStandalone(existing.issue);
+      return existing;
+    }
+    const main = await this.options.publication.git.branchHead("main");
+    if (!main || main !== revisions.startingRevision || main !== revisions.reviewBase)
+      throw new Error("Standalone admission must start from the observed main head");
+    const issue = { ...decision.admission, ...revisions };
+    await this.authorizeStandalone(issue);
+    return this.admit(issue);
+  }
+  private async authorizeStandalone(issue: IssueSnapshot) {
+    await refreshStandalone(this.options.discovery, issue);
+    if (issue.dependencyIds?.length) {
+      if (!this.options.publication?.verifyPrerequisites)
+        throw new Error("Fresh prerequisite delivery verification is required");
+      await this.options.publication.verifyPrerequisites(issue);
+    }
+  }
+  async publishStandalone(runId: string) {
+    if (!this.options.publication) throw new Error("Publication adapter is not configured");
+    return publishStandaloneRun(
+      this.options.store,
+      this.options.discovery,
+      this.options.publication,
+      runId,
+    );
+  }
   async admit(issue: IssueSnapshot) {
     if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
       throw new Error("Admission requires stable identity and explicit revisions");
@@ -169,6 +232,12 @@ export class IssueWorkflow {
       run.status === "running" ||
       (run.status === "waiting-human" && run.checkpoint?.answer)
     ) {
+      if (
+        this.options.publication &&
+        run.issue.route === "implementation" &&
+        !run.issue.parentIds?.length
+      )
+        await this.authorizeStandalone(run.issue);
       const resuming = run.status === "waiting-human";
       const phase = resuming ? run.phase + 1 : run.phase;
       const id = `${runId}:worker:${phase}`;
@@ -226,6 +295,10 @@ export class IssueWorkflow {
         phase,
         state: "pending",
       });
+    } else if (outcome.type === "no-change") {
+      current.status = "completed";
+      current.noChange = { reason: outcome.reason };
+      current.reason = outcome.reason;
     } else {
       current.status = outcome.type;
       if (outcome.type === "completed") current.candidate = outcome.candidate;

@@ -27,6 +27,7 @@ export {
 } from "./external-delivery.ts";
 export { createGitHubDeliverySource, type GitHubDeliveryOptions } from "./github-delivery.ts";
 export { createGitHubDiscovery, type GitHubDiscoveryOptions } from "./github-discovery.ts";
+export { createGitHubPublication, type GitHubPublicationOptions } from "./github-publication.ts";
 export type { GraphIntegrationState, GraphPlan, PlannedLeaf } from "./graph-planning.ts";
 export { IssueWorkflow, type IssueWorkflowOptions } from "./issue-workflow.ts";
 export {
@@ -35,11 +36,23 @@ export {
   type ScanTrigger,
   type ServiceStatus,
 } from "./local-service.ts";
+export {
+  createPublicationGit,
+  type PublicationGit,
+  type PublicationGitOptions,
+} from "./publication-git.ts";
 export type {
   CreateServiceAdapters,
   ServiceAdapterContext,
   ServiceAdapters,
 } from "./service-adapters.ts";
+export type {
+  PublicationGitHub,
+  PublicationState,
+  PublishedPullRequest,
+  PullRequestInput,
+  StandalonePublicationOptions,
+} from "./standalone-publication.ts";
 export type {
   Answer,
   AnswerInput,

@@ -288,3 +288,63 @@ direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test
 
 Authenticated inference/refresh compatibility evidence remains in
 `docs/examples/pi-eve-compatibility/EVIDENCE.md`. Normal tests make no live model calls.
+
+## Standalone publication
+
+Configure `IssueWorkflowOptions.publication` with `createPublicationGit`,
+`createGitHubPublication`, and an idempotent reviewable-PR notification adapter.
+The Git directory must be a coordinator-owned **bare** object store outside every
+worker mount. Its fixed remote is a GitHub HTTPS repository; absolute local bare
+remotes are supported for credential-free fixtures. Keep the GitHub token in the
+coordinator configuration. Never point this adapter at a worker checkout or import
+its Git configuration or hooks.
+
+Use `workflow.admitStandalone(issueId, { startingRevision, reviewBase })` for new
+standalone work. Both initial revisions must equal the observed remote `main` head.
+It refreshes native discovery, readiness, the approved brief and standalone
+membership. Resumption retains the original review base and refreshes authorization
+again before dispatch. Standalone dependencies require the configured
+`verifyPrerequisites(issue)` hook to refresh delivery evidence for that actual base;
+missing verification blocks admission and publication.
+
+After the worker phase completes, call `workflow.publishStandalone(runId)`. In live
+service composition, also call this boundary for retained standalone publication
+intents during restart/reconciliation. The general `scan()` API stays read-only.
+The publication boundary verifies the sandbox-exported bundle hash, imports only
+objects into the trusted bare store, verifies ancestry/tree, and checks that every
+required command and both independent reviews cover the exact candidate and
+captured admission. Git runs with isolated configuration and disabled hooks and
+credential helpers; no worker-controlled code executes on the host.
+
+`run.publication` records `reviewable`, `delivered`, `triage`, or `reconciliation`
+separately from completion of the worker phase. Branch push, PR creation, notification
+and issue closure have separate persistent operation intents. Recovery first reads
+the remote branch and every PR state/page. A lost create response with no visible PR
+pauses for reconciliation instead of issuing another create. Existing remote heads
+are never overwritten without an explicit expected-head lease. The adapter refuses
+to publish `main` and exposes no PR merge operation.
+
+The PR targets `main` and contains closing keywords; the issue stays open while the
+PR is open. Only an observed merge of the covered PR permits explicit completed
+closure if GitHub has not already closed it. Unmerged PR closure, unusual issue
+closure, changed authorization/content/membership, and reopening delivered work
+require reconciliation while retaining the branch, candidate, receipts and sessions.
+
+`factory_no_change` proposes triage when implementation is unnecessary. Its typed
+`no-change` outcome records a reason without candidate evidence; a verified candidate
+whose final tree equals its review base also routes to triage. Neither creates a PR
+or claims delivery. Service composition routes these records to the existing triage
+workflow after current tracker authorization; it must not fabricate a triage
+recommendation or skip the selected skill's human checkpoint.
+
+The normal `factory:test` suite uses real local Git repositories/SQLite with controlled
+GitHub outcomes. The Docker no-change contract uses a separate network-none provider
+image. Build it before `factory:test-docker`:
+
+```sh
+docker build --network none -f apps/factory/tests/Dockerfile \
+  -t zaidan-factory-publication-test:0.85.1 apps/factory/tests
+```
+
+Native transport references: [GitHub pull requests REST API](https://docs.github.com/en/rest/pulls/pulls)
+and [issue updates](https://docs.github.com/en/rest/issues/issues#update-an-issue).

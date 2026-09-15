@@ -365,6 +365,17 @@ export default function bridge(pi: ExtensionAPI) {
     },
   });
   pi.registerTool({
+    name: "factory_no_change",
+    label: "Route unchanged work to triage",
+    description:
+      "Stop with a reason when no meaningful implementation is needed. This is a triage proposal, never successful delivery or permission to publish.",
+    parameters: Type.Object({ reason: Type.String({ minLength: 1 }) }),
+    async execute(_id, args) {
+      if (axis) throw new Error("Review delegates cannot classify the implementation");
+      return outcome({ type: "no-change", reason: args.reason });
+    },
+  });
+  pi.registerTool({
     name: "factory_failed",
     label: "Fail phase",
     description:
