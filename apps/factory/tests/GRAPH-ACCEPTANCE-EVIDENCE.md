@@ -65,3 +65,32 @@ human's live main merge. The authenticated complete-service fixture, rollout pol
 and ongoing edited/reopened/moved graph re-evaluation belong to their separate
 acceptance gates. Production publication credentials never enter the worker or its
 verification container.
+
+## Receipt restoration follow-up (#527)
+
+The restoration failure recurred on the assembled production image. A diagnostic
+wrapper captured truncated JSON inside the credential-free verifier while the
+host's restored receipt was complete. A minimal sole-writer bind-mount probe then
+reproduced the inconsistency: after a 3,028-byte host write, a fresh container could
+read only the previous 108-byte size; a subsequent guest stat reported 3,028 bytes.
+There was no worker or validator in this reduced probe.
+
+Across 40 trials per mode, in-place replacement failed 12 times, atomic rename
+failed 12 times, and an EOF-based stream reader failed six times. A distinct input
+path for every read passed all 40 trials. Atomic replacement or changing the Node
+read API alone therefore did not address the observed OrbStack metadata behavior.
+The original historical failure's discarded state still cannot be reconstructed;
+these retained later reproductions establish the matching restoration mechanism.
+
+The coordinator now seals the exact host-observed outcome in a fresh read-only
+verification directory, mounts that immutable input, and removes it afterward.
+Validation rules are unchanged, with no retry or delay. This also binds validation
+to the same outcome the coordinator returns. The original real Docker/Pi
+acceptance test passed, including every corrupt-evidence rejection and the restored
+valid receipt. The normal worker and conflict-integration suites exercise the same
+verification boundary separately.
+
+The synthetic differential reports and reader probe are retained under
+`/tmp/zaidan-spec-511/bind-receipt-{inplace,atomic,stream,unique}.json` and
+`bind-receipt-probe.mjs`; full acceptance output is `527-receipt-fixed.log`.
+No credentials, provider requests, or external writes were used in the probe.
