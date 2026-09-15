@@ -9,7 +9,12 @@ import { createGitHubDiscovery } from "./github-discovery.ts";
 import { createGitHubPublication } from "./github-publication.ts";
 import { createGitHubTriage } from "./github-triage.ts";
 import { SqliteGraphStore } from "./graph-integration.ts";
-import { type ProductionConfig, sourceIdentity } from "./production-config.ts";
+import type { IssueWorkflow } from "./issue-workflow.ts";
+import {
+  type ProductionConfig,
+  runtimeSourceIdentity,
+  sourceIdentity,
+} from "./production-config.ts";
 import { createProductionResources } from "./production-resources.ts";
 import { ProductionWork } from "./production-work.ts";
 import { RolloutPolicy } from "./rollout.ts";
@@ -93,12 +98,7 @@ export async function createProductionAdapters(options: {
   const binding = {
     repositoryId: native.node_id,
     configuration: configuration(),
-    runtime: sourceIdentity([
-      join(options.factoryRoot, "src"),
-      join(options.factoryRoot, "agent"),
-      join(options.factoryRoot, "worker"),
-      join(options.factoryRoot, "package.json"),
-    ]),
+    runtime: runtimeSourceIdentity(options.factoryRoot),
   };
   const rollout = new RolloutPolicy({
     mode: runtime.mode,
@@ -163,6 +163,7 @@ export async function createProductionAdapters(options: {
     },
   });
   let operators: TelegramOperations | undefined;
+  let workflow: IssueWorkflow | undefined;
   let work: ProductionWork | undefined;
   const notify = async (input: Parameters<TelegramOperations["notifyReviewable"]>[0]) => {
     if (!operators) throw new Error("Operator transport is not attached");
@@ -230,9 +231,14 @@ export async function createProductionAdapters(options: {
           entry: "code-review",
           notify: async (input) => {
             if (!operators) throw new Error("Operator transport is not attached");
-            return telegram.sendMessage({
-              operationId: input.operationId,
-              text: `Graph ${input.graphId} is reviewable: ${input.pullRequest.url}\nThe maintainer performs the final merge into main.`,
+            const graph = graphs.read(input.graphId);
+            if (!graph) throw new Error("Missing reviewable graph");
+            return operators.notifyGraphReviewable({
+              graphId: input.graphId,
+              issueNumber: graph.number,
+              repository: graph.repository,
+              head: input.pullRequest.headCommit,
+              pullRequestUrl: input.pullRequest.url,
             });
           },
         },
@@ -246,12 +252,27 @@ export async function createProductionAdapters(options: {
         head: graph.head,
         state: graph.state,
         integrated: Object.keys(graph.deliveries).length,
-        total: Object.keys(graph.deliveries).length,
+        total: (() => {
+          try {
+            return (
+              workflow?.planGraph(graph.graphId, graph).leaves.length ?? graph.integrations.length
+            );
+          } catch {
+            return new Set([
+              ...graph.integrations.map((item) => item.issueId),
+              ...(workflow
+                ?.admissions()
+                .filter((run) => run.issue.graphId === graph.graphId)
+                .map((run) => run.issue.issueId) ?? []),
+            ]).size;
+          }
+        })(),
         pullRequestUrl: graph.pullRequest?.url,
         reconciliation: graph.reconciliation,
       })),
     async attach(context) {
       operators = context.operators;
+      workflow = context.workflow;
       work = new ProductionWork({
         workflow: context.workflow,
         git: resources.git,

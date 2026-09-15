@@ -384,6 +384,14 @@ export function integrationFixture(t: { after(fn: () => void): void }, acceptanc
     maintainerMerge(head: string) {
       git("--git-dir", remote, "update-ref", "refs/heads/main", head, base);
     },
+    maintainerBringMain(branch: string, head: string, main: string) {
+      git("checkout", "-B", "maintainer-reconcile", head);
+      git("merge", "--no-ff", main, "-m", "maintainer: bring delivered prerequisite into graph");
+      const next = git("rev-parse", "HEAD");
+      git("push", remote, `HEAD:refs/heads/${branch}`);
+      git("--git-dir", bare, "fetch", remote, `refs/heads/${branch}:refs/heads/${branch}`);
+      return next;
+    },
     description() {
       return description;
     },

@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { loadPrivateEnvironment, readProductionConfig } from "../src/production-config.ts";
+import {
+  loadPrivateEnvironment,
+  readProductionConfig,
+  runtimeSourceIdentity,
+} from "../src/production-config.ts";
 
 test("private configuration reads literal credentials without evaluating shell code or accepting ambient conflicts", () => {
   const root = mkdtempSync(join(tmpdir(), "factory-private-config-"));
@@ -48,6 +52,26 @@ test("native runtime requires explicit valid source selection and a bounded supp
     assert.throws(() => readProductionConfig(path), /Invalid factory runtime/);
     writeFileSync(path, JSON.stringify({ ...config, checks: [] }));
     assert.throws(() => readProductionConfig(path), /Invalid factory runtime/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a locked dependency change invalidates the runtime identity even with unchanged source and manifests", () => {
+  const root = mkdtempSync(join(tmpdir(), "factory-locked-runtime-"));
+  const factory = join(root, "apps/factory");
+  try {
+    for (const name of ["src", "agent", "worker"]) {
+      mkdirSync(join(factory, name), { recursive: true });
+      writeFileSync(join(factory, name, "source.txt"), "unchanged");
+    }
+    writeFileSync(join(factory, "package.json"), '{"dependencies":{"eve":"0.54.3"}}');
+    const lock = join(root, "bun.lock");
+    writeFileSync(lock, "locked Eve dependency resolution A");
+    const before = runtimeSourceIdentity(factory);
+    assert.equal(runtimeSourceIdentity(factory), before);
+    writeFileSync(lock, "locked Eve dependency resolution B");
+    assert.notEqual(runtimeSourceIdentity(factory), before);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -93,3 +93,14 @@ export function sourceIdentity(paths: string[]) {
   for (const path of paths) visit(path, path);
   return digest.digest("hex");
 }
+
+/** Loaded factory code and the workspace dependency resolution form one runtime identity. */
+export function runtimeSourceIdentity(factoryRoot: string) {
+  return sourceIdentity([
+    join(factoryRoot, "src"),
+    join(factoryRoot, "agent"),
+    join(factoryRoot, "worker"),
+    join(factoryRoot, "package.json"),
+    join(factoryRoot, "../../bun.lock"),
+  ]);
+}

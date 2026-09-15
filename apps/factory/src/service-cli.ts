@@ -100,7 +100,11 @@ function prepare(settings: ServiceConfig) {
   );
 }
 function compiledSourceIdentity() {
-  return sourceIdentity([join(factoryRoot, "agent"), join(factoryRoot, "src/eve-engine.ts")]);
+  return sourceIdentity([
+    join(factoryRoot, "agent"),
+    join(factoryRoot, "src/eve-engine.ts"),
+    join(factoryRoot, "../../bun.lock"),
+  ]);
 }
 function hostEnvironment(settings: ServiceConfig): NodeJS.ProcessEnv {
   return {

@@ -8,7 +8,7 @@ import { LocalService } from "../src/local-service.ts";
 import { ProductionWork } from "../src/production-work.ts";
 import { listenLocalService } from "../src/service-http.ts";
 import { buildEveHost, eventually } from "./eve-host-fixture.ts";
-import { integrationFixture } from "./graph-fixture.ts";
+import { integrationFixture, issue } from "./graph-fixture.ts";
 
 test("an owned service scan automatically delivers a graph through compiled Eve, immediate dependencies and acceptance", {
   timeout: 180000,
@@ -33,6 +33,11 @@ test("an owned service scan automatically delivers a graph through compiled Eve,
   let passed = false;
   try {
     await host.start(transport.url);
+    fixture.setLosePush();
+    fixture.setLoseCreate();
+    fixture.setLoseClose();
+    fixture.setLoseReady();
+    fixture.setLoseNotify();
     await service.start();
     // No direct admit, drive, integrate, finalize or publish calls: native Eve owns every phase.
     await eventually(
@@ -78,4 +83,91 @@ test("an owned service scan automatically delivers a graph through compiled Eve,
     if (passed) rmSync(host.root, { recursive: true, force: true });
     else process.stderr.write(`Retained assembled service evidence: ${host.root}\n`);
   }
+});
+
+test("independent graph work proceeds while external delivery waits, then exact contained receiving-base adoption releases it", async (t) => {
+  const f = integrationFixture(t);
+  const external = { ...issue("external"), number: 10, parentIds: [], labels: ["ready-for-human"] };
+  f.issues.push(external);
+  f.issues[2].dependencyIds = ["external"];
+  let workflow = f.make();
+  const work = new ProductionWork({
+    workflow,
+    git: f.transport,
+    enabled: () => true,
+    attention: async () => "attention",
+  });
+  await work.onScan(await workflow.scan());
+  const original = workflow.admissions()[0];
+  assert.equal(original.issue.issueId, "a");
+  assert.equal(workflow.admissions().length, 1);
+  await workflow.drive(original.runId);
+  await workflow.drive(original.runId);
+  await workflow.drive(original.runId);
+  const graph = workflow.observeGraph("root");
+  assert.equal(f.issues[1].state, "closed");
+  const main = f.maintainerAdvance("main", f.base);
+  external.state = "closed";
+  external.stateReason = "completed";
+  external.revision = "delivered";
+  f.externalPulls.push({
+    id: "external-pr",
+    url: "https://github.com/owner/repo/pull/11",
+    repository: "owner/repo",
+    revision: "merged",
+    state: "MERGED",
+    baseRef: "main",
+    mergeCommit: main,
+    mergedAt: "2026-09-15T12:00:00Z",
+  });
+  const waiting = await workflow.reconcileGraph("root");
+  assert.equal(waiting.reconciliation?.receivingBase?.contained, false);
+  const refused = await workflow.reconcileGraph("root", {
+    revision: waiting.reconciliation?.revision ?? "",
+    continueRunIds: [],
+    adoptReceivingBase: main,
+  });
+  assert.match(refused.reason ?? "", /contained/);
+  assert.equal(refused.reviewBase, f.base);
+  assert.equal(workflow.admissions().length, 1);
+  const head = f.maintainerBringMain(graph.branch, graph.head, main);
+  assert.match((await workflow.reconcileGraph("root")).reason ?? "", /explicit reconciliation/);
+  const revision = workflow.observeGraph("root").reconciliation?.revision ?? "";
+  const stale = await workflow.reconcileGraph("root", {
+    revision: "stale",
+    continueRunIds: [],
+    adoptReceivingBase: main,
+  });
+  assert.match(stale.reason ?? "", /explicit reconciliation|stale/);
+  await workflow.reconcileGraph("root", { revision, continueRunIds: [], adoptReceivingBase: main });
+  workflow = f.make();
+  await workflow.recoverGraph("root");
+  const dependent = workflow.admissions().find((run) => run.issue.issueId === "b");
+  assert.ok(dependent);
+  assert.equal(dependent.issue.reviewBase, main);
+  assert.equal(dependent.issue.startingRevision, head);
+  assert.equal(f.git("show", `${head}:maintainer-change`), "retained extra change");
+  assert.equal(f.git("show", `${head}:part-a`), "a");
+  assert.deepEqual(workflow.observe(original.runId).issue, original.issue);
+  assert.deepEqual(workflow.observe(original.runId).session, original.session);
+  assert.equal(workflow.observeGraph("root").receivingBaseHistory?.length, 1);
+});
+
+test("a production scan with no eligible graph leaf leaves no frozen branch before external delivery", async (t) => {
+  const f = integrationFixture(t);
+  f.issues[1].labels = ["ready-for-human"];
+  const workflow = f.make();
+  const work = new ProductionWork({
+    workflow,
+    git: f.transport,
+    enabled: () => true,
+    attention: async () => "waiting",
+  });
+  await work.onScan(await workflow.scan());
+  assert.equal(workflow.admittedGraphs().length, 0);
+  assert.equal(f.events.length, 0);
+  f.issues[1].labels = ["ready-for-agent"];
+  await work.onScan(await workflow.scan());
+  assert.equal(workflow.admittedGraphs().length, 1);
+  assert.equal(workflow.admissions().length, 1);
 });

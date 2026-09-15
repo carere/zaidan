@@ -94,6 +94,25 @@ export class IssueWorkflow {
     if (!this.graphs) throw Error("Graph adapters are not configured");
     return this.graphs.admit(id);
   }
+  async previewGraphAdmission(id: string) {
+    if (!this.options.graph) throw new Error("Graph adapters are not configured");
+    const scan = await this.graphDiscovery();
+    const plan = planIssueGraph(scan, id);
+    const head = await this.options.graph.git.branchHead("main");
+    if (!head) throw new Error("Repository main is unavailable");
+    return this.verifyGraph(
+      id,
+      {
+        graphId: id,
+        graphRevision: plan.graphRevision,
+        head,
+        reviewBase: head,
+        integrations: [],
+        containedCommits: [],
+      },
+      scan,
+    );
+  }
   admittedGraphs() {
     return this.options.graph?.store.list() ?? [];
   }

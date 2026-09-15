@@ -6,5 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends git ca-certific
     libxrandr2 fonts-liberation fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/* \
     && npm install --global @earendil-works/pi-coding-agent@0.85.1 bun@1.4.2
+ENV NODE_OPTIONS="--dns-result-order=ipv4first --v8-pool-size=2" RAYON_NUM_THREADS=2
 USER node
 WORKDIR /tmp

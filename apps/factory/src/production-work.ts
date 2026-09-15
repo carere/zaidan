@@ -112,7 +112,19 @@ export class ProductionWork {
           .catch(() => {});
       }
       if (decision.route === "coordinator" && !issue.parentIds.length)
-        await this.guard(`graph:${issue.issueId}`, () => workflow.admitGraph(issue.issueId));
+        await this.guard(`graph:${issue.issueId}`, async () => {
+          if (!workflow.admittedGraphs().some((graph) => graph.graphId === issue.issueId)) {
+            const preview = await workflow.previewGraphAdmission(issue.issueId);
+            if (!preview.eligibleLeaves.length) {
+              await this.options.attention({
+                operationId: `graph:${issue.issueId}:waiting:${preview.graphRevision}`,
+                text: `${issue.repository}#${issue.number} has no eligible implementation leaf at current main. Resolve the reported labels or prerequisite delivery, then /scan factory. No empty graph branch was frozen.`,
+              });
+              return;
+            }
+          }
+          return workflow.admitGraph(issue.issueId);
+        });
       const admission = decision.admission;
       if (decision.route === "triage" && admission)
         await this.guard(`triage:${issue.issueId}:${issue.revision}`, async () => {
