@@ -318,6 +318,24 @@ export class DockerPiWorker implements WorkerAdapter {
     }
     if (request.integration) {
       const input = request.integration;
+      const reevaluation = input.reevaluation;
+      if (
+        reevaluation &&
+        (typeof reevaluation.id !== "string" ||
+          !reevaluation.id.trim() ||
+          reevaluation.id.length > 200 ||
+          typeof reevaluation.reason !== "string" ||
+          !reevaluation.reason.trim() ||
+          reevaluation.reason.length > 2400 ||
+          reevaluation.issue?.issueId !== request.issue.issueId ||
+          reevaluation.issue.repository !== request.issue.repository ||
+          reevaluation.issue.graphId !== input.graphId ||
+          typeof reevaluation.issue.revision !== "string" ||
+          !reevaluation.issue.revision.trim() ||
+          typeof reevaluation.issue.sourceContent?.body !== "string" ||
+          !reevaluation.issue.sourceContent.body.trim())
+      )
+        return { type: "failed", reason: "Invalid explicit integration reevaluation scope" };
       if (
         !input.graphId ||
         !input.graphRevision ||

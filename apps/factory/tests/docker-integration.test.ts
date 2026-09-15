@@ -10,9 +10,7 @@ import { createPublicationGit } from "../src/publication-git.ts";
 
 const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 
-test("real Docker/Pi resolves a graph conflict with original provenance, retained session and exact assembled evidence", {
-  timeout: 120000,
-}, async () => {
+async function integrationFixture(reevaluate: boolean) {
   const directory = mkdtempSync(join(tmpdir(), "factory-docker-522-"));
   const runId = basename(directory);
   const repository = join(directory, "repository");
@@ -46,6 +44,7 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
     issueId: "I_11",
     number: 11,
     revision: "original-revision",
+    sourceContent: { body: "Original requirements", brief: "child" },
     repository: "fixture/local",
     startingRevision: base,
     reviewBase: base,
@@ -67,7 +66,7 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
     skills,
     dependencies: {},
     checks: [
-      'if test -f sibling.txt; then test "$(cat result.txt)" = \'child and sibling\' && test "$(cat sibling.txt)" = \'sibling preserved\'; else test "$(cat result.txt)" = child; fi',
+      `if test -f sibling.txt; then test "$(cat result.txt)" = "$(node -p 'require("/input/request.json").integration.reevaluation?.issue.sourceContent.brief ?? "child and sibling"')" && test "$(cat sibling.txt)" = 'sibling preserved'; else test "$(cat result.txt)" = child; fi`,
     ],
   });
   let containment:
@@ -146,6 +145,26 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
       candidate: implemented.candidate,
       source: exported,
       entry: "resolving-merge-conflicts",
+      ...(reevaluate
+        ? {
+            reevaluation: {
+              id: "reevaluation-current-1",
+              reason: "Maintainer revised the child requirement",
+              issue: {
+                ...issue,
+                graphId: "graph-11",
+                revision: "current-revision",
+                sourceContent: {
+                  body: "Revised child requirements",
+                  brief: "child and sibling revised",
+                  specifications: [
+                    { issueId: "graph-11", body: "Preserve sibling and revised child" },
+                  ],
+                },
+              },
+            },
+          }
+        : {}),
     };
     const mergeRequest: WorkerRequest = {
       ...request,
@@ -197,6 +216,7 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
       graphRevision: "membership-r1",
       expectedHead: head,
       candidateCommit: implemented.candidate.commit,
+      ...(reevaluate ? { reevaluationId: "reevaluation-current-1" } : {}),
     };
     assert.deepEqual(result.candidate.integration, evidence);
     assert.equal(result.candidate.reviewBase, head);
@@ -242,7 +262,20 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
     assert.equal(hash(readFileSync(artifact.path)), artifact.sha256);
     // Import only the immutable sandbox bundle into this trusted fixture repository.
     git("fetch", artifact.path, "HEAD");
-    assert.equal(git("show", `${result.candidate.commit}:result.txt`), "child and sibling");
+    assert.equal(
+      git("show", `${result.candidate.commit}:result.txt`),
+      reevaluate ? "child and sibling revised" : "child and sibling",
+    );
+    const captured = JSON.parse(
+      readFileSync(
+        join(options.directory, "operations", hash(resumed.operationId), "input", "request.json"),
+        "utf8",
+      ),
+    );
+    assert.deepEqual(captured.issue, issue);
+    assert.deepEqual(captured.integration.reevaluation, integration.reevaluation);
+    assert.equal(captured.resources.id, resources.id);
+    assert.equal(captured.session.id, request.session.id);
     assert.equal(git("show", `${result.candidate.commit}:sibling.txt`), "sibling preserved");
     git("merge-base", "--is-ancestor", head, result.candidate.commit);
     git("merge-base", "--is-ancestor", implemented.candidate.commit, result.candidate.commit);
@@ -254,6 +287,66 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
       "outcome.json",
     );
     const altered = JSON.parse(readFileSync(receipt, "utf8"));
+    if (reevaluate) {
+      for (const target of ["candidate", "check", "review"]) {
+        const stale = JSON.parse(readFileSync(receipt, "utf8"));
+        const item =
+          target === "candidate"
+            ? stale.candidate
+            : target === "check"
+              ? stale.candidate.checks[0]
+              : stale.candidate.reviews[0];
+        delete item.integration.reevaluationId;
+        writeFileSync(receipt, JSON.stringify(stale));
+        await assert.rejects(
+          new DockerPiWorker(options).reconcile(resumed.operationId),
+          /docker operation failed/,
+        );
+        writeFileSync(receipt, JSON.stringify(altered));
+      }
+      assert.equal(
+        (await new DockerPiWorker(options).reconcile(resumed.operationId))?.type,
+        "completed",
+      );
+      for (const [index, invalidScope] of [
+        { ...integration.reevaluation, id: " " },
+        { ...integration.reevaluation, reason: "x".repeat(2401) },
+        {
+          ...integration.reevaluation,
+          issue: { ...integration.reevaluation?.issue, issueId: "another" },
+        },
+        {
+          ...integration.reevaluation,
+          issue: { ...integration.reevaluation?.issue, repository: "other/repo" },
+        },
+        {
+          ...integration.reevaluation,
+          issue: { ...integration.reevaluation?.issue, graphId: "other-graph" },
+        },
+        {
+          ...integration.reevaluation,
+          issue: { ...integration.reevaluation?.issue, revision: "" },
+        },
+        {
+          ...integration.reevaluation,
+          issue: { ...integration.reevaluation?.issue, sourceContent: undefined },
+        },
+      ].entries()) {
+        const invalidRequest = {
+          ...mergeRequest,
+          operationId: `${runId}:invalid-scope:${index}`,
+          integration: { ...integration, reevaluation: invalidScope },
+        } as WorkerRequest;
+        assert.deepEqual(await worker.dispatch(invalidRequest), {
+          type: "failed",
+          reason: "Invalid explicit integration reevaluation scope",
+        });
+        assert.equal(
+          existsSync(join(options.directory, "operations", hash(invalidRequest.operationId))),
+          false,
+        );
+      }
+    }
     altered.candidate.checks[0].integration.expectedHead = base;
     writeFileSync(receipt, JSON.stringify(altered));
     await assert.rejects(
@@ -276,4 +369,11 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
     if (process.env.FACTORY_KEEP_FIXTURES !== "1")
       rmSync(directory, { recursive: true, force: true });
   }
-});
+}
+
+for (const reevaluate of [false, true])
+  test(
+    `real Docker/Pi resolves a graph conflict${reevaluate ? " with changed requirements" : ""} with original provenance, retained session and exact assembled evidence`,
+    { timeout: 120000 },
+    () => integrationFixture(reevaluate),
+  );

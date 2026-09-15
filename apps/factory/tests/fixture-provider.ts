@@ -27,6 +27,19 @@ export default function fixture(pi: ExtensionAPI) {
         readFileSync(process.env.FACTORY_REQUEST ?? "/phase/request.json", "utf8"),
       );
       const axis = process.env.FACTORY_REVIEW_AXIS;
+      if (request.integration?.reevaluation) {
+        if (
+          !context.systemPrompt?.includes(
+            "current body, approved brief and specifications are authoritative",
+          )
+        )
+          throw new Error("Reevaluation scope missing from main/delegate system context");
+        if (
+          axis &&
+          !JSON.stringify(context.messages).includes("integration.reevaluation.issue.sourceContent")
+        )
+          throw new Error("Reevaluation scope missing from explicit review task");
+      }
       const observations = "/state/provider-dispatched.jsonl";
       const previousCalls = existsSync(observations)
         ? readFileSync(observations, "utf8")
@@ -165,8 +178,7 @@ export default function fixture(pi: ExtensionAPI) {
         tool = {
           name: "bash",
           arguments: {
-            command:
-              "test -f .git/MERGE_HEAD && test -n \"$(git ls-files -u)\" && printf 'child and sibling\\n' > result.txt",
+            command: `test -f .git/MERGE_HEAD && test -n "$(git ls-files -u)" && node -e 'const r = require("/input/request.json"); process.stdout.write((r.integration.reevaluation?.issue.sourceContent.brief ?? "child and sibling") + "\\n");' > result.txt`,
           },
         };
       else if (!names.includes("bash"))
