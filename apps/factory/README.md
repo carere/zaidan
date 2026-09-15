@@ -455,3 +455,21 @@ explicit reconciliation reasons are available for subsequent graph re-evaluation
 these checks never fabricate a new candidate or rewrite original admission evidence.
 Final whole-graph acceptance, readiness and observed main-merge finalization are later
 phases. The default local service remains read-only until the full rollout gate passes.
+
+### Pinned Eve interrupted-step recovery
+
+The bundled `@workflow/world-local@5.0.0-beta.43` can be interrupted after creating
+an empty step-creation marker but before writing the step entity and journal event.
+Native startup then finds the run but cannot replay that step. The supervised host
+now checks for this exact state before importing the compiled Eve server. A host PID
+claim, in addition to the coordinator's exclusive service ownership, prevents repair
+while a previous host is still alive.
+
+Only an empty, unnamespaced `.created` marker for a valid active run is eligible,
+and only when both its step record and corresponding journal evidence are missing.
+The known world-version marker must match. Startup preserves completed runs, existing
+step entities, journaled steps, and all other locks. It quarantines the orphan marker
+and writes a diagnostic receipt under `.eve/factory-world-repairs`, outside the native
+world directories. Unknown versions, malformed state and redirected paths fail closed.
+Do not remove the world or clear its locks manually to recover a run. Revalidate this
+compatibility repair when upgrading Eve or its bundled local-world runtime.

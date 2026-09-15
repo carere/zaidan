@@ -20,7 +20,7 @@ tasks:
       mergeArgs: replace
       cache: local
   test:
-    command: node --test tests/issue-workflow.test.ts tests/discovery.test.ts tests/github-discovery.test.ts tests/graph-planning.test.ts tests/local-service.test.ts tests/captured-worker.test.ts tests/external-delivery.test.ts tests/github-delivery.test.ts tests/standalone-publication.test.ts tests/github-publication.test.ts tests/execution.test.ts tests/graph-integration.test.ts
+    command: node --test tests/issue-workflow.test.ts tests/discovery.test.ts tests/github-discovery.test.ts tests/graph-planning.test.ts tests/local-service.test.ts tests/captured-worker.test.ts tests/external-delivery.test.ts tests/github-delivery.test.ts tests/standalone-publication.test.ts tests/github-publication.test.ts tests/execution.test.ts tests/graph-integration.test.ts tests/eve-local-recovery.test.ts
     options:
       cache: false
   test-eve:

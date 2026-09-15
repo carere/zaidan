@@ -6,7 +6,9 @@ fixture values are fake and Docker networking is disabled. No home skills,
 subscription credentials, GitHub credentials, or Telegram credentials are used.
 
 The fixture produces a reviewed child commit through the actual Pi worker, then
-creates an independent sibling commit that conflicts on the same file. The
+creates an independent sibling commit that conflicts on the same file. The graph
+source comes from the actual trusted `createPublicationGit.exportBundle` transport,
+so the fixture covers its named branch export being cloned inside Docker. The
 integration phase clones the current graph bundle inside Docker, imports the
 child bundle, starts the merge, invokes the captured resolver through native
 `/skill:resolving-merge-conflicts`, and reaches a durable human checkpoint with

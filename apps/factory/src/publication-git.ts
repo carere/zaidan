@@ -105,8 +105,8 @@ export function createPublicationGit(options: PublicationGitOptions): GraphPubli
       const directory = join(options.trustedGitDirectory, "factory-exports");
       await mkdir(directory, { recursive: true, mode: 0o700 });
       const path = join(directory, `${randomUUID()}.bundle`);
-      await git(["update-ref", `refs/factory/exports/${commit}`, commit]);
-      await git(["bundle", "create", path, `refs/factory/exports/${commit}`]);
+      await git(["update-ref", `refs/heads/codex/factory-export-${commit}`, commit]);
+      await git(["bundle", "create", path, `refs/heads/codex/factory-export-${commit}`]);
       return {
         kind: "git-bundle",
         path,

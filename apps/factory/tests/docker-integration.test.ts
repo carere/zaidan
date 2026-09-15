@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { test } from "node:test";
 import { captureResources, DockerPiWorker, type WorkerRequest } from "../src/index.ts";
+import { createPublicationGit } from "../src/publication-git.ts";
 
 const hash = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 
@@ -129,8 +130,13 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
     git("add", ".");
     git("commit", "-m", "feat: independently integrated sibling");
     const head = git("rev-parse", "HEAD");
-    const sourcePath = join(directory, "graph.bundle");
-    git("bundle", "create", sourcePath, "HEAD");
+    const trusted = join(directory, "trusted.git");
+    git("clone", "--bare", repository, trusted);
+    const exported = await createPublicationGit({
+      trustedGitDirectory: trusted,
+      remote: repository,
+    }).exportBundle(head);
+    const sourcePath = exported.path;
     const integration = {
       graphId: "graph-11",
       graphRevision: "membership-r1",
@@ -138,11 +144,7 @@ test("real Docker/Pi resolves a graph conflict with original provenance, retaine
       expectedHead: head,
       reviewBase: head,
       candidate: implemented.candidate,
-      source: {
-        kind: "git-bundle" as const,
-        path: sourcePath,
-        sha256: hash(readFileSync(sourcePath)),
-      },
+      source: exported,
       entry: "resolving-merge-conflicts",
     };
     const mergeRequest: WorkerRequest = {
