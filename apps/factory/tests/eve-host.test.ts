@@ -60,7 +60,13 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
   const worker: WorkerAdapter = {
     async dispatch(request) {
       requests.push(request);
-      const result = { type: "checkpoint" as const, question: { prompt: "Which color?" } };
+      const result =
+        request.phase === 0
+          ? {
+              type: "subscription-paused" as const,
+              reason: "Fixture subscription allowance exhausted",
+            }
+          : { type: "checkpoint" as const, question: { prompt: "Which color?" } };
       receipts.set(request.operationId, result);
       return result;
     },
@@ -143,12 +149,27 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     };
     const admitted = await workflow.admit(issue);
     assert.equal(admitted.eveRunId, undefined, "start response was lost");
+    const quota = await eventually(
+      async () => workflow.observe(admitted.runId),
+      (run) => run.status === "waiting-subscription",
+    );
+    const quotaEveRun = await engine.find(admitted.runId);
+    assert.ok(quotaEveRun);
+    await host.stop();
+    store.close();
+    store = new SqliteWorkflowStore(database);
+    workflow = coordinator();
+    await host.start(bridgeUrl);
+    await workflow.recover();
+    assert.equal(workflow.observe(admitted.runId).status, "waiting-subscription");
+    assert.deepEqual(workflow.observe(admitted.runId).session, quota.session);
+    await workflow.resume(admitted.runId);
     const waiting = await eventually(
       async () => workflow.observe(admitted.runId),
       (run) => run.status === "waiting-human",
     );
     assert.ok(waiting.checkpoint);
-    assert.equal(notifications.size, 1);
+    assert.equal(notifications.size, 2);
     const originalEveRun = await engine.find(admitted.runId);
     assert.ok(originalEveRun);
     await eventually(
@@ -163,7 +184,7 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
       engine.start({ runId: admitted.runId }),
     ]);
     assert.deepEqual(duplicateStarts, [originalEveRun, originalEveRun]);
-    assert.equal(requests.length, 1);
+    assert.equal(requests.length, 2);
 
     // Kill the actual compiled Node host. Reopen SQLite with a fresh coordinator
     // while preserving the external Eve world and admission identities.
@@ -209,9 +230,9 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     );
     assert.equal(eveState.result.status, "completed");
     assert.equal(completed.candidate?.commit, "fixture-reviewed-commit");
-    assert.equal(requests.length, 2);
-    assert.deepEqual(requests[1].session, requests[0].session);
-    assert.equal(notifications.size, 1);
+    assert.equal(requests.length, 3);
+    assert.deepEqual(requests[2].session, requests[0].session);
+    assert.equal(notifications.size, 2);
     success = true;
   } finally {
     await host.stop();

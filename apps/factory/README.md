@@ -348,3 +348,60 @@ docker build --network none -f apps/factory/tests/Dockerfile \
 
 Native transport references: [GitHub pull requests REST API](https://docs.github.com/en/rest/pulls/pulls)
 and [issue updates](https://docs.github.com/en/rest/issues/issues#update-an-issue).
+## Execution limits and recovery
+
+`IssueWorkflow` reserves issue execution in the same transactional SQLite store as
+admissions. Defaults are four executing issues and four concurrent Pi model
+requests, including delegates. Model permits are independent of issue permits:
+parents release their model slot before delegated tools wait. Native Pi compaction
+reserves the same model capacity while its sequential summary calls run. Human, subscription,
+authentication, operator waits and completed candidates awaiting integration hold
+no execution slot. Unknown worker stop results retain ownership until reconciliation
+confirms the entire sandbox has stopped.
+
+Each attempt has a two-hour active wall-time budget shared across its phases and
+delegates. Persisted phase start time and prior usage survive restart; overlapping
+delegates do not multiply elapsed time. Time during durable human/subscription waits
+is excluded. Docker completion timestamps are sealed in coordinator-owned input
+receipts before container removal, so an outage after a finished checkpoint does
+not count as execution. Until an orphaned active sandbox is reconciled, elapsed
+time is conservatively counted. Budget expiration cancels the sandbox before releasing
+capacity. A transient infrastructure outcome receives one automatic retry; failed
+checks and semantic failures remain explicit failures.
+
+Quota exhaustion produces `waiting-subscription` and one durable notification.
+Authentication errors produce `waiting-authentication`; resumption requires an
+explicit reauthentication signal. `resume(runId)` accepts an operator or service
+availability signal and retains the original session, resource snapshot and budget.
+There is no billed provider fallback. `pause`, `cancel` and explicit `retry` retain
+the workspace and evidence. Explicit retry starts a fresh bounded attempt. Eve
+continues durable polling for paused/failed/cancelled runs so these controls resume
+the same workflow; a completed candidate finishes the Eve loop.
+
+The service owns a loopback-only model permit endpoint. Networked Docker workers
+require a per-operation scoped capability in their immutable input. Pi acquires
+before its provider request and releases before tool execution. An unreachable or
+rejected permit terminates that Pi process before provider dispatch: Pi 0.85.1
+otherwise catches extension errors and continues. Delegates use the same endpoint
+with separate owners. The endpoint grants only capacity; it exposes no publication,
+Telegram or model credentials. Unix socket forwarding did not work in the tested
+Mac/OrbStack environment; `host.docker.internal` reaches the bound loopback port.
+
+For embedded composition, call `startModelPermitServer(workflow, stablePort)` and
+`workflow.configureModelPermits(server.url)` before driving work; close the server
+on shutdown. Keep that port stable across recovery. Future integration and final
+acceptance phases must use this same workflow capacity ownership, not bypass it by
+calling a worker directly.
+
+The normal test suite includes fake-clock capacity/budget/retry/recovery checks.
+The additional credential-free Docker image exercises the actual native Pi hooks,
+parent/delegate contention, provider quota/authentication outcomes and unavailable
+permit rejection:
+
+```sh
+docker build -t zaidan-factory-worker-test-516:0.85.1 -f apps/factory/tests/Dockerfile apps/factory/tests
+direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test-docker
+```
+
+Keep the original `zaidan-factory-worker-test:0.85.1` image for the network-disabled
+containment fixtures. Neither deterministic image proves live subscription readiness.

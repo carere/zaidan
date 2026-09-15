@@ -24,8 +24,6 @@ export interface DockerWorkerOptions {
   /** Selected native Pi auth file, containing only openai-codex OAuth. Never a home mount. */
   auth: { sourceFile: string; lockDirectory: string };
   onEvent?: (event: { operationId: string; type: string; event: unknown }) => void;
-  /** #516's bounded model-call bridge, reachable from the worker network. */
-  permitUrl?: string;
 }
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 const authOwners = new Map<
@@ -92,6 +90,7 @@ const atomic = (path: string, value: unknown) => {
 export class DockerPiWorker implements WorkerAdapter {
   private options: DockerWorkerOptions;
   private active = new Map<string, Promise<WorkerOutcome>>();
+  private launching = new Map<string, Promise<string>>();
   constructor(options: DockerWorkerOptions) {
     if (
       ![
@@ -123,10 +122,30 @@ export class DockerPiWorker implements WorkerAdapter {
     const path = join(this.phase(operationId), "output", "outcome.json");
     if (!existsSync(path)) return undefined;
     const outcome = JSON.parse(readFileSync(path, "utf8")) as WorkerOutcome;
-    if (!["checkpoint", "completed", "no-change", "failed", "cancelled"].includes(outcome.type))
+    if (
+      ![
+        "checkpoint",
+        "completed",
+        "no-change",
+        "failed",
+        "cancelled",
+        "subscription-paused",
+        "reauthentication-required",
+      ].includes(outcome.type)
+    )
       throw new Error("Malformed durable worker outcome");
-    if (await this.container(operationId))
+    const stopped = join(this.phase(operationId), "input", "settled.json");
+    const container = await this.container(operationId);
+    if (container) {
+      if (!container.running && !existsSync(stopped))
+        atomic(stopped, { finishedAt: container.finishedAt ?? Date.now() });
       await run("docker", ["rm", "--force", this.name(operationId)]);
+      if (!existsSync(stopped)) atomic(stopped, { finishedAt: Date.now() });
+    }
+    // The timestamp comes from Docker/coordinator-owned input, never worker output.
+    delete outcome.finishedAt;
+    if (existsSync(stopped))
+      outcome.finishedAt = JSON.parse(readFileSync(stopped, "utf8")).finishedAt;
     if (outcome.type === "completed") {
       const request = JSON.parse(
         readFileSync(join(this.phase(operationId), "input", "request.json"), "utf8"),
@@ -148,7 +167,11 @@ export class DockerPiWorker implements WorkerAdapter {
         throw new Error("Malformed durable worker checkpoint");
     }
     if (
-      (outcome.type === "failed" || outcome.type === "cancelled" || outcome.type === "no-change") &&
+      (outcome.type === "failed" ||
+        outcome.type === "no-change" ||
+        outcome.type === "cancelled" ||
+        outcome.type === "subscription-paused" ||
+        outcome.type === "reauthentication-required") &&
       typeof outcome.reason !== "string"
     )
       throw new Error("Malformed durable worker failure");
@@ -169,17 +192,22 @@ export class DockerPiWorker implements WorkerAdapter {
   }
   async cancel(operationId: string, reason = "Cancelled by coordinator"): Promise<WorkerOutcome> {
     const phase = this.phase(operationId);
-    if (!existsSync(phase)) throw new Error("Unknown worker operation");
+    mkdirSync(join(phase, "output"), { recursive: true, mode: 0o700 });
+    mkdirSync(join(phase, "input"), { recursive: true, mode: 0o700 });
     atomic(join(phase, "cancel.json"), { reason });
+    await this.launching.get(operationId)?.catch(() => {});
     await run("docker", ["rm", "--force", this.name(operationId)]).catch(async () => {
       if (await this.container(operationId))
         throw new Error("Worker cancellation could not confirm descendants stopped");
     });
-    const outcome: WorkerOutcome = { type: "cancelled", reason };
+    const outcome: WorkerOutcome = { type: "cancelled", reason, finishedAt: Date.now() };
+    atomic(join(phase, "input", "settled.json"), { finishedAt: outcome.finishedAt });
     atomic(join(phase, "output", "outcome.json"), outcome);
     return outcome;
   }
-  private async container(operationId: string): Promise<{ running: boolean } | undefined> {
+  private async container(
+    operationId: string,
+  ): Promise<{ running: boolean; finishedAt?: number } | undefined> {
     // docker ps errors are unknown, never absence; names are deterministic and exact.
     const ids = await run("docker", [
       "ps",
@@ -192,7 +220,11 @@ export class DockerPiWorker implements WorkerAdapter {
     if (!ids) return undefined;
     try {
       const data = JSON.parse(await run("docker", ["inspect", this.name(operationId)]));
-      return { running: data[0].State.Running };
+      const finishedAt = Date.parse(data[0].State.FinishedAt);
+      return {
+        running: data[0].State.Running,
+        ...(Number.isFinite(finishedAt) && finishedAt > 0 ? { finishedAt } : {}),
+      };
     } catch (error) {
       // Removal may race the list/inspect pair. Confirm absence with a fresh successful list.
       const remaining = await run("docker", [
@@ -222,6 +254,8 @@ export class DockerPiWorker implements WorkerAdapter {
     }
     const existing = await this.reconcile(request.operationId);
     if (existing) return existing;
+    if (!request.permits && this.options.network !== "none")
+      return { type: "failed", reason: "Networked Pi workers require scoped model permits" };
     if (!request.resources) return { type: "failed", reason: "Missing admitted resource snapshot" };
     const manifest = readResourceSnapshot(request.resources);
     if (
@@ -247,12 +281,20 @@ export class DockerPiWorker implements WorkerAdapter {
       await run("git", ["bundle", "create", `${bundle}.tmp`, "--all"], this.options.repositoryPath);
       renameSync(`${bundle}.tmp`, bundle);
     }
-    const source = realpathSync(this.options.auth.sourceFile);
-    const credential = JSON.parse(readFileSync(source, "utf8"));
-    if (Object.keys(credential).length !== 1 || credential["openai-codex"]?.type !== "oauth")
-      throw new Error(
-        "Select only native openai-codex OAuth credentials; billed fallback is forbidden",
-      );
+    let source: string;
+    try {
+      source = realpathSync(this.options.auth.sourceFile);
+      const credential = JSON.parse(readFileSync(source, "utf8"));
+      if (Object.keys(credential).length !== 1 || credential["openai-codex"]?.type !== "oauth")
+        throw new Error("Invalid selected subscription authentication");
+    } catch {
+      const outcome: WorkerOutcome = {
+        type: "reauthentication-required",
+        reason: "Select valid native openai-codex OAuth credentials; billed fallback is forbidden",
+      };
+      atomic(join(phase, "output", "outcome.json"), outcome);
+      return outcome;
+    }
     mkdirSync(this.options.auth.lockDirectory, { recursive: true, mode: 0o700 });
     const lease = await acquireAuth(source);
     try {
@@ -262,6 +304,7 @@ export class DockerPiWorker implements WorkerAdapter {
         if (receipt) return receipt;
         const interrupted: WorkerOutcome = {
           type: "failed",
+          category: "transient",
           reason:
             "Worker stopped without receipt; retained original session and checkout for explicit retry",
         };
@@ -308,14 +351,35 @@ export class DockerPiWorker implements WorkerAdapter {
           ...mount(source, "/auth/auth.json"),
         ];
         if (this.options.network) args.push("--network", this.options.network);
-        if (this.options.permitUrl)
-          args.push("--env", `FACTORY_PERMIT_URL=${this.options.permitUrl}`);
+        if (request.permits) {
+          const url = new URL(request.permits.url);
+          if (
+            url.protocol !== "http:" ||
+            url.hostname !== "host.docker.internal" ||
+            !url.port ||
+            url.pathname !== "/" ||
+            url.search ||
+            url.hash ||
+            url.username ||
+            url.password ||
+            !request.permits.token ||
+            this.options.network === "none"
+          )
+            throw new Error("Invalid scoped local model permit bridge");
+        }
         args.push(
           this.options.image ?? "zaidan-factory-worker:0.85.1",
           "node",
           "/runtime/runner.mjs",
         );
-        await run("docker", args);
+        if (existsSync(join(phase, "cancel.json"))) return this.cancel(request.operationId);
+        const launching = run("docker", args);
+        this.launching.set(request.operationId, launching);
+        try {
+          await launching;
+        } finally {
+          this.launching.delete(request.operationId);
+        }
       }
       let delivered = 0;
       while (true) {
@@ -352,6 +416,7 @@ export class DockerPiWorker implements WorkerAdapter {
           }
           const failed: WorkerOutcome = {
             type: "failed",
+            category: "transient",
             reason: "Worker stopped without a typed outcome",
           };
           atomic(join(phase, "output", "outcome.json"), failed);

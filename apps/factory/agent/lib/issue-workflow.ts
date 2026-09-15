@@ -2,14 +2,26 @@ import { createHook, sleep } from "workflow";
 
 type DriveResult =
   | { status: "waiting-human"; checkpoint: { id: string } }
-  | { status: "admitted" | "running" }
+  | {
+      status: "admitted" | "running" | "paused" | "waiting-subscription" | "waiting-authentication";
+    }
   | { status: "completed" | "failed" | "cancelled" };
 
 export async function issueWorkflow(input: { runId: string }) {
   "use workflow";
   for (;;) {
     const state = await drive(input.runId);
-    if (state.status === "admitted" || state.status === "running") {
+    if (
+      [
+        "admitted",
+        "running",
+        "paused",
+        "waiting-subscription",
+        "waiting-authentication",
+        "failed",
+        "cancelled",
+      ].includes(state.status)
+    ) {
       await sleep("1s");
       continue;
     }
@@ -27,7 +39,18 @@ async function drive(runId: string): Promise<DriveResult> {
   const result = await coordinator("drive", runId);
   if (typeof result !== "object" || result === null || !("status" in result))
     throw new Error("Invalid factory drive response");
-  if (["completed", "failed", "cancelled", "admitted", "running"].includes(result.status as string))
+  if (
+    [
+      "completed",
+      "failed",
+      "cancelled",
+      "admitted",
+      "running",
+      "paused",
+      "waiting-subscription",
+      "waiting-authentication",
+    ].includes(result.status as string)
+  )
     return result as DriveResult;
   if (
     result.status === "waiting-human" &&

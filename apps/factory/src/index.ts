@@ -36,6 +36,7 @@ export {
   type ScanTrigger,
   type ServiceStatus,
 } from "./local-service.ts";
+export { startModelPermitServer } from "./model-permit-server.ts";
 export {
   createPublicationGit,
   type PublicationGit,

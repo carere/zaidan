@@ -35,6 +35,7 @@ export interface IssueWorkflowOptions {
   notifications: NotificationAdapter;
   clock?: Clock;
   leaseMs?: number;
+  execution?: { workers?: number; modelCalls?: number; budgetMs?: number; permitUrl?: string };
   captureResources?: (
     issue: IssueSnapshot,
   ) => Promise<ResourceSnapshotReference> | ResourceSnapshotReference;
@@ -47,12 +48,70 @@ export class IssueWorkflow {
   private latestScan?: ScanResult;
   private latestBriefs?: ApprovedBrief[];
   private clock: Clock;
+  private stopping = new Map<string, Promise<void>>();
   constructor(options: IssueWorkflowOptions) {
     this.options = options;
     this.clock = options.clock ?? { now: Date.now };
+    if (options.execution?.permitUrl) this.configureModelPermits(options.execution.permitUrl);
+    for (const limit of [
+      options.execution?.workers ?? 4,
+      options.execution?.modelCalls ?? 4,
+      options.execution?.budgetMs ?? 7200000,
+    ])
+      if (!Number.isSafeInteger(limit) || limit < 1)
+        throw new Error("Execution limits must be positive integers");
   }
   observe(runId: string) {
     return this.options.store.read(runId);
+  }
+  configureModelPermits(url: string) {
+    const parsed = new URL(url);
+    if (
+      parsed.protocol !== "http:" ||
+      parsed.hostname !== "host.docker.internal" ||
+      !parsed.port ||
+      parsed.pathname !== "/" ||
+      parsed.search ||
+      parsed.hash ||
+      parsed.username ||
+      parsed.password
+    )
+      throw new Error("Model permits require the local Docker host bridge");
+    this.options.execution = { ...this.options.execution, permitUrl: parsed.origin };
+  }
+  /** Scoped worker capability; model owners include the parent and every delegate. */
+  modelPermit(runId: string, token: string, owner: string, action: "acquire" | "release") {
+    return this.options.store.change(runId, (run) => {
+      const execution = run.execution;
+      if (
+        !execution?.operationId ||
+        execution.stop ||
+        execution.token !== token ||
+        !owner ||
+        owner.length > 200
+      )
+        return "denied" as const;
+      if (action === "release") {
+        execution.models = execution.models.filter((item) => item !== owner);
+        return "granted" as const;
+      }
+      if (
+        execution.consumedMs +
+          Math.max(0, this.clock.now() - (execution.startedAt ?? this.clock.now())) >=
+        (this.options.execution?.budgetMs ?? 7200000)
+      )
+        return "denied" as const;
+      if (execution.models.includes(owner)) return "granted" as const;
+      if (
+        this.admissions().reduce(
+          (count, item) => count + (item.execution?.models.length ?? 0),
+          0,
+        ) >= (this.options.execution?.modelCalls ?? 4)
+      )
+        return "queued" as const;
+      execution.models.push(owner);
+      return "granted" as const;
+    });
   }
   admissions() {
     return this.options.store.list();
@@ -68,7 +127,6 @@ export class IssueWorkflow {
     this.latestScan = undefined;
     this.latestBriefs = undefined;
     if (!this.options.discovery) throw new Error("Discovery adapter is not configured");
-    await this.reconcileWorkers();
     await this.recover();
     const snapshot = await this.options.discovery.read();
     const briefs = await this.options.discovery.approvedBriefs?.();
@@ -226,6 +284,8 @@ export class IssueWorkflow {
     );
   }
   async drive(runId: string): Promise<RunSnapshot> {
+    await this.reconcileWorkers();
+    await this.enforceBudgets();
     const run = this.observe(runId);
     if (
       run.status === "admitted" ||
@@ -241,6 +301,32 @@ export class IssueWorkflow {
       const resuming = run.status === "waiting-human";
       const phase = resuming ? run.phase + 1 : run.phase;
       const id = `${runId}:worker:${phase}`;
+      const acquired = this.options.store.change(runId, (current) => {
+        current.execution ??= {
+          consumedMs: 0,
+          attempt: 0,
+          retries: 0,
+          models: [],
+        };
+        const execution = current.execution;
+        if (execution.stop) return false;
+        if (execution.operationId) return execution.operationId === id;
+        if (execution.consumedMs >= (this.options.execution?.budgetMs ?? 7200000)) {
+          current.status = "failed";
+          current.reason = "Active execution budget exhausted";
+          return false;
+        }
+        if (
+          this.admissions().filter((item) => item.execution?.operationId).length >=
+          (this.options.execution?.workers ?? 4)
+        )
+          return false;
+        execution.operationId = id;
+        execution.startedAt = this.clock.now();
+        execution.token = randomUUID();
+        return true;
+      });
+      if (!acquired) return this.observe(runId);
       this.options.store.change(runId, (current, ops) => {
         if (!ops.some((op) => op.id === id))
           ops.push({ id, kind: resuming ? "resume" : "dispatch", runId, phase, state: "pending" });
@@ -250,21 +336,39 @@ export class IssueWorkflow {
         runId,
         id,
         async () => {
+          const token = this.observe(runId).execution?.token;
+          if (!token) throw new Error("Missing active execution capability");
           const request = {
             operationId: id,
             runId,
             issue: run.issue,
             session: run.session,
             phase,
+            ...(this.options.execution?.permitUrl
+              ? {
+                  permits: {
+                    url: this.options.execution.permitUrl,
+                    token,
+                  },
+                }
+              : {}),
             ...(run.resources ? { resources: run.resources } : {}),
             ...(resuming ? { answer: run.checkpoint?.answer, checkpoint: run.checkpoint } : {}),
           };
-          return (
-            (await this.options.worker.reconcile(id)) ??
-            (await (resuming
-              ? this.options.worker.resume(request)
-              : this.options.worker.dispatch(request)))
-          );
+          const timer = setInterval(() => {
+            this.enforceBudgets().catch(() => {});
+          }, 250);
+          timer.unref();
+          try {
+            return (
+              (await this.options.worker.reconcile(id)) ??
+              (await (resuming
+                ? this.options.worker.resume(request)
+                : this.options.worker.dispatch(request)))
+            );
+          } finally {
+            clearInterval(timer);
+          }
         },
         (current, receipt, ops) => {
           this.applyWorkerOutcome(current, receipt as WorkerOutcome, phase, ops);
@@ -280,7 +384,25 @@ export class IssueWorkflow {
     phase: number,
     ops: Operation[],
   ) {
+    const execution = current.execution;
+    const stop = execution?.stop;
+    if (execution) {
+      execution.consumedMs += Math.max(
+        0,
+        Math.min(outcome.finishedAt ?? this.clock.now(), this.clock.now()) -
+          (execution.startedAt ?? this.clock.now()),
+      );
+      delete execution.startedAt;
+      delete execution.operationId;
+      delete execution.token;
+      execution.models = [];
+    }
     current.phase = phase;
+    if (stop) {
+      current.status = stop.status;
+      current.reason = stop.reason;
+      return;
+    }
     if (outcome.type === "checkpoint") {
       current.status = "waiting-human";
       current.checkpoint = {
@@ -299,11 +421,162 @@ export class IssueWorkflow {
       current.status = "completed";
       current.noChange = { reason: outcome.reason };
       current.reason = outcome.reason;
+    } else if (
+      outcome.type === "subscription-paused" ||
+      outcome.type === "reauthentication-required"
+    ) {
+      current.status =
+        outcome.type === "subscription-paused" ? "waiting-subscription" : "waiting-authentication";
+      current.reason = outcome.reason;
+      current.checkpoint = {
+        id: `${current.runId}:${current.status}:${phase}`,
+        phase,
+        question: { prompt: outcome.reason },
+      };
+      ops.push({
+        id: `${current.checkpoint.id}:notify`,
+        kind: "notify",
+        runId: current.runId,
+        phase,
+        state: "pending",
+      });
+    } else if (
+      outcome.type === "failed" &&
+      outcome.category === "transient" &&
+      execution &&
+      execution.retries < 1
+    ) {
+      execution.retries++;
+      execution.attempt++;
+      execution.consumedMs = 0;
+      current.phase++;
+      current.status = "admitted";
+      current.reason = "Retrying transient infrastructure failure once";
     } else {
       current.status = outcome.type;
       if (outcome.type === "completed") current.candidate = outcome.candidate;
       else current.reason = outcome.reason;
     }
+  }
+  /** Called by drive and service recovery; a cancelled sandbox must be confirmed before release. */
+  async enforceBudgets() {
+    const unconfirmed: string[] = [];
+    for (const run of this.admissions()) {
+      const execution = run.execution;
+      if (!execution?.operationId) continue;
+      try {
+        if (execution.stop)
+          await this.stopExecution(run.runId, execution.stop.status, execution.stop.reason);
+        else if (
+          execution.consumedMs +
+            Math.max(0, this.clock.now() - (execution.startedAt ?? this.clock.now())) >=
+          (this.options.execution?.budgetMs ?? 7200000)
+        )
+          await this.stopExecution(run.runId, "failed", "Active execution budget exhausted");
+      } catch {
+        unconfirmed.push(run.runId);
+      }
+    }
+    return { unconfirmed };
+  }
+  async cancel(runId: string, reason = "Cancelled by operator") {
+    await this.stopExecution(runId, "cancelled", reason);
+    return this.observe(runId);
+  }
+  async pause(runId: string, reason = "Paused by operator") {
+    await this.stopExecution(runId, "paused", reason);
+    return this.observe(runId);
+  }
+  /** An operator/service-availability signal resumes the preserved attempt, never changes provider. */
+  async resume(runId: string, options: { reauthenticated?: boolean } = {}) {
+    this.options.store.change(runId, (run) => {
+      if (
+        (run.status === "waiting-authentication" || run.pausedFrom === "waiting-authentication") &&
+        !options.reauthenticated
+      )
+        throw new Error("Explicit reauthentication is required");
+      if (!["paused", "waiting-subscription", "waiting-authentication"].includes(run.status))
+        return;
+      if (run.execution?.operationId) throw new Error("Worker stop is still pending");
+      if (run.execution) delete run.execution.stop;
+      if (run.pausedFrom) {
+        run.status = run.pausedFrom;
+        delete run.pausedFrom;
+        delete run.reason;
+        return;
+      }
+      run.phase++;
+      run.status = "admitted";
+      delete run.reason;
+      delete run.checkpoint;
+    });
+    return this.observe(runId);
+  }
+  /** Explicit operator retry starts a fresh bounded attempt in the retained workspace/session. */
+  async retry(runId: string) {
+    this.options.store.change(runId, (run) => {
+      if (!["failed", "cancelled"].includes(run.status))
+        throw new Error("Only failed or cancelled work can be retried");
+      if (run.execution?.operationId) throw new Error("Worker stop is still pending");
+      run.execution = {
+        consumedMs: 0,
+        attempt: (run.execution?.attempt ?? 0) + 1,
+        retries: 0,
+        models: [],
+      };
+      run.phase++;
+      run.status = "admitted";
+      delete run.reason;
+      delete run.checkpoint;
+      delete run.pausedFrom;
+    });
+    return this.observe(runId);
+  }
+  private stopExecution(
+    runId: string,
+    status: "failed" | "cancelled" | "paused",
+    reason: string,
+  ): Promise<void> {
+    const pending = this.stopping.get(runId);
+    if (pending) return pending;
+    const action = this.stopOnce(runId, status, reason).finally(() => this.stopping.delete(runId));
+    this.stopping.set(runId, action);
+    return action;
+  }
+  private async stopOnce(runId: string, status: "failed" | "cancelled" | "paused", reason: string) {
+    const operationId = this.options.store.change(runId, (run) => {
+      const execution = run.execution;
+      if (!execution?.operationId) {
+        if (status === "paused") {
+          if (
+            ![
+              "admitted",
+              "waiting-human",
+              "waiting-subscription",
+              "waiting-authentication",
+            ].includes(run.status)
+          )
+            return;
+          run.pausedFrom = run.status as NonNullable<RunSnapshot["pausedFrom"]>;
+        }
+        run.status = status;
+        run.reason = reason;
+        return;
+      }
+      execution.stop ??= { status, reason };
+      return execution.operationId;
+    });
+    if (!operationId) return;
+    if (!this.options.worker.cancel) throw new Error("Worker cannot confirm cancellation");
+    const receipt = await this.options.worker.cancel(operationId, reason);
+    this.options.store.change(runId, (run, ops) => {
+      const op = ops.find((item) => item.id === operationId);
+      if (!op) throw new Error("Missing worker operation");
+      if (run.execution?.operationId === operationId)
+        this.applyWorkerOutcome(run, receipt, op.phase, ops);
+      op.state = "done";
+      op.receipt = receipt;
+    });
   }
   /** Read known operation receipts without starting or resuming any worker. */
   private async reconcileWorkers() {
@@ -394,6 +667,8 @@ export class IssueWorkflow {
     );
   }
   async recover() {
+    await this.reconcileWorkers();
+    await this.enforceBudgets();
     for (const run of this.admissions()) {
       await this.start(run.runId);
       await this.notify(run.runId);

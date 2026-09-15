@@ -82,7 +82,7 @@ export class PiRpc {
     }
   }
   async stop() {
-    if (this.child.exitCode !== null) return;
+    if (this.child.exitCode !== null || this.child.signalCode !== null) return;
     await this.send("clear_queue").catch(() => {});
     await this.send("abort").catch(() => {});
     this.child.kill("SIGTERM");
