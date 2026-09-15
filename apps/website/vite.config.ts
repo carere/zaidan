@@ -13,6 +13,7 @@ import { configDefaults } from "vitest/config";
 import { getPrerenderPages } from "./src/lib/prerender-pages.ts";
 import { highlightCode } from "./src/lib/vite-plugins/highlight-code.ts";
 import mdx from "./src/lib/vite-plugins/mdx.ts";
+import { workspaceDeploy } from "./src/lib/vite-plugins/workspace-deploy.ts";
 
 const require = createRequire(import.meta.url);
 
@@ -49,6 +50,7 @@ export default defineConfig(({ mode }) => ({
     }),
     devtools(),
     ...(mode === "test" ? [] : [cloudflare({ viteEnvironment: { name: "ssr" } })]),
+    workspaceDeploy(),
     tailwind(),
     tanstackStart({
       prerender: {

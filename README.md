@@ -72,8 +72,12 @@ remain available as Moon tasks `zaidan:r-validate-kobalte` and
 ### Website deployment
 
 After building, run `bun run deploy` from the repository root to publish the website
-with Wrangler. The script runs from `apps/website`, where Wrangler's generated
-`.wrangler/deploy` configuration points to `dist/server/wrangler.json`.
+with the workspace's pinned Wrangler CLI. The build writes a root
+`.wrangler/deploy/config.json` redirect to `apps/website/dist/server/wrangler.json`.
+Root Wrangler commands (including Cloudflare's `wrangler versions upload` preview
+command) therefore resolve the built website. The website's own `.wrangler/deploy`
+redirect still supports commands run from `apps/website`; both use the same generated
+configuration, derived from `apps/website/wrangler.jsonc`.
 Cloudflare build settings should use the repository root for installation,
 `bun run build` for the build, and `bun run deploy` for deployment.
 
