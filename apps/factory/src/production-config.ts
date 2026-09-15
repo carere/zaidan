@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { type FixtureFaultPoint, fixtureFaultPoints } from "./fixture-faults.ts";
 import type { RolloutMode } from "./rollout.ts";
 
 export interface ProductionConfig {
@@ -11,6 +12,7 @@ export interface ProductionConfig {
   skills: { path: string; selected?: boolean; target?: string }[];
   checks: string[];
   evidence?: string;
+  faults?: FixtureFaultPoint[];
 }
 
 /** Explicit local data, never shell code. Secret values never enter returned configuration. */
@@ -60,7 +62,11 @@ export function readProductionConfig(path: string): ProductionConfig {
     !Array.isArray(value.checks) ||
     !value.checks.length ||
     value.checks.some((check) => typeof check !== "string" || !check.trim()) ||
-    (value.evidence !== undefined && !isAbsolute(value.evidence))
+    (value.evidence !== undefined && !isAbsolute(value.evidence)) ||
+    (value.faults !== undefined &&
+      (!Array.isArray(value.faults) ||
+        value.mode !== "fixture" ||
+        value.faults.some((point) => !fixtureFaultPoints.includes(point))))
   )
     throw new Error("Invalid factory runtime configuration");
   return value;

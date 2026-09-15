@@ -35,6 +35,8 @@ import type {
 import type { Operation, WorkflowStore } from "./workflow-store.ts";
 
 export interface IssueWorkflowOptions {
+  /** Optional fixture-only interruption seam; receives no question or answer contents. */
+  checkpointEffect?: (point: "answer-persistence.before" | "answer-persistence.after") => void;
   /** Production always supplies the independent rollout gate, including in read-only mode. */
   rollout?: { status(): { enabled: boolean }; assertAllowed(): void };
   store: WorkflowStore;
@@ -1138,6 +1140,7 @@ export class IssueWorkflow {
         (input.answer.optionId !== undefined && input.answer.text !== undefined)
       )
         return "invalid" as const;
+      this.options.checkpointEffect?.("answer-persistence.before");
       run.checkpoint.answer = input.answer;
       run.checkpoint.answerId = input.answerId;
       ops.push({
@@ -1149,7 +1152,10 @@ export class IssueWorkflow {
       });
       return "accepted" as const;
     });
-    if (result === "accepted") await this.recoverWake(input.runId);
+    if (result === "accepted") {
+      this.options.checkpointEffect?.("answer-persistence.after");
+      await this.recoverWake(input.runId);
+    }
     return result;
   }
   recoverWake(runId: string): Promise<void> {

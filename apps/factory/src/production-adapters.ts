@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { isAbsolute, join } from "node:path";
 import { DockerPiWorker } from "./docker-worker.ts";
 import { createExternalDelivery } from "./external-delivery.ts";
+import { FixtureFaults } from "./fixture-faults.ts";
 import { createGitHubDeliverySource } from "./github-delivery.ts";
 import { createGitHubDiscovery } from "./github-discovery.ts";
 import { createGitHubPublication } from "./github-publication.ts";
@@ -26,6 +27,12 @@ export async function createProductionAdapters(options: {
   env: NodeJS.ProcessEnv;
 }): Promise<ServiceAdapters> {
   const { stateDirectory, repository, runtime, env } = options;
+  const faults = new FixtureFaults({
+    path: join(stateDirectory, "fixture-faults.json"),
+    repository,
+    mode: runtime.mode,
+    points: runtime.faults,
+  });
   let image: string;
   try {
     image = execFileSync("docker", ["image", "inspect", "--format", "{{.Id}}", runtime.image], {
@@ -107,8 +114,25 @@ export async function createProductionAdapters(options: {
     directory: join(stateDirectory, "resources"),
   });
   await resources.prepare([]);
+  const git = {
+    ...resources.git,
+    publishBranch: (branch: string, commit: string, expected?: string) =>
+      faults.effect("branch-publication", () =>
+        resources.git.publishBranch(branch, commit, expected),
+      ),
+  };
   const discovery = createGitHubDiscovery({ repository, token });
-  const github = createGitHubPublication({ token });
+  const nativeGithub = createGitHubPublication({ token });
+  const github = {
+    ...nativeGithub,
+    closeIssue: (repo: string, number: number) =>
+      faults.effect("issue-closure", () => nativeGithub.closeIssue(repo, number)),
+    setDraft: (repo: string, id: string, draft: boolean) =>
+      faults.effect("pr-readiness", async () => {
+        if (!nativeGithub.setDraft) throw new Error("Missing native readiness adapter");
+        await nativeGithub.setDraft(repo, id, draft);
+      }),
+  };
   const triage = createGitHubTriage({
     repository,
     token,
@@ -120,6 +144,7 @@ export async function createProductionAdapters(options: {
     database: join(stateDirectory, "telegram.sqlite"),
     token: telegramToken,
     maintainerId,
+    checkpointEffect: (point) => faults.hit(point),
   });
   const deliverySource = createGitHubDeliverySource({ token });
   const delivery = createExternalDelivery({
@@ -144,6 +169,7 @@ export async function createProductionAdapters(options: {
     return operators.notifyReviewable(input);
   };
   return {
+    evidence: () => ({ tier: "native-production", image, faults: faults.receipts() }),
     rollout,
     discovery,
     triage,
@@ -157,6 +183,7 @@ export async function createProductionAdapters(options: {
       auth: { sourceFile: runtime.authFile, lockDirectory: join(stateDirectory, "auth-locks") },
     }),
     workflowOptions: {
+      checkpointEffect: (point) => faults.hit(point),
       externalDelivery: delivery,
       captureResources: (issue: IssueSnapshot) =>
         resources.capture(issue, {
@@ -166,7 +193,7 @@ export async function createProductionAdapters(options: {
           checks: runtime.checks,
         }),
       publication: {
-        git: resources.git,
+        git,
         github,
         notify,
         async verifyPrerequisites(issue) {
@@ -196,7 +223,7 @@ export async function createProductionAdapters(options: {
       },
       graph: {
         store: graphs,
-        git: resources.git,
+        git,
         github,
         entry: "resolving-merge-conflicts",
         acceptance: {

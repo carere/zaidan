@@ -272,7 +272,12 @@ async function serve(settings: ServiceConfig) {
       graphs: adapters.operatorGraphs,
       triageRecovery: adapters.triageRecovery,
     });
-  const http = await listenLocalService({ workflow, service, port: settings.coordinatorPort });
+  const http = await listenLocalService({
+    workflow,
+    service,
+    port: settings.coordinatorPort,
+    evidence: adapters.evidence,
+  });
   const interval = setInterval(() => {
     void service.poll().catch(() => logFailure());
   }, 30000);

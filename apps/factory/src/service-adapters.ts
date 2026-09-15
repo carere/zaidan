@@ -14,11 +14,12 @@ import type { NotificationAdapter, WorkerAdapter } from "./workflow-contracts.ts
 export interface ServiceAdapters {
   workflowOptions?: Pick<
     IssueWorkflowOptions,
-    "captureResources" | "publication" | "graph" | "externalDelivery"
+    "captureResources" | "publication" | "graph" | "externalDelivery" | "checkpointEffect"
   >;
   rollout?: RolloutPolicy;
   onScan?: (result: ScanResult) => Promise<void>;
   tick?: () => Promise<void>;
+  evidence?: () => unknown;
   worker: WorkerAdapter;
   notifications: NotificationAdapter;
   discovery?: DiscoveryAdapter;

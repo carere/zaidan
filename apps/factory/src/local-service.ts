@@ -9,6 +9,7 @@ import type { Clock } from "./workflow-contracts.ts";
 
 export type ScanTrigger = "restart" | "wake" | "manual" | "scheduled";
 export interface ServiceStatus {
+  instanceId?: string;
   mode: RolloutMode;
   rollout?: { enabled: boolean; reason?: string };
   running: boolean;
@@ -53,7 +54,11 @@ export class LocalService {
   }
   status(): ServiceStatus {
     const rollout = this.options.rollout?.();
-    return { ...this.current, ...(rollout ? { mode: rollout.mode, rollout } : {}) };
+    return {
+      ...this.current,
+      instanceId: this.owner,
+      ...(rollout ? { mode: rollout.mode, rollout } : {}),
+    };
   }
   async start() {
     if (this.db) throw new Error("Service already started");
