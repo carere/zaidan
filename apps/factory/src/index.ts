@@ -66,6 +66,11 @@ export type {
 } from "./standalone-publication.ts";
 export { type TelegramCommand, TelegramControl, type TelegramOptions } from "./telegram.ts";
 export {
+  type OperatorGraphStatus,
+  TelegramOperations,
+  type TelegramOperationsOptions,
+} from "./telegram-operations.ts";
+export {
   TRIAGE_DISCLAIMER,
   TRIAGE_STATES,
   type TriageAdapter,

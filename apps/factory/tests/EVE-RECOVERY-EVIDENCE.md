@@ -39,3 +39,41 @@ These tests use local generated fixture data and controlled worker/HTTP boundari
 They make no live model-provider, GitHub or Telegram claim. This repair is specific
 to the observed pinned native persistence ordering; it is not a general journal
 repair mechanism and must be revalidated on a runtime upgrade.
+
+
+## Interrupted running steps and local ownership leases
+
+The #525 combined merge check exposed a second independent crash window. The
+human answer was present in coordinator SQLite and Eve's `hook_received` journal,
+but a `recoverWake` step interrupted by SIGKILL retained the previous host's
+ownership. The pinned runtime's default inline ownership lease is 860 seconds.
+A copied unchanged world remained running without coordinator calls after ten
+seconds. Changing only the supported `WORKFLOW_INLINE_OWNERSHIP_LEASE_SECONDS`
+setting to `1` let the same copied run complete in 360 ms. No journal repair applies
+to this case: its running step and recorded ownership are valid history.
+
+The supervised single-host service and compiled fixture use the documented
+one-second lease. A stronger experiment showed native HTTP replay can also occur
+while an earlier request remains in flight; the setting alone is insufficient.
+`IssueWorkflow` therefore coalesces concurrent `drive` and `recoverWake` calls per
+run until each effect settles, with cleanup on rejection as well as success.
+Durable operation identities and transactional claims still cover process restart.
+Native request replay is allowed; it does not duplicate live worker or wake effects.
+
+Regression evidence:
+
+- A forced stop inside the compiled native `recoverWake` step failed before the
+  lease setting, reproducing the saved-answer stall within the existing timeout.
+- The compiled test holds the actual engine wake effect while receiving the native
+  hook queues replay, waits beyond the local lease, and verifies one wake effect.
+  It then kills the host with the step still running, reopens the coordinator,
+  completes the original Eve run, and verifies exactly three worker phases, one
+  retained session and two original notifications.
+- A controlled-time workflow test advances beyond the 30-second durable claim
+  while a worker and then a wake remain live. Concurrent calls share their results;
+  neither effect restarts when the claim timestamp expires.
+- The real supervised service restart fixture continues to pass with the same
+  environment setting, persistent Telegram pause state and one-time attachment.
+
+These checks use generated local fixtures and loopback transport. The Docker/Pi
+worker implementation and trusted Git transport are unchanged by this correction.

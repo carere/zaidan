@@ -125,6 +125,8 @@ export interface RunSnapshot {
     models: string[];
     stop?: { status: "failed" | "cancelled" | "paused"; reason: string };
   };
+  operatorPaused?: boolean;
+  operatorPauseId?: string;
   pausedFrom?: "admitted" | "waiting-human" | "waiting-subscription" | "waiting-authentication";
   eveRunId?: string;
   checkpoint?: Checkpoint;

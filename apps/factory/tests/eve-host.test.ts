@@ -86,8 +86,22 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
   };
   let starts = 0;
   const engine = createEveEngine({ baseUrl: host.baseUrl });
+  let wakeEffects = 0;
+  let releaseWake!: () => void;
+  const heldWake = new Promise<void>((resolve) => {
+    releaseWake = resolve;
+  });
+  let answerReady!: () => void;
+  const readyAnswer = new Promise<void>((resolve) => {
+    answerReady = resolve;
+  });
   const uncertainEngine = {
     ...engine,
+    async wake(token: string, payload: unknown) {
+      wakeEffects++;
+      await engine.wake(token, payload);
+      await heldWake;
+    },
     async start(input: { runId: string }) {
       starts++;
       const ids = await Promise.all([engine.start(input), engine.start(input)]);
@@ -113,11 +127,17 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     });
   }
   let workflow = coordinator();
+  let wakeCalls = 0;
   const bridge = createServer(async (request, response) => {
     try {
       const chunks: Buffer[] = [];
       for await (const chunk of request) chunks.push(chunk);
       const { runId } = JSON.parse(Buffer.concat(chunks).toString());
+      if (request.url === "/factory/wake-pending") {
+        wakeCalls++;
+        // Arrange an answer before this step calls the real coordinator wake effect.
+        await readyAnswer;
+      }
       const result =
         request.url === "/factory/drive"
           ? await workflow.drive(runId)
@@ -186,9 +206,39 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     assert.deepEqual(duplicateStarts, [originalEveRun, originalEveRun]);
     assert.equal(requests.length, 2);
 
-    // Kill the actual compiled Node host. Reopen SQLite with a fresh coordinator
-    // while preserving the external Eve world and admission identities.
+    const answer = {
+      runId: admitted.runId,
+      issueId: issue.issueId,
+      revision: issue.revision,
+      checkpointId: waiting.checkpoint.id,
+      answerId: "answer-514",
+      answer: { text: "blue" },
+    };
+    assert.equal(await workflow.answer({ ...answer, revision: "stale" }), "stale");
+    const answering = workflow.answer(answer);
+    answerReady();
+    assert.equal(await workflow.answer(answer), "already-answered");
+    // Receiving the hook queues native HTTP replay while the real engine wake
+    // effect is still in flight. Coordinator coalescing must keep that effect once.
+    await eventually(
+      async () => wakeCalls,
+      (count) => count >= 1,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    assert.equal(wakeEffects, 1);
+    assert.equal(requests.length, 2);
+    const answeredCheckpoint = workflow.observe(admitted.runId).checkpoint;
+
+    // Force SIGKILL inside the native recoverWake step, after its ownership was
+    // journaled but before the result. The default remote ownership lease must not
+    // strand the same local run for minutes after its sole host dies.
+    await eventually(
+      async () => wakeCalls,
+      (count) => count >= 1,
+    );
     await host.stop();
+    releaseWake();
+    assert.equal(await answering, "accepted");
     store.close();
     store = new SqliteWorkflowStore(database);
     workflow = coordinator();
@@ -199,22 +249,12 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     assert.deepEqual(recovered.session, admitted.session);
     assert.equal(recovered.eveRunId, originalEveRun);
     assert.equal(starts, 1, "reconciliation must not start a second Eve run");
-    assert.deepEqual(recovered.checkpoint, waiting.checkpoint);
+    assert.deepEqual(recovered.checkpoint, answeredCheckpoint);
     assert.ok(
       existsSync(join(host.root, ".eve/.workflow-data")),
       "Eve world lives in the external deployment directory",
     );
 
-    const answer = {
-      runId: admitted.runId,
-      issueId: issue.issueId,
-      revision: issue.revision,
-      checkpointId: waiting.checkpoint.id,
-      answerId: "answer-514",
-      answer: { text: "blue" },
-    };
-    assert.equal(await workflow.answer({ ...answer, revision: "stale" }), "stale");
-    assert.equal(await workflow.answer(answer), "accepted");
     assert.equal(await workflow.answer(answer), "already-answered");
     const completed = await eventually(
       async () => workflow.observe(admitted.runId),
@@ -231,10 +271,13 @@ test("compiled Eve host reconciles a lost start response and resumes the same SQ
     assert.equal(eveState.result.status, "completed");
     assert.equal(completed.candidate?.commit, "fixture-reviewed-commit");
     assert.equal(requests.length, 3);
+    assert.equal(wakeEffects, 1);
     assert.deepEqual(requests[2].session, requests[0].session);
     assert.equal(notifications.size, 2);
     success = true;
   } finally {
+    answerReady();
+    releaseWake();
     await host.stop();
     bridge.closeAllConnections();
     await new Promise<void>((resolve) => bridge.close(() => resolve()));

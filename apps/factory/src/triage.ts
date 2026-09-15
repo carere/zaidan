@@ -49,6 +49,8 @@ export interface TriageRequest {
   proposal: TriageProposal;
 }
 export interface TriageAdapter {
+  /** Native writers recheck the coordinator gate immediately before each external mutation. */
+  configureActionGuard?(guard: (runId: string) => void): void;
   prepare(issue: IssueSnapshot): Promise<IssueSnapshot>;
   current?(issue: IssueSnapshot): Promise<boolean>;
   apply(request: TriageRequest): Promise<TriageReceipt>;
