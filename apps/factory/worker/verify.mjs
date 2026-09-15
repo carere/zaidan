@@ -5,9 +5,13 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const request = JSON.parse(readFileSync("/input/request.json", "utf8"));
-const { candidate } = JSON.parse(readFileSync("/phase/outcome.json", "utf8"));
+const outcome = JSON.parse(readFileSync("/phase/outcome.json", "utf8"));
+const acceptance = request.acceptance;
+if (acceptance ? outcome.type !== "graph-accepted" : outcome.type !== "completed")
+  throw new Error("Outcome does not match captured phase");
+const candidate = acceptance ? outcome.evidence : outcome.candidate;
 const integration = request.integration;
-const reviewBase = integration?.reviewBase ?? request.issue.reviewBase;
+const reviewBase = acceptance?.reviewBase ?? integration?.reviewBase ?? request.issue.reviewBase;
 const manifest = JSON.parse(readFileSync("/resources/manifest.json", "utf8"));
 const git = (...args) =>
   execFileSync("git", ["--no-optional-locks", ...args], {
@@ -20,7 +24,8 @@ if (
   git("status", "--porcelain") ||
   candidate.commit !== git("rev-parse", "HEAD") ||
   candidate.tree !== git("rev-parse", "HEAD^{tree}") ||
-  !git("diff", "--name-only", `${reviewBase}...HEAD`)
+  (!acceptance && !git("diff", "--name-only", `${reviewBase}...HEAD`)) ||
+  (acceptance && (candidate.commit !== acceptance.head || candidate.tree !== acceptance.tree))
 )
   throw new Error("Candidate does not identify clean committed implementation");
 const base = git("rev-parse", `${reviewBase}^{commit}`);
@@ -38,13 +43,22 @@ if (integration) {
   git("merge-base", "--is-ancestor", integration.expectedHead, candidate.commit);
   git("merge-base", "--is-ancestor", integration.candidate.commit, candidate.commit);
 }
+const expectedAcceptance = acceptance
+  ? {
+      id: acceptance.id,
+      graphId: acceptance.graphId,
+      graphRevision: acceptance.graphRevision,
+      head: acceptance.head,
+    }
+  : undefined;
 const matches = (item) =>
   item.commit === candidate.commit &&
   item.tree === candidate.tree &&
   item.snapshot === request.resources.id &&
   item.issueRevision === request.issue.revision &&
   item.reviewBase === base &&
-  JSON.stringify(item.integration) === JSON.stringify(expectedIntegration);
+  JSON.stringify(item.integration) === JSON.stringify(expectedIntegration) &&
+  JSON.stringify(item.acceptance) === JSON.stringify(expectedAcceptance);
 if (!matches(candidate)) throw new Error("Candidate identity is stale");
 if (
   !Array.isArray(candidate.checks) ||

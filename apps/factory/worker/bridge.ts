@@ -58,18 +58,38 @@ export default function bridge(pi: ExtensionAPI) {
           },
         }
       : {}),
+    ...(request.acceptance
+      ? {
+          acceptance: {
+            id: request.acceptance.id,
+            graphId: request.acceptance.graphId,
+            graphRevision: request.acceptance.graphRevision,
+            head: request.acceptance.head,
+          },
+        }
+      : {}),
     provider: "openai-codex",
     model: "gpt-6-astra",
     reasoning: "high",
   });
   const committed = () => {
     if (git("status", "--porcelain")) throw new Error("Candidate checkout is dirty");
-    if (!git("diff", "--name-only", `${process.env.FACTORY_REVIEW_BASE}...HEAD`))
+    if (
+      request.acceptance &&
+      (git("rev-parse", "HEAD") !== request.acceptance.head ||
+        git("rev-parse", "HEAD^{tree}") !== request.acceptance.tree)
+    )
+      throw new Error("Acceptance requires unchanged assembled HEAD and tree");
+    if (
+      !request.acceptance &&
+      !git("diff", "--name-only", `${process.env.FACTORY_REVIEW_BASE}...HEAD`)
+    )
       throw new Error("Candidate contains no implementation diff");
     return binding();
   };
   const checkpointCommit = () => {
     if (axis) throw new Error("Review delegates cannot checkpoint implementation");
+    if (request.acceptance) return committed();
     if (git("status", "--porcelain") || existsSync("/state/checkout/.git/MERGE_HEAD")) {
       git("add", "--all");
       git("commit", "-m", `feat: checkpoint issue ${request.issue.number}`);
@@ -329,7 +349,7 @@ export default function bridge(pi: ExtensionAPI) {
       try {
         await child.send("set_auto_retry", { enabled: false });
         await child.prompt(
-          `${args.task}\n${candidate ? `Review only ${args.axis} against fixed base ${candidate.reviewBase}, candidate ${candidate.commit}. End with review_result including concrete findings; pass only with none. Do not modify files.` : "End with delegate_result containing your findings."}`,
+          `${args.task}\n${candidate ? `Review only ${args.axis} against fixed base ${candidate.reviewBase}, candidate ${candidate.commit}. ${request.acceptance && args.axis === "spec" ? "Read /input/request.json acceptance members, briefs and specificationIds; explicitly verify the complete root and every intermediate specification acceptance criteria against this assembled graph, not just the original leaf." : ""} End with review_result including concrete findings; pass only with none. Do not modify files.` : "End with delegate_result containing your findings."}`,
         );
         signal?.throwIfAborted();
         if (!existsSync(receipt)) throw new Error("Delegate ended without typed result");
@@ -442,59 +462,76 @@ export default function bridge(pi: ExtensionAPI) {
       });
     },
   });
+  const finishCandidate = () => {
+    if (axis || process.env.FACTORY_DELEGATE_RESULT)
+      throw new Error("Delegates cannot complete the issue");
+    const candidate = committed();
+    if (!manifest.checks.length)
+      throw new Error("Candidate requires admission-selected validation commands");
+    const checks = JSON.parse(readFileSync(join(evidenceDirectory, "validation.json"), "utf8"));
+    const reviews = ["standards", "spec"].map((name) =>
+      JSON.parse(readFileSync(join(evidenceDirectory, `review-${name}.json`), "utf8")),
+    );
+    const matches = (item: Record<string, unknown>) =>
+      Object.entries(candidate).every(
+        ([key, value]) => JSON.stringify(item[key]) === JSON.stringify(value),
+      );
+    if (
+      checks.length !== manifest.checks.length ||
+      checks.some(
+        (check: Record<string, unknown>, index: number) =>
+          check.exitCode !== 0 || check.command !== manifest.checks[index] || !matches(check),
+      )
+    )
+      throw new Error("Validation does not cover candidate");
+    if (
+      reviews.some((review) => !review.passed || review.findings.length || !matches(review)) ||
+      reviews[0].delegateSession === reviews[1].delegateSession
+    )
+      throw new Error("Independent reviews do not cover candidate");
+    const bundlePath = `candidates/${candidate.commit}.bundle`;
+    mkdirSync("/state/candidates", { recursive: true });
+    git("bundle", "create", `/state/${bundlePath}`, "HEAD");
+    const artifact = {
+      kind: "git-bundle",
+      relativePath: bundlePath,
+      sha256: createHash("sha256")
+        .update(readFileSync(`/state/${bundlePath}`))
+        .digest("hex"),
+    };
+    const evidence = {
+      ...candidate,
+      checks,
+      reviews,
+      artifact,
+      branch: git("branch", "--show-current"),
+    };
+    return outcome(
+      request.acceptance
+        ? { type: "graph-accepted", evidence }
+        : { type: "completed", candidate: evidence },
+    );
+  };
   pi.registerTool({
     name: "factory_complete",
     label: "Complete candidate",
     description:
-      "Verify clean committed work and successful checks plus independent standards/spec review all identify current candidate, then finish this phase.",
+      "Verify committed implementation, required checks and independent reviews before completing this phase.",
     parameters: Type.Object({}),
     async execute() {
-      if (axis || process.env.FACTORY_DELEGATE_RESULT)
-        throw new Error("Delegates cannot complete the issue");
-      const candidate = committed();
-      if (!manifest.checks.length)
-        throw new Error("Candidate requires admission-selected validation commands");
-      const checks = JSON.parse(readFileSync(join(evidenceDirectory, "validation.json"), "utf8"));
-      const reviews = ["standards", "spec"].map((name) =>
-        JSON.parse(readFileSync(join(evidenceDirectory, `review-${name}.json`), "utf8")),
-      );
-      const matches = (item: Record<string, unknown>) =>
-        Object.entries(candidate).every(
-          ([key, value]) => JSON.stringify(item[key]) === JSON.stringify(value),
-        );
-      if (
-        checks.length !== manifest.checks.length ||
-        checks.some(
-          (check: Record<string, unknown>, index: number) =>
-            check.exitCode !== 0 || check.command !== manifest.checks[index] || !matches(check),
-        )
-      )
-        throw new Error("Validation does not cover candidate");
-      if (
-        reviews.some((review) => !review.passed || review.findings.length || !matches(review)) ||
-        reviews[0].delegateSession === reviews[1].delegateSession
-      )
-        throw new Error("Independent reviews do not cover candidate");
-      const bundlePath = `candidates/${candidate.commit}.bundle`;
-      mkdirSync("/state/candidates", { recursive: true });
-      git("bundle", "create", `/state/${bundlePath}`, "HEAD");
-      const artifact = {
-        kind: "git-bundle",
-        relativePath: bundlePath,
-        sha256: createHash("sha256")
-          .update(readFileSync(`/state/${bundlePath}`))
-          .digest("hex"),
-      };
-      return outcome({
-        type: "completed",
-        candidate: {
-          ...candidate,
-          checks,
-          reviews,
-          artifact,
-          branch: git("branch", "--show-current"),
-        },
-      });
+      if (request.acceptance) throw new Error("Graph acceptance requires factory_accept_graph");
+      return finishCandidate();
+    },
+  });
+  pi.registerTool({
+    name: "factory_accept_graph",
+    label: "Accept complete graph",
+    description:
+      "Accept the unchanged assembled graph only after required checks and independent standards/spec reviews covering every captured root and intermediate specification.",
+    parameters: Type.Object({}),
+    async execute() {
+      if (!request.acceptance) throw new Error("Missing immutable graph acceptance input");
+      return finishCandidate();
     },
   });
   pi.registerTool({
