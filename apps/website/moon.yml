@@ -52,6 +52,9 @@ tasks:
       # rest of .wrangler is miniflare's local state (sqlite caches written
       # while prerendering), which is runtime scratch, not a build artifact.
       - ".wrangler/deploy/"
+      # Root Wrangler commands must resolve the same generated website config,
+      # including when Moon restores this build from cache.
+      - "/.wrangler/deploy/config.json"
     type: build
 
   preview:

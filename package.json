@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "bun run --cwd apps/website build",
-    "deploy": "bun run --cwd apps/website deploy",
+    "deploy": "wrangler deploy",
     "dev": "bun run --cwd apps/website dev",
     "preview": "bun run --cwd apps/website preview"
   },
@@ -29,7 +29,8 @@
     "knip": "^6.31.0",
     "lefthook": "^2.1.10",
     "sort-package-json": "^3.7.1",
-    "typescript": "latest"
+    "typescript": "latest",
+    "wrangler": "^4.118.0"
   },
   "packageManager": "bun@1.4.2",
   "engines": {
