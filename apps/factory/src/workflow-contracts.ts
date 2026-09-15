@@ -1,4 +1,5 @@
 import type { ResourceSnapshotReference } from "./captured-resources.ts";
+import type { PublicationState } from "./standalone-publication.ts";
 /** Transport snapshots use stable provider identity, never issue number as a key. */
 export interface IssueSnapshot {
   issueId: string;
@@ -39,6 +40,7 @@ export interface Candidate {
 export type WorkerOutcome =
   | { type: "checkpoint"; question: Question }
   | { type: "completed"; candidate: Candidate }
+  | { type: "no-change"; reason: string }
   | { type: "failed"; reason: string }
   | { type: "cancelled"; reason: string };
 export interface WorkerRequest {
@@ -92,6 +94,8 @@ export interface RunSnapshot {
   eveRunId?: string;
   checkpoint?: Checkpoint;
   candidate?: Candidate;
+  publication?: PublicationState;
+  noChange?: { reason: string };
   reason?: string;
 }
 export interface AnswerInput {

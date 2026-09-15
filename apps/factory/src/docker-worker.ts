@@ -123,7 +123,7 @@ export class DockerPiWorker implements WorkerAdapter {
     const path = join(this.phase(operationId), "output", "outcome.json");
     if (!existsSync(path)) return undefined;
     const outcome = JSON.parse(readFileSync(path, "utf8")) as WorkerOutcome;
-    if (!["checkpoint", "completed", "failed", "cancelled"].includes(outcome.type))
+    if (!["checkpoint", "completed", "no-change", "failed", "cancelled"].includes(outcome.type))
       throw new Error("Malformed durable worker outcome");
     if (await this.container(operationId))
       await run("docker", ["rm", "--force", this.name(operationId)]);
@@ -148,7 +148,7 @@ export class DockerPiWorker implements WorkerAdapter {
         throw new Error("Malformed durable worker checkpoint");
     }
     if (
-      (outcome.type === "failed" || outcome.type === "cancelled") &&
+      (outcome.type === "failed" || outcome.type === "cancelled" || outcome.type === "no-change") &&
       typeof outcome.reason !== "string"
     )
       throw new Error("Malformed durable worker failure");

@@ -64,7 +64,8 @@ function fixture(number = 1) {
   const workerOptions = {
     directory: join(directory, "workers"),
     repositoryPath: repository,
-    image: "zaidan-factory-worker-test:0.85.1",
+    image:
+      number === 7 ? "zaidan-factory-publication-test:0.85.1" : "zaidan-factory-worker-test:0.85.1",
     network: "none" as const,
     auth: { sourceFile: auth, lockDirectory: join(directory, "auth-locks") },
     onEvent: (event: (typeof events)[number]) => events.push(event),
@@ -322,5 +323,22 @@ test("cancellation stops the whole issue container, preserving the original chec
     f.store.close();
     if (process.env.FACTORY_KEEP_FIXTURES !== "1")
       rmSync(f.directory, { recursive: true, force: true });
+  }
+});
+
+test("real Docker/Pi no-change classification preserves a triage proposal without candidate evidence", {
+  timeout: 60000,
+}, async () => {
+  const f = fixture(7);
+  try {
+    const admitted = await f.workflow.admit(f.issue);
+    const result = await f.workflow.drive(admitted.runId);
+    assert.equal(result.status, "completed", JSON.stringify(result));
+    assert.deepEqual(result.noChange, { reason: "Requested behavior already exists" });
+    assert.equal(result.candidate, undefined);
+    assert.equal((await f.worker.reconcile(`${admitted.runId}:worker:0`))?.type, "no-change");
+  } finally {
+    f.store.close();
+    rmSync(f.directory, { recursive: true, force: true });
   }
 });
