@@ -4,7 +4,7 @@
     {
       "name": "zaidan-dev",
       "runtimeExecutable": "bun",
-      "runtimeArgs": ["vite", "dev"],
+      "runtimeArgs": ["run", "dev"],
       "port": 5173,
       "autoPort": true
     }

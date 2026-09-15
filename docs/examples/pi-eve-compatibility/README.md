@@ -1,7 +1,7 @@
 # Authenticated Pi / Eve compatibility fixture
 
 Issue [#512](https://github.com/carere/zaidan/issues/512) gates the factory graph
-[#511](https://github.com/carere/zaidan/issues/511). This standalone example keeps
+[#511](https://github.com/carere/zaidan/issues/511). This workspace example keeps
 runtime files, credentials, workflow state, and model writes in disposable
 directories. It does not change the website or act on GitHub or Telegram.
 
@@ -51,17 +51,29 @@ container to create a dedicated login if an existing file contains other
 credentials. Keep credentials out of source control and terminal output.
 
 ```sh
-compat_source="$(pwd)/docs/examples/pi-eve-compatibility"
-compat_runtime="$(mktemp -d)"
-cp -R "$compat_source"/. "$compat_runtime"/
-cd "$compat_runtime"
+compat_repo="$(git rev-parse --show-toplevel)"
+compat_workspace="$(mktemp -d)"
+cp "$compat_repo/package.json" "$compat_repo/bun.lock" "$compat_workspace/"
+for compat_package in apps/website apps/factory docs/examples/pi-eve-compatibility; do
+  mkdir -p "$compat_workspace/$compat_package"
+  cp "$compat_repo/$compat_package/package.json" "$compat_workspace/$compat_package/"
+done
+compat_runtime="$compat_workspace/docs/examples/pi-eve-compatibility"
+cp -R "$compat_repo/docs/examples/pi-eve-compatibility"/. "$compat_runtime"/
+cd "$compat_workspace"
 bun install --frozen-lockfile
-node node_modules/typescript/bin/tsc --noEmit
-node node_modules/eve/bin/eve.js build
+cd "$compat_runtime"
+bun run tsc --noEmit
+bun run eve build
 docker build -t zaidan-pi-compat:0.85.1 .
 ```
 
-Before modifying Eve integration, read the installed `node_modules/eve/docs/README.md`,
+The fixture shares the repository's root lockfile. The disposable workspace
+retains every workspace package manifest so frozen installation resolves the same
+graph, while runtime files and workflow state stay in the copied fixture. Binary
+commands resolve through the workspace instead of assuming local `node_modules`.
+
+Before modifying Eve integration, read the installed Eve package's `docs/README.md`,
 `docs/guides/deployment/self-hosting.md`, `docs/tools/workflows.mdx`, and
 `docs/tools/human-in-the-loop.md`. These are the source for the pinned version.
 
@@ -97,7 +109,7 @@ independently of its source.
 export COMPAT_SOURCE="$compat_runtime"
 export COMPAT_FIXTURE="$(node run.mjs prepare "$HOME/.pi/agent/auth.json")"
 export COMPAT_QUESTION_ID="compatibility-$(date +%s)"
-PORT=3228 node node_modules/eve/bin/eve.js start --host 127.0.0.1
+PORT=3228 bun run eve start --host 127.0.0.1
 ```
 
 Leave that process running. In another terminal:

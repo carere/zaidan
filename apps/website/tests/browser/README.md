@@ -1,8 +1,17 @@
 # Rendered component regression tests
 
-Install dependencies with `bun install` and Chromium with `bun playwright install chromium`.
-Run `bun playwright test` (or `bun moon run :test-browser`). Playwright starts and stops
-a local Vite fixture server on port 5174.
+From the repository root, install workspace dependencies and Chromium, then run
+browser checks through Moon:
+
+```sh
+bun install
+bun --cwd apps/website playwright install chromium
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:test-browser
+```
+
+Playwright starts and stops a local Vite fixture server on port 5174. Run the
+focused Playwright commands below from `apps/website`; fixture URLs retain their
+`/tests/browser/` paths.
 
 The Switch fixture renders the real registry component with the site's Solid, TanStack,
 and Tailwind transforms and `src/styles.css`. The test matrix covers eight styles,
@@ -13,7 +22,8 @@ checks wait for CSS transitions to finish. Run a single case with, for example:
 bun playwright test --grep 'vega light default uncontrolled'
 ```
 
-The Node-based suite remains available through `bun vitest run`.
+From the repository root, run the unit suite with
+`direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:test`.
 
 The Filters fixture at `/tests/browser/filters.html` uses the same transforms and
 renders the real registry component and demo. Run it with

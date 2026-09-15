@@ -3,9 +3,11 @@ $schema: ./cache/schemas/toolchains.json
 javascript:
   packageManager: bun
   inferTasksFromScripts: false
+  dedupeOnLockfileChange: false
 
 bun:
-  version: latest
+  version: 1.4.2
 
 typescript:
-  routeOutDirToCache: true
+  routeOutDirToCache: false
+  syncProjectReferences: false

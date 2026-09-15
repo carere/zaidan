@@ -13,6 +13,14 @@ primitive translation rules.
 Use `.agents/skills/zaidan/SKILL.md` instead for consumer-side installation,
 adding published registry items, or choosing components for a SolidJS product.
 
+## Workspace paths
+
+Website source paths in this skill (`src/`, `public/`, and `tests/`) are relative
+to `apps/website`. Skill and repository instruction paths are relative to the
+repository root. Run the validation commands below from the repository root;
+Moon's `zaidan` project executes in `apps/website`. Registry manifest `files`
+paths stay website-relative so generated consumer paths keep their meaning.
+
 ## Inputs
 
 Accept any mix of:
@@ -221,13 +229,21 @@ Use focused checks while iterating:
 
 ```bash
 bun biome check --write <changed-files>
-moon run :check
-moon run :tsc
-moon run :r-validate-kobalte
-moon run :build
+direnv exec "$(git rev-parse --show-toplevel)" moon run workspace:check
+direnv exec "$(git rev-parse --show-toplevel)" moon run workspace:knip
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:r-validate-kobalte
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:build
+direnv exec "$(git rev-parse --show-toplevel)" moon run :tsc
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:test
 ```
 
-Run `moon run :r-build-kobalte` when publishable registry files, registry
+Build before typechecking to generate Velite declarations. Pass repository-relative
+paths to Biome and `rg` when running them from the repository root. For rendered
+regressions, use the setup in `apps/website/tests/browser/README.md` and run
+`direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:test-browser`.
+
+Run `direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:r-build-kobalte`
+when publishable registry files, registry
 styles, or `src/registry/kobalte/registry.json` change. Explicitly check for
 stale generated item JSON after a hard replacement such as Sonner to Toast;
 the build may not delete obsolete output by itself.

@@ -13,8 +13,6 @@ import { FONT_DEFINITIONS } from "@/lib/fonts";
 export const TYPESET_PARAMS_MESSAGE = "typeset-params";
 export const TYPESET_COMMAND_MESSAGE = "typeset-command";
 
-export type TypesetCommand = "shuffle" | "reset" | "undo" | "redo" | "toggle-theme";
-
 /**
  * `scale`, `measure`, and `leading` are numbers rather than numeric strings on
  * purpose. TanStack Router's default search serializer JSON-quotes a string

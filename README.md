@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/carere/zaidan">
-    <img src="public/favicon.svg" alt="Zaidan Logo" width="10%">
+    <img src="apps/website/public/favicon.svg" alt="Zaidan Logo" width="10%">
   </a>
 
   <h1 style="font-size: 3rem; font-weight: 600;">Zaidan</h1>
@@ -14,8 +14,6 @@
     &middot;
     <a href="https://zaidan.carere.dev/ui">Components</a>
   </p>
-
-  [![Quality Assurance](https://github.com/carere/zaidan/actions/workflows/quality-assurance.yml/badge.svg)](https://github.com/carere/zaidan/actions/workflows/quality-assurance.yml)
 </div>
 
 ## About
@@ -36,6 +34,48 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 ## Contributing
 
 Contributions are welcome! Feel free to open an issue or submit a pull request on [GitHub](https://github.com/carere/zaidan).
+
+## Development
+
+This is a private Bun workspace with one root lockfile:
+
+- `apps/website` owns the SolidJS website, registry, and browser fixtures. Its Moon project is `zaidan`.
+- `apps/factory` owns the local factory application and its runtime dependencies.
+- The root owns shared developer tools and workspace checks.
+
+Install dependencies from the repository root with `bun install --frozen-lockfile`. The root scripts
+start and build the website with the correct working directory:
+
+```sh
+bun run dev
+bun run build
+bun run preview
+```
+
+Run checks from the repository root through the configured direnv environment.
+Build first so Velite's generated declarations are available to TypeScript:
+
+```sh
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:build
+direnv exec "$(git rev-parse --show-toplevel)" moon run workspace:check
+direnv exec "$(git rev-parse --show-toplevel)" moon run workspace:knip
+direnv exec "$(git rev-parse --show-toplevel)" moon run :tsc
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:test
+direnv exec "$(git rev-parse --show-toplevel)" moon run zaidan:test-browser
+```
+
+See [browser test setup](apps/website/tests/browser/README.md) for Chromium
+installation and focused regression commands. Registry validation and generation
+remain available as Moon tasks `zaidan:r-validate-kobalte` and
+`zaidan:r-build-kobalte`; registry source paths resolve from `apps/website`.
+
+### Website deployment
+
+After building, run `bun run deploy` from the repository root to publish the website
+with Wrangler. The script runs from `apps/website`, where Wrangler's generated
+`.wrangler/deploy` configuration points to `dist/server/wrangler.json`.
+Cloudflare build settings should use the repository root for installation,
+`bun run build` for the build, and `bun run deploy` for deployment.
 
 ## License
 

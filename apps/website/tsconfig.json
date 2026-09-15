@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["vite/client", "bun"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@velite": ["./.velite"]
+    },
+    "outDir": "../../.moon/cache/types/apps/website"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "*.ts",
+    "tests/browser/**/*.ts",
+    "tests/browser/**/*.tsx"
+  ],
+  "extends": "../../tsconfig.options.json"
+}

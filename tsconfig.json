@@ -1,32 +1,7 @@
 {
+  "extends": "./tsconfig.options.json",
+  "files": [],
   "compilerOptions": {
-    "target": "esnext",
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "module": "esnext",
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vite/client", "bun"],
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@velite": ["./.velite"]
-    },
     "outDir": ".moon/cache/types"
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "*.ts",
-    "tests/browser/**/*.ts",
-    "tests/browser/**/*.tsx"
-  ]
+  }
 }

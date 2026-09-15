@@ -29,3 +29,9 @@ test-results
 # environment
 .env*
 !**/.env.example
+
+# Local software factory operations (never cloud build artifacts)
+apps/factory/.eve/
+apps/factory/.factory/
+apps/factory/.cache/
+apps/factory/.data/
