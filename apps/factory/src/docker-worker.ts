@@ -136,11 +136,10 @@ export class DockerPiWorker implements WorkerAdapter {
     const stopped = join(this.phase(operationId), "input", "settled.json");
     const container = await this.container(operationId);
     if (container) {
-      if (container.running) await run("docker", ["rm", "--force", this.name(operationId)]);
-      if (!existsSync(stopped))
-        atomic(stopped, {
-          finishedAt: container.running ? Date.now() : (container.finishedAt ?? Date.now()),
-        });
+      if (!container.running && !existsSync(stopped))
+        atomic(stopped, { finishedAt: container.finishedAt ?? Date.now() });
+      await run("docker", ["rm", "--force", this.name(operationId)]);
+      if (!existsSync(stopped)) atomic(stopped, { finishedAt: Date.now() });
     }
     // The timestamp comes from Docker/coordinator-owned input, never worker output.
     delete outcome.finishedAt;
