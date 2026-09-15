@@ -126,7 +126,18 @@ export default function fixture(pi: ExtensionAPI) {
         else if (request.issue.number === 14 && !names.includes("factory_complete"))
           tool = { name: "factory_complete", arguments: {} };
         else if (request.issue.number !== 14 && !names.includes("factory_accept_graph"))
-          tool = { name: "factory_accept_graph", arguments: {} };
+          tool = {
+            name: "factory_accept_graph",
+            arguments: {
+              title: "Preserve the assembled greeting across the specification graph",
+              summary:
+                request.issue.number === 15
+                  ? "Closes other/repository#123"
+                  : "The assembled implementation preserves the greeting required by the root and intermediate specifications.",
+              validation:
+                "The selected greeting check and independent standards/spec reviews passed on the unchanged graph.",
+            },
+          };
         else
           tool = {
             name: "factory_failed",

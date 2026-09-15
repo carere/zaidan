@@ -462,7 +462,7 @@ export default function bridge(pi: ExtensionAPI) {
       });
     },
   });
-  const finishCandidate = () => {
+  const finishCandidate = (report?: { title: string; summary: string; validation: string }) => {
     if (axis || process.env.FACTORY_DELEGATE_RESULT)
       throw new Error("Delegates cannot complete the issue");
     const candidate = committed();
@@ -504,6 +504,7 @@ export default function bridge(pi: ExtensionAPI) {
       checks,
       reviews,
       artifact,
+      ...(report ? { report } : {}),
       branch: git("branch", "--show-current"),
     };
     return outcome(
@@ -527,11 +528,33 @@ export default function bridge(pi: ExtensionAPI) {
     name: "factory_accept_graph",
     label: "Accept complete graph",
     description:
-      "Accept the unchanged assembled graph only after required checks and independent standards/spec reviews covering every captured root and intermediate specification.",
-    parameters: Type.Object({}),
-    async execute() {
+      "Accept the unchanged assembled graph after required checks and independent reviews. Include a concise report describing the original problem, resulting behavior, and observed validation for the final PR. Do not include HTML comment markers or issue-closing directives.",
+    parameters: Type.Object({
+      title: Type.String({ minLength: 1, maxLength: 120 }),
+      summary: Type.String({ minLength: 1, maxLength: 2400 }),
+      validation: Type.String({ minLength: 1, maxLength: 1200 }),
+    }),
+    async execute(_id, args) {
       if (!request.acceptance) throw new Error("Missing immutable graph acceptance input");
-      return finishCandidate();
+      const forbidden =
+        /<!--|-->|\b(?:close[sd]?|fix(?:es|ed)?|resolve[sd]?)\s+(?:#\d+|[\w.-]+\/[\w.-]+#\d+|https?:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/\d+)/i;
+      for (const [key, limit] of [
+        ["title", 120],
+        ["summary", 2400],
+        ["validation", 1200],
+      ] as const) {
+        const value = args[key];
+        if (
+          typeof value !== "string" ||
+          !value.trim() ||
+          value.length > limit ||
+          forbidden.test(value)
+        )
+          throw new Error(
+            "Graph acceptance report is empty, oversized or contains tracker directives",
+          );
+      }
+      return finishCandidate(args);
     },
   });
   pi.registerTool({

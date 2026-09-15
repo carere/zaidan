@@ -92,3 +92,17 @@ if (
 )
   throw new Error("Candidate artifact changed");
 git("bundle", "verify", `/state/${artifact.relativePath}`);
+
+if (acceptance) {
+  const forbidden =
+    /<!--|-->|\b(?:close[sd]?|fix(?:es|ed)?|resolve[sd]?)\s+(?:#\d+|[\w.-]+\/[\w.-]+#\d+|https?:\/\/github\.com\/[\w.-]+\/[\w.-]+\/issues\/\d+)/i;
+  for (const [key, limit] of [
+    ["title", 120],
+    ["summary", 2400],
+    ["validation", 1200],
+  ]) {
+    const value = candidate.report?.[key];
+    if (typeof value !== "string" || !value.trim() || value.length > limit || forbidden.test(value))
+      throw new Error("Graph acceptance report is empty, oversized or contains tracker directives");
+  }
+}

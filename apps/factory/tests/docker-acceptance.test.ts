@@ -75,7 +75,7 @@ test("real Docker/Pi accepts unchanged whole graph, preserves session across che
     childIds: [],
   });
   try {
-    for (const number of [12, 13, 14]) {
+    for (const number of [12, 13, 14, 15]) {
       const issue = {
         issueId: `leaf-${number}`,
         number,
@@ -140,6 +140,13 @@ test("real Docker/Pi accepts unchanged whole graph, preserves session across che
       assert.equal(evidence.tree, tree);
       assert.equal(evidence.snapshot, resources.id);
       assert.equal(evidence.issueRevision, "original-revision");
+      assert.deepEqual(evidence.report, {
+        title: "Preserve the assembled greeting across the specification graph",
+        summary:
+          "The assembled implementation preserves the greeting required by the root and intermediate specifications.",
+        validation:
+          "The selected greeting check and independent standards/spec reviews passed on the unchanged graph.",
+      });
       const binding = {
         id: request.acceptance?.id,
         graphId: "root",
@@ -168,6 +175,20 @@ test("real Docker/Pi accepts unchanged whole graph, preserves session across che
         },
         (value: typeof outcome) => {
           value.evidence.commit = "a".repeat(40);
+        },
+        ...[
+          "<!-- coordinator marker -->",
+          "Fixes #123",
+          "resolved other/repo#2",
+          "Closed https://github.com/other/repo/issues/1",
+          " ",
+          "x".repeat(2401),
+        ].map((summary) => (value: typeof outcome) => {
+          const report = value.evidence.report as Record<string, unknown>;
+          report.summary = summary;
+        }),
+        (value: typeof outcome) => {
+          delete value.evidence.report;
         },
       ]) {
         const value = JSON.parse(saved);
