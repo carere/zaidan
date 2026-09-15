@@ -21,7 +21,14 @@
       }
     },
     "apps/factory": {
-      "entry": ["src/index.ts", "src/runtime.ts", "tests/**/*.ts", "agent/**/*.ts"],
+      "entry": [
+        "src/index.ts",
+        "src/runtime.ts",
+        "src/service-cli.ts",
+        "src/eve-service-host.ts",
+        "tests/**/*.ts",
+        "agent/**/*.ts"
+      ],
       "ignoreDependencies": ["workflow"]
     },
     "docs/examples/pi-eve-compatibility": {

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>dev.carere.zaidan-factory</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE__</string>
+    <string>__REPOSITORY__/apps/factory/src/service-cli.ts</string>
+    <string>serve</string>
+  </array>
+  <key>WorkingDirectory</key><string>__STATE__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>FACTORY_STATE_DIR</key><string>__STATE__</string>
+    <key>FACTORY_REPOSITORY</key><string>carere/zaidan</string>
+    <key>FACTORY_COORDINATOR_PORT</key><string>4311</string>
+    <key>FACTORY_EVE_PORT</key><string>4312</string>
+    <key>PATH</key><string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>ExitTimeOut</key><integer>15</integer>
+  <key>StandardOutPath</key><string>__STATE__/logs/coordinator.log</string>
+  <key>StandardErrorPath</key><string>__STATE__/logs/coordinator-error.log</string>
+</dict>
+</plist>

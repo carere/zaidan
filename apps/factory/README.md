@@ -9,10 +9,10 @@ compiler/lint tools and the single lockfile live at the root. This project has
 its own TypeScript configuration without Solid JSX or browser globals.
 
 `factory:tsc`, `factory:check`, and `factory:knip` are Moon checks with local-only
-caches. Operational tasks must disable caching and keep state in `.factory/`,
-`.eve/`, `.data/`, or `.cache/` (all ignored). Do not add Cloudflare bindings or
-remote outputs to factory tasks. Coordinator configuration and operational
-commands are introduced by the dependent factory tickets.
+caches. Operational tasks must disable caching and keep durable state in an absolute
+persistent directory outside Git and disposable workers. Do not add Cloudflare bindings or
+remote outputs to factory tasks. See [local service operations](service/README.md) for configuration, lifecycle,
+scheduling, logs, backup, and the optional uninstalled launchd template.
 
 ## Durable issue workflow
 
