@@ -12,7 +12,7 @@ import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts"
 import type { IssueWorkflow } from "./issue-workflow.ts";
 import type { PublicationGit } from "./publication-git.ts";
 import type { PublicationGitHub, PublishedPullRequest } from "./standalone-publication.ts";
-import type { Candidate, RunSnapshot } from "./workflow-contracts.ts";
+import type { Candidate, IssueSnapshot, RunSnapshot } from "./workflow-contracts.ts";
 
 export interface BundleReference {
   kind: "git-bundle";
@@ -20,6 +20,7 @@ export interface BundleReference {
   sha256: string;
 }
 export interface IntegrationInput {
+  reevaluation?: { id: string; issue: IssueSnapshot; reason: string };
   graphId: string;
   graphRevision: string;
   branch: string;
@@ -30,6 +31,9 @@ export interface IntegrationInput {
   entry: string;
 }
 export interface GraphRecord extends GraphIntegrationState {
+  reconciliation?: GraphReconciliation;
+  finalizationHistory?: GraphFinalization[];
+  deliveryHistory?: GraphRecord["deliveries"][string][];
   repository: string;
   number: number;
   branch: string;
@@ -101,6 +105,7 @@ export class SqliteGraphStore {
   }
 }
 export interface GraphPublicationGit extends PublicationGit {
+  tree?(commit: string): Promise<string>;
   contains(head: string, commit: string): Promise<boolean>;
   exportBundle(commit: string): Promise<BundleReference>;
 }
@@ -119,6 +124,16 @@ const closureIdentity = (issue: DiscoveredIssue) => ({
   revision: undefined,
   updatedAt: undefined,
 });
+
+export interface GraphReconciliation {
+  revision: string;
+  holds: Record<string, { reason: string; kind: "changed" | "reopened" | "moved" | "outcome" }>;
+}
+export interface ReconcileGraphDecision {
+  /** The exact observation approved by the operator; stale decisions never clear holds. */
+  revision: string;
+  continueRunIds: string[];
+}
 
 export class GraphCoordinator {
   private workflow: IssueWorkflow;
@@ -248,11 +263,414 @@ export class GraphCoordinator {
       throw Error("Graph membership or requirements changed");
     return plan;
   }
+  private applyReevaluation(id: string, runId: string, input: IntegrationInput) {
+    const key = `reevaluate:${runId}:${input.reevaluation?.id}`;
+    if (this.observe(id).operations[key]?.state === "done") return;
+    this.workflow.replaceIntegration(runId, input);
+    const issueId = this.workflow.observe(runId).issue.issueId;
+    this.options.store.change(id, (g) => {
+      const previous = g.deliveries[issueId];
+      if (previous) {
+        g.deliveryHistory ??= [];
+        g.deliveryHistory.push(previous);
+        delete g.deliveries[issueId];
+      }
+      g.integrations = g.integrations.filter((i) => i.issueId !== issueId);
+      g.activeRunId = runId;
+      if (g.reconciliation) delete g.reconciliation.holds[runId];
+      g.operations[key] = { state: "done", receipt: { runId, input } };
+    });
+  }
+  async reconcile(id: string, decision?: ReconcileGraphDecision) {
+    await this.locked(id, async () => {
+      this.workflow.assertLiveAction();
+      let graph = this.observe(id);
+      await this.workflow.scan();
+      const scan = await this.workflow.graphDiscovery();
+      const raw = planIssueGraph(scan, id);
+      const memberIds = [...raw.specificationIds, ...raw.leaves.map((l) => l.issue.issueId)];
+      let runs = this.workflow
+        .admissions()
+        .filter((r) => r.issue.graphId === id && !r.supersededBy);
+      const relevantIds = new Set([...memberIds, ...runs.map((r) => r.issue.issueId)]);
+      for (const issue of scan.snapshot.issues)
+        if (relevantIds.has(issue.issueId))
+          for (const dependency of issue.dependencyIds) relevantIds.add(dependency);
+      const sources = scan.snapshot.issues
+        .filter((i) => relevantIds.has(i.issueId))
+        .sort((a, b) => a.issueId.localeCompare(b.issueId));
+      const head = await this.options.git.branchHead(graph.branch);
+      const contained: string[] = [];
+      if (head)
+        for (const item of graph.integrations)
+          if (await this.options.git.contains(head, item.commit)) contained.push(item.commit);
+      const plan = await this.workflow.verifyGraph(id, {
+        ...graph,
+        head: head ?? graph.head,
+        graphRevision: raw.graphRevision,
+        containedCommits: contained,
+      });
+      const revision = createHash("sha256")
+        .update(
+          JSON.stringify({
+            head,
+            sources,
+            deliveries: plan.leaves.map((leaf) => ({
+              issueId: leaf.issue.issueId,
+              deliveries: leaf.externalDeliveries.map((d) => ({
+                issueId: d.issueId,
+                issueRevision: d.issueRevision,
+                id: d.id,
+                revision: d.revision,
+                mergeCommit: d.mergeCommit,
+                reviewBase: d.reviewBase,
+                startingRevision: d.startingRevision,
+              })),
+              prerequisites: leaf.prerequisiteIds,
+            })),
+            briefs: scan.briefs?.filter((b) => relevantIds.has(b.issueId)),
+          }),
+        )
+        .digest("hex");
+      for (const [key, operation] of Object.entries(graph.operations)) {
+        if (!key.startsWith("reevaluate:") || operation.state === "done") continue;
+        const saved = operation.receipt as { runId: string; input: IntegrationInput };
+        if (!saved?.runId || saved.input?.graphId !== id || !saved.input.reevaluation)
+          throw Error("Malformed retained reconciliation decision");
+        if (saved.input.reevaluation.id === revision && saved.input.expectedHead === head)
+          this.applyReevaluation(id, saved.runId, saved.input);
+      }
+      graph = this.observe(id);
+      runs = this.workflow.admissions().filter((r) => r.issue.graphId === id && !r.supersededBy);
+      const holds = { ...graph.reconciliation?.holds };
+      for (const run of runs) {
+        const fresh = sources.find((i) => i.issueId === run.issue.issueId);
+        const comparison = discoverWork(
+          {
+            ...scan.snapshot,
+            issues: scan.snapshot.issues.map((i) =>
+              i.issueId === run.issue.issueId ? { ...i, state: "open" as const } : i,
+            ),
+          },
+          [],
+          scan.briefs,
+        );
+        const current = comparison.decisions.find((d) => d.issue.issueId === run.issue.issueId);
+        const delivery = graph.deliveries[run.issue.issueId];
+        const admitted = run.integration?.reevaluation?.issue ?? run.issue;
+        const historicalClosure =
+          !!run.integration?.reevaluation &&
+          fresh?.state === "closed" &&
+          fresh.stateReason === "completed" &&
+          graph.deliveryHistory?.some(
+            (d) =>
+              d.source.issueId === fresh.issueId &&
+              d.closedRevision === fresh.revision &&
+              d.published,
+          );
+        const closeKey = `close:${run.runId}${run.integration?.reevaluation ? `:${run.integration.reevaluation.id}` : ""}`;
+        const ownedClosure =
+          !!delivery?.published &&
+          !!graph.operations[closeKey] &&
+          fresh?.state === "closed" &&
+          fresh.stateReason === "completed" &&
+          same(closureIdentity(fresh), closureIdentity(delivery.source));
+        if (
+          !fresh ||
+          !memberIds.includes(run.issue.issueId) ||
+          !same(fresh.parentIds, admitted.parentIds)
+        )
+          holds[run.runId] = {
+            kind: "moved",
+            reason: "Moved work requires explicit reconciliation in its original graph",
+          };
+        else if (
+          delivery?.closedRevision &&
+          (fresh.state !== "closed" || fresh.revision !== delivery.closedRevision)
+        )
+          holds[run.runId] = {
+            kind: "reopened",
+            reason: "Integrated prerequisite reopened or changed; prior delivery is retained",
+          };
+        else if (
+          run.noChange ||
+          (fresh.state === "closed" &&
+            !delivery?.closedRevision &&
+            !ownedClosure &&
+            !historicalClosure)
+        )
+          holds[run.runId] = {
+            kind: "outcome",
+            reason:
+              "No-change or unverified closure requires triage; no integration evidence was created",
+          };
+        else if (
+          current?.route !== "implementation" ||
+          !current.admission ||
+          !same(current.admission.sourceContent, admitted.sourceContent) ||
+          (!delivery?.closedRevision && !ownedClosure && fresh.revision !== admitted.revision)
+        )
+          holds[run.runId] = {
+            kind: "changed",
+            reason: "Graph child authorization, requirements or prerequisites changed",
+          };
+      }
+      // Prevent moved work being admitted a second time in another graph, even when the old run is settled.
+      for (const run of this.workflow.admissions())
+        if (
+          !run.supersededBy &&
+          run.issue.graphId &&
+          run.issue.graphId !== id &&
+          memberIds.includes(run.issue.issueId)
+        )
+          holds[run.runId] = {
+            kind: "moved",
+            reason:
+              "Issue belongs to an existing run in another graph; restore membership before continuing",
+          };
+      this.options.store.change(id, (g) => {
+        g.reconciliation = { revision, holds };
+        if (g.activeRunId && holds[g.activeRunId]) delete g.activeRunId;
+      });
+      const changed =
+        graph.graphRevision !== raw.graphRevision ||
+        graph.head !== head ||
+        Object.keys(holds).length > 0;
+      if (changed || graph.finalization?.state === "stale")
+        await this.acceptance.invalidate(
+          id,
+          "Graph observation changed; current requirements must be re-evaluated",
+        );
+      if (!head) throw Error("Graph branch is inaccessible");
+      if (head !== graph.head) {
+        const published = Object.values(graph.deliveries).find(
+          (d) => d.candidate.commit === head && d.expectedHead === graph.head,
+        );
+        if (published) {
+          // Exact retained publication intent plus remote head recovers our own lost response.
+          this.options.store.change(id, (g) => {
+            g.head = head;
+            g.deliveries[published.source.issueId].published = true;
+          });
+        } else {
+          if (!decision || decision.revision !== revision)
+            throw Error("Graph head changed; explicit reconciliation is required");
+          if (!(await this.options.git.contains(head, graph.head)))
+            throw Error("Changed graph head does not retain the previous published work");
+        }
+      }
+      if (scan.decisions.find((d) => d.issue.issueId === id)?.route !== "coordinator")
+        throw Error("Graph specification is not currently authorized");
+      if (decision && decision.revision !== revision)
+        throw Error("Graph reconciliation decision is stale");
+      this.options.store.change(id, (g) => {
+        g.graphRevision = raw.graphRevision;
+        g.head = head;
+        g.containedCommits = contained;
+      });
+      if (plan.graphRevision !== raw.graphRevision)
+        throw Error("Graph changed during prerequisite verification");
+      if (contained.length !== graph.integrations.length)
+        throw Error("Published prerequisite is missing from current graph head");
+      for (const run of runs) {
+        const admitted = run.integration?.reevaluation?.issue ?? run.issue;
+        const leaf = plan.leaves.find((l) => l.issue.issueId === run.issue.issueId);
+        if (
+          (admitted.externalDeliveries ?? []).some(
+            (old) =>
+              !leaf?.externalDeliveries.some(
+                (fresh) =>
+                  fresh.issueId === old.issueId &&
+                  fresh.issueRevision === old.issueRevision &&
+                  fresh.id === old.id &&
+                  fresh.revision === old.revision &&
+                  fresh.mergeCommit === old.mergeCommit,
+              ),
+          )
+        )
+          holds[run.runId] = {
+            kind: "changed",
+            reason: "External prerequisite delivery evidence changed; re-evaluation is required",
+          };
+        if (
+          run.integration &&
+          !run.acceptance &&
+          !this.observe(id).deliveries[run.issue.issueId]?.published &&
+          (run.integration.expectedHead !== head ||
+            run.integration.graphRevision !== raw.graphRevision)
+        )
+          holds[run.runId] ??= {
+            kind: "changed",
+            reason: "Integration head or graph inputs changed; repeat assembled validation",
+          };
+      }
+      this.options.store.change(id, (g) => {
+        g.reconciliation = { revision, holds };
+      });
+      if (Object.keys(holds).length)
+        await this.acceptance.invalidate(id, Object.values(holds)[0].reason);
+      if (decision && graph.pullRequest) {
+        const pulls = await this.options.github.findPullRequests(graph.repository, graph.branch);
+        if (pulls.length !== 1 || pulls[0].state !== "open")
+          throw Error(
+            "A closed or delivered graph PR cannot be reused; create a follow-up issue for new work",
+          );
+      }
+      for (const runId of decision?.continueRunIds ?? []) {
+        const run = this.workflow.observe(runId);
+        if (run.issue.graphId !== id) {
+          const original = planIssueGraph(scan, run.issue.graphId ?? "");
+          if (
+            memberIds.includes(run.issue.issueId) ||
+            !original.leaves.some((l) => l.issue.issueId === run.issue.issueId)
+          )
+            throw Error("Moved work must be reconciled in its original graph");
+          delete holds[runId];
+          this.options.store.change(id, (g) => {
+            g.reconciliation = { revision, holds: { ...holds } };
+          });
+          continue;
+        }
+        if (!holds[runId]) continue;
+        if (run.operatorPaused || run.execution?.operationId)
+          throw Error(
+            "Wait for the original worker to settle and release operator pause before reconciliation",
+          );
+        const leaf = plan.leaves.find((l) => l.issue.issueId === run.issue.issueId);
+        const previousDelivery = graph.deliveries[run.issue.issueId];
+        const delivered =
+          !!previousDelivery?.closedRevision &&
+          previousDelivery.closedRevision === leaf?.issue.revision &&
+          leaf?.issue.state === "closed" &&
+          leaf.issue.stateReason === "completed";
+        const current = discoverWork(
+          {
+            ...scan.snapshot,
+            issues: scan.snapshot.issues.map((i) =>
+              delivered && i.issueId === run.issue.issueId ? { ...i, state: "open" as const } : i,
+            ),
+          },
+          [],
+          scan.briefs,
+        ).decisions.find((d) => d.issue.issueId === run.issue.issueId);
+        if (!leaf || !same(leaf.issue.parentIds, run.issue.parentIds))
+          throw Error("Restore original graph membership before continuing moved work");
+        if (
+          current?.route !== "implementation" ||
+          !current.admission ||
+          leaf.problems.some(
+            (p) =>
+              !p.startsWith("Discovery route: already-admitted") &&
+              p !== "An earlier issue revision is still active",
+          )
+        )
+          throw Error(
+            "Current authorization and prerequisite delivery must be restored before continuation",
+          );
+        if (run.noChange)
+          throw Error("No-change requires triage before another implementation decision");
+        for (const dependency of leaf.prerequisiteIds)
+          if (
+            !this.observe(id).integrations.some(
+              (record) =>
+                record.issueId === dependency &&
+                record.issueRevision ===
+                  scan.snapshot.issues.find((i) => i.issueId === dependency)?.revision &&
+                this.observe(id).containedCommits.includes(record.commit),
+            )
+          )
+            throw Error(
+              "Current internal prerequisite delivery must be contained before continuation",
+            );
+        const issue = {
+          ...current.admission,
+          graphId: id,
+          startingRevision: head,
+          reviewBase: graph.reviewBase,
+          ...(leaf.externalDeliveries.length
+            ? { externalDeliveries: leaf.externalDeliveries }
+            : {}),
+        };
+        const candidate = run.integration?.candidate ?? run.candidate;
+        if (candidate) {
+          if (this.observe(id).activeRunId && this.observe(id).activeRunId !== runId)
+            throw Error("Another integration owns this graph; continue after it settles");
+          const input: IntegrationInput = {
+            graphId: id,
+            graphRevision: raw.graphRevision,
+            branch: graph.branch,
+            expectedHead: head,
+            reviewBase: head,
+            candidate,
+            source: await this.options.git.exportBundle(head),
+            entry: this.options.entry,
+            reevaluation: { id: revision, issue, reason: holds[runId].reason },
+          };
+          const key = `reevaluate:${runId}:${input.reevaluation?.id}`;
+          this.options.store.change(id, (g) => {
+            g.operations[key] ??= { state: "pending", receipt: { runId, input } };
+          });
+          this.applyReevaluation(id, runId, input);
+        } else {
+          if (current.issue.revision !== run.issue.revision && !run.execution && run.phase === 0)
+            await this.workflow.supersedeUnstartedGraphRun(runId, issue);
+          else {
+            if (
+              !same(current.admission.sourceContent, run.issue.sourceContent) ||
+              current.issue.revision !== run.issue.revision
+            )
+              throw Error(
+                "Changed work has no settled candidate yet; retain it until its original worker settles or requirements are restored",
+              );
+            this.workflow.continueGraphRun(runId);
+          }
+        }
+        delete holds[runId];
+        this.options.store.change(id, (g) => {
+          g.reconciliation = { revision, holds: { ...holds } };
+        });
+      }
+      this.options.store.change(id, (g) => {
+        if (Object.keys(holds).length) {
+          g.state = "reconciliation";
+          g.reason = Object.values(holds)[0].reason;
+        } else {
+          g.state = "active";
+          delete g.reason;
+          if (g.finalization?.state === "stale") {
+            g.finalizationHistory ??= [];
+            g.finalizationHistory.push(g.finalization);
+            delete g.finalization;
+          }
+        }
+      });
+      await this.frontier(id);
+      if (!Object.keys(holds).length) await this.acceptance.advance(id);
+    });
+    return this.observe(id);
+  }
+  private assertReconciled(id: string, run?: RunSnapshot) {
+    const holds = this.observe(id).reconciliation?.holds ?? {};
+    if (!run && Object.keys(holds).length)
+      throw Error("Graph has unresolved reconciliation decisions");
+    if (run && holds[run.runId]) throw Error(holds[run.runId].reason);
+  }
   async frontier(id: string) {
     this.workflow.assertLiveAction();
     const plan = await this.verified(id);
     for (const leaf of plan.eligibleLeaves) {
       if (!leaf.admission) continue;
+      if (
+        this.workflow
+          .admissions()
+          .some(
+            (r) =>
+              r.issue.issueId === leaf.issue.issueId &&
+              !r.supersededBy &&
+              r.issue.route !== "triage",
+          )
+      )
+        continue;
       if (
         (await this.options.git.branchHead(this.observe(id).branch)) !==
         leaf.admission.startingRevision
@@ -262,7 +680,10 @@ export class GraphCoordinator {
     }
   }
   async finalize(id: string) {
-    await this.locked(id, () => this.acceptance.advance(id));
+    await this.locked(id, async () => {
+      this.assertReconciled(id);
+      await this.acceptance.advance(id);
+    });
     return this.observe(id);
   }
   async invalidate(id: string, reason: string) {
@@ -273,6 +694,8 @@ export class GraphCoordinator {
     this.workflow.assertLiveAction(run.runId);
     const id = run.issue.graphId;
     if (!id) return;
+    await this.reconcile(id);
+    this.assertReconciled(id, run);
     const plan = await this.verified(id);
     if (run.acceptance) {
       await this.acceptance.current(run.acceptance);
@@ -295,11 +718,13 @@ export class GraphCoordinator {
       await this.finalize(id);
       return;
     }
+    await this.reconcile(id);
     await this.locked(id, async () => {
       let graph = this.observe(id);
       if (graph.activeRunId && graph.activeRunId !== runId) return;
       if (run.status !== "completed") return;
       this.workflow.assertLiveAction(runId);
+      this.assertReconciled(id, run);
       if (!run.candidate) {
         if (run.noChange)
           throw Error("No-change graph child requires triage; no delivery recorded");
@@ -368,7 +793,7 @@ export class GraphCoordinator {
       if (delivery.candidate.commit !== run.candidate.commit)
         throw Error("Reviewed integration candidate changed after publication intent");
       const covered = delivery;
-      const key = `publish:${runId}`;
+      const key = `publish:${runId}${input.reevaluation ? `:${input.reevaluation.id}` : ""}`;
       const publication = this.intent(id, key);
       const head = await this.options.git.branchHead(graph.branch);
       const beforePulls = await this.options.github.findPullRequests(
@@ -445,7 +870,7 @@ export class GraphCoordinator {
       this.options.store.change(id, (g) => {
         g.pullRequest = pr;
       });
-      const closeKey = `close:${runId}`;
+      const closeKey = `close:${runId}${input.reevaluation ? `:${input.reevaluation.id}` : ""}`;
       const close = this.intent(id, closeKey);
       let source = await this.current(run.issue.issueId);
       if (!same(closureIdentity(source), closureIdentity(delivery.source)))
@@ -476,8 +901,10 @@ export class GraphCoordinator {
           commit: covered.candidate.commit,
         });
         delete g.activeRunId;
-        g.state = "active";
-        delete g.reason;
+        if (!Object.keys(g.reconciliation?.holds ?? {}).length) {
+          g.state = "active";
+          delete g.reason;
+        }
       });
       await this.frontier(id);
       await this.settleChild(id, runId);
@@ -507,10 +934,30 @@ export class GraphCoordinator {
     run: RunSnapshot,
     plan: Awaited<ReturnType<IssueWorkflow["verifyGraph"]>>,
   ) {
+    const admitted = run.integration?.reevaluation?.issue ?? run.issue;
     const scan = await this.workflow.graphDiscovery();
-    const decision = discoverWork(scan.snapshot, [], scan.briefs).decisions.find(
-      (item) => item.issue.issueId === run.issue.issueId,
-    );
+    const source = scan.snapshot.issues.find((i) => i.issueId === run.issue.issueId);
+    const record = this.observe(run.issue.graphId ?? "");
+    const delivered =
+      !!run.integration?.reevaluation &&
+      source?.state === "closed" &&
+      source.stateReason === "completed" &&
+      [...Object.values(record.deliveries), ...(record.deliveryHistory ?? [])].some(
+        (d) =>
+          d.source.issueId === source.issueId &&
+          d.closedRevision === source.revision &&
+          d.published,
+      );
+    const decision = discoverWork(
+      {
+        ...scan.snapshot,
+        issues: scan.snapshot.issues.map((i) =>
+          delivered && i.issueId === run.issue.issueId ? { ...i, state: "open" as const } : i,
+        ),
+      },
+      [],
+      scan.briefs,
+    ).decisions.find((item) => item.issue.issueId === run.issue.issueId);
     const freshGraph = planIssueGraph(
       discoverWork(scan.snapshot, [], scan.briefs),
       run.issue.graphId ?? "",
@@ -521,13 +968,17 @@ export class GraphCoordinator {
     if (
       decision?.route !== "implementation" ||
       !decision.admission ||
-      decision.issue.revision !== run.issue.revision ||
-      !same(decision.admission.sourceContent, run.issue.sourceContent) ||
+      decision.issue.revision !== admitted.revision ||
+      !same(decision.admission.sourceContent, admitted.sourceContent) ||
       !leaf ||
-      leaf.problems.some((p) => !p.startsWith("Discovery route: already-admitted"))
+      leaf.problems.some(
+        (p) =>
+          !p.startsWith("Discovery route: already-admitted") &&
+          p !== "An earlier issue revision is still active",
+      )
     )
       throw Error("Graph child authorization, requirements or prerequisites changed");
-    for (const previous of run.issue.externalDeliveries ?? []) {
+    for (const previous of admitted.externalDeliveries ?? []) {
       const current = leaf.externalDeliveries.find((item) => item.issueId === previous.issueId);
       if (
         !current ||
@@ -551,6 +1002,7 @@ export class GraphCoordinator {
         )
       )
         throw Error("Internal prerequisite lacks published containment");
-    return decision.issue;
+    if (!source) throw Error("Graph child is inaccessible");
+    return source;
   }
 }

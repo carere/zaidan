@@ -101,6 +101,14 @@ export interface Checkpoint {
   answerId?: string;
 }
 export interface RunSnapshot {
+  supersededBy?: string;
+  graphPhaseHistory?: {
+    integration?: IntegrationInput;
+    acceptance?: GraphAcceptanceInput;
+    candidate?: Candidate;
+    acceptanceResult?: Candidate;
+    phase: number;
+  }[];
   acceptance?: GraphAcceptanceInput;
   integration?: IntegrationInput;
   graphPending?: boolean;

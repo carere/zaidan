@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import type { DiscoveredIssue } from "../src/discovery.ts";
+import { createExternalDelivery, type DeliveryPullRequest } from "../src/external-delivery.ts";
 import { SqliteGraphStore } from "../src/graph-integration.ts";
 import { IssueWorkflow } from "../src/issue-workflow.ts";
 import type { TriageAdapter } from "../src/triage.ts";
@@ -167,10 +168,12 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
   const issues = [issue("root", ["a", "b"]), issue("a"), issue("b", [], ["a"])];
   const requests: WorkerRequest[] = [];
   const pulls: PublishedPullRequest[] = [];
+  const externalPulls: DeliveryPullRequest[] = [];
   const events: string[] = [];
   let clock = 100;
   let description: { title: string; body: string } | undefined;
   let failAcceptanceExport = false;
+  let failWithdraw: "before" | "after" | undefined;
   let loseReady = false,
     loseNotify = false;
   let losePush = false,
@@ -178,6 +181,7 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     loseClose = false;
   let beforePublish: () => void = () => {};
   let failCapture = false;
+  let noChange = false;
   let beforeWorker: (request: WorkerRequest) => Promise<void> = async () => {};
   let transform: (candidate: ReturnType<typeof makeCandidate>) => ReturnType<typeof makeCandidate> =
     (candidate) => candidate;
@@ -224,6 +228,9 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
               graphRevision: request.integration.graphRevision,
               expectedHead: request.integration.expectedHead,
               candidateCommit: request.integration.candidate.commit,
+              ...(request.integration.reevaluation
+                ? { reevaluationId: request.integration.reevaluation.id }
+                : {}),
             },
           }
         : {}),
@@ -266,6 +273,16 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     return new IssueWorkflow({
       triage,
       store,
+      externalDelivery: createExternalDelivery({
+        trustedGitDirectory: bare,
+        github: {
+          async read(input) {
+            const fresh = issues.find((i) => i.issueId === input.issueId);
+            if (!fresh) throw Error("External issue is inaccessible");
+            return { issue: structuredClone(fresh), pullRequests: structuredClone(externalPulls) };
+          },
+        },
+      }),
       clock: { now: () => clock },
       execution: { budgetMs: 1000 },
       captureResources: (input) => {
@@ -295,6 +312,8 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
           requests.push(request);
           await beforeWorker(request);
           clock += 100;
+          if (noChange)
+            return { type: "no-change", reason: "Already implemented; triage the request" };
           const candidate = transform(makeCandidate(request));
           return request.acceptance
             ? { type: "graph-accepted", evidence: candidate }
@@ -397,8 +416,16 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
           async setDraft(_repo, id, draft) {
             const pr = pulls.find((p) => p.id === id);
             assert.ok(pr);
+            if (draft && failWithdraw === "before") {
+              failWithdraw = undefined;
+              throw Error("interrupted before draft");
+            }
             pr.draft = draft;
             events.push(draft ? "withdraw" : "ready");
+            if (draft && failWithdraw === "after") {
+              failWithdraw = undefined;
+              throw Error("lost draft reply");
+            }
             if (loseReady && !draft) {
               loseReady = false;
               throw Error("lost ready reply");
@@ -434,15 +461,29 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     issues,
     requests,
     pulls,
+    externalPulls,
     events,
     git,
     base,
     transport,
+    maintainerAdvance(branch: string, head: string) {
+      git("checkout", "-B", "maintainer-change", head);
+      writeFileSync(join(source, "maintainer-change"), "retained extra change\n");
+      git("add", ".");
+      git("commit", "-m", "maintainer change");
+      const next = git("rev-parse", "HEAD");
+      git("push", remote, `HEAD:refs/heads/${branch}`);
+      git("--git-dir", bare, "fetch", remote, `refs/heads/${branch}:refs/heads/${branch}`);
+      return next;
+    },
     maintainerMerge(head: string) {
       git("--git-dir", remote, "update-ref", "refs/heads/main", head, base);
     },
     description() {
       return description;
+    },
+    failWithdraw(when: "before" | "after") {
+      failWithdraw = when;
     },
     failAcceptanceExport() {
       failAcceptanceExport = true;
@@ -461,6 +502,9 @@ function integrationFixture(t: { after(fn: () => void): void }, acceptance = fal
     },
     setLoseClose() {
       loseClose = true;
+    },
+    setNoChange() {
+      noChange = true;
     },
     setClock(value: number) {
       clock = value;
@@ -1060,4 +1104,405 @@ test("acceptance report cannot add unrelated automatic issue closure instruction
   await f.workflow.drive(f.last.runId);
   assert.equal(f.pulls[0].draft, true);
   assert.equal(f.workflow.observe(f.last.runId).status, "failed");
+});
+
+test("a fresh graph observation admits a new eligible child without replacing unchanged admitted work", async (t) => {
+  const f = integrationFixture(t);
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  f.issues[0].childIds.push("c");
+  f.issues[0].revision = "root-membership-2";
+  f.issues.push({ ...issue("c"), number: 4 });
+  workflow = f.make();
+  await workflow.reconcileGraph("root");
+  assert.deepEqual(
+    workflow
+      .admissions()
+      .map((r) => r.issue.issueId)
+      .sort(),
+    ["a", "c"],
+  );
+  assert.deepEqual(workflow.observe(original.runId).issue, original.issue);
+  assert.deepEqual(workflow.observe(original.runId).session, original.session);
+  await workflow.drive(original.runId);
+  await workflow.drive(original.runId);
+  assert.equal(f.issues[1].state, "closed");
+  assert.equal(workflow.admissions().filter((r) => r.issue.issueId === "a").length, 1);
+});
+
+test("edited requirements during execution retain the candidate and need an exact new integration decision", async (t) => {
+  const f = integrationFixture(t);
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  f.setBeforeWorker(async () => {
+    f.issues[1].body += "\nThe greeting must include a salutation.";
+    f.issues[1].revision = "a-2";
+    f.issues[1].contentRevision = "a-content-2";
+  });
+  await workflow.drive(original.runId);
+  const retained = workflow.observe(original.runId);
+  assert.ok(retained.candidate);
+  assert.equal(f.pulls.length, 0);
+  assert.ok(workflow.observeGraph("root").reconciliation?.holds[original.runId]);
+  workflow = f.make();
+  f.setBeforeWorker(async () => {});
+  const observation = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", { revision: "stale", continueRunIds: [original.runId] });
+  assert.equal(workflow.observe(original.runId).integration, undefined);
+  const graph = await workflow.reconcileGraph("root", {
+    revision: observation.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  assert.deepEqual(graph.reconciliation?.holds, {});
+  const revised = workflow.observe(original.runId);
+  assert.equal(revised.integration?.reevaluation?.issue.revision, "a-2");
+  assert.equal(revised.integration?.candidate.commit, retained.candidate.commit);
+  assert.deepEqual(revised.issue, original.issue);
+  assert.deepEqual(revised.resources, original.resources);
+  assert.deepEqual(revised.session, original.session);
+  assert.equal(revised.execution?.consumedMs, 100);
+  assert.equal(revised.graphPhaseHistory?.[0].candidate?.commit, retained.candidate.commit);
+  await workflow.drive(original.runId);
+  assert.equal(
+    f.issues[1].state,
+    "closed",
+    JSON.stringify({ graph: workflow.observeGraph("root"), run: workflow.observe(original.runId) }),
+  );
+  assert.equal(f.requests.length, 2);
+  assert.equal(workflow.admissions().filter((r) => r.issue.issueId === "a").length, 1);
+});
+
+test("a reopened delivered child keeps an explicit hold through unrelated progress and resumes only after re-evaluation", async (t) => {
+  const f = integrationFixture(t);
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  await workflow.drive(original.runId);
+  await workflow.drive(original.runId);
+  const delivered = workflow.observeGraph("root").deliveries.a;
+  f.issues[1].state = "open";
+  f.issues[1].stateReason = null;
+  f.issues[1].revision = "a-reopened";
+  f.issues[0].childIds.push("c");
+  f.issues.push({ ...issue("c"), number: 4 });
+  await workflow.reconcileGraph("root");
+  const sibling = workflow.admissions().find((r) => r.issue.issueId === "c");
+  assert.ok(sibling);
+  assert.ok(sibling);
+  await workflow.drive(sibling.runId);
+  await workflow.drive(sibling.runId);
+  assert.equal(f.issues[3].state, "closed");
+  assert.equal(workflow.observeGraph("root").state, "reconciliation");
+  assert.ok(workflow.observeGraph("root").reconciliation?.holds[original.runId]);
+  const dependent = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(dependent);
+  await workflow.drive(dependent.runId);
+  assert.equal(workflow.observe(dependent.runId).status, "paused");
+  workflow = f.make();
+  await workflow.resume(original.runId);
+  await workflow.drive(original.runId);
+  assert.equal(f.issues[1].state, "open");
+  const observed = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: observed.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  await workflow.drive(original.runId);
+  assert.equal(f.issues[1].state, "closed", workflow.observeGraph("root").reason);
+  assert.deepEqual(workflow.observeGraph("root").deliveryHistory?.[0], delivered);
+  assert.deepEqual(workflow.observe(original.runId).session, original.session);
+  assert.equal(
+    f.requests.filter((r) => !r.integration && !r.acceptance && r.runId === original.runId).length,
+    1,
+  );
+  assert.equal(f.events.filter((e) => e === "close:a").length, 2);
+});
+
+test("moving an admitted leaf cannot start a second implementation and original membership restoration requires a decision", async (t) => {
+  const f = integrationFixture(t);
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  await workflow.drive(original.runId);
+  f.issues[0].childIds = ["b"];
+  f.issues[1].parentIds = ["other"];
+  f.issues[1].revision = "a-moved";
+  f.issues.push({ ...issue("other", ["a", "c"]), parentIds: [], number: 6 });
+  f.issues.push({ ...issue("c"), parentIds: ["other"], number: 4 });
+  await workflow.reconcileGraph("root");
+  await workflow.admitGraph("other");
+  await workflow.reconcileGraph("other");
+  assert.equal(workflow.admissions().filter((r) => r.issue.issueId === "a").length, 1);
+  const independent = workflow.admissions().find((r) => r.issue.issueId === "c");
+  assert.ok(independent);
+  await workflow.drive(independent.runId);
+  assert.equal(f.requests.filter((r) => r.runId === independent.runId).length, 1);
+  workflow = f.make();
+  f.issues[0].childIds = ["a", "b"];
+  f.issues[1].parentIds = ["root"];
+  f.issues[1].revision = "a-restored";
+  f.issues[3].childIds = ["c"];
+  await workflow.resume(original.runId);
+  await workflow.drive(original.runId);
+  assert.equal(f.requests.filter((r) => r.runId === original.runId).length, 1);
+  const observed = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: observed.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  await workflow.drive(original.runId);
+  assert.equal(f.issues[1].state, "closed", workflow.observeGraph("root").reason);
+  assert.deepEqual(workflow.observe(original.runId).session, original.session);
+  assert.equal(workflow.admissions().filter((r) => r.issue.issueId === "a").length, 1);
+});
+
+test("new membership withdraws readiness durably and replaces acceptance without changing its original evidence", async (t) => {
+  for (const failure of ["before", "after"] as const) {
+    await t.test(failure, async (t) => {
+      const f = await acceptanceReadyFixture(t);
+      await f.workflow.drive(f.last.runId);
+      const original = f.workflow.observeGraph("root").finalization;
+      assert.ok(original);
+      f.issues[0].childIds.push("c");
+      f.issues[0].revision = "root-new-child";
+      f.issues.push({ ...issue("c"), number: 4 });
+      f.failWithdraw(failure);
+      await f.workflow.reconcileGraph("root");
+      assert.equal(f.workflow.observeGraph("root").finalization?.state, "stale");
+      const workflow = f.make();
+      await workflow.reconcileGraph("root");
+      assert.equal(f.pulls[0].draft, true);
+      assert.equal(f.events.filter((e) => e === "withdraw").length, 1);
+      const preserved = workflow.observeGraph("root").finalizationHistory?.[0];
+      assert.deepEqual(preserved?.input, original.input);
+      assert.deepEqual(preserved?.evidence, original.evidence);
+      const child = workflow.admissions().find((r) => r.issue.issueId === "c");
+      assert.ok(child);
+      assert.ok(child);
+      await workflow.drive(child.runId);
+      await workflow.drive(child.runId);
+      const newInput = workflow.observeGraph("root").finalization?.input;
+      assert.ok(newInput);
+      assert.notEqual(newInput.id, original.input.id);
+      assert.equal(newInput.members.length, 4);
+      assert.equal(f.pulls[0].draft, true);
+      await workflow.drive(child.runId);
+      assert.equal(f.pulls[0].draft, false);
+      assert.equal(f.requests.filter((r) => r.acceptance).length, 2);
+      assert.equal(f.events.filter((e) => e === "ready").length, 2);
+    });
+  }
+});
+
+test("changed internal prerequisites require delivered code before retained work can be re-evaluated", async (t) => {
+  const f = integrationFixture(t);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  await workflow.drive(original.runId);
+  f.issues[1].dependencyIds = ["b"];
+  f.issues[1].revision = "a-dependency-2";
+  f.issues[2].dependencyIds = [];
+  f.issues[2].revision = "b-independent";
+  let observed = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: observed.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  assert.ok(workflow.observeGraph("root").reconciliation?.holds[original.runId]);
+  const prerequisite = workflow.admissions().find((r) => r.issue.issueId === "b");
+  assert.ok(prerequisite);
+  assert.ok(prerequisite);
+  await workflow.drive(prerequisite.runId);
+  await workflow.drive(prerequisite.runId);
+  observed = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: observed.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  f.setBeforeWorker(async (request) => {
+    assert.equal(f.git("show", `${request.integration?.expectedHead}:part-b`), "b");
+  });
+  await workflow.drive(original.runId);
+  assert.equal(f.issues[1].state, "closed", workflow.observeGraph("root").reason);
+  assert.equal(workflow.observe(original.runId).issue.dependencyIds?.length, 0);
+  assert.deepEqual(
+    workflow.observe(original.runId).integration?.reevaluation?.issue.dependencyIds,
+    ["b"],
+  );
+});
+
+test("no-change and unusual closure remain explicit decisions without manufactured delivery", async (t) => {
+  for (const outcome of ["no-change", "not-planned"] as const) {
+    await t.test(outcome, async (t) => {
+      const f = integrationFixture(t);
+      let workflow = f.make();
+      await workflow.admitGraph("root");
+      const run = workflow.admissions()[0];
+      if (outcome === "no-change") {
+        f.setNoChange();
+        await workflow.drive(run.runId);
+      } else {
+        f.issues[1].state = "closed";
+        f.issues[1].stateReason = "not_planned";
+        f.issues[1].revision = "a-unusual-closure";
+        await workflow.reconcileGraph("root");
+      }
+      workflow = f.make();
+      const observation = await workflow.reconcileGraph("root");
+      assert.ok(observation.reconciliation?.holds[run.runId]);
+      await workflow.reconcileGraph("root", {
+        revision: observation.reconciliation?.revision ?? "",
+        continueRunIds: [run.runId],
+      });
+      assert.ok(workflow.observeGraph("root").reconciliation?.holds[run.runId]);
+      assert.equal(workflow.observeGraph("root").integrations.length, 0);
+      assert.equal(f.pulls.length, 0);
+      assert.deepEqual(workflow.observe(run.runId).session, run.session);
+    });
+  }
+});
+
+test("a reopened issue on an already merged graph preserves delivery and refuses reuse of the closed PR", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  await f.workflow.drive(f.last.runId);
+  const graph = f.workflow.observeGraph("root");
+  f.pulls[0].state = "closed";
+  f.pulls[0].mergedAt = "2026-09-15T02:00:00Z";
+  f.pulls[0].mergeCommit = graph.head;
+  f.maintainerMerge(graph.head);
+  await f.workflow.recoverGraph("root");
+  const before = f.workflow.observe(f.last.runId);
+  f.issues[2].state = "open";
+  f.issues[2].stateReason = null;
+  f.issues[2].revision = "b-reopened-after-merge";
+  const observation = await f.workflow.reconcileGraph("root");
+  await f.workflow.reconcileGraph("root", {
+    revision: observation.reconciliation?.revision ?? "",
+    continueRunIds: [f.last.runId],
+  });
+  assert.equal(f.workflow.observe(f.last.runId).phase, before.phase);
+  assert.ok(f.workflow.observeGraph("root").reconciliation?.holds[f.last.runId]);
+  assert.equal(f.requests.length, 5);
+  assert.equal(f.pulls.length, 1);
+  assert.equal(f.issues[2].state, "open");
+});
+
+test("an edited unstarted revision receives normal admission only after an explicit decision and keeps its old snapshot", async (t) => {
+  const f = integrationFixture(t);
+  const workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  f.issues[1].revision = "a-new-before-start";
+  f.issues[1].body += "\nAdd the revised greeting.";
+  f.issues[1].contentRevision = "a-new-body";
+  await workflow.drive(original.runId);
+  assert.equal(f.requests.length, 0);
+  const observed = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: observed.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  const old = workflow.observe(original.runId);
+  assert.ok(old.supersededBy);
+  assert.deepEqual(old.resources, original.resources);
+  assert.deepEqual(old.session, original.session);
+  assert.deepEqual(old.issue, original.issue);
+  const current = workflow.observe(old.supersededBy);
+  assert.equal(current.issue.revision, "a-new-before-start");
+  assert.notEqual(current.resources?.id, original.resources?.id);
+  await assert.rejects(workflow.retry(original.runId), /superseded/);
+  await workflow.drive(current.runId);
+  await workflow.drive(current.runId);
+  assert.equal(f.issues[1].state, "closed", workflow.observeGraph("root").reason);
+  assert.equal(f.requests.filter((r) => !r.integration).length, 1);
+});
+
+test("an observed descendant head requires explicit adoption and fresh acceptance of its actual tree", async (t) => {
+  const f = await acceptanceReadyFixture(t);
+  await f.workflow.drive(f.last.runId);
+  const graph = f.workflow.observeGraph("root");
+  assert.ok(graph.finalization);
+  const accepted = graph.finalization;
+  const head = f.maintainerAdvance(graph.branch, graph.head);
+  let workflow = f.make();
+  const observed = await workflow.reconcileGraph("root");
+  assert.equal(f.pulls[0].draft, true);
+  assert.equal(observed.head, graph.head);
+  assert.equal(f.requests.filter((r) => r.acceptance).length, 1);
+  await workflow.reconcileGraph("root", {
+    revision: observed.reconciliation?.revision ?? "",
+    continueRunIds: [],
+  });
+  const next = workflow.observeGraph("root").finalization;
+  assert.ok(next);
+  assert.equal(next.input.head, head);
+  assert.notEqual(next.input.tree, accepted.input.tree);
+  assert.deepEqual(
+    workflow.observeGraph("root").finalizationHistory?.[0].evidence,
+    accepted.evidence,
+  );
+  workflow = f.make();
+  await workflow.drive(next.runId);
+  assert.equal(f.pulls[0].draft, false, workflow.observeGraph("root").reason);
+  assert.equal(f.requests.filter((r) => r.acceptance).length, 2);
+  assert.equal(
+    workflow.observe(next.runId).graphPhaseHistory?.at(-1)?.acceptance?.id,
+    accepted.input.id,
+  );
+});
+
+test("changed external delivery evidence gets a fresh decision binding and ambiguity cannot authorize continuation", async (t) => {
+  const f = integrationFixture(t);
+  f.issues[1].dependencyIds = ["external"];
+  f.issues.push({
+    ...issue("external"),
+    parentIds: [],
+    number: 8,
+    state: "closed",
+    stateReason: "completed",
+  });
+  f.externalPulls.push({
+    id: "native-closing-pr",
+    url: "https://github.com/owner/repo/pull/8",
+    repository: "owner/repo",
+    revision: "pr-v1",
+    state: "MERGED",
+    baseRef: "main",
+    mergeCommit: f.base,
+    mergedAt: "2026-09-15T00:00:00Z",
+  });
+  let workflow = f.make();
+  await workflow.admitGraph("root");
+  const original = workflow.admissions()[0];
+  assert.equal(original.issue.externalDeliveries?.[0].revision, "pr-v1");
+  await workflow.drive(original.runId);
+  const first = await workflow.reconcileGraph("root");
+  f.externalPulls[0].revision = "pr-v2";
+  await workflow.drive(original.runId);
+  const observation = await workflow.reconcileGraph("root");
+  assert.notEqual(observation.reconciliation?.revision, first.reconciliation?.revision);
+  assert.ok(observation.reconciliation?.holds[original.runId]);
+  f.externalPulls.push({ ...f.externalPulls[0], id: "ambiguous-second-pr" });
+  workflow = f.make();
+  const blocked = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: blocked.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  assert.equal(f.requests.length, 1);
+  assert.ok(workflow.observeGraph("root").reconciliation?.holds[original.runId]);
+  f.externalPulls.pop();
+  const current = await workflow.reconcileGraph("root");
+  await workflow.reconcileGraph("root", {
+    revision: current.reconciliation?.revision ?? "",
+    continueRunIds: [original.runId],
+  });
+  const phase = workflow.observe(original.runId).integration;
+  assert.equal(phase?.reevaluation?.issue.externalDeliveries?.[0].revision, "pr-v2");
+  assert.equal(workflow.observe(original.runId).issue.externalDeliveries?.[0].revision, "pr-v1");
+  await workflow.drive(original.runId);
+  assert.equal(f.issues[1].state, "closed", workflow.observeGraph("root").reason);
 });

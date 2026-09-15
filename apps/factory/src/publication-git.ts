@@ -90,6 +90,12 @@ export function createPublicationGit(options: PublicationGitOptions): GraphPubli
     return `refs/heads/${branch}`;
   };
   return {
+    async tree(commit) {
+      await verify();
+      if (!objectId(commit)) throw Error("Tree lookup requires a full Git revision");
+      if ((await git(["cat-file", "-t", commit])) !== "commit") throw Error("Missing graph commit");
+      return git(["rev-parse", `${commit}^{tree}`]);
+    },
     async contains(head, commit) {
       await verify();
       if (!objectId(head) || !objectId(commit))

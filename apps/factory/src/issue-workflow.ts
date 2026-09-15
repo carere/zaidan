@@ -8,7 +8,12 @@ import {
 } from "./discovery.ts";
 import type { ExternalDeliveryAdapter, ExternalDeliveryResult } from "./external-delivery.ts";
 import type { GraphAcceptanceInput } from "./graph-acceptance.ts";
-import { GraphCoordinator, type GraphOptions, type IntegrationInput } from "./graph-integration.ts";
+import {
+  GraphCoordinator,
+  type GraphOptions,
+  type IntegrationInput,
+  type ReconcileGraphDecision,
+} from "./graph-integration.ts";
 import { type GraphIntegrationState, planIssueGraph } from "./graph-planning.ts";
 import {
   publishStandaloneRun,
@@ -90,6 +95,7 @@ export class IssueWorkflow {
   async recoverGraph(id: string) {
     this.assertLiveAction();
     if (!this.graphs) throw Error("Graph adapters are not configured");
+    await this.graphs.reconcile(id);
     if (this.observeGraph(id).finalization) return this.graphs.finalize(id);
     await this.graphs.admit(id);
     for (const run of this.admissions().filter(
@@ -98,6 +104,65 @@ export class IssueWorkflow {
       await this.graphs.advance(run.runId);
     await this.graphs.finalize(id);
     return this.graphs.observe(id);
+  }
+  async reconcileGraph(id: string, decision?: ReconcileGraphDecision) {
+    if (!this.graphs) throw Error("Graph adapters are not configured");
+    return this.graphs.reconcile(id, decision);
+  }
+  async supersedeUnstartedGraphRun(runId: string, issue: IssueSnapshot) {
+    const original = this.observe(runId);
+    if (
+      original.execution ||
+      original.phase !== 0 ||
+      original.integration ||
+      original.candidate ||
+      original.operatorPaused ||
+      original.issue.issueId !== issue.issueId ||
+      original.issue.graphId !== issue.graphId ||
+      original.issue.revision === issue.revision
+    )
+      throw Error("Only an unstarted changed revision can receive a new normal admission");
+    const next = await this.admit(issue);
+    this.options.store.change(runId, (run) => {
+      if (run.execution) throw Error("Original worker started during revision admission");
+      run.supersededBy = next.runId;
+      run.status = "cancelled";
+      run.reason = "Unstarted revision superseded by an explicitly admitted current revision";
+      run.graphPending = false;
+    });
+    return next;
+  }
+  continueGraphRun(runId: string) {
+    this.options.store.change(runId, (run) => {
+      if (run.operatorPaused || run.execution?.operationId) throw Error("Run is not settled");
+      if (run.status === "paused") {
+        run.status = "admitted";
+        delete run.reason;
+      }
+    });
+  }
+  replaceIntegration(runId: string, input: IntegrationInput) {
+    this.options.store.change(runId, (run) => {
+      if (run.operatorPaused || run.execution?.operationId) throw Error("Run is not settled");
+      if (run.integration?.reevaluation?.id === input.reevaluation?.id) return;
+      run.graphPhaseHistory ??= [];
+      run.graphPhaseHistory.push({
+        integration: run.integration,
+        acceptance: run.acceptance,
+        candidate: run.candidate,
+        acceptanceResult: run.acceptanceResult,
+        phase: run.phase,
+      });
+      run.integration = input;
+      delete run.acceptance;
+      delete run.acceptanceResult;
+      delete run.candidate;
+      delete run.checkpoint;
+      run.phase++;
+      run.status = "admitted";
+      run.graphPending = true;
+      delete run.reason;
+    });
   }
   observeGraph(id: string) {
     if (!this.graphs) throw Error("Graph adapters are not configured");
@@ -122,9 +187,21 @@ export class IssueWorkflow {
   beginAcceptance(runId: string, input: GraphAcceptanceInput) {
     this.options.store.change(runId, (run) => {
       if (run.acceptance) {
-        if (JSON.stringify(run.acceptance) !== JSON.stringify(input))
-          throw Error("Acceptance inputs changed");
-        return;
+        if (JSON.stringify(run.acceptance) === JSON.stringify(input)) return;
+        if (
+          this.observeGraph(input.graphId).finalization?.input.id !== input.id ||
+          run.execution?.operationId
+        )
+          throw Error("Acceptance inputs changed without reconciled intent");
+        run.graphPhaseHistory ??= [];
+        run.graphPhaseHistory.push({
+          acceptance: run.acceptance,
+          acceptanceResult: run.acceptanceResult,
+          integration: run.integration,
+          candidate: run.candidate,
+          phase: run.phase,
+        });
+        delete run.acceptanceResult;
       }
       if (run.status !== "completed" || run.execution?.operationId)
         throw Error("Integration is not settled");
@@ -172,7 +249,11 @@ export class IssueWorkflow {
     if (this.factoryPaused()) throw new Error("Factory is paused");
     if (runId) {
       const run = this.observe(runId);
-      if (run.operatorPaused || ["paused", "cancelled", "failed"].includes(run.status))
+      if (
+        run.supersededBy ||
+        run.operatorPaused ||
+        ["paused", "cancelled", "failed"].includes(run.status)
+      )
         throw new Error("Run is paused or stopped");
     }
   }
@@ -765,6 +846,7 @@ export class IssueWorkflow {
     run: RunSnapshot,
     options: { reauthenticated?: boolean; restoreOnly?: boolean },
   ) {
+    if (run.supersededBy) throw Error("A superseded revision cannot be resumed");
     delete run.operatorPaused;
     delete run.operatorPauseId;
     if (
@@ -797,6 +879,7 @@ export class IssueWorkflow {
     delete run.checkpoint;
   }
   private retryRun(run: RunSnapshot) {
+    if (run.supersededBy) throw Error("A superseded revision cannot be retried");
     delete run.operatorPaused;
     delete run.operatorPauseId;
     if (!["failed", "cancelled"].includes(run.status))

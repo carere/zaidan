@@ -40,8 +40,10 @@ export type {
   BundleReference,
   GraphOptions,
   GraphPublicationGit,
+  GraphReconciliation,
   GraphRecord,
   IntegrationInput,
+  ReconcileGraphDecision,
 } from "./graph-integration.ts";
 export { SqliteGraphStore } from "./graph-integration.ts";
 export type { GraphIntegrationState, GraphPlan, PlannedLeaf } from "./graph-planning.ts";
