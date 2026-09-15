@@ -1,0 +1,15 @@
+{
+  "name": "zaidan-pi-eve-compatibility",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ai": "7.0.99",
+    "eve": "0.54.3",
+    "proper-lockfile": "4.1.2",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.0",
+    "typescript": "7.0.2"
+  }
+}
