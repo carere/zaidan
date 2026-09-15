@@ -23,6 +23,11 @@ not claim that the complete factory exists.
 The Dockerfile pins the Node base manifest and Pi release. The observed image
 configuration digest was
 `sha256:6c91afd33a76425aa0bfb1a8b53e7f7c41d25656c1001330818cda62e4a94e48`.
+The same build exported manifest-list digest
+`sha256:a8ebcca733c97e6e1ef74227b5f51d928b626ec70d8731f83b7279484ae07787`,
+which OrbStack returned as the container's inspected `Image` value and the
+sanitized containment evidence records as `imageId`. These identify different
+OCI objects from the same build.
 The example's Bun lockfile pins its standalone coordinator dependencies.
 
 ## Required observations
