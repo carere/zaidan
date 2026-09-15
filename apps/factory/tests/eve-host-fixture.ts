@@ -24,7 +24,7 @@ export async function eventually<T>(
 }
 
 /** Builds actual production workflow directives, outside Git, using installed pinned Eve. */
-export async function buildEveHost() {
+export async function buildEveHost(options: { maxEvents?: number } = {}) {
   const root = mkdtempSync(join(tmpdir(), "zaidan-factory-eve-"));
   const modules = process.env.FACTORY_EVE_MODULES ?? join(factoryRoot, "node_modules");
   const node = process.env.FACTORY_NODE_EXECUTABLE ?? "node";
@@ -85,6 +85,7 @@ export async function buildEveHost() {
           HOME: process.env.HOME,
           HOST: "127.0.0.1",
           PORT: String(port),
+          ...(options.maxEvents ? { WORKFLOW_MAX_EVENTS_OVERRIDE: String(options.maxEvents) } : {}),
           WORKFLOW_INLINE_OWNERSHIP_LEASE_SECONDS: "1",
           FACTORY_COORDINATOR_URL: coordinatorUrl,
           DO_NOT_TRACK: "1",

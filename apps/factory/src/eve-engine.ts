@@ -26,6 +26,18 @@ export function createEveEngine(options: { baseUrl: string; fetch?: typeof fetch
         throw new Error("Invalid Eve find response");
       return result.runId ?? undefined;
     },
+    async inspect(eveRunId: string): Promise<{ status: string; errorCode?: string }> {
+      const result = await post("inspect", { eveRunId });
+      if (
+        typeof result !== "object" ||
+        result === null ||
+        !("status" in result) ||
+        typeof result.status !== "string" ||
+        ("errorCode" in result && typeof result.errorCode !== "string")
+      )
+        throw new Error("Invalid Eve inspection response");
+      return result as { status: string; errorCode?: string };
+    },
     async wake(token: string, payload: unknown): Promise<void> {
       await post("wake", { token, payload });
     },
