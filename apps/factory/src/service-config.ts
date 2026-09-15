@@ -10,13 +10,21 @@ export interface ServiceConfig {
   permitPort: number;
   execution: { workers: number; modelCalls: number; budgetMs: number };
   adapterModule?: string;
+  telegram?: { maintainerId: number };
 }
 
 /** Configuration contains paths and identities only; credentials stay in the environment. */
 export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConfig {
   const stateDirectory = externalDirectory(env.FACTORY_STATE_DIR);
   const deploymentDirectory = externalDirectory(join(stateDirectory, "eve"));
-  for (const path of ["workflow.sqlite", "service.sqlite", "sessions", "eve/.eve/.workflow-data"])
+  for (const path of [
+    "workflow.sqlite",
+    "service.sqlite",
+    "telegram.sqlite",
+    "operators.sqlite",
+    "sessions",
+    "eve/.eve/.workflow-data",
+  ])
     externalDirectory(join(stateDirectory, path), false);
   const repository = env.FACTORY_REPOSITORY ?? "carere/zaidan";
   if (!/^[\w.-]+\/[\w.-]+$/.test(repository)) throw new Error("Invalid FACTORY_REPOSITORY");
@@ -37,6 +45,13 @@ export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConf
     modelCalls: positive(env.FACTORY_MODEL_CALLS, 4),
     budgetMs: positive(env.FACTORY_BUDGET_MS, 7200000),
   };
+  const hasTelegramToken = Boolean(env.FACTORY_TELEGRAM_TOKEN);
+  const hasTelegramIdentity = Boolean(env.FACTORY_TELEGRAM_MAINTAINER_ID);
+  if (hasTelegramToken !== hasTelegramIdentity)
+    throw new Error("Configure both Telegram token and numeric maintainer identity");
+  const telegram = hasTelegramToken
+    ? { maintainerId: positive(env.FACTORY_TELEGRAM_MAINTAINER_ID, 0) }
+    : undefined;
   const adapterModule = env.FACTORY_ADAPTER_MODULE;
   if (adapterModule && !isAbsolute(adapterModule))
     throw new Error("FACTORY_ADAPTER_MODULE must be absolute");
@@ -49,6 +64,7 @@ export function serviceConfig(env: NodeJS.ProcessEnv = process.env): ServiceConf
     permitPort,
     execution,
     adapterModule,
+    telegram,
   };
 }
 function port(value: string | undefined, fallback: number) {

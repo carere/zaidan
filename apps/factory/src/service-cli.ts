@@ -20,6 +20,8 @@ import { startModelPermitServer } from "./model-permit-server.ts";
 import { type CreateServiceAdapters, discoveryOnlyAdapters } from "./service-adapters.ts";
 import { type ServiceConfig, serviceConfig } from "./service-config.ts";
 import { listenLocalService } from "./service-http.ts";
+import { TelegramControl } from "./telegram.ts";
+import { TelegramOperations } from "./telegram-operations.ts";
 import { SqliteWorkflowStore } from "./workflow-store.ts";
 
 const factoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -108,6 +110,17 @@ async function serve(settings: ServiceConfig) {
         mode: "read-only",
       })
     : discoveryOnlyAdapters();
+  if (settings.telegram && adapters.telegram)
+    throw new Error("Configure one Telegram transport, through environment or adapters");
+  const telegram =
+    adapters.telegram ??
+    (settings.telegram
+      ? new TelegramControl({
+          database: join(settings.stateDirectory, "telegram.sqlite"),
+          maintainerId: settings.telegram.maintainerId,
+          token: process.env.FACTORY_TELEGRAM_TOKEN ?? "",
+        })
+      : undefined);
   const store = new SqliteWorkflowStore(join(settings.stateDirectory, "workflow.sqlite"));
   const workflow = new IssueWorkflow({
     store,
@@ -117,7 +130,8 @@ async function serve(settings: ServiceConfig) {
     },
     engine: createEveEngine({ baseUrl: `http://127.0.0.1:${settings.evePort}` }),
     worker: adapters.worker,
-    notifications: adapters.notifications,
+    notifications: telegram ?? adapters.notifications,
+    triage: adapters.triage,
     discovery:
       adapters.discovery ??
       createGitHubDiscovery({
@@ -125,9 +139,11 @@ async function serve(settings: ServiceConfig) {
         token: process.env.FACTORY_GITHUB_TOKEN,
       }),
   });
+  let operators: TelegramOperations | undefined;
   let permits: Awaited<ReturnType<typeof startModelPermitServer>> | undefined;
   let child: ChildProcess | undefined;
   let stopping = false;
+  let prepared = false;
   const service = new LocalService({
     workflow,
     stateDirectory: settings.stateDirectory,
@@ -159,17 +175,20 @@ async function serve(settings: ServiceConfig) {
       while (Date.now() < deadline) {
         if (child.exitCode !== null || child.signalCode !== null || stopping)
           throw new Error("Eve host exited");
+        let healthy = false;
         try {
-          if (
-            (
-              await fetch(`http://127.0.0.1:${settings.evePort}/eve/v1/health`, {
-                signal: AbortSignal.timeout(1000),
-              })
-            ).ok
-          )
-            return;
+          healthy = (
+            await fetch(`http://127.0.0.1:${settings.evePort}/eve/v1/health`, {
+              signal: AbortSignal.timeout(1000),
+            })
+          ).ok;
         } catch {
           /* Host is still opening its persistent world. */
+        }
+        if (healthy) {
+          await adapters.attach?.({ workflow, service, operators });
+          prepared = true;
+          return;
         }
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
@@ -190,6 +209,15 @@ async function serve(settings: ServiceConfig) {
       );
     },
   });
+  if (telegram)
+    operators = new TelegramOperations({
+      database: join(settings.stateDirectory, "operators.sqlite"),
+      workflow,
+      service,
+      telegram,
+      graphs: adapters.operatorGraphs,
+      triageRecovery: adapters.triageRecovery,
+    });
   const http = await listenLocalService({ workflow, service, port: settings.coordinatorPort });
   const interval = setInterval(() => {
     void service.poll().catch(() => logFailure());
@@ -203,8 +231,11 @@ async function serve(settings: ServiceConfig) {
       process.exit(code || 1);
     }, 10000);
     deadline.unref();
+    await operators?.stop();
     await service.stop();
     await http.close();
+    operators?.close();
+    if (telegram && !adapters.telegram) telegram.close();
     await adapters.close?.();
     store.close();
     clearTimeout(deadline);
@@ -218,8 +249,9 @@ async function serve(settings: ServiceConfig) {
   });
   await service.start().catch(() => {
     logFailure();
-    if (!child) void shutdown(1);
+    if (!prepared) void shutdown(1);
   });
+  if (!stopping && service.status().running) await operators?.start();
 }
 function logFailure() {
   // External adapter errors can contain request URLs or credentials; expose a stable code.

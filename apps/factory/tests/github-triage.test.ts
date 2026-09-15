@@ -128,6 +128,12 @@ test("native triage captures all comments, applies approved roles with disclaime
       comment: `${TRIAGE_DISCLAIMER}\n\n## Agent brief\nCreate the greeting.\n\n## Acceptance criteria\nA greeting renders.`,
     },
   };
+  triage.configureActionGuard?.(() => {
+    throw new Error("Factory paused");
+  });
+  await assert.rejects(triage.apply(request), /Factory paused/);
+  assert.equal(writes, 0);
+  triage.configureActionGuard?.(() => {});
   await assert.rejects(triage.apply(request));
   assert.equal(comments.length, 2);
   assert.equal(triage.pending()[0]?.operationId, request.operationId);

@@ -54,6 +54,7 @@ export class IssueWorkflow {
   constructor(options: IssueWorkflowOptions) {
     this.options = options;
     this.clock = options.clock ?? { now: Date.now };
+    options.triage?.configureActionGuard?.((runId) => this.assertLiveAction(runId));
     if (options.execution?.permitUrl) this.configureModelPermits(options.execution.permitUrl);
     for (const limit of [
       options.execution?.workers ?? 4,
@@ -62,6 +63,18 @@ export class IssueWorkflow {
     ])
       if (!Number.isSafeInteger(limit) || limit < 1)
         throw new Error("Execution limits must be positive integers");
+  }
+  factoryPaused(value?: boolean) {
+    return this.options.store.factoryPaused(value);
+  }
+  /** Read-only discovery is allowed while operator gates prevent consequential actions. */
+  assertLiveAction(runId?: string) {
+    if (this.factoryPaused()) throw new Error("Factory is paused");
+    if (runId) {
+      const run = this.observe(runId);
+      if (run.operatorPaused || ["paused", "cancelled", "failed"].includes(run.status))
+        throw new Error("Run is paused or stopped");
+    }
   }
   observe(runId: string) {
     return this.options.store.read(runId);
@@ -103,6 +116,7 @@ export class IssueWorkflow {
         (this.options.execution?.budgetMs ?? 7200000)
       )
         return "denied" as const;
+      if (this.factoryPaused() || run.operatorPaused) return "denied" as const;
       if (execution.models.includes(owner)) return "granted" as const;
       if (
         this.admissions().reduce(
@@ -247,14 +261,16 @@ export class IssueWorkflow {
   }
   async publishStandalone(runId: string) {
     if (!this.options.publication) throw new Error("Publication adapter is not configured");
+    this.assertLiveAction(runId);
     return publishStandaloneRun(
       this.options.store,
       this.discoveryWithBriefs(),
-      this.options.publication,
+      { ...this.options.publication, assertLiveAction: () => this.assertLiveAction(runId) },
       runId,
     );
   }
   async admit(issue: IssueSnapshot) {
+    this.assertLiveAction();
     if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
       throw new Error("Admission requires stable identity and explicit revisions");
     if (
@@ -274,6 +290,7 @@ export class IssueWorkflow {
       issue = await this.options.triage.prepare(structuredClone(issue));
     const resources =
       existing?.resources ?? (!existing ? await this.options.captureResources?.(issue) : undefined);
+    this.assertLiveAction();
     const run = this.options.store.admit(issue, resources);
     await this.start(run.runId);
     return this.observe(run.runId);
@@ -306,6 +323,10 @@ export class IssueWorkflow {
     await this.reconcileWorkers();
     await this.enforceBudgets();
     const run = this.observe(runId);
+    if (this.factoryPaused() || run.operatorPaused)
+      return run.status === "waiting-human" && run.checkpoint?.answer
+        ? { ...run, status: "running" }
+        : run;
     if (
       run.status === "waiting-human" &&
       run.triage &&
@@ -323,7 +344,13 @@ export class IssueWorkflow {
       await this.perform(
         runId,
         id,
-        async () => (await adapter.reconcile(request)) ?? (await adapter.apply(request)),
+        async () => {
+          this.assertLiveAction(runId);
+          const receipt = await adapter.reconcile(request);
+          if (receipt) return receipt;
+          this.assertLiveAction(runId);
+          return adapter.apply(request);
+        },
         (current, receipt) => {
           if (!current.triage) throw new Error("Missing retained triage proposal");
           current.triage.receipt = receipt as TriageReceipt;
@@ -360,6 +387,7 @@ export class IssueWorkflow {
       const phase = resuming ? run.phase + 1 : run.phase;
       const id = `${runId}:worker:${phase}`;
       const acquired = this.options.store.change(runId, (current) => {
+        if (this.factoryPaused() || current.operatorPaused) return false;
         current.execution ??= {
           consumedMs: 0,
           attempt: 0,
@@ -506,7 +534,12 @@ export class IssueWorkflow {
       current.checkpoint = {
         id: `${current.runId}:${current.status}:${phase}`,
         phase,
-        question: { prompt: outcome.reason },
+        question: {
+          prompt:
+            outcome.type === "subscription-paused"
+              ? `Subscription allowance is unavailable. This run and its session are retained. When allowance returns, use /resume run ${current.runId}. No billed provider fallback is enabled.`
+              : `Authentication needs attention. Reauthenticate the configured subscription locally, then use /resume run ${current.runId} reauthenticated. This run and its session are retained.`,
+        },
       };
       ops.push({
         id: `${current.checkpoint.id}:notify`,
@@ -558,54 +591,117 @@ export class IssueWorkflow {
     await this.stopExecution(runId, "cancelled", reason);
     return this.observe(runId);
   }
-  async pause(runId: string, reason = "Paused by operator") {
+  async pause(runId: string, reason = "Paused by operator", commandId?: string) {
+    this.options.store.change(runId, (run) => {
+      run.operatorPaused = true;
+      if (commandId) run.operatorPauseId = commandId;
+      else delete run.operatorPauseId;
+    });
     await this.stopExecution(runId, "paused", reason);
     return this.observe(runId);
   }
   /** An operator/service-availability signal resumes the preserved attempt, never changes provider. */
   async resume(runId: string, options: { reauthenticated?: boolean } = {}) {
-    this.options.store.change(runId, (run) => {
-      if (
-        (run.status === "waiting-authentication" || run.pausedFrom === "waiting-authentication") &&
-        !options.reauthenticated
-      )
-        throw new Error("Explicit reauthentication is required");
-      if (!["paused", "waiting-subscription", "waiting-authentication"].includes(run.status))
-        return;
-      if (run.execution?.operationId) throw new Error("Worker stop is still pending");
-      if (run.execution) delete run.execution.stop;
-      if (run.pausedFrom) {
-        run.status = run.pausedFrom;
-        delete run.pausedFrom;
-        delete run.reason;
-        return;
-      }
-      run.phase++;
-      run.status = "admitted";
-      delete run.reason;
-      delete run.checkpoint;
-    });
+    this.options.store.change(runId, (run) => this.resumeRun(run, options));
     return this.observe(runId);
   }
   /** Explicit operator retry starts a fresh bounded attempt in the retained workspace/session. */
   async retry(runId: string) {
-    this.options.store.change(runId, (run) => {
-      if (!["failed", "cancelled"].includes(run.status))
-        throw new Error("Only failed or cancelled work can be retried");
-      if (run.execution?.operationId) throw new Error("Worker stop is still pending");
-      run.execution = {
-        consumedMs: 0,
-        attempt: (run.execution?.attempt ?? 0) + 1,
-        retries: 0,
-        models: [],
-      };
-      run.phase++;
-      run.status = "admitted";
-      delete run.reason;
-      delete run.checkpoint;
-      delete run.pausedFrom;
-    });
+    this.options.store.change(runId, (run) => this.retryRun(run));
     return this.observe(runId);
+  }
+  private resumeRun(
+    run: RunSnapshot,
+    options: { reauthenticated?: boolean; restoreOnly?: boolean },
+  ) {
+    delete run.operatorPaused;
+    delete run.operatorPauseId;
+    if (
+      (run.status === "waiting-authentication" || run.pausedFrom === "waiting-authentication") &&
+      !options.reauthenticated &&
+      !(
+        options.restoreOnly &&
+        run.status === "paused" &&
+        run.pausedFrom === "waiting-authentication"
+      )
+    )
+      throw new Error("Explicit reauthentication is required");
+    if (!["paused", "waiting-subscription", "waiting-authentication"].includes(run.status)) return;
+    if (run.execution?.operationId) throw new Error("Worker stop is still pending");
+    if (run.execution) delete run.execution.stop;
+    if (
+      run.pausedFrom &&
+      (options.restoreOnly ||
+        !["waiting-authentication", "waiting-subscription"].includes(run.pausedFrom))
+    ) {
+      run.status = run.pausedFrom;
+      delete run.pausedFrom;
+      delete run.reason;
+      return;
+    }
+    delete run.pausedFrom;
+    run.phase++;
+    run.status = "admitted";
+    delete run.reason;
+    delete run.checkpoint;
+  }
+  private retryRun(run: RunSnapshot) {
+    delete run.operatorPaused;
+    delete run.operatorPauseId;
+    if (!["failed", "cancelled"].includes(run.status))
+      throw new Error("Only failed or cancelled work can be retried");
+    if (run.execution?.operationId) throw new Error("Worker stop is still pending");
+    run.execution = {
+      consumedMs: 0,
+      attempt: (run.execution?.attempt ?? 0) + 1,
+      retries: 0,
+      models: [],
+    };
+    run.phase++;
+    run.status = "admitted";
+    delete run.reason;
+    delete run.checkpoint;
+    delete run.pausedFrom;
+  }
+  /** Command identity and budget/session mutation commit in the same transaction. */
+  async operate(input: {
+    id: string;
+    runId: string;
+    action: "pause" | "resume" | "cancel" | "retry";
+    reauthenticated?: boolean;
+    restoreOnly?: boolean;
+  }) {
+    const id = `${input.runId}:control:${input.id}`;
+    const pending = this.options.store.change(input.runId, (run, ops) => {
+      let op = ops.find((item) => item.id === id);
+      if (op && JSON.stringify(op.receipt) !== JSON.stringify(input))
+        throw new Error("Operator command identity changed");
+      if (op?.state === "done") return false;
+      if (!op) {
+        op = {
+          id,
+          runId: input.runId,
+          phase: run.phase,
+          kind: "control",
+          state: "pending",
+          receipt: input,
+        };
+        ops.push(op);
+      }
+      if (input.action === "resume") this.resumeRun(run, input);
+      if (input.action === "retry") this.retryRun(run);
+      if (input.action === "resume" || input.action === "retry") op.state = "done";
+      return op.state !== "done";
+    });
+    if (pending) {
+      if (input.action === "pause") await this.pause(input.runId, "Paused by operator", input.id);
+      else if (input.action === "cancel") await this.cancel(input.runId);
+      this.options.store.change(input.runId, (_run, ops) => {
+        const op = ops.find((item) => item.id === id);
+        if (op) op.state = "done";
+      });
+    }
+    return this.observe(input.runId);
   }
   private stopExecution(
     runId: string,
@@ -613,7 +709,7 @@ export class IssueWorkflow {
     reason: string,
   ): Promise<void> {
     const pending = this.stopping.get(runId);
-    if (pending) return pending;
+    if (pending) return pending.then(() => this.stopExecution(runId, status, reason));
     const action = this.stopOnce(runId, status, reason).finally(() => this.stopping.delete(runId));
     this.stopping.set(runId, action);
     return action;

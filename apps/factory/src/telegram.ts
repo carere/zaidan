@@ -36,10 +36,14 @@ interface Update {
     message?: Message;
   };
 }
+export interface TelegramMessageRequest {
+  operationId: string;
+  text: string;
+}
 interface Notice {
   operationId: string;
   token: string;
-  request: NotificationRequest;
+  request: NotificationRequest | TelegramMessageRequest;
   parts: { text: string; state: "pending" | "uncertain" | "sent"; messageId?: number }[];
 }
 /** Telegram has no send idempotency key or bot history API: uncertain sends stop for reconciliation. */
@@ -143,22 +147,34 @@ export class TelegramControl implements NotificationAdapter {
     return notice.parts.every((part) => part.state === "sent") ? notice.token : undefined;
   }
   async send(request: NotificationRequest) {
+    return this.deliver(request);
+  }
+  /** Informational notices carry no answerable workflow checkpoint. */
+  async sendMessage(request: TelegramMessageRequest) {
+    if (!request.operationId || !request.text.trim())
+      throw new Error("Informational Telegram messages require identity and text");
+    return this.deliver(request);
+  }
+  private async deliver(request: NotificationRequest | TelegramMessageRequest) {
     const token = createHash("sha256").update(request.operationId).digest("hex").slice(0, 32);
     let notice = this.notices().find((item) => item.operationId === request.operationId);
     if (notice && JSON.stringify(notice.request) !== JSON.stringify(request))
       throw new Error("Telegram operation identity changed");
     if (!notice) {
-      const question = request.checkpoint.question;
-      const options = question.options
+      const question = "text" in request ? undefined : request.checkpoint.question;
+      const options = question?.options
         ?.map((option) => `${option.label}${option.description ? `: ${option.description}` : ""}`)
         .join("\n");
-      const content = `${request.issue.repository}#${request.issue.number}\n\n${question.prompt}${options ? `\n\n${options}` : ""}\n\nReply to this message or use /answer ${token} <answer>.`;
+      const content =
+        "text" in request
+          ? request.text
+          : `${request.issue.repository}#${request.issue.number}\n\n${question?.prompt}${options ? `\n\n${options}` : ""}\n\nReply to this message or use /answer ${token} <answer>.`;
       // Leave room for a stable checkpoint marker on every part; never truncate required context.
       const characters = Array.from(content);
       const parts: Notice["parts"] = [];
       while (characters.length)
         parts.push({
-          text: `[checkpoint ${token}]\n${characters.splice(0, 3000).join("")}`,
+          text: `[${"text" in request ? "notice" : "checkpoint"} ${token}]\n${characters.splice(0, 3000).join("")}`,
           state: "pending",
         });
       notice = { operationId: request.operationId, token, request, parts };
@@ -190,9 +206,11 @@ export class TelegramControl implements NotificationAdapter {
       }
       const part = notice.parts[index];
       if (!part) throw new Error("Missing Telegram message part");
-      const buttons = request.checkpoint.question.options?.map((option, optionIndex) => [
-        { text: option.label.slice(0, 100), callback_data: `a:${token}:${optionIndex}` },
-      ]);
+      const buttons = ("text" in request ? undefined : request.checkpoint.question.options)?.map(
+        (option, optionIndex) => [
+          { text: option.label.slice(0, 100), callback_data: `a:${token}:${optionIndex}` },
+        ],
+      );
       const message = (await this.api("sendMessage", {
         chat_id: this.options.maintainerId,
         text: part.text,
@@ -220,7 +238,7 @@ export class TelegramControl implements NotificationAdapter {
     if (!notice) throw new Error("Unknown Telegram notification");
     for (const part of notice.parts) if (part.state === "uncertain") part.state = "pending";
     this.save(notice);
-    return this.send(notice.request);
+    return this.deliver(notice.request);
   }
   private async handle(
     update: Update,
@@ -243,9 +261,21 @@ export class TelegramControl implements NotificationAdapter {
     if (button) {
       token = button[1];
       const notice = this.notices().find((item) => item.token === token);
-      const option = notice?.request.checkpoint.question.options?.[Number(button[2])];
+      const option =
+        notice && !("text" in notice.request)
+          ? notice.request.checkpoint.question.options?.[Number(button[2])]
+          : undefined;
       if (option) answer = { optionId: option.id };
     } else if (!callback && message.text) {
+      const control = message.text.match(/^\/(scan|status|pause|resume|cancel|retry)(?:\s+(.*))?$/);
+      if (control && command) {
+        await command({
+          id: `telegram:${update.update_id}`,
+          name: control[1] as TelegramCommand["name"],
+          argument: control[2] ?? "",
+        });
+        return;
+      }
       const explicit = message.text.match(/^\/answer\s+([a-f0-9]{32})\s+([\s\S]+)$/);
       if (explicit) {
         token = explicit[1];
@@ -255,21 +285,12 @@ export class TelegramControl implements NotificationAdapter {
           item.parts.some((part) => part.messageId === message.reply_to_message?.message_id),
         )?.token;
         answer = { text: message.text };
-      } else {
-        const control = message.text.match(
-          /^\/(scan|status|pause|resume|cancel|retry)(?:\s+(.*))?$/,
-        );
-        if (control && command)
-          await command({
-            id: `telegram:${update.update_id}`,
-            name: control[1] as TelegramCommand["name"],
-            argument: control[2] ?? "",
-          });
       }
     }
     const notice = this.notices().find((item) => item.token === token);
     if (
       notice &&
+      !("text" in notice.request) &&
       answer &&
       (notice.parts.every((part) => part.state === "sent") ||
         (notice.parts.length === 1 && notice.parts[0]?.state === "uncertain"))

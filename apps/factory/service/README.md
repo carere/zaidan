@@ -51,6 +51,8 @@ you explicitly run them. The shipped test uses a temporary local service only.
 | `FACTORY_COORDINATOR_PORT` | Loopback coordinator port; default `4311`. |
 | `FACTORY_EVE_PORT` | Distinct loopback Eve port; default `4312`. |
 | `FACTORY_GITHUB_TOKEN` | Optional coordinator-only Issues-read token, supplied through a local secret loader; never put its value in Git, logs, or a plist. |
+| `FACTORY_TELEGRAM_TOKEN` | Optional selected bot token, loaded only into the coordinator environment. Requires the numeric maintainer identity below. |
+| `FACTORY_TELEGRAM_MAINTAINER_ID` | Authorized positive numeric Telegram user ID; commands and answers must come from that same private chat. |
 | `FACTORY_ADAPTER_MODULE` | Optional absolute trusted module exporting `createServiceAdapters(context)`; connects persistent worker/notification adapters. |
 
 Launchd does not inherit a terminal's environment. For a private repository or
@@ -70,15 +72,27 @@ engine starts, checkpoint notifications and accepted-answer wakes. It is not a
 promise to abandon previously admitted work.
 
 The adapter factory receives `{stateDirectory, repository, mode: 'read-only'}` and
-returns `{worker, notifications, discovery?, close?}`. Implement the exported
+returns `{worker, notifications, discovery?, triage?, telegram?, operatorGraphs?, triageRecovery?, attach?, close?}`. Implement the exported
 `CreateServiceAdapters` contract in `src/service-adapters.ts`. The optional
 `discovery` override is useful for controlled service fixtures; normal operation
 uses native GitHub discovery. Adapter creation should only configure resources;
 actual work belongs in the workflow's durable operations. Docker workers use the
 maintainer's Docker/OrbStack context and outbound connections. Worker containers
 are disposable; session records, skill snapshots and receipts stay under the
-persistent state root. No worker implementation or Telegram polling is enabled
-by this service ticket.
+persistent state root. When a Telegram transport is configured, the sole service
+owner starts its long poller after initial reconciliation, and stops it before
+closing adapters and state. Configure Telegram through the two environment
+settings or `adapters.telegram`, never both. The selected Telegram instance is
+also the workflow checkpoint notification adapter. A custom adapter owns closing
+its supplied Telegram instance.
+
+`attach({workflow, service, operators})` runs once after the owned Eve host becomes
+healthy and before the initial scan. Use it to connect callback closures to the
+existing coordinator. Failed attachment shuts down the service; it is not retried
+by health polling. The optional `operatorGraphs()` returns the exported safe
+`OperatorGraphStatus` projection, including exact head, progress and PR URL. Pass
+the native triage adapter as both `triage` and `triageRecovery` to expose its
+unresolved step receipts. It receives the workflow action guard automatically.
 
 For subsequent integration, `service-cli.ts` is the executable composition root:
 its sole `IssueWorkflow` receives the real adapters. `LocalService.onScan` awaits
@@ -87,6 +101,49 @@ shared trigger for Telegram or other operator transports. Later live admission,
 publication and frontier scheduling must be connected through that same workflow
 policy boundary and durable store; do not create another claims database. This
 release deliberately has no admission HTTP route or live-mode flag.
+
+## Telegram operation
+
+The bot accepts these commands only from the configured maintainer in their private
+chat. Telegram update IDs and command target lists survive restart.
+
+| Command | Result |
+| --- | --- |
+| `/scan factory` | Joins the existing coalesced manual scan; does not enable live admission. |
+| `/status factory` | Shows runs, graph progress, waits, PR references and uncertain operation IDs. |
+| `/status run <run-id>` | Selects one exact durable run. |
+| `/pause factory` | Persists the admission/publication gate, then stops active workers and descendants. |
+| `/resume factory` | Releases that gate and resumes only runs still owned by that factory pause. Manual pauses and subscription/auth waits remain explicit. |
+| `/cancel factory` | Cancels captured current targets and keeps the factory gated until resume. |
+| `/retry factory` | Starts one new bounded attempt for captured failed/cancelled targets; any factory pause remains. |
+| `/pause run <run-id>` | Preserves this run's session, snapshot, evidence and spent budget while stopping descendants. |
+| `/resume run <run-id>` | Continues the retained attempt. After local reauthentication, append `reauthenticated`. |
+| `/cancel run <run-id>` | Stops descendants and retains work, sessions and evidence. |
+| `/retry run <run-id>` | Explicitly starts a fresh bounded attempt for failed/cancelled work, retaining its snapshot/session and normal authorization checks. |
+
+Questions still use their original checkpoint buttons or reply-to message identity.
+Commands do not infer a run from the most recent question. Status never includes
+raw provider errors, prompts, secret environment variables or credentials. Failure
+notices link to a specific retry command; subscription/auth notices explain the
+required resume action. New reviewable heads notify once. Routine polls and
+unchanged states stay quiet. Startup and five-second observations discover missed
+terminal outcomes without starting another coordinator.
+
+Telegram cannot query bot message history or provide a send idempotency key. An
+uncertain send is retained and never automatically resent. `/retry notification
+<operation-id>` gives a specific duplicate-risk warning and a confirmation command.
+The configured maintainer must send that exact confirmation to authorize a resend.
+`/retry triage <operation-id> <step>` uses the same protocol for an unresolved,
+previously approved native GitHub action. Confirmation is bound to that operation
+and step and is recorded before the override; replay cannot repeat it. A lost
+confirmation outcome requires checking the remote destination and making a new
+explicit choice. Triage recovery still checks original approval, current source
+and the factory/run gate. Neither recovery command authorizes a new proposal.
+
+The persistent `workflow.sqlite` owns the factory gate and per-run command receipts;
+`operators.sqlite` owns command targets/responses and external-retry confirmations;
+`telegram.sqlite` owns native offsets, updates and notification receipts. Back up
+all three with the existing service state. Never delete them to resolve uncertainty.
 
 ## Scheduling and recovery
 

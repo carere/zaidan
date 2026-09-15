@@ -41,6 +41,7 @@ export interface PublicationState {
   pullRequest?: PublishedPullRequest;
 }
 export interface StandalonePublicationOptions {
+  assertLiveAction?: () => void;
   git: PublicationGit;
   github: PublicationGitHub;
   /** Idempotent by operationId; publication receipt persists outside worker containers. */
@@ -142,6 +143,7 @@ export async function publishStandaloneRun(
   options: StandalonePublicationOptions,
   runId: string,
 ) {
+  options.assertLiveAction?.();
   const initial = store.read(runId);
   if (initial.noChange) {
     const noChange = initial.noChange;
@@ -247,6 +249,7 @@ export async function publishStandaloneRun(
       if (op.state === "done" && !fresh.closed)
         throw Error("Delivered issue reopened; maintainer reconciliation is required");
       if (!fresh.closed) {
+        options.assertLiveAction?.();
         attempted(op.id);
         await options.github.closeIssue(run.issue.repository, run.issue.number);
       }
@@ -283,6 +286,7 @@ export async function publishStandaloneRun(
     if (head !== candidate.commit) {
       if (head) throw Error("Remote branch moved; candidate must be re-evaluated");
       await refreshStandalone(discovery, run.issue);
+      options.assertLiveAction?.();
       attempted(branch.id);
       await options.git.publishBranch(publication.branch, candidate.commit);
       if ((await options.git.branchHead(publication.branch)) !== candidate.commit)
@@ -296,6 +300,7 @@ export async function publishStandaloneRun(
       await refreshStandalone(discovery, run.issue);
       if ((await options.git.branchHead(publication.branch)) !== candidate.commit)
         throw Error("Branch changed before PR publication");
+      options.assertLiveAction?.();
       attempted(create.id);
       pr = await options.github.createPullRequest({
         repository: run.issue.repository,
@@ -320,6 +325,7 @@ export async function publishStandaloneRun(
     await refreshStandalone(discovery, run.issue);
     const notification = intent("notify");
     if (notification.state !== "done") {
+      options.assertLiveAction?.();
       attempted(notification.id);
       done(
         notification.id,
