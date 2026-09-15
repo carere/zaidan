@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { type DiscoveryAdapter, discoverWork, type ScanResult } from "./discovery.ts";
 import type {
   AnswerInput,
   Clock,
@@ -13,6 +14,7 @@ import type { Operation, WorkflowStore } from "./workflow-store.ts";
 
 export interface IssueWorkflowOptions {
   store: WorkflowStore;
+  discovery?: DiscoveryAdapter;
   engine: WorkflowEngine;
   worker: WorkerAdapter;
   notifications: NotificationAdapter;
@@ -23,6 +25,7 @@ export interface IssueWorkflowOptions {
 export class IssueWorkflow {
   private options: IssueWorkflowOptions;
   private owner = randomUUID();
+  private scanning?: Promise<ScanResult>;
   private clock: Clock;
   constructor(options: IssueWorkflowOptions) {
     this.options = options;
@@ -33,6 +36,21 @@ export class IssueWorkflow {
   }
   admissions() {
     return this.options.store.list();
+  }
+  scan(): Promise<ScanResult> {
+    if (this.scanning) return this.scanning;
+    this.scanning = this.scanOnce().finally(() => {
+      this.scanning = undefined;
+    });
+    return this.scanning;
+  }
+  private async scanOnce(): Promise<ScanResult> {
+    if (!this.options.discovery) throw new Error("Discovery adapter is not configured");
+    await this.reconcileWorkers();
+    await this.recover();
+    const snapshot = await this.options.discovery.read();
+    const briefs = await this.options.discovery.approvedBriefs?.();
+    return discoverWork(snapshot, this.admissions(), briefs);
   }
   async admit(issue: IssueSnapshot) {
     if (!issue.issueId || !issue.revision || !issue.startingRevision || !issue.reviewBase)
@@ -100,32 +118,58 @@ export class IssueWorkflow {
           );
         },
         (current, receipt, ops) => {
-          const outcome = receipt as WorkerOutcome;
-          current.phase = phase;
-          if (outcome.type === "checkpoint") {
-            current.status = "waiting-human";
-            current.checkpoint = {
-              id: `${runId}:checkpoint:${phase}`,
-              phase,
-              question: outcome.question,
-            };
-            ops.push({
-              id: `${current.checkpoint.id}:notify`,
-              kind: "notify",
-              runId,
-              phase,
-              state: "pending",
-            });
-          } else {
-            current.status = outcome.type;
-            if (outcome.type === "completed") current.candidate = outcome.candidate;
-            else current.reason = outcome.reason;
-          }
+          this.applyWorkerOutcome(current, receipt as WorkerOutcome, phase, ops);
         },
       );
     }
     await this.notify(runId);
     return this.observe(runId);
+  }
+  private applyWorkerOutcome(
+    current: RunSnapshot,
+    outcome: WorkerOutcome,
+    phase: number,
+    ops: Operation[],
+  ) {
+    current.phase = phase;
+    if (outcome.type === "checkpoint") {
+      current.status = "waiting-human";
+      current.checkpoint = {
+        id: `${current.runId}:checkpoint:${phase}`,
+        phase,
+        question: outcome.question,
+      };
+      ops.push({
+        id: `${current.checkpoint.id}:notify`,
+        kind: "notify",
+        runId: current.runId,
+        phase,
+        state: "pending",
+      });
+    } else {
+      current.status = outcome.type;
+      if (outcome.type === "completed") current.candidate = outcome.candidate;
+      else current.reason = outcome.reason;
+    }
+  }
+  /** Read known operation receipts without starting or resuming any worker. */
+  private async reconcileWorkers() {
+    for (const run of this.admissions()) {
+      const pending = this.options.store.change(run.runId, (_current, ops) =>
+        ops.filter((op) => (op.kind === "dispatch" || op.kind === "resume") && op.state !== "done"),
+      );
+      for (const intent of pending) {
+        const outcome = await this.options.worker.reconcile(intent.id);
+        if (!outcome) continue;
+        this.options.store.change(run.runId, (current, ops) => {
+          const op = ops.find((item) => item.id === intent.id);
+          if (!op || op.state === "done") return;
+          op.state = "done";
+          op.receipt = outcome;
+          this.applyWorkerOutcome(current, outcome, op.phase, ops);
+        });
+      }
+    }
   }
   private async notify(runId: string) {
     const run = this.observe(runId);

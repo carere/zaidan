@@ -62,8 +62,8 @@ default tools. `createEveEngine({baseUrl})` connects the coordinator to its
 `/factory/engine/{start,find,wake}` routes. The host needs
 `FACTORY_COORDINATOR_URL`; that loopback service routes POST `/factory/drive` to
 `workflow.drive(runId)` and POST `/factory/wake-pending` to
-`workflow.recoverWake(runId)`. Bind both services to loopback. Real discovery and
-operator transports are supplied by later factory tickets.
+`workflow.recoverWake(runId)`. Bind both services to loopback. GitHub discovery is configured at the workflow boundary below; operator
+transports are supplied by later factory tickets.
 
 Run exactly one Eve host for each persistent deployment directory. Build and run
 it from that external directory and preserve its `.eve/.workflow-data` across
@@ -81,3 +81,68 @@ directory; successful fixtures are removed.
 ```sh
 direnv exec "$(git rev-parse --show-toplevel)" moon --cache off run factory:test-eve
 ```
+
+## Read-only GitHub discovery
+
+Configure `IssueWorkflow` with `discovery: createGitHubDiscovery({ repository:
+"carere/zaidan", token })`, then call `workflow.scan()`. The optional token needs
+only Issues read access; keep it in coordinator memory and out of worker mounts
+and logs. The transport uses GET requests with GitHub API version `2026-03-10`.
+It follows every native issues, sub-issues, and blocked-by page and walks linked
+parents and prerequisites, including closed and cross-repository issues. PRs are
+excluded. Authentication, malformed responses, pagination loops, and conflicting
+copies of an issue fail the scan instead of returning partial admissions. Native
+relation totals must match captured lists. A 404 from GitHub's parent endpoint
+denotes no parent only when the issue has no native parent URL; a known but
+unreadable parent fails the scan. Failures from issue lists,
+sub-issue lists and dependency lists are never treated as empty results.
+
+Concurrent calls on a workflow share one scan. Before reading GitHub, scanning
+reconciles existing worker operation receipts and pending engine/notification/wake
+intents. It never dispatches or resumes a new worker. The same durable admission
+store suppresses previously admitted revisions, including completed revisions;
+an earlier active revision blocks a second proposal for that issue. Restarting
+retains those identities. An unreadable worker receipt fails the scan and allows
+the next trigger to retry; it is not evidence that the old worker never ran.
+
+Results contain the complete `snapshot`, per-issue `decisions`, and
+`mode: "read-only"`. Routes are `triage`, `implementation`, `coordinator`,
+`ignored`, `conflict`, `blocked`, or `already-admitted`. These are local outcomes,
+not GitHub labels. Implementation is a routing proposal: graph prerequisites,
+starting Git revisions, consequential-action rechecks, and live rollout gates
+must still approve admission. No scan writes to GitHub or admits a run. Controlled
+fixtures can explicitly pass a decision's `admission` to `admit` with a known `startingRevision`
+and `reviewBase`; the existing admission identity prevents duplicate dispatch.
+The proposed admission captures route, body, approved brief and ancestor
+specification bodies in `sourceContent` for immutable worker resource snapshots.
+
+Only `needs-triage` proposes triage. An unambiguous `ready-for-agent` authorizes
+implementation when its captured body contains substantive scope and acceptance
+sections (for example `What to build` plus `Acceptance criteria`, or
+`Problem Statement` plus `Testing Decisions`). HTML template comments do not count.
+This honors the repository's existing approved specifications without introducing
+a second approval ledger. The optional `approvedBriefs()` adapter method supplies
+already approved triage artifacts such as AGENT-BRIEF.md or a GitHub comment;
+each must identify its source, contain nonempty content and match the issue's
+`contentRevision`. The triage adapter owns obtaining and recording human approval.
+Unsupported or missing briefs produce an explicit blocked outcome.
+
+Parents with native children coordinate rather than implement. Every ancestor
+must have an approved brief and unambiguous `ready-for-agent` before descendant
+implementation is proposed. Parent triage can run while implementation
+prerequisites remain unresolved. Other workflow labels never authorize
+implementation; conflicting canonical labels require maintainer direction.
+
+`issueId` is the stable GitHub node ID; `databaseId` retains the numeric REST ID.
+`contentRevision` hashes title and body for approved-brief matching. Each issue's
+`revision` also covers state/reason, labels, native relation IDs, source/location
+and GitHub update time. The overall snapshot revision includes every issue
+revision. Ordering of pages or labels does not change these identities. Snapshot
+content is captured in the result for later persistence and action rechecks;
+GitHub does not offer an atomic multi-issue snapshot, so consequential actions
+must re-read it. Transport contracts use a real local HTTP server without live
+GitHub writes or model calls.
+
+Native API references: [issues](https://docs.github.com/en/rest/issues/issues),
+[sub-issues](https://docs.github.com/en/rest/issues/sub-issues), and
+[dependencies](https://docs.github.com/en/rest/issues/issue-dependencies).
