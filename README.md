@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/carere/zaidan">
-    <img src="public/favicon.svg" alt="Zaidan Logo" width="10%">
+    <img src="apps/website/public/favicon.svg" alt="Zaidan Logo" width="10%">
   </a>
 
   <h1 style="font-size: 3rem; font-weight: 600;">Zaidan</h1>
@@ -34,6 +34,24 @@ Visit [zaidan.carere.dev](https://zaidan.carere.dev) for:
 - Theming customization
 
 ## Contributing
+
+The repository is a Bun workspace managed by Moon:
+
+- `apps/website`: SolidJS website, component registry, and browser tests.
+- `apps/factory`: Mastra workflows, agents, and Studio. See its [setup guide](apps/factory/README.md).
+
+Install dependencies once at the root with `bun install`. Run tasks from the root:
+
+```sh
+direnv exec "$(git rev-parse --show-toplevel)" moon run website:dev
+direnv exec "$(git rev-parse --show-toplevel)" moon run factory:dev
+direnv exec "$(git rev-parse --show-toplevel)" moon run :check :tsc
+direnv exec "$(git rev-parse --show-toplevel)" moon run website:test website:test-browser
+```
+
+`website:build` rebuilds the registry and website. `factory:build` builds the
+factory server with Studio. Website configuration and static assets live under
+`apps/website`; run direct Vite, Shadcn, or Wrangler commands from that directory.
 
 Contributions are welcome! Feel free to open an issue or submit a pull request on [GitHub](https://github.com/carere/zaidan).
 

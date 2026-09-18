@@ -1,9 +1,28 @@
-$schema: ./.moon/cache/schemas/project.json
+$schema: ../../.moon/cache/schemas/project.json
 
+language: typescript
 stack: frontend
 layer: application
 
 tasks:
+  test:
+    command: bun vitest run
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+
+  content:
+    command: bun velite
+    inputs:
+      - "src/pages/**/*"
+      - "velite.config.ts"
+    outputs:
+      - ".velite/"
+
+  tsc:
+    deps:
+      - "~:content"
+
   test-browser:
     command: bun playwright test
     description: Test rendered registry components in Chromium
@@ -11,6 +30,8 @@ tasks:
       - "@group(sources)"
       - "@group(configs)"
       - "tests/browser/**/*"
+    options:
+      cache: false
 
   dev:
     command: bun vite dev

@@ -1,7 +1,7 @@
 # Rendered component regression tests
 
 Install dependencies with `bun install` and Chromium with `bun playwright install chromium`.
-Run `bun playwright test` (or `bun moon run :test-browser`). Playwright starts and stops
+From the repository root, run `moon run website:test-browser`. Playwright starts and stops
 a local Vite fixture server on port 5174.
 
 The Switch fixture renders the real registry component with the site's Solid, TanStack,

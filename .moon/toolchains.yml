@@ -2,10 +2,15 @@ $schema: ./cache/schemas/toolchains.json
 
 javascript:
   packageManager: bun
+  dependencyVersionFormat: workspace
   inferTasksFromScripts: false
+  syncProjectWorkspaceDependencies: true
 
 bun:
-  version: latest
+  version: "1.4.2"
 
 typescript:
+  # Apps are checked independently with noEmit; neither consumes declarations
+  # from the other. Enable references when shared TypeScript packages are added.
+  syncProjectReferences: false
   routeOutDirToCache: true

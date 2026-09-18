@@ -1,9 +1,9 @@
 $schema: ./cache/schemas/workspace.json
 
 projects:
-  zaidan: "."
+  - "apps/*/moon.yml"
 
-defaultProject: zaidan
+defaultProject: website
 
 vcs:
   defaultBranch: main

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.options.json",
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "types": ["node"],
+    "esModuleInterop": true,
+    "outDir": "../../.moon/cache/types/apps/factory"
+  },
+  "include": ["src/**/*.ts"]
+}
