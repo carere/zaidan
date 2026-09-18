@@ -1,0 +1,27 @@
+$schema: ../../.moon/cache/schemas/project.json
+
+language: typescript
+stack: backend
+layer: application
+
+tasks:
+  dev:
+    command: mastra dev
+    description: Start the factory API and Mastra Studio
+    preset: server
+    inputs: []
+
+  build:
+    command: mastra build --studio
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+    outputs:
+      - ".mastra/output/"
+    type: build
+
+  start:
+    command: mastra start
+    description: Serve the built factory API and Studio
+    preset: server
+    inputs: []

@@ -1,5 +1,7 @@
 /// <reference types="vitest/config" />
 
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwind from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -12,6 +14,9 @@ import { configDefaults } from "vitest/config";
 import { getPrerenderPages } from "./src/lib/prerender-pages.ts";
 import { highlightCode } from "./src/lib/vite-plugins/highlight-code.ts";
 import mdx from "./src/lib/vite-plugins/mdx.ts";
+
+const require = createRequire(import.meta.url);
+const solidRoot = dirname(require.resolve("solid-js/package.json"));
 
 export default defineConfig(({ mode }) => ({
   resolve: {
@@ -88,11 +93,9 @@ export default defineConfig(({ mode }) => ({
         extends: true,
         resolve: {
           alias: {
-            "solid-js/store": new URL("./node_modules/solid-js/store/dist/dev.js", import.meta.url)
-              .pathname,
-            "solid-js/web": new URL("./node_modules/solid-js/web/dist/web.js", import.meta.url)
-              .pathname,
-            "solid-js": new URL("./node_modules/solid-js/dist/dev.js", import.meta.url).pathname,
+            "solid-js/store": join(solidRoot, "store/dist/dev.js"),
+            "solid-js/web": join(solidRoot, "web/dist/web.js"),
+            "solid-js": join(solidRoot, "dist/dev.js"),
           },
         },
         test: {

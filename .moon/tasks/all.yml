@@ -5,9 +5,8 @@ fileGroups:
     - "moon.yml"
     - "package.json"
     - "tsconfig.json"
-    - "biome.json"
     - "knip.json"
-    - "wrangler.jsonc"
+    - "*.jsonc"
     - "*.config.{js,ts,cjs,mjs,mts}"
   sources:
     - "src/**/*"
@@ -17,9 +16,9 @@ fileGroups:
     - "/.moon/workspace.yml"
     - "/biome.json"
     - "/bun.lock"
-    - "/knip.json"
     - "/package.json"
     - "/tsconfig.json"
+    - "/tsconfig.options.json"
 
 implicitInputs:
   - "/.moon/tasks/**/*"
@@ -27,9 +26,9 @@ implicitInputs:
   - "/.moon/workspace.yml"
   - "/biome.json"
   - "/bun.lock"
-  - "/knip.json"
   - "/package.json"
   - "/tsconfig.json"
+  - "/tsconfig.options.json"
 
 tasks:
   check:
@@ -37,6 +36,8 @@ tasks:
 
   fix:
     command: "bun --bun biome check --write --no-errors-on-unmatched ."
+    options:
+      cache: false
 
   tsc:
     command: "bun --bun tsc --noEmit"

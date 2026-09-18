@@ -29,3 +29,7 @@ test-results
 # environment
 .env*
 !**/.env.example
+
+# Mastra build output and local persistence
+.mastra
+apps/factory/**/.data/

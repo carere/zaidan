@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/mastra/index.ts"],
+  "project": ["src/**/*.ts"],
+  "ignoreDependencies": ["mastra"]
+}
