@@ -37,6 +37,7 @@
     "@internationalized/date": "^3.11.0",
     "@kobalte/core": "^0.13.12",
     "@kobalte/utils": "^0.9.2",
+    "@mastra/core": "^1.69.0",
     "@solid-primitives/storage": "^4.4.0",
     "@tanstack/solid-router": "^1.170.18",
     "@tanstack/solid-start": "^1.168.34",
