@@ -8,5 +8,9 @@ followed by `to-tickets` and implementation. Research findings and decision
 resolutions are linked from the map rather than duplicated here.
 
 The working branch is `refactor/solid-2`. The migration pull request remains
-draft while this work proceeds. This initial change only establishes the
-planning entry point; it does not add Solid 2 support.
+draft while this work proceeds. The branch currently contains planning and dependency research; it does not add
+Solid 2 support.
+
+The [October dependency status refresh](solid2-dependency-status.md) records
+current upstream releases, migration PRs and remaining blockers, including the
+released `@lucide/solid` replacement and the pending TanStack rc.13 fixes.
