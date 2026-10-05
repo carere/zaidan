@@ -21,6 +21,12 @@ renders the real registry component and demo. Run it with
 the browser pointer on an option for over one second because Kobalte's delayed
 dismissal can pass an immediate visibility check.
 
+The Radio Group fixture at `/tests/browser/radio-group.html` renders the real docs
+demo and choice cards, plus controlled/uncontrolled form cases. Run it with
+`bun playwright test tests/browser/radio-group.spec.ts`. It covers circle and label
+clicks in all eight styles and both themes, selection stability, disabled/read-only
+states, keyboard navigation, input focus, and native form submission.
+
 The Data Grid fixture at `/tests/browser/data-grid.html` renders the first docs demo.
 Run `bun playwright test tests/browser/data-grid.spec.ts` in Chromium 144+ to check
 wheel and emulated touch page scrolling, horizontal edge containment, and internal

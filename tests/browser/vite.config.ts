@@ -20,6 +20,7 @@ export default defineConfig(async (env) => {
                 "/tests/browser/index.html",
                 "/tests/browser/filters.html",
                 "/tests/browser/data-grid.html",
+                "/tests/browser/radio-group.html",
               ].includes(path)
             ) {
               return next();
