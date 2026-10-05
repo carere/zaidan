@@ -179,8 +179,8 @@ When the list is too large to prefetch, filter by `query` server-side and return
 ## Keyboard
 
 - With `enableShortcut`, pressing `shortcutKey` (default <kbd>F</kbd>) anywhere outside a text field opens the "Add Filter" menu, and `shortcutLabel` renders as a hint inside the search input.
-- The menu search input is a combobox: <kbd>↓</kbd> / <kbd>↑</kbd> move the highlight, <kbd>Enter</kbd> adds the highlighted field, <kbd>→</kbd> opens its sub-menu, <kbd>←</kbd> closes it, and <kbd>Esc</kbd> closes the menu.
-- Inside an options list the same keys move and toggle; `aria-activedescendant` follows the highlight, which is why a virtualized list must keep the highlighted row mounted.
+- The "Add Filter" menu uses the dropdown primitives’ keyboard navigation. Opening by keyboard focuses the search input when present. Type to filter, then press <kbd>↓</kbd> / <kbd>↑</kbd> to move focus into the results. On a field, <kbd>→</kbd> opens its submenu; <kbd>←</kbd> from an option returns focus to its trigger, and <kbd>Esc</kbd> closes the menu.
+- In a submenu, <kbd>↓</kbd> / <kbd>↑</kbd> move between options and <kbd>Enter</kbd> / <kbd>Space</kbd> select or toggle the focused option. Virtualized lists must keep the highlighted row mounted to preserve focus. Existing filter-value editors use a combobox with `aria-activedescendant`.
 
 ## API Reference
 

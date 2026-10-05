@@ -134,7 +134,7 @@ type FilterOptionListRenderProps<T = unknown> = {
   options: FilterOption<T>[];
   // Index into `options` of the keyboard-highlighted row (-1 if none). A
   // virtualized implementation should scroll this row into view and keep it
-  // mounted so the combobox's aria-activedescendant stays valid.
+  // mounted to preserve focus (or aria-activedescendant in a value editor).
   highlightedIndex: number;
   // Renders one option row with the correct id, selection state, highlight, and
   // toggle handler wired to the primitive. Call it for each row you render.
@@ -265,10 +265,6 @@ type FilterSubmenuContentProps<T = unknown> = {
   isMultiSelect: boolean;
   onToggle: (value: T, isSelected: boolean) => void;
   i18n: FilterI18nConfig;
-  isActive?: boolean;
-  onActive?: () => void;
-  onBack?: () => void;
-  onClose?: () => void;
 };
 
 type FiltersContentProps<T = unknown> = {
