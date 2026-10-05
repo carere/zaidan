@@ -15,9 +15,13 @@ export default defineConfig(async (env) => {
           server.middlewares.use(async (req, res, next) => {
             const path = req.url?.split("?")[0];
             if (
-              path !== "/tests/browser/index.html" &&
-              path !== "/tests/browser/filters.html" &&
-              path !== "/tests/browser/radio-group.html"
+              !path ||
+              ![
+                "/tests/browser/index.html",
+                "/tests/browser/filters.html",
+                "/tests/browser/data-grid.html",
+                "/tests/browser/radio-group.html",
+              ].includes(path)
             ) {
               return next();
             }

@@ -26,3 +26,10 @@ demo and choice cards, plus controlled/uncontrolled form cases. Run it with
 `bun playwright test tests/browser/radio-group.spec.ts`. It covers circle and label
 clicks in all eight styles and both themes, selection stability, disabled/read-only
 states, keyboard navigation, input focus, and native form submission.
+
+The Data Grid fixture at `/tests/browser/data-grid.html` renders the first docs demo.
+Run `bun playwright test tests/browser/data-grid.spec.ts` in Chromium 144+ to check
+wheel and emulated touch page scrolling, horizontal edge containment, and internal
+vertical scrolling with chaining at both boundaries of a constrained-height grid.
+Touch input uses Chromium's CDP gesture emulation; physical touch devices and browser
+history gestures are not covered.
