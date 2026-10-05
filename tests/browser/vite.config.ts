@@ -14,7 +14,11 @@ export default defineConfig(async (env) => {
         configureServer(server: ViteDevServer) {
           server.middlewares.use(async (req, res, next) => {
             const path = req.url?.split("?")[0];
-            if (path !== "/tests/browser/index.html" && path !== "/tests/browser/filters.html") {
+            if (
+              path !== "/tests/browser/index.html" &&
+              path !== "/tests/browser/filters.html" &&
+              path !== "/tests/browser/radio-group.html"
+            ) {
               return next();
             }
             const html = await readFile(

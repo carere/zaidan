@@ -1,6 +1,7 @@
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import {
   Item,
+  ItemControl,
   ItemIndicator,
   ItemInput,
   type RadioGroupItemProps as RadioGroupItemPrimitiveProps,
@@ -41,15 +42,21 @@ const RadioGroupItem = <T extends ValidComponent = "div">(props: RadioGroupItemP
     <Item
       data-slot="radio-group-item"
       class={cn(
-        "group/radio-group-item peer relative z-radio-group-item aspect-square shrink-0 border outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        "group/radio-group-item peer relative z-radio-group-item aspect-square shrink-0 border outline-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
         local.class,
       )}
       {...others}
     >
       <ItemInput data-slot="radio-group-item-input" class="peer sr-only" id={local.id} />
-      <ItemIndicator data-slot="radio-group-indicator" class="z-radio-group-indicator">
-        <Circle class="z-radio-group-indicator-icon" />
-      </ItemIndicator>
+      <ItemControl
+        data-slot="radio-group-item-control"
+        class="absolute inset-0 after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:pointer-events-none"
+        onClick={(event) => event.preventDefault()}
+      >
+        <ItemIndicator data-slot="radio-group-indicator" class="z-radio-group-indicator">
+          <Circle class="z-radio-group-indicator-icon" />
+        </ItemIndicator>
+      </ItemControl>
     </Item>
   );
 };
