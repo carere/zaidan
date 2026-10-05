@@ -20,3 +20,10 @@ renders the real registry component and demo. Run it with
 `bun playwright test tests/browser/filters.spec.ts`. Its hover regression rests
 the browser pointer on an option for over one second because Kobalte's delayed
 dismissal can pass an immediate visibility check.
+
+The Data Grid fixture at `/tests/browser/data-grid.html` renders the first docs demo.
+Run `bun playwright test tests/browser/data-grid.spec.ts` in Chromium 144+ to check
+wheel and emulated touch page scrolling, horizontal edge containment, and internal
+vertical scrolling with chaining at both boundaries of a constrained-height grid.
+Touch input uses Chromium's CDP gesture emulation; physical touch devices and browser
+history gestures are not covered.

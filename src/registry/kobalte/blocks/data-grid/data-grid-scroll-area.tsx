@@ -22,12 +22,15 @@ const SCROLLBAR_CLASS =
 const SCROLLBAR_THUMB_CLASS = "bg-border rounded-full relative flex-1";
 
 /**
- * Positioning and overflow behavior Base UI's `ScrollArea` supplies from its
+ * Overflow and native-scrollbar hiding Base UI's `ScrollArea` supplies from its
  * own stylesheet. The block owns the scroll surface here (see the note on
  * `DataGridScrollArea`), so the equivalents are declared explicitly.
+ *
+ * Contain horizontal overscroll while allowing vertical scrolling to reach the
+ * page. Containing the y axis would block chaining even without vertical overflow.
  */
 const VIEWPORT_SCROLL_CLASS =
-  "overflow-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+  "overflow-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
 const SCROLLBAR_POSITION_CLASS = {
   horizontal: "absolute bottom-0 inset-x-0",
